@@ -27,11 +27,12 @@ else
   export OS_PASSWORD=$OS_PASSWORD_INPUT
 fi
 
-echo -n "Name of the user to run [hcf]: "
+DEFAULT_USERNAME=ubuntu   #TODO: Make this hcf
+echo -n "Name of the user to run [$DEFAULT_USERNAME]: "
 read -sr x
 case $x in
-  "") export RUNTIME_USERNAME=hcf ;;
-  *) export RUNTIME_USERNAME=$x ;;
+  "") export RUNTIME_USERNAME=$DEFAULT_USERNAME ;;
+  *) export RUNTIME_USERNAME="$x" ;;
 esac
 
 # If your configuration has multiple regions, we set that information here.

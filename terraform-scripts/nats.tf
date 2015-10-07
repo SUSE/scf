@@ -3,13 +3,15 @@
 
 # minimum terraform script to create an instance on hpcloud and provision
 
-variable "os_user" {
-    description = "${var.cloud_username}"
+variable "os_user" { }
+
+variable "os_password" { }
+
+variable "runtime_username" {
+    default = "ubuntu" #TODO: User should be hcf
 }
 
-variable "os_password" {
-    description = "${var.cloud_password}"
-}
+variable "key_file" { }
 
 provider "openstack" {
 
