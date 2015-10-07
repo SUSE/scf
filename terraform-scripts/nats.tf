@@ -34,15 +34,28 @@ resource "openstack_compute_instance_v2" "nats-poc" {
 
     connection {
           host = "${openstack_networking_floatingip_v2.nats-poc-fip.address}"
-          user = "${var.runtime_username:hcf}"
+          user = "${var.runtime_username}"
           key_file = "${var.key_file}"
     }
     
     provisioner "remote-exec" {
         inline = [
             "sudo apt-get install -y wget",
-    	    "wget -qO- https://get.docker.com | sh",
-	    "docker pull morspin/fibo"  # placeholder for a nats docker image
+            "wget -qO- https://get.docker.com | sh",
+            "sudo usermod -aG docker ubuntu",
+           # We have to reboot since this switches our kernel.
+           "sudo reboot && sleep 10",
+        ]
+    }
+
+    # This is a separate provisioner - this is because Terraform seems to
+    # skip the rest of the commands when you reboot the host. This will cause
+    # a new SSH connection to be created.
+    #
+    # At this point launch the docker processes and do other initialization...
+    provisioner "remote-exec" {
+        inline = [
+            "echo docker is ready", #REPLACE ME
         ]
     }
 }
