@@ -23,7 +23,14 @@ cd $TMP_CONFIG_DIR
 set +x
 echo "Creating kv values"
 for file in $(find . | grep "/value.yml$"); do
-  curl -s -X PUT -d "$(cat $file)" "$CONSUL_ADDRESS""v1/kv""$(dirname $file | sed 's@\.@@' )" 2>&1 > /dev/null
+  output=$(curl -s -X PUT -d "$(cat $file)" "$CONSUL_ADDRESS""v1/kv""$(dirname $file | sed 's@\.@@' )")
+  if [[ $output != "true" ]]; then
+    echo "Creating kv pair failed"
+    echo "Key: $(dirname $file)"
+    echo "Value: $(cat $file)"
+    echo "Output: $output"
+    exit 1
+  fi
 done
 set -x
 
