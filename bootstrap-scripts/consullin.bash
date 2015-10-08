@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+if [[ $# < 2 || -z "$1" || -z "$2" ]]; then
+  echo "Usage: consullin.bash <consul-address> <fissile-config-pack>"
+  exit 1
+fi
+
+TMP_CONFIG_DIR=/tmp/hcf-config-import
+CONSUL_ADDRESS="$1"
+FISSILE_CFG_PACK="$2"
+
+if [[ "$CONSUL_ADDRESS" != */ ]]; then
+  CONSUL_ADDRESS="$CONSUL_ADDRESS/"
+fi
+
+set -x
+
+mkdir -p $TMP_CONFIG_DIR
+tar xzf "$FISSILE_CFG_PACK" -C "$TMP_CONFIG_DIR"
+
+cd $TMP_CONFIG_DIR
+set +x
+echo "Creating kv values"
+for file in $(find . | grep "/value.yml$"); do
+  curl -s -X PUT -d "$(cat $file)" "$CONSUL_ADDRESS""v1/kv""$(dirname $file | sed 's@\.@@' )" 2>&1 > /dev/null
+done
+set -x
+
+rm -r $TMP_CONFIG_DIR
