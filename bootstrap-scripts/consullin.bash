@@ -20,7 +20,6 @@ mkdir -p $TMP_CONFIG_DIR
 tar xzf "$FISSILE_CFG_PACK" -C "$TMP_CONFIG_DIR"
 
 cd $TMP_CONFIG_DIR
-set +x
 echo "Creating kv values"
 for file in $(find . | grep "/value.yml$"); do
   output=$(curl -s -X PUT -d "$(cat $file)" "$CONSUL_ADDRESS""v1/kv""$(dirname $file | sed 's@\.@@' )")
@@ -32,6 +31,5 @@ for file in $(find . | grep "/value.yml$"); do
     exit 1
   fi
 done
-set -x
 
 rm -r $TMP_CONFIG_DIR
