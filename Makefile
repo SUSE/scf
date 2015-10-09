@@ -11,7 +11,15 @@ WORK_DIR=$(PWD)/_work
 RELEASE_DIR=$(WORK_DIR)/release
 TARGET_DIR=$(PWD)/target
 
-all: compile_release
+UBUNTU_IMAGE=ubuntu:14.04.2
+
+REGISTRY_HOST?=15.126.242.125:5000
+
+COMPONENTS=nats 
+
+include version.mk
+
+all: publish_images
 
 .PHONY: all clean setup tools fetch_fissle
 
@@ -24,6 +32,7 @@ setup:
 	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(WORK_DIR)
+	docker pull $(UBUNTU_IMAGE)
 
 fetch_fissle: setup
 	@echo "$(OK_COLOR)==> Looking up latest fissile build$(NO_COLOR)"
@@ -59,11 +68,20 @@ compile_base: fetch_cf_release fetch_configgin
 	-docker rm fissile-cf-$(CF_RELEASE)-cbase
 	-docker rmi fissile:cf-$(CF_RELEASE)-cbase
 
-	_work/fissile comp bb -r $(RELEASE_DIR)
+	_work/fissile compilation build-base -r $(RELEASE_DIR) -b $(UBUNTU_IMAGE)
 
 compile_release: compile_base
 	@echo "$(OK_COLOR)==> Compiling cf-release$(NO_COLOR)"
-	_work/fissile comp st -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target
+	_work/fissile compilation start -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target -b $(UBUNTU_IMAGE)
 
 base_image: compile_release
-	_work/fissile img cb -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -r $(RELEASE_DIR)
+	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -r $(RELEASE_DIR) -b $(UBUNTU_IMAGE)
+
+compile_images: base_image
+	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(VERSION)
+
+publish_images: compile_images
+	@for component in $(COMPONENTS); do \
+		docker tag fissile:cf-$(CF_RELEASE)-$$component $(REGISTRY_HOST)/hcf:cf-$(CF_RELEASE)-$$component; \
+		docker push $(REGISTRY_HOST)/hcf:cf-$(CF_RELEASE)-$$component; \
+	done
