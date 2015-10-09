@@ -1,0 +1,6 @@
+---
+roles:
+  - name: nats
+    jobs:
+      - name: nats
+      - name: nats_stream_forwarder
