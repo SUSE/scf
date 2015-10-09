@@ -12,6 +12,10 @@ variable "key_file" {
 	description = "Private key file for newly created hosts"
 }
 
+variable "cf-release" {
+	default = "217"
+}
+
 variable "openstack_network_id" {}
 variable "openstack_auth_url" {}
 variable "openstack_tenant" {}
@@ -134,3 +138,4 @@ variable "uaa_clients_gorouter_secret" {
 variable "uaa_scim_users" {
 	default = "admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"
 }
+

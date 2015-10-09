@@ -14,7 +14,9 @@ if [[ "$CONSUL_ADDRESS" != */ ]]; then
   CONSUL_ADDRESS="$CONSUL_ADDRESS/"
 fi
 
-set -x
+if [ "$DEBUG" != "" ] ; then
+  set -x
+fi
 
 mkdir -p $TMP_CONFIG_DIR
 tar xzf "$FISSILE_CFG_PACK" -C "$TMP_CONFIG_DIR"
