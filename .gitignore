@@ -4,3 +4,6 @@ _work/
 target/
 password
 *.pem
+*.tfstate*
+*.tfvars
+.terraform/
