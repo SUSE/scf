@@ -53,6 +53,16 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
         inline = [
+            "mkdir $HOME/bin"
+        ]
+    }
+    provisioner "file" {
+        source = "${var.workdir}/gato"
+        destination = "$HOME/bin/gato"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
         "sudo apt-get install -y wget",
         "wget -qO- https://get.docker.com/ | sh",
         "sudo usermod -aG docker ubuntu",
