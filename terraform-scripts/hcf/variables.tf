@@ -17,9 +17,6 @@ variable "cf-release" {
 }
 
 variable "openstack_network_id" {}
-variable "openstack_auth_url" {}
-variable "openstack_tenant" {}
-variable "openstack_username" {}
 variable "openstack_network_id" {}
 variable "openstack_keypair" {}
 
