@@ -67,102 +67,127 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     # start the consul server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0"
+        "docker run -d -P --restart=always --net=host -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0"
         ]
+    }
+
+    # Copies the myapp.conf file to /etc/myapp.conf
+    provisioner "file" {
+        source = "scripts/consullin.bash"
+        destination = "/tmp/consullin.bash"
+    }
+
+    # populate consul
+    provisioner "remote-exec" {
+        inline = [
+        "curl -L https://region-b.geo-1.objects.hpcloudsvc.com/v1/10990308817909/pelerinul/hcf.tar.gz -o /tmp/hcf-config-base.tgz",
+        "bash /tmp/consullin.bash http://127.0.0.1:8500 /tmp/hcf-config-base.tgz"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+curl -X PUT -d '"nats"' http://127.0.0.1:8500/v1/kv/hcf/user/nats/user
+curl -X PUT -d '"goodpass"' http://127.0.0.1:8500/v1/kv/hcf/user/nats/password
+curl -X PUT -d '"monit"' http://127.0.0.1:8500/v1/kv/hcf/user/hcf/monit/user
+curl -X PUT -d '"monitpass"' http://127.0.0.1:8500/v1/kv/hcf/user/hcf/monit/password
+EOF
     }
 
     # start the gnatsd server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always -t apcera/gnatsd"
+        "docker run -d -P --restart=always --net=host -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://127.0.0.1:8500"
         ]
     }
 }
 
-resource "openstack_networking_floatingip_v2" "hcf-uaa-host-fip" {
-  pool = "${var.openstack_floating_ip_pool}"
-}
+# commented out, will be restored shortly.
 
-resource "openstack_compute_instance_v2" "hcf-uaa-host" {
-	depends_on = "openstack_compute_instance_v2.hcf-core-host"
+# resource "openstack_networking_floatingip_v2" "hcf-uaa-host-fip" {
+#   pool = "${var.openstack_floating_ip_pool}"
+# }
 
-    name = "hcf_uaa"
-    flavor_id = "${var.openstack_flavor_id}"
-    image_id = "${var.openstack_base_image_id}"
-    key_pair = "${var.openstack_keypair}"
-    security_groups = [ "default", "hcf-container-host" ]
-    network = { uuid = "${var.openstack_network_id}" }
+# resource "openstack_compute_instance_v2" "hcf-uaa-host" {
+# 	depends_on = "openstack_compute_instance_v2.hcf-core-host"
 
-	floating_ip = "${openstack_networking_floatingip_v2.hcf-uaa-host-fip.address}"
+#     name = "hcf_uaa"
+#     flavor_id = "${var.openstack_flavor_id}"
+#     image_id = "${var.openstack_base_image_id}"
+#     key_pair = "${var.openstack_keypair}"
+#     security_groups = [ "default", "hcf-container-host" ]
+#     network = { uuid = "${var.openstack_network_id}" }
 
-    connection {
-        host = "${openstack_networking_floatingip_v2.hcf-uaa-host-fip.address}"
-        user = "ubuntu"
-        key_file = "${var.key_file}"
-    }
+# 	floating_ip = "${openstack_networking_floatingip_v2.hcf-uaa-host-fip.address}"
 
-    provisioner "remote-exec" {
-        inline = [
-        "sudo apt-get install -y wget",
-        "wget -qO- https://get.docker.com/ | sh",
-        "sudo usermod -aG docker ubuntu",
-        # allow us to pull from the docker registry
-        # TODO: this needs to be removed when we publish to Docker Hub
-        "echo DOCKER_OPTS=\\\"--insecure-registry ${var.registry_host}\\\" | sudo tee -a /etc/default/docker",
-        # We have to reboot since this switches our kernel.        
-        "sudo reboot && sleep 10",
-        ]
-    }
+#     connection {
+#         host = "${openstack_networking_floatingip_v2.hcf-uaa-host-fip.address}"
+#         user = "ubuntu"
+#         key_file = "${var.key_file}"
+#     }
 
-    # start the UAA server here
-    provisioner "remote-exec" {
-        inline = [
-        "docker ps"
-        ]
-    }
-}
+#     provisioner "remote-exec" {
+#         inline = [
+#         "sudo apt-get install -y wget",
+#         "wget -qO- https://get.docker.com/ | sh",
+#         "sudo usermod -aG docker ubuntu",
+#         # allow us to pull from the docker registry
+#         # TODO: this needs to be removed when we publish to Docker Hub
+#         "echo DOCKER_OPTS=\\\"--insecure-registry ${var.registry_host}\\\" | sudo tee -a /etc/default/docker",
+#         # We have to reboot since this switches our kernel.        
+#         "sudo reboot && sleep 10",
+#         ]
+#     }
 
-resource "openstack_networking_floatingip_v2" "hcf-dea-host-fip" {
-  pool = "${var.openstack_floating_ip_pool}"
-  count = "${var.dea_count}"
-}
+#     # start the UAA server here
+#     provisioner "remote-exec" {
+#         inline = [
+#         "docker ps"
+#         ]
+#     }
+# }
 
-resource "openstack_compute_instance_v2" "hcf-dea-host" {
-	depends_on = "openstack_compute_instance_v2.hcf-uaa-host"
+# resource "openstack_networking_floatingip_v2" "hcf-dea-host-fip" {
+#   pool = "${var.openstack_floating_ip_pool}"
+#   count = "${var.dea_count}"
+# }
 
-    name = "hcf_dea_${count.index}"
-    flavor_id = "${var.openstack_flavor_id}"
-    image_id = "${var.openstack_base_image_id}"
-    key_pair = "${var.openstack_keypair}"
-    security_groups = [ "default", "hcf-container-host" ]
-    network = { uuid = "${var.openstack_network_id}" }
-    count = "${var.dea_count}"
+# resource "openstack_compute_instance_v2" "hcf-dea-host" {
+# 	depends_on = "openstack_compute_instance_v2.hcf-uaa-host"
 
-	floating_ip = "${element(openstack_networking_floatingip_v2.hcf-dea-host-fip.*.address,0)}"
+#     name = "hcf_dea_${count.index}"
+#     flavor_id = "${var.openstack_flavor_id}"
+#     image_id = "${var.openstack_base_image_id}"
+#     key_pair = "${var.openstack_keypair}"
+#     security_groups = [ "default", "hcf-container-host" ]
+#     network = { uuid = "${var.openstack_network_id}" }
+#     count = "${var.dea_count}"
 
-    connection {
-        host = "${element(openstack_networking_floatingip_v2.hcf-dea-host-fip.*.address,0)}"
-        user = "ubuntu"
-        key_file = "${var.key_file}"
-    }
+# 	floating_ip = "${element(openstack_networking_floatingip_v2.hcf-dea-host-fip.*.address,0)}"
 
-    provisioner "remote-exec" {
-        inline = [
-        "sudo apt-get install -y wget",
-        "wget -qO- https://get.docker.com/ | sh",
-        "sudo usermod -aG docker ubuntu",
-        # allow us to pull from the docker registry
-        # TODO: this needs to be removed when we publish to Docker Hub
-        "echo DOCKER_OPTS=\\\"--insecure-registry ${var.registry_host}\\\" | sudo tee -a /etc/default/docker",
-        # We have to reboot since this switches our kernel.        
-        "sudo reboot && sleep 10",
-        ]
-    }
+#     connection {
+#         host = "${element(openstack_networking_floatingip_v2.hcf-dea-host-fip.*.address,0)}"
+#         user = "ubuntu"
+#         key_file = "${var.key_file}"
+#     }
 
-    # start the DEA server here
-    provisioner "remote-exec" {
-        inline = [
-        "docker ps"
-        ]
-    }
-}
+#     provisioner "remote-exec" {
+#         inline = [
+#         "sudo apt-get install -y wget",
+#         "wget -qO- https://get.docker.com/ | sh",
+#         "sudo usermod -aG docker ubuntu",
+#         # allow us to pull from the docker registry
+#         # TODO: this needs to be removed when we publish to Docker Hub
+#         "echo DOCKER_OPTS=\\\"--insecure-registry ${var.registry_host}\\\" | sudo tee -a /etc/default/docker",
+#         # We have to reboot since this switches our kernel.        
+#         "sudo reboot && sleep 10",
+#         ]
+#     }
+
+#     # start the DEA server here
+#     provisioner "remote-exec" {
+#         inline = [
+#         "docker ps"
+#         ]
+#     }
+# }

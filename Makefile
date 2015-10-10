@@ -82,6 +82,6 @@ compile_images: base_image
 
 publish_images: compile_images
 	@for component in $(COMPONENTS); do \
-		docker tag fissile:cf-$(CF_RELEASE)-$$component $(REGISTRY_HOST)/hcf:cf-$(CF_RELEASE)-$$component; \
-		docker push $(REGISTRY_HOST)/hcf:cf-$(CF_RELEASE)-$$component; \
+		docker tag -f fissile:cf-v$(CF_RELEASE)-$$component $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
+		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
 	done
