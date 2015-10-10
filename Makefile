@@ -21,7 +21,7 @@ include version.mk
 
 all: publish_images
 
-.PHONY: all clean setup tools fetch_fissle
+.PHONY: all clean setup tools fetch_fissle fetch_gato
 
 clean:
 	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
@@ -50,7 +50,13 @@ fetch_configgin: setup
 	$(eval LATEST_CONFIGGIN_BUILD="$(shell swift list -l configgin | grep -v babysitter | grep linux-x86_64.tgz | cut -c 14-33,34- | sort | tail -1)")
 	swift download --output $(WORK_DIR)/configgin.tar.gz configgin $(shell echo $(LATEST_CONFIGGIN_BUILD) | cut -c 21-)
 
-tools: fetch_fissle fetch_configgin
+fetch_gato:
+	@echo -e "$(OK_COLOR)==> Fetching gato $(CF_RELEASE)$(NO_COLOR)"
+	$(eval LATEST_GATO_BUILD="$(shell swift list -l gato | grep /build/gato | cut -c 14-33,34- | sort | tail -1)")
+	swift download --output $(WORK_DIR)/gato gato $(shell echo $(LATEST_GATO_BUILD) | cut -c 21-)
+	chmod +x $(WORK_DIR)/gato
+
+tools: fetch_fissle fetch_configgin fetch_gato
 	$(WORK_DIR)/fissile
 
 images: setup compile_release

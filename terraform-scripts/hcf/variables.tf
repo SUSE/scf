@@ -134,3 +134,7 @@ variable "uaa_clients_gorouter_secret" {
 variable "uaa_scim_users" {
 	default = "admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"
 }
+
+variable "workdir" {
+	description = "Location of output files to copy upstream, like configgin and gato"
+}
