@@ -58,7 +58,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     }
     provisioner "file" {
         source = "${var.workdir}/gato"
-        destination = "$HOME/bin/"
+        destination = "$HOME/bin/gato"
     }
 
     provisioner "remote-exec" {
