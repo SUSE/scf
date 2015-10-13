@@ -35,6 +35,13 @@ resource "openstack_networking_floatingip_v2" "hcf-core-host-fip" {
   pool = "${var.openstack_floating_ip_pool}"
 }
 
+resource "openstack_blockstorage_volume_v1" "hcf-core-vol" {
+  name = "hcf-core-vol"
+  description = "Helion Cloud Foundry Core"
+  size = "${var.core_volume_size}"
+  availability_zone = "${var.openstack_availability_zone}"
+}
+
 resource "openstack_compute_instance_v2" "hcf-core-host" {
     name = "hcf_core"
     flavor_id = "${var.openstack_flavor_id}"
@@ -42,8 +49,13 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     key_pair = "${var.openstack_keypair}"
     security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.name}" ]
     network = { uuid = "${var.openstack_network_id}" }
+    availability_zone = "${var.openstack_availability_zone}"
 
 	floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
+
+    volume = {
+        volume_id = "${openstack_blockstorage_volume_v1.hcf-core-vol.id}"
+    }
 
     connection {
         host = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
@@ -51,53 +63,139 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
         key_file = "${var.key_file}"
     }
 
+    # format the blockstorage volume
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+DEVICE=$(http_proxy= curl -Ss --fail http://169.254.169.254/2009-04-04/meta-data/block-device-mapping/ebs0)
+DEVICE1=$(http_proxy= curl -Ss --fail http://169.254.169.254/2009-04-04/meta-data/block-device-mapping/ebs0)1
+echo Mounting at $DEVICE
+sudo mkdir -p /data
+sudo parted -s -- $DEVICE unit MB mklabel gpt
+sudo parted -s -- $DEVICE unit MB mkpart primary 2048s -0
+sudo mkfs.ext4 $DEVICE1
+echo $DEVICE1 /data ext4 defaults 0 2 | sudo tee -a /etc/fstab
+sudo mount /data
+EOF
+    }
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+sudo apt-get install -y wget
+sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+echo deb https://apt.dockerproject.org/repo ubuntu-trusty main | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
+sudo apt-get purge -y lxc-docker*
+sudo apt-get install -y docker-engine=1.8.3-0~trusty
+sudo usermod -aG docker ubuntu
+# allow us to pull from the docker registry
+# TODO: this needs to be removed when we publish to Docker Hub
+echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -s devicemapper\" | sudo tee -a /etc/default/docker
+# We have to reboot since this switches our kernel.        
+sudo reboot && sleep 10
+EOF
+    }
+
     provisioner "remote-exec" {
         inline = [
-        "sudo apt-get install -y wget",
-        "wget -qO- https://get.docker.com/ | sh",
-        "sudo usermod -aG docker ubuntu",
-        # allow us to pull from the docker registry
-        # TODO: this needs to be removed when we publish to Docker Hub
-        "echo DOCKER_OPTS=\\\"--insecure-registry ${var.registry_host}\\\" | sudo tee -a /etc/default/docker",
-        # We have to reboot since this switches our kernel.        
-        "sudo reboot && sleep 10",
+        "sudo mkdir -p /opt/hcf/etc",
+        "sudo mkdir -p /data/hcf-consul"
         ]
     }
 
-    # start the consul server
+    # configure consul
+    provisioner "file" {
+        source = "scripts/consul.json"
+        destination = "/tmp/consul.json"
+    }
+
+    # start the HCF consul server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0"
+        "sudo mv /tmp/consul.json /opt/hcf/etc/consul.json",
+        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
         ]
     }
 
-    # Copies the myapp.conf file to /etc/myapp.conf
+    # populate HCF consul
     provisioner "file" {
         source = "scripts/consullin.bash"
         destination = "/tmp/consullin.bash"
     }
 
-    # populate consul
     provisioner "remote-exec" {
         inline = [
         "curl -L https://region-b.geo-1.objects.hpcloudsvc.com/v1/10990308817909/pelerinul/hcf.tar.gz -o /tmp/hcf-config-base.tgz",
-        "bash /tmp/consullin.bash http://127.0.0.1:8500 /tmp/hcf-config-base.tgz"
+        "bash /tmp/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
         ]
     }
 
     provisioner "remote-exec" {
         inline = <<EOF
-curl -X PUT -d '"nats"' http://127.0.0.1:8500/v1/kv/hcf/user/nats/user
-curl -X PUT -d '"goodpass"' http://127.0.0.1:8500/v1/kv/hcf/user/nats/password
-curl -X PUT -d '"monit"' http://127.0.0.1:8500/v1/kv/hcf/user/hcf/monit/user
-curl -X PUT -d '"monitpass"' http://127.0.0.1:8500/v1/kv/hcf/user/hcf/monit/password
+curl -X PUT -d '"nats"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/user
+curl -X PUT -d '"goodpass"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/password
+curl -X PUT -d '"monit"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/user
+curl -X PUT -d '"monitpass"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/password
 EOF
     }
 
     # start the gnatsd server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://127.0.0.1:8500"
+        "docker run -d -P --restart=always --net=host --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://127.0.0.1:8501"
+        ]
+    }
+
+    # start the CF consul server
+    provisioner "remote-exec" {
+        inline = [
+        "sudo mkdir -p /data/cf-consul"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d -P --restart=always --net=host --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://127.0.0.1:8501"
+        ]
+    }
+
+    # start the etcd server
+    provisioner "remote-exec" {
+        inline = [
+        "sudo mkdir -p /data/cf-etcd"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://127.0.0.1:8501"
+        ]
+    }
+
+    # start the nfs server
+    provisioner "remote-exec" {
+        inline = [
+        "sudo mkdir -p /data/cf-nfs"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d -P --restart=always --net=host --name cf-nfs -v /data/cf-nfs:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nfs:latest http://127.0.0.1:8501"
+        ]
+    }
+
+    # start the postgresql server
+    provisioner "remote-exec" {
+        inline = [
+        "sudo mkdir -p /data/cf-postgres"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d -P --restart=always --net=host --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://127.0.0.1:8501"
         ]
     }
 }

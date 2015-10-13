@@ -19,6 +19,7 @@ variable "cf-release" {
 variable "openstack_network_id" {}
 variable "openstack_network_id" {}
 variable "openstack_keypair" {}
+variable "openstack_availability_zone" {}
 
 variable "openstack_flavor_id" {
 	default = "102"
@@ -34,6 +35,10 @@ variable "openstack_floating_ip_pool" {
 
 variable "dea_count" {
 	default = "1"
+}
+
+variable "core_volume_size" {
+	default = "40"
 }
 
 # Secrets
