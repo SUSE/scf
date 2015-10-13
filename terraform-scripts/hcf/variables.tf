@@ -22,7 +22,7 @@ variable "openstack_keypair" {}
 variable "openstack_availability_zone" {}
 
 variable "openstack_flavor_id" {
-	default = "102"
+	default = "104"
 }
 
 variable "openstack_base_image_id" {
