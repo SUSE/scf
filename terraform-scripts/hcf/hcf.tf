@@ -97,6 +97,31 @@ sudo reboot && sleep 10
 EOF
     }
 
+    #
+    # gato
+    #
+
+    # pull down gato
+    provisioner "file" {
+        source = "scripts/gato"
+        destination = "/tmp/gato"
+    }
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+sudo mv /tmp/gato /usr/local/bin/gato
+sudo chmod +x /usr/local/bin/gato
+docker pull ${var.registry_host}/hcf/hcf-gato
+/usr/local/bin/gato --version
+EOF
+    }
+
+    #
+    # HCF consul
+    #
+
+    # configure consul
     provisioner "remote-exec" {
         inline = [
         "sudo mkdir -p /opt/hcf/etc",
@@ -104,7 +129,6 @@ EOF
         ]
     }
 
-    # configure consul
     provisioner "file" {
         source = "scripts/consul.json"
         destination = "/tmp/consul.json"
@@ -163,7 +187,11 @@ curl -X PUT -d '2848' http://127.0.0.1:8501/v1/kv/hcf/role/smoke_tests/hcf/monit
 EOF
     }
 
-    # start the gnatsd server
+    #
+    # nats
+    #
+
+    # start the nats server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://127.0.0.1:8501"
@@ -190,6 +218,10 @@ EOF
         ]
     }
 
+    #
+    # etcd
+    #
+
     # start the etcd server
     provisioner "remote-exec" {
         inline = [
@@ -202,6 +234,10 @@ EOF
         "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://127.0.0.1:8501"
         ]
     }
+
+    #
+    # nfs
+    #
 
     # start the nfs server
     provisioner "remote-exec" {
@@ -216,6 +252,10 @@ EOF
         ]
     }
 
+    #
+    # postgresql
+    #
+
     # start the postgresql server
     provisioner "remote-exec" {
         inline = [
@@ -229,12 +269,20 @@ EOF
         ]        
     }
 
+    #
+    # stats
+    #
+
     # start the stats server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # ha_proxy
+    #
 
     # start the ha_proxy server
     provisioner "remote-exec" {
@@ -243,12 +291,20 @@ EOF
         ]        
     }
 
+    #
+    # uaa
+    #
+
     # start the uaa server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # api
+    #
 
     # start the api server
     provisioner "remote-exec" {
@@ -257,12 +313,20 @@ EOF
         ]        
     }
 
+    #
+    # clock_global
+    #
+
     # start the clock_global server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # api_worker
+    #
 
     # start the api_worker server
     provisioner "remote-exec" {
@@ -271,12 +335,20 @@ EOF
         ]        
     }
 
+    #
+    # hm9000
+    #
+
     # start the hm9000 server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # doppler
+    #
 
     # start the doppler server
     provisioner "remote-exec" {
@@ -285,12 +357,20 @@ EOF
         ]        
     }
 
+    #
+    # loggregator
+    #
+
     # start the loggregator server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # loggregator_trafficcontroller
+    #
 
     # start the loggregator_trafficcontroller server
     provisioner "remote-exec" {
@@ -299,12 +379,20 @@ EOF
         ]        
     }
 
+    #
+    # router
+    #
+
     # start the router server
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://127.0.0.1:8501"
         ]        
     }
+
+    #
+    # runner
+    #
 
     # start the runner server
     provisioner "remote-exec" {
