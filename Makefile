@@ -15,7 +15,7 @@ UBUNTU_IMAGE=ubuntu:14.04.2
 
 REGISTRY_HOST?=15.126.242.125:5000
 
-COMPONENTS=nats 
+COMPONENTS=uaa stats smoke_tests runner router postgres nfs nats loggregator_trafficcontroller loggregator hm9000 ha_proxy etcd doppler consul clock_global api_worker api acceptance_tests
 
 include version.mk
 
@@ -57,10 +57,20 @@ images: setup compile_release
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
 	make -C images all
 
-fetch_cf_release: fetch_fissle
-	@echo "$(OK_COLOR)==> Fetching cf-release $(CF_RELEASE)$(NO_COLOR)"
+# intentionally not contained in the normal build workflow - this is used
+# so that we can fetch and cache a cf-release when we update to a new build.
+fetch_new_cf_release:
+	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from bosh.io$(NO_COLOR)"
 
-	curl -L "$(CF_RELEASE_LOCATION)" -o $(WORK_DIR)/cf-release.tar.gz 
+	curl -L "$(CF_RELEASE_LOCATION)" -o $(WORK_DIR)/cf-release-v$(CF_RELEASE).tar.gz
+
+	@echo "$(OK_COLOR)==> Uploading cf-release-$(CF_RELEASE) to Swift$(NO_COLOR)"
+	cd $(WORK_DIR) ; swift upload cf-release cf-release-v$(CF_RELEASE).tar.gz
+
+fetch_cf_release: fetch_fissle
+	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from Swift$(NO_COLOR)"
+
+	swift download cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(WORK_DIR)/cf-release.tar.gz 
 	mkdir -p $(RELEASE_DIR) && cd $(RELEASE_DIR) && tar zxf ../cf-release.tar.gz
 
 compile_base: fetch_cf_release fetch_configgin
@@ -68,20 +78,20 @@ compile_base: fetch_cf_release fetch_configgin
 	-docker rm fissile-cf-$(CF_RELEASE)-cbase
 	-docker rmi fissile:cf-$(CF_RELEASE)-cbase
 
-	_work/fissile compilation build-base -r $(RELEASE_DIR) -b $(UBUNTU_IMAGE)
+	_work/fissile compilation build-base -b $(UBUNTU_IMAGE)
 
 compile_release: compile_base
 	@echo "$(OK_COLOR)==> Compiling cf-release$(NO_COLOR)"
-	_work/fissile compilation start -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target -b $(UBUNTU_IMAGE)
+	_work/fissile compilation start -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target
 
 base_image: compile_release
-	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -r $(RELEASE_DIR) -b $(UBUNTU_IMAGE)
+	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -b $(UBUNTU_IMAGE)
 
 compile_images: base_image
 	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(VERSION)
 
 publish_images: compile_images
-	@for component in $(COMPONENTS); do \
-		docker tag -f fissile:cf-v$(CF_RELEASE)-$$component $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
+	for component in $(COMPONENTS); do \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
 	done
