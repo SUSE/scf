@@ -1,0 +1,7 @@
+openstack_availability_zone = "az1"
+openstack_keypair = "<your keypair>"
+openstack_network_id = "<your network id>"
+key_file = "<your local private key file location>"
+
+router_ssl_cert_file = "foo" # will fill in later with actual cert location
+router_ssl_key_file = "foo" # will fill in later with actual cert location
