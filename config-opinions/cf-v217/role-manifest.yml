@@ -9,12 +9,10 @@ roles:
   - name: routing-api
   - name: statsd-injector
   - name: consul_agent
-  - name: nfs_mounter
 - name: api_worker
   jobs:
   - name: cloud_controller_worker
   - name: consul_agent
-  - name: nfs_mounter
 - name: clock_global
   jobs:
   - name: cloud_controller_clock
@@ -47,9 +45,6 @@ roles:
   jobs:
   - name: nats
   - name: nats_stream_forwarder
-- name: nfs
-  jobs:
-  - name: debian_nfs_server
 - name: postgres
   jobs:
   - name: postgres
