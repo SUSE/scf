@@ -410,12 +410,6 @@ EOF
         "docker run -d -P --restart=always --net=host --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://127.0.0.1:8501"
         ]        
     }
-    
-    provisioner "remote-exec" {
-        inline = [
-            "docker run -d -P --restart=always --net=host --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://127.0.0.1:8501"
-        ]
-    }
 }
 
 # commented out, will be restored shortly.
