@@ -198,7 +198,6 @@ curl -X PUT -d '2831' http://127.0.0.1:8501/v1/kv/hcf/role/nats/hcf/monit/port
 curl -X PUT -d '2832' http://127.0.0.1:8501/v1/kv/hcf/role/etcd/hcf/monit/port
 curl -X PUT -d '2833' http://127.0.0.1:8501/v1/kv/hcf/role/stats/hcf/monit/port
 curl -X PUT -d '2834' http://127.0.0.1:8501/v1/kv/hcf/role/ha_proxy/hcf/monit/port
-curl -X PUT -d '2835' http://127.0.0.1:8501/v1/kv/hcf/role/nfs/hcf/monit/port
 curl -X PUT -d '2836' http://127.0.0.1:8501/v1/kv/hcf/role/postgres/hcf/monit/port
 curl -X PUT -d '2837' http://127.0.0.1:8501/v1/kv/hcf/role/uaa/hcf/monit/port
 curl -X PUT -d '2838' http://127.0.0.1:8501/v1/kv/hcf/role/api/hcf/monit/port
@@ -260,23 +259,6 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://127.0.0.1:8501"
-        ]
-    }
-
-    #
-    # nfs
-    #
-
-    # start the nfs server
-    provisioner "remote-exec" {
-        inline = [
-        "sudo mkdir -p /data/cf-nfs"
-        ]
-    }
-
-    provisioner "remote-exec" {
-        inline = [
-        "docker run -d -P --restart=always --net=host --name cf-nfs -v /data/cf-nfs:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nfs:latest http://127.0.0.1:8501"
         ]
     }
 
