@@ -15,7 +15,7 @@ UBUNTU_IMAGE=ubuntu:14.04.2
 
 REGISTRY_HOST?=15.126.242.125:5000
 
-COMPONENTS=uaa stats smoke_tests runner router postgres nfs nats loggregator_trafficcontroller loggregator hm9000 ha_proxy etcd doppler consul clock_global api_worker api acceptance_tests
+COMPONENTS=uaa stats smoke_tests runner router postgres nats loggregator_trafficcontroller loggregator hm9000 ha_proxy etcd doppler consul clock_global api_worker api acceptance_tests
 
 include version.mk
 
