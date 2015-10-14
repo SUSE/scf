@@ -25,7 +25,7 @@ echo "Generate intermediate CA CSR"
 openssl req -config intermediate_openssl.cnf -new -sha256 \
   -key intermediate/private/intermediate.key.pem \
   -out intermediate/csr/intermediate.csr.pem \
-  -subj '/C=US/ST=Washington/L=Seattle/Hewlett-Packard Enterprise/OU=Helion Cloud Foundry/CN=Intermediate Self-Signing Authority/' \
+  -subj '/C=US/ST=Washington/L=Seattle/O=Hewlett-Packard Enterprise/OU=Helion Cloud Foundry/CN=Intermediate Self-Signing Authority/' \
   -passin pass:foobar \
   -passout pass:foobar 
 
