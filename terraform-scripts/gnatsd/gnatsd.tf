@@ -14,6 +14,8 @@ variable "runtime_username" {
 
 variable "key_file" { }
 
+variable "key_pair" { }
+
 provider "openstack" {
 
 }
@@ -25,7 +27,7 @@ resource "openstack_networking_floatingip_v2" "gnatsd-poc-fip" {
 resource "openstack_compute_instance_v2" "gnatsd-poc" {
     name = "gnatsd-poc"
     flavor_id = "102"
-    key_pair = "ericp01"
+    key_pair = "${var.key_pair}"
     image_id = "564be9dd-5a06-4a26-ba50-9453f972e483"  #*
     # image name: "Ubuntu Server 14.04.1 LTS (amd64 20150706) - Partner Image"
     floating_ip = "${openstack_networking_floatingip_v2.gnatsd-poc-fip.address}" #*
