@@ -3,7 +3,7 @@ provider "openstack" {
 }
 
 resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
-    name = "hcf-container-host"
+    name = "hcf-container-host-secgroup"
     description = "HCF Container Hosts"
     rule {
         from_port = 1
