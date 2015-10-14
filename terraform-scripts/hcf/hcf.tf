@@ -63,6 +63,34 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
         key_file = "${var.key_file}"
     }
 
+    provisioner "remote-exec" {
+        inline = [
+        "mkdir /tmp/ca"
+        ]
+    }
+
+    # pull down gato
+    provisioner "file" {
+        source = "cert/"
+        destination = "/tmp/ca/"
+    }    
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+CERT_DIR=/home/ubuntu/ca
+
+mv /tmp/ca $CERT_DIR
+cd $CERT_DIR
+
+bash generate_root.sh
+bash generate_intermediate.sh
+
+bash generate_host.sh hcf-root "*.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.xip.io"
+
+EOF
+    }
+
     # format the blockstorage volume
     provisioner "remote-exec" {
         inline = <<EOF
