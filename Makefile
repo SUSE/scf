@@ -20,7 +20,7 @@ COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller l
 
 include version.mk
 
-all: publish_images
+all: images publish_images
 
 .PHONY: all clean setup tools fetch_fissle
 
@@ -54,7 +54,7 @@ fetch_configgin: setup
 tools: fetch_fissle fetch_configgin
 	$(WORK_DIR)/fissile
 
-images: setup compile_release
+images: setup tools
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
 	make -C images all
 
