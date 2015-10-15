@@ -1,8 +1,8 @@
 ---
 roles:
-- name: acceptance_tests
-  jobs:
-  - name: acceptance-tests
+#- name: acceptance_tests
+#  jobs:
+#  - name: acceptance-tests
 - name: api
   jobs:
   - name: cloud_controller_ng
@@ -16,6 +16,7 @@ roles:
 - name: clock_global
   jobs:
   - name: cloud_controller_clock
+  - name: consul_agent
 - name: consul
   jobs:
   - name: consul_agent
@@ -23,10 +24,12 @@ roles:
   jobs:
   - name: doppler
   - name: syslog_drain_binder
+  - name: consul_agent
 - name: etcd
   jobs:
   - name: etcd
   - name: etcd_metrics_server
+  - name: consul_agent
 - name: ha_proxy
   jobs:
   - name: haproxy
@@ -34,10 +37,12 @@ roles:
 - name: hm9000
   jobs:
   - name: hm9000
+  - name: consul_agent
 - name: loggregator
   jobs:
   - name: doppler
   - name: syslog_drain_binder
+  - name: consul_agent
 - name: loggregator_trafficcontroller
   jobs:
   - name: loggregator_trafficcontroller
@@ -45,9 +50,11 @@ roles:
   jobs:
   - name: nats
   - name: nats_stream_forwarder
+  - name: consul_agent
 - name: postgres
   jobs:
   - name: postgres
+  - name: consul_agent
 - name: router
   jobs:
   - name: gorouter
@@ -56,13 +63,15 @@ roles:
   jobs:
   - name: dea_next
   - name: dea_logging_agent
-- name: smoke_tests
-  jobs:
-  - name: smoke-tests
+#- name: smoke_tests
+#  jobs:
+#  - name: smoke-tests
 - name: stats
   jobs:
   - name: collector
+  - name: consul_agent
 - name: uaa
   jobs:
   - name: uaa
   - name: consul_agent
+
