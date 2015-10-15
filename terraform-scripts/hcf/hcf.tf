@@ -158,7 +158,7 @@ EOF
     }
 
     provisioner "file" {
-        source = "scripts/consul.json"
+        source = "config/consul.json"
         destination = "/tmp/consul.json"
     }
 
