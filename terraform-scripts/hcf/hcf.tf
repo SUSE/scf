@@ -65,11 +65,25 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
         inline = [
-        "mkdir /tmp/ca"
+        "mkdir /tmp/ca",
+        "sudo mkdir -p /opt/hcf/bin",
+        "sudo chown ubuntu:ubuntu /opt/hcf/bin"
         ]
     }
 
-    # pull down gato
+    # Install scripts and binaries
+    provisioner "file" {
+        source = "scripts/"
+        destination = "/opt/hcf/bin/"
+    }
+
+    provisioner "remote-exec" {
+      inline = [
+      "sudo chmod ug+x /opt/hcf/bin/*",
+      "echo 'export PATH=$PATH:/opt/hcf/bin' | sudo tee /etc/profile.d/hcf.sh"
+      ]
+    }
+
     provisioner "file" {
         source = "cert/"
         destination = "/tmp/ca/"
@@ -128,21 +142,8 @@ EOF
     #
     # gato
     #
-
-    # pull down gato
-    provisioner "file" {
-        source = "scripts/gato"
-        destination = "/tmp/gato"
-    }
-
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-sudo mv /tmp/gato /usr/local/bin/gato
-sudo chmod +x /usr/local/bin/gato
-docker pull ${var.registry_host}/hcf/hcf-gato
-/usr/local/bin/gato --version
-EOF
+        inline = ["docker pull ${var.registry_host}/hcf/hcf-gato"]
     }
 
     #
@@ -158,7 +159,7 @@ EOF
     }
 
     provisioner "file" {
-        source = "scripts/consul.json"
+        source = "config/consul.json"
         destination = "/tmp/consul.json"
     }
 
@@ -166,52 +167,23 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "sudo mv /tmp/consul.json /opt/hcf/etc/consul.json",
-        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
+        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
         ]
-    }
-
-    # populate HCF consul
-    provisioner "file" {
-        source = "scripts/consullin.bash"
-        destination = "/tmp/consullin.bash"
     }
 
     provisioner "remote-exec" {
         inline = [
         "curl -L https://region-b.geo-1.objects.hpcloudsvc.com/v1/10990308817909/pelerinul/hcf.tar.gz -o /tmp/hcf-config-base.tgz",
-        "bash /tmp/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
+        "bash /opt/hcf/bin/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
         ]
     }
 
+    # Send script to set up consul-based services, health checks, and assign
+    # monit ports (until we stop using docker --net host)
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e        
-curl -X PUT -d '"nats"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/user
-curl -X PUT -d '"goodpass"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/password
-curl -X PUT -d '"monit"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/user
-curl -X PUT -d '"monitpass"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/password
-
-# configure monit ports
-curl -X PUT -d '{"name": "consul-monit", "address": "127.0.0.1", "port": 2830, "tags": ["monit"]}' http://127.0.0.1:8501/v1/agent/service/register
-curl -X PUT -d '2830' http://127.0.0.1:8501/v1/kv/hcf/role/consul/hcf/monit/port
-curl -X PUT -d '2831' http://127.0.0.1:8501/v1/kv/hcf/role/nats/hcf/monit/port
-curl -X PUT -d '2832' http://127.0.0.1:8501/v1/kv/hcf/role/etcd/hcf/monit/port
-curl -X PUT -d '2833' http://127.0.0.1:8501/v1/kv/hcf/role/stats/hcf/monit/port
-curl -X PUT -d '2834' http://127.0.0.1:8501/v1/kv/hcf/role/ha_proxy/hcf/monit/port
-curl -X PUT -d '2836' http://127.0.0.1:8501/v1/kv/hcf/role/postgres/hcf/monit/port
-curl -X PUT -d '2837' http://127.0.0.1:8501/v1/kv/hcf/role/uaa/hcf/monit/port
-curl -X PUT -d '2838' http://127.0.0.1:8501/v1/kv/hcf/role/api/hcf/monit/port
-curl -X PUT -d '2839' http://127.0.0.1:8501/v1/kv/hcf/role/clock_global/hcf/monit/port
-curl -X PUT -d '2840' http://127.0.0.1:8501/v1/kv/hcf/role/api_worker/hcf/monit/port
-curl -X PUT -d '2841' http://127.0.0.1:8501/v1/kv/hcf/role/hm9000/hcf/monit/port
-curl -X PUT -d '2842' http://127.0.0.1:8501/v1/kv/hcf/role/doppler/hcf/monit/port
-curl -X PUT -d '2843' http://127.0.0.1:8501/v1/kv/hcf/role/loggregator/hcf/monit/port
-curl -X PUT -d '2844' http://127.0.0.1:8501/v1/kv/hcf/role/loggregator_trafficcontroller/hcf/monit/port
-curl -X PUT -d '2845' http://127.0.0.1:8501/v1/kv/hcf/role/router/hcf/monit/port
-curl -X PUT -d '2846' http://127.0.0.1:8501/v1/kv/hcf/role/runner/hcf/monit/port
-curl -X PUT -d '2847' http://127.0.0.1:8501/v1/kv/hcf/role/acceptance_tests/hcf/monit/port
-curl -X PUT -d '2848' http://127.0.0.1:8501/v1/kv/hcf/role/smoke_tests/hcf/monit/port
-EOF
+        inline = [
+        "bash /opt/hcf/bin/service_registration.bash"
+        ]
     }
 
     #
