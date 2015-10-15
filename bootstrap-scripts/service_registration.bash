@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -e
 
 monit_user='monit'
@@ -10,6 +12,7 @@ curl -X PUT -d '"'${monit_pass}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/moni
 function register_service_and_monit {
   service_name="$1"
   monit_port="$2"
+  job_names="$@"
 
   # Register service with health check
   curl -X PUT -d '@-' http://127.0.0.1:8501/v1/agent/service/register <<EOM
@@ -17,7 +20,7 @@ function register_service_and_monit {
     "name": "${service_name}", "tags": ["${service_name}"],
     "check": {
       "id": "${service_name}_check", "interval": "30s",
-      "script": "[ 0 = \"\`curl -s -u '${monit_user}:${monit_pass}' 'http://127.0.0.1:${monit_port}/_status?format=xml' | xmlstarlet sel -t -m \"monit/service[name='${service_name}']\" -v status\`\" ]"
+      "script": "check_health ${monit_user} ${monit_pass} ${monit_port} ${job_names}"
     }
   }
 EOM
@@ -29,7 +32,7 @@ EOM
     "port": ${monit_port},
     "check": {
       "id": "${service_name}_monit_check", "interval": "30s",
-      "http": "http://${monit_user}:${monit_pass}@127.0.0.1:${monit_port}"
+      "http": "http://${monit_user}:${monit_pass}@127.0.0.1:${monit_port}/_status"
     }
   }
 EOM
@@ -38,8 +41,8 @@ EOM
   curl -X PUT -d "${monit_port}" "http://127.0.0.1:8501/v1/kv/hcf/role/${service_name}/hcf/monit/port"
 }
 
-register_service_and_monit "consul" "2830"
-register_service_and_monit "nats" "2831"
+register_service_and_monit "consul" "2830" "consul"
+register_service_and_monit "nats" "2831" "nats"
 register_service_and_monit "etcd" "2832"
 register_service_and_monit "stats" "2833"
 register_service_and_monit "ha_proxy" "2834"
