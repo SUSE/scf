@@ -47,7 +47,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     flavor_id = "${var.openstack_flavor_id}"
     image_id = "${var.openstack_base_image_id}"
     key_pair = "${var.openstack_keypair}"
-    security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.name}" ]
+    security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.id}" ]
     network = { uuid = "${var.openstack_network_id}" }
     availability_zone = "${var.openstack_availability_zone}"
 
