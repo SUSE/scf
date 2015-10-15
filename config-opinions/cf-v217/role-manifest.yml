@@ -34,10 +34,6 @@ roles:
 - name: hm9000
   jobs:
   - name: hm9000
-- name: loggregator
-  jobs:
-  - name: doppler
-  - name: syslog_drain_binder
 - name: loggregator_trafficcontroller
   jobs:
   - name: loggregator_trafficcontroller

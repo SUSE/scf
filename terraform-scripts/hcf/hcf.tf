@@ -205,7 +205,6 @@ curl -X PUT -d '2839' http://127.0.0.1:8501/v1/kv/hcf/role/clock_global/hcf/moni
 curl -X PUT -d '2840' http://127.0.0.1:8501/v1/kv/hcf/role/api_worker/hcf/monit/port
 curl -X PUT -d '2841' http://127.0.0.1:8501/v1/kv/hcf/role/hm9000/hcf/monit/port
 curl -X PUT -d '2842' http://127.0.0.1:8501/v1/kv/hcf/role/doppler/hcf/monit/port
-curl -X PUT -d '2843' http://127.0.0.1:8501/v1/kv/hcf/role/loggregator/hcf/monit/port
 curl -X PUT -d '2844' http://127.0.0.1:8501/v1/kv/hcf/role/loggregator_trafficcontroller/hcf/monit/port
 curl -X PUT -d '2845' http://127.0.0.1:8501/v1/kv/hcf/role/router/hcf/monit/port
 curl -X PUT -d '2846' http://127.0.0.1:8501/v1/kv/hcf/role/runner/hcf/monit/port
@@ -364,17 +363,6 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "docker run -d -P --restart=always --net=host --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:latest http://127.0.0.1:8501"
-        ]        
-    }
-
-    #
-    # loggregator
-    #
-
-    # start the loggregator server
-    provisioner "remote-exec" {
-        inline = [
-        "docker run -d -P --restart=always --net=host --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://127.0.0.1:8501"
         ]        
     }
 
