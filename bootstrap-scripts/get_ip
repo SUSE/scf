@@ -1,0 +1,2 @@
+#!/bin/bash
+ip addr show dev eth0 | grep "inet " | cut -d ' ' -f 6  | cut -f 1 -d '/'
