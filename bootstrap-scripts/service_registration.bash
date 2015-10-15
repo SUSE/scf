@@ -10,8 +10,9 @@ curl -X PUT -d '"'${monit_user}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/moni
 curl -X PUT -d '"'${monit_pass}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/password
 
 function register_service_and_monit {
-  service_name="$1"
-  monit_port="$2"
+  monit_port="$1"
+  service_name="$2"
+  shift 2
   job_names="$@"
 
   # Register service with health check
@@ -41,22 +42,21 @@ EOM
   curl -X PUT -d "${monit_port}" "http://127.0.0.1:8501/v1/kv/hcf/role/${service_name}/hcf/monit/port"
 }
 
-register_service_and_monit "consul" "2830" "consul"
-register_service_and_monit "nats" "2831" "nats"
-register_service_and_monit "etcd" "2832"
-register_service_and_monit "stats" "2833"
-register_service_and_monit "ha_proxy" "2834"
-register_service_and_monit "nfs" "2835"
-register_service_and_monit "postgres" "2836"
-register_service_and_monit "uaa" "2837"
-register_service_and_monit "api" "2838"
-register_service_and_monit "clock_global" "2839"
-register_service_and_monit "api_worker" "2840"
-register_service_and_monit "hm9000" "2841"
-register_service_and_monit "doppler" "2842"
-register_service_and_monit "loggregator" "2843"
-register_service_and_monit "loggregator_trafficcontroller" "2844"
-register_service_and_monit "router" "2845"
-register_service_and_monit "runner" "2846"
-register_service_and_monit "acceptance_tests" "2847"
-register_service_and_monit "smoke_tests" "2848"
+register_service_and_monit "2830" "consul" "consul" 
+register_service_and_monit "2831" "nats" "nats" "nats_stream_forwarder"
+register_service_and_monit "2832" "etcd" "etcd" "etcd_metrics_server"
+register_service_and_monit "2833" "stats" "collector"
+register_service_and_monit "2834" "ha_proxy" "haxproxy" "consul_agent"
+register_service_and_monit "2835" "postgres" "postgres"
+register_service_and_monit "2836" "uaa" "uaa" "consul_agent"
+register_service_and_monit "2837" "api" "cloud_controller_ng" "routing-api" "statsd-injector" "consul_agent"
+register_service_and_monit "2838" "clock_global" "cloud_controller_clock"
+register_service_and_monit "2839" "api_worker" "cloud_controller_worker" "consul_agent"
+register_service_and_monit "2840" "hm9000" "hm9000"
+register_service_and_monit "2841" "doppler" "doppler" "syslog_drain_binder"
+register_service_and_monit "2842" "loggregator" "doppler" "syslog_drain_binder"
+register_service_and_monit "2843" "loggregator_trafficcontroller" "loggregator_trafficcontroller"
+register_service_and_monit "2844" "router" "gorouter" "consul_agent"
+register_service_and_monit "2845" "runner" "dea_next" "dea_logging_agent"
+register_service_and_monit "2846" "acceptance_tests" "acceptance-tests"
+register_service_and_monit "2847" "smoke_tests" "smoke-tests"
