@@ -8,9 +8,11 @@ roles:
   - name: cloud_controller_ng
   - name: routing-api
   - name: statsd-injector
+  - name: consul_agent
 - name: api_worker
   jobs:
   - name: cloud_controller_worker
+  - name: consul_agent
 - name: clock_global
   jobs:
   - name: cloud_controller_clock
@@ -28,6 +30,7 @@ roles:
 - name: ha_proxy
   jobs:
   - name: haproxy
+  - name: consul_agent
 - name: hm9000
   jobs:
   - name: hm9000
@@ -48,6 +51,7 @@ roles:
 - name: router
   jobs:
   - name: gorouter
+  - name: consul_agent
 - name: runner
   jobs:
   - name: dea_next
@@ -61,3 +65,4 @@ roles:
 - name: uaa
   jobs:
   - name: uaa
+  - name: consul_agent
