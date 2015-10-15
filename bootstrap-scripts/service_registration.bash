@@ -4,8 +4,8 @@ monit_user='monit'
 monit_pass='monitpass'
 curl -X PUT -d '"nats"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/user
 curl -X PUT -d '"goodpass"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/password
-curl -X PUT -d '"${monit_user}"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/user
-curl -X PUT -d '"${monit_pass}"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/password
+curl -X PUT -d '"'${monit_user}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/user
+curl -X PUT -d '"'${monit_pass}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/password
 
 function register_service_and_monit {
   service_name="$1"
@@ -17,7 +17,7 @@ function register_service_and_monit {
     "name": "${service_name}", "tags": ["${service_name}"],
     "check": {
       "id": "${service_name}_check", "interval": "30s",
-      "script": "curl -s -u '${monit_user}:${monit_pass}' 'http://127.0.0.1:${monit_port}/_status?format=xml' | xmlstarlet sel -t -m \"monit/service[name='ping1']\" -v status"
+      "script": "[ 0 = \"\`curl -s -u '${monit_user}:${monit_pass}' 'http://127.0.0.1:${monit_port}/_status?format=xml' | xmlstarlet sel -t -m \"monit/service[name='${service_name}']\" -v status\`\" ]"
     }
   }
 EOM
