@@ -65,11 +65,25 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
         inline = [
-        "mkdir /tmp/ca"
+        "mkdir /tmp/ca",
+        "sudo mkdir -p /opt/hcf/bin",
+        "sudo chown ubuntu:ubuntu /opt/hcf/bin"
         ]
     }
 
-    # pull down gato
+    # Install scripts and binaries
+    provisioner "file" {
+        source = "scripts/"
+        destination = "/opt/hcf/bin/"
+    }
+
+    provisioner "remote-exec" {
+      inline = [
+      "sudo chmod ug+x /opt/hcf/bin/*",
+      "echo 'export PATH=$PATH:/opt/hcf/bin' | sudo tee /etc/profile.d/hcf.sh"
+      ]
+    }
+
     provisioner "file" {
         source = "cert/"
         destination = "/tmp/ca/"
@@ -128,21 +142,8 @@ EOF
     #
     # gato
     #
-
-    # pull down gato
-    provisioner "file" {
-        source = "scripts/gato"
-        destination = "/tmp/gato"
-    }
-
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-sudo mv /tmp/gato /usr/local/bin/gato
-sudo chmod +x /usr/local/bin/gato
-docker pull ${var.registry_host}/hcf/hcf-gato
-/usr/local/bin/gato --version
-EOF
+        inline = ["docker pull ${var.registry_host}/hcf/hcf-gato"]
     }
 
     #
@@ -166,32 +167,22 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "sudo mv /tmp/consul.json /opt/hcf/etc/consul.json",
-        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
+        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
         ]
-    }
-
-    # populate HCF consul
-    provisioner "file" {
-        source = "scripts/consullin.bash"
-        destination = "/tmp/consullin.bash"
     }
 
     provisioner "remote-exec" {
         inline = [
         "curl -L https://region-b.geo-1.objects.hpcloudsvc.com/v1/10990308817909/pelerinul/hcf.tar.gz -o /tmp/hcf-config-base.tgz",
-        "bash /tmp/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
+        "bash /opt/hcf/bin/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
         ]
     }
 
     # Send script to set up consul-based services, health checks, and assign
     # monit ports (until we stop using docker --net host)
-    provisioner "file" {
-        source = "scripts/service_registration.bash"
-        destination = "/tmp/service_registration.bash"
-    }
     provisioner "remote-exec" {
         inline = [
-        "bash /tmp/service_registration.bash"
+        "bash /opt/hcf/bin/service_registration.bash"
         ]
     }
 
