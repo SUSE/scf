@@ -81,6 +81,9 @@ variable "uaadb_username" {
 variable "uaadb_password" {
 	default = "uaaadmin_password"
 }
+variable "uaadb_tag" {
+	default = "admin"
+}
 
 variable "domain" {
 	default = "xip.io"
@@ -143,6 +146,21 @@ variable "uaa_clients_gorouter_secret" {
 	default = "gorouter_secret"
 }
 variable "uaa_scim_users" {
-	default = "admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"
+	default = "[\"admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose\"]"
 }
 
+variable "doppler_zone" {
+	default = "z1"
+}
+
+variable "loggregator_traffic_controller_zone" {
+	default = "z1"
+}
+
+variable "signing_key_passphrase" {
+	default = "foobar"
+}
+
+variable "service_provider_key_passphrase" {
+	default = "foobar"
+}
