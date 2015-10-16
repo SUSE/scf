@@ -133,7 +133,7 @@ sudo apt-get install -y docker-engine=1.8.3-0~trusty
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -s devicemapper\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
 # We have to reboot since this switches our kernel.        
 sudo reboot && sleep 10
 EOF
@@ -167,14 +167,14 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "sudo mv /tmp/consul.json /opt/hcf/etc/consul.json",
-        "docker run -d -P --restart=always --net=host --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
+        "docker run -d -P --restart=always -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t ${var.registry_host}/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json"
         ]
     }
 
     provisioner "remote-exec" {
         inline = [
         "curl -L https://region-b.geo-1.objects.hpcloudsvc.com/v1/10990308817909/pelerinul/hcf.tar.gz -o /tmp/hcf-config-base.tgz",
-        "bash /opt/hcf/bin/consullin.bash http://127.0.0.1:8501 /tmp/hcf-config-base.tgz"
+        "bash /opt/hcf/bin/consullin.bash http://`/opt/hcf/bin/get_ip`:8501 /tmp/hcf-config-base.tgz"
         ]
     }
 
@@ -193,7 +193,7 @@ EOF
     # start the nats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -203,17 +203,17 @@ EOF
 set -e
 sudo mkdir -p /data/cf-consul
 
-curl -X PUT -d 'false' http://127.0.0.1:8501/v1/kv/hcf/user/consul/require_ssl
-curl -X PUT -d '["${openstack_compute_instance_v2.hcf-core-host.access_ip_v4}"]' http://127.0.0.1:8501/v1/kv/hcf/user/consul/agent/servers/lan
-curl -X PUT -d '[]' http://127.0.0.1:8501/v1/kv/hcf/user/consul/encrypt_keys
+curl -X PUT -d 'false' http://`/opt/hcf/bin/get_ip`:8501/v1/kv/hcf/user/consul/require_ssl
+curl -X PUT -d '["${openstack_compute_instance_v2.hcf-core-host.access_ip_v4}"]' http://`/opt/hcf/bin/get_ip`:8501/v1/kv/hcf/user/consul/agent/servers/lan
+curl -X PUT -d '[]' http://`/opt/hcf/bin/get_ip`:8501/v1/kv/hcf/user/consul/encrypt_keys
 
-curl -X PUT -d '"server"' http://127.0.0.1:8501/v1/kv/hcf/role/consul/consul/agent/mode
+curl -X PUT -d '"server"' http://`/opt/hcf/bin/get_ip`:8501/v1/kv/hcf/role/consul/consul/agent/mode
 EOF
     }
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -230,7 +230,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -247,7 +247,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -258,7 +258,7 @@ EOF
     # start the stats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -269,7 +269,7 @@ EOF
     # start the ha_proxy server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -280,7 +280,7 @@ EOF
     # start the uaa server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -291,7 +291,7 @@ EOF
     # start the api server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-api -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-api -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -302,7 +302,7 @@ EOF
     # start the clock_global server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -313,7 +313,7 @@ EOF
     # start the api_worker server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-api_worker -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-api_worker -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -324,7 +324,7 @@ EOF
     # start the hm9000 server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -335,7 +335,7 @@ EOF
     # start the doppler server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -346,7 +346,7 @@ EOF
     # start the loggregator server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -357,7 +357,7 @@ EOF
     # start the loggregator_trafficcontroller server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -368,7 +368,7 @@ EOF
     # start the router server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -379,7 +379,7 @@ EOF
     # start the runner server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://127.0.0.1:8501"
+        "docker run -d -P --restart=always --net=host --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 }
