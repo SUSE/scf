@@ -29,6 +29,12 @@ resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
         ip_protocol = "tcp"
         cidr = "0.0.0.0/0"
     }
+    rule {
+        from_port = 443
+        to_port = 443
+        ip_protocol = "tcp"
+        cidr = "0.0.0.0/0"
+    }
 }
 
 resource "openstack_networking_floatingip_v2" "hcf-core-host-fip" {
@@ -193,7 +199,7 @@ EOF
     # start the nats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --restart=always -p 4222:4222 -p 6222:6222 -p 8222:8222 --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -213,7 +219,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --restart=always -p 8301:8301 -p 8302:8302 -p 8400:8400 -p 8500:8500 -p 8600:8600 --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -230,7 +236,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --restart=always -p 2379:2379 -p 2380:2380 --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]
     }
 
@@ -247,7 +253,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --restart=always -p 5432:5432 --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
@@ -368,7 +374,7 @@ EOF
     # start the router server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --restart=always --net=host --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --restart=always -p 80:80 -p 443:443 --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://`/opt/hcf/bin/get_ip`:8501"
         ]        
     }
 
