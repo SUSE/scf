@@ -18,6 +18,8 @@ roles:
   - name: cloud_controller_clock
   - name: consul_agent
 - name: consul
+  scripts:
+  - consul_startup.sh
   jobs:
   - name: consul_agent
 - name: doppler
