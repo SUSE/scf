@@ -49,11 +49,15 @@ roles:
   jobs:
   - name: loggregator_trafficcontroller
 - name: nats
+  scripts:
+  - write_dns_health_check_nats.sh
   jobs:
   - name: nats
   - name: nats_stream_forwarder
   - name: consul_agent
 - name: postgres
+  scripts:
+  - write_dns_health_check_postgres.sh
   jobs:
   - name: postgres
   - name: consul_agent
