@@ -139,7 +139,7 @@ sudo apt-get install -y docker-engine=1.8.3-0~trusty
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
 # We have to reboot since this switches our kernel.        
 sudo reboot && sleep 10
 EOF
