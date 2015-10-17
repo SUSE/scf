@@ -243,7 +243,7 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 /opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/role/doppler/doppler/zone \"${var.doppler_zone}\"
-
+/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator/doppler/zone \"${var.doppler_zone}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/bulk_api_password \"${var.bulk_api_password}\"
 
 # combine the certs, so we can insert them into ha_proxy's config
@@ -287,6 +287,9 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/databases '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]' http://127.0.0.1:8501/v1/kv/
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/port '5524'
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}","tag": "${var.ccdb_role_tag}"}, {"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag":"${var.uaadb_tag}"}]'  http://127.0.0.1:8501/v1/kv/
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
 EOF
     }    
 
@@ -304,7 +307,7 @@ EOF
     # start the nats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 4222:4222 -p 6222:6222 -p 8222:8222 --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2831:2831 -p 4222:4222 -p 6222:6222 -p 8222:8222 --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 1"
         ]
     }
 
@@ -318,7 +321,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 8301:8301 -p 8302:8302 -p 8400:8400 -p 8500:8500 -p 8600:8600 --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2830:2830 -p 8301:8301 -p 8302:8302 -p 8400:8400 -p 8500:8500 -p 8600:8600 --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 2"
         ]
     }
 
@@ -335,7 +338,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 2379:2379 -p 2380:2380 --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2832:2832 -p 2379:2379 -p 2380:2380 --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 3"
         ]
     }
 
@@ -352,7 +355,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 5432:5432 -p 5542:5542 --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2835:2835 -p 5432:5432 -p 5542:5542 --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 4"
         ]        
     }
 
@@ -363,7 +366,7 @@ EOF
     # start the stats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2833:2833 --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 5"
         ]        
     }
 
@@ -374,7 +377,7 @@ EOF
     # start the ha_proxy server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 80:80 -p 443:443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2834:2834 -p 80:80 -p 443:443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 6"
         ]        
     }
 
@@ -385,7 +388,7 @@ EOF
     # start the uaa server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 8080:8080 --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2836:2836 -p 8080:8080 --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 7"
         ]        
     }
 
@@ -396,7 +399,7 @@ EOF
     # start the api server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2837:2837 -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 8"
         ]        
     }
 
@@ -407,7 +410,7 @@ EOF
     # start the clock_global server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2838:2838 --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 9"
         ]        
     }
 
@@ -418,7 +421,7 @@ EOF
     # start the api_worker server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-api_worker -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2839:2839 --name cf-api_worker -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 10"
         ]        
     }
 
@@ -429,7 +432,7 @@ EOF
     # start the hm9000 server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2840:2840 --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 11"
         ]        
     }
 
@@ -440,7 +443,7 @@ EOF
     # start the doppler server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2841:2841 --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 12"
         ]        
     }
 
@@ -451,7 +454,7 @@ EOF
     # start the loggregator server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2847:2847 --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 13"
         ]        
     }
 
@@ -462,7 +465,7 @@ EOF
     # start the loggregator_trafficcontroller server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2842:2842 --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 14"
         ]        
     }
 
@@ -473,7 +476,7 @@ EOF
     # start the router server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2843:2843 --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 15"
         ]        
     }
 
@@ -484,7 +487,7 @@ EOF
     # start the runner server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d -P --cgroup-parent=instance --restart=always --net=host --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://`/opt/hcf/bin/get_ip`:8501"
+        "docker run -d -P --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2844:2844 --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 16"
         ]        
     }
 }

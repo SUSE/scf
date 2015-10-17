@@ -38,6 +38,10 @@ variable "openstack_floating_ip_pool" {
 	default = "Ext-Net"
 }
 
+variable "dns_server" {
+	default = "8.8.8.8"
+}
+
 variable "dea_count" {
 	default = "1"
 }
