@@ -66,9 +66,12 @@ roles:
   - name: gorouter
   - name: consul_agent
 - name: runner
+  scripts:
+  - write_dns_health_check_runner.sh
   jobs:
   - name: dea_next
   - name: dea_logging_agent
+  - name: consul_agent
 #- name: smoke_tests
 #  jobs:
 #  - name: smoke-tests
