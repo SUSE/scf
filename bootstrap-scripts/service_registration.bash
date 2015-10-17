@@ -4,6 +4,7 @@ set -e
 
 monit_user='monit'
 monit_pass='monitpass'
+monit_addr=$(/opt/hcf/bin/get_ip)
 curl -X PUT -d '"nats"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/user
 curl -X PUT -d '"goodpass"' http://127.0.0.1:8501/v1/kv/hcf/user/nats/password
 curl -X PUT -d '"'${monit_user}'"' http://127.0.0.1:8501/v1/kv/hcf/user/hcf/monit/user
@@ -21,7 +22,7 @@ function register_service_and_monit {
     "name": "${service_name}", "tags": ["${service_name}"],
     "check": {
       "id": "${service_name}_check", "interval": "30s",
-      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_port} ${job_names}"
+      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_addr} ${monit_port} ${job_names}"
     }
   }
 EOM
@@ -33,7 +34,7 @@ EOM
     "port": ${monit_port},
     "check": {
       "id": "${service_name}_monit_check", "interval": "30s",
-      "http": "http://${monit_user}:${monit_pass}@127.0.0.1:${monit_port}/_status"
+      "http": "http://${monit_user}:${monit_pass}@${monit_addr}:${monit_port}/_status"
     }
   }
 EOM
