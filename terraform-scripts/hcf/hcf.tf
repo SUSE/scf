@@ -203,7 +203,7 @@ set -e
 export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/consul/require_ssl false
-/opt/hcf/bin/set-config $CONSUL hcf/user/consul/agent/servers/lan '[]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/consul/agent/servers/lan [\"`/opt/hcf/bin/get_ip`\"]
 /opt/hcf/bin/set-config $CONSUL hcf/user/consul/encrypt_keys '[]'
 /opt/hcf/bin/set-config $CONSUL hcf/role/consul/consul/agent/mode \"server\"
 
