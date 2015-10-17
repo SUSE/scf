@@ -4,7 +4,7 @@ monit_user="$1"
 monit_pass="$2"
 monit_addr="$3"
 monit_port="$4"
-shift 3
+shift 4
 job_names="$@"
 
 is_unhealthy=0
