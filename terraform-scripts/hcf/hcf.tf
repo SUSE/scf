@@ -265,7 +265,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path '/var/vcap/store'
+/opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/store\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/default_stack 'lucid64'
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
 
