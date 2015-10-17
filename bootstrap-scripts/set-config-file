@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+CONSUL_HOST=$1
+CONFIG_KEY=$2
+VALUE_FILE=$3
+
+TEMP_FILE=$(mktemp --suffix=.yml)
+echo "--- |" > $TEMP_FILE
+cat $VALUE_FILE | sed s/^/\ \ / >> $TEMP_FILE
+
+curl -X PUT --data-binary @$TEMP_FILE $CONSUL_HOST/v1/kv/$CONFIG_KEY
+
+rm $TEMP_FILE

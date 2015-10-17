@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+CONSUL_HOST=$1
+CONFIG_KEY=$2
+shift 2
+VALUE=$*
+
+curl -X PUT -d "$VALUE" $CONSUL_HOST/v1/kv/$CONFIG_KEY
