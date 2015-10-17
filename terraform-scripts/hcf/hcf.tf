@@ -304,17 +304,6 @@ EOF
     # it will attempt to modify iptables and the /proc file system, which is not allowed in a container. This changes
     # the Docker cgroup parent name to /instance instead of /docker.
 
-    #
-    # nats
-    #
-
-    # start the nats server
-    provisioner "remote-exec" {
-        inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2831:2831 -p 4222:4222 -p 6222:6222 -p 8222:8222 --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 1"
-        ]
-    }
-
     # start the CF consul server
     #
     provisioner "remote-exec" {
@@ -326,6 +315,28 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2830:2830 -p 8301:8301 -p 8302:8302 -p 8400:8400 -p 8500:8500 -p 8600:8600 --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 2"
+        ]
+    }
+
+    #
+    # api
+    #
+
+    # start the api server
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2837:2837 -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 0"
+        ]        
+    }
+
+    #
+    # nats
+    #
+
+    # start the nats server
+    provisioner "remote-exec" {
+        inline = [
+        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2831:2831 -p 4222:4222 -p 6222:6222 -p 8222:8222 --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 1"
         ]
     }
 
@@ -393,17 +404,6 @@ EOF
     provisioner "remote-exec" {
         inline = [
         "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2836:2836 -p 8080:8080 --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 7"
-        ]        
-    }
-
-    #
-    # api
-    #
-
-    # start the api server
-    provisioner "remote-exec" {
-        inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2837:2837 -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 8"
         ]        
     }
 
