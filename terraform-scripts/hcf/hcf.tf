@@ -294,6 +294,8 @@ rm $TEMP_CERT
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd/machines '["etcd.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/role/runner/consul/agent/services/dea_next '{}'
 EOF
     }    
 
