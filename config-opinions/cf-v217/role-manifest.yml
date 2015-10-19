@@ -1,8 +1,9 @@
 ---
 roles:
-#- name: acceptance_tests
-#  jobs:
-#  - name: acceptance-tests
+- name: acceptance_tests
+  is_task: true
+  jobs:
+  - name: acceptance-tests
 - name: api
   jobs:
   - name: cloud_controller_ng
@@ -85,9 +86,10 @@ roles:
   - name: dea_logging_agent
   - name: consul_agent
   - name: metron_agent
-#- name: smoke_tests
-#  jobs:
-#  - name: smoke-tests
+- name: smoke_tests
+  is_task: true
+  jobs:
+  - name: smoke-tests
 - name: stats
   scripts:
   - write_dns_health_check_stats.sh
