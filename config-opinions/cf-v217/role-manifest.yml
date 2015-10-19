@@ -9,45 +9,54 @@ roles:
   - name: routing-api
   - name: statsd-injector
   - name: consul_agent
+  - name: metron_agent
 - name: api_worker
   jobs:
   - name: cloud_controller_worker
   - name: consul_agent
+  - name: metron_agent
 - name: clock_global
   jobs:
   - name: cloud_controller_clock
   - name: consul_agent
+  - name: metron_agent
 - name: consul
   scripts:
   - consul_startup.sh
   jobs:
   - name: consul_agent
+  - name: metron_agent
 - name: doppler
+  scripts:
+  - write_dns_health_check_doppler.sh
   jobs:
   - name: doppler
   - name: syslog_drain_binder
   - name: consul_agent
+  - name: metron_agent
 - name: etcd
   jobs:
   - name: etcd
   - name: etcd_metrics_server
   - name: consul_agent
+  - name: metron_agent
 - name: ha_proxy
   jobs:
   - name: haproxy
   - name: consul_agent
+  - name: metron_agent
 - name: hm9000
   jobs:
   - name: hm9000
   - name: consul_agent
-- name: loggregator
-  jobs:
-  - name: doppler
-  - name: syslog_drain_binder
-  - name: consul_agent
+  - name: metron_agent
 - name: loggregator_trafficcontroller
+  scripts:
+  - write_dns_health_check_trafficcontroller.sh
   jobs:
   - name: loggregator_trafficcontroller
+  - name: consul_agent
+  - name: metron_agent
 - name: nats
   scripts:
   - write_dns_health_check_nats.sh
@@ -55,16 +64,19 @@ roles:
   - name: nats
   - name: nats_stream_forwarder
   - name: consul_agent
+  - name: metron_agent
 - name: postgres
   scripts:
   - write_dns_health_check_postgres.sh
   jobs:
   - name: postgres
   - name: consul_agent
+  - name: metron_agent
 - name: router
   jobs:
   - name: gorouter
   - name: consul_agent
+  - name: metron_agent
 - name: runner
   scripts:
   - write_dns_health_check_runner.sh
@@ -72,15 +84,20 @@ roles:
   - name: dea_next
   - name: dea_logging_agent
   - name: consul_agent
+  - name: metron_agent
 #- name: smoke_tests
 #  jobs:
 #  - name: smoke-tests
 - name: stats
+  scripts:
+  - write_dns_health_check_stats.sh
   jobs:
   - name: collector
   - name: consul_agent
+  - name: metron_agent
 - name: uaa
   jobs:
   - name: uaa
   - name: consul_agent
+  - name: metron_agent
 

@@ -492,17 +492,6 @@ EOF
     }
 
     #
-    # loggregator
-    #
-
-    # start the loggregator server
-    provisioner "remote-exec" {
-        inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2847:2847 --name cf-loggregator -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 13"
-        ]        
-    }
-
-    #
     # loggregator_trafficcontroller
     #
 
