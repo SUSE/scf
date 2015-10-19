@@ -98,4 +98,4 @@ publish_images: compile_images
 	done
 
 dist:
-	tar -chzvf $(WORK_DIR)/hcf-$(VERSION).tar.gz ./terraform-scripts/hcf
+	cd terraform-scripts ; tar -chzvf $(WORK_DIR)/hcf-$(VERSION).tar.gz ./hcf
