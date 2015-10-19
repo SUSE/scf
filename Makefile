@@ -16,13 +16,13 @@ UBUNTU_IMAGE=ubuntu:14.04.2
 REGISTRY_HOST?=15.126.242.125:5000
 
 # smoke_tests acceptance_tests
-COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller loggregator hm9000 ha_proxy etcd doppler consul clock_global api_worker api dist
+COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller loggregator hm9000 ha_proxy etcd doppler consul clock_global api_worker api
 
 include version.mk
 
 all: images publish_images dist
 
-.PHONY: all clean setup tools fetch_fissle
+.PHONY: all clean setup tools fetch_fissle phony
 
 clean:
 	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
