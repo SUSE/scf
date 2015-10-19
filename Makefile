@@ -20,9 +20,9 @@ COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller l
 
 include version.mk
 
-all: images publish_images
+all: images publish_images dist
 
-.PHONY: all clean setup tools fetch_fissle
+.PHONY: all clean setup tools fetch_fissle phony
 
 clean:
 	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
@@ -38,7 +38,7 @@ setup:
 fetch_fissle: setup
 	@echo "$(OK_COLOR)==> Looking up latest fissile build$(NO_COLOR)"
 	# Find the latest artifact, excluding the babysitter builds
-	# This looks inside the swift container, filtering by your OS type, sorts in ascending order and takes the last entry	
+	# This looks inside the swift container, filtering by your OS type, sorts in ascending order and takes the last entry
 	# If we were to write a "latest" link, this would be easier.
 	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep $(OS_TYPE) | cut -c 14-33,34- | sort | tail -1)")
 
@@ -71,7 +71,7 @@ fetch_new_cf_release:
 fetch_cf_release: fetch_fissle
 	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from Swift$(NO_COLOR)"
 
-	swift download cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(WORK_DIR)/cf-release.tar.gz 
+	swift download cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(WORK_DIR)/cf-release.tar.gz
 	mkdir -p $(RELEASE_DIR) && cd $(RELEASE_DIR) && tar zxf ../cf-release.tar.gz
 
 compile_base: fetch_cf_release fetch_configgin
@@ -96,3 +96,6 @@ publish_images: compile_images
 		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
 	done
+
+dist:
+	cd terraform-scripts ; tar -chzvf $(WORK_DIR)/hcf-$(VERSION).tar.gz ./hcf
