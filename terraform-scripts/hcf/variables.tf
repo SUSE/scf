@@ -157,7 +157,11 @@ variable "doppler_zone" {
 	default = "z1"
 }
 
-variable "loggregator_traffic_controller_zone" {
+variable "traffic_controller_zone" {
+	default = "z1"
+}
+
+variable "metron_agent_zone" {
 	default = "z1"
 }
 

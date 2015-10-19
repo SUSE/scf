@@ -20,7 +20,7 @@ openssl req -config root_openssl.cnf \
   -passout pass:foobar \
   -key private/ca.key.pem \
   -new -x509 -days 7300 -sha256 -extensions v3_ca \
-  -subj '/C=US/ST=Washington/L=Seattle/O=Hewlett-Packard Enterprise/OU=Helion Cloud Foundry/CN=Root Self-Signing Authority/' \
+  -subj '/C=US/ST=Washington/L=Seattle/O=Hewlett Packard Enterprise/OU=Helion Cloud Foundry/CN=Root Self-Signing Authority/' \
   -out certs/ca.cert.pem
 chmod 444 certs/ca.cert.pem
 
