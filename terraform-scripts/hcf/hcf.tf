@@ -288,7 +288,6 @@ rm $TEMP_CERT
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/store\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/app_domains '["${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]'
@@ -365,7 +364,7 @@ EOF
     # start the api server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2837:2837 -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 0"
+        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2837:2837 -p 9022:9022 --name cf-api -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 0"
         ]        
     }
 
@@ -465,7 +464,7 @@ EOF
     # start the api_worker server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2839:2839 --name cf-api_worker -v /data/cf-api:/var/vcap/store/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 10"
+        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2839:2839 --name cf-api_worker -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 10"
         ]        
     }
 
