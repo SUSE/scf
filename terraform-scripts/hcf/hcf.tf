@@ -304,7 +304,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/role/router/consul/agent/services/gorouter '{}'
 /opt/hcf/bin/set-config $CONSUL hcf/role/nats/consul/agent/services/nats '{}'
 /opt/hcf/bin/set-config $CONSUL hcf/role/postgres/consul/agent/services/postgres '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/router/consul/agent/services/etcd '{}'
+/opt/hcf/bin/set-config $CONSUL hcf/role/etcd/consul/agent/services/etcd '{}'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/databases '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]' http://127.0.0.1:8501/v1/kv/
