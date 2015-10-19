@@ -23,6 +23,8 @@ roles:
   jobs:
   - name: consul_agent
 - name: doppler
+  scripts:
+  - write_dns_health_check_doppler.sh
   jobs:
   - name: doppler
   - name: syslog_drain_binder
@@ -41,13 +43,18 @@ roles:
   - name: hm9000
   - name: consul_agent
 - name: loggregator
+  scripts:
+  - write_dns_health_check_doppler.sh
   jobs:
   - name: doppler
   - name: syslog_drain_binder
   - name: consul_agent
 - name: loggregator_trafficcontroller
+  scripts:
+  - write_dns_health_check_trafficcontroller.sh
   jobs:
   - name: loggregator_trafficcontroller
+  - name: consul_agent
 - name: nats
   scripts:
   - write_dns_health_check_nats.sh
@@ -76,6 +83,8 @@ roles:
 #  jobs:
 #  - name: smoke-tests
 - name: stats
+  scripts:
+  - write_dns_health_check_stats.sh
   jobs:
   - name: collector
   - name: consul_agent
