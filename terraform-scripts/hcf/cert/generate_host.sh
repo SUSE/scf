@@ -33,7 +33,7 @@ echo "Generate host CSR named $KEY_NAME for $HOSTNAME"
 openssl req -config $TEMP_CONF \
   -key intermediate/private/$KEY_NAME.key.pem \
   -new -sha256 -out intermediate/csr/$KEY_NAME.csr.pem \
-  -subj "/C=US/ST=Washington/L=Seattle/O=Hewlett-Packard Enterprise/OU=Helion Cloud Foundry/CN=${HOSTNAME}" \
+  -subj "/C=US/ST=Washington/L=Seattle/O=Hewlett Packard Enterprise/OU=Helion Cloud Foundry/CN=${HOSTNAME}" \
   -extensions san_env \
   -passin pass:foobar \
   -passout pass:foobar 

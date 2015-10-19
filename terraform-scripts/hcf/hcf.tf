@@ -35,6 +35,12 @@ resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
         ip_protocol = "tcp"
         cidr = "0.0.0.0/0"
     }
+    rule {
+        from_port = 4443
+        to_port = 4443
+        ip_protocol = "tcp"
+        cidr = "0.0.0.0/0"
+    }
 }
 
 resource "openstack_networking_floatingip_v2" "hcf-core-host-fip" {
@@ -122,7 +128,7 @@ sudo mkdir -p /data
 sudo parted -s -- $DEVICE unit MB mklabel gpt
 sudo parted -s -- $DEVICE unit MB mkpart primary 2048s -0
 sudo mkfs.ext4 $DEVICE1
-echo $DEVICE1 /data ext4 defaults 0 2 | sudo tee -a /etc/fstab
+echo $DEVICE1 /data ext4 defaults,usrquota,grpquota 0 2 | sudo tee -a /etc/fstab
 sudo mount /data
 EOF
     }
@@ -130,16 +136,31 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-sudo apt-get install -y wget
+echo "Install a kernel with quota support"
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
+sudo reboot && sleep 10
+EOF
+    }        
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
 sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 echo deb https://apt.dockerproject.org/repo ubuntu-trusty main | sudo tee /etc/apt/sources.list.d/docker.list
 sudo apt-get update
 sudo apt-get purge -y lxc-docker*
-sudo apt-get install -y docker-engine=1.8.3-0~trusty
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=1.8.3-0~trusty
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
 echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
+
+# enable cgroup memory and swap accounting
+sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
+sudo update-grub
+
 # We have to reboot since this switches our kernel.        
 sudo reboot && sleep 10
 EOF
@@ -242,8 +263,10 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/doppler/zone \"${var.doppler_zone}\"
-/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator/doppler/zone \"${var.doppler_zone}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/doppler/zone \"${var.doppler_zone}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/traffic_controller/zone \"${var.traffic_controller_zone}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/zone \"${var.metron_agent_zone}\"
+
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/bulk_api_password \"${var.bulk_api_password}\"
 
 # combine the certs, so we can insert them into ha_proxy's config
@@ -257,20 +280,19 @@ cat /home/ubuntu/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $T
 rm $TEMP_CERT
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/loggregator_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/traffic_controller/zone \"${var.loggregator_traffic_controller_zone}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}", "tag": "${var.ccdb_role_tag}"}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/resource_pool/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
+# TODO: replace this with Swift settings
+# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/resource_pool/fog_connection '{}'
+# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
+# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
+# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
 /opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/store\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/default_stack 'lucid64'
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/app_domains '["${var.domain}"]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/system_domain \"${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/app_domains '["${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/system_domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/address \"postgres.service.cf.internal\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
@@ -296,6 +318,22 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/role/runner/consul/agent/services/dea_next '{}'
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/dea_next/kernel_network_tuning_enabled 'false'
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/cc/srv_api_uri \"https://api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+# TODO: Take this out, and place our generated CA cert into the appropriate /usr/share/ca-certificates folders
+# and call update-ca-certificates at container startup
+/opt/hcf/bin/set-config $CONSUL hcf/user/ssl/skip_cert_verify 'true'
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/disk_quota_enabled 'false'
+
+# TODO: This should be handled in the 'opinions' file, since the ERb templates will generate this value
+curl -X DELETE $CONSUL/v1/kv/hcf/opinions/hm9000/url
+curl -X DELETE $CONSUL/v1/kv/hcf/opinions/uaa/url
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
+
 EOF
     }    
 
@@ -394,7 +432,7 @@ EOF
     # start the ha_proxy server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2834:2834 -p 80:80 -p 443:443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 6"
+        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2834:2834 -p 80:80 -p 443:443 -p 4443:4443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 6"
         ]        
     }
 
@@ -493,7 +531,7 @@ EOF
     # start the runner server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --privileged --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2844:2844 --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 16"
+        "docker run -d --privileged --cap-add=ALL -v /lib/modules:/lib/modules --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 2844:2844 --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:latest http://`/opt/hcf/bin/get_ip`:8501 hcf 16"
         ]        
     }
 }
