@@ -280,6 +280,7 @@ cat /home/ubuntu/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $T
 rm $TEMP_CERT
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/loggregator_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/doppler_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}", "tag": "${var.ccdb_role_tag}"}]'
 
