@@ -1,0 +1,119 @@
+resource "openstack_networking_floatingip_v2" "hcf-test-host-fip" {
+  pool = "${var.openstack_floating_ip_pool}"
+}
+
+resource "openstack_compute_instance_v2" "hcf-test-host" {
+    name = "${var.cluster-prefix}-test"
+    depends_on = "openstack_compute_instance_v2.hcf-core-host"
+    flavor_id = "${var.openstack_flavor_id}"
+    image_id = "${var.openstack_base_image_id}"
+    key_pair = "${var.openstack_keypair}"
+    security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.id}" ]
+    network = { 
+        uuid = "${var.openstack_network_id}"
+        name = "${var.openstack_network_name}"
+    }
+    availability_zone = "${var.openstack_availability_zone}"
+
+	floating_ip = "${openstack_networking_floatingip_v2.hcf-test-host-fip.address}"
+
+    connection {
+        host = "${openstack_networking_floatingip_v2.hcf-test-host-fip.address}"
+        user = "ubuntu"
+        key_file = "${var.key_file}"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+        "sudo mkdir -p /opt/hcf/bin",
+        "sudo chown ubuntu:ubuntu /opt/hcf/bin"
+        ]
+    }
+
+    # Install scripts and binaries
+    provisioner "file" {
+        source = "scripts/"
+        destination = "/opt/hcf/bin/"
+    }
+
+    provisioner "remote-exec" {
+      inline = [
+      "sudo chmod ug+x /opt/hcf/bin/*",
+      "echo 'export PATH=$PATH:/opt/hcf/bin' | sudo tee /etc/profile.d/hcf.sh"
+      ]
+    }
+
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
+sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+echo deb https://apt.dockerproject.org/repo ubuntu-trusty main | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
+sudo apt-get purge -y lxc-docker*
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=1.8.3-0~trusty
+sudo usermod -aG docker ubuntu
+# allow us to pull from the docker registry
+# TODO: this needs to be removed when we publish to Docker Hub
+echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
+
+# enable cgroup memory and swap accounting
+sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
+sudo update-grub
+
+# We have to reboot since this switches our kernel.        
+sudo reboot && sleep 10
+EOF
+    }
+
+    # Set test configuration values for our cluster
+    provisioner "remote-exec" {
+        inline = <<EOF
+#!/bin/bash
+set -e
+export CONSUL=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/api "api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/admin_user admin # TODO: get from existing config
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/admin_password fakepassword # TODO: get from existing config
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/apps_domain "[${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}]"	
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/skip_ssl_validation true # TODO: get from existing config
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/system_domain "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+/opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/client_secret "$(curl $CONSUL/v1/kv/hcf/user/uaa/clients/gorouter/secret?raw)"
+		
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/api "api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/user admin # TODO: get from existing config
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/password fakepassword # TODO: get from existing config
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/apps_domain "[${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}]"
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/org CF-SMOKE-ORG
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/space CF-SMOKE-SPACE
+/opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/skip_ssl_validation true # TODO: get from existing config
+
+EOF
+
+	}
+
+
+    #
+    # smoke tests
+    #
+
+    # start the smoke tests
+    provisioner "remote-exec" {
+        inline = [
+        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-smoke_tests -t ${var.registry_host}/hcf/cf-v${var.cf-release}-smoke_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 99"
+        ]        
+    }
+
+    #
+    # acceptance tests
+    #
+
+    # start the acceptance tests
+    provisioner "remote-exec" {
+        inline = [
+        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-acceptance_tests -t ${var.registry_host}/hcf/cf-v${var.cf-release}-acceptance_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 98"
+        ]        
+    }
+
+}
