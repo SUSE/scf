@@ -289,6 +289,7 @@ rm $TEMP_CERT
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
+/opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/nfs\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/app_domains '["${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]'
