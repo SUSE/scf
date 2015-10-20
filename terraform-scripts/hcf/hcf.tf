@@ -60,7 +60,10 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     image_id = "${var.openstack_base_image_id}"
     key_pair = "${var.openstack_keypair}"
     security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.id}" ]
-    network = { uuid = "${var.openstack_network_id}" }
+    network = { 
+        uuid = "${var.openstack_network_id}"
+        name = "${var.openstack_network_name}"
+    }
     availability_zone = "${var.openstack_availability_zone}"
 
 	floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"

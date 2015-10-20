@@ -22,7 +22,7 @@ variable "cf-release" {
 }
 
 variable "openstack_network_id" {}
-variable "openstack_network_id" {}
+variable "openstack_network_name" {}
 variable "openstack_keypair" {}
 variable "openstack_availability_zone" {}
 
