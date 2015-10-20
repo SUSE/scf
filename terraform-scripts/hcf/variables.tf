@@ -186,3 +186,11 @@ variable "signing_key_passphrase" {
 variable "service_provider_key_passphrase" {
 	default = "foobar"
 }
+
+variable "overlay_subnet" {
+	default = "192.168.252.0/24"
+}
+
+variable "overlay_gateway" {
+	default = "192.168.252.1"
+}
