@@ -22,7 +22,7 @@ function register_service_and_monit {
     "name": "${service_name}", "tags": ["${service_name}"],
     "check": {
       "id": "${service_name}_check", "interval": "30s",
-      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_addr} ${monit_port} ${job_names}"
+      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_addr} ${monit_port} ${job_names} consul_agent metron_agent"
     }
   }
 EOM
@@ -47,17 +47,14 @@ register_service_and_monit "2830" "consul" "consul"
 register_service_and_monit "2831" "nats" "nats" "nats_stream_forwarder"
 register_service_and_monit "2832" "etcd" "etcd" "etcd_metrics_server"
 register_service_and_monit "2833" "stats" "collector"
-register_service_and_monit "2834" "ha_proxy" "haxproxy"
+register_service_and_monit "2834" "ha_proxy" "haproxy" "consul_template"
 register_service_and_monit "2835" "postgres" "postgres"
-register_service_and_monit "2836" "uaa" "uaa"
-register_service_and_monit "2837" "api" "cloud_controller_ng" "routing-api" "statsd-injector"
+register_service_and_monit "2836" "uaa" "uaa" "uaa_cf-registrar"
+register_service_and_monit "2837" "api" "cloud_controller_migration" "cloud_controller_ng" "cloud_controller_worker_local_1" "cloud_controller_worker_local_2" "nginx_cc" "routing-api" "statsd-injector"
 register_service_and_monit "2838" "clock_global" "cloud_controller_clock"
-register_service_and_monit "2839" "api_worker" "cloud_controller_worker"
-register_service_and_monit "2840" "hm9000" "hm9000"
+register_service_and_monit "2839" "api_worker" "cloud_controller_worker_1"
+register_service_and_monit "2840" "hm9000" "hm9000_analyzer" "hm9000_api_server" "hm9000_evacuator" "hm9000_fetcher" "hm9000_listener" "hm9000_metrics_server" "hm9000_sender" "hm9000_shredder"
 register_service_and_monit "2841" "doppler" "doppler" "syslog_drain_binder"
 register_service_and_monit "2842" "loggregator_trafficcontroller" "loggregator_trafficcontroller"
 register_service_and_monit "2843" "router" "gorouter"
 register_service_and_monit "2844" "runner" "dea_next" "dea_logging_agent"
-register_service_and_monit "2845" "acceptance_tests" "acceptance-tests"
-register_service_and_monit "2846" "smoke_tests" "smoke-tests"
-register_service_and_monit "2847" "loggregator" "loggregator"
