@@ -22,7 +22,7 @@ function register_service_and_monit {
     "name": "${service_name}", "tags": ["${service_name}"],
     "check": {
       "id": "${service_name}_check", "interval": "30s",
-      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_addr} ${monit_port} ${job_names} consul_agent metron_agent"
+      "script": "/opt/hcf/bin/check_health.bash ${monit_user} ${monit_pass} ${monit_addr} ${monit_port} consul_agent metron_agent ${job_names}"
     }
   }
 EOM
@@ -43,7 +43,7 @@ EOM
   curl -X PUT -d "${monit_port}" "http://127.0.0.1:8501/v1/kv/hcf/role/${service_name}/hcf/monit/port"
 }
 
-register_service_and_monit "2830" "consul" "consul" 
+register_service_and_monit "2830" "consul"
 register_service_and_monit "2831" "nats" "nats" "nats_stream_forwarder"
 register_service_and_monit "2832" "etcd" "etcd" "etcd_metrics_server"
 register_service_and_monit "2833" "stats" "collector"
