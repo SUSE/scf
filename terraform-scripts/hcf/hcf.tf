@@ -237,6 +237,7 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/nats/password \"${var.nats_password}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/nats/machines '["nats.service.cf.internal"]'
 
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/machines [\"`/opt/hcf/bin/get_ip`\"]
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/password \"${var.nats_password}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
