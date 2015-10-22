@@ -26,12 +26,22 @@ variable "openstack_network_name" {}
 variable "openstack_keypair" {}
 variable "openstack_availability_zone" {}
 
+variable "openstack_region" {
+	default = "us-east"
+}
+
 variable "openstack_flavor_id" {
-	default = "104"
+	default = {
+		core = "104" # standard.xlarge 16GB
+		test = "101" # standard.small   2GB
+	}
 }
 
 variable "openstack_base_image_id" {
-	default = "564be9dd-5a06-4a26-ba50-9453f972e483"
+	default = {
+		us-east = "564be9dd-5a06-4a26-ba50-9453f972e483"
+		us-west = "43804523-7e3b-4adf-b6df-9d11d451c463"
+	}
 }
 
 variable "openstack_floating_ip_pool" {
@@ -48,6 +58,13 @@ variable "dea_count" {
 
 variable "core_volume_size" {
 	default = "40"
+}
+
+# Default login
+variable "cluster_admin_username" {}
+variable "cluster_admin_password" {}
+variable "cluster_admin_authorities" {
+	default = "scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"
 }
 
 # Secrets
@@ -148,9 +165,6 @@ variable "uaa_cloud_controller_username_lookup_secret" {
 }
 variable "uaa_clients_gorouter_secret" {
 	default = "gorouter_secret"
-}
-variable "uaa_scim_users" {
-	default = "[\"admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose\"]"
 }
 
 variable "doppler_zone" {

@@ -4,5 +4,13 @@ openstack_network_id = "<your network id>"
 openstack_network_name = "<your network name>"
 key_file = "<your local private key file location>"
 
+# Set this if you're deploying to us-west. us-east is the default.
+# Those are the only valid values.
+# openstack_region = "us-west"
+
+# This will be your initial login to the system
+cluster_admin_username = "<your username>"
+cluster_admin_password = "<your password>"
+
 router_ssl_cert_file = "foo" # will fill in later with actual cert location
 router_ssl_key_file = "foo" # will fill in later with actual cert location
