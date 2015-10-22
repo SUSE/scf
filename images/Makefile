@@ -1,4 +1,4 @@
-export REGISTRY:=15.126.242.125:5000
+export REGISTRY?=15.126.242.125:5000
 
 .PHONY: hcf-consul-base hcf-consul-client hcf-consul-server
 
