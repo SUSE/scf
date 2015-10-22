@@ -54,8 +54,6 @@ roles:
   - name: consul_agent
   - name: metron_agent
 - name: ha_proxy
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: haproxy
   - name: consul_agent
