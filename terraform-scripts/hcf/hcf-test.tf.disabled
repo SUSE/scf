@@ -5,8 +5,8 @@ resource "openstack_networking_floatingip_v2" "hcf-test-host-fip" {
 resource "openstack_compute_instance_v2" "hcf-test-host" {
     name = "${var.cluster-prefix}-test"
     depends_on = "openstack_compute_instance_v2.hcf-core-host"
-    flavor_id = "${var.openstack_flavor_id}"
-    image_id = "${var.openstack_base_image_id}"
+    flavor_id = "${var.openstack_flavor_id.test}"
+    image_id = "${lookup(var.openstack_base_image_id, var.openstack_region)}"
     key_pair = "${var.openstack_keypair}"
     security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.id}" ]
     network = { 

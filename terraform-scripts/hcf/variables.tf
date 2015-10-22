@@ -26,12 +26,22 @@ variable "openstack_network_name" {}
 variable "openstack_keypair" {}
 variable "openstack_availability_zone" {}
 
+variable "openstack_region" {
+	default = "us-east"
+}
+
 variable "openstack_flavor_id" {
-	default = "104"
+	default = {
+		core = "104" # standard.xlarge 16GB
+		test = "101" # standard.small   2GB
+	}
 }
 
 variable "openstack_base_image_id" {
-	default = "564be9dd-5a06-4a26-ba50-9453f972e483"
+	default = {
+		us-east = "564be9dd-5a06-4a26-ba50-9453f972e483"
+		us-west = "43804523-7e3b-4adf-b6df-9d11d451c463"
+	}
 }
 
 variable "openstack_floating_ip_pool" {
