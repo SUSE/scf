@@ -56,8 +56,8 @@ resource "openstack_blockstorage_volume_v1" "hcf-core-vol" {
 
 resource "openstack_compute_instance_v2" "hcf-core-host" {
     name = "${var.cluster-prefix}-core"
-    flavor_id = "${var.openstack_flavor_id}"
-    image_id = "${var.openstack_base_image_id}"
+    flavor_id = "${var.openstack_flavor_id.core}"
+    image_id = "${lookup(var.openstack_base_image_id, var.openstack_region)}"
     key_pair = "${var.openstack_keypair}"
     security_groups = [ "default", "${openstack_compute_secgroup_v2.hcf-container-host-secgroup.id}" ]
     network = { 
