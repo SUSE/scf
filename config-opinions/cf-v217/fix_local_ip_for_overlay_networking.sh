@@ -1,10 +1,10 @@
 set -e
 
-if [[ "${HCF_NETWORK}" -ne "overlay" ]]; then
+if [ "$HCF_NETWORK" != "overlay" ]; then
   exit 0
 fi
 
-if [[ -z "${HCF_OVERLAY_GATEWAY}" ]]; then
+if [ -z "$HCF_OVERLAY_GATEWAY" ]; then
   echo "Missing HCF_OVERLAY_GATEWAY environment variable."
   exit 1
 fi

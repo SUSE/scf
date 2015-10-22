@@ -1,6 +1,6 @@
 set -e
 
-if [[ "${HCF_NETWORK}" -ne "overlay" ]]; then
+if [ "$HCF_NETWORK" != "overlay" ]; then
   exit 0
 fi
 
