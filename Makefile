@@ -19,6 +19,9 @@ COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller h
 
 include version.mk
 
+BUILD:=$(shell echo `whoami`-`git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S`)
+APP_VERSION=$(VERSION)-$(BUILD)
+
 all: images publish_images dist
 
 .PHONY: all clean setup tools fetch_fissle phony
@@ -88,13 +91,15 @@ base_image: compile_release
 	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -b $(UBUNTU_IMAGE)
 
 compile_images: base_image
-	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(VERSION)
+	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(APP_VERSION)
 
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component; \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION); \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest; \
+		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION); \
+		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest; \
 	done
 
 dist:
-	cd terraform-scripts ; tar -chzvf $(WORK_DIR)/hcf-$(VERSION).tar.gz ./hcf
+	cd terraform-scripts ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
