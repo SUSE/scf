@@ -2,6 +2,10 @@ variable "registry_host" {
 	default = "15.126.242.125:5000"
 }
 
+variable "build" {
+	default = "latest"
+}
+
 variable "cluster-prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"
