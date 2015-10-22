@@ -264,7 +264,7 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/doppler/secret \"${var.uaa_clients_doppler_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cloud_controller_username_lookup/secret \"${var.uaa_cloud_controller_username_lookup_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/gorouter/secret \"${var.uaa_clients_gorouter_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/scim/users '${var.uaa_scim_users}'
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/scim/users '["${var.cluster_admin_username}|${var.cluster_admin_password}|${var.cluster_admin_authorities}"]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"

@@ -60,6 +60,13 @@ variable "core_volume_size" {
 	default = "40"
 }
 
+# Default login
+variable "cluster_admin_username" {}
+variable "cluster_admin_password" {}
+variable "cluster_admin_authorities" {
+	default = "scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"
+}
+
 # Secrets
 variable "droplet_directory_key" {
 	default = "the_key"
@@ -158,9 +165,6 @@ variable "uaa_cloud_controller_username_lookup_secret" {
 }
 variable "uaa_clients_gorouter_secret" {
 	default = "gorouter_secret"
-}
-variable "uaa_scim_users" {
-	default = "[\"admin|fakepassword|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose\"]"
 }
 
 variable "doppler_zone" {
