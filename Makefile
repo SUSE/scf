@@ -8,12 +8,13 @@ CF_RELEASE?=$(shell cat cf-release-version)
 CF_RELEASE_LOCATION?=https://bosh.io/d/github.com/cloudfoundry/cf-release?v=$(CF_RELEASE)
 
 WORK_DIR=$(PWD)/_work
+CACHE_DIR=$(PWD)/_cache
 RELEASE_DIR=$(WORK_DIR)/release
 TARGET_DIR=$(PWD)/target
 
 UBUNTU_IMAGE=ubuntu:14.04.2
 
-REGISTRY_HOST?=15.126.242.125:5000
+REGISTRY?=15.126.242.125:5000
 
 COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller hm9000 ha_proxy etcd doppler consul clock_global api_worker api smoke_tests acceptance_tests
 
@@ -24,17 +25,21 @@ APP_VERSION=$(VERSION)-$(BUILD)
 
 all: images publish_images dist
 
-.PHONY: all clean setup tools fetch_fissle phony
+.PHONY: all clean clean-all setup tools fetch_fissle phony
 
 clean:
 	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
 	rm -rf $(WORK_DIR) $(TARGET_DIR)
 	-docker rm --force $(shell docker ps -a | grep fissile | cut -f1 -d' ')
 
+clean-all: clean
+	rm -rf $(CACHE_DIR)
+
 setup:
 	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(WORK_DIR)
+	mkdir -p $(CACHE_DIR)
 	docker pull $(UBUNTU_IMAGE)
 
 fetch_fissle: setup
@@ -44,14 +49,15 @@ fetch_fissle: setup
 	# If we were to write a "latest" link, this would be easier.
 	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep $(OS_TYPE) | cut -c 14-33,34- | sort | tail -1)")
 
-	swift download --output $(WORK_DIR)/fissile fissile-artifacts $(shell echo $(LATEST_FISSILE_BUILD) | cut -c 21-)
+	swift download --skip-identical --output $(CACHE_DIR)/fissile fissile-artifacts $(shell echo $(LATEST_FISSILE_BUILD) | cut -c 21-)
+	cp $(CACHE_DIR)/fissile $(WORK_DIR)/fissile
 	chmod +x $(WORK_DIR)/fissile
 
 fetch_configgin: setup
 	@echo "$(OK_COLOR)==> Looking up latest configgin build$(NO_COLOR)"
 
 	$(eval LATEST_CONFIGGIN_BUILD="$(shell swift list -l configgin | grep -v babysitter | grep linux-x86_64.tgz | cut -c 14-33,34- | sort | tail -1)")
-	swift download --output $(WORK_DIR)/configgin.tar.gz configgin $(shell echo $(LATEST_CONFIGGIN_BUILD) | cut -c 21-)
+	swift download --skip-identical --output $(CACHE_DIR)/configgin.tar.gz configgin $(shell echo $(LATEST_CONFIGGIN_BUILD) | cut -c 21-)
 
 tools: fetch_fissle fetch_configgin
 	$(WORK_DIR)/fissile
@@ -73,8 +79,8 @@ fetch_new_cf_release:
 fetch_cf_release: fetch_fissle
 	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from Swift$(NO_COLOR)"
 
-	swift download cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(WORK_DIR)/cf-release.tar.gz
-	mkdir -p $(RELEASE_DIR) && cd $(RELEASE_DIR) && tar zxf ../cf-release.tar.gz
+	swift download --skip-identical cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(CACHE_DIR)/cf-release.tar.gz
+	mkdir -p $(RELEASE_DIR) && cd $(RELEASE_DIR) && tar zxf $(CACHE_DIR)/cf-release.tar.gz
 
 compile_base: fetch_cf_release fetch_configgin
 	@echo "$(OK_COLOR)==> Compiling base image for cf-release$(NO_COLOR)"
@@ -88,17 +94,17 @@ compile_release: compile_base
 	_work/fissile compilation start -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target
 
 base_image: compile_release
-	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -b $(UBUNTU_IMAGE)
+	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(CACHE_DIR)/configgin.tar.gz -b $(UBUNTU_IMAGE)
 
 compile_images: base_image
 	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(APP_VERSION)
 
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest ; \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY)/hcf/cf-v$(CF_RELEASE)-$$component:latest && \
+		docker push $(REGISTRY)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
+		docker push $(REGISTRY)/hcf/cf-v$(CF_RELEASE)-$$component:latest; \
 	done
 
 dist:
