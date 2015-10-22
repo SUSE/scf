@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	flags "github.com/jessevdk/go-flags"
 )
 
 type ctrMap map[string]string
@@ -130,14 +132,26 @@ func getLogMap() logMapT {
 	}
 }
 
-func processDockerPSOutput(stdout io.ReadCloser, m chan ctrMap) {
+func stringSliceMember(needle string, haystack []string) bool {
+	for _, s := range haystack {
+		if s == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func processDockerPSOutput(roleNamesToExclude, roleNamesToInclude []string,
+	stdout io.ReadCloser, m chan ctrMap) {
 	cm := make(ctrMap)
 	scanner := bufio.NewScanner(stdout)
 	ptn := regexp.MustCompile(`^([\w\d]+)\s+.*?/cf-v\d+-([\w\d_]+):`)
 	for scanner.Scan() {
 		line := scanner.Text()
 		match := ptn.FindStringSubmatch(line)
-		if len(match) == 3 {
+		if len(match) == 3 &&
+			!stringSliceMember(match[2], roleNamesToExclude) &&
+			(len(roleNamesToInclude) == 0 || stringSliceMember(match[2], roleNamesToInclude)) {
 			cm[match[2]] = match[1]
 		}
 	}
@@ -147,7 +161,7 @@ func processDockerPSOutput(stdout io.ReadCloser, m chan ctrMap) {
 	m <- cm
 }
 
-func getContainerMap() map[string]string {
+func getContainerMap(roleNamesToExclude, roleNamesToInclude []string) map[string]string {
 	cmd := exec.Command("docker", "ps", "--format", "{{.ID}} {{.Image}}")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -158,11 +172,10 @@ func getContainerMap() map[string]string {
 		log.Fatal(err)
 	}
 	go func() {
-		fmt.Printf("Error output:")
-		io.Copy(os.Stderr, stderr)
+		_, _ = io.Copy(os.Stderr, stderr)
 	}()
 	cmChan := make(chan ctrMap)
-	go processDockerPSOutput(stdout, cmChan)
+	go processDockerPSOutput(roleNamesToExclude, roleNamesToInclude, stdout, cmChan)
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -186,7 +199,7 @@ func watchLogs(containerID string, roleName string, logFiles []string, ch chan s
 	}
 	go func() {
 		fmt.Fprintf(os.Stderr, "docker exec bash -c tail ... Error output:")
-		io.Copy(os.Stderr, stderr)
+		_, _ = io.Copy(os.Stderr, stderr)
 		fmt.Fprintf(os.Stderr, "\n")
 	}()
 	go func() {
@@ -199,28 +212,50 @@ func watchLogs(containerID string, roleName string, logFiles []string, ch chan s
 			fmt.Fprintf(os.Stderr, "error reading stdout: %v\n", err)
 		}
 	}()
-	cmd.Run()
+	_ = cmd.Run()
 }
 
-func main() {
-	m := getContainerMap()
+func filterLogs(roleNamesToExclude, roleNamesToInclude []string) {
+	m := getContainerMap(roleNamesToExclude, roleNamesToInclude)
 	logMap := getLogMap()
-	recv_chan := make(chan string)
-	didSomething := false
+	recvChan := make(chan string)
+	numLogsToWatch := 0
 	for roleName, containerID := range m {
 		logFiles, ok := logMap[roleName]
 		if !ok {
 			fmt.Fprintf(os.Stderr, "No log files for role %s, skipping\n", roleName)
 			continue
 		}
-		didSomething = true
-		go watchLogs(containerID, roleName, logFiles, recv_chan)
+		numLogsToWatch++
+		go watchLogs(containerID, roleName, logFiles, recvChan)
 	}
-	if !didSomething {
+	if numLogsToWatch == 0 {
 		fmt.Fprintf(os.Stderr, "Nothing to watch\n")
 		return
 	}
 	for true {
-		fmt.Printf("%s", <-recv_chan)
+		fmt.Printf("%s", <-recvChan)
 	}
+}
+
+func main() {
+	var opts struct {
+		Exclude []string `short:"x" long:"exclude" description:"Exclude this role"`
+	}
+	args, err := flags.Parse(&opts)
+	if err != nil {
+		fmt.Printf("Error parsing %v\n", os.Args)
+		os.Exit(1)
+	}
+	duplicateNames := []string{}
+	for _, nameToExclude := range opts.Exclude {
+		if stringSliceMember(nameToExclude, args) {
+			duplicateNames = append(duplicateNames, nameToExclude)
+		}
+	}
+	if len(duplicateNames) > 0 {
+		fmt.Fprintf(os.Stderr, "The name(s) %s is/are in both inclusion and exclusion lists\n", duplicateNames)
+		os.Exit(1)
+	}
+	filterLogs(opts.Exclude, args)
 }

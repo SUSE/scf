@@ -50,8 +50,19 @@ loggregator.  So the go program pmlgr.go does that.  To run it:
 
 3. `scp ./pmlgr ... ubuntu@15.126...:`
 
-4. On the host: `./pmlgr'
+4. On the host: `./pmlgr {[-x | --exclude] NAME} NAME...`
 
-Currently there's no filter for the output, and no command-line flags to select particular logs.
+## Command-line flags
 
-1. `go build`
+`-x | --exclude NAME` : exclude role NAME from the list of containers to scan
+
+By default, no names are excluded
+
+`name ...` : If any names are given, only these containers are watched.  If no names
+are specified, all names are considered.
+
+It is permitted to specify a name for both exclusion and inclusion. Exclusion always wins.
+
+Currently there's no filter for the output.
+
+
