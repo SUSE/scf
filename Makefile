@@ -98,7 +98,7 @@ publish_images: compile_images
 		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
 		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest && \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest && \
+		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest ; \
 	done
 
 dist:
