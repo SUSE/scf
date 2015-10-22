@@ -1,5 +1,7 @@
 # Poor Man's Firehose
 
+## Getting logs exposed via the loggregator
+
 1. Turn off access-checking in the loggregator_trafficcontroller role:
 
 1.1. `docker rm -f $(docker kill $(docker ps -a | awk '/trafficcontroller/ {print $1}'$)`
@@ -36,3 +38,20 @@ $ `echo | cf nozzle` - verify you get tons of output
 Now filter it:
 
 $ `echo | cf nozzle | ruby ./flm.rb`
+
+## Getting system-level logs from the various components
+
+Currently, nothing is tailing system logs and feeding them to metron, and the
+loggregator.  So the go program pmlgr.go does that.  To run it:
+
+1. `cd .../hcf-infrastructure/pmlgr`
+
+2 `go build`
+
+3. `scp ./pmlgr ... ubuntu@15.126...:`
+
+4. On the host: `./pmlgr'
+
+Currently there's no filter for the output, and no command-line flags to select particular logs.
+
+1. `go build`
