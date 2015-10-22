@@ -61,9 +61,7 @@ variable "core_volume_size" {
 }
 
 # Default login
-variable "cluster_admin_username" {
-	default = "admin"
-}
+variable "cluster_admin_username" {}
 variable "cluster_admin_password" {}
 variable "cluster_admin_authorities" {
 	default = "scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose"

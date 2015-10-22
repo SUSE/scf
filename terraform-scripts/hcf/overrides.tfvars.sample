@@ -9,7 +9,7 @@ key_file = "<your local private key file location>"
 # openstack_region = "us-west"
 
 # This will be your initial login to the system
-# cluster_admin_username = "admin"
+cluster_admin_username = "<your username>"
 cluster_admin_password = "<your password>"
 
 router_ssl_cert_file = "foo" # will fill in later with actual cert location
