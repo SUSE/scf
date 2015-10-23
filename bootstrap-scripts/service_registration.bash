@@ -58,4 +58,3 @@ register_service_and_monit "2841" "doppler" "doppler" "syslog_drain_binder"
 register_service_and_monit "2842" "loggregator_trafficcontroller" "loggregator_trafficcontroller"
 register_service_and_monit "2843" "router" "gorouter"
 register_service_and_monit "2844" "runner" "dea_next" "dea_logging_agent"
-# 2855 and 2856 are used for smoke and acceptance tests.

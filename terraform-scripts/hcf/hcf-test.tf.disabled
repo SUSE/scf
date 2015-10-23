@@ -80,7 +80,6 @@ export CONSUL=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fix
 /opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/skip_ssl_validation true # TODO: get from existing config
 /opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/system_domain "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
 /opt/hcf/bin/set-config $CONSUL hcf/user/acceptance_tests/client_secret "$(curl $CONSUL/v1/kv/hcf/user/uaa/clients/gorouter/secret?raw)"
-/opt/hcf/bin/set-config $CONSUL hcf/role/acceptance_tests/hcf/monit/port "2855"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/api "api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
 /opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/user "${var.cluster_admin_username}"
@@ -89,7 +88,6 @@ export CONSUL=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fix
 /opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/org CF-SMOKE-ORG
 /opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/space CF-SMOKE-SPACE
 /opt/hcf/bin/set-config $CONSUL hcf/user/smoke_tests/skip_ssl_validation true # TODO: get from existing config
-/opt/hcf/bin/set-config $CONSUL hcf/role/smoke_tests/hcf/monit/port "2856"
 
 EOF
 
