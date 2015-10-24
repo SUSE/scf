@@ -216,6 +216,16 @@ EOF
     }
 
     #
+    # configure Docker overlay network
+    #
+    provisioner "remote-exec" {
+        inline = <<EOF
+set -e
+docker network create -d overlay --subnet="${var.overlay_subnet}" --gateway="${var.overlay_gateway}" hcf 
+EOF
+    }
+
+    #
     # HCF consul
     #
 
