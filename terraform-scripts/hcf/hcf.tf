@@ -493,7 +493,7 @@ EOF
     }
 
     #
-    # ha_proxy - this depends on ha_proxy, so make a best effort to start router first.
+    # ha_proxy - this depends on gorouter, so make a best effort to start router before this.
     #
 
     # start the ha_proxy server
