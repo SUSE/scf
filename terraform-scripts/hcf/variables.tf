@@ -2,6 +2,10 @@ variable "registry_host" {
 	default = "15.126.242.125:5000"
 }
 
+variable "build" {
+	default = "latest"
+}
+
 variable "cluster-prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"
@@ -32,7 +36,8 @@ variable "openstack_region" {
 
 variable "openstack_flavor_id" {
 	default = {
-		core = "104" # standard.xlarge 16GB
+		core = "103" # standard.large   8GB
+		dea  = "103" # standard.large   8GB
 		test = "101" # standard.small   2GB
 	}
 }
@@ -185,4 +190,12 @@ variable "signing_key_passphrase" {
 
 variable "service_provider_key_passphrase" {
 	default = "foobar"
+}
+
+variable "overlay_subnet" {
+	default = "192.168.252.0/24"
+}
+
+variable "overlay_gateway" {
+	default = "192.168.252.1"
 }
