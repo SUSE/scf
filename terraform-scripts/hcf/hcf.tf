@@ -410,7 +410,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:${var.build} http://hcf-consul-server.hcf:8501 hcf 2"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-consul -v /data/cf-consul:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-consul:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]
     }
 
@@ -432,7 +432,7 @@ EOF
     # start the nats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:${var.build} http://hcf-consul-server.hcf:8501 hcf 1"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-nats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-nats:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]
     }
 
@@ -449,7 +449,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:${var.build} http://hcf-consul-server.hcf:8501 hcf 3"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-etcd -v /data/cf-etcd:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-etcd:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]
     }
 
@@ -466,7 +466,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:${var.build} http://hcf-consul-server.hcf:8501 hcf 4"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-postgres -v /data/cf-postgres:/var/vcap/store -t ${var.registry_host}/hcf/cf-v${var.cf-release}-postgres:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -477,7 +477,7 @@ EOF
     # start the stats server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:${var.build} http://hcf-consul-server.hcf:8501 hcf 5"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-stats -t ${var.registry_host}/hcf/cf-v${var.cf-release}-stats:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -488,7 +488,7 @@ EOF
     # start the router server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:${var.build} http://hcf-consul-server.hcf:8501 hcf 15"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-router -t ${var.registry_host}/hcf/cf-v${var.cf-release}-router:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -500,7 +500,7 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-cid=$(docker run -d --net=bridge -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 80:80 -p 443:443 -p 4443:4443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:${var.build} http://hcf-consul-server.hcf:8501 hcf 6)
+cid=$(docker run -d --net=bridge -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} -p 80:80 -p 443:443 -p 4443:4443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:${var.build} http://hcf-consul-server.hcf:8501 hcf 0)
 docker network connect hcf $cid
 EOF        
     }
@@ -512,7 +512,7 @@ EOF
     # start the uaa server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:${var.build} http://hcf-consul-server.hcf:8501 hcf 7"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-uaa -t ${var.registry_host}/hcf/cf-v${var.cf-release}-uaa:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -523,7 +523,7 @@ EOF
     # start the clock_global server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:${var.build} http://hcf-consul-server.hcf:8501 hcf 9"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-clock_global -t ${var.registry_host}/hcf/cf-v${var.cf-release}-clock_global:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -534,7 +534,7 @@ EOF
     # start the api_worker server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api_worker -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:${var.build} http://hcf-consul-server.hcf:8501 hcf 10"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api_worker -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -545,7 +545,7 @@ EOF
     # start the hm9000 server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:${var.build} http://hcf-consul-server.hcf:8501 hcf 11"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-hm9000 -t ${var.registry_host}/hcf/cf-v${var.cf-release}-hm9000:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -556,7 +556,7 @@ EOF
     # start the doppler server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:${var.build} http://hcf-consul-server.hcf:8501 hcf 12"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-doppler -t ${var.registry_host}/hcf/cf-v${var.cf-release}-doppler:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 
@@ -567,17 +567,13 @@ EOF
     # start the loggregator_trafficcontroller server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:${var.build} http://hcf-consul-server.hcf:8501 hcf 14"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-loggregator_trafficcontroller -t ${var.registry_host}/hcf/cf-v${var.cf-release}-loggregator_trafficcontroller:${var.build} http://hcf-consul-server.hcf:8501 hcf 0"
         ]        
     }
 }
 
-resource "openstack_networking_floatingip_v2" "hcf-dea-host-fip" {
-  pool = "${var.openstack_floating_ip_pool}"
-}
-
-resource "openstack_compute_instance_v2" "hcf-dea-host-1" {
-    name = "${var.cluster-prefix}-dea-1"
+resource "openstack_compute_instance_v2" "hcf-dea-host" {
+    name = "${var.cluster-prefix}-dea-${count.index}"
     flavor_id = "${var.openstack_flavor_id.dea}"
     image_id = "${lookup(var.openstack_base_image_id, var.openstack_region)}"
     key_pair = "${var.openstack_keypair}"
@@ -587,13 +583,13 @@ resource "openstack_compute_instance_v2" "hcf-dea-host-1" {
         name = "${var.openstack_network_name}"
     }
     availability_zone = "${var.openstack_availability_zone}"
-
-    floating_ip = "${openstack_networking_floatingip_v2.hcf-dea-host-fip.address}"
+    count = "${var.dea_count}"
 
     connection {
-        host = "${openstack_networking_floatingip_v2.hcf-dea-host-fip.address}"
         user = "ubuntu"
         key_file = "${var.key_file}"
+
+        bastion_host = "${openstack_compute_instance_v2.hcf-core-host.access_ip_v4}"
     }
 
     provisioner "remote-exec" {
@@ -638,7 +634,7 @@ curl -sSL https://test.docker.com/ | sh
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-dea-host-1.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} -H=${openstack_compute_instance_v2.hcf-dea-host-1.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
@@ -663,7 +659,7 @@ EOF
     # start the runner server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cap-add=ALL -v /lib/modules:/lib/modules --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-runner -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:${var.build} http://hcf-consul-server.hcf:8501 hcf 16"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cap-add=ALL -v /lib/modules:/lib/modules --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-runner-${count.index} -t ${var.registry_host}/hcf/cf-v${var.cf-release}-runner:${var.build} http://hcf-consul-server.hcf:8501 hcf ${count.index}"
         ]        
     }
 }
