@@ -126,8 +126,6 @@ variable "nats_password" {
 	default = "nats_password"
 }
 
-variable "router_ssl_cert_file" {}
-variable "router_ssl_key_file" {}
 variable "router_cipher_suites" {
 	default = "TLS_RSA_WITH_RC4_128_SHA:TLS_RSA_WITH_AES_128_CBC_SHA"
 }
