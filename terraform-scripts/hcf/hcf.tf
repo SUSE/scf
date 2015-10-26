@@ -262,14 +262,6 @@ EOF
         ]
     }
 
-    # Send script to set up consul-based services, health checks, and assign
-    # monit ports (until we stop using docker --net host)
-    provisioner "remote-exec" {
-        inline = [
-        "bash /opt/hcf/bin/service_registration.bash"
-        ]
-    }
-
     # Set the default configuration values for our cluster
     provisioner "remote-exec" {
         inline = <<EOF
@@ -278,13 +270,16 @@ set -e
 export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/consul/require_ssl false
-/opt/hcf/bin/set-config $CONSUL hcf/user/consul/agent/servers/lan [\"`/opt/hcf/bin/get_ip`\"]
+/opt/hcf/bin/set-config $CONSUL hcf/user/consul/agent/servers/lan [\"cf-consul.hcf\"]
 /opt/hcf/bin/set-config $CONSUL hcf/user/consul/encrypt_keys '[]'
 /opt/hcf/bin/set-config $CONSUL hcf/role/consul/consul/agent/mode \"server\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/nats/user \"${var.nats_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/nats/password \"${var.nats_password}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/nats/machines '["nats.service.cf.internal"]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/user \"${var.monit_user}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/password \"${var.monit_password}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/port \"${var.monit_port}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/machines '["nats.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
@@ -392,6 +387,13 @@ rm $TEMP_CERT
 
 EOF
     }    
+
+    # Register the services we expect to be alive and health checks for them.
+    provisioner "remote-exec" {
+        inline = [
+        "bash /opt/hcf/bin/service_registration.bash \"${var.dea_count}\""
+        ]
+    }
 
     #
     # run the CF components in a container

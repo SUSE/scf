@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-monit_user="$1"
-monit_pass="$2"
-monit_addr="$3"
-monit_port="$4"
-shift 4
+set -e
+
+consul_addr="http://localhost:8501"
+monit_user=$(curl -s ${consul_addr}/v1/kv/hcf/user/hcf/monit/user?raw | sed 's/"//g')
+monit_pass=$(curl -s ${consul_addr}/v1/kv/hcf/user/hcf/monit/password?raw | sed 's/"//g')
+monit_port=$(curl -s ${consul_addr}/v1/kv/hcf/user/hcf/monit/port?raw | sed 's/"//g')
+monit_addr="$1"
+shift 1
 job_names="$@"
 
 is_unhealthy=0
