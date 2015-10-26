@@ -385,8 +385,8 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/disk_quota_enabled 'false'
 
 # TODO: This should be handled in the 'opinions' file, since the ERb templates will generate this value
-curl -X DELETE $CONSUL/v1/kv/hcf/opinions/hm9000/url
-curl -X DELETE $CONSUL/v1/kv/hcf/opinions/uaa/url
+/opt/hcf/bin/set-config $CONSUL hcf/user/hm9000/url \"https://hm9000.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url \"https://uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
 
