@@ -22,7 +22,7 @@ include version.mk
 BUILD:=$(shell echo `whoami`-`git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S`)
 APP_VERSION=$(VERSION)-$(BUILD)
 
-all: images publish_images dist
+all: generate_config_base images publish_images dist
 
 .PHONY: all clean setup tools fetch_fissle phony
 
@@ -35,6 +35,7 @@ setup:
 	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(WORK_DIR)
+	mkdir -p $(WORK_DIR)/hcf
 	docker pull $(UBUNTU_IMAGE)
 
 fetch_fissle: setup
@@ -93,6 +94,17 @@ base_image: compile_release
 compile_images: base_image
 	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(APP_VERSION)
 
+generate_config_base: fetch_fissle fetch_cf_release
+	rm -rf $(WORK_DIR)/config_target
+
+	_work/fissile configuration generate \
+		-r $(RELEASE_DIR) \
+		--light-opinions config-opinions/cf-v$(CF_RELEASE)/opinions.yml \
+		--dark-opinions config-opinions/cf-v$(CF_RELEASE)/dark-opinions.yml \
+		--target $(WORK_DIR)/config_target
+
+	cd $(WORK_DIR)/config_target ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
+
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
 		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
@@ -101,5 +113,7 @@ publish_images: compile_images
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest ; \
 	done
 
-dist:
-	cd terraform-scripts ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
+dist: generate_config_base
+	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
+
+	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
