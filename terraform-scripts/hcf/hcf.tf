@@ -171,13 +171,13 @@ set -e
 echo "Set up etcd to start via upstart"
 
 cat >/tmp/etcd.override <<FOE
-env ETCD_NAME="hcf-core" 
-env ETCD_INITIAL_CLUSTER_TOKEN="hcf-etcd"
+env ETCD_NAME="${var.cluster-prefix}-core" 
+env ETCD_INITIAL_CLUSTER_TOKEN="${var.cluster-prefix}-hcf-etcd"
 env ETCD_DATA_DIR="/data/hcf-etcd"
 env ETCD_LISTEN_PEER_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3380"
 env ETCD_LISTEN_CLIENT_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
 env ETCD_ADVERTISE_CLIENT_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
-env ETCD_INITIAL_CLUSTER="hcf-core=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
+env ETCD_INITIAL_CLUSTER="${var.cluster-prefix}-core=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
 env ETCD_INITIAL_ADVERTISE_PEER_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
 env ETCD_INITIAL_CLUSTER_STATE=new
 FOE
