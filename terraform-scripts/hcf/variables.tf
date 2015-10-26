@@ -126,6 +126,16 @@ variable "nats_password" {
 	default = "nats_password"
 }
 
+variable "monit_user" {
+  default = "monit_user"
+}
+variable "monit_password" {
+  default = "monit_password"
+}
+variable "monit_port" {
+  default = "2822"
+}
+
 variable "router_cipher_suites" {
 	default = "TLS_RSA_WITH_RC4_128_SHA:TLS_RSA_WITH_AES_128_CBC_SHA"
 }
