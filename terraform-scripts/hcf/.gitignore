@@ -1,3 +1,4 @@
 *.tfvars
 .terraform
 hcf-test.tf
+hcf-config.tar.gz
