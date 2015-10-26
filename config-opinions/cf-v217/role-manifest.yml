@@ -103,6 +103,7 @@ roles:
   - fix_local_ip_for_overlay_networking.sh
   - fix_warden_local_ip_for_overlay_networking.sh  
   - write_dns_health_check_runner.sh
+  - clear_tmp_warden_cgroup.sh
   jobs:
   - name: dea_next
   - name: dea_logging_agent
