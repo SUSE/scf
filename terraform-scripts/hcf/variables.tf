@@ -37,7 +37,7 @@ variable "openstack_region" {
 variable "openstack_flavor_id" {
 	default = {
 		core = "103" # standard.large   8GB
-		dea  = "102" # standard.medium  4GB
+		dea  = "103" # standard.large   8GB
 		test = "101" # standard.small   2GB
 	}
 }
