@@ -657,6 +657,20 @@ EOF
     provisioner "remote-exec" {
         inline = ["docker pull ${var.registry_host}/hcf/hcf-gato:${var.build} | tee /tmp/hcf-gato-output"]
     }
+    
+    #
+    # acceptance test image
+    #
+    provisioner "remote-exec" {
+        inline = ["docker pull ${var.registry_host}/hcf/cf-v217-acceptance_tests:${var.build} | tee /tmp/hcf-acceptance_tests-output"]
+    }
+
+    #
+    # smoke test image
+    #
+    provisioner "remote-exec" {
+        inline = ["docker pull ${var.registry_host}/hcf/cf-v217-smoke_tests:${var.build} | tee /tmp/hcf-smoke_tests-output"]
+    }
 
     #
     # runner
