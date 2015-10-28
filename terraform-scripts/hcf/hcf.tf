@@ -184,6 +184,8 @@ FOE
 
 sudo mv /tmp/etcd.override /etc/init
 sudo mv /tmp/etcd.conf /etc/init
+
+sudo service etcd start
 EOF
     }
 
@@ -197,11 +199,14 @@ curl -sSL https://test.docker.com/ | sh
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
+
 echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --insecure-registry=${var.registry_host} -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
 sudo update-grub
+
+sudo sed -idockerbak 's/local-filesystems and net-device-up IFACE!=lo/local-filesystems and net-device-up IFACE!=lo and started etcd/' /etc/init/docker.conf
 
 # We have to reboot since this switches our kernel.        
 sudo reboot && sleep 10
