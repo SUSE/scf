@@ -6,97 +6,138 @@ roles:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: acceptance-tests
+    release_name: cf
 - name: api
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: cloud_controller_ng
+    release_name: cf
   - name: routing-api
+    release_name: cf
   - name: statsd-injector
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: api_worker
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: cloud_controller_worker
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: clock_global
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: cloud_controller_clock
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: consul
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - consul_startup.sh
   jobs:
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: doppler
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - write_dns_health_check_doppler.sh
   jobs:
   - name: doppler
+    release_name: cf
   - name: syslog_drain_binder
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: etcd
+    release_name: cf
   - name: etcd_metrics_server
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: ha_proxy
   jobs:
   - name: haproxy
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: hm9000
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: hm9000
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - write_dns_health_check_trafficcontroller.sh
   jobs:
   - name: loggregator_trafficcontroller
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: nats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - write_dns_health_check_nats.sh
   jobs:
   - name: nats
+    release_name: cf
   - name: nats_stream_forwarder
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: postgres
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - write_dns_health_check_postgres.sh
   jobs:
   - name: postgres
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: router
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: gorouter
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: runner
   scripts:
   - prevent_apparmor_disable.sh
@@ -106,28 +147,39 @@ roles:
   - clear_tmp_warden_cgroup.sh
   jobs:
   - name: dea_next
+    release_name: cf
   - name: dea_logging_agent
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: smoke_tests
   is_task: true
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: smoke-tests
+    release_name: cf
 - name: stats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   - write_dns_health_check_stats.sh
   jobs:
   - name: collector
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 - name: uaa
   scripts:
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: uaa
+    release_name: cf
   - name: consul_agent
+    release_name: cf
   - name: metron_agent
+    release_name: cf
 
