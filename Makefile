@@ -19,8 +19,12 @@ COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller h
 
 include version.mk
 
-BUILD:=$(shell echo `whoami`-`git rev-parse --short HEAD`-`date -u +%Y%m%d%H%M%S`)
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+BUILD:=$(shell whoami)-$(BRANCH)-$(shell date -u +%Y%m%d%H%M%S)
 APP_VERSION=$(VERSION)-$(BUILD)
+
+FISSILE_BRANCH:=$(BRANCH)
+CONFIGGIN_BRANCH:=$(BRANCH)
 
 all: generate_config_base images publish_images dist
 
@@ -43,7 +47,7 @@ fetch_fissle: setup
 	# Find the latest artifact, excluding the babysitter builds
 	# This looks inside the swift container, filtering by your OS type, sorts in ascending order and takes the last entry
 	# If we were to write a "latest" link, this would be easier.
-	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep $(OS_TYPE) | cut -c 14-33,34- | sort | tail -1)")
+	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep \\_$(FISSILE_BRANCH)/ | grep $(OS_TYPE) | cut -c 14-33,34- | sort | tail -1)")
 
 	swift download --output $(WORK_DIR)/fissile fissile-artifacts $(shell echo $(LATEST_FISSILE_BUILD) | cut -c 21-)
 	chmod +x $(WORK_DIR)/fissile
@@ -51,7 +55,7 @@ fetch_fissle: setup
 fetch_configgin: setup
 	@echo "$(OK_COLOR)==> Looking up latest configgin build$(NO_COLOR)"
 
-	$(eval LATEST_CONFIGGIN_BUILD="$(shell swift list -l configgin | grep -v babysitter | grep linux-x86_64.tgz | cut -c 14-33,34- | sort | tail -1)")
+	$(eval LATEST_CONFIGGIN_BUILD="$(shell swift list -l configgin | grep \\_$(CONFIGGIN_BRANCH)/ | grep -v babysitter | grep linux-x86_64.tgz | cut -c 14-33,34- | sort | tail -1)")
 	swift download --output $(WORK_DIR)/configgin.tar.gz configgin $(shell echo $(LATEST_CONFIGGIN_BUILD) | cut -c 21-)
 
 tools: fetch_fissle fetch_configgin
@@ -59,7 +63,7 @@ tools: fetch_fissle fetch_configgin
 
 images: setup tools
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
-	make -C images all
+	make -C images all APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
 
 # intentionally not contained in the normal build workflow - this is used
 # so that we can fetch and cache a cf-release when we update to a new build.
@@ -108,12 +112,14 @@ generate_config_base: fetch_fissle fetch_cf_release
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
 		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest && \
+		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) && \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest ; \
+		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) ; \
 	done
 
 dist: generate_config_base
 	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
+
+	cd $(WORK_DIR)/hcf ; echo -e "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
 
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
