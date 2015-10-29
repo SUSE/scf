@@ -1,5 +1,11 @@
 .PHONY: build tag push
 
+include ../../version.mk
+
+BRANCH:=$(shell git rev-parse --short HEAD)
+BUILD:=$(shell whoami)-$(BRANCH)-$(shell date -u +%Y%m%d%H%M%S)
+APP_VERSION=$(VERSION)-$(BUILD)
+
 all: build tag push
 
 IMAGE_NAME=hcf/consul-server
@@ -8,7 +14,9 @@ build:
 	docker build -t $(IMAGE_NAME) .
 
 tag:
-	docker tag -f $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME)
+	docker tag -f $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME):$(APP_VERSION)
+	docker tag -f $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME):latest-$(BRANCH)
 
 push:
-	docker push $(REGISTRY)/$(IMAGE_NAME)
+	docker push $(REGISTRY)/$(IMAGE_NAME):$(APP_VERSION)
+	docker push $(REGISTRY)/$(IMAGE_NAME):latest-$(BRANCH)	
