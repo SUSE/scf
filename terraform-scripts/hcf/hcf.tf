@@ -390,7 +390,17 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
 
 EOF
-    }    
+    }
+
+    provisioner "file" {
+        source = "config/role-dependencies.yml"
+        destination = "/tmp/role-dependencies.yml"
+    }
+    provisioner "remote-exec" {
+      inline = [
+        "/opt/hcf/bin/set-config-file $CONSUL hcf/user/gato/dependencies /tmp/role-dependencies.yml"
+      ]
+    }
 
     # Register the services we expect to be alive and health checks for them.
     provisioner "remote-exec" {
