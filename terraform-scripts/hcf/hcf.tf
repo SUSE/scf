@@ -239,8 +239,10 @@ EOF
         inline = [
         "sudo mkdir -p /opt/hcf/etc",
         "sudo mkdir -p /data/hcf-consul",
-        "sudo mkdir -p /data/cf-api",
-        "sudo touch /data/cf-api/.nfs_test"
+        "sudo mkdir -p /data/cf-api/data/",
+        "sudo touch /data/cf-api/data/.nfs_test",
+        "sudo mkdir    /data/cf-api/staged_droplet_uploads",
+        "sudo touch /data/cf-api/staged_droplet_uploads/.nfs_test"
         ]
     }
 
@@ -432,7 +434,7 @@ EOF
     # start the api server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-api-output"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api -v /data/cf-api/data:/var/vcap/nfs/shared -v /data/cf-api/staged_droplet_uploads:/var/vcap/data/cloud_controller_ng/tmp/staged_droplet_uploads -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-api-output"
         ]        
     }
 
@@ -545,7 +547,7 @@ EOF
     # start the api_worker server
     provisioner "remote-exec" {
         inline = [
-        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api_worker -v /data/cf-api:/var/vcap/nfs/shared -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-api_worker-output"
+        "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=always --dns=127.0.0.1 --dns=${var.dns_server} --name cf-api_worker -v /data/cf-api/data:/var/vcap/nfs/shared -v /data/cf-api/staged_droplet_uploads:/var/vcap/data/cloud_controller_ng/tmp/staged_droplet_uploads -t ${var.registry_host}/hcf/cf-v${var.cf-release}-api_worker:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-api_worker-output"
         ]        
     }
 
