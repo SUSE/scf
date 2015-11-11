@@ -66,7 +66,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     }
     availability_zone = "${var.openstack_availability_zone}"
 
-	floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
+    floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
 
     volume = {
         volume_id = "${openstack_blockstorage_volume_v1.hcf-core-vol.id}"
@@ -200,7 +200,7 @@ sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
 
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --insecure-registry=${var.registry_host} -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --insecure-registry=${var.registry_host} --insecure-registry=${var.main_registry_host} -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
@@ -295,6 +295,19 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/password \"${var.nats_password}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
 
+# CF v222 settings
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
+
+# Used to just have this for hcf/user/etcd/machines
+/opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
+
+# If either of these is true configgin will want to resolve etcd.cluster
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/peer_require_ssl false
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/require_ssl false
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
+
+
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/signing_key ~/.ssh/jwt_signing.pem
@@ -374,6 +387,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
 
+
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd/machines '["etcd.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
 
@@ -393,6 +407,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url \"https://uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
+
 
 EOF
     }    
@@ -645,7 +660,7 @@ curl -sSL https://test.docker.com/ | sh
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} --insecure-registry=${var.main_registry_host} -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
@@ -667,14 +682,14 @@ EOF
     # acceptance test image
     #
     provisioner "remote-exec" {
-        inline = ["docker pull ${var.registry_host}/hcf/cf-v217-acceptance_tests:${var.build} | tee /tmp/hcf-acceptance_tests-output"]
+        inline = ["docker pull ${var.registry_host}/hcf/cf-v${var.cf-release}-acceptance_tests:${var.build} | tee /tmp/hcf-acceptance_tests-output"]
     }
 
     #
     # smoke test image
     #
     provisioner "remote-exec" {
-        inline = ["docker pull ${var.registry_host}/hcf/cf-v217-smoke_tests:${var.build} | tee /tmp/hcf-smoke_tests-output"]
+        inline = ["docker pull ${var.registry_host}/hcf/cf-v${var.cf-release}-smoke_tests:${var.build} | tee /tmp/hcf-smoke_tests-output"]
     }
 
     #

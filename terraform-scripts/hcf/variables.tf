@@ -2,6 +2,10 @@ variable "registry_host" {
 	default = "15.126.242.125:5000"
 }
 
+variable "main_registry_host" {
+	default = "15.126.242.125:5000"
+}
+
 variable "cluster-prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"
@@ -165,6 +169,9 @@ variable "uaa_clients_notifications_secret" {
 }
 variable "uaa_clients_login_secret" {
 	default = "login_client_secret"
+}
+variable "uaa_clients_cc_routing_secret" {
+	default = "cc_routing_secret"
 }
 variable "uaa_clients_doppler_secret" {
 	default = "doppler_secret"
