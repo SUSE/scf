@@ -8,8 +8,13 @@ fi
 
 CONSUL_ADDRESS="$1"
 
-until [[ $(curl -s "$CONSUL_ADDRESS/v1/status/leader") =~ [:digit]+ ]]; do
+# Response from server will be either:
+#  * nothing (server not up)
+#  * "" (leader not elected)
+#  * "{ip}:{port}" (leader elected, ready)
+until [[ $(curl -s "$CONSUL_ADDRESS/v1/status/leader") =~ ^\"[0-9.:]+\" ]]; do
 	echo "Waiting for consul to come online"
 	sleep 1
 done
 echo "Consul up!"
+
