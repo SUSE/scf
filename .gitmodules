@@ -1,0 +1,3 @@
+[submodule "src/cf-release"]
+	path = src/cf-release
+	url = https://github.com/hpcloud/cf-release.git
