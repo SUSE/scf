@@ -9,3 +9,5 @@ password
 .terraform/
 .fissile/*
 !.fissile/.gitkeep
+.run/*
+!.run/.gitkeep
