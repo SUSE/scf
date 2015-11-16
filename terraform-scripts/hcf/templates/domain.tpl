@@ -1,0 +1,1 @@
+${replace(domain, "/^xip\.io$/", floating_domain)}

@@ -54,6 +54,15 @@ resource "openstack_blockstorage_volume_v1" "hcf-core-vol" {
   availability_zone = "${var.openstack_availability_zone}"
 }
 
+resource "template_file" "domain" {
+    filename = "${path.module}/templates/domain.tpl"
+
+    vars {
+        domain = "${var.domain}"
+        floating_domain = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+    }
+}
+
 resource "openstack_compute_instance_v2" "hcf-core-host" {
     name = "${var.cluster-prefix}-core"
     flavor_id = "${var.openstack_flavor_id.core}"
@@ -115,7 +124,7 @@ cd $CERT_DIR
 bash generate_root.sh
 bash generate_intermediate.sh
 
-bash generate_host.sh ${var.cluster-prefix}-root "*.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+bash generate_host.sh ${var.cluster-prefix}-root "*.${template_file.domain.rendered}"
 
 EOF
     }
@@ -320,7 +329,7 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/scim/users '["${var.cluster_admin_username}|${var.cluster_admin_password}|${var.cluster_admin_authorities}"]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${template_file.domain.rendered}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/doppler/zone \"${var.doppler_zone}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/traffic_controller/zone \"${var.traffic_controller_zone}\"
@@ -351,8 +360,8 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/nfs\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/app_domains '["${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/system_domain \"${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/app_domains "[\"${template_file.domain.rendered}\"]"
+/opt/hcf/bin/set-config $CONSUL hcf/user/system_domain "\"${template_file.domain.rendered}\""
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/address \"postgres.service.cf.internal\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
@@ -381,7 +390,7 @@ rm $TEMP_CERT
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/dea_next/kernel_network_tuning_enabled 'false'
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/srv_api_uri \"https://api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/cc/srv_api_uri "\"https://api.${template_file.domain.rendered}\""
 # TODO: Take this out, and place our generated CA cert into the appropriate /usr/share/ca-certificates folders
 # and call update-ca-certificates at container startup
 /opt/hcf/bin/set-config $CONSUL hcf/user/ssl/skip_cert_verify 'true'
@@ -389,8 +398,8 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/disk_quota_enabled 'false'
 
 # TODO: This should be handled in the 'opinions' file, since the ERb templates will generate this value
-/opt/hcf/bin/set-config $CONSUL hcf/user/hm9000/url \"https://hm9000.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url \"https://uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}\"
+/opt/hcf/bin/set-config $CONSUL hcf/user/hm9000/url "\"https://hm9000.${template_file.domain.rendered}\""
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url "\"https://uaa.${template_file.domain.rendered}\""
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
 
