@@ -1,5 +1,7 @@
+#!/bin/bash
+set -e
 
-# docker 
+# docker
 
 # enough storage
 
@@ -8,3 +10,5 @@
 # configgin
 
 # gato ?
+
+# bosh ?
