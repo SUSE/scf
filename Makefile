@@ -135,3 +135,25 @@ dist: generate_config_base
 	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n\nvariable \"gato-build\" {\n\tdefault = \"$(LATEST_GATO_BUILD)\"\n}\n" > proxied_internet/version.tf
 
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
+
+# --- NEW STUFF ---
+cf_release:
+	cd $(PWD)/src/cf-release && \
+	bosh create release
+
+fissile_compilation_base:
+	fissile compilation build-base
+
+fissile_compile_packages: fissile_build_base
+	fissile dev compile
+
+fissile_create_base:
+	fissile images create-base
+
+fissile_create_images: fissile_create_base releases fissile_compile_packages
+	fissile dev create-images
+
+releases: cf_release
+
+run: fissile_create_images
+	$(PWD)/bin/run.sh
