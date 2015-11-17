@@ -111,8 +111,8 @@ generate_config_base: fetch_fissle fetch_cf_release
 
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker tag -f fissile-cf-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) && \
+		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
+		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) && \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
 		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) ; \
 	done
