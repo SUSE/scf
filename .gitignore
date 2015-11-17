@@ -11,3 +11,4 @@ password
 !.fissile/.gitkeep
 .run/*
 !.run/.gitkeep
+.vagrant
