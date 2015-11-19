@@ -316,6 +316,8 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
 
+/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
 
 
