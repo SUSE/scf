@@ -10,14 +10,7 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/trusty64"
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # Create port forward mappings
   config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 4443, host: 4443
@@ -34,13 +27,28 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb|
     # Customize the amount of memory on the VM:
     vb.memory = "8096"
+
+    # If you need to debug stuff
+    # vb.gui = true
   end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   sudo apt-get update
-  #   sudo apt-get install -y apache2
-  # SHELL
+  config.vm.provision "shell", inline: <<-SHELL
+    /vagrant/bin/docker/install_kernel.sh
+  SHELL
+
+  config.vm.provision :reload
+
+  config.vm.provision "file", source: "./bootstrap-config/etcd.conf", destination: "/tmp/etcd.conf"
+  
+  config.vm.provision "shell", inline: <<-SHELL
+    /vagrant/bin/docker/install_etcd.sh
+    /vagrant/bin/docker/configure_etcd.sh "hcf" "192.168.33.10"
+    /vagrant/bin/docker/install_docker.sh "192.168.33.10" "15.126.242.125:5000" "vagrant"
+  SHELL
+  
+  config.vm.provision :reload
+  
+  config.vm.provision "shell", inline: <<-SHELL
+    /vagrant/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+  SHELL
 end

@@ -2,6 +2,11 @@
 
 Build infrastructure for HCF 1.0
 
+## Development
+
+Get Vagrant
+install vagrant-reload plugin
+`vagrant plugin install vagrant-reload`
 
 ## Build dependencies
 

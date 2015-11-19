@@ -1,7 +1,8 @@
 #!/bin/bash
+set -e
+echo "Install etcd for Docker overlay networking"
 
-echo "Update Ubuntu"
-sudo apt-get update 
-sudo DEBIAN_FRONTEND=noninteractive apt-get dselect-upgrade -y
-echo "Install a kernel with quota support"
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
+curl -L https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz -o /tmp/etcd.tar.gz
+cd /opt
+sudo tar xzvf /tmp/etcd.tar.gz
+sudo ln -sf /opt/etcd-v2.2.1-linux-amd64 /opt/etcd

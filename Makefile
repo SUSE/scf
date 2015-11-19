@@ -141,6 +141,8 @@ cf_release:
 	cd $(PWD)/src/cf-release && \
 	bosh create release
 
+releases: cf_release
+  
 fissile_compilation_base:
 	fissile compilation build-base
 
@@ -152,8 +154,6 @@ fissile_create_base:
 
 fissile_create_images: fissile_create_base releases fissile_compile_packages
 	fissile dev create-images
-
-releases: cf_release
 
 run: fissile_create_images
 	$(PWD)/bin/run.sh

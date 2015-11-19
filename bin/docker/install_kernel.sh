@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "Update Ubuntu"
 sudo apt-get update 
