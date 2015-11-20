@@ -149,7 +149,7 @@ fissile_compilation_base:
 	@echo "$(OK_COLOR)==> Building compilation base ... $(NO_COLOR)"
 	fissile compilation build-base
 
-fissile_compile_packages: fissile_build_base
+fissile_compile_packages: fissile_compilation_base
 	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
 	fissile dev compile
 

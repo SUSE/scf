@@ -63,10 +63,8 @@ Vagrant.configure(2) do |config|
 
     # TODO: investigate if this can lead to lost code if there are uncommited changes
     cd /home/vagrant/hcf
-    git config core.symlinks true
     git config --global core.symlinks true
     git submodule update --init
-    #git submodule foreach --recursive git config core.symlinks true
     /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL
 end

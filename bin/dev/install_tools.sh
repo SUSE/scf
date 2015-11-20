@@ -16,3 +16,5 @@ chown vagrant $bin_dir
 chown vagrant $tools_dir
 
 chmod +x $bin_dir/fissile
+
+docker pull ubuntu:14.04
