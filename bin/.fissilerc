@@ -43,7 +43,7 @@ export FISSILE_ROLE_BASE_DOCKERFILE_DIR="${ROOT}/.fissile/base_dockerfile/"
 export FISSILE_DEV_CACHE_DIR=~/.bosh/cache
 
 # Path to a configgin release tarball
-export FISSILE_CONFIGGIN_PATH=~/fissile-configgin/configgin-1.0.1.16_develop-linux-x86_64.tgz
+export FISSILE_CONFIGGIN_PATH=~/tools/configgin.tgz
 
 # This is the configuration base prefix
 export FISSILE_CONFIG_PREFIX=hcf

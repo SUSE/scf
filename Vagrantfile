@@ -32,23 +32,41 @@ Vagrant.configure(2) do |config|
     # vb.gui = true
   end
 
+  config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+  config.vm.synced_folder ".", "/home/vagrant/hcf"
+
   config.vm.provision "shell", inline: <<-SHELL
-    /vagrant/bin/docker/install_kernel.sh
+    /home/vagrant/hcf/bin/docker/install_kernel.sh
   SHELL
 
   config.vm.provision :reload
 
   config.vm.provision "file", source: "./bootstrap-config/etcd.conf", destination: "/tmp/etcd.conf"
-  
+
   config.vm.provision "shell", inline: <<-SHELL
-    /vagrant/bin/docker/install_etcd.sh
-    /vagrant/bin/docker/configure_etcd.sh "hcf" "192.168.33.10"
-    /vagrant/bin/docker/install_docker.sh "192.168.33.10" "15.126.242.125:5000" "vagrant"
+    /home/vagrant/hcf/bin/docker/install_etcd.sh
+    /home/vagrant/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.33.10"
+    /home/vagrant/hcf/bin/docker/install_docker.sh "192.168.33.10" "15.126.242.125:5000" "vagrant"
   SHELL
-  
+
   config.vm.provision :reload
-  
+
   config.vm.provision "shell", inline: <<-SHELL
-    /vagrant/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+    /home/vagrant/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+    /home/vagrant/hcf/bin/dev/install_bosh.sh
+    /home/vagrant/hcf/bin/dev/install_tools.sh
+  SHELL
+
+  config.vm.provision "shell", inline: <<-SHELL
+    echo 'source ~/hcf/bin/.fissilerc' >> .profile
+    echo 'source ~/hcf/bin/.runrc' >> .profile
+
+    # TODO: investigate if this can lead to lost code if there are uncommited changes
+    cd /home/vagrant/hcf
+    git config core.symlinks true
+    git config --global core.symlinks true
+    git submodule update --init
+    #git submodule foreach --recursive git config core.symlinks true
+    /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL
 end

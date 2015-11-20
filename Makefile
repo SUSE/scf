@@ -138,22 +138,29 @@ dist: generate_config_base
 
 # --- NEW STUFF ---
 cf_release:
+	@echo "$(OK_COLOR)==> Running bosh create release for cf-release ... $(NO_COLOR)"
 	cd $(PWD)/src/cf-release && \
-	bosh create release
+	bosh create release --force --name cf
 
 releases: cf_release
-  
+	@echo "$(OK_COLOR)==> Creating BOSH releases ... $(NO_COLOR)"
+
 fissile_compilation_base:
+	@echo "$(OK_COLOR)==> Building compilation base ... $(NO_COLOR)"
 	fissile compilation build-base
 
 fissile_compile_packages: fissile_build_base
+	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
 	fissile dev compile
 
 fissile_create_base:
+	@echo "$(OK_COLOR)==> Creating image base ... $(NO_COLOR)"
 	fissile images create-base
 
 fissile_create_images: fissile_create_base releases fissile_compile_packages
+	@echo "$(OK_COLOR)==> Creating docker images ... $(NO_COLOR)"
 	fissile dev create-images
 
 run: fissile_create_images
+	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
 	$(PWD)/bin/run.sh

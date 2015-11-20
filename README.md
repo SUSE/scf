@@ -7,12 +7,24 @@ Build infrastructure for HCF 1.0
 1. Get Vagrant
 2. Install vagrant-reload plugin
 `vagrant plugin install vagrant-reload`
+3. Make sure you don't have uncommited changes in any submodules - they will get clobbered
+4. `vagrant up`
 
 ### Windows
+
+> Working on a Windows host is more complicated because of heavy usage of symlinks
+> in the cf-release repository.
+> Don't use this sort of setup unless you're comfortable with the extra complexity.
 
 Before you do anything, make sure you handle line endings correctly:
 
 `git config --global core.autocrlf input`
+
+Do not recursively update submodules, it will happen in the Vagrant VM,
+so symlinks are configured properly.
+
+Run `git config core.symlinks true` for the `hcf-infrastructure` repo.
+Then, for all submodules: `git submodule foreach --recursive git config core.symlinks true`
 
 ## Build dependencies
 
