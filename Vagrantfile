@@ -60,11 +60,5 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
-
-    # TODO: investigate if this can lead to lost code if there are uncommited changes
-    cd /home/vagrant/hcf
-    git config --global core.symlinks true
-    git submodule update --init
-    /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL
 end

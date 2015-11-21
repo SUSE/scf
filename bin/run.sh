@@ -7,11 +7,6 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 . "${ROOT}/bin/.runrc"
 . "${ROOT}/bin/common.sh"
 
-fissile compilation build-base
-fissile images create-base
-fissile dev compile
-fissile dev create-images
-
 consul_image=($(fissile dev list-roles | grep 'consul'))
 other_images=($(fissile dev list-roles | grep -v 'consul\|smoke_tests\|acceptance_tests'))
 
