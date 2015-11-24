@@ -24,16 +24,20 @@ Vagrant.configure(2) do |config|
   # your network.
   # config.vm.network "public_network"
 
+  config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+  config.vm.synced_folder ".", "/home/vagrant/hcf"
+
   config.vm.provider "virtualbox" do |vb|
     # Customize the amount of memory on the VM:
     vb.memory = "8096"
 
     # If you need to debug stuff
     # vb.gui = true
+
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.", "1"]
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.fissile/.bosh", "1"]
   end
 
-  config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-  config.vm.synced_folder ".", "/home/vagrant/hcf"
 
   config.vm.provision "shell", inline: <<-SHELL
     /home/vagrant/hcf/bin/docker/install_kernel.sh
