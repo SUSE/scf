@@ -10,7 +10,7 @@ Build infrastructure for HCF 1.0
 3. Make sure you don't have uncommited changes in any submodules - they will get clobbered
 4. `vagrant up`
 
-### Windows
+### Windows (Currently not working, do not try this at home)
 
 > Working on a Windows host is more complicated because of heavy usage of symlinks
 > in the cf-release repository.
