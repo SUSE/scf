@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
