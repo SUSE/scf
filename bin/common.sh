@@ -8,7 +8,10 @@ function container_running {
 
 function kill_role {
   role=$1
-  docker rm --force $(docker ps -a -q --filter "label=fissile_role=${role}") > /dev/null 2>&1
+  container=$(docker ps -a -q --filter "label=fissile_role=${role}")
+  if [[ ! -z $container ]]; then
+    docker rm --force $container > /dev/null 2>&1
+  fi
 }
 
 function start_role {
@@ -32,7 +35,7 @@ function start_role {
     $extra \
     $image \
     $consul_address \
-    $config_prefix > /dev/null 2>&1
+    $config_prefix > /dev/null
 }
 
 function get_container_name() {
@@ -46,7 +49,7 @@ function get_role_name() {
 
 function handle_restart() {
   image=$1
-  extra=$2
+  extra=$@
   
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)

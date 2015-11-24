@@ -10,7 +10,7 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 consul_image=($(fissile dev list-roles | grep 'consul'))
 other_images=($(fissile dev list-roles | grep -v 'consul\|smoke_tests\|acceptance_tests'))
 
-local_ip="${local_ip:-`${ROOT}/bootstrap-scripts/get_ip`}"
+local_ip="${local_ip:-$(${ROOT}/bootstrap-scripts/get_ip)}"
 store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 consul_address="http://${local_ip}:8501"
@@ -28,11 +28,12 @@ for image in "${other_images[@]}"
 do
   extra=""
 
+  role=$(get_role_name $image)
   case "$role" in
     "api")
       mkdir -p $store_dir/fake_nfs_share
       touch $store_dir/fake_nfs_share/.nfs_test
-      extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
+      extra="-v ${store_dir}/fake_nfs_share:/var/vcap/nfs/shared"
       ;;
    "api_worker")
       mkdir -p $store_dir/fake_nfs_share
@@ -47,7 +48,7 @@ do
       ;;
   esac
 
-  handle_restart $image $extra
+  handle_restart "$image" "$extra"
 done
 
 exit 0

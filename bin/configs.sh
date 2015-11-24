@@ -6,7 +6,7 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 local_ip=`${ROOT}/bootstrap-scripts/get_ip`
 
 # Variables and their defaults
-public_ip="${public_ip:-`echo ${local_ip}`}"
+public_ip="${public_ip:-$(echo ${local_ip})}"
 bulk_api_password="${bulk_api_password:-password}"
 ccdb_role_name="${ccdb_role_name:-ccadmin}"
 ccdb_role_password="${ccdb_role_password:-}"
@@ -16,7 +16,7 @@ cluster_admin_authorities="${cluster_admin_authorities:-scim.write,scim.read,ope
 cluster_admin_password="${cluster_admin_password:-admin}"
 cluster_admin_username="${cluster_admin_username:-changeme}"
 db_encryption_key="${db_encryption_key:-the_key}"
-domain="${domain:-`echo ${public_ip}.nip.io`}"
+domain="${domain:-$(echo ${public_ip}.nip.io)}"
 doppler_zone="${doppler_zone:-z1}"
 loggregator_shared_secret="${loggregator_shared_secret:-loggregator_endpoint_secret}"
 metron_agent_zone="${metron_agent_zone:-z1}"
