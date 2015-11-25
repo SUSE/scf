@@ -1,21 +1,21 @@
 ---
 order:
-- hcf-consul-server
-- cf-consul
-- cf-nats
-- cf-etcd
-- cf-doppler
-- cf-loggregator_trafficcontroller
-- cf-postgres
-- cf-router
-- cf-stats
-- cf-ha_proxy
-- cf-uaa
-- cf-clock_global
-- cf-api_worker
-- cf-api
-- cf-hm9000
-- "cf-runner-#"
+  - hcf-consul-server
+  - cf-consul
+  - cf-nats
+  - cf-etcd
+  - cf-doppler
+  - cf-loggregator_trafficcontroller
+  - cf-postgres
+  - cf-router
+  - cf-stats
+  - cf-ha_proxy
+  - cf-uaa
+  - cf-clock_global
+  - cf-api_worker
+  - cf-api
+  - cf-hm9000
+  - "cf-runner-#"
 
 post-start-scripts:
   hcf-consul-server: ["/opt/hcf/bin/wait_for_consul.bash"]
@@ -25,18 +25,18 @@ post-start-scripts:
 
 dependencies:
   cf-consul:
-  - "cf-*" # Everything but cf-consul
+    - "cf-*" # Everything but cf-consul
   cf-nats:
-  - cf-uaa
-  - cf-api_worker
-  - cf-api
-  - cf-hm9000
-  - cf-runner
-  - cf-router
-- cf-postgres:
-  - cf-api
-- cf-uaa:
-  - cf-api
-
+    - cf-uaa
+    - cf-api_worker
+    - cf-api
+    - cf-hm9000
+    - cf-runner
+    - cf-router
+  cf-postgres:
+    - cf-api
+  cf-uaa:
+    - cf-api
+  
 ignorables:
-- hcf-consul-server
+  - hcf-consul-server
