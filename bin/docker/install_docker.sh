@@ -8,7 +8,7 @@ user=$3
 
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
 
-curl -sSL https://test.docker.com/ | sh
+curl -sSL https://experimental.docker.com/ | sh
 
 sudo usermod -aG docker $user
 # allow us to pull from the docker registry

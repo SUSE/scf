@@ -15,6 +15,18 @@ store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 consul_address="http://${local_ip}:8501"
 config_prefix=$FISSILE_CONFIG_PREFIX
+hcf_consul_container="hcf-consul-server"
+
+if container_running $hcf_consul_container ; then
+  echo "HCF consul server is running ..."
+else
+  echo "Starting HCF consul ..."
+  start_hcf_consul $hcf_consul_container
+fi
+
+wait_hcf_consul $consul_address
+
+exit 0
 
 # Manage the consul role ...
 image=$consul_image
@@ -48,7 +60,7 @@ do
       ;;
   esac
 
-  handle_restart "$image" "$extra"
+  handle_restart "$image" "$extra" || true 
 done
 
 exit 0

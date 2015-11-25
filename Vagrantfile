@@ -11,7 +11,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
 
   # Create port forward mappings
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 80, host: 80
   config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 4443, host: 4443
 
@@ -64,5 +64,9 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
+
+    # TODO: do not run this if it's already initted
+    git submodule update --init
+   /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL
 end

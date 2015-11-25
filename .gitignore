@@ -10,6 +10,4 @@ password
 !.fissile/.gitkeep
 !.fissile/.bosh/.gitkeep
 .fissile/*
-.run/*
-!.run/.gitkeep
 .vagrant
