@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
@@ -9,9 +8,15 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 function container_running {
   container_name=$1
 
-  docker inspect ${container_name} > /dev/null 2>&1
+  if out=$(docker inspect --format='{{.State.Running}}' ${container_name} 2>/dev/null); then
+    if [ "$out" == "false" ]; then
+      return 1
+    fi
+  else
+    return 1
+  fi
 
-  return $?
+  return 0
 }
 
 # Kills an hcf role
@@ -30,12 +35,13 @@ function start_role {
   image=$1
   name=$2
   role=$3
-  extra=$4
+  extra="${@:4}"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
 
   docker run -it -d --name $name \
+    --net=hcf \
     --privileged \
     --label=fissile_role=$role \
     --dns=127.0.0.1 --dns=8.8.8.8 \
@@ -64,13 +70,11 @@ function start_hcf_consul() {
     -v $store_dir/$container_name:/opt/hcf/share/consul \
     -t hcf/consul-server:latest \
     -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json)
-
-  #docker network connect hcf $cid
 }
 
 # Waits for the hcf consul server to start
 # wait_hcf_consul <CONSUL_ADDRESS>
-function wait_hcf_consul() {
+function wait_for_consul() {
   $ROOT/bootstrap-scripts/wait_for_consul.bash $1
 }
 
@@ -78,6 +82,19 @@ function wait_hcf_consul() {
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
   echo "${1/:/-}"
+}
+
+# imports spec and opinion configs into HCF consul
+# run_consullin <CONSUL_ADDRESS> <CONFIG_SOURCE>
+function run_consullin() {
+  $ROOT/bootstrap-scripts/consullin.bash $1 $2
+}
+
+# imports default user and role configs
+# run_config <CONSUL_ADDRESS> <PUBLIC_IP>
+function run_configs() {
+  gato api $1
+  $ROOT/bin/configs.sh
 }
 
 # gets a role name from a fissile image name
@@ -94,7 +111,7 @@ function get_role_name() {
 # handle_restart <IMAGE_NAME> <EXTRA_DOCKER_ARGUMENTS>
 function handle_restart() {
   image=$1
-  extra=$@
+  extra="${@:2}"
 
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)

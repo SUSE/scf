@@ -15,6 +15,7 @@ certs_prefix="${certs_prefix:-hcf}"
 cluster_admin_authorities="${cluster_admin_authorities:-scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose}"
 cluster_admin_password="${cluster_admin_password:-admin}"
 cluster_admin_username="${cluster_admin_username:-changeme}"
+consul_encryption_keys="${consul_encryption_keys:-consul_key}"
 db_encryption_key="${db_encryption_key:-the_key}"
 domain="${domain:-$(echo ${public_ip}.nip.io)}"
 doppler_zone="${doppler_zone:-z1}"
@@ -46,24 +47,30 @@ uaadb_tag="${uaadb_tag:-admin}"
 uaadb_username="${uaadb_username:-uaaadmin}"
 
 # Certificate generation
+certs_path="${HOME}/.run/certs"
+ca_path="$certs_path/ca"
 (
-  # prepare directories
-  certs_path="${ROOT}/.run/certs"
-  ca_path="$certs_path/ca"
-  mkdir -p ${certs_path}
-  mkdir -p ${ca_path}
-  cd $ca_path
-  
-  if [ ! -f intermediate/private/${certs_prefix}-root.chain.pem ] ; then
+  if [ ! -f $ca_path/intermediate/private/${certs_prefix}-root.chain.pem ] ; then
+    # prepare directories
+    rm -rf ${certs_path}
+    rm -rf ${ca_path}
+    mkdir -p ${certs_path}
+    mkdir -p ${ca_path}
+
+    cd $ca_path
+
+    cp ${ROOT}/terraform-scripts/hcf/cert/intermediate_openssl.cnf ./
+    cp ${ROOT}/terraform-scripts/hcf/cert/root_openssl.cnf ./
+
     # generate ha_proxy certs
-    bash ${ROOT}/terraform-scripts/cert/generate_root.sh
-    bash ${ROOT}/terraform-scripts/cert/generate_intermediate.sh
-    bash ${ROOT}/terraform-scripts/cert/generate_host.sh "${certs_prefix}-root" "*.${domain}"
+    bash ${ROOT}/terraform-scripts/hcf/cert/generate_root.sh
+    bash ${ROOT}/terraform-scripts/hcf/cert/generate_intermediate.sh
+    bash ${ROOT}/terraform-scripts/hcf/cert/generate_host.sh "${certs_prefix}-root" "*.${domain}"
     cat intermediate/private/${certs_prefix}-root.key.pem > intermediate/private/${certs_prefix}-root.chain.pem
     cat intermediate/certs/${certs_prefix}-root.cert.pem >> intermediate/private/${certs_prefix}-root.chain.pem
   fi
 
-  if [ ! -f ${certs_path}/jwt_signing.pub ] ; then  
+  if [ ! -f ${certs_path}/jwt_signing.pub ] ; then
     # generate JWT certs
     openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
     openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
@@ -90,9 +97,10 @@ gato config set nfs_server.share_path                   '"/var/vcap/nfs"'
 gato config set databases.databases                     '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
 gato config set databases.port                          '5524'
 gato config set etcd.machines                           '["etcd.service.cf.internal"]'
+gato config set loggregator.etcd.machines               '["etcd.service.cf.internal"]'
 gato config set router.servers.z1                       '["gorouter.service.cf.internal"]'
 gato config set dea_next.kernel_network_tuning_enabled  'false'
-# TODO: Take this out, and place our generated CA cert 
+# TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
 # and call update-ca-certificates at container startup
 gato config set ssl.skip_cert_verify      'true'
@@ -110,6 +118,7 @@ gato config set cc.staging_upload_user                                "\"${stagi
 gato config set cc.staging_upload_password                            "\"${staging_upload_password}\""
 gato config set ccdb.address                                          "\"postgres.service.cf.internal\""
 gato config set ccdb.roles                                            "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
+gato config set consul.encrypt_keys                                   "[\"${consul_encryption_key}\"]"
 gato config set databases.address                                     "\"postgres.service.cf.internal\""
 gato config set databases.roles                                       "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\",\"tag\": \"${ccdb_role_tag}\"}, {\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\":\"${uaadb_tag}\"}]"
 gato config set domain                                                "\"${domain}\""
@@ -117,9 +126,9 @@ gato config set doppler.zone                                          "\"${doppl
 gato config set doppler_endpoint.shared_secret                        "\"${loggregator_shared_secret}\""
 gato config set etcd_metrics_server.nats.username                     "\"${nats_user}\""
 gato config set etcd_metrics_server.password                          "\"${nats_password}\""
-gato config set hcf.monit.user                                        "\"${monit_user}\""
-gato config set hcf.monit.password                                    "\"${monit_password}\""
-gato config set hcf.monit.port                                        "\"${monit_port}\""
+gato config set hcf.monit.user                                        "'${monit_user}'"
+gato config set hcf.monit.password                                    "'${monit_password}'"
+gato config set hcf.monit.port                                        "${monit_port}"
 gato config set loggregator_endpoint.shared_secret                    "\"${loggregator_shared_secret}\""
 gato config set metron_agent.zone                                     "\"${metron_agent_zone}\""
 gato config set nats.user                                             "\"${nats_user}\""
@@ -148,4 +157,3 @@ gato config set uaa.url                                               "\"https:/
 cat "${ca_path}/intermediate/private/${certs_prefix}-root.chain.pem" | gato config set -f ha_proxy.ssl_pem -
 cat "${certs_path}/jwt_signing.pem" | gato config set -f uaa.jwt.signing_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f uaa.jwt.verification_key -
-

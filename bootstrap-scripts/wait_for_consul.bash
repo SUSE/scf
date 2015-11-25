@@ -16,7 +16,7 @@ CONSUL_ADDRESS="$1"
 #  * "{ip}:{port}" (leader elected, ready)
 until [[ $(curl -s "$CONSUL_ADDRESS/v1/status/leader") =~ ^\"[0-9.:]+\" ]]; do
 	echo "Waiting for consul to come online"
-	sleep 1
+	sleep 2
 done
 echo "Consul up!"
 

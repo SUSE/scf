@@ -163,7 +163,7 @@ fissile_create_images: fissile_create_base fissile_compile_packages
 
 fissile_create_config:
 	@echo "$(OK_COLOR)==> Generating configuration ... $(NO_COLOR)"
-	fissile config gen
+	fissile dev config-gen
 
 docker_images:
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
@@ -171,6 +171,6 @@ docker_images:
 
 run_hcf_consul: docker_images
 
-run: fissile_create_images
+run: run_hcf_consul fissile_create_config fissile_create_images
 	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
 	$(PWD)/bin/run.sh
