@@ -48,8 +48,6 @@ function start_role {
     --cgroup-parent=instance \
     -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
-    -v $FISSILE_COMPILATION_DIR:$FISSILE_COMPILATION_DIR \
-    -v $FISSILE_DOCKERFILES_DIR/$role/packages:/var/vcap/packages \
     $extra \
     $image \
     $consul_address \

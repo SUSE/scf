@@ -122,7 +122,6 @@ gato config set cc.srv_api_uri                                        "https://a
 gato config set cc.staging_upload_user                                "${staging_upload_user}"
 gato config set cc.staging_upload_password                            "${staging_upload_password}"
 gato config set ccdb.roles                                            "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
-gato config set consul.encrypt_keys                                   "[\"${consul_encryption_key}\"]"
 gato config set databases.roles                                       "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\",\"tag\": \"${ccdb_role_tag}\"}, {\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\":\"${uaadb_tag}\"}]"
 gato config set domain                                                "${domain}"
 gato config set doppler.zone                                          "${doppler_zone}"

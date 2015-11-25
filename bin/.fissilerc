@@ -33,7 +33,7 @@ export FISSILE_CONFIG_OUTPUT_DIR="${ROOT}/.fissile/config"
 export FISSILE_COMPILATION_DIR="${ROOT}/.fissile/compilation"
 
 # This is where the Dockerfiles for images are created
-export FISSILE_DOCKERFILES_DIR="${ROOT}/.fissile/dockerfiles"
+export FISSILE_DOCKERFILES_DIR="${HOME}/.fissile/dockerfiles"
 
 # This is where the Dockerfile for the role base image is created
 export FISSILE_ROLE_BASE_DOCKERFILE_DIR="${ROOT}/.fissile/base_dockerfile/"
