@@ -115,7 +115,7 @@ gato config set consul.require_ssl        "false"
 gato config set consul.encrypt_keys       "[]"
 
 # Setting user values
-gato config set app_domains                                           "[\"${domain}\"]'"
+gato config set app_domains                                           "[\"${domain}\"]"
 gato config set cc.bulk_api_password                                  "${bulk_api_password}"
 gato config set cc.db_encryption_key                                  "${db_encryption_key}"
 gato config set cc.srv_api_uri                                        "https://api.${domain}"
