@@ -30,13 +30,14 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb|
     # Customize the amount of memory on the VM:
-    vb.memory = "16192"
+    vb.memory = "8096"
 
     # If you need to debug stuff
     # vb.gui = true
 
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.", "1"]
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.fissile/.bosh", "1"]
+    vb.customize ['modifyvm', :id, '--nictype1', 'virtio']
   end
 
 
