@@ -41,7 +41,9 @@ if handle_restart $image "-p 8500:8500"; then
   # TODO: in this case, everything needs to restart
 fi
 
-wait_for_consul "http://127.0.0.1:8500"
+# Wait for CF consul to start
+# TODO: replace with gato status
+sleep 10
 
 # Start all other roles
 for image in "${other_images[@]}"
