@@ -66,7 +66,7 @@ class Node
       # Shut down the current container
       if m[:rest] == "-runner"
         # Evacuate the DEAs
-        do_cmd("docker exec kill -s USR2 #{containerID}")
+        do_cmd("docker exec #{containerID} kill -s USR2")
       end
       repository = m[:repository]
       pathStart  = m[:pathStart]
