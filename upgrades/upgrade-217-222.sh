@@ -40,7 +40,7 @@ ssh ubuntu@$IP /opt/hcf/bin/consullin.bash http://${REMOTEIP}:8501 /tmp/hcf-conf
 # Update the consul kv store
 
 scp upgrade-v222.bash ${IP}:
-ssh ubuntu@$IP bash ./upgrade-v222.bash
+ssh ubuntu@$IP bash ./upgrade-v222.bash $IP
 
 # Get ready to upgrade
 

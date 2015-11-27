@@ -55,6 +55,7 @@ class Node
     if @ordered_roles
       containers = sort_by_precedence(containers)
     end
+    do_cmd("sudo touch /data/cf-api/.nfs_test")
     containers.each do |container|
       containerID = container[:ID]
       m = @@container_re.match(container[:Image])

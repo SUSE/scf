@@ -3,9 +3,15 @@
 # __: was a '.' (2 underscores)
 # ___: was a '-' (3 underscores)
 
+IP=$1
+if [ -z "$IP" ] ; then
+  echo "Usage: $0 X.Y.Z.W - No IP specified "
+  exit 1
+fi
+
 export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 var__uaa_clients_cc_routing_secret=cc_routing_secret
-openstack_networking_floatingip_v2__hcf___core___host___fip__address=15.125.83.78
+openstack_networking_floatingip_v2__hcf___core___host___fip__address=$IP
 var__domain=xip.io
 var__uaadb_username=uaaadmin
 var__uaadb_password=uaaadmin_password
