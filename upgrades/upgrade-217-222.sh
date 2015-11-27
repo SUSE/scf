@@ -2,13 +2,19 @@
 
 set -e
 
-IP=shift
+IP=$1 ; shift
 if [ -z "$IP" ] ; then
   echo "Usage: $0 A.B.C.D where we're targeting node A.B.C.D"
   exit 1
 fi
 
 # init gato
+
+gato=$(ssh ubuntu@$IP cat /opt/hcf/bin/gato)
+if [[ $gato =~ "-i -t" ]] ; then
+  echo "Remove the -t on /opt/hcf/bin/gato on $IP"
+  exit 1
+fi  
 
 ssh ubuntu@$IP /opt/hcf/bin/gato api http://hcf-consul-server.hcf:8501
 
@@ -48,7 +54,7 @@ ssh ubuntu@$IP sudo apt-get install -y ruby
 # to docker, restart it, and then bring in new versions of the
 # stopped containers.  Yes, this means hcf gets shut down during an upgrade :(
 
-===> skip this, go to CONTINUE
+if false ; then
 
 # **** This is where consul fails
 # Try adding this:
@@ -66,8 +72,8 @@ ssh ubuntu@$IP bash -c 'cp /etc/default/docker /tmp/default-docker.orig ; sed "s
 cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t 15.126.242.125:5000/hcf/consul-server:latest -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
 docker network connect hcf $cid
 
+fi
 
-:CONTINUE
 
 echo 'On the server, run
 ruby upgrade-versions.rb -t 222 -g latest-epdev -r 15.125.71.0:5000 -d ~/role-dependencies.yml 
@@ -77,6 +83,14 @@ or
 
 ruby -rdebug upgrade-versions.rb -t 222 -g latest-epdev -r 15.125.71.0:5000 -d ~/role-dependencies.yml 
 
+'
+
+echo 'Also possible:
+
+for x in cf-api cf-api_worker cf-clock_global ; do
+  echo $x
+  docker exec -t $x apt-get install -y libyaml-0-2
+done
 '
 
 

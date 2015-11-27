@@ -22,10 +22,13 @@ class Node
     @roles_to_add = opts.delete(:roles_to_add) || []
     @ordered_roles = opts.delete(:ordered_roles)
     @opts = opts
-    @new_name_suffix = "-#{SecureRandom.urlsafe_base64[0..8]}"
+    @old_name_suffix = "#{SecureRandom.urlsafe_base64[0..8]}"
     @containers_to_delete = []
     @images_to_remove_by_id = []
-    
+    @network_connector_roles = {
+      'hcf-consul-server' => true,
+      'cf-ha_proxy' => true,
+    }
   end
   
   def get_current_images_and_containers
@@ -52,58 +55,28 @@ class Node
     if @ordered_roles
       containers = sort_by_precedence(containers)
     end
-    # Handle hcf-consul-server specially
-    idx = containers.find_index{|c| c[:Names] == "hcf-consul-server"}
-    if idx
-      consul_server_container = containers.delete_at(idx)
-    else
-      consul_server_container = nil
-    end
-
-    @container_data = {} # Hash of inspect data for each container
-    stop_and_rename_containers(containers.reverse)
-    if consul_server_container
-      system("docker network disconnect hcf #{consul_server_container[:ID]}")
-    end
-    stop_and_rename_container(consul_server_container) if consul_server_container
-    # About to restart docker, so everything should be gone now
-    add_docker_insecure_registry
-
-    if consul_server_container
-      restart_container(consul_server_container, @container_data["hcf-consul-server"]["Config"]["Image"])
-      cid = (`docker ps | awk '/hcf-consul-server/ { print $1 }'` || "").chomp
-      if cid.size > 0
-        system("docker network connect hcf #{cid}")
+    containers.each do |container|
+      containerID = container[:ID]
+      m = @@container_re.match(container[:Image])
+      if !m
+        $stderr.puts("Skip container #{container}")
+        next
       end
+      # Shut down the current container
+      if m[:rest] == "-runner"
+        # Evacuate the DEAs
+        do_cmd("docker exec kill -s USR2 #{containerID}")
+      end
+      repository = m[:repository]
+      pathStart  = m[:pathStart]
+      rest       = m[:rest]
+      newImage = "#{@target_repository || repository}#{pathStart}#{@target_version}#{rest}:#{@target_tag}"
+      update_container(images, container, newImage)
     end
-    restart_containers(containers)
     clean_up
   end
 
   private
-
-  def add_docker_insecure_registry
-    orig_text = IO.read("/etc/default/docker")
-    if orig_text[@target_repository]
-      return
-    end
-    idx = orig_text.rindex("--insecure-registry")
-    if !idx
-      return
-    end
-    idx2 = idx + "--insecure-registry".size
-    connector = orig_text[idx2]
-    if %r{\d+(?:\.\d+){3}/\d}.match(orig_text, idx2)
-      # If we find a CIDR address like 15.124.0.0/14 we don't need to update
-      return
-    end
-    new_text = "#{orig_text[0...idx]} --insecure-registry#{connector}#{@target_repository} #{orig_text[idx..-1]}"
-    # Save a backup
-    File.open("/tmp/default-docker.orig", "w") { |fd| fd.write(orig_text) }
-    File.open("/tmp/default-docker.new", "w")  { |fd| fd.write(new_text) }
-    system("sudo cp /tmp/default-docker.new /etc/default/docker")
-    system("sudo service docker restart")
-  end
 
   def clean_up
     if @containers_to_delete.size > 0
@@ -121,8 +94,11 @@ class Node
   def do_cmd(cmd, complain=true)
     the_stdout = nil
     the_stderr = nil
+    $stderr.puts("===> #{cmd}")
     Open3.popen3(cmd) do |stdin, stdout, stderr|
-      the_stderr = stderr.read
+      the_stderr = stderr.read.
+        sub("WARNING: Localhost DNS setting (--dns=127.0.0.1) may fail in containers.\n", "").
+        sub(/Unable to find image '.*?' locally\s*/, "")
       the_stdout = stdout.read
     end
     if complain && the_stderr.size > 0
@@ -131,7 +107,7 @@ class Node
     if complain && the_stdout.size > 0
       $stderr.print("Running command #{cmd} ===>:\n#{the_stdout}\n")
     end
-    return the_stderr.size == 0
+    return the_stderr.size == 0, the_stdout, the_stderr
   end
     
   def sort_by_precedence(containers)
@@ -150,8 +126,20 @@ class Node
     return valued_containers.sort.map{|x| x[1]}
   end
 
-  def restart_container(container, newImage)
-    data = @container_data[container[:Names]]
+  def update_container(images, container, newImage)
+    # Make sure we can get the new image before stopping the current
+    # container.  Yes, for a while we're not running an instance of
+    # each container to upgrade on the node. But two identical nodes
+    # can't run at the same time due to ports, so it's better to shut
+    # down the old one before bringing up the new one.
+    res, stdout, stderr = do_cmd("docker pull #{newImage}")
+    if !res
+      stderr.puts "Can't fetch an update for #{container[:Names]}, not updating"
+      return
+    end
+
+    data = JSON.parse(`docker inspect #{container[:Names]}`)[0]
+    stop_and_rename_container(container)
     args = data['Args']
     host_config = data['HostConfig']
     dns_servers = host_config['Dns']
@@ -184,7 +172,7 @@ class Node
     cmd_parts += host_config['Binds'].map{|b| "-v #{b}"} if host_config['Binds']
 
     port_bindings = host_config["PortBindings"]
-    if port_bindings
+    if port_bindings && port_bindings.size > 0
       bindings = []
       port_bindings.each do |key, values|
         if key =~ %r{^(\d+)/tcp}
@@ -202,60 +190,35 @@ class Node
     cmd_parts += ["-t", newImage]
     cmd_parts += args
     cmd = cmd_parts.join(" ")
-    res = do_cmd(cmd)
+    res, stdout, stderr = do_cmd(cmd)
+    if !res
+      if stderr =~ /Downloaded newer image for/
+        res = true
+      end
+    end
     if !res
       $stderr.puts("Might want to keep the old image around and restart it")
-    end
-    # Mark the old image for deletion
-    image = images.find{|i| container[:Image].start_with?(i[:Repository])}
-    if image
-      @images_to_remove_by_id << image[:ID]
-    end
-  end
-
-  def restart_containers(containers)
-    containers.each do |container|
-      containerID = container[:ID]
-      m = @@container_re.match(container[:Image])
-      if !m
-        $stderr.puts("Skip container #{container}")
-        next
+    else
+      if @network_connector_roles[container[:Names]]
+        do_cmd("docker network connect hcf #{container[:ID]}")
       end
-      repository = m[:repository]
-      pathStart  = m[:pathStart]
-      rest       = m[:rest]
-      newImage = "#{@target_repository || repository}#{pathStart}#{@target_version}#{rest}:#{@target_tag}"
-      restart_container(container, newImage)
+      # Mark the old image for deletion
+      image = images.find{|i| container[:Image].start_with?(i[:Repository])}
+      if image
+        @images_to_remove_by_id << image[:ID]
+      end
     end
   end
 
   def stop_and_rename_container(container)
-    containerID = container[:ID]      
-
-    @container_data[container[:Names]] = JSON.parse(`docker inspect #{container[:Names]}`)[0]
-        
+    containerID = container[:ID]
+    if @network_connector_roles[container[:Names]]
+      do_cmd("docker network disconnect hcf #{containerID}")
+    end
     do_cmd("docker stop #{containerID}")
     do_cmd("docker kill #{containerID}")
-    do_cmd("docker rename #{container[:Names]} #{container[:Names]}-#{@new_name_suffix}")
+    do_cmd("docker rename #{container[:Names]} #{container[:Names]}-#{@old_name_suffix}")
     @containers_to_delete << containerID
-  end
-
-  def stop_and_rename_containers(containers)
-    containers.reverse.each do |container|
-      containerID = container[:ID]
-      m = @@container_re.match(container[:Image])
-      if !m
-        $stderr.puts("Skip container #{container}")
-        next
-      end
-      # Shut down the current container
-      if m[:rest] == "-runner"
-        # Evacuate the DEAs
-        res = do_cmd("docker exec kill -s USR2 #{containerID}")
-        #return if !res
-      end
-      stop_and_rename_container(container)
-    end
   end
     
 end
