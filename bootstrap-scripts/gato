@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-gato_status=`docker inspect -f "{{.State.Running}}" hcf-gato`
+gato_status=`docker inspect -f "{{.State.Running}}" hcf-gato 2> /dev/null`
 
 if [[ "$?" == "1" || $gato_status == 'false' ]] ; then
   docker rm --force hcf-gato 2> /dev/null 1> /dev/null
-  case `tty` in
-    "not a tty") args="-i" ;;
-    *) args="-i -t"
-  esac
-  docker run $args --name hcf-gato --entrypoint="bash" --net=hcf -d -v /opt/hcf/etc/gato:/root/.gato 15.126.242.125:5000/hcf/hcf-gato -i > /dev/null
+  docker run --interactive --name hcf-gato --entrypoint="bash" --net=hcf -d -v /opt/hcf/etc/gato:/root/.gato 15.126.242.125:5000/hcf/hcf-gato -i > /dev/null
 fi
 
-docker exec hcf-gato gato "$@"
+case `tty` in
+  "not a tty") args="" ;;
+  *) args="--tty"
+esac
+
+docker exec --interactive $args hcf-gato gato "$@"
