@@ -522,7 +522,7 @@ EOF
 set -e
 cid=$(docker run -d --net=bridge -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=unless-stopped --dns=127.0.0.1 --dns=${var.dns_server} -p 80:80 -p 443:443 -p 4443:4443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-haproxy-output)
 docker network connect hcf $cid
-EOF        
+EOF
     }
 
     #
