@@ -30,12 +30,13 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <EXTRA_DOCKER_ARGUMENTS>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
 function start_role {
   image=$1
   name=$2
   role=$3
-  extra="${@:4}"
+  overlay_gateway=$4
+  extra="${@:5}"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
@@ -46,6 +47,8 @@ function start_role {
     --label=fissile_role=$role \
     --dns=127.0.0.1 --dns=8.8.8.8 \
     --cgroup-parent=instance \
+    -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
+    -e "HCF_NETWORK=overlay" \
     -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
@@ -106,10 +109,11 @@ function get_role_name() {
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <EXTRA_DOCKER_ARGUMENTS>
+# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
 function handle_restart() {
   image=$1
-  extra="${@:2}"
+  overlay_gateway=$2
+  extra="${@:3}"
 
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)
@@ -120,7 +124,7 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $extra
+    start_role $image $container_name $role $overlay_gateway $extra
     return 0
   fi
 }

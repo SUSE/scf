@@ -16,6 +16,7 @@ log_dir=$HCF_RUN_LOG_DIRECTORY
 consul_address="http://${local_ip}:8501"
 config_prefix=$FISSILE_CONFIG_PREFIX
 hcf_consul_container="hcf-consul-server"
+hcf_overlay_gateway=$HCF_OVERLAY_GATEWAY
 
 # Make sure HCF consul is running
 if container_running $hcf_consul_container ; then
@@ -36,7 +37,7 @@ run_configs $consul_address $local_ip
 
 # Manage the consul role ...
 image=$consul_image
-if handle_restart $image "-p 8500:8500"; then
+if handle_restart $image "$hcf_overlay_gateway" "-p 8500:8500"; then
   echo "CF consul server is running ..."
   # TODO: in this case, everything needs to restart
 fi
@@ -70,7 +71,7 @@ do
       ;;
   esac
 
-  handle_restart "$image" "$extra" || true
+  handle_restart "$image" "$hcf_overlay_gateway" "$extra" || true
 done
 
 exit 0
