@@ -406,7 +406,6 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
 
-
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd/machines '["etcd.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
 
@@ -426,7 +425,6 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url "\"https://uaa.${template_file.domain.rendered}\""
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
-
 
 EOF
     }    
