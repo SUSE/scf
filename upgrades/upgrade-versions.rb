@@ -201,7 +201,7 @@ class Node
       $stderr.puts("Might want to keep the old image around and restart it")
     else
       if @network_connector_roles[container[:Names]]
-        do_cmd("docker network connect hcf #{container[:ID]}")
+        do_cmd("docker network connect hcf #{container[:Names]}")
       end
       # Mark the old image for deletion
       image = images.find{|i| container[:Image].start_with?(i[:Repository])}
