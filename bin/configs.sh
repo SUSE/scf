@@ -79,15 +79,20 @@ ca_path="$certs_path/ca"
 )
 
 # Setting role values
-gato config set --role consul     consul.agent.mode                           'server'
-gato config set --role uaa        consul.agent.services.uaa                   '{}'
-gato config set --role api        consul.agent.services.cloud_controller_ng   '{}'
-gato config set --role api        consul.agent.services.routing_api           '{}'
-gato config set --role router     consul.agent.services.gorouter              '{}'
-gato config set --role nats       consul.agent.services.nats                  '{}'
-gato config set --role postgres   consul.agent.services.postgres              '{}'
-gato config set --role etcd       consul.agent.services.etcd                  '{}'
-gato config set --role runner     consul.agent.services.dea_next              '{}'
+gato config set --role consul                         consul.agent.mode                           'server'
+gato config set --role uaa                            consul.agent.services.uaa                   '{}'
+gato config set --role api                            consul.agent.services.cloud_controller_ng   '{}'
+gato config set --role api                            consul.agent.services.routing_api           '{}'
+gato config set --role router                         consul.agent.services.gorouter              '{}'
+gato config set --role nats                           consul.agent.services.nats                  '{}'
+gato config set --role postgres                       consul.agent.services.postgres              '{}'
+gato config set --role etcd                           consul.agent.services.etcd                  '{}'
+gato config set --role runner                         consul.agent.services.dea_next              '{}'
+gato config set --role uaa                            route_registrar.routes                      "[{\"name\": \"uaa\", \"port\":\"8080\", \"tags\":{\"component\":\"uaa\"}, \"uris\":[\"uaa.${domain}\", \"*.uaa.${domain}\", \"login.${domain}\", \"*.login.${domain}\"]}]"
+gato config set --role api                            route_registrar.routes                      "[{\"name\":\"api\",\"port\":\"9022\",\"tags\":{\"component\":\"CloudController\"},\"uris\":[\"api.${domain}\"]}]"
+gato config set --role hm9000                         route_registrar.routes                      "[{\"name\":\"hm9000\",\"port\":\"5155\",\"tags\":{\"component\":\"HM9K\"},\"uris\":[\"hm9000.${domain}\"]}]"
+gato config set --role loggregator_trafficcontroller  route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
+gato config set --role doppler                        route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
 
 # Constants
 gato config set consul.agent.servers.lan                '["cf-consul.hcf"]'
@@ -105,7 +110,6 @@ gato config set ccdb.address                            'postgres.service.cf.int
 gato config set databases.address                       'postgres.service.cf.internal'
 gato config set uaadb.address                           'postgres.service.cf.internal'
 
-
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
 # and call update-ca-certificates at container startup
@@ -114,6 +118,8 @@ gato config set disk_quota_enabled        'false'
 gato config set metron_agent.deployment   "hcf-deployment"
 gato config set consul.require_ssl        "false"
 gato config set consul.encrypt_keys       "[]"
+gato config set etcd.peer_require_ssl     'false'
+gato config set etcd.require_ssl          'false'
 
 # Setting user values
 gato config set app_domains                                           "[\"${domain}\"]"
