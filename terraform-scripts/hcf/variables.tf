@@ -156,6 +156,9 @@ variable "uaa_clients_notifications_secret" {
 variable "uaa_clients_login_secret" {
 	default = "login_client_secret"
 }
+variable "uaa_clients_cc_routing_secret" {
+	default = "cc_routing_secret"
+}
 variable "uaa_clients_doppler_secret" {
 	default = "doppler_secret"
 }

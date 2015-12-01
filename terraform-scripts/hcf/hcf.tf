@@ -86,7 +86,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     }
     availability_zone = "${var.openstack_availability_zone}"
 
-	floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
+    floating_ip = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
 
     volume = {
         volume_id = "${openstack_blockstorage_volume_v1.hcf-core-vol.id}"
@@ -353,9 +353,8 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/password \"${var.nats_password}\"
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
-
-# And handle the route-registrar settings
+# CF v222 settings
+# Handle the route-registrar settings
 /opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
@@ -366,7 +365,18 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
+
+# Used to just have this for hcf/user/etcd/machines
+/opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
+
+# If either of these is true configgin will want to resolve etcd.cluster
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/peer_require_ssl false
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/require_ssl false
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
+
+# End cf v222 additions
 
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
@@ -445,6 +455,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
 
+
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd/machines '["etcd.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
 
@@ -464,6 +475,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url "\"https://uaa.${template_file.domain.rendered}\""
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
+
 
 EOF
     }    
