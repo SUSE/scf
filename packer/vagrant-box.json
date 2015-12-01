@@ -1,0 +1,60 @@
+{
+    "variables": {
+        "version": "0"
+    },
+    "builders": [
+        {
+            "type": "vmware-iso",
+            "headless": true,
+            "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
+            "guest_os_type": "ubuntu-64",
+            "disk_size": 150000,
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "iso_url": "http://releases.ubuntu.com/trusty/ubuntu-14.04.3-server-amd64.iso",
+            "iso_checksum": "9e5fecc94b3925bededed0fdca1bd417",
+            "iso_checksum_type": "md5",
+            "http_directory": "http",
+            "tools_upload_flavor": "linux",
+            "ssh_wait_timeout": "20m",
+            "shutdown_command": "echo vagrant | sudo -S shutdown -P now",
+            "boot_command": [
+                "<esc><esc><enter><wait>",
+                "/install/vmlinuz noapic ",
+                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+                "hostname=hcf-vagrant ",
+                "fb=false debconf/frontend=noninteractive ",
+                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+                "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+                "initrd=/install/initrd.gz -- <enter>"
+            ],
+            "vmx_data": {
+                "memsize": "4096"
+            }
+        }
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "scripts": [
+              "scripts/dependencies.sh",
+              "scripts/vagrant.sh",
+              "../bin/docker/install_kernel.sh",
+              "../bin/docker/install_etcd.sh",
+              "../bin/docker/install_docker.sh",
+              "scripts/vmware_tools.sh",
+              "scripts/compact.sh"
+            ],
+            "start_retry_timeout": "7m"
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "vagrant",
+            "output": "hcf-{{.Provider}}-v{{user `version`}}.box"
+        }
+    ]
+}

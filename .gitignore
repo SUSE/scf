@@ -11,3 +11,4 @@ password
 !.fissile/.bosh/.gitkeep
 .fissile/*
 .vagrant
+*.box
