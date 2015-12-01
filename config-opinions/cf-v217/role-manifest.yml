@@ -21,6 +21,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  - name: route_registrar
+    release_name: cf
 - name: api_worker
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -63,6 +65,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  - name: route_registrar
+    release_name: cf
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -93,6 +97,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  - name: route_registrar
+    release_name: cf
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -103,6 +109,8 @@ roles:
   - name: consul_agent
     release_name: cf
   - name: metron_agent
+    release_name: cf
+  - name: route_registrar
     release_name: cf
 - name: nats
   scripts:
@@ -142,7 +150,7 @@ roles:
   scripts:
   - prevent_apparmor_disable.sh
   - fix_local_ip_for_overlay_networking.sh
-  - fix_warden_local_ip_for_overlay_networking.sh  
+  - fix_warden_local_ip_for_overlay_networking.sh
   - write_dns_health_check_runner.sh
   - clear_tmp_warden_cgroup.sh
   jobs:
@@ -182,4 +190,5 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-
+  - name: route_registrar
+    release_name: cf
