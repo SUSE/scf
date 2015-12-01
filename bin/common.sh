@@ -92,7 +92,7 @@ function run_consullin() {
 # run_config <CONSUL_ADDRESS> <PUBLIC_IP>
 function run_configs() {
   gato api $1
-  $ROOT/bin/configs.sh
+  public_ip=$2 $ROOT/bin/configs.sh
 }
 
 # gets a role name from a fissile image name

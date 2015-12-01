@@ -10,7 +10,7 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 consul_image=($(fissile dev list-roles | grep 'consul'))
 other_images=($(fissile dev list-roles | grep -v 'consul\|smoke_tests\|acceptance_tests'))
 
-local_ip="${local_ip:-$(${ROOT}/bootstrap-scripts/get_ip)}"
+local_ip="${local_ip:-$(${ROOT}/bootstrap-scripts/get_ip eth1)}"
 store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 consul_address="http://${local_ip}:8501"
@@ -32,7 +32,7 @@ wait_for_consul $consul_address
 run_consullin $consul_address $FISSILE_CONFIG_OUTPUT_DIR
 
 # Import user and role configurations
-run_configs $consul_address
+run_configs $consul_address $local_ip
 
 # Manage the consul role ...
 image=$consul_image

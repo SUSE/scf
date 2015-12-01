@@ -176,7 +176,7 @@ run_hcf_consul: docker_images
 
 stop:
 	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
-	docker rm -f $(fissile dev lr | sed -e 's/:/-/g')
+	bash -c "docker rm -f $$(fissile dev lr | sed -e 's/:/-/g')"
 
 run: run_hcf_consul fissile_create_config fissile_create_images
 	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
