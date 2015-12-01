@@ -8,7 +8,7 @@
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
 
   # Create port forward mappings
   config.vm.network "forwarded_port", guest: 80, host: 80
@@ -18,41 +18,23 @@ Vagrant.configure(2) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
+  config.vm.network "private_network", ip: "192.168.77.77"
 
   config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
   config.vm.synced_folder ".", "/home/vagrant/hcf"
 
-  config.vm.provider "virtualbox" do |vb|
+  config.vm.provider "vmware_fusion" do |vb|
     # Customize the amount of memory on the VM:
     vb.memory = "8096"
-
     # If you need to debug stuff
     # vb.gui = true
-
-    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.", "1"]
-    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/.fissile/.bosh", "1"]
-    vb.customize ['modifyvm', :id, '--nictype1', 'virtio']
   end
-
-
-  config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/hcf/bin/docker/install_kernel.sh
-  SHELL
-
-  config.vm.provision :reload
 
   config.vm.provision "file", source: "./bootstrap-config/etcd.conf", destination: "/tmp/etcd.conf"
 
   config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/hcf/bin/docker/install_etcd.sh
-    /home/vagrant/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.33.10"
-    /home/vagrant/hcf/bin/docker/install_docker.sh "192.168.33.10" "15.126.242.125:5000" "vagrant"
+    /home/vagrant/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
+    /home/vagrant/hcf/bin/docker/configure_docker.sh "192.168.77.77" "15.126.242.125:5000"
   SHELL
 
   config.vm.provision :reload

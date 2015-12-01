@@ -137,6 +137,9 @@ dist: generate_config_base
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
 # --- NEW STUFF ---
+vagrant_box:
+	cd packer && packer build vagrant-box.json
+
 cf_release:
 	@echo "$(OK_COLOR)==> Running bosh create release for cf-release ... $(NO_COLOR)"
 	cd $(PWD)/src/cf-release && \
@@ -170,6 +173,10 @@ docker_images:
 	make -C images build APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
 
 run_hcf_consul: docker_images
+
+stop:
+	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
+	docker rm -f $(fissile dev lr | sed -e 's/:/-/g')
 
 run: run_hcf_consul fissile_create_config fissile_create_images
 	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
