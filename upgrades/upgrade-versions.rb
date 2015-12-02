@@ -216,8 +216,7 @@ class Node
     if @network_connector_roles[container[:Names]]
       do_cmd("docker network disconnect hcf #{containerID}")
     end
-    do_cmd("docker stop #{containerID}")
-    do_cmd("docker kill #{containerID}")
+    do_cmd("docker stop #{containerID}") or do_cmd("docker kill #{containerID}")
     do_cmd("docker rename #{container[:Names]} #{container[:Names]}-#{@old_name_suffix}")
     @containers_to_delete << containerID
   end
