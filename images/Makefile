@@ -7,7 +7,7 @@ BUILD:=$(shell whoami)-$(BRANCH)-$(shell date -u +%Y%m%d%H%M%S)
 APP_VERSION=$(VERSION)-$(BUILD)
 
 
-all: hcf-consul-base hcf-consul-client hcf-consul-server hcf-cfssl
+all: hcf-consul-base hcf-consul-client hcf-consul-server
 build: all
 tag: all
 push: all
@@ -20,6 +20,6 @@ hcf-consul-client:
 
 hcf-consul-server:
 	make -C hcf-consul-server $(MAKECMDGOALS) BRANCH=$(BRANCH) BUILD=$(BUILD) APP_VERSION=$(APP_VERSION)
-
-hcf-cfssl:
-	make -C hcf-cfssl $(MAKECMDGOALS) BRANCH=$(BRANCH) BUILD=$(BUILD) APP_VERSION=$(APP_VERSION)
+ 
+# hcf-cfssl:
+# 	make -C hcf-cfssl $(MAKECMDGOALS) BRANCH=$(BRANCH) BUILD=$(BUILD) APP_VERSION=$(APP_VERSION)

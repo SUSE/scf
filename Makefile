@@ -137,6 +137,7 @@ dist: generate_config_base
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
 # --- NEW STUFF ---
+
 vagrant_box:
 	cd packer && packer build vagrant-box.json
 
@@ -172,12 +173,26 @@ docker_images:
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
 	make -C images build APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
 
-run_hcf_consul: docker_images
+tag_images: docker_images fissile_create_images
+	make -C images tag APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
+	for image in $(shell fissile dev lr); do \
+		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
+		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
+		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
+	done
+
+push_images: tag_images
+	make -C images push APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
+	for image in $(shell fissile dev lr); do \
+		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
+		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
+		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
+	done
 
 stop:
 	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
-	bash -c "docker rm -f $$(fissile dev lr | sed -e 's/:/-/g')"
+	docker rm -f $(shell fissile dev lr | sed -e 's/:/-/g')
 
-run: run_hcf_consul fissile_create_config fissile_create_images
+run: docker_images fissile_create_config fissile_create_images
 	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
 	$(PWD)/bin/run.sh

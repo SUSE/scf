@@ -40,10 +40,10 @@ export FISSILE_ROLE_BASE_DOCKERFILE_DIR="${ROOT}/.fissile/base_dockerfile/"
 
 # This is the location of the local BOSH cache
 # You shouldn't need to override this
-export FISSILE_DEV_CACHE_DIR=~/.bosh/cache
+export FISSILE_DEV_CACHE_DIR="${HOME}/.bosh/cache"
 
 # Path to a configgin release tarball
-export FISSILE_CONFIGGIN_PATH=~/tools/configgin.tgz
+export FISSILE_CONFIGGIN_PATH="${HOME}/tools/configgin.tgz"
 
 # This is the configuration base prefix
 export FISSILE_CONFIG_PREFIX=hcf
