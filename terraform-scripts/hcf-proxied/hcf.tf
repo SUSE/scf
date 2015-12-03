@@ -171,6 +171,11 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
+
+# the default Ubuntu mirror provided in the images is slow slow slow
+sudo sed -ik8bak 's/az1\.clouds\.archive\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
+sudo sed -ik8bak 's/security\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
+
 echo "Update Ubuntu"
 sudo apt-get update 
 sudo DEBIAN_FRONTEND=noninteractive apt-get dselect-upgrade -y
@@ -227,7 +232,11 @@ EOF
 set -e
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
 
-curl -sSL https://test.docker.com/ | sh
+echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | sudo tee /etc/apt/sources.list.d/docker.list
+
+sudo apt-key adv --keyserver hkp://na.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docker_version}
 
 # Set up docker proxy. Needs to happen after docker install so we don't get prompted about the config file
 echo 'export http_proxy="${var.http_proxy}"' | sudo tee -a /etc/default/docker
@@ -686,6 +695,11 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
+
+# the default Ubuntu mirror provided in the images is slow slow slow
+sudo sed -ik8bak 's/az1\.clouds\.archive\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
+sudo sed -ik8bak 's/security\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
+
 echo "Update Ubuntu"
 sudo apt-get update 
 sudo DEBIAN_FRONTEND=noninteractive apt-get dselect-upgrade -y
@@ -701,7 +715,11 @@ EOF
 set -e
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
 
-curl -sSL https://test.docker.com/ | sh
+echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | sudo tee /etc/apt/sources.list.d/docker.list
+
+sudo apt-key adv --keyserver hkp://na.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docker_version}
 
 # Set up docker proxy. Needs to happen after docker install so we don't get prompted about the config file
 echo 'export http_proxy="${var.http_proxy}"' | sudo tee -a /etc/default/docker
