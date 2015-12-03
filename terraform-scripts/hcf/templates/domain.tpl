@@ -1,1 +1,1 @@
-${replace(domain, format("/^%s$/", wildcard_dns_domain_regexp), floating_domain)}
+${element(split("|", "${domain}|${floating_domain}"), wildcard_dns)}
