@@ -53,6 +53,10 @@ variable "dns_server" {
 	default = "8.8.8.8"
 }
 
+variable "wildcard_dns_domain_regexp" {
+	default = "xip\.io"
+}
+
 variable "dea_count" {
 	default = "1"
 }
