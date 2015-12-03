@@ -207,3 +207,7 @@ variable "overlay_subnet" {
 variable "overlay_gateway" {
 	default = "192.168.252.1"
 }
+
+variable "docker_version" {
+	default = "1.9.1-0~trusty"
+}
