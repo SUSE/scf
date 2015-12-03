@@ -1,1 +1,1 @@
-${replace(domain, "/^xip\.io$/", floating_domain)}
+${element(split("|", "${domain}|${floating_domain}"), wildcard_dns)}

@@ -111,6 +111,10 @@ variable "domain" {
 	default = "xip.io"
 }
 
+variable "wildcard_dns" {
+	default = 1
+}
+
 variable "loggregator_shared_secret" {
 	default = "loggregator_endpoint_secret"
 }

@@ -2,6 +2,16 @@ provider "openstack" {
 
 }
 
+resource "template_file" "domain" {
+    filename = "${path.module}/templates/domain.tpl"
+
+    vars {
+        domain = "${var.domain}"
+        floating_domain = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+        wildcard_dns = "${var.wildcard_dns}"
+    }
+}
+
 resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
     name = "${var.cluster-prefix}-container-host"
     description = "HCF Container Hosts"
@@ -52,15 +62,6 @@ resource "openstack_blockstorage_volume_v1" "hcf-core-vol" {
   description = "Helion Cloud Foundry Core"
   size = "${var.core_volume_size}"
   availability_zone = "${var.openstack_availability_zone}"
-}
-
-resource "template_file" "domain" {
-    filename = "${path.module}/templates/domain.tpl"
-
-    vars {
-        domain = "${var.domain}"
-        floating_domain = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
-    }
 }
 
 resource "openstack_compute_instance_v2" "hcf-core-host" {
