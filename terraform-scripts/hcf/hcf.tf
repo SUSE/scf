@@ -7,8 +7,8 @@ resource "template_file" "domain" {
 
     vars {
         domain = "${var.domain}"
-        wildcard_dns_domain_regexp = "${var.wildcard_dns_domain_regexp}"
         floating_domain = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"
+        wildcard_dns = "${var.wildcard_dns}"
     }
 }
 

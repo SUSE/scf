@@ -53,10 +53,6 @@ variable "dns_server" {
 	default = "8.8.8.8"
 }
 
-variable "wildcard_dns_domain_regexp" {
-	default = "xip\.io"
-}
-
 variable "dea_count" {
 	default = "1"
 }
@@ -113,6 +109,10 @@ variable "uaadb_tag" {
 
 variable "domain" {
 	default = "xip.io"
+}
+
+variable "wildcard_dns" {
+	default = 1
 }
 
 variable "loggregator_shared_secret" {
