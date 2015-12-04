@@ -53,9 +53,7 @@ sudo apt-get update
 sudo apt-get purge -y lxc-docker*
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=1.8.3-0~trusty
 sudo usermod -aG docker ubuntu
-# allow us to pull from the docker registry
-# TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--insecure-registry ${var.registry_host} -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -s devicemapper -g /data/docker\" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
@@ -101,7 +99,7 @@ EOF
     # start the smoke tests
     provisioner "remote-exec" {
         inline = [
-        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-smoke_tests -t ${var.registry_host}/hcf/cf-v${var.cf-release}-smoke_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 99"
+        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-smoke_tests -t helioncf/cf-smoke_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 99"
         ]        
     }
 
@@ -112,7 +110,7 @@ EOF
     # start the acceptance tests
     provisioner "remote-exec" {
         inline = [
-        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-acceptance_tests -t ${var.registry_host}/hcf/cf-v${var.cf-release}-acceptance_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 98"
+        "docker run --cgroup-parent=instance --dns=127.0.0.1 --dns=${var.dns_server} --name cf-acceptance_tests -t helioncf/cf-acceptance_tests:latest http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:8501 hcf 98"
         ]        
     }
 

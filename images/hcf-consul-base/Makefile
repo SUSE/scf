@@ -8,15 +8,15 @@ APP_VERSION=$(VERSION)-$(BUILD)
 
 all: build tag push
 
-IMAGE_NAME=hcf/consul-base
+IMAGE_NAME=helioncf/hcf-consul-base
 
 build:
 	docker build -t $(IMAGE_NAME) .
 
 tag:
-	docker tag -f $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME):$(APP_VERSION)
-	docker tag -f $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME):latest-$(BRANCH)
+	docker tag -f $(IMAGE_NAME) $(IMAGE_NAME):$(APP_VERSION)
+	docker tag -f $(IMAGE_NAME) $(IMAGE_NAME):latest-$(BRANCH)
 
 push:
-	docker push $(REGISTRY)/$(IMAGE_NAME):$(APP_VERSION)
-	docker push $(REGISTRY)/$(IMAGE_NAME):latest-$(BRANCH)	
+	docker push $(IMAGE_NAME):$(APP_VERSION)
+	docker push $(IMAGE_NAME):latest-$(BRANCH)	

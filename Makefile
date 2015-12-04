@@ -13,8 +13,6 @@ TARGET_DIR=$(PWD)/target
 
 UBUNTU_IMAGE=ubuntu:14.04.2
 
-REGISTRY_HOST?=15.126.242.125:5000
-
 COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller hm9000 ha_proxy etcd doppler consul clock_global api_worker api smoke_tests acceptance_tests
 
 include version.mk
@@ -111,10 +109,10 @@ generate_config_base: fetch_fissle fetch_cf_release
 
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
-		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:$(APP_VERSION) && \
-		docker push $(REGISTRY_HOST)/hcf/cf-v$(CF_RELEASE)-$$component:latest-$(BRANCH) ; \
+		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) helioncf/cf-$$component:$(APP_VERSION) && \
+		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) helioncf/cf-$$component:latest-$(BRANCH) && \
+		docker push helioncf/cf-$$component:$(APP_VERSION) && \
+		docker push helioncf/cf-$$component:latest-$(BRANCH) ; \
 	done
 
 dist: generate_config_base
