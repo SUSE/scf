@@ -118,8 +118,10 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
-	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
+	cd $(WORK_DIR)/hcf && mkdir direct_internet && cp -r $(PWD)/terraform-scripts/hcf/* direct_internet/
+	cd $(WORK_DIR)/hcf && mkdir proxied_internet && cp -r $(PWD)/terraform-scripts/hcf-proxied/* proxied_internet/
 
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > direct_internet/version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > proxied_internet/version.tf
 
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
