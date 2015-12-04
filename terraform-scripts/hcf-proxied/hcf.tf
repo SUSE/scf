@@ -227,6 +227,11 @@ sudo service etcd start
 EOF
     }
 
+    provisioner "file" {
+        source = "keys/docker.gpg"
+        destination = "/tmp/docker.gpg"
+    }
+
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
@@ -234,7 +239,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget quota
 
 echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | sudo tee /etc/apt/sources.list.d/docker.list
 
-sudo apt-key adv --keyserver hkp://na.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo apt-key add /tmp/docker.gpg
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docker_version}
 
