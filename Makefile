@@ -107,7 +107,7 @@ generate_config_base: fetch_fissle fetch_cf_release
 		--dark-opinions config-opinions/cf-v$(CF_RELEASE)/dark-opinions.yml \
 		--target $(WORK_DIR)/config_target
 
-	cd $(WORK_DIR)/config_target ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
+	cd $(WORK_DIR)/config_target ; tar czf $(WORK_DIR)/hcf-config.tar.gz hcf/
 
 publish_images: compile_images
 	for component in $(COMPONENTS); do \
@@ -118,8 +118,11 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
-	cd $(WORK_DIR)/hcf && mkdir direct_internet && cp -r $(PWD)/terraform-scripts/hcf/* direct_internet/
-	cd $(WORK_DIR)/hcf && mkdir proxied_internet && cp -r $(PWD)/terraform-scripts/hcf-proxied/* proxied_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p direct_internet && cp -rL $(PWD)/terraform-scripts/hcf/* direct_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p proxied_internet && cp -rL $(PWD)/terraform-scripts/hcf-proxied/* proxied_internet/
+
+	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/direct_internet/
+	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/proxied_internet/
 
 	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > direct_internet/version.tf
 	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > proxied_internet/version.tf
