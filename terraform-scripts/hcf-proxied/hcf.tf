@@ -12,6 +12,13 @@ resource "template_file" "domain" {
     }
 }
 
+resource "template_file" "gato_wrapper" {
+    template = "${path.module}/templates/gato-wrapper.tpl"
+
+    vars {
+        build = "${var.build}"
+    }
+}
 
 resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
     name = "${var.cluster-prefix}-container-host"
@@ -122,6 +129,14 @@ EOF
     provisioner "file" {
         source = "scripts/"
         destination = "/opt/hcf/bin/"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+            "cat > /opt/hcf/bin/gato <<'EOF'",
+            "${template_file.gato_wrapper.rendered}",
+            "EOF"
+        ]
     }
 
     provisioner "remote-exec" {
