@@ -3,7 +3,7 @@ provider "openstack" {
 }
 
 resource "template_file" "domain" {
-    filename = "${path.module}/templates/domain.tpl"
+    template = "${path.module}/templates/domain.tpl"
 
     vars {
         domain = "${var.domain}"
@@ -13,7 +13,7 @@ resource "template_file" "domain" {
 }
 
 resource "template_file" "gato_wrapper" {
-    filename = "${path.module}/templates/gato-wrapper.tpl"
+    template = "${path.module}/templates/gato-wrapper.tpl"
 
     vars {
         build = "${var.build}"
