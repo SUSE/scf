@@ -8,7 +8,7 @@ APP_VERSION=$(VERSION)-$(BUILD)
 
 all: build dist
 
-IMAGE_NAME=hcf/hcf-cfssl-build
+IMAGE_NAME=helioncf/hcf-cfssl-build
 
 clean:
 	-docker rmi -f $(IMAGE_NAME)

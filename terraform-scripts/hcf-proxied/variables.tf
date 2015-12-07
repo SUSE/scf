@@ -1,7 +1,3 @@
-variable "registry_host" {
-	default = "15.126.242.125:5000"
-}
-
 variable "cluster-prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"
@@ -210,4 +206,19 @@ variable "overlay_gateway" {
 
 variable "docker_version" {
 	default = "1.9.1-0~trusty"
+}
+
+variable "docker_username" {
+	description = "Docker Hub username (optional)"
+	default = ""
+}
+
+variable "docker_password" {
+	description = "Docker Hub password (optional)"
+	default = ""	
+}
+
+variable "docker_email" {
+	description = "Docker Hub email address (optional)"
+	default = ""		
 }
