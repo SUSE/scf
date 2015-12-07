@@ -189,6 +189,23 @@ push_images: tag_images
 		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
 	done
 
+clean_out:
+	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
+	rm -rf $(WORK_DIR)
+
+setup_out: clean_out
+	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
+	mkdir -p $(WORK_DIR)
+	mkdir -p $(WORK_DIR)/hcf
+
+create_dist: fissile_create_config setup_out
+	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
+	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
+
+release: push_images create_dist
+
 stop:
 	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
 	docker rm -f $(shell fissile dev lr | sed -e 's/:/-/g')
