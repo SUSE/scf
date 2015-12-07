@@ -132,6 +132,14 @@ EOF
     }
 
     provisioner "remote-exec" {
+        inline = [
+            "cat > /opt/hcf/bin/gato <<'EOF'",
+            "${template_file.gato_wrapper.rendered}",
+            "EOF"
+        ]
+    }
+
+    provisioner "remote-exec" {
       inline = [
       "sudo chmod ug+x /opt/hcf/bin/*",
       "echo 'export PATH=$PATH:/opt/hcf/bin' | sudo tee /etc/profile.d/hcf.sh"
