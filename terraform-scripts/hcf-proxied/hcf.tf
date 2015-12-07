@@ -12,6 +12,13 @@ resource "template_file" "domain" {
     }
 }
 
+resource "template_file" "gato_wrapper" {
+    template = "${path.module}/templates/gato-wrapper.tpl"
+
+    vars {
+        build = "${var.build}"
+    }
+}
 
 resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
     name = "${var.cluster-prefix}-container-host"
