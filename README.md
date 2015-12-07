@@ -4,11 +4,40 @@ Build infrastructure for HCF 1.0
 
 ## Development
 
-1. Get Vagrant (version `5.0.10` minimum)
-2. Install vagrant-reload plugin
-`vagrant plugin install vagrant-reload`
-3. Make sure you don't have uncommited changes in any submodules - they will get clobbered
-4. `vagrant up`
+1. Install VMware Fusion 7
+1. Get a license for VMware Fusion 7
+ > From your HPE e-mail address, send an e-mail to hp@vmware.com,
+ > with the subject "Fusion license request"
+
+1. Install Vagrant (version `5.0.10` minimum)
+1. Install vagrant-reload plugin
+```
+vagrant plugin install vagrant-reload
+```
+
+1. Install the Vagrant Fusion provider
+```
+vagrant plugin install vagrant-vmware-fusion
+```
+
+1. Setup the license for the Vagrant Fusion provider:
+ - Download the license from our [wiki page](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense)
+ - Install the license:
+ ```
+ vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
+ ```
+
+1. Bring it online (make sure you don't have uncommited changes in any submodules - they will get clobbered)
+```
+vagrant up --provider vmware_fusion
+```
+
+1. Run HCF in the vagrant box
+```
+vagrant ssh
+cd ~/hcf
+make run
+```
 
 ### Windows (Currently not working, do not try this at home)
 
