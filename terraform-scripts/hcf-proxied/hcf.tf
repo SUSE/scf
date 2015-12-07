@@ -3,7 +3,7 @@ provider "openstack" {
 }
 
 resource "template_file" "domain" {
-    filename = "${path.module}/templates/domain.tpl"
+    template = "${path.module}/templates/domain.tpl"
 
     vars {
         domain = "${var.domain}"
