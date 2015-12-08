@@ -69,7 +69,7 @@ function start_hcf_consul() {
     -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 \
     --name $container_name \
     -v $store_dir/$container_name:/opt/hcf/share/consul \
-    -t hcf/consul-server:latest \
+    -t helioncf/hcf-consul-server:latest \
     -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json)
 }
 
