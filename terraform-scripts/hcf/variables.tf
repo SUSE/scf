@@ -5,12 +5,6 @@ variable "cluster-prefix" {
 	default = "hcf"
 }
 
-variable "container-host-count" {
-	default = "1"
-	# default really should be 3
-	description = "Number of container hosts to create"
-}
-
 variable "key_file" {
 	description = "Private key file for newly created hosts"
 }
@@ -91,18 +85,12 @@ variable "ccdb_role_name" {
 variable "ccdb_role_password" {
 	default = "admin_password"
 }
-variable "ccdb_role_tag" {
-	default = "admin"
-}
 
 variable "uaadb_username" {
 	default = "uaaadmin"
 }
 variable "uaadb_password" {
 	default = "uaaadmin_password"
-}
-variable "uaadb_tag" {
-	default = "admin"
 }
 
 variable "domain" {
