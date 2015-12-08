@@ -351,8 +351,7 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/machines '["nats.service.cf.internal"]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/password \"${var.nats_password}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/password \"${var.nats_password}\"
 
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
@@ -378,7 +377,7 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/gorouter/secret \"${var.uaa_clients_gorouter_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/scim/users '["${var.cluster_admin_username}|${var.cluster_admin_password}|${var.cluster_admin_authorities}"]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "${var.uaadb_tag}"}]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "admin"}]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${template_file.domain.rendered}\"
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/doppler/zone \"${var.doppler_zone}\"
@@ -400,7 +399,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/loggregator_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/doppler_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
 
-/opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}", "tag": "${var.ccdb_role_tag}"}]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}", "tag": "admin"}]'
 
 # TODO: replace this with Swift settings
 # /opt/hcf/bin/set-config $CONSUL hcf/user/cc/resource_pool/fog_connection '{}'
@@ -428,7 +427,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/databases '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
 /opt/hcf/bin/set-config $CONSUL hcf/user/databases/port '5524'
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}","tag": "${var.ccdb_role_tag}"}, {"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag":"${var.uaadb_tag}"}]'
+/opt/hcf/bin/set-config $CONSUL hcf/user/databases/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}","tag": "admin"}, {"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag":"admin"}]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
