@@ -1,4 +1,6 @@
 #!/bin/bash
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
+
 set -e
 
 # generate the intermediate CA
