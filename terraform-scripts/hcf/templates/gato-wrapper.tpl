@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
 
 gato_status=`docker inspect -f "{{.State.Running}}" hcf-gato 2> /dev/null`
 

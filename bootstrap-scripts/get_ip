@@ -1,2 +1,4 @@
 #!/bin/bash
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
+
 ip addr show dev eth0 | grep "inet " | cut -d ' ' -f 6  | cut -f 1 -d '/'

@@ -1,3 +1,5 @@
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
+
 variable "cluster-prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"

@@ -1,3 +1,5 @@
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
+
 resource "openstack_networking_floatingip_v2" "hcf-test-host-fip" {
   pool = "${var.openstack_floating_ip_pool}"
 }
