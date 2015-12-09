@@ -23,6 +23,7 @@ APP_VERSION=$(VERSION)-$(BUILD)
 
 FISSILE_BRANCH:=$(BRANCH)
 CONFIGGIN_BRANCH:=$(BRANCH)
+GATO_BRANCH:=$(BRANCH)
 
 all: generate_config_base images publish_images dist
 
@@ -116,13 +117,19 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
+	$(eval LATEST_GATO_BUILD="$(shell docker run -t helioncf/hcf-gato:latest-$(GATO_BRANCH) --version | sed 's/gato version //')")
+
+	@echo "Built with fissile version $(LATEST_FISSILE_BUILD)"
+	@echo "Packaging with gato version $(LATEST_GATO_BUILD)"
+	@echo "Packaging with configgin version $(LATEST_CONFIGGIN_BUILD)"
+
 	cd $(WORK_DIR)/hcf && mkdir -p direct_internet && cp -rL $(PWD)/terraform-scripts/hcf/* direct_internet/
 	cd $(WORK_DIR)/hcf && mkdir -p proxied_internet && cp -rL $(PWD)/terraform-scripts/hcf-proxied/* proxied_internet/
 
 	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/direct_internet/
 	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/proxied_internet/
 
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > direct_internet/version.tf
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > proxied_internet/version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n\nvariable \"gato-build\" {\n\tdefault = \"$(LATEST_GATO_BUILD)\"\n}\n" > direct_internet/version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n\nvariable \"gato-build\" {\n\tdefault = \"$(LATEST_GATO_BUILD)\"\n}\n" > proxied_internet/version.tf
 
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf

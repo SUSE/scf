@@ -3,3 +3,7 @@
 variable "build" {
 	default = "latest"
 }
+
+variable "gato-build" {
+	default = "latest"
+}
