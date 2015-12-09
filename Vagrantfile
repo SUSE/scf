@@ -8,7 +8,7 @@
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
+  config.vm.box = "/Users/vladi/code/hcf-infrastructure/packer/hcf-vmware-v0.box"
 
   # Create port forward mappings
   config.vm.network "forwarded_port", guest: 80, host: 80
@@ -44,10 +44,14 @@ Vagrant.configure(2) do |config|
     /home/vagrant/hcf/bin/dev/install_bosh.sh
     /home/vagrant/hcf/bin/dev/install_tools.sh
 
+    mkdir -p /home/vagrant/tmp
+
     chown vagrant /home/vagrant/bin
     chown vagrant /home/vagrant/bin/*
     chown vagrant /home/vagrant/tools
     chown vagrant /home/vagrant/tools/*
+    chown vagrant /home/vagrant/tmp
+    chown vagrant /home/vagrant/tmp/*
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
@@ -55,6 +59,7 @@ Vagrant.configure(2) do |config|
     echo 'source ~/hcf/bin/.runrc' >> .profile
 
     # TODO: do not run this if it's already initted
+    cd /home/vagrant/hcf
     git submodule update --init
    /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL

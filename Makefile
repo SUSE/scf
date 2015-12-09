@@ -153,7 +153,7 @@ fissile_compilation_base:
 	@echo "$(OK_COLOR)==> Building compilation base ... $(NO_COLOR)"
 	fissile compilation build-base
 
-fissile_compile_packages: releases fissile_compilation_base
+fissile_compile_packages: fissile_create_config fissile_compilation_base
 	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
 	fissile dev compile
 
@@ -165,7 +165,7 @@ fissile_create_images: fissile_create_base fissile_compile_packages
 	@echo "$(OK_COLOR)==> Creating docker images ... $(NO_COLOR)"
 	fissile dev create-images
 
-fissile_create_config:
+fissile_create_config: releases
 	@echo "$(OK_COLOR)==> Generating configuration ... $(NO_COLOR)"
 	fissile dev config-gen
 
