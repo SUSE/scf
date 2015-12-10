@@ -355,15 +355,15 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 # CF v222 settings
 # Handle the route-registrar settings
-/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${template_file.domain.rendered}", "*.uaa.${template_file.domain.rendered}", "login.${template_file.domain.rendered}", "*.login.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
 
