@@ -8,3 +8,6 @@ export HCF_RUN_LOG_DIRECTORY="$HOME/.run/log"
 
 # Overlay gateway IP
 export HCF_OVERLAY_GATEWAY="192.168.252.1"
+
+# Shared filesystem package compilation cache
+export HCF_PACKAGE_COMPILATION_CACHE="${ROOT}/.fissile/compilation"

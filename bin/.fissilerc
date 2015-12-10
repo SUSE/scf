@@ -30,7 +30,7 @@ export FISSILE_DARK_OPINIONS="${ROOT}/config-opinions/cf-v217/dark-opinions.yml"
 export FISSILE_CONFIG_OUTPUT_DIR="${ROOT}/.fissile/config"
 
 # This is where packages get compiled
-export FISSILE_COMPILATION_DIR="${ROOT}/.fissile/compilation"
+export FISSILE_COMPILATION_DIR="${HOME}/.fissile/compilation"
 
 # This is where the Dockerfiles for images are created
 export FISSILE_DOCKERFILES_DIR="${HOME}/.fissile/dockerfiles"

@@ -8,7 +8,7 @@
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "/Users/vladi/code/hcf-infrastructure/packer/hcf-vmware-v0.box"
+  config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
 
   # Create port forward mappings
   config.vm.network "forwarded_port", guest: 80, host: 80
@@ -51,7 +51,6 @@ Vagrant.configure(2) do |config|
     chown vagrant /home/vagrant/tools
     chown vagrant /home/vagrant/tools/*
     chown vagrant /home/vagrant/tmp
-    chown vagrant /home/vagrant/tmp/*
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL

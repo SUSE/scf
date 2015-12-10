@@ -155,7 +155,11 @@ fissile_compilation_base:
 
 fissile_compile_packages: fissile_create_config fissile_compilation_base
 	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
-	fissile dev compile
+	mkdir -p "$(HCF_PACKAGE_COMPILATION_CACHE)/" && \
+	mkdir -p "$(FISSILE_COMPILATION_DIR)/" && \
+	rsync -a "$(HCF_PACKAGE_COMPILATION_CACHE)/" "$(FISSILE_COMPILATION_DIR)/" && \
+	fissile dev compile && \
+	rsync -a "$(FISSILE_COMPILATION_DIR)/" "$(HCF_PACKAGE_COMPILATION_CACHE)/"
 
 fissile_create_base:
 	@echo "$(OK_COLOR)==> Creating image base ... $(NO_COLOR)"
