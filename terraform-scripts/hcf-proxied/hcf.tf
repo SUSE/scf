@@ -106,12 +106,14 @@ set -e
 # fix sudo slowness
 sed "s/127.0.0.1\\ localhost/127.0.0.1\\ localhost ${openstack_compute_instance_v2.hcf-core-host.name}/" /etc/hosts | sudo tee /etc/hosts
 
-echo 'http_proxy="${var.http_proxy}"' | sudo tee -a /etc/environment
-echo 'https_proxy="${var.https_proxy}"' | sudo tee -a /etc/environment
-echo 'no_proxy="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/environment
-echo 'HTTP_PROXY="${var.http_proxy}"' | sudo tee -a /etc/environment
-echo 'HTTPS_PROXY="${var.https_proxy}"' | sudo tee -a /etc/environment
-echo 'NO_PROXY="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/environment
+sudo tee -a /etc/environment <<EOE
+http_proxy="${var.http_proxy}"
+https_proxy="${var.https_proxy}"
+no_proxy="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"
+HTTP_PROXY="${var.http_proxy}"
+HTTPS_PROXY="${var.https_proxy}"
+NO_PROXY="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"
+EOE
 
 echo 'Acquire::http::proxy "${var.http_proxy}";' | sudo tee -a /etc/apt/apt.conf.d/95set-proxy
 echo 'Acquire::https::proxy "${var.https_proxy}";' | sudo tee -a /etc/apt/apt.conf.d/95set-proxy
@@ -263,7 +265,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docke
 # Set up docker proxy. Needs to happen after docker install so we don't get prompted about the config file
 echo 'export http_proxy="${var.http_proxy}"' | sudo tee -a /etc/default/docker
 echo 'export https_proxy="${var.https_proxy}"' | sudo tee -a /etc/default/docker
-echo 'export no_proxy="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/default/docker
+echo 'export no_proxy="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/default/docker
 
 sudo usermod -aG docker ubuntu
 
@@ -696,12 +698,14 @@ set -e
 # fix sudo slowness
 sed "s/127.0.0.1\\ localhost/127.0.0.1\\ localhost ${var.cluster-prefix}-dea-${count.index}/" /etc/hosts | sudo tee /etc/hosts
 
-echo 'http_proxy="${var.http_proxy}"' | sudo tee -a /etc/environment
-echo 'https_proxy="${var.https_proxy}"' | sudo tee -a /etc/environment
-echo 'no_proxy="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/environment
-echo 'HTTP_PROXY="${var.http_proxy}"' | sudo tee -a /etc/environment
-echo 'HTTPS_PROXY="${var.https_proxy}"' | sudo tee -a /etc/environment
-echo 'NO_PROXY="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/environment
+sudo tee -a /etc/environment <<EOE
+http_proxy="${var.http_proxy}"
+https_proxy="${var.https_proxy}"
+no_proxy="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"
+HTTP_PROXY="${var.http_proxy}"
+HTTPS_PROXY="${var.https_proxy}"
+NO_PROXY="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"
+EOE
 
 echo 'Acquire::http::proxy "${var.http_proxy}";' | sudo tee -a /etc/apt/apt.conf.d/95set-proxy
 echo 'Acquire::https::proxy "${var.https_proxy}";' | sudo tee -a /etc/apt/apt.conf.d/95set-proxy
@@ -766,7 +770,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docke
 # Set up docker proxy. Needs to happen after docker install so we don't get prompted about the config file
 echo 'export http_proxy="${var.http_proxy}"' | sudo tee -a /etc/default/docker
 echo 'export https_proxy="${var.https_proxy}"' | sudo tee -a /etc/default/docker
-echo 'export no_proxy="${var.no_proxy},${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/default/docker
+echo 'export no_proxy="${var.no_proxy},127.0.0.1,localhost,${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"' | sudo tee -a /etc/default/docker
 
 sudo usermod -aG docker ubuntu
 
