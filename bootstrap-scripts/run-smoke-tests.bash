@@ -3,7 +3,7 @@
 
 set -e 
 
-IMAGE=15.126.242.125:5000/hcf/cf-v217-smoke_tests
+IMAGE=helioncf/cf-smoke_tests
 CONSUL=http://127.0.0.1:8501
 
 confset () {
