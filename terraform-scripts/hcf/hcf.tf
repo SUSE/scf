@@ -55,7 +55,7 @@ resource "openstack_blockstorage_volume_v1" "hcf-core-vol" {
 }
 
 resource "template_file" "domain" {
-    filename = "${path.module}/templates/domain.tpl"
+    template = "${path.module}/templates/domain.tpl"
 
     vars {
         domain = "${var.domain}"
@@ -209,7 +209,7 @@ sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
 
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --insecure-registry=${var.registry_host} --insecure-registry=${var.main_registry_host} -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --insecure-registry=${var.registry_host} -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
@@ -306,15 +306,15 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 # CF v222 settings
 # Handle the route-registrar settings
-/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.uaa.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}", "*.login.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${template_file.domain.rendered}", "*.uaa.${template_file.domain.rendered}", "login.${template_file.domain.rendered}", "*.login.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
 
-/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.${var.domain}"]}]'
+/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
 
@@ -545,7 +545,7 @@ EOF
 set -e
 cid=$(docker run -d --net=bridge -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=unless-stopped --dns=127.0.0.1 --dns=${var.dns_server} -p 80:80 -p 443:443 -p 4443:4443 --name cf-ha_proxy -t ${var.registry_host}/hcf/cf-v${var.cf-release}-ha_proxy:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-haproxy-output)
 docker network connect hcf $cid
-EOF        
+EOF
     }
 
     #
@@ -677,7 +677,7 @@ curl -sSL https://test.docker.com/ | sh
 sudo usermod -aG docker ubuntu
 # allow us to pull from the docker registry
 # TODO: this needs to be removed when we publish to Docker Hub
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} --insecure-registry=${var.main_registry_host} -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --insecure-registry=${var.registry_host} -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
 
 # enable cgroup memory and swap accounting
 sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
