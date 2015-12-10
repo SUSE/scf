@@ -7,7 +7,7 @@
 1.2. Start a new LGR_TC container in interactive mode:
 
 ```
-docker run  --privileged --cgroup-parent=instance --dns=127.0.0.1 --dns=8.8.8.8 -p 2842:2842 --name cf-loggregator_trafficcontroller -t -v /var/vcap/sys/logs:/var/vcap/sys/logs -i  --entrypoint=/bin/bash 15.126.242.125:5000/hcf/cf-v217-loggregator_trafficcontroller:latest
+docker run  --privileged --cgroup-parent=instance --dns=127.0.0.1 --dns=8.8.8.8 -p 2842:2842 --name cf-loggregator_trafficcontroller -t -v /var/vcap/sys/logs:/var/vcap/sys/logs -i  --entrypoint=/bin/bash helioncf/cf-loggregator_trafficcontroller:latest
 ```
 ```
 # vi /var/vcap/jobs-src/loggregator_trafficcontroller/templates/loggregator_trafficcontroller_ctl.erb
