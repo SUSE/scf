@@ -18,7 +18,7 @@ resource "template_file" "gato_wrapper" {
     template = "${path.module}/templates/gato-wrapper.tpl"
 
     vars {
-        build = "${var.build}"
+        gato-build = "${var.gato-build}"
     }
 }
 
