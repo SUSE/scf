@@ -368,8 +368,6 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
 
-# ^^^^ end cf v222 settings ==============================================
-
 # Used to just have this for hcf/user/etcd/machines
 /opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
 
@@ -380,6 +378,8 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
 
 # End cf v222 additions
+
+# ^^^^ end cf v222 settings ==============================================
 
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
