@@ -25,7 +25,7 @@ FISSILE_BRANCH:=$(BRANCH)
 CONFIGGIN_BRANCH:=$(BRANCH)
 GATO_BRANCH:=$(BRANCH)
 
-all: generate_config_base images publish_images dist
+all: generate_config_base dist images publish_images
 
 .PHONY: all clean setup tools fetch_fissle phony
 
