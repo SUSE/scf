@@ -117,6 +117,8 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
+	@echo "Pulling gato to ensure we have the latest build"
+	docker pull helioncf/hcf-gato:latest-$(GATO_BRANCH)
 	$(eval LATEST_GATO_BUILD="$(shell docker run -t helioncf/hcf-gato:latest-$(GATO_BRANCH) --version | sed 's/gato version //')")
 
 	@echo "Built with fissile version $(LATEST_FISSILE_BUILD)"
