@@ -353,6 +353,7 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/password \"${var.nats_password}\"
 
+# vvvv start CF v222 settings ==============================================
 # CF v222 settings
 # Handle the route-registrar settings
 /opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${template_file.domain.rendered}", "*.uaa.${template_file.domain.rendered}", "login.${template_file.domain.rendered}", "*.login.${template_file.domain.rendered}"]}]'
@@ -366,6 +367,8 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
+
+# ^^^^ end cf v222 settings ==============================================
 
 # Used to just have this for hcf/user/etcd/machines
 /opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
