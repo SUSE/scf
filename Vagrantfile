@@ -1,3 +1,4 @@
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -8,7 +9,6 @@
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
 
   # Create port forward mappings
   config.vm.network "forwarded_port", guest: 80, host: 80
@@ -20,14 +20,24 @@ Vagrant.configure(2) do |config|
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.77.77"
 
-  config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-  config.vm.synced_folder ".", "/home/vagrant/hcf"
-
   config.vm.provider "vmware_fusion" do |vb|
+    config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
     # Customize the amount of memory on the VM:
     vb.memory = "8096"
     # If you need to debug stuff
     # vb.gui = true
+
+    config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+    config.vm.synced_folder ".", "/home/vagrant/hcf"
+  end
+
+  config.vm.provider "libvirt" do |libvirt|
+    config.vm.box = "http://192.168.10.6/~marky/temp/hcf-libvirt-v0.box"
+    libvirt.driver = "kvm"
+    libvirt.memory = 8096
+
+    config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
+    config.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
   config.vm.provision "file", source: "./bootstrap-config/etcd.conf", destination: "/tmp/etcd.conf"
