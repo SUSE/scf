@@ -179,7 +179,7 @@ docker_images:
 
 tag_images: docker_images fissile_create_images
 	make -C images tag APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
-	for image in $(shell fissile dev lr); do \
+	for image in $(shell fissile dev list-roles); do \
 		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
 		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
 		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
@@ -187,7 +187,7 @@ tag_images: docker_images fissile_create_images
 
 push_images: tag_images
 	make -C images push APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
-	for image in $(shell fissile dev lr); do \
+	for image in $(shell fissile dev list-roles); do \
 		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
 		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
 		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
@@ -199,20 +199,19 @@ clean_out:
 
 setup_out: clean_out
 	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
-	mkdir -p $(WORK_DIR)
 	mkdir -p $(WORK_DIR)/hcf
 
 create_dist: fissile_create_config setup_out
 	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
 	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(WORK_DIR)/hcf ; echo 'variable "build" {\n\tdefault = "$(APP_VERSION)"\n}\n' > version.tf
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
 release: push_images create_dist
 
 stop:
 	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
-	docker rm -f $(shell fissile dev lr | sed -e 's/:/-/g')
+	docker rm -f $(shell fissile dev list-roles | sed -e 's/:/-/g')
 
 run: docker_images fissile_create_config fissile_create_images
 	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"

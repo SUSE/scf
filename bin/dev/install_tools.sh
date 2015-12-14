@@ -16,7 +16,7 @@ mkdir -p $tools_dir
 echo "Fetching configgin ..."
 wget -q "$configgin_url" -O $tools_dir/configgin.tgz
 echo "Fetching cf CLI ..."
-wget -q "$cf_url" -O $tools_dir/cf.tgz
+wget -q "$cf_url"        -O $tools_dir/cf.tgz
 echo "Fetching fissile ..."
 wget -q "$fissile_url"   -O $bin_dir/fissile
 echo "Fetching gato ..."
