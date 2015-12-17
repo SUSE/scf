@@ -3,8 +3,10 @@
 
 set -e 
 
-IMAGE=helioncf/cf-smoke_tests
-CONSUL=http://127.0.0.1:8501
+# Default to using the same image tag as cf-api
+IMAGE_TAG="$${IMAGE_TAG:-${build}}"
+IMAGE=helioncf/cf-smoke_tests:$${IMAGE_TAG}
+CONSUL="$${CONSUL:-http://127.0.0.1:8501}"
 
 confset () {
   /opt/hcf/bin/set-config $CONSUL $@ 2>/dev/null 1> /dev/null
@@ -35,13 +37,13 @@ SKIP_SSL_VALIDATION=$(confget hcf/user/ssl/skip_cert_verify)
 ORG=CF-SMOKE-ORG
 SPACE=CF-SMOKE-SPACE
 
-confset hcf/user/smoke_tests/api "${API}"
-confset hcf/user/smoke_tests/user "${ADMIN_USER}"
-confset hcf/user/smoke_tests/password "${ADMIN_PASSWORD}"
-confset hcf/user/smoke_tests/apps_domain "${APPS_DOMAIN}"
-confset hcf/user/smoke_tests/org "${ORG}"
-confset hcf/user/smoke_tests/space "${SPACE}"
-confset hcf/user/smoke_tests/skip_ssl_validation ${SKIP_SSL_VALIDATION}
+confset hcf/user/smoke_tests/api "$${API}"
+confset hcf/user/smoke_tests/user "$${ADMIN_USER}"
+confset hcf/user/smoke_tests/password "$${ADMIN_PASSWORD}"
+confset hcf/user/smoke_tests/apps_domain "$${APPS_DOMAIN}"
+confset hcf/user/smoke_tests/org "$${ORG}"
+confset hcf/user/smoke_tests/space "$${SPACE}"
+confset hcf/user/smoke_tests/skip_ssl_validation $${SKIP_SSL_VALIDATION}
 
 {
   set -e
