@@ -192,3 +192,12 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+- name: cf-usb
+  jobs:
+  - name: cf-usb
+    release_name: cf-usb
+  - name: consul_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+
