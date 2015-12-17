@@ -1,0 +1,20 @@
+---
+name: route_registrar
+
+description: "Used for registering routes"
+
+packages:
+- common
+- ruby-2.1.7
+- route_registrar
+
+templates:
+  route_registrar_ctl.erb: bin/route_registrar_ctl
+  config.yml.erb: config/config.yml
+
+properties:
+  route_registrar.update_frequency_in_seconds:
+    default: 20
+    description: "The delay in seconds between routing updates"
+  route_registrar.routes:
+    description: "List of routes that will be registered. Array of hashes. Hashes should have port, uris, name, and tags keys. uris is an array of uris to register for the port. Tags are included in the metrics that gorouter emits about things like response time."

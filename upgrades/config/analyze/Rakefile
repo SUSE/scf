@@ -1,0 +1,15 @@
+#!/usr/bin/env rake
+# -*- Ruby -*-
+require 'rubygems'
+require 'rake/testtask'
+
+desc "Test everything - should see '10/19/0/0/0'"
+test_task = task :test => :lib do 
+  Rake::TestTask.new(:test) do |t|
+    t.libs << './lib'
+    t.pattern = 'spec/tests/test-*.rb'
+    t.verbose = true
+  end
+end
+
+task :default => [:test]
