@@ -3,6 +3,9 @@ require 'yaml'
 require 'differ/utils'
 include Differ::Utils
 
+require 'differ/yamls'
+include Differ::Yamls
+
 module Differ
   module Compare
     
@@ -45,7 +48,7 @@ module Differ
       results
     end
     
-    def compare_dirs(old_dir, new_dir, filename, prefix)
+    def compare_dirs(old_dir, new_dir, filename, prefix, verbose=false)
       old_yaml = YAML.load_file(File.join(old_dir, filename))
       new_yaml = YAML.load_file(File.join(new_dir, filename))
       return compare_files(old_yaml, new_yaml, prefix)
@@ -74,7 +77,7 @@ module Differ
       results
     end
 
-    def diff_configs(a, b)
+    def compare_configs(a, b, verbose=false)
       results = { add:{}, delete:{}, change:{} }
       dropped_keys = a.keys - b.keys
       added_keys = b.keys - a.keys
@@ -201,14 +204,17 @@ module Differ
           end
         end
       end
-      
-      if File.exist?(override_file)
+
+      if override_file.nil?
+        ovf = nil
+      elsif File.exist?(override_file)
         ovf = override_file
       elsif File.exist?(File.join(dir, override_file))
         ovf = File.join(dir, override_file)
       else
         abort("Can't find override file #{override_file} in #{dir}")
       end
+      return vars if !ovf
       words = tf_lexer(IO.read(ovf))
       # This parser is simpler because override files have less syntax.
       # Just find all the '=' and they should be in an <<a = b>> context
