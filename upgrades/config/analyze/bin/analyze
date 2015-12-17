@@ -61,7 +61,7 @@ rest.each do |s|
 end
 
 did_something = false
-results = {add:[], drop:[], change:[]}
+results = {add:{}, drop:{}, change:{}}
 if !!o[:old_opinion_dir] != !!o[:new_opinion_dir]
   usage("need to specify both --old-opinion-dir and --new-opinion-dir")
 end
@@ -74,7 +74,7 @@ end
 if !o[:old_opinion_dir] && !o[:old_jobs_dir] && !o[:old_terraform_dir]
   usage("Warning: no tranformations specified")
 end
-results = {add:[], drop:[], change:[]}
+results = {add:{}, drop:{}, change:{}}
 if o[:old_opinion_dir]
   old_dir = o[:old_opinion_dir]
   new_dir = o[:new_opinion_dir]
@@ -93,8 +93,7 @@ if o[:old_terraform_dir]
   old_configs = get_configs(o[:old_terraform_dir], old_ov, pvars)
   new_configs = get_configs(o[:new_terraform_dir], new_ov, pvars)
   new_results = compare_configs(old_configs, new_configs, o[:verbose])
-  #merge_results(results, new_results)
-  results = new_results
+  merge_results(results, new_results)
 end
 puts JSON.dump(results)
 

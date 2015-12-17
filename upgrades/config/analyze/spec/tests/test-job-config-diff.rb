@@ -23,14 +23,14 @@ class TestJobConfigDiffs < Test::Unit::TestCase
     parent_dir = File.join(@fixtures_dir, "cf-release-217-222-tgz-same")
     results = compare_cf_specs(File.join(parent_dir, "cf-v217"),
                                File.join(parent_dir, "cf-v222"))
-    assert_equal({:add=>[], :drop=>[], :change=>[]}, results)
+    assert_equal({:add=>{}, :drop=>{}, :change=>{}}, results)
   end
   
   def test_same_opened_specs_217_22
     parent_dir = File.join(@fixtures_dir, "cf-release-217-222-opened-same")
     results = compare_cf_specs(File.join(parent_dir, "cf-v217"),
                                File.join(parent_dir, "cf-v222"))
-    assert_equal({:add=>[], :drop=>[], :change=>[]}, results)
+    assert_equal({:add=>{}, :drop=>{}, :change=>{}}, results)
   end
 
   def compare_json_results(results, basename)

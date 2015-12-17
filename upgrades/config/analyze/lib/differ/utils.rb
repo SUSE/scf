@@ -1,12 +1,6 @@
 module Differ
   module Utils
     
-    def merge_results(old_hash, new_hash)
-      [:add, :drop, :change].each do |k|
-        old_hash[k] += new_hash[k]
-      end
-    end
-    
     def is_compound?(x)
       x.is_a?(Hash) || x.is_a?(Array)
     end
@@ -17,7 +11,7 @@ module Differ
     end
     
     def merge_results(old_results, new_results)
-      old_results.each_key{|k| old_results[k] += new_results[k] }
+      old_results.each_key {|k| old_results[k].merge!(new_results[k]) }
     end
     
     def tf_lexer(s)

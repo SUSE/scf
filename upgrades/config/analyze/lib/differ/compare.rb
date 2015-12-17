@@ -14,7 +14,7 @@ module Differ
       new_yamls = get_yamls(new_cf_dir)
       old_yaml_keys = old_yamls.keys
       new_yaml_keys = new_yamls.keys
-      results = {add:[], drop:[], change:[]}
+      results = {add:{}, drop:{}, change:{}}
       (new_yaml_keys - old_yaml_keys).each do |k|
         puts "New job: #{k}" if verbose
         new_results = fix_job_manifest_results(compare_files(get_fake_yaml,
@@ -55,7 +55,7 @@ module Differ
     end
     
     def compare_files(old_config, new_config, prefix="")
-      results = {add:[], drop:[], change:[]}
+      results = {add:{}, drop:{}, change:{}}
       diff_hashes(prefix, old_config['properties'], new_config['properties'], results)
       
       old_jobs = Hash[old_config.fetch('jobs', {}).map{|x|[x['name'], x]}]
@@ -78,11 +78,11 @@ module Differ
     end
 
     def compare_configs(a, b, verbose=false)
-      results = { add:{}, delete:{}, change:{} }
+      results = {add:{}, drop:{}, change:{}}
       dropped_keys = a.keys - b.keys
       added_keys = b.keys - a.keys
       dropped_keys.each do |k|
-        results[:delete][k] = a[k]
+        results[:drop][k] = a[k]
       end
       added_keys.each do |k|
         results[:add][k] = b[k]
@@ -103,15 +103,15 @@ module Differ
       (old_keys | new_keys).sort.each do |k|
         if !p1.has_key?(k)
           if ["default", "description"].find_index(k)
-            results[:add] << ["#{root}", {k => p2[k]}]
+            results[:add]["#{root}"] = {k => p2[k]}
           else
-            results[:add] << ["#{root}/#{k}", p2[k]]
+            results[:add]["#{root}/#{k}"] = p2[k]
           end
         elsif !p2.has_key?(k)
           if ["default", "description"].find_index(k)
-            results[:drop] << ["#{root}", {k => p1[k]}]
+            results[:drop]["#{root}"] = {k => p1[k]}
           else
-            results[:drop] << ["#{root}/#{k}", p1[k]]
+            results[:drop]["#{root}/#{k}"] = p1[k]
           end
         else
           old_val = p1[k]
@@ -121,44 +121,44 @@ module Differ
           elsif old_val == new_val
             # do nothing
           elsif is_compound?(old_val) || is_compound?(new_val)
-            results[:drop] << ["#{root}/#{k}", old_val]
-            results[:add] << ["#{root}/#{k}", new_val]
+            results[:drop]["#{root}/#{k}"] = old_val
+            results[:add]["#{root}/#{k}"] = new_val
           else
-            results[:change] << ["#{root}/#{k}", old_val, new_val]
+            results[:change]["#{root}/#{k}"] = [old_val, new_val]
           end
         end
       end
     end
 
-    def fix_add_drop_job_mf_results(results_array)
-      new_results_array = []
-      results_array.each do |k1, v1|
+    def fix_add_drop_job_mf_results(results)
+      new_results = {}
+      results.each do |k1, v1|
         v1.each do |k2, v2|
           if k2 == "description" || k2 == "descritpion"
-            new_results_array << ["hcf/descriptions#{k1.gsub('.', '/')}", v2]
+            new_results["hcf/descriptions#{k1.gsub('.', '/')}"] = v2
           elsif k2 == "default"
-            new_results_array << ["hcf/spec/cf#{k1.gsub('.', '/')}", v2]
+            new_results["hcf/spec/cf#{k1.gsub('.', '/')}"] = v2
           else
             abort("Unexpected key #{k2} in add/drop results_array:#{results_array}")
           end
         end
       end
-      return new_results_array
+      new_results
     end
     
-    def fix_change_job_mf_results(results_array)
-      new_results_array = []
-      results_array.each do |k1, v1, v2|
-        root, match, change_type = k1.rpartition('/')
+    def fix_change_job_mf_results(results)
+      new_results = {}
+      results.each do |k, v|
+        root, match, change_type = k.rpartition('/')
         if change_type == "description"
-          new_results_array << ["hcf/descriptions#{root.gsub('.', '/')}", v1, v2]
+          new_results["hcf/descriptions#{root.gsub('.', '/')}"] = v
         elsif change_type == "default"
-          new_results_array << ["hcf/spec/cf#{root.gsub('.', '/')}", v1, v2]
+          new_results["hcf/spec/cf#{root.gsub('.', '/')}"] = v
         else
           abort("Unexpected key #{k2} in change results_array:#{results_array}")
         end
       end
-      return new_results_array
+      new_results
     end
     
     def fix_job_manifest_results(results)

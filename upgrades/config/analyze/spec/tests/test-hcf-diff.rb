@@ -39,14 +39,14 @@ EOF
   end
 
   def test_merge_results
-    a1 = {add:['a', 1], drop:['b', 2], change:['c', 3]}
-    a2 = {add:['d', 4], drop:['e', 5], change:['f', 6]}
+    a1 = {add:{'a' => 1}, drop:{'b' => 2}, change:{'c' => 3}}
+    a2 = {add:{'d' => 4}, drop:{'e' => 5}, change:{'f' => 6}}
     a1c = a1.clone
     a2c = a2.clone
     merge_results(a1, a2)
     assert_equal(a2, a2c)
     [:add, :drop, :change].each do |k|
-      assert_equal(a1c[k] + a2c[k], a1[k])
+      assert_equal(a1c[k].merge(a2c[k]), a1[k])
     end
     assert_equal(a1c.keys, a1.keys)
   end
