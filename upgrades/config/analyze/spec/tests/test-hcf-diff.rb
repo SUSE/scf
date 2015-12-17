@@ -63,7 +63,7 @@ EOF
     pvars = {"template_file.domain.rendered" => "1.2.3.4.xip.io"}
     old_configs = get_configs(File.join(@fixtures_dir, "hcf-cf-v217"), ov, pvars)
     new_configs = get_configs(File.join(@fixtures_dir, "hcf-cf-v222"), ov, pvars)
-    results = diff_configs(old_configs, new_configs)
+    results = compare_configs(old_configs, new_configs)
     str_results = JSON.dump(results).chomp
     basename = "hcf-217-222-diffs.txt"
     exp_file = File.join(@fixtures_dir, "results", basename)
