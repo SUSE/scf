@@ -1,0 +1,6 @@
+[submodule "src/cf-release"]
+	path = src/cf-release
+	url = https://github.com/hpcloud/cf-release.git
+[submodule "src/cf-usb"]
+	path = src/cf-usb
+	url = git@github.com:calinmiclaus/cf-usb.git

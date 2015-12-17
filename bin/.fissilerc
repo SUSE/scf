@@ -1,0 +1,58 @@
+ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
+
+# The Docker repository name used for images
+export FISSILE_REPOSITORY=fissile
+
+# This is a comma separated list of paths to the local repositories
+# of all the releases that make up HCF
+export FISSILE_RELEASE="${ROOT}/src/cf-release,${ROOT}/src/cf-usb/cf-usb-release"
+
+# This is a comma separated list of dev release names
+# Ordering of the names needs to match the list in FISSILE_DEV_RELEASE
+# Set this only if you're using custom dev release names
+export FISSILE_DEV_RELEASE_NAME=
+
+# This is a comma separated list of dev release versions
+# Ordering of the versions needs to match the list in FISSILE_DEV_RELEASE
+# Set this only if you need to use specific versions (as opposed to latest)
+export FISSILE_DEV_RELEASE_VERSION=
+
+# Path to an HCF role manifest
+export FISSILE_ROLES_MANIFEST="${ROOT}/config-opinions/cf-v217/role-manifest.yml"
+
+# Path to a BOSH deployment manifest that contains light opinions
+export FISSILE_LIGHT_OPINIONS="${ROOT}/config-opinions/cf-v217/opinions.yml"
+
+# Path to a BOSH deployment manifest that contains dark opinions
+export FISSILE_DARK_OPINIONS="${ROOT}/config-opinions/cf-v217/dark-opinions.yml"
+
+# Path to a location where the configuration base is generated
+export FISSILE_CONFIG_OUTPUT_DIR="${ROOT}/.fissile/config"
+
+# This is where packages get compiled
+export FISSILE_COMPILATION_DIR="${HOME}/.fissile/compilation"
+
+# This is where the Dockerfiles for images are created
+export FISSILE_DOCKERFILES_DIR="${HOME}/.fissile/dockerfiles"
+
+# This is where the Dockerfile for the role base image is created
+export FISSILE_ROLE_BASE_DOCKERFILE_DIR="${ROOT}/.fissile/base_dockerfile/"
+
+# This is the location of the local BOSH cache
+# You shouldn't need to override this
+export FISSILE_DEV_CACHE_DIR="${HOME}/.bosh/cache"
+
+# Path to a configgin release tarball
+export FISSILE_CONFIGGIN_PATH="${HOME}/tools/configgin.tgz"
+
+# This is the configuration base prefix
+export FISSILE_CONFIG_PREFIX=hcf
+
+# The number of workers to use when compiling packages
+# export FISSILE_COMPILATION_WORKER_COUNT=2
+
+# Default consul address used by Docker images
+# export FISSILE_DEFAULT_CONSUL_ADDRESS=http://127.0.0.1:8500
+
+# Default consul configuration store prefix used by run.sh in images
+# export FISSILE_DEFAULT_CONFIG_STORE_PREFIX=hcf

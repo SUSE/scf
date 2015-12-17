@@ -20,8 +20,17 @@ if [ "$DEBUG" != "" ] ; then
   set -x
 fi
 
-mkdir -p $TMP_CONFIG_DIR
-tar xzf "$FISSILE_CFG_PACK" -C "$TMP_CONFIG_DIR"
+if [[ -d $FISSILE_CFG_PACK ]]; then
+    echo "Assuming pack is a directory"
+    TMP_CONFIG_DIR=$FISSILE_CFG_PACK
+elif [[ -f $FISSILE_CFG_PACK ]]; then
+    echo "Assuming pack is a tar archive"
+    mkdir -p $TMP_CONFIG_DIR
+    tar xzf "$FISSILE_CFG_PACK" -C "$TMP_CONFIG_DIR"
+else
+    echo "Invalid config pack"
+    exit 1
+fi
 
 cd $TMP_CONFIG_DIR
 echo "Creating kv values"
@@ -36,4 +45,6 @@ for file in $(find . | grep "/value.yml$"); do
   fi
 done
 
-rm -r $TMP_CONFIG_DIR
+if [[ -f $FISSILE_CFG_PACK ]]; then
+  rm -r $TMP_CONFIG_DIR
+fi

@@ -7,3 +7,8 @@ password
 *.tfstate*
 *.tfvars
 .terraform/
+!.fissile/.gitkeep
+!.fissile/.bosh/.gitkeep
+.fissile/*
+.vagrant
+*.box
