@@ -9,7 +9,7 @@ Build infrastructure for HCF 1.0
  > From your HPE e-mail address, send an e-mail to hp@vmware.com,
  > with the subject "Fusion license request"
 
-1. Install Vagrant (version `5.0.10` minimum)
+1. Install Vagrant (version `1.7.4` minimum)
 1. Install vagrant-reload plugin
  ```
  vagrant plugin install vagrant-reload
