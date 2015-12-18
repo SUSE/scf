@@ -32,6 +32,25 @@ module Differ
       end
       yamls
     end
+
+    def yaml_final_encode(s)
+      return YAML.dump(s).sub(/\A---\s+/, "").sub(/\s+\z/, "")
+    end
+
+    def yaml_encode(s)
+      case s
+        when Hash
+        return yaml_final_encode(Hash[s.map{|k, v| [k, v.nil? ? "null" : v]}])
+        when Array
+        return yaml_final_encode(s)
+        when nil
+        return "null"
+        when true,false,Integer,Float
+        return "#{s}"
+        else
+        return s
+      end
+    end
     
   end
 end

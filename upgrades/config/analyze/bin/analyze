@@ -86,9 +86,9 @@ results = {add:{}, drop:{}, change:{}}
 if o[:old_opinion_dir]
   old_dir = o[:old_opinion_dir]
   new_dir = o[:new_opinion_dir]
-  new_results = compare_dirs(old_dir, new_dir, "opinions.yml", "hcf/opinions", o[:verbose])
+  new_results = compare_dirs(old_dir, new_dir, "opinions.yml", "hcf/opinions", o[:verbose], 2)
   merge_results(results, new_results)
-  new_results = compare_dirs(old_dir, new_dir, "dark-opinions.yml", "hcf/user", o[:verbose])
+  new_results = compare_dirs(old_dir, new_dir, "dark-opinions.yml", "hcf/user", o[:verbose], 2)
   merge_results(results, new_results)
 end
 if o[:old_jobs_dir]

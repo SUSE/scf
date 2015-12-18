@@ -1164,10 +1164,6 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
-      cc_routing:
-        authorities: routing.router_groups.read
-        authorized-grant-types: client_credentials
-        secret: cc_routing_secret
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials

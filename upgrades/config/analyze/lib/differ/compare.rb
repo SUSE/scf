@@ -48,15 +48,15 @@ module Differ
       results
     end
     
-    def compare_dirs(old_dir, new_dir, filename, prefix, verbose=false)
+    def compare_dirs(old_dir, new_dir, filename, prefix, verbose=false, limit=-1)
       old_yaml = YAML.load_file(File.join(old_dir, filename))
       new_yaml = YAML.load_file(File.join(new_dir, filename))
-      return compare_files(old_yaml, new_yaml, prefix)
+      return compare_files(old_yaml, new_yaml, prefix, limit)
     end
     
-    def compare_files(old_config, new_config, prefix="")
+    def compare_files(old_config, new_config, prefix="", limit=-1)
       results = {add:{}, drop:{}, change:{}}
-      diff_hashes(prefix, old_config['properties'], new_config['properties'], results)
+      diff_hashes(prefix, old_config['properties'] || {}, new_config['properties'] || {}, results, limit)
       
       old_jobs = Hash[old_config.fetch('jobs', {}).map{|x|[x['name'], x]}]
       new_jobs = Hash[new_config.fetch('jobs', {}).map{|x|[x['name'], x]}]
@@ -72,7 +72,7 @@ module Differ
         name = "#{prefix}/#{name}" if prefix.size > 0
         diff_hashes(name, old_jobs.fetch(key, {}).fetch("properties", {}),
                     new_jobs.fetch(key, {}).fetch("properties", {}),
-                    results)
+                    results, limit)
       end
       results
     end
@@ -97,75 +97,64 @@ module Differ
       results
     end
     
-    def diff_hashes(root, p1, p2, results)
+    def diff_hashes(root, p1, p2, results, limit)
       old_keys = p1.keys
       new_keys = p2.keys
       (old_keys | new_keys).sort.each do |k|
         if !p1.has_key?(k)
-          if ["default", "description"].find_index(k)
-            results[:add]["#{root}"] = {k => p2[k]}
+          if limit == 0 || p2[k].class != Hash
+            results[:add]["#{root}/#{k}"] = yaml_encode(p2[k])
           else
-            results[:add]["#{root}/#{k}"] = p2[k]
+            diff_hashes("#{root}/#{k}", {}, p2[k], results, limit - 1)
           end
         elsif !p2.has_key?(k)
-          if ["default", "description"].find_index(k)
-            results[:drop]["#{root}"] = {k => p1[k]}
+          if limit == 0 || p1[k].class != Hash
+            results[:drop]["#{root}/#{k}"] = yaml_encode(p1[k])
           else
-            results[:drop]["#{root}/#{k}"] = p1[k]
+            diff_hashes("#{root}/#{k}", p1[k], {}, results, limit - 1)
           end
         else
           old_val = p1[k]
           new_val = p2[k]
-          if old_val.is_a?(Hash) && new_val.is_a?(Hash)
-            diff_hashes("#{root}/#{k}", old_val, new_val, results)
-          elsif old_val == new_val
+          if old_val == new_val
             # do nothing
+          elsif old_val.is_a?(Hash) && new_val.is_a?(Hash)
+            if limit == 0
+              results[:change]["#{root}/#{k}"] = [yaml_encode(old_val),
+                                                  yaml_encode(new_val)]
+            else
+              diff_hashes("#{root}/#{k}", old_val, new_val, results, limit - 1)
+            end
           elsif is_compound?(old_val) || is_compound?(new_val)
-            results[:drop]["#{root}/#{k}"] = old_val
-            results[:add]["#{root}/#{k}"] = new_val
+            results[:drop]["#{root}/#{k}"] = yaml_encode(old_val)
+            results[:add]["#{root}/#{k}"] = yaml_encode(new_val)
           else
-            results[:change]["#{root}/#{k}"] = [old_val, new_val]
+            results[:change]["#{root}/#{k}"] = [yaml_encode(old_val),
+                                                yaml_encode(new_val)]
           end
         end
       end
     end
 
-    def fix_add_drop_job_mf_results(results)
-      new_results = {}
-      results.each do |k1, v1|
-        v1.each do |k2, v2|
-          if k2 == "description" || k2 == "descritpion"
-            new_results["hcf/descriptions#{k1.gsub('.', '/')}"] = v2
-          elsif k2 == "default"
-            new_results["hcf/spec/cf#{k1.gsub('.', '/')}"] = v2
-          else
-            abort("Unexpected key #{k2} in add/drop results_array:#{results_array}")
-          end
-        end
-      end
-      new_results
+    def fix_job_results(results)
+      Hash[results.map { |k, v| [fix_job_key(k), v]}]
     end
-    
-    def fix_change_job_mf_results(results)
-      new_results = {}
-      results.each do |k, v|
-        root, match, change_type = k.rpartition('/')
-        if change_type == "description"
-          new_results["hcf/descriptions#{root.gsub('.', '/')}"] = v
-        elsif change_type == "default"
-          new_results["hcf/spec/cf#{root.gsub('.', '/')}"] = v
-        else
-          abort("Unexpected key #{k2} in change results_array:#{results_array}")
-        end
-      end
-      new_results
+
+    def fix_job_key(k)
+      root, _, ktype = k.rpartition('/')
+      pfx = case ktype
+            when "description", "descritpion"
+              "hcf/descriptions"
+            when "default"
+              "hcf/spec/cf"
+            else
+              abort("Unexpected key type #{ktype} in key:#{k}")
+            end
+      pfx + root.gsub('.', '/')
     end
     
     def fix_job_manifest_results(results)
-      results[:add] = fix_add_drop_job_mf_results(results[:add])
-      results[:drop] = fix_add_drop_job_mf_results(results[:drop])
-      results[:change] = fix_change_job_mf_results(results[:change])
-      return results
+      Hash[results.map{|k, v|[k, fix_job_results(v)]}]
     end
 
     def get_configs(dir, override_file, predefined_vars)
