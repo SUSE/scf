@@ -22,6 +22,22 @@ resource "template_file" "gato_wrapper" {
     }
 }
 
+resource "template_file" "run-acceptance-tests" {
+    template = "${path.module}/templates/run-acceptance-tests.bash.tpl"
+
+    vars {
+        build = "${var.build}"
+    }
+}
+
+resource "template_file" "run-smoke-tests" {
+    template = "${path.module}/templates/run-smoke-tests.bash.tpl"
+
+    vars {
+        build = "${var.build}"
+    }
+}
+
 resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
     name = "${var.cluster-prefix}-container-host"
     description = "HCF Container Hosts"
@@ -116,6 +132,22 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
         inline = [
             "cat > /opt/hcf/bin/gato <<'EOF'",
             "${template_file.gato_wrapper.rendered}",
+            "EOF"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+            "cat > /opt/hcf/bin/run-acceptance-tests.bash <<'EOF'",
+            "${template_file.run-acceptance-tests.rendered}",
+            "EOF"
+        ]
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+            "cat > /opt/hcf/bin/run-smoke-tests.bash <<'EOF'",
+            "${template_file.run-smoke-tests.rendered}",
             "EOF"
         ]
     }

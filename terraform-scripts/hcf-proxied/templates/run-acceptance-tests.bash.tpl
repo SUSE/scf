@@ -3,8 +3,10 @@
 
 set -e 
 
-IMAGE=helioncf/cf-acceptance_tests
-CONSUL=http://127.0.0.1:8501
+# Default to using the same image tag as cf-api
+IMAGE_TAG="$${IMAGE_TAG:-${build}}"
+IMAGE=helioncf/cf-acceptance_tests:$${IMAGE_TAG}
+CONSUL="$${CONSUL:-http://127.0.0.1:8501}"
 
 confset () {
   /opt/hcf/bin/set-config $CONSUL $@ 2>/dev/null 1> /dev/null
@@ -33,13 +35,13 @@ API=$(confget hcf/user/cc/srv_api_uri)
 CLIENT_SECRET=$(confget hcf/user/uaa/clients/gorouter/secret)
 SKIP_SSL_VALIDATION=$(confget hcf/user/ssl/skip_cert_verify)
 
-confset hcf/user/acceptance_tests/api "${API}"
-confset hcf/user/acceptance_tests/admin_user "${ADMIN_USER}"
-confset hcf/user/acceptance_tests/admin_password "${ADMIN_PASSWORD}"
-confset hcf/user/acceptance_tests/apps_domain "${APPS_DOMAIN}"	
-confset hcf/user/acceptance_tests/skip_ssl_validation "${SKIP_SSL_VALIDATION}"
-confset hcf/user/acceptance_tests/system_domain "${SYSTEM_DOMAIN}"
-confset hcf/user/acceptance_tests/client_secret "${CLIENT_SECRET}"
+confset hcf/user/acceptance_tests/api "$${API}"
+confset hcf/user/acceptance_tests/admin_user "$${ADMIN_USER}"
+confset hcf/user/acceptance_tests/admin_password "$${ADMIN_PASSWORD}"
+confset hcf/user/acceptance_tests/apps_domain "$${APPS_DOMAIN}"
+confset hcf/user/acceptance_tests/skip_ssl_validation "$${SKIP_SSL_VALIDATION}"
+confset hcf/user/acceptance_tests/system_domain "$${SYSTEM_DOMAIN}"
+confset hcf/user/acceptance_tests/client_secret "$${CLIENT_SECRET}"
 
 confset hcf/user/acceptance_tests/include_sso "true"
 confset hcf/user/acceptance_tests/include_operator "false"
