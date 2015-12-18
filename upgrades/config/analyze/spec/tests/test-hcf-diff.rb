@@ -38,6 +38,28 @@ EOF
     assert_equal("latest-master", dequote(a[2]))
   end
 
+  def test_bash_unescape_special_chars
+    s = %q{"abc\def\"ghi\$jkl\`mno"}
+    exp = %q{"abc\def"ghi$jkl`mno"}
+    assert_equal(exp, bash_unescape(s))
+  end
+
+  def test_bash_dont_unescape_other_chars
+    s = %q{"abc\'def\#ghi\3jkl\&mno"}
+    assert_equal(s, bash_unescape(s))
+  end
+
+  def bash_dont_unescape_single_quoted_string
+    s = %q{'a\`b'"d\`"e\$f'h\$j"m\$n"'p\"q'r\$s"}
+    exp = %q{'a\`b'"d`"e$f'h\$j"m$n"'p\"q'r$s}
+    assert_equal(exp, bash_unescape(s))
+  end
+
+  def bash_unescape_compound_string
+    s = %q{'abc\\def\"ghi\$jkl\`mno'}
+    assert_equal(s, bash_unescape(s))
+  end
+
   def test_merge_results
     a1 = {add:{'a' => 1}, drop:{'b' => 2}, change:{'c' => 3}}
     a2 = {add:{'d' => 4}, drop:{'e' => 5}, change:{'f' => 6}}

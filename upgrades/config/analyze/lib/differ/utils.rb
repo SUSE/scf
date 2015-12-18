@@ -35,7 +35,7 @@ module Differ
         if p[0] == "'" && p[-1] == "'"
           p
         else
-          p.gsub(%r{\\(.)}, '\1')
+          p.gsub(%r{\\([\$\\\`\"\n])}, '\1')
         end
       end
       upieces.join("")
