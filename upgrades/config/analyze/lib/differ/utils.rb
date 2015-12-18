@@ -24,8 +24,22 @@ module Differ
     end
     
     def dequote(s)
-      s.sub(/^"/,"").sub(/"$/, "")
+      s.sub(/^"/,"").sub(/"$/,"")
     end
     
+    def bash_unescape(s)
+      seq_re = %r{(?:\\.|[^"\\]+)*}
+      r = %r{ ('[^']*') | ("#{seq_re}") | (#{seq_re}) }x
+      pieces = s.split(r)
+      upieces = pieces.map do |p|
+        if p[0] == "'" && p[-1] == "'"
+          p
+        else
+          p.gsub(%r{\\(.)}, '\1')
+        end
+      end
+      upieces.join("")
+    end
   end
+  
 end

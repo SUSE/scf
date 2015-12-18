@@ -180,8 +180,8 @@ module Differ
           line2 = line.chomp
           m = setter.match(line2)
           if m
-            configs[m[1]] = m[2].gsub(varref){|s| variables[$1] || s}.
-              gsub(xref){|s| predefined_vars[$1] || s}
+            configs[m[1]] = bash_unescape(m[2].gsub(varref){|s| variables[$1] || s}.
+                                          gsub(xref){|s| predefined_vars[$1] || s})
           end
         end
       end
