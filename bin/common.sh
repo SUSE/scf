@@ -19,6 +19,18 @@ function container_running {
   return 0
 }
 
+# Determines whether a container exists
+# container_exists <CONTAINER_NAME>
+function container_exists {
+  container_name=$1
+
+  if out=$(docker inspect ${container_name} 2>/dev/null); then
+    return 0
+  else
+    return 1
+  fi
+}
+
 # Kills an hcf role
 # kill_role <ROLE_NAME>
 function kill_role {
@@ -63,6 +75,10 @@ function start_hcf_consul() {
   container_name=$1
 
   mkdir -p $store_dir/$container_name
+
+  if container_exists $container_name ; then
+    docker rm $container_name > /dev/null 2>&1
+  fi
 
   cid=$(docker run -d \
     --net=bridge --net=hcf --privileged=true \
