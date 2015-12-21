@@ -77,7 +77,7 @@ function start_hcf_consul() {
   mkdir -p $store_dir/$container_name
 
   if container_exists $container_name ; then
-    docker rm --force $container_name > /dev/null 2>&1
+    docker rm $container_name > /dev/null 2>&1
   fi
 
   cid=$(docker run -d \
