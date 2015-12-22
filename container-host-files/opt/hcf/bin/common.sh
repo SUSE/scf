@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
+BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
 
 # Determines whether a container is running
 # container_running <CONTAINER_NAME>
@@ -92,10 +92,10 @@ function start_hcf_consul() {
 # Waits for the hcf consul server to start
 # wait_hcf_consul <CONSUL_ADDRESS>
 function wait_for_consul() {
-  $ROOT/container-host-files/opt/hcf/bin/wait_for_consul.bash $1
+  $BINDIR/wait_for_consul.bash $1
 }
 
-# gets ../../../container name from a fissile docker image name
+# gets container name from a fissile docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
   echo "${1/:/-}"
@@ -104,17 +104,17 @@ function get_container_name() {
 # imports spec and opinion configs into HCF consul
 # run_consullin <CONSUL_ADDRESS> <CONFIG_SOURCE>
 function run_consullin() {
-  $ROOT/container-host-files/opt/hcf/bin/consullin.bash $1 $2
+  $BINDIR/consullin.bash $1 $2
 }
 
-# imports ../../../default user and role configs
+# imports default user and role configs
 # run_config <CONSUL_ADDRESS> <PUBLIC_IP>
 function run_configs() {
   gato api $1
-  public_ip=$2 $ROOT/container-host-files/opt/hcf/bin/configs.sh
+  public_ip=$2 $BINDIR/configs.sh
 }
 
-# gets a role name f../../../rom a fissile image name
+# gets a role name from a fissile image name
 # get_role_name <IMAGE_NAME>
 function get_role_name() {
   role=$(echo $1 | awk -F":" '{print $1}')

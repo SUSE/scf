@@ -5,7 +5,7 @@ provider "openstack" {
 }
 
 resource "template_file" "domain" {
-    template = "${path.module}/../../container-host-files/opt/hcf/templates/domain.tpl"
+    template = "${path.module}/../templates/domain.tpl"
 
     vars {
         domain = "${var.domain}"
@@ -15,7 +15,7 @@ resource "template_file" "domain" {
 }
 
 resource "template_file" "gato_wrapper" {
-    template = "${path.module}/../../container-host-files/opt/hcf/templates/gato-wrapper.tpl"
+    template = "${path.module}/../templates/gato-wrapper.tpl"
 
     vars {
         gato-build = "${var.gato-build}"
@@ -23,7 +23,7 @@ resource "template_file" "gato_wrapper" {
 }
 
 resource "template_file" "run-acceptance-tests" {
-    template = "${path.module}/../../container-host-files/opt/hcf/templates/run-acceptance-tests.bash.tpl"
+    template = "${path.module}/../templates/run-acceptance-tests.bash.tpl"
 
     vars {
         build = "${var.build}"
@@ -31,7 +31,7 @@ resource "template_file" "run-acceptance-tests" {
 }
 
 resource "template_file" "run-smoke-tests" {
-    template = "${path.module}/../../container-host-files/opt/hcf/templates/run-smoke-tests.bash.tpl"
+    template = "${path.module}/../templates/run-smoke-tests.bash.tpl"
 
     vars {
         build = "${var.build}"

@@ -116,8 +116,9 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
-	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/direct_internet && cp -rL $(PWD)/terraform-scripts/hcf/* terraform-scripts/direct_internet/
-	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/proxied_internet && cp -rL $(PWD)/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/direct_internet && cp -r $(PWD)/terraform-scripts/hcf/* terraform-scripts/direct_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/proxied_internet && cp -r $(PWD)/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/templates && cp -r $(PWD)/terraform-scripts/templates/* terraform-scripts/templates/
 	cp -r $(PWD)/container-host-files $(WORK_DIR)/hcf/
 
 	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/terraform-scripts/direct_internet/
@@ -200,10 +201,12 @@ setup_out: clean_out
 	mkdir -p $(WORK_DIR)/hcf
 
 create_dist: fissile_create_config setup_out
-	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
-	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
-	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf-config.tar.gz hcf/
+	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts . ; cp -r $(PWD)/container-host-files .
+	mv $(WORK_DIR)/hcf/terraform-scripts/hcf $(WORK_DIR)/hcf/terraform-scripts/direct_internet
+	mv $(WORK_DIR)/hcf/terraform-scripts/hcf-proxied $(WORK_DIR)/hcf/terraform-scripts/proxied_internet
+	cd $(WORK_DIR)/hcf/terraform-scripts/direct_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(WORK_DIR)/hcf/terraform-scripts/proxied_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
 release: push_images create_dist
