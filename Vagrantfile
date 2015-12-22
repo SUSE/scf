@@ -32,7 +32,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt|
-    config.vm.box = "http://192.168.10.6/~marky/temp/hcf-libvirt-v0.box"
+    config.vm.box = "https://region-a.geo-1.objects.hpcloudsvc.com/v1/10070729052378/hcf-vagrant-box-images/hcf-libvirt-v0.box"
     libvirt.driver = "kvm"
     libvirt.memory = 8096
 
