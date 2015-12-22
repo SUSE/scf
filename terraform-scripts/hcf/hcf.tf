@@ -5,7 +5,7 @@ provider "openstack" {
 }
 
 resource "template_file" "domain" {
-    template = "${path.module}/templates/domain.tpl"
+    template = "${path.module}/../../container-host-files/opt/hcf/templates/domain.tpl"
 
     vars {
         domain = "${var.domain}"
@@ -15,7 +15,7 @@ resource "template_file" "domain" {
 }
 
 resource "template_file" "gato_wrapper" {
-    template = "${path.module}/templates/gato-wrapper.tpl"
+    template = "${path.module}/../../container-host-files/opt/hcf/templates/gato-wrapper.tpl"
 
     vars {
         gato-build = "${var.gato-build}"
@@ -23,7 +23,7 @@ resource "template_file" "gato_wrapper" {
 }
 
 resource "template_file" "run-acceptance-tests" {
-    template = "${path.module}/templates/run-acceptance-tests.bash.tpl"
+    template = "${path.module}/../../container-host-files/opt/hcf/templates/run-acceptance-tests.bash.tpl"
 
     vars {
         build = "${var.build}"
@@ -31,7 +31,7 @@ resource "template_file" "run-acceptance-tests" {
 }
 
 resource "template_file" "run-smoke-tests" {
-    template = "${path.module}/templates/run-smoke-tests.bash.tpl"
+    template = "${path.module}/../../container-host-files/opt/hcf/templates/run-smoke-tests.bash.tpl"
 
     vars {
         build = "${var.build}"
@@ -124,7 +124,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     # Install scripts and binaries
     provisioner "file" {
-        source = "scripts/"
+        source = "${path.module}/../../container-host-files/opt/hcf/bin/"
         destination = "/opt/hcf/bin/"
     }
 
@@ -160,7 +160,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     }
 
     provisioner "file" {
-        source = "cert/"
+        source = "${path.module}/../../container-host-files/opt/hcf/bin/cert/"
         destination = "/tmp/ca/"
     }    
 
@@ -227,7 +227,7 @@ EOF
     }        
 
     provisioner "file" {
-        source = "config/etcd.conf"
+        source = "${path.module}/../../container-host-files/etc/init/etcd.conf"
         destination = "/tmp/etcd.conf"
     }
 
@@ -256,7 +256,7 @@ EOF
     }
 
     provisioner "file" {
-        source = "keys/docker.gpg"
+        source = "${path.module}/../../container-host-files/opt/hcf/keys/docker.gpg"
         destination = "/tmp/docker.gpg"
     }
 
@@ -728,7 +728,7 @@ resource "openstack_compute_instance_v2" "hcf-dea-host" {
 
     # Install scripts and binaries
     provisioner "file" {
-        source = "scripts/"
+        source = "${path.module}/../../container-host-files/opt/hcf/bin/"
         destination = "/opt/hcf/bin/"
     }
 

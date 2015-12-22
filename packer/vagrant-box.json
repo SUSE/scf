@@ -76,9 +76,9 @@
             "scripts": [
               "scripts/dependencies.sh",
               "scripts/vagrant.sh",
-              "../bin/docker/install_kernel.sh",
-              "../bin/docker/install_etcd.sh",
-              "../bin/docker/install_docker.sh"
+              "../container-host-files/opt/hcf/bin/docker/install_kernel.sh",
+              "../container-host-files/opt/hcf/bin/docker/install_etcd.sh",
+              "../container-host-files/opt/hcf/bin/docker/install_docker.sh"
             ],
             "start_retry_timeout": "7m"
         },

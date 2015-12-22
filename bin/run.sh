@@ -5,12 +5,13 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
 . "${ROOT}/bin/.fissilerc"
 . "${ROOT}/bin/.runrc"
-. "${ROOT}/bin/common.sh"
+. "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
 consul_image=($(fissile dev list-roles | grep 'consul'))
 other_images=($(fissile dev list-roles | grep -v 'consul\|smoke_tests\|acceptance_tests'))
 
-local_ip="${local_ip:-$(${ROOT}/bootstrap-scripts/get_ip eth1)}"
+echo $ROOT
+local_ip="${local_ip:-$(${ROOT}/container-host-files/opt/hcf/bin/get_ip eth1)}"
 store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 consul_address="http://${local_ip}:8501"
