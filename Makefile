@@ -61,7 +61,7 @@ tools: fetch_fissle fetch_configgin
 
 images: setup tools
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
-	make -C images all APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
+	make -C docker-images all APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
 
 # intentionally not contained in the normal build workflow - this is used
 # so that we can fetch and cache a cf-release when we update to a new build.
@@ -116,14 +116,16 @@ publish_images: compile_images
 	done
 
 dist: generate_config_base
-	cd $(WORK_DIR)/hcf && mkdir -p direct_internet && cp -rL $(PWD)/terraform-scripts/hcf/* direct_internet/
-	cd $(WORK_DIR)/hcf && mkdir -p proxied_internet && cp -rL $(PWD)/terraform-scripts/hcf-proxied/* proxied_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/direct_internet && cp -r $(PWD)/terraform-scripts/hcf/* terraform-scripts/direct_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/proxied_internet && cp -r $(PWD)/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
+	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/templates && cp -r $(PWD)/terraform-scripts/templates/* terraform-scripts/templates/
+	cp -r $(PWD)/container-host-files $(WORK_DIR)/hcf/
 
-	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/direct_internet/
-	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/proxied_internet/
+	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/terraform-scripts/direct_internet/
+	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/terraform-scripts/proxied_internet/
 
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > direct_internet/version.tf
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > proxied_internet/version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > terraform-scripts/direct_internet/version.tf
+	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > terraform-scripts/proxied_internet/version.tf
 
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
@@ -171,20 +173,20 @@ fissile_create_config: releases
 
 docker_images:
 	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
-	make -C images build APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
+	make -C docker-images build APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
 
 tag_images: docker_images fissile_create_images
-	make -C images tag APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
+	make -C docker-images tag APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
 	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
+		role_name=`bash -c "source $(PWD)/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
 		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
 		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
 	done
 
 push_images: tag_images
-	make -C images push APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
+	make -C docker-images push APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
 	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source $(PWD)/bin/common.sh; get_role_name $$image"` ; \
+		role_name=`bash -c "source $(PWD)/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
 		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
 		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
 	done
@@ -199,9 +201,12 @@ setup_out: clean_out
 	mkdir -p $(WORK_DIR)/hcf
 
 create_dist: fissile_create_config setup_out
-	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf/hcf-config.tar.gz hcf/
-	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts/hcf/* .
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf-config.tar.gz hcf/
+	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts . ; cp -r $(PWD)/container-host-files .
+	mv $(WORK_DIR)/hcf/terraform-scripts/hcf $(WORK_DIR)/hcf/terraform-scripts/direct_internet
+	mv $(WORK_DIR)/hcf/terraform-scripts/hcf-proxied $(WORK_DIR)/hcf/terraform-scripts/proxied_internet
+	cd $(WORK_DIR)/hcf/terraform-scripts/direct_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
+	cd $(WORK_DIR)/hcf/terraform-scripts/proxied_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
 	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
 
 release: push_images create_dist

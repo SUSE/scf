@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
+BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
 
-local_ip=`${ROOT}/bootstrap-scripts/get_ip`
+local_ip=`${BINDIR}/get_ip`
 
 # Variables and their defaults
 public_ip="${public_ip:-$(echo ${local_ip})}"
@@ -65,13 +65,13 @@ ca_path="$certs_path/ca"
 
     cd $ca_path
 
-    cp ${ROOT}/terraform-scripts/hcf/cert/intermediate_openssl.cnf ./
-    cp ${ROOT}/terraform-scripts/hcf/cert/root_openssl.cnf ./
+    cp ${BINDIR}/cert/intermediate_openssl.cnf ./
+    cp ${BINDIR}/cert/root_openssl.cnf ./
 
     # generate ha_proxy certs
-    bash ${ROOT}/terraform-scripts/hcf/cert/generate_root.sh
-    bash ${ROOT}/terraform-scripts/hcf/cert/generate_intermediate.sh
-    bash ${ROOT}/terraform-scripts/hcf/cert/generate_host.sh "${certs_prefix}-root" "*.${domain}"
+    bash ${BINDIR}/cert/generate_root.sh
+    bash ${BINDIR}/cert/generate_intermediate.sh
+    bash ${BINDIR}/cert/generate_host.sh "${certs_prefix}-root" "*.${domain}"
     cat intermediate/private/${certs_prefix}-root.key.pem > intermediate/private/${certs_prefix}-root.chain.pem
     cat intermediate/certs/${certs_prefix}-root.cert.pem >> intermediate/private/${certs_prefix}-root.chain.pem
   fi

@@ -40,17 +40,17 @@ Vagrant.configure(2) do |config|
     config.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
-  config.vm.provision "file", source: "./bootstrap-config/etcd.conf", destination: "/tmp/etcd.conf"
+  config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
 
   config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
-    /home/vagrant/hcf/bin/docker/configure_docker.sh "192.168.77.77" "15.126.242.125:5000"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "15.126.242.125:5000"
   SHELL
 
   config.vm.provision :reload
 
   config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
     /home/vagrant/hcf/bin/dev/install_bosh.sh
     /home/vagrant/hcf/bin/dev/install_tools.sh
 

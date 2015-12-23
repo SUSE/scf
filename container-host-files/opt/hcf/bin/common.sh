@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
+BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
 
 # Determines whether a container is running
 # container_running <CONTAINER_NAME>
@@ -92,7 +92,7 @@ function start_hcf_consul() {
 # Waits for the hcf consul server to start
 # wait_hcf_consul <CONSUL_ADDRESS>
 function wait_for_consul() {
-  $ROOT/bootstrap-scripts/wait_for_consul.bash $1
+  $BINDIR/wait_for_consul.bash $1
 }
 
 # gets container name from a fissile docker image name
@@ -104,14 +104,14 @@ function get_container_name() {
 # imports spec and opinion configs into HCF consul
 # run_consullin <CONSUL_ADDRESS> <CONFIG_SOURCE>
 function run_consullin() {
-  $ROOT/bootstrap-scripts/consullin.bash $1 $2
+  $BINDIR/consullin.bash $1 $2
 }
 
 # imports default user and role configs
 # run_config <CONSUL_ADDRESS> <PUBLIC_IP>
 function run_configs() {
   gato api $1
-  public_ip=$2 $ROOT/bin/configs.sh
+  public_ip=$2 $BINDIR/configs.sh
 }
 
 # gets a role name from a fissile image name
