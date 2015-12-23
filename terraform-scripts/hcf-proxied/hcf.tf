@@ -190,8 +190,9 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-CERT_DIR=/home/ubuntu/ca
+CERT_DIR=/home/ubuntu/.run/certs/ca
 
+mkdir -p $(dirname $CERT_DIR)
 mv /tmp/ca $CERT_DIR
 cd $CERT_DIR
 
@@ -363,17 +364,11 @@ EOF
         ]
     }
 
-    provisioner "file" {
-        source = "config/consul.json"
-        destination = "/tmp/consul.json"
-    }
-
     # start the HCF consul server
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-sudo mv /tmp/consul.json /opt/hcf/etc/consul.json
-cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
+cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
 docker network connect hcf $cid
 EOF
     }
@@ -413,6 +408,34 @@ export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/password \"${var.nats_password}\"
 
+# vvvv start CF v222 settings ==============================================
+# CF v222 settings
+# Handle the route-registrar settings
+/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${template_file.domain.rendered}", "*.uaa.${template_file.domain.rendered}", "login.${template_file.domain.rendered}", "*.login.${template_file.domain.rendered}"]}]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${template_file.domain.rendered}"]}]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${template_file.domain.rendered}"]}]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
+
+# Used to just have this for hcf/user/etcd/machines
+/opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
+
+# If either of these is true configgin will want to resolve etcd.cluster
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/peer_require_ssl false
+/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/require_ssl false
+
+/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
+
+# End cf v222 additions
+
+# ^^^^ end cf v222 settings ==============================================
+
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/signing_key ~/.ssh/jwt_signing.pem
@@ -425,8 +448,6 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 # /opt/hcf/bin/set-config-file $CONSUL hcf/user/login/saml/serviceProviderCertificate ~/.ssh/service_provider.pub
 
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/admin/client_secret \"${var.uaa_admin_client_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/batch/username \"${var.uaa_batch_username}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/batch/password \"${var.uaa_batch_password}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/cc/client_secret \"${var.uaa_cc_client_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/app-direct/secret \"${var.uaa_clients_app-direct_secret}\"
 /opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/developer-console/secret \"${var.uaa_clients_developer_console_secret}\"
@@ -449,8 +470,8 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 # combine the certs, so we can insert them into ha_proxy's config
 TEMP_CERT=$(mktemp --suffix=.pem)
 
-cat /home/ubuntu/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
-cat /home/ubuntu/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
+cat /home/ubuntu/.run/certs/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
+cat /home/ubuntu/.run/certs/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
 
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/ha_proxy/ssl_pem $TEMP_CERT
 
@@ -699,7 +720,6 @@ EOF
         "docker run -d --net=hcf -e 'HCF_NETWORK=overlay' -e 'HCF_OVERLAY_GATEWAY=${var.overlay_gateway}' --privileged=true --cgroup-parent=instance --restart=unless-stopped --dns=127.0.0.1 --dns=${var.dns_server} --name cf-loggregator_trafficcontroller -t helioncf/cf-loggregator_trafficcontroller:${var.build} http://hcf-consul-server.hcf:8501 hcf 0 | tee /tmp/cf-loggregator_trafficcontroller-output"
         ]        
     }
-
 }
 
 resource "openstack_compute_instance_v2" "hcf-dea-host" {

@@ -167,8 +167,9 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-CERT_DIR=/home/ubuntu/ca
+CERT_DIR=/home/ubuntu/.run/certs/ca
 
+mkdir -p $(dirname $CERT_DIR)
 mv /tmp/ca $CERT_DIR
 cd $CERT_DIR
 
@@ -335,17 +336,11 @@ EOF
         ]
     }
 
-    provisioner "file" {
-        source = "config/consul.json"
-        destination = "/tmp/consul.json"
-    }
-
     # start the HCF consul server
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-sudo mv /tmp/consul.json /opt/hcf/etc/consul.json
-cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /opt/hcf/etc:/opt/hcf/etc -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
+cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
 docker network connect hcf $cid
 EOF
     }
@@ -447,8 +442,8 @@ openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_
 # combine the certs, so we can insert them into ha_proxy's config
 TEMP_CERT=$(mktemp --suffix=.pem)
 
-cat /home/ubuntu/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
-cat /home/ubuntu/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
+cat /home/ubuntu/.run/certs/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
+cat /home/ubuntu/.run/certs/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
 
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/ha_proxy/ssl_pem $TEMP_CERT
 
@@ -758,7 +753,7 @@ EOF
     }        
 
     provisioner "file" {
-        source = "keys/docker.gpg"
+        source = "${path.module}/../../container-host-files/opt/hcf/keys/docker.gpg"
         destination = "/tmp/docker.gpg"
     }
 
