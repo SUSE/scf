@@ -144,7 +144,12 @@ cf_usb_release:
 	cd $(PWD)/src/cf-usb/cf-usb-release && \
 	bosh create release --force --name cf-usb
 
-releases: cf_release cf_usb_release
+cf_console_release:
+	@echo "$(OK_COLOR)==> Running bosh create release for cf-console ... $(NO_COLOR)"
+	cd $(PWD)/src/cf-console/cf-console-release && \
+	bosh create release --force --name cf-usb
+
+releases: cf_release cf_usb_release cf_console_release
 	@echo "$(OK_COLOR)==> Creating BOSH releases ... $(NO_COLOR)"
 
 fissile_compilation_base:
