@@ -13,3 +13,6 @@
 [submodule "src/etcd-release"]
 	path = src/etcd-release
 	url = https://github.com/hpcloud/etcd-release
+[submodule "src/cf-console"]
+	path = src/cf-console
+	url = git@github.com:hpcloud/cf-console
