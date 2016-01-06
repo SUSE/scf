@@ -154,8 +154,8 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
       inline = [
-      "sudo chmod ug+x /opt/hcf/bin/*",
-      "echo 'export PATH=$PATH:/opt/hcf/bin' | sudo tee /etc/profile.d/hcf.sh"
+      "sudo chmod ug+x /opt/hcf/bin/* /opt/hcf/bin/docker/*",
+      "echo 'export PATH=$PATH:/opt/hcf/bin:/opt/hcf/bin/docker' | sudo tee /etc/profile.d/hcf.sh"
       ]
     }
 
@@ -198,33 +198,17 @@ EOF
     }
 
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-
-# the default Ubuntu mirror provided in the images is slow slow slow
-sudo sed -ik8bak 's/az1\.clouds\.archive\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
-sudo sed -ik8bak 's/security\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
-
-echo "Update Ubuntu"
-sudo apt-get update 
-sudo DEBIAN_FRONTEND=noninteractive apt-get dselect-upgrade -y
-echo "Install a kernel with quota support"
-sudo apt-get update 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
-sudo reboot && sleep 10
-EOF
+        inline = [
+	    "bash -e /opt/hcf/bin/docker/install_kernel.sh",
+	    "sudo reboot now",
+	    "sleep 60"
+	]
     }        
 
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-echo "Install etcd for Docker overlay networking"
-
-curl -L https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz -o /tmp/etcd.tar.gz
-cd /opt
-sudo tar xzvf /tmp/etcd.tar.gz
-sudo ln -sf /opt/etcd-v2.2.1-linux-amd64 /opt/etcd
-EOF
+        inline = [
+          "bash -e /opt/hcf/bin/docker/install_etcd.sh"
+        ]
     }        
 
     provisioner "file" {
@@ -233,27 +217,9 @@ EOF
     }
 
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-echo "Set up etcd to start via upstart"
-
-cat >/tmp/etcd.override <<FOE
-env ETCD_NAME="${var.cluster-prefix}-core" 
-env ETCD_INITIAL_CLUSTER_TOKEN="${var.cluster-prefix}-hcf-etcd"
-env ETCD_DATA_DIR="/data/hcf-etcd"
-env ETCD_LISTEN_PEER_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3380"
-env ETCD_LISTEN_CLIENT_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
-env ETCD_ADVERTISE_CLIENT_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
-env ETCD_INITIAL_CLUSTER="${var.cluster-prefix}-core=http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
-env ETCD_INITIAL_ADVERTISE_PEER_URLS="http://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379"
-env ETCD_INITIAL_CLUSTER_STATE=new
-FOE
-
-sudo mv /tmp/etcd.override /etc/init
-sudo mv /tmp/etcd.conf /etc/init
-
-sudo service etcd start
-EOF
+        inline = [
+          "bash -e /opt/hcf/bin/docker/configure_etcd.sh ${var.cluster-prefix} ${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}"
+        ]
     }
 
     provisioner "file" {
@@ -274,15 +240,9 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docke
 
 sudo usermod -aG docker ubuntu
 
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 -H=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper -g=/data/docker \" | sudo tee -a /etc/default/docker
+bash -e /opt/hcf/bin/docker/configure_docker.sh ${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}
 
-# enable cgroup memory and swap accounting
-sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
-sudo update-grub
-
-sudo sed -idockerbak 's/local-filesystems and net-device-up IFACE!=lo/local-filesystems and net-device-up IFACE!=lo and started etcd/' /etc/init/docker.conf
-
-# We have to reboot since this switches our kernel.        
+# We have to reboot since this switches our kernel.
 sudo reboot && sleep 10
 EOF
     }
@@ -316,10 +276,9 @@ EOF
     # configure Docker overlay network
     #
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-docker network create -d overlay --subnet="${var.overlay_subnet}" --gateway="${var.overlay_gateway}" hcf 
-EOF
+        inline = [
+          "bash -e /opt/hcf/bin/docker/setup_overlay_network.sh ${var.overlay_subnet} ${var.overlay_gateway}"
+        ]
     }
 
     #
@@ -506,7 +465,7 @@ rm $TEMP_CERT
 /opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
 
 EOF
-    }    
+    }
 
     # Register the services we expect to be alive and health checks for them.
     provisioner "remote-exec" {
@@ -735,21 +694,11 @@ resource "openstack_compute_instance_v2" "hcf-dea-host" {
     }
 
     provisioner "remote-exec" {
-        inline = <<EOF
-set -e
-
-# the default Ubuntu mirror provided in the images is slow slow slow
-sudo sed -ik8bak 's/az1\.clouds\.archive\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
-sudo sed -ik8bak 's/security\.ubuntu\.com\/ubuntu/mirrors\.rit\.edu\/ubuntu-archive/g' /etc/apt/sources.list
-
-echo "Update Ubuntu"
-sudo apt-get update 
-sudo DEBIAN_FRONTEND=noninteractive apt-get dselect-upgrade -y
-echo "Install a kernel with quota support"
-sudo apt-get update 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
-sudo reboot && sleep 10
-EOF
+        inline = [
+	    "bash -e /opt/hcf/bin/docker/install_kernel.sh",
+	    "sudo reboot now",
+	    "sleep 60"
+	]
     }        
 
     provisioner "file" {
@@ -770,13 +719,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docke
 
 sudo usermod -aG docker ubuntu
 
-echo DOCKER_OPTS=\"--cluster-store=etcd://${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:3379 --cluster-advertise=${self.network.0.fixed_ip_v4}:2376 --label=com.docker.network.driver.overlay.bind_interface=eth0 --label=com.docker.network.driver.overlay.neighbor_ip=${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4}:2376 -H=${self.network.0.fixed_ip_v4}:2376 -H=unix:///var/run/docker.sock -s=devicemapper\" | sudo tee -a /etc/default/docker
-
-# enable cgroup memory and swap accounting
-sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
-sudo update-grub
-
-# We have to reboot since this switches our kernel.        
+bash -e /opt/hcf/bin/docker/configure_dea_docker.sh ${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4} ${self.network.0.fixed_ip_v4}
 sudo reboot && sleep 10
 EOF
     }
