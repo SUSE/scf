@@ -128,6 +128,11 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
         destination = "/opt/hcf/bin/"
     }
 
+    provisioner "file" {
+        source = "${path.module}/../bootstrap-scripts/check_health.bash"
+        destination = "/opt/hcf/bin/check_health.bash"
+    }
+
     provisioner "remote-exec" {
         inline = [
             "cat > /opt/hcf/bin/gato <<'EOF'",
