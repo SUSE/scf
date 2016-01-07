@@ -207,6 +207,7 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
   fi
 )
 
+which gato >/dev/null || PATH=$PATH:/opt/hcf/bin
 # Setting role values
 gato config set --role consul                         consul.agent.mode                           'server'
 gato config set --role cf-usb                         consul.agent.services.cf_usb                '{}'

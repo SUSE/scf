@@ -317,57 +317,72 @@ EOF
     }
 
     # Set the default configuration values for our cluster
-    # The order of the arguments is based on
-    # container-host-files/opt/hcf/bin/setup-configs.sh
-    # where exported variable names are given in alphabetical order.
-    # setup-configs.sh expects the last argument to have the value
-    # "end_check" as a check.
     provisioner "remote-exec" {
         inline = <<EOF
-bash -e /opt/hcf/bin/setup-configs.sh \
-	'${var.bulk_api_password}'  \
-	'${var.ccdb_role_name}'  \
-	'${var.ccdb_role_password}'  \
-	'${var.cluster_admin_authorities}'  \
-	'${var.cluster_admin_password}'  \
-	'${var.cluster_admin_username}'  \
-	'${var.cluster-prefix}'  \
-	'${var.db_encryption_key}'  \
-	'${var.dea_count}' \
-	'${template_file.domain.rendered}' \
-	'${var.doppler_zone}'  \
-	'${var.loggregator_shared_secret}'  \
-	'${var.metron_agent_zone}'  \
-	'${var.monit_password}' \
-	'${var.monit_port}' \
-	'${var.monit_user}' \
-	'${var.nats_password}' \
-	'${var.nats_user}' \
-	'${var.service_provider_key_passphrase}' \
-	'${var.signing_key_passphrase}' \
-	'${var.staging_upload_user}'  \
-	'${var.staging_upload_password}'  \
-	'${var.traffic_controller_zone}'  \
-	'${var.uaa_admin_client_secret}' \
-	'${var.uaa_cc_client_secret}' \
-	'${var.uaa_clients_app-direct_secret}' \
-	'${var.uaa_clients_cc_routing_secret}' \
-	'${var.uaa_clients_developer_console_secret}' \
-	'${var.uaa_clients_doppler_secret}' \
-	'${var.uaa_clients_gorouter_secret}'  \
-	'${var.uaa_clients_login_secret}' \
-	'${var.uaa_clients_notifications_secret}' \
-	'${var.uaa_cloud_controller_username_lookup_secret}' \
-	'${var.uaadb_password}'  \
-	'${var.uaadb_username}'  \
-	'end_check'
-# And these things didn't work with the above code, so try them here:
+set -ex
 
+# Full path needed to gato because we're running this via terraform,
+# and the path doesn't include /opt/hcf/bin
+OPTDIR=/opt/hcf/bin
+$OPTDIR/gato api http://hcf-consul-server.hcf:8501
+env bulk_api_password='${var.bulk_api_password}' \
+    ccdb_role_name='${var.ccdb_role_name}' \
+    ccdb_role_password='${var.ccdb_role_password}' \
+    cluster_admin_authorities='${var.cluster_admin_authorities}' \
+    cluster_admin_password='${var.cluster_admin_password}' \
+    cluster_admin_username='${var.cluster_admin_username}' \
+    cluster_prefix='${var.cluster-prefix}' \
+    db_encryption_key='${var.db_encryption_key}' \
+    dea_count='${var.dea_count}' \
+    domain='${template_file.domain.rendered}' \
+    doppler_zone='${var.doppler_zone}' \
+    loggregator_shared_secret='${var.loggregator_shared_secret}' \
+    metron_agent_zone='${var.metron_agent_zone}' \
+    monit_password='${var.monit_password}' \
+    monit_port='${var.monit_port}' \
+    monit_user='${var.monit_user}' \
+    nats_password='${var.nats_password}' \
+    nats_user='${var.nats_user}' \
+    service_provider_key_passphrase='${var.service_provider_key_passphrase}' \
+    signing_key_passphrase='${var.signing_key_passphrase}' \
+    staging_upload_user='${var.staging_upload_user}' \
+    staging_upload_password='${var.staging_upload_password}' \
+    traffic_controller_zone='${var.traffic_controller_zone}' \
+    uaa_admin_client_secret='${var.uaa_admin_client_secret}' \
+    uaa_cc_client_secret='${var.uaa_cc_client_secret}' \
+    uaa_clients_app_direct_secret='${var.uaa_clients_app-direct_secret}' \
+    uaa_clients_cc_routing_secret='${var.uaa_clients_cc_routing_secret}' \
+    uaa_clients_developer_console_secret='${var.uaa_clients_developer_console_secret}' \
+    uaa_clients_doppler_secret='${var.uaa_clients_doppler_secret}' \
+    uaa_clients_gorouter_secret='${var.uaa_clients_gorouter_secret}' \
+    uaa_clients_login_secret='${var.uaa_clients_login_secret}' \
+    uaa_clients_notifications_secret='${var.uaa_clients_notifications_secret}' \
+    uaa_cloud_controller_username_lookup_secret='${var.uaa_cloud_controller_username_lookup_secret}' \
+    uaadb_password='${var.uaadb_password}' \
+    uaadb_username='${var.uaadb_username}' \
+    $OPTDIR/configs.sh
+
+# And these things didn't work in configs.sh, so leave them here:
+
+set -e
 export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
+# Keep this -- otherwise the routing-api component of cf-api fails with the error:
+# Public uaa token must be PEM encoded
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/signing_key ~/.ssh/jwt_signing.pem
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/verification_key ~/.ssh/jwt_signing.pub
+
+# Keep this -- otherwise the ha_proxy role gives error mesages of the form:
+# parsing [/var/vcap/jobs/haproxy/config/haproxy.conf:31] : 'bind :443' : 
+# unable to load SSL private key from PEM file '/var/vcap/jobs/haproxy/config/cert.pem'.
+# The problem here is that the 2 parts of the generated key aren't separated
+# by a newline:
+# 
+# cat /var/vcap/jobs/haproxy/config/cert.pem
+# ...
+# ... Z9Is -----END RSA PRIVATE KEY----- -----BEGIN CERTIFICATE----- MIIGFz ...
+# ...
 
 # combine the certs, so we can insert them into ha_proxy's config
 TEMP_CERT=$(mktemp --suffix=.pem)
