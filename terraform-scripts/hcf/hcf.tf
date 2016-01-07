@@ -317,152 +317,64 @@ EOF
     }
 
     # Set the default configuration values for our cluster
+    # The order of the arguments is based on
+    # container-host-files/opt/hcf/bin/setup-configs.sh
+    # where exported variable names are given in alphabetical order.
+    # setup-configs.sh expects the last argument to have the value
+    # "end_check" as a check.
     provisioner "remote-exec" {
         inline = <<EOF
-#!/bin/bash
-set -e        
+bash -e /opt/hcf/bin/setup-configs.sh \
+	'${var.bulk_api_password}'  \
+	'${var.ccdb_role_name}'  \
+	'${var.ccdb_role_password}'  \
+	'${var.cluster_admin_authorities}'  \
+	'${var.cluster_admin_password}'  \
+	'${var.cluster_admin_username}'  \
+	'${var.cluster-prefix}'  \
+	'${var.db_encryption_key}'  \
+	'${var.dea_count}' \
+	'${template_file.domain.rendered}' \
+	'${var.doppler_zone}'  \
+	'${var.loggregator_shared_secret}'  \
+	'${var.metron_agent_zone}'  \
+	'${var.monit_password}' \
+	'${var.monit_port}' \
+	'${var.monit_user}' \
+	'${var.nats_password}' \
+	'${var.nats_user}' \
+	'${var.service_provider_key_passphrase}' \
+	'${var.signing_key_passphrase}' \
+	'${var.staging_upload_user}'  \
+	'${var.staging_upload_password}'  \
+	'${var.traffic_controller_zone}'  \
+	'${var.uaa_admin_client_secret}' \
+	'${var.uaa_cc_client_secret}' \
+	'${var.uaa_clients_app-direct_secret}' \
+	'${var.uaa_clients_cc_routing_secret}' \
+	'${var.uaa_clients_developer_console_secret}' \
+	'${var.uaa_clients_doppler_secret}' \
+	'${var.uaa_clients_gorouter_secret}'  \
+	'${var.uaa_clients_login_secret}' \
+	'${var.uaa_clients_notifications_secret}' \
+	'${var.uaa_cloud_controller_username_lookup_secret}' \
+	'${var.uaadb_password}'  \
+	'${var.uaadb_username}'  \
+	'end_check'
+# And these things didn't work with the above code, so try them here:
+
 export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/consul/require_ssl false
-/opt/hcf/bin/set-config $CONSUL hcf/user/consul/agent/servers/lan [\"cf-consul.hcf\"]
-/opt/hcf/bin/set-config $CONSUL hcf/user/consul/encrypt_keys '[]'
-/opt/hcf/bin/set-config $CONSUL hcf/role/consul/consul/agent/mode \"server\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/nats/user \"${var.nats_user}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/nats/password \"${var.nats_password}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/nats/machines '["nats.service.cf.internal"]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/user \"${var.monit_user}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/password \"${var.monit_password}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/hcf/monit/port \"${var.monit_port}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/machines '["nats.service.cf.internal"]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/username \"${var.nats_user}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/nats/password \"${var.nats_password}\"
-
-# vvvv start CF v222 settings ==============================================
-# CF v222 settings
-# Handle the route-registrar settings
-/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/route_registrar/routes '[{"name": "uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.${template_file.domain.rendered}", "*.uaa.${template_file.domain.rendered}", "login.${template_file.domain.rendered}", "*.login.${template_file.domain.rendered}"]}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/api/route_registrar/routes '[{"name":"api","port":"9022","tags":{"component":"CloudController"},"uris":["api.${template_file.domain.rendered}"]}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/hm9000/route_registrar/routes '[{"name":"hm9000","port":"5155","tags":{"component":"HM9K"},"uris":["hm9000.${template_file.domain.rendered}"]}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/loggregator_trafficcontroller/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/doppler/route_registrar/routes '[{"name":"doppler","port":"8081","uris":["doppler.${template_file.domain.rendered}"]},{"name":"loggregator_trafficcontroller","port":"8080","uris":["loggregator.${template_file.domain.rendered}"]}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd_metrics_server/machines '["nats.service.cf.internal"]'
-
-# Used to just have this for hcf/user/etcd/machines
-/opt/hcf/bin/set-config $CONSUL hcf/user/loggregator/etcd/machines '["etcd.service.cf.internal"]'
-
-# If either of these is true configgin will want to resolve etcd.cluster
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/peer_require_ssl false
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/require_ssl false
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cc_routing/secret \"${var.uaa_clients_cc_routing_secret}\"
-
-# End cf v222 additions
-
-# ^^^^ end cf v222 settings ==============================================
-
 openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
 openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/signing_key ~/.ssh/jwt_signing.pem
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/verification_key ~/.ssh/jwt_signing.pub
 
-# not setting these yet, since we're not using them.
-# openssl genrsa -out ~/.ssh/service_provider.pem -passout pass:"${var.service_provider_key_passphrase}" 4096
-# openssl rsa -in ~/.ssh/service_provider.pem -outform PEM -passin pass:"${var.service_provider_key_passphrase}" -pubout -out ~/.ssh/service_provider.pub
-# /opt/hcf/bin/set-config-file $CONSUL hcf/user/login/saml/serviceProviderKey ~/.ssh/service_provider.pem
-# /opt/hcf/bin/set-config-file $CONSUL hcf/user/login/saml/serviceProviderCertificate ~/.ssh/service_provider.pub
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/admin/client_secret \"${var.uaa_admin_client_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/cc/client_secret \"${var.uaa_cc_client_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/app-direct/secret \"${var.uaa_clients_app-direct_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/developer-console/secret \"${var.uaa_clients_developer_console_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/notifications/secret \"${var.uaa_clients_notifications_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/login/secret \"${var.uaa_clients_login_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/doppler/secret \"${var.uaa_clients_doppler_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/cloud_controller_username_lookup/secret \"${var.uaa_cloud_controller_username_lookup_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/clients/gorouter/secret \"${var.uaa_clients_gorouter_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/scim/users '["${var.cluster_admin_username}|${var.cluster_admin_password}|${var.cluster_admin_authorities}"]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/roles '[{"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag": "admin"}]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/domain \"${template_file.domain.rendered}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/doppler/zone \"${var.doppler_zone}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/traffic_controller/zone \"${var.traffic_controller_zone}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/zone \"${var.metron_agent_zone}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/bulk_api_password \"${var.bulk_api_password}\"
-
 # combine the certs, so we can insert them into ha_proxy's config
 TEMP_CERT=$(mktemp --suffix=.pem)
-
 cat /home/ubuntu/.run/certs/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
 cat /home/ubuntu/.run/certs/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
-
 /opt/hcf/bin/set-config-file $CONSUL hcf/user/ha_proxy/ssl_pem $TEMP_CERT
-
 rm $TEMP_CERT
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/loggregator_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/doppler_endpoint/shared_secret \"${var.loggregator_shared_secret}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}", "tag": "admin"}]'
-
-# TODO: replace this with Swift settings
-# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/resource_pool/fog_connection '{}'
-# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/packages/fog_connection '{}'
-# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/droplets/fog_connection '{}'
-# /opt/hcf/bin/set-config $CONSUL hcf/user/cc/buildpacks/fog_connection '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/user/nfs_server/share_path \"/var/vcap/nfs\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/db_encryption_key \"${var.db_encryption_key}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/app_domains "[\"${template_file.domain.rendered}\"]"
-/opt/hcf/bin/set-config $CONSUL hcf/user/system_domain "\"${template_file.domain.rendered}\""
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/ccdb/address \"postgres.service.cf.internal\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaadb/address \"postgres.service.cf.internal\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/uaa/consul/agent/services/uaa '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/api/consul/agent/services/cloud_controller_ng '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/api/consul/agent/services/routing_api '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/router/consul/agent/services/gorouter '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/nats/consul/agent/services/nats '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/postgres/consul/agent/services/postgres '{}'
-/opt/hcf/bin/set-config $CONSUL hcf/role/etcd/consul/agent/services/etcd '{}'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/address \"postgres.service.cf.internal\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/databases '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/port '5524'
-/opt/hcf/bin/set-config $CONSUL hcf/user/databases/roles '[{"name": "${var.ccdb_role_name}", "password": "${var.ccdb_role_password}","tag": "admin"}, {"name": "${var.uaadb_username}", "password": "${var.uaadb_password}", "tag":"admin"}]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_user \"${var.staging_upload_user}\"
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/staging_upload_password \"${var.staging_upload_password}\"
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/etcd/machines '["etcd.service.cf.internal"]'
-/opt/hcf/bin/set-config $CONSUL hcf/user/router/servers/z1 '["gorouter.service.cf.internal"]'
-
-/opt/hcf/bin/set-config $CONSUL hcf/role/runner/consul/agent/services/dea_next '{}'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/dea_next/kernel_network_tuning_enabled 'false'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/cc/srv_api_uri "\"https://api.${template_file.domain.rendered}\""
-# TODO: Take this out, and place our generated CA cert into the appropriate /usr/share/ca-certificates folders
-# and call update-ca-certificates at container startup
-/opt/hcf/bin/set-config $CONSUL hcf/user/ssl/skip_cert_verify 'true'
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/disk_quota_enabled 'false'
-
-# TODO: This should be handled in the 'opinions' file, since the ERb templates will generate this value
-/opt/hcf/bin/set-config $CONSUL hcf/user/hm9000/url "\"https://hm9000.${template_file.domain.rendered}\""
-/opt/hcf/bin/set-config $CONSUL hcf/user/uaa/url "\"https://uaa.${template_file.domain.rendered}\""
-
-/opt/hcf/bin/set-config $CONSUL hcf/user/metron_agent/deployment \"hcf-deployment\"
 
 EOF
     }

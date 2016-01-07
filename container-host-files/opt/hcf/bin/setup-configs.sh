@@ -45,7 +45,9 @@ if [[ $end_check != "end_check" ]] ; then
   exit 1
 fi
 
+# Full path needed to gato because we're running this via terraform,
+# so the path doesn't include /opt/hcf/bin
+OPTDIR=/opt/hcf/bin
+which gato 2>/dev/null || export PATH=$PATH:$OPTDIR
 gato api http://hcf-consul-server.hcf:8501
-./`dirname $0`/configs.sh
-
-
+. $OPTDIR/configs.sh
