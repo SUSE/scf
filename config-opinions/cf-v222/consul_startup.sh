@@ -1,4 +1,4 @@
-set -e
+#!/usr/bin/env bash
 
 # Available environment variables:
 # CONSUL_ADDRESS
@@ -7,7 +7,8 @@ set -e
 # IP_ADDRESS
 # DNS_RECORD_NAME
 
-success=$(curl -X PUT -d "[\"$IP_ADDRESS\"]" $CONSUL_ADDRESS/v1/kv/$CONFIG_STORE_PREFIX/user/consul/agent/servers/lan)
+success=$(curl --fail -X PUT -d "[\"$IP_ADDRESS\"]" $CONSUL_ADDRESS/v1/kv/$CONFIG_STORE_PREFIX/user/consul/agent/servers/lan)
+res=$?
 rc=0
-[[ "$success" == "true" ]] || rc=$?
+[[ "$success" == "true" ]] || rc=$res
 exit $rc
