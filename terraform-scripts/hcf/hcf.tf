@@ -327,11 +327,11 @@ OPTDIR=/opt/hcf/bin
 $OPTDIR/gato api http://hcf-consul-server.hcf:8501
 env bulk_api_password='${var.bulk_api_password}' \
     ccdb_role_name='${var.ccdb_role_name}' \
+    certs_prefix='${var.cluster-prefix}' \
     ccdb_role_password='${var.ccdb_role_password}' \
     cluster_admin_authorities='${var.cluster_admin_authorities}' \
     cluster_admin_password='${var.cluster_admin_password}' \
     cluster_admin_username='${var.cluster_admin_username}' \
-    cluster_prefix='${var.cluster-prefix}' \
     db_encryption_key='${var.db_encryption_key}' \
     dea_count='${var.dea_count}' \
     domain='${template_file.domain.rendered}' \
