@@ -7,6 +7,6 @@
 # This code finishes the job. If other stuff ends up in this directory, all bets are off.
 
 cgroup_path=/tmp/warden/cgroup
-if [[ -d $cgroup_path && -z `ls -A $cgroup_path` ]] ; then
+if [[ -d $cgroup_path && -z "$(ls -A $cgroup_path)" ]] ; then
     rmdir $cgroup_path
 fi
