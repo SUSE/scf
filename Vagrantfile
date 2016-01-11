@@ -20,24 +20,24 @@ Vagrant.configure(2) do |config|
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.77.77"
 
-  config.vm.provider "vmware_fusion" do |vb|
-    config.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
+  config.vm.provider "vmware_fusion" do |vb, override|
+    override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
     # Customize the amount of memory on the VM:
     vb.memory = "8096"
     # If you need to debug stuff
     # vb.gui = true
 
-    config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    config.vm.synced_folder ".", "/home/vagrant/hcf"
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+    override.vm.synced_folder ".", "/home/vagrant/hcf"
   end
 
-  config.vm.provider "libvirt" do |libvirt|
-    config.vm.box = "https://region-a.geo-1.objects.hpcloudsvc.com/v1/10070729052378/hcf-vagrant-box-images/hcf-libvirt-v0.box"
+  config.vm.provider "libvirt" do |libvirt, override|
+    override.vm.box = "https://region-a.geo-1.objects.hpcloudsvc.com/v1/10070729052378/hcf-vagrant-box-images/hcf-libvirt-v0.box"
     libvirt.driver = "kvm"
     libvirt.memory = 8096
 
-    config.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
-    config.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
   config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
