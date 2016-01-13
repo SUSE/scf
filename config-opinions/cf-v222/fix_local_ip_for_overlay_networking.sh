@@ -5,7 +5,7 @@ if [ "$HCF_NETWORK" != "overlay" ]; then
 fi
 
 if [ -z "$HCF_OVERLAY_GATEWAY" ]; then
-  echo "Missing HCF_OVERLAY_GATEWAY environment variable."
+  echo >&2 "Missing HCF_OVERLAY_GATEWAY environment variable."
   exit 1
 fi
 
