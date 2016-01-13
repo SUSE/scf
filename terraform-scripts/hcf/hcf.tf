@@ -642,7 +642,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-engine=${var.docke
 
 sudo usermod -aG docker ubuntu
 
-bash -e /opt/hcf/bin/docker/configure_dea_docker.sh ${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4} ${self.network.0.fixed_ip_v4}
+bash -e /opt/hcf/bin/docker/configure_docker.sh ${openstack_compute_instance_v2.hcf-core-host.network.0.fixed_ip_v4} ${self.network.0.fixed_ip_v4}
 sudo reboot && sleep 10
 EOF
     }
