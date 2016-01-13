@@ -129,7 +129,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
     }
 
     provisioner "file" {
-        source = "${path.module}/../bootstrap-scripts/check_health.bash"
+        source = "${path.module}/../../docker-images/hcf-consul-server/check_health.bash"
         destination = "/opt/hcf/bin/check_health.bash"
     }
 
