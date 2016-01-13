@@ -199,9 +199,7 @@ EOF
 
     provisioner "remote-exec" {
         inline = [
-	    "bash -e /opt/hcf/bin/docker/install_kernel.sh",
-	    "sudo reboot now",
-	    "sleep 60"
+	    "bash -e /opt/hcf/bin/docker/install_kernel.sh"
 	]
     }        
 
@@ -622,9 +620,7 @@ resource "openstack_compute_instance_v2" "hcf-dea-host" {
 
     provisioner "remote-exec" {
         inline = [
-	    "bash -e /opt/hcf/bin/docker/install_kernel.sh",
-	    "sudo reboot now",
-	    "sleep 60"
+	    "bash -e /opt/hcf/bin/docker/install_kernel.sh"
 	]
     }        
 
