@@ -128,11 +128,6 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
         destination = "/opt/hcf/bin/"
     }
 
-    provisioner "file" {
-        source = "${path.module}/../../docker-images/hcf-consul-server/check_health.bash"
-        destination = "/opt/hcf/bin/check_health.bash"
-    }
-
     provisioner "remote-exec" {
         inline = [
             "cat > /opt/hcf/bin/gato <<'EOF'",
@@ -345,7 +340,7 @@ EOF
     provisioner "remote-exec" {
         inline = <<EOF
 set -e
-cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /opt/hcf/bin:/opt/hcf/bin -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
+cid=$(docker run -d --net=bridge --privileged=true --restart=unless-stopped -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 --name hcf-consul-server -v /data/hcf-consul:/opt/hcf/share/consul -t helioncf/hcf-consul-server:${var.build} -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json | tee /tmp/hcf-consul-server-output)
 docker network connect hcf $cid
 EOF
     }
