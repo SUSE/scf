@@ -2,6 +2,23 @@
 
 Build infrastructure for HCF 1.0
 
+## Makefile-based development
+
+```
+export UBUNTU_IMAGE=ubuntu:14.04.2 (Default)
+export CF_RELEASE=222
+export WORK_DIR=$HOME/hpcloud/_work
+export RELEASE_DIR=$HOME/hpcloud/cf-release-${CF_RELEASE}
+export REGISTRY_HOST=helioncf
+export BRANCH=develop
+export REPOSITORY=hcf
+export APP_VERSION=$APP_VERSION (Default)
+# These next two are needed because `swift download ...` is currently broken
+cp _work/configgin.tar.gz  $WORK_DIR/
+cp  _work/fissile $WORK_DIR/
+make CF_RELEASE=$CF_RELEASE WORK_DIR=$WORK_DIR RELEASE_DIR=$RELEASE_DIR REGISTRY_HOST=$REGISTRY_HOST BRANCH=$BRANCH REPOSITORY=$REPOSITORY 
+```
+
 ## Development
 
 1. Install VMware Fusion 7
