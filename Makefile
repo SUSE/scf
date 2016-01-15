@@ -144,7 +144,22 @@ cf_usb_release:
 	cd $(PWD)/src/cf-usb/cf-usb-release && \
 	bosh create release --force --name cf-usb
 
-releases: cf_release cf_usb_release
+cf_diego_release:
+	@echo "$(OK_COLOR)==> Running bosh create release for diego ... $(NO_COLOR)"
+	cd $(PWD)/src/diego-release && \
+	bosh create release --force --name diego
+
+cf_garden_linux_release:
+	@echo "$(OK_COLOR)==> Running bosh create release for garden-linux ... $(NO_COLOR)"
+	cd $(PWD)/src/garden-linux-release && \
+	bosh create release --force --name garden-linux
+
+cf_etcd_release:
+	@echo "$(OK_COLOR)==> Running bosh create release for etcd ... $(NO_COLOR)"
+	cd $(PWD)/src/etcd-release && \
+	bosh create release --force --name etcd
+
+releases: cf_release cf_usb_release cf_etcd_release cf_garden_linux_release cf_diego_release
 	@echo "$(OK_COLOR)==> Creating BOSH releases ... $(NO_COLOR)"
 
 fissile_compilation_base:
