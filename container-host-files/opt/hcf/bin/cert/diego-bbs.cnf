@@ -1,0 +1,71 @@
+# bbs OpenSSL configuration file.
+dir = .
+
+[ ca ]
+default_ca = bbs_ca
+
+[ bbs_ca ]
+certs            = $dir/certs
+certificate      = $dir/certs/bbs-ca.crt
+crl              = $dir/crl.pem
+crl_dir          = $dir/crl
+crlnumber        = $dir/crlnumber
+database         = $dir/index.txt
+email_in_dn      = no
+new_certs_dir    = $dir/newcerts
+private_key      = $dir/private/bbs-ca.key
+serial           = $dir/serial
+RANDFILE         = $dir/private/.rand
+name_opt         = ca_default
+cert_opt         = ca_default
+default_days     = 3650
+default_crl_days = 30
+default_md       = sha512
+preserve         = no
+policy           = policy_bbs
+
+[ policy_bbs ]
+organizationName = optional
+commonName       = supplied
+
+[ req ]
+default_bits       = 4096
+default_keyfile    = privkey.pem
+distinguished_name = req_distinguished_name
+attributes         = req_attributes
+x509_extensions    = v3_ca
+string_mask        = utf8only
+req_extensions     = bbs_client
+
+[ req_distinguished_name ]
+countryName                = Country Name (2 letter code)
+countryName_default        = US
+countryName_min            = 2
+countryName_max            = 2
+commonName                 = Common Name (FQDN)
+0.organizationName         = Organization Name (eg, company)
+0.organizationName_default = bbs-ca
+
+[ req_attributes ]
+
+[ v3_ca ]
+basicConstraints       = CA:true
+keyUsage               = keyCertSign,cRLSign
+subjectKeyIdentifier   = hash
+
+[ bbs_client ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth
+keyUsage               = digitalSignature, keyEncipherment
+
+[ bbs_peer ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth, serverAuth
+keyUsage               = digitalSignature, keyEncipherment
+subjectAltName         = DNS:bbs.service.cf.internal, DNS:*.bbs.service.cf.internal
+
+[ bbs_server ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth, serverAuth
+keyUsage               = digitalSignature, keyEncipherment
+subjectAltName         = DNS:bbs.service.cf.internal, DNS:*.bbs.service.cf.internal

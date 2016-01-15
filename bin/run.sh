@@ -69,6 +69,9 @@ do
     "runner")
       extra="--cap-add=ALL -v /lib/modules:/lib/modules"
       ;;
+    "diego_cell")
+      extra="--cap-add=ALL -v /lib/modules:/lib/modules"
+      ;;
     "cf-usb")
       mkdir -p $store_dir/fake_cf_usb_nfs_share
       extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"

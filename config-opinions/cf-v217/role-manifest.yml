@@ -200,4 +200,67 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-
+- name: diego_database
+  jobs:
+  - name: etcd
+    release_name: etcd
+  - name: bbs
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+- name: diego_brain
+  jobs:
+  - name: consul_agent
+    release_name: cf
+  - name: auctioneer
+    release_name: diego
+  - name: converger
+    release_name: diego
+  - name: metron_agent
+    release_name: cf
+- name: diego_cell
+  jobs:
+  - name: rep
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: garden
+    release_name: garden-linux
+  - name: rootfses
+    release_name: diego
+  - name: metron_agent
+    release_name: cf
+- name: diego_cc_bridge
+  jobs:
+  - name: stager
+    release_name: diego
+  - name: nsync
+    release_name: diego
+  - name: tps
+    release_name: diego
+  - name: cc_uploader
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+- name: diego_route_emitter
+  jobs:
+  - name: route_emitter
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+- name: diego_access
+  jobs:
+  - name: ssh_proxy
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: file_server
+    release_name: diego
