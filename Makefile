@@ -48,7 +48,8 @@ ${TARGETS}/.ubuntu_image: ${TARGETS}
 ${WORK_DIR}/hcf ${TARGETS}:
 	mkdir -p $@
 
-${WORK_DIR}/fissile:
+FISSILE?=${WORK_DIR}/fissile
+${FISSILE}:
 	@echo "${OK_COLOR}==> Looking up latest fissile build${NO_COLOR}"
 	# Find the latest artifact, excluding the babysitter builds
 	# This looks inside the swift container, filtering by your OS type, sorts in ascending order and takes the last entry
@@ -81,7 +82,7 @@ ${TARGETS}/.compiled_base:
 	-docker rm fissile-cf-${CF_RELEASE}-cbase
 	-docker rmi fissile:cf-${CF_RELEASE}-cbase
 
-	_work/fissile compilation build-base -b ${UBUNTU_IMAGE} -p ${REPOSITORY}
+	${FISSILE} compilation build-base -b ${UBUNTU_IMAGE} -p ${REPOSITORY}
 	touch $@
 # {TARGETS}/.compiled_base
 
@@ -89,26 +90,26 @@ compile_release: compile_base ${TARGETS}/.compiled_release
 
 ${TARGETS}/.compiled_release:
 	@echo "${OK_COLOR}==> Compiling cf-release${NO_COLOR}"
-	_work/fissile compilation start -r ${RELEASE_DIR} --work-dir ${WORK_DIR} -p ${REPOSITORY}
+	${FISSILE} compilation start -r ${RELEASE_DIR} --work-dir ${WORK_DIR} -p ${REPOSITORY}
 	touch $@
 
 base_image: compile_release ${WORK_DIR}/configgin.tar.gz ${TARGETS}/.base_image
 
 ${TARGETS}/.base_image:
-	_work/fissile images create-base --work-dir ${WORK_DIR} -c ${WORK_DIR}/configgin.tar.gz -b ${UBUNTU_IMAGE} -p ${REPOSITORY}
+	${FISSILE} images create-base --work-dir ${WORK_DIR} -c ${WORK_DIR}/configgin.tar.gz -b ${UBUNTU_IMAGE} -p ${REPOSITORY}
 	touch $@
 
 compile_images: base_image ${TARGETS}/.compile_images
 
 ${TARGETS}/.compile_images:
-	_work/fissile images create-roles --work-dir ${WORK_DIR} --release ${RELEASE_DIR} --roles-manifest ${PWD}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml --version ${APP_VERSION} --repository ${REPOSITORY}
+	${FISSILE} images create-roles --work-dir ${WORK_DIR} --release ${RELEASE_DIR} --roles-manifest ${PWD}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml --version ${APP_VERSION} --repository ${REPOSITORY}
 	touch $@
 
 generate_config_base: compile_images ${TARGETS}/.config_target
 
 ${TARGETS}/.config_target:
 	rm -rf ${WORK_DIR}/config/* ${WORK_DIR}/config/.??*
-	_work/fissile configuration generate \
+	${FISSILE} configuration generate \
 		-r ${RELEASE_DIR} --work-dir ${WORK_DIR} \
 		--light-opinions config-opinions/cf-v${CF_RELEASE}/opinions.yml \
 		--dark-opinions config-opinions/cf-v${CF_RELEASE}/dark-opinions.yml
