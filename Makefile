@@ -25,7 +25,8 @@ APP_VERSION=${VERSION}-${BUILD}
 FISSILE_BRANCH:=${BRANCH}
 CONFIGGIN_BRANCH:=${BRANCH}
 
-SETUP=${WORK_DIR}/hcf ${TARGETS}/.ubuntu_image ${WORK_DIR}/fissile
+FISSILE?=${WORK_DIR}/fissile
+SETUP=${WORK_DIR}/hcf ${TARGETS}/.ubuntu_image ${FISSILE}/
 
 # See "Makefile-based development" in README.md for usage info.
 
@@ -48,7 +49,6 @@ ${TARGETS}/.ubuntu_image: ${TARGETS}
 ${WORK_DIR}/hcf ${TARGETS}:
 	mkdir -p $@
 
-FISSILE?=${WORK_DIR}/fissile
 ${FISSILE}:
 	@echo "${OK_COLOR}==> Looking up latest fissile build${NO_COLOR}"
 	# Find the latest artifact, excluding the babysitter builds
@@ -56,8 +56,8 @@ ${FISSILE}:
 	# If we were to write a "latest" link, this would be easier.
 	@echo "If swift download fails get fissile and fissile-artifacts from jenkins and manually place in ${WORK_DIR}"
 	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep \\_${FISSILE_BRANCH}/ | grep ${OS_TYPE} | cut -c 14-33,34- | sort | tail -1)")
-	swift download --output ${WORK_DIR}/fissile fissile-artifacts $(shell echo ${LATEST_FISSILE_BUILD} | cut -c 21-)
-	chmod +x ${WORK_DIR}/fissile
+	swift download --output ${FISSILE} fissile-artifacts $(shell echo ${LATEST_FISSILE_BUILD} | cut -c 21-)
+	chmod +x ${FISSILE}
 
 ${WORK_DIR}/configgin.tar.gz:
 	@echo "${OK_COLOR}==> Looking up latest configgin build${NO_COLOR}"
