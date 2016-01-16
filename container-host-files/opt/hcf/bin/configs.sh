@@ -217,7 +217,7 @@ gato config set --role api                            consul.agent.services.rout
 gato config set --role router                         consul.agent.services.gorouter              '{}'
 gato config set --role nats                           consul.agent.services.nats                  '{}'
 gato config set --role postgres                       consul.agent.services.postgres              '{}'
-# gato config set --role etcd                           consul.agent.services.etcd                  '{}'
+gato config set --role etcd                           consul.agent.services.etcdlog               '{}'
 gato config set --role runner                         consul.agent.services.dea_next              '{}'
 gato config set --role diego_database                 consul.agent.services.bbs                   '{}'
 gato config set --role diego_database                 consul.agent.services.etcd                  '{}'
@@ -249,7 +249,20 @@ gato config set etcd.machines                             '["etcd.service.cf.int
 gato config set etcd.peer_require_ssl                     'true'
 gato config set etcd.require_ssl                          'true'
 gato config set etcd.cluster                              '[{"instances": 1, "name": "database_z1"}]'
-gato config set loggregator.etcd.machines                 '["etcd.service.cf.internal"]'
+
+gato config set --role etcd etcd.peer_require_ssl                     'false'
+gato config set --role etcd etcd.require_ssl                          'false'
+gato config set --role etcd etcd.cluster                              'null'
+gato config set --role etcd etcd.peer_key                             'null'
+gato config set --role etcd etcd.peer_cert                            'null'
+gato config set --role etcd etcd.peer_ca_cert                         'null'
+gato config set --role etcd etcd.server_key                           'null'
+gato config set --role etcd etcd.client_key                           'null'
+gato config set --role etcd etcd.server_cert                          'null'
+gato config set --role etcd etcd.client_cert 'null'
+gato config set --role etcd etcd.ca_cert 'null'
+
+gato config set loggregator.etcd.machines                 '["etcdlog.service.cf.internal"]'
 gato config set router.servers.z1                         '["gorouter.service.cf.internal"]'
 gato config set dea_next.kernel_network_tuning_enabled    'false'
 gato config set ccdb.address                              'postgres.service.cf.internal'
@@ -295,6 +308,7 @@ gato config set garden.log_level                          'debug'
 gato config set garden.persistent_image_list              '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
 gato config set diego.route_emitter.nats.machines         '["nats.service.cf.internal"]'
 gato config set diego.rep.zone                            'z1'
+gato config set diego.file_server.static_directory        '/var/vcap/packages/'
 
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
@@ -378,7 +392,7 @@ gato config set diego.tps.cc.staging_upload_password                  "${staging
 gato config set diego.tps.cc.staging_upload_user                      "${staging_upload_user}"
 gato config set diego.tps.traffic_controller_url                      "wss://doppler.${domain}:443"
 gato config set diego.bbs.active_key_label                            "${bbs_active_key_label}"
-gato config set garden.deny_networks                                  "[\"0.0.0.0/0\"]"
+gato config set garden.deny_networks                                  "[]"
 # TODO: This should be handled in the 'opinions' file, since the ERB templates will generate this value
 gato config set hm9000.url                                            "https://hm9000.${domain}"
 gato config set uaa.url                                               "https://uaa.${domain}"
@@ -389,44 +403,44 @@ cat "${certs_path}/jwt_signing.pem" | gato config set -f uaa.jwt.signing_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f uaa.jwt.verification_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f cf-usb.management.public_key -
 # Diego certificates
-cat "${etcd_peer_certs_dir}/private/etcd-peer.key" | gato config set -f etcd.peer_key - $
-cat "${etcd_peer_certs_dir}/certs/etcd-peer.crt" | gato config set -f etcd.peer_cert - $
-cat "${etcd_peer_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.peer_ca_cert - $
-cat "${etcd_certs_dir}/private/etcd-server.key" | gato config set -f etcd.server_key - $
-cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f etcd.client_key - $
-cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f diego.bbs.etcd.client_key - $
-cat "${etcd_certs_dir}/certs/etcd-server.crt" | gato config set -f etcd.server_cert - $
-cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f etcd.client_cert - $
-cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f diego.bbs.etcd.client_cert - $
-cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.ca_cert - $
-cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f diego.bbs.etcd.ca_cert - $
-cat "${certs_path}/ssh.pem" | gato config set -f diego.ssh_proxy.host_key - $
-cat "${bbs_certs_dir}/private/bbs-server.key" | gato config set -f diego.bbs.server_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.tps.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.stager.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.ssh_proxy.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.route_emitter.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.rep.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.nsync.bbs.client_key - $
-cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.converger.bbs.client_key - $
+cat "${etcd_peer_certs_dir}/private/etcd-peer.key" | gato config set -f etcd.peer_key -
+cat "${etcd_peer_certs_dir}/certs/etcd-peer.crt" | gato config set -f etcd.peer_cert -
+cat "${etcd_peer_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.peer_ca_cert -
+cat "${etcd_certs_dir}/private/etcd-server.key" | gato config set -f etcd.server_key -
+cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f etcd.client_key -
+cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f diego.bbs.etcd.client_key -
+cat "${etcd_certs_dir}/certs/etcd-server.crt" | gato config set -f etcd.server_cert -
+cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f etcd.client_cert -
+cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f diego.bbs.etcd.client_cert -
+cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.ca_cert -
+cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f diego.bbs.etcd.ca_cert -
+cat "${certs_path}/ssh.pem" | gato config set -f diego.ssh_proxy.host_key -
+cat "${bbs_certs_dir}/private/bbs-server.key" | gato config set -f diego.bbs.server_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.tps.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.stager.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.ssh_proxy.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.route_emitter.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.rep.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.nsync.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.converger.bbs.client_key -
 cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.auctioneer.bbs.client_key -
-cat "${bbs_certs_dir}/certs/bbs-server.crt" | gato config set -f diego.bbs.server_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.tps.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.stager.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.ssh_proxy.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.route_emitter.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.rep.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.nsync.bbs.client_cert - $
-cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.converger.bbs.client_cert - $
+cat "${bbs_certs_dir}/certs/bbs-server.crt" | gato config set -f diego.bbs.server_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.tps.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.stager.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.ssh_proxy.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.route_emitter.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.rep.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.nsync.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.converger.bbs.client_cert -
 cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.auctioneer.bbs.client_cert -
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.tps.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.stager.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.ssh_proxy.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.route_emitter.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.rep.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.nsync.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.converger.bbs.ca_cert - $
-cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.bbs.ca_cert - $
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.tps.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.stager.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.ssh_proxy.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.route_emitter.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.rep.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.nsync.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.converger.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.bbs.ca_cert -
 cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.auctioneer.bbs.ca_cert -
 
 #diego.auctioneer.bbs.client_session_cache_size: null
