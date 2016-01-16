@@ -70,6 +70,7 @@ roles:
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
+  - write_dns_health_check_etcdlog.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -201,6 +202,8 @@ roles:
   - name: route_registrar
     release_name: cf
 - name: diego_database
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -211,6 +214,8 @@ roles:
   - name: metron_agent
     release_name: cf
 - name: diego_brain
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -221,6 +226,8 @@ roles:
   - name: metron_agent
     release_name: cf
 - name: diego_cell
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: rep
     release_name: diego
@@ -233,6 +240,8 @@ roles:
   - name: metron_agent
     release_name: cf
 - name: diego_cc_bridge
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: stager
     release_name: diego
@@ -247,6 +256,8 @@ roles:
   - name: metron_agent
     release_name: cf
 - name: diego_route_emitter
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -255,6 +266,8 @@ roles:
   - name: metron_agent
     release_name: cf
 - name: diego_access
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
