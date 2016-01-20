@@ -7,20 +7,20 @@ OS_TYPE?=$(shell uname | tr '[:upper:]' '[:lower:]')
 CF_RELEASE?=$(shell cat cf-release-version)
 CF_RELEASE_LOCATION?=https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE}
 
-WORK_DIR?=${PWD}/_work
-TARGETS=${WORK_DIR}/targets
-RELEASE_DIR=${WORK_DIR}/release
-REPOSITORY=${fissile}
+WORK_DIR?=${CURDIR}/_work
+TARGETS?=${WORK_DIR}/targets
+RELEASE_DIR?=${WORK_DIR}/release
+REPOSITORY?=${fissile}
 
-UBUNTU_IMAGE=ubuntu:14.04.2
+UBUNTU_IMAGE?=ubuntu:14.04.2
 
 COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller hm9000 ha_proxy etcd doppler consul clock_global api_worker api smoke_tests acceptance_tests
 
 include version.mk
 
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 BUILD:=$(shell whoami)-${BRANCH}-$(shell date -u +%Y%m%d%H%M%S)
-APP_VERSION=${VERSION}-${BUILD}
+APP_VERSION?=${VERSION}-${BUILD}
 
 FISSILE_BRANCH:=${BRANCH}
 CONFIGGIN_BRANCH:=${BRANCH}
@@ -36,7 +36,9 @@ all: images publish_images dist
 
 clean: clean_targets
 	@echo "${OK_COLOR}==> Cleaning${NO_COLOR}"
-	rm -rf ${WORK_DIR}
+	rm -rf ${WORK_DIR}/{hcf,configgin.tar.gz,cf-release.tar.gz,config,hcf-config.tar.gz,cf-release-v${CF_RELEASE}.tar.gz,hcf-${APP_VERSION}.tar.gz}
+	rm ${TARGETS}/{.ubuntu_image,.compiled_base,.compiled_release,.base_image,.compile_images,.config_target,.dist}
+	rm -rf ${RELEASE_DIR}/{license.tgz,release.MF,jobs,packages}
 	-docker ps -a | awk '/fissile/ { print $1}' | xargs --no-run-if-empty docker rm --force
 
 clean_targets:
@@ -102,7 +104,7 @@ ${TARGETS}/.base_image:
 compile_images: base_image ${TARGETS}/.compile_images
 
 ${TARGETS}/.compile_images:
-	${FISSILE} images create-roles --work-dir ${WORK_DIR} --release ${RELEASE_DIR} --roles-manifest ${PWD}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml --version ${APP_VERSION} --repository ${REPOSITORY}
+	${FISSILE} images create-roles --work-dir ${WORK_DIR} --release ${RELEASE_DIR} --roles-manifest ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml --version ${APP_VERSION} --repository ${REPOSITORY}
 	touch $@
 
 generate_config_base: compile_images ${TARGETS}/.config_target
@@ -127,10 +129,10 @@ publish_images: compile_images
 dist: generate_config_base ${TARGETS}/.dist 
 
 ${TARGETS}/.dist:
-	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/direct_internet && cp -r ${PWD}/terraform-scripts/hcf/* terraform-scripts/direct_internet/
-	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/proxied_internet && cp -r ${PWD}/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
-	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/templates && cp -r ${PWD}/terraform-scripts/templates/* terraform-scripts/templates/
-	cp -r ${PWD}/container-host-files ${WORK_DIR}/hcf/
+	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/direct_internet && cp -r ${CURDIR}/terraform-scripts/hcf/* terraform-scripts/direct_internet/
+	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/proxied_internet && cp -r ${CURDIR}/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
+	cd ${WORK_DIR}/hcf && mkdir -p terraform-scripts/templates && cp -r ${CURDIR}/terraform-scripts/templates/* terraform-scripts/templates/
+	cp -r ${CURDIR}/container-host-files ${WORK_DIR}/hcf/
 
 	cp ${WORK_DIR}/hcf-config.tar.gz ${WORK_DIR}/hcf/terraform-scripts/direct_internet/
 	cp ${WORK_DIR}/hcf-config.tar.gz ${WORK_DIR}/hcf/terraform-scripts/proxied_internet/
@@ -159,12 +161,12 @@ vagrant_box:
 
 cf_release:
 	@echo "${OK_COLOR}==> Running bosh create release for cf-release ... ${NO_COLOR}"
-	cd ${PWD}/src/cf-release && \
+	cd ${CURDIR}/src/cf-release && \
 	bosh create release --force --name cf
 
 cf_usb_release:
 	@echo "${OK_COLOR}==> Running bosh create release for cf-usb ... ${NO_COLOR}"
-	cd ${PWD}/src/cf-usb/cf-usb-release && \
+	cd ${CURDIR}/src/cf-usb/cf-usb-release && \
 	bosh create release --force --name cf-usb
 
 releases: cf_release cf_usb_release
@@ -201,7 +203,7 @@ docker_images:
 tag_images: docker_images fissile_create_images
 	make -C docker-images tag APP_VERSION=${APP_VERSION} BRANCH=${BRANCH} BUILD=${BUILD} && \
 	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source ${PWD}/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
+		role_name=`bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
 		docker tag -f $$image ${REGISTRY_HOST}/hcf/hcf-$$role_name:${APP_VERSION} ; \
 		docker tag -f $$image ${REGISTRY_HOST}/hcf/hcf-$$role_name:latest-${BRANCH} ; \
 	done
@@ -209,7 +211,7 @@ tag_images: docker_images fissile_create_images
 push_images: tag_images
 	make -C docker-images push APP_VERSION=${APP_VERSION} BRANCH=${BRANCH} BUILD=${BUILD} && \
 	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source ${PWD}/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
+		role_name=`bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
 		docker push ${REGISTRY_HOST}/hcf/hcf-$$role_name:${APP_VERSION} ; \
 		docker push ${REGISTRY_HOST}/hcf/hcf-$$role_name:latest-${BRANCH} ; \
 	done
@@ -225,7 +227,7 @@ setup_out: clean_out
 
 create_dist: fissile_create_config setup_out
 	cd ${FISSILE_CONFIG_OUTPUT_DIR} ; tar czf ${WORK_DIR}/hcf-config.tar.gz hcf/
-	cd ${WORK_DIR}/hcf ; cp -r ${PWD}/terraform-scripts . ; cp -r ${PWD}/container-host-files .
+	cd ${WORK_DIR}/hcf ; cp -r ${CURDIR}/terraform-scripts . ; cp -r ${CURDIR}/container-host-files .
 	mv ${WORK_DIR}/hcf/terraform-scripts/hcf ${WORK_DIR}/hcf/terraform-scripts/direct_internet
 	mv ${WORK_DIR}/hcf/terraform-scripts/hcf-proxied ${WORK_DIR}/hcf/terraform-scripts/proxied_internet
 	cd ${WORK_DIR}/hcf/terraform-scripts/direct_internet ; cp ${WORK_DIR}/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > version.tf
@@ -240,4 +242,4 @@ stop:
 
 run: docker_images fissile_create_config fissile_create_images
 	@echo "${OK_COLOR}==> Running HCF ... ${NO_COLOR}"
-	${PWD}/bin/run.sh
+	${CURDIR}/bin/run.sh
