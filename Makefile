@@ -36,9 +36,11 @@ all: images publish_images dist
 
 clean: clean_targets
 	@echo "${OK_COLOR}==> Cleaning${NO_COLOR}"
-	rm -rf ${WORK_DIR}/{hcf,configgin.tar.gz,cf-release.tar.gz,config,hcf-config.tar.gz,cf-release-v${CF_RELEASE}.tar.gz,hcf-${APP_VERSION}.tar.gz}
-	rm ${TARGETS}/{.ubuntu_image,.compiled_base,.compiled_release,.base_image,.compile_images,.config_target,.dist}
-	rm -rf ${RELEASE_DIR}/{license.tgz,release.MF,jobs,packages}
+	-rm -rf ${WORK_DIR}/{hcf,configgin.tar.gz,cf-release.tar.gz,config,hcf-config.tar.gz,cf-release-v${CF_RELEASE}.tar.gz,hcf-${APP_VERSION}.tar.gz,compilation,dockerfiles,fissile}
+	-rm ${TARGETS}/{.ubuntu_image,.compiled_base,.compiled_release,.base_image,.compile_images,.config_target,.dist}
+	-rmdir ${TARGETS}
+	-rm -rf ${RELEASE_DIR}/{license.tgz,release.MF,jobs,packages}
+	-rmdir ${RELEASE_DIR}
 	-docker ps -a | awk '/fissile/ { print $1}' | xargs --no-run-if-empty docker rm --force
 
 clean_targets:
