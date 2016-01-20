@@ -10,7 +10,7 @@ CF_RELEASE_LOCATION?=https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF
 WORK_DIR?=${CURDIR}/_work
 TARGETS?=${WORK_DIR}/targets
 RELEASE_DIR?=${WORK_DIR}/release
-REPOSITORY?=${fissile}
+REPOSITORY?=fissile
 
 UBUNTU_IMAGE?=ubuntu:14.04.2
 
