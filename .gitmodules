@@ -3,7 +3,7 @@
 	url = https://github.com/hpcloud/cf-release.git
 [submodule "src/cf-usb"]
 	path = src/cf-usb
-	url = git@github.com:calinmiclaus/cf-usb.git
+	url = git@github.com:hpcloud/cf-usb.git
 [submodule "src/garden-linux-release"]
 	path = src/garden-linux-release
 	url = https://github.com/hpcloud/garden-linux-release.git

@@ -14,7 +14,6 @@ ccdb_role_tag="${ccdb_role_tag:-admin}"
 certs_prefix="${certs_prefix:-hcf}"
 cf_usb_username="${cf_usb_username:-broker-admin}"
 cf_usb_password="${cf_usb_password:-changeme}"
-cf_usb_uaa_client="${cf_usb_uaa_client:-cf_usb}"
 cluster_admin_authorities="${cluster_admin_authorities:-scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose}"
 cluster_admin_password="${cluster_admin_password:-changeme}"
 cluster_admin_username="${cluster_admin_username:-admin}"
@@ -235,7 +234,20 @@ gato config set --role api                            route_registrar.routes    
 gato config set --role hm9000                         route_registrar.routes                      "[{\"name\":\"hm9000\",\"port\":\"5155\",\"tags\":{\"component\":\"HM9K\"},\"uris\":[\"hm9000.${domain}\"]}]"
 gato config set --role loggregator_trafficcontroller  route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
 gato config set --role doppler                        route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
-gato config set --role cf-usb                        route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role cf-usb                         route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role etcd                           etcd.peer_require_ssl                       'false'
+gato config set --role etcd                           etcd.require_ssl                            'false'
+gato config set --role etcd                           etcd.cluster                                'null'
+gato config set --role etcd                           etcd.peer_key                               'null'
+gato config set --role etcd                           etcd.peer_cert                              'null'
+gato config set --role etcd                           etcd.peer_ca_cert                           'null'
+gato config set --role etcd                           etcd.server_key                             'null'
+gato config set --role etcd                           etcd.client_key                             'null'
+gato config set --role etcd                           etcd.server_cert                            'null'
+gato config set --role etcd                           etcd.client_cert                            'null'
+gato config set --role etcd                           etcd.ca_cert                                'null'
+
+
 
 # Constants
 #gato config set consul.agent.servers.lan                  '["cf-consul.hcf"]'
@@ -249,19 +261,6 @@ gato config set etcd.machines                             '["etcd.service.cf.int
 gato config set etcd.peer_require_ssl                     'true'
 gato config set etcd.require_ssl                          'true'
 gato config set etcd.cluster                              '[{"instances": 1, "name": "database_z1"}]'
-
-gato config set --role etcd etcd.peer_require_ssl                     'false'
-gato config set --role etcd etcd.require_ssl                          'false'
-gato config set --role etcd etcd.cluster                              'null'
-gato config set --role etcd etcd.peer_key                             'null'
-gato config set --role etcd etcd.peer_cert                            'null'
-gato config set --role etcd etcd.peer_ca_cert                         'null'
-gato config set --role etcd etcd.server_key                           'null'
-gato config set --role etcd etcd.client_key                           'null'
-gato config set --role etcd etcd.server_cert                          'null'
-gato config set --role etcd etcd.client_cert 'null'
-gato config set --role etcd etcd.ca_cert 'null'
-
 gato config set loggregator.etcd.machines                 '["etcdlog.service.cf.internal"]'
 gato config set router.servers.z1                         '["gorouter.service.cf.internal"]'
 gato config set dea_next.kernel_network_tuning_enabled    'false'
@@ -309,6 +308,8 @@ gato config set garden.persistent_image_list              '[/var/vcap/packages/r
 gato config set diego.route_emitter.nats.machines         '["nats.service.cf.internal"]'
 gato config set diego.rep.zone                            'z1'
 gato config set diego.file_server.static_directory        '/var/vcap/packages/'
+gato config set cf-usb.configconnectionstring             '127.0.0.1:8500'
+gato config set cf-usb.configprovider                     'consulConfigProvider'
 
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
@@ -319,7 +320,7 @@ gato config set metron_agent.deployment     "hcf-deployment"
 gato config set consul.require_ssl          "false"
 gato config set consul.encrypt_keys         "[]"
 gato config set cf-usb.skip_tsl_validation  'true'
-
+gato config set cf-usb.management.dev_mode  'true'
 
 # Setting user values
 gato config set app_domains                                           "[\"${domain}\"]"
@@ -348,6 +349,10 @@ gato config set uaa.admin.client_secret                               "${uaa_adm
 gato config set uaa.batch.username                                    "${uaa_batch_username}"
 gato config set uaa.batch.password                                    "${uaa_batch_password}"
 gato config set uaa.cc.client_secret                                  "${uaa_cc_client_secret}"
+gato config set uaa.clients.cf-usb.secret                             "${uaa_clients_cf_usb_secret}"
+gato config set uaa.clients.cf-usb.authorized-grant-types             "client_credentials"
+gato config set uaa.clients.cf-usb.authorities                        "cloud_controller.admin,usb.management.admin"
+gato config set uaa.clients.cf-usb.scope                              "usb.management.admin"
 gato config set uaa.clients.app-direct.secret                         "${uaa_clients_app_direct_secret}"
 gato config set uaa.clients.developer-console.secret                  "${uaa_clients_developer_console_secret}"
 gato config set uaa.clients.notifications.secret                      "${uaa_clients_notifications_secret}"
@@ -364,7 +369,7 @@ gato config set cf-usb.broker.external_url                            "brokers.$
 gato config set cf-usb.broker.username                                "${cf_usb_username}"
 gato config set cf-usb.broker.password                                "${cf_usb_password}"
 gato config set cf-usb.management.uaa.secret                          "${uaa_clients_cf_usb_secret}"
-gato config set cf-usb.management.uaa.client                          "${cf_usb_uaa_client}"
+gato config set cf-usb.management.uaa.client                          "cf-usb"
 gato config set diego.bbs.encryption_keys                             "[{\"label\": \"${bbs_active_key_label}\", \"passphrase\": \"${bbs_active_key_passphrase}\"}]"
 gato config set diego.cc_uploader.cc.base_url                         "https://api.${domain}"
 gato config set diego.cc_uploader.cc.basic_auth_username              "${internal_api_user}"
