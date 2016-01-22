@@ -94,12 +94,14 @@ gato config set --role nats                           consul.agent.services.nats
 gato config set --role postgres                       consul.agent.services.postgres              '{}'
 gato config set --role etcd                           consul.agent.services.etcd                  '{}'
 gato config set --role runner                         consul.agent.services.dea_next              '{}'
+gato config set --role web_console                    consul.agent.services.web_console           '{}'
 gato config set --role uaa                            route_registrar.routes                      "[{\"name\": \"uaa\", \"port\":\"8080\", \"tags\":{\"component\":\"uaa\"}, \"uris\":[\"uaa.${domain}\", \"*.uaa.${domain}\", \"login.${domain}\", \"*.login.${domain}\"]}]"
 gato config set --role api                            route_registrar.routes                      "[{\"name\":\"api\",\"port\":\"9022\",\"tags\":{\"component\":\"CloudController\"},\"uris\":[\"api.${domain}\"]}]"
 gato config set --role hm9000                         route_registrar.routes                      "[{\"name\":\"hm9000\",\"port\":\"5155\",\"tags\":{\"component\":\"HM9K\"},\"uris\":[\"hm9000.${domain}\"]}]"
 gato config set --role loggregator_trafficcontroller  route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
 gato config set --role doppler                        route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
-gato config set --role cf-usb                        route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role cf-usb                         route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role web_console                    route_registrar.routes                      "[{\"name\":\"web_console\",\"port\":\"8787\",\"uris\":[\"www.${domain}\"]}]"
 
 # Constants
 gato config set consul.agent.servers.lan                '["cf-consul.hcf"]'
@@ -181,5 +183,3 @@ cat "${ca_path}/intermediate/private/${certs_prefix}-root.chain.pem" | gato conf
 cat "${certs_path}/jwt_signing.pem" | gato config set -f uaa.jwt.signing_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f uaa.jwt.verification_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f cf-usb.management.public_key -
-
-

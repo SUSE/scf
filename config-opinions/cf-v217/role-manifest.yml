@@ -200,4 +200,13 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-
+- name: web_console
+  scripts:
+  - write_dns_health_check_web_console.sh
+  jobs:
+  - name: cf_console
+    release_name: cf-console
+  - name: consul_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf

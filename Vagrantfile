@@ -67,6 +67,12 @@ Vagrant.configure(2) do |config|
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
 
+    # Install node and npm for cf-console
+    # TODO: move this to packer
+    wget -qO- https://deb.nodesource.com/setup_4.x | sudo bash -
+    sudo apt-get install nodejs -y
+    sudo npm install npm -g
+
     # TODO: do not run this if it's already initted
     cd /home/vagrant/hcf
     git submodule update --init
