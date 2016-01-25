@@ -14,7 +14,6 @@ ccdb_role_tag="${ccdb_role_tag:-admin}"
 certs_prefix="${certs_prefix:-hcf}"
 cf_usb_username="${cf_usb_username:-broker-admin}"
 cf_usb_password="${cf_usb_password:-changeme}"
-cf_usb_uaa_client="${cf_usb_uaa_client:-cf_usb}"
 cluster_admin_authorities="${cluster_admin_authorities:-scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose}"
 cluster_admin_password="${cluster_admin_password:-changeme}"
 cluster_admin_username="${cluster_admin_username:-admin}"
@@ -33,6 +32,8 @@ service_provider_key_passphrase="${service_provider_key_passphrase:-foobar}"
 signing_key_passphrase="${signing_key_passphrase:-foobar}"
 staging_upload_password="${staging_upload_password:-password}"
 staging_upload_user="${staging_upload_user:-username}"
+internal_api_password="${internal_api_password:-internal_password}"
+internal_api_user="${internal_api_user:-internal_user}"
 traffic_controller_zone="${traffic_controller_zone:-z1}"
 uaa_admin_client_secret="${uaa_admin_client_secret:-admin_secret}"
 uaa_batch_password="${uaa_batch_password:-batch_password}"
@@ -46,6 +47,9 @@ uaa_clients_login_secret="${uaa_clients_login_secret:-login_client_secret}"
 uaa_clients_notifications_secret="${uaa_clients_notifications_secret:-notification_secret}"
 uaa_clients_cc_routing_secret="${uaa_clients_cc_routing_secret:-cc_routing_secret}"
 uaa_clients_cf_usb_secret="${uaa_clients_cf_usb_secret:-cf_usb_secret}"
+bbs_active_key_label="${bbs_active_key_label:-key1}"
+bbs_active_key_passphrase="${bbs_active_key_passphrase:-key1_passphrase}"
+
 
 uaa_cloud_controller_username_lookup_secret="${uaa_cloud_controller_username_lookup_secret:-cloud_controller_username_lookup_secret}"
 uaadb_password="${uaadb_password:-uaaadmin_password}"
@@ -55,6 +59,9 @@ uaadb_username="${uaadb_username:-uaaadmin}"
 # Certificate generation
 certs_path="${HOME}/.run/certs"
 ca_path="$certs_path/ca"
+bbs_certs_dir="${certs_path}/diego/bbs"
+etcd_certs_dir="${certs_path}/diego/etcd"
+etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
 (
   if [ ! -f $ca_path/intermediate/private/${certs_prefix}-root.chain.pem ] ; then
     # prepare directories
@@ -82,6 +89,123 @@ ca_path="$certs_path/ca"
     openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
   fi
 )
+(
+  if [ ! -f ${bbs_certs_dir}/certs/bbs-client.crt ] ; then
+    # generate BBS certs
+    rm -rf $bbs_certs_dir
+    mkdir -p $bbs_certs_dir
+
+    cd $bbs_certs_dir
+    mkdir -p private certs newcerts crl
+    touch index.txt
+    echo '01' > serial
+
+    openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
+      -new -x509 -extensions v3_ca \
+      -passout pass:"${signing_key_passphrase}" \
+      -subj '/CN=bbs.service.cf.internal/' \
+      -keyout "${bbs_certs_dir}/private/bbs-ca.key" -out "${bbs_certs_dir}/certs/bbs-ca.crt"
+
+    openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
+        -new -nodes \
+        -subj '/CN=bbs.service.cf.internal/' \
+        -keyout "${bbs_certs_dir}/private/bbs-server.key" -out "${bbs_certs_dir}/bbs-server.csr"
+
+    openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
+      -extensions bbs_server -batch \
+      -passin pass:"${signing_key_passphrase}" \
+      -keyfile "${bbs_certs_dir}/private/bbs-ca.key" \
+      -cert "${bbs_certs_dir}/certs/bbs-ca.crt" \
+      -out "${bbs_certs_dir}/certs/bbs-server.crt" -infiles "${bbs_certs_dir}/bbs-server.csr"
+
+    openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
+        -new -nodes \
+        -subj '/CN=bbs client/' \
+        -keyout "${bbs_certs_dir}/private/bbs-client.key" -out "${bbs_certs_dir}/bbs-client.csr"
+
+    openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
+      -extensions bbs_client -batch \
+      -passin pass:"${signing_key_passphrase}" \
+      -keyfile "${bbs_certs_dir}/private/bbs-ca.key" \
+      -cert "${bbs_certs_dir}/certs/bbs-ca.crt" \
+      -out "${bbs_certs_dir}/certs/bbs-client.crt" -infiles "${bbs_certs_dir}/bbs-client.csr"
+  fi
+
+  if [ ! -f ${etcd_certs_dir}/certs/etcd-client.crt ] ; then
+    # generate ETCD certs
+    rm -rf $etcd_certs_dir
+    mkdir -p $etcd_certs_dir
+
+    cd $etcd_certs_dir
+    mkdir -p private certs newcerts crl
+    touch index.txt
+    echo '01' > serial
+
+    openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
+      -new -x509 -extensions v3_ca \
+      -passout pass:"${signing_key_passphrase}" \
+      -subj '/CN=etcd.service.cf.internal/' \
+      -keyout "${etcd_certs_dir}/private/etcd-ca.key" -out "${etcd_certs_dir}/certs/etcd-ca.crt"
+
+    openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
+        -new -nodes \
+        -subj '/CN=etcd.service.cf.internal/' \
+        -keyout "${etcd_certs_dir}/private/etcd-server.key" -out "${etcd_certs_dir}/etcd-server.csr"
+
+    openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
+      -extensions etcd_server -batch \
+      -passin pass:"${signing_key_passphrase}" \
+      -keyfile "${etcd_certs_dir}/private/etcd-ca.key" \
+      -cert "${etcd_certs_dir}/certs/etcd-ca.crt" \
+      -out "${etcd_certs_dir}/certs/etcd-server.crt" -infiles "${etcd_certs_dir}/etcd-server.csr"
+
+    openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
+        -new -nodes \
+        -subj '/CN=diego etcd client/' \
+        -keyout "${etcd_certs_dir}/private/etcd-client.key" -out "${etcd_certs_dir}/etcd-client.csr"
+
+    openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
+      -extensions etcd_client -batch \
+      -passin pass:"${signing_key_passphrase}" \
+      -keyfile "${etcd_certs_dir}/private/etcd-ca.key" \
+      -cert "${etcd_certs_dir}/certs/etcd-ca.crt" \
+      -out "${etcd_certs_dir}/certs/etcd-client.crt" -infiles "${etcd_certs_dir}/etcd-client.csr"
+  fi
+
+  if [ ! -f ${etcd_peer_certs_dir}/certs/etcd-peer.crt ] ; then
+    # generate ETCD peer certs
+    rm -rf $etcd_peer_certs_dir
+    mkdir -p $etcd_peer_certs_dir
+
+    cd $etcd_peer_certs_dir
+    mkdir -p private certs newcerts crl
+    touch index.txt
+    echo '01' > serial
+
+    openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
+      -new -x509 -extensions v3_ca \
+      -passout pass:"${signing_key_passphrase}" \
+      -subj '/CN=etcd.service.cf.internal/' \
+      -keyout "${etcd_peer_certs_dir}/private/etcd-ca.key" -out "${etcd_peer_certs_dir}/certs/etcd-ca.crt"
+
+    openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
+        -new -nodes \
+        -subj '/CN=etcd.service.cf.internal/' \
+        -keyout "${etcd_peer_certs_dir}/private/etcd-peer.key" -out "${etcd_peer_certs_dir}/etcd-peer.csr"
+
+    openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
+      -extensions etcd_peer -batch \
+      -passin pass:"${signing_key_passphrase}" \
+      -keyfile "${etcd_peer_certs_dir}/private/etcd-ca.key" \
+      -cert "${etcd_peer_certs_dir}/certs/etcd-ca.crt" \
+      -out "${etcd_peer_certs_dir}/certs/etcd-peer.crt" -infiles "${etcd_peer_certs_dir}/etcd-peer.csr"
+  fi
+
+  if [ ! -f ${certs_path}/ssh.pem ] ; then
+    # generate SSH Host certs
+    openssl genrsa -out "${certs_path}/ssh.pem" -passout pass:"${signing_key_passphrase}" 4096
+  fi
+)
 
 # Setting role values
 gato config set --role consul                         consul.agent.mode                           'server'
@@ -92,30 +216,100 @@ gato config set --role api                            consul.agent.services.rout
 gato config set --role router                         consul.agent.services.gorouter              '{}'
 gato config set --role nats                           consul.agent.services.nats                  '{}'
 gato config set --role postgres                       consul.agent.services.postgres              '{}'
-gato config set --role etcd                           consul.agent.services.etcd                  '{}'
+gato config set --role etcd                           consul.agent.services.etcdlog               '{}'
 gato config set --role runner                         consul.agent.services.dea_next              '{}'
+gato config set --role diego_database                 consul.agent.services.bbs                   '{}'
+gato config set --role diego_database                 consul.agent.services.etcd                  '{}'
+gato config set --role diego_brain                    consul.agent.services.auctioneer            '{}'
+gato config set --role diego_cc_bridge                consul.agent.services.cc_uploader           '{}'
+gato config set --role diego_cc_bridge                consul.agent.services.nsync                 '{}'
+gato config set --role diego_cc_bridge                consul.agent.services.stager                '{}'
+gato config set --role diego_cc_bridge                consul.agent.services.tps                   '{}'
+gato config set --role diego_cell                     consul.agent.services.diego_cell            '{}'
+gato config set --role diego_route_emitter            consul.agent.services.diego_route_emitter   '{}'
+gato config set --role diego_access                   consul.agent.services.file_server           '{}'
+gato config set --role diego_access                   consul.agent.services.ssh_proxy             '{}'
 gato config set --role uaa                            route_registrar.routes                      "[{\"name\": \"uaa\", \"port\":\"8080\", \"tags\":{\"component\":\"uaa\"}, \"uris\":[\"uaa.${domain}\", \"*.uaa.${domain}\", \"login.${domain}\", \"*.login.${domain}\"]}]"
 gato config set --role api                            route_registrar.routes                      "[{\"name\":\"api\",\"port\":\"9022\",\"tags\":{\"component\":\"CloudController\"},\"uris\":[\"api.${domain}\"]}]"
 gato config set --role hm9000                         route_registrar.routes                      "[{\"name\":\"hm9000\",\"port\":\"5155\",\"tags\":{\"component\":\"HM9K\"},\"uris\":[\"hm9000.${domain}\"]}]"
 gato config set --role loggregator_trafficcontroller  route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
 gato config set --role doppler                        route_registrar.routes                      "[{\"name\":\"doppler\",\"port\":\"8081\",\"uris\":[\"doppler.${domain}\"]},{\"name\":\"loggregator_trafficcontroller\",\"port\":\"8080\",\"uris\":[\"loggregator.${domain}\"]}]"
-gato config set --role cf-usb                        route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role cf-usb                         route_registrar.routes                      "[{\"name\":\"usb\",\"port\":\"54053\",\"uris\":[\"usb.${domain}\", \"*.usb.${domain}\"]}, {\"name\":\"broker\",\"port\":\"54054\",\"uris\":[\"brokers.${domain}\", \"*.brokers.${domain}\"]}]"
+gato config set --role etcd                           etcd.peer_require_ssl                       'false'
+gato config set --role etcd                           etcd.require_ssl                            'false'
+gato config set --role etcd                           etcd.cluster                                'null'
+gato config set --role etcd                           etcd.peer_key                               'null'
+gato config set --role etcd                           etcd.peer_cert                              'null'
+gato config set --role etcd                           etcd.peer_ca_cert                           'null'
+gato config set --role etcd                           etcd.server_key                             'null'
+gato config set --role etcd                           etcd.client_key                             'null'
+gato config set --role etcd                           etcd.server_cert                            'null'
+gato config set --role etcd                           etcd.client_cert                            'null'
+gato config set --role etcd                           etcd.ca_cert                                'null'
+
+
 
 # Constants
-gato config set consul.agent.servers.lan                '["cf-consul.hcf"]'
-gato config set nats.machines                           '["nats.service.cf.internal"]'
-gato config set etcd_metrics_server.nats.machines       '["nats.service.cf.internal"]'
-gato config set etcd_metrics_server.machines            '["nats.service.cf.internal"]'
-gato config set nfs_server.share_path                   '/var/vcap/nfs'
-gato config set databases.databases                     '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
-gato config set databases.port                          '5524'
-gato config set etcd.machines                           '["etcd.service.cf.internal"]'
-gato config set loggregator.etcd.machines               '["etcd.service.cf.internal"]'
-gato config set router.servers.z1                       '["gorouter.service.cf.internal"]'
-gato config set dea_next.kernel_network_tuning_enabled  'false'
-gato config set ccdb.address                            'postgres.service.cf.internal'
-gato config set databases.address                       'postgres.service.cf.internal'
-gato config set uaadb.address                           'postgres.service.cf.internal'
+#gato config set consul.agent.servers.lan                  '["cf-consul.hcf"]'
+gato config set nats.machines                             '["nats.service.cf.internal"]'
+gato config set etcd_metrics_server.nats.machines         '["nats.service.cf.internal"]'
+gato config set etcd_metrics_server.machines              '["nats.service.cf.internal"]'
+gato config set nfs_server.share_path                     '/var/vcap/nfs'
+gato config set databases.databases                       '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
+gato config set databases.port                            '5524'
+gato config set etcd.machines                             '["etcd.service.cf.internal"]'
+gato config set etcd.peer_require_ssl                     'true'
+gato config set etcd.require_ssl                          'true'
+gato config set etcd.cluster                              '[{"instances": 1, "name": "database_z1"}]'
+gato config set loggregator.etcd.machines                 '["etcdlog.service.cf.internal"]'
+gato config set router.servers.z1                         '["gorouter.service.cf.internal"]'
+gato config set dea_next.kernel_network_tuning_enabled    'false'
+gato config set ccdb.address                              'postgres.service.cf.internal'
+gato config set databases.address                         'postgres.service.cf.internal'
+gato config set uaadb.address                             'postgres.service.cf.internal'
+gato config set diego.auctioneer.bbs.require_ssl          'true'
+gato config set diego.auctioneer.bbs.api_location         'bbs.service.cf.internal:8889'
+gato config set diego.bbs.auctioneer.api_url              'http://auctioneer.service.cf.internal:9016'
+gato config set diego.bbs.etcd.machines                   '["etcd.service.cf.internal"]'
+gato config set diego.bbs.etcd.require_ssl                'true'
+gato config set diego.bbs.require_ssl                     'true'
+gato config set diego.converger.bbs.api_location          'bbs.service.cf.internal:8889'
+gato config set diego.converger.bbs.require_ssl           'true'
+gato config set diego.converger.log_level                 'debug'
+gato config set diego.executor.drain_timeout_in_seconds   '0'
+gato config set diego.executor.garden.address             '127.0.0.1:7777'
+gato config set diego.executor.garden.network             'tcp'
+gato config set diego.executor.log_level                  'debug'
+gato config set diego.nsync.bbs.api_location              'bbs.service.cf.internal:8889'
+gato config set diego.nsync.bbs.require_ssl               'true'
+gato config set diego.nsync.log_level                     'debug'
+gato config set diego.rep.bbs.require_ssl                 'true'
+gato config set diego.rep.evacuation_timeout_in_seconds   '60'
+gato config set diego.rep.log_level                       'debug'
+gato config set diego.route_emitter.bbs.api_location      'bbs.service.cf.internal:8889'
+gato config set diego.route_emitter.bbs.require_ssl       'true'
+gato config set diego.route_emitter.log_level             'debug'
+gato config set diego.route_emitter.nats.port             '4222'
+gato config set diego.ssh_proxy.bbs.api_location          'bbs.service.cf.internal:8889'
+gato config set diego.ssh_proxy.bbs.require_ssl           'true'
+gato config set diego.ssh_proxy.enable_cf_auth            'true'
+gato config set diego.ssh_proxy.enable_diego_auth         'false'
+gato config set diego.ssl.skip_cert_verify                'true'
+gato config set diego.stager.bbs.api_location             'bbs.service.cf.internal:8889'
+gato config set diego.stager.bbs.require_ssl              'true'
+gato config set diego.tps.bbs.api_location                'bbs.service.cf.internal:8889'
+gato config set diego.tps.bbs.require_ssl                 'true'
+gato config set diego.rep.bbs.api_location                'bbs.service.cf.internal:8889'
+gato config set garden.enable_graph_cleanup               'true'
+gato config set garden.listen_address                     '0.0.0.0:7777'
+gato config set garden.listen_network                     'tcp'
+gato config set garden.log_level                          'debug'
+gato config set garden.persistent_image_list              '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
+gato config set diego.route_emitter.nats.machines         '["nats.service.cf.internal"]'
+gato config set diego.rep.zone                            'z1'
+gato config set diego.file_server.static_directory        '/var/vcap/packages/'
+gato config set cf-usb.configconnectionstring             '127.0.0.1:8500'
+gato config set cf-usb.configprovider                     'consulConfigProvider'
 
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
@@ -125,10 +319,8 @@ gato config set disk_quota_enabled          'false'
 gato config set metron_agent.deployment     "hcf-deployment"
 gato config set consul.require_ssl          "false"
 gato config set consul.encrypt_keys         "[]"
-gato config set etcd.peer_require_ssl       'false'
-gato config set etcd.require_ssl            'false'
 gato config set cf-usb.skip_tsl_validation  'true'
-
+gato config set cf-usb.management.dev_mode  'true'
 
 # Setting user values
 gato config set app_domains                                           "[\"${domain}\"]"
@@ -137,6 +329,8 @@ gato config set cc.db_encryption_key                                  "${db_encr
 gato config set cc.srv_api_uri                                        "https://api.${domain}"
 gato config set cc.staging_upload_user                                "${staging_upload_user}"
 gato config set cc.staging_upload_password                            "${staging_upload_password}"
+gato config set cc.internal_api_user                                  "${internal_api_user}"
+gato config set cc.internal_api_password                              "${internal_api_password}"
 gato config set ccdb.roles                                            "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
 gato config set databases.roles                                       "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\",\"tag\": \"${ccdb_role_tag}\"}, {\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\":\"${uaadb_tag}\"}]"
 gato config set domain                                                "${domain}"
@@ -155,6 +349,10 @@ gato config set uaa.admin.client_secret                               "${uaa_adm
 gato config set uaa.batch.username                                    "${uaa_batch_username}"
 gato config set uaa.batch.password                                    "${uaa_batch_password}"
 gato config set uaa.cc.client_secret                                  "${uaa_cc_client_secret}"
+gato config set uaa.clients.cf-usb.secret                             "${uaa_clients_cf_usb_secret}"
+gato config set uaa.clients.cf-usb.authorized-grant-types             "client_credentials"
+gato config set uaa.clients.cf-usb.authorities                        "cloud_controller.admin,usb.management.admin"
+gato config set uaa.clients.cf-usb.scope                              "usb.management.admin"
 gato config set uaa.clients.app-direct.secret                         "${uaa_clients_app_direct_secret}"
 gato config set uaa.clients.developer-console.secret                  "${uaa_clients_developer_console_secret}"
 gato config set uaa.clients.notifications.secret                      "${uaa_clients_notifications_secret}"
@@ -167,19 +365,85 @@ gato config set uaa.scim.users                                        "[\"${clus
 gato config set uaadb.roles                                           "[{\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\": \"${uaadb_tag}\"}]"
 gato config set system_domain                                         "${domain}"
 gato config set traffic_controller.zone                               "${traffic_controller_zone}"
-# TODO: This should be handled in the 'opinions' file, since the ERB templates will generate this value
-gato config set hm9000.url                                            "https://hm9000.${domain}"
-gato config set uaa.url                                               "https://uaa.${domain}"
 gato config set cf-usb.broker.external_url                            "brokers.${domain}"
 gato config set cf-usb.broker.username                                "${cf_usb_username}"
 gato config set cf-usb.broker.password                                "${cf_usb_password}"
 gato config set cf-usb.management.uaa.secret                          "${uaa_clients_cf_usb_secret}"
-gato config set cf-usb.management.uaa.client                          "${cf_usb_uaa_client}"
+gato config set cf-usb.management.uaa.client                          "cf-usb"
+gato config set diego.bbs.encryption_keys                             "[{\"label\": \"${bbs_active_key_label}\", \"passphrase\": \"${bbs_active_key_passphrase}\"}]"
+gato config set diego.cc_uploader.cc.base_url                         "https://api.${domain}"
+gato config set diego.cc_uploader.cc.basic_auth_username              "${internal_api_user}"
+gato config set diego.cc_uploader.cc.basic_auth_password              "${internal_api_password}"
+gato config set diego.cc_uploader.cc.staging_upload_password          "${staging_upload_password}"
+gato config set diego.cc_uploader.cc.staging_upload_user              "${staging_upload_user}"
+gato config set diego.nsync.cc.base_url                               "https://api.${domain}"
+gato config set diego.nsync.cc.basic_auth_username                    "${internal_api_user}"
+gato config set diego.nsync.cc.basic_auth_password                    "${internal_api_password}"
+gato config set diego.nsync.cc.staging_upload_password                "${staging_upload_password}"
+gato config set diego.nsync.cc.staging_upload_user                    "${staging_upload_user}"
+gato config set diego.route_emitter.nats.user                         "${nats_user}"
+gato config set diego.route_emitter.nats.password                     "${nats_password}"
+gato config set diego.ssh_proxy.servers                               "[${public_ip}]"
+gato config set diego.ssh_proxy.uaa_token_url                         "https://uaa.${domain}/oauth/token"
+gato config set diego.stager.cc.base_url                              "https://api.${domain}"
+gato config set diego.stager.cc.basic_auth_username                   "${internal_api_user}"
+gato config set diego.stager.cc.basic_auth_password                   "${internal_api_password}"
+gato config set diego.stager.cc.staging_upload_password               "${staging_upload_password}"
+gato config set diego.stager.cc.staging_upload_user                   "${staging_upload_user}"
+gato config set diego.tps.cc.base_url                                 "https://api.${domain}"
+gato config set diego.tps.cc.basic_auth_username                      "${internal_api_user}"
+gato config set diego.tps.cc.basic_auth_password                      "${internal_api_password}"
+gato config set diego.tps.cc.staging_upload_password                  "${staging_upload_password}"
+gato config set diego.tps.cc.staging_upload_user                      "${staging_upload_user}"
+gato config set diego.tps.traffic_controller_url                      "wss://doppler.${domain}:443"
+gato config set diego.bbs.active_key_label                            "${bbs_active_key_label}"
+gato config set garden.deny_networks                                  "[]"
+# TODO: This should be handled in the 'opinions' file, since the ERB templates will generate this value
+gato config set hm9000.url                                            "https://hm9000.${domain}"
+gato config set uaa.url                                               "https://uaa.${domain}"
 
 # Setting certificate values
 cat "${ca_path}/intermediate/private/${certs_prefix}-root.chain.pem" | gato config set -f ha_proxy.ssl_pem -
 cat "${certs_path}/jwt_signing.pem" | gato config set -f uaa.jwt.signing_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f uaa.jwt.verification_key -
 cat "${certs_path}/jwt_signing.pub" | gato config set -f cf-usb.management.public_key -
-
-
+# Diego certificates
+cat "${etcd_peer_certs_dir}/private/etcd-peer.key" | gato config set -f etcd.peer_key -
+cat "${etcd_peer_certs_dir}/certs/etcd-peer.crt" | gato config set -f etcd.peer_cert -
+cat "${etcd_peer_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.peer_ca_cert -
+cat "${etcd_certs_dir}/private/etcd-server.key" | gato config set -f etcd.server_key -
+cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f etcd.client_key -
+cat "${etcd_certs_dir}/private/etcd-client.key" | gato config set -f diego.bbs.etcd.client_key -
+cat "${etcd_certs_dir}/certs/etcd-server.crt" | gato config set -f etcd.server_cert -
+cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f etcd.client_cert -
+cat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set -f diego.bbs.etcd.client_cert -
+cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f etcd.ca_cert -
+cat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set -f diego.bbs.etcd.ca_cert -
+cat "${certs_path}/ssh.pem" | gato config set -f diego.ssh_proxy.host_key -
+cat "${bbs_certs_dir}/private/bbs-server.key" | gato config set -f diego.bbs.server_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.tps.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.stager.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.ssh_proxy.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.route_emitter.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.rep.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.nsync.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.converger.bbs.client_key -
+cat "${bbs_certs_dir}/private/bbs-client.key" | gato config set -f diego.auctioneer.bbs.client_key -
+cat "${bbs_certs_dir}/certs/bbs-server.crt" | gato config set -f diego.bbs.server_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.tps.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.stager.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.ssh_proxy.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.route_emitter.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.rep.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.nsync.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.converger.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-client.crt" | gato config set -f diego.auctioneer.bbs.client_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.tps.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.stager.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.ssh_proxy.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.route_emitter.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.rep.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.nsync.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.converger.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.bbs.ca_cert -
+cat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set -f diego.auctioneer.bbs.ca_cert -
