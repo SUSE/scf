@@ -417,6 +417,18 @@ function pipecat {
     sed 's/^/ /' $fname
 }
 
+# pipecat: prepare files for being stored as a multi-line yaml string
+# Assumes `gato config set` verifies values are valid yaml strings, but 
+# doesn't yaml-encode values for storing in consul.
+# Since both simple multi-line strings and literal-(pipe)-introduced
+# indented multi-line strings are both valid YAML, we need to convert
+# the former into the latter.
+function pipecat {
+    fname=$1
+    echo '|'
+    sed 's/^/ /' $fname
+}
+
 # Setting certificate values
 pipecat "${ca_path}/intermediate/private/${certs_prefix}-root.chain.pem" | gato config set -f ha_proxy.ssl_pem -
 pipecat "${certs_path}/jwt_signing.pem" | gato config set -f uaa.jwt.signing_key -
