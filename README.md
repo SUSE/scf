@@ -2,7 +2,7 @@
 
 Build infrastructure for HCF 1.0
 
-## Development
+## Development on OSX with VMWare Fusion
 
 1. Install VMware Fusion 7
 1. Get a license for VMware Fusion 7
@@ -38,6 +38,30 @@ Build infrastructure for HCF 1.0
  cd ~/hcf
  make run
  ```
+## Development on Ubuntu with libvirt
+
+1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
+1. Install dependencies
+```
+sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+```
+1. Allow non-root access to libvirt
+```
+sudo usermod -G libvirtd -a YOUR_USER
+```
+1. Logout & Login
+1. Install the `libvirt` plugin for Vagrant
+```
+vagrant plugin install vagrant-libvirt
+```
+1. Install vagrant-reload plugin
+ ```
+ vagrant plugin install vagrant-reload
+ ```
+1. Bring it online (may fail a few times)
+```
+sudo vagrant up --provider libvirt
+```
 
 ### Windows (Currently not working, do not try this at home)
 
