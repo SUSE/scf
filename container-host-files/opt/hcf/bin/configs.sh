@@ -310,6 +310,7 @@ gato config set diego.rep.zone                            'z1'
 gato config set diego.file_server.static_directory        '/var/vcap/packages/'
 gato config set cf-usb.configconnectionstring             '127.0.0.1:8500'
 gato config set cf-usb.configprovider                     'consulConfigProvider'
+gato config set cc.default_to_diego_backend               'true'
 
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
