@@ -1,235 +1,175 @@
-NO_COLOR=\033[0m
-OK_COLOR=\033[32;01m
-ERROR_COLOR=\033[31;01m
-WARN_COLOR=\033[33;01m
+#!/usr/bin/env make
 
-OS_TYPE?=$(shell uname | tr '[:upper:]' '[:lower:]')
-CF_RELEASE?=$(shell cat cf-release-version)
-CF_RELEASE_LOCATION?=https://bosh.io/d/github.com/cloudfoundry/cf-release?v=$(CF_RELEASE)
+# Default target specification
+run:
 
-WORK_DIR=$(PWD)/_work
-RELEASE_DIR=$(WORK_DIR)/release
-TARGET_DIR=$(PWD)/target
-
-UBUNTU_IMAGE=ubuntu:14.04.2
-
-COMPONENTS=uaa stats runner router postgres nats loggregator_trafficcontroller hm9000 ha_proxy etcd doppler consul clock_global api_worker api smoke_tests acceptance_tests
+CF_RELEASE ?= $(shell cat cf-release-version)
+UBUNTU_IMAGE ?= ubuntu:14.04.2
+WORK_DIR := ${CURDIR}/_work
 
 include version.mk
 
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
-BUILD:=$(shell whoami)-$(BRANCH)-$(shell date -u +%Y%m%d%H%M%S)
-APP_VERSION=$(VERSION)-$(BUILD)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+BUILD := $(shell whoami)-${BRANCH}-$(shell date -u +%Y%m%d%H%M%S)
+APP_VERSION := ${VERSION}-${BUILD}
 
-FISSILE_BRANCH:=$(BRANCH)
-CONFIGGIN_BRANCH:=$(BRANCH)
+# The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
+export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release
+export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml
+export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/opinions.yml
+export FISSILE_DARK_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/dark-opinions.yml
+export FISSILE_CONFIG_OUTPUT_DIR ?= ${WORK_DIR}/config_target
+export FISSILE_COMPILATION_DIR ?= ${WORK_DIR}/compile_target
+export FISSILE_DOCKERFILES_DIR ?= ${WORK_DIR}/images
+export FISSILE_ROLE_BASE_DOCKERFILE_DIR ?= ${WORK_DIR}/base_image
+export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
+export FISSILE_CONFIGGIN_PATH ?= ${WORK_DIR}/configgin.tar.gz
 
-all: generate_config_base images publish_images dist
+########## UTILITY TARGETS ##########
 
-.PHONY: all clean setup tools fetch_fissle phony
+print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
 
 clean:
-	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
-	rm -rf $(WORK_DIR) $(TARGET_DIR)
-	-docker rm --force $(shell docker ps -a | grep fissile | cut -f1 -d' ')
+	$(call print_status, Cleaning work directory)
+	rm -rf ${WORK_DIR}
 
-setup:
-	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
-	mkdir -p $(TARGET_DIR)
-	mkdir -p $(WORK_DIR)
-	mkdir -p $(WORK_DIR)/hcf
-	docker pull $(UBUNTU_IMAGE)
+clean-harder: clean
+	$(call print_status, Cleaning docker containers)
+	-docker rm --force $(shell docker ps --all --quiet --filter=name=fissile-)
 
-fetch_fissle: setup
-	@echo "$(OK_COLOR)==> Looking up latest fissile build$(NO_COLOR)"
-	# Find the latest artifact, excluding the babysitter builds
-	# This looks inside the swift container, filtering by your OS type, sorts in ascending order and takes the last entry
-	# If we were to write a "latest" link, this would be easier.
-	$(eval LATEST_FISSILE_BUILD="$(shell swift list -l fissile-artifacts | grep -v babysitter | grep \\_$(FISSILE_BRANCH)/ | grep $(OS_TYPE) | cut -c 14-33,34- | sort | tail -1)")
+all: images tag terraform
 
-	swift download --output $(WORK_DIR)/fissile fissile-artifacts $(shell echo $(LATEST_FISSILE_BUILD) | cut -c 21-)
-	chmod +x $(WORK_DIR)/fissile
+fetch-submodules:
+	git submodule update --init --recursive --depth=1 ${CURDIR}/src
 
-fetch_configgin: setup
-	@echo "$(OK_COLOR)==> Looking up latest configgin build$(NO_COLOR)"
+########## VAGRANT VM TARGETS ##########
 
-	$(eval LATEST_CONFIGGIN_BUILD="$(shell swift list -l configgin | grep \\_$(CONFIGGIN_BRANCH)/ | grep -v babysitter | grep linux-x86_64.tgz | cut -c 14-33,34- | sort | tail -1)")
-	swift download --output $(WORK_DIR)/configgin.tar.gz configgin $(shell echo $(LATEST_CONFIGGIN_BUILD) | cut -c 21-)
-
-tools: fetch_fissle fetch_configgin
-	$(WORK_DIR)/fissile
-
-images: setup tools
-	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
-	make -C docker-images all APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
-
-# intentionally not contained in the normal build workflow - this is used
-# so that we can fetch and cache a cf-release when we update to a new build.
-fetch_new_cf_release:
-	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from bosh.io$(NO_COLOR)"
-
-	curl -L "$(CF_RELEASE_LOCATION)" -o $(WORK_DIR)/cf-release-v$(CF_RELEASE).tar.gz
-
-	@echo "$(OK_COLOR)==> Uploading cf-release-$(CF_RELEASE) to Swift$(NO_COLOR)"
-	cd $(WORK_DIR) ; swift upload cf-release cf-release-v$(CF_RELEASE).tar.gz
-
-fetch_cf_release: fetch_fissle
-	@echo "$(OK_COLOR)==> Fetching cf-release-$(CF_RELEASE) from Swift$(NO_COLOR)"
-
-	swift download cf-release cf-release-v$(CF_RELEASE).tar.gz -o $(WORK_DIR)/cf-release.tar.gz
-	mkdir -p $(RELEASE_DIR) && cd $(RELEASE_DIR) && tar zxf ../cf-release.tar.gz
-
-compile_base: fetch_cf_release fetch_configgin
-	@echo "$(OK_COLOR)==> Compiling base image for cf-release$(NO_COLOR)"
-	-docker rm fissile-cf-$(CF_RELEASE)-cbase
-	-docker rmi fissile:cf-$(CF_RELEASE)-cbase
-
-	_work/fissile compilation build-base -b $(UBUNTU_IMAGE)
-
-compile_release: compile_base
-	@echo "$(OK_COLOR)==> Compiling cf-release$(NO_COLOR)"
-	_work/fissile compilation start -r $(RELEASE_DIR) -t $(WORK_DIR)/compile_target
-
-base_image: compile_release
-	_work/fissile images create-base -t $(WORK_DIR)/base_image -c $(WORK_DIR)/configgin.tar.gz -b $(UBUNTU_IMAGE)
-
-compile_images: base_image
-	_work/fissile images create-roles -t $(WORK_DIR)/images -r $(RELEASE_DIR) -m $(PWD)/config-opinions/cf-v$(CF_RELEASE)/role-manifest.yml -c $(WORK_DIR)/compile_target -v $(APP_VERSION)
-
-generate_config_base: fetch_fissle fetch_cf_release
-	rm -rf $(WORK_DIR)/config_target
-
-	_work/fissile configuration generate \
-		-r $(RELEASE_DIR) \
-		--light-opinions config-opinions/cf-v$(CF_RELEASE)/opinions.yml \
-		--dark-opinions config-opinions/cf-v$(CF_RELEASE)/dark-opinions.yml \
-		--target $(WORK_DIR)/config_target
-
-	cd $(WORK_DIR)/config_target ; tar czf $(WORK_DIR)/hcf-config.tar.gz hcf/
-
-publish_images: compile_images
-	for component in $(COMPONENTS); do \
-		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) helioncf/cf-$$component:$(APP_VERSION) && \
-		docker tag -f fissile-$$component:$(CF_RELEASE)-$(APP_VERSION) helioncf/cf-$$component:latest-$(BRANCH) && \
-		docker push helioncf/cf-$$component:$(APP_VERSION) && \
-		docker push helioncf/cf-$$component:latest-$(BRANCH) ; \
-	done
-
-dist: generate_config_base
-	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/direct_internet && cp -r $(PWD)/terraform-scripts/hcf/* terraform-scripts/direct_internet/
-	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/proxied_internet && cp -r $(PWD)/terraform-scripts/hcf-proxied/* terraform-scripts/proxied_internet/
-	cd $(WORK_DIR)/hcf && mkdir -p terraform-scripts/templates && cp -r $(PWD)/terraform-scripts/templates/* terraform-scripts/templates/
-	cp -r $(PWD)/container-host-files $(WORK_DIR)/hcf/
-
-	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/terraform-scripts/direct_internet/
-	cp $(WORK_DIR)/hcf-config.tar.gz $(WORK_DIR)/hcf/terraform-scripts/proxied_internet/
-
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > terraform-scripts/direct_internet/version.tf
-	cd $(WORK_DIR)/hcf ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > terraform-scripts/proxied_internet/version.tf
-
-	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
-
-# --- NEW STUFF ---
-
-vagrant_box:
-	cd packer && packer build vagrant-box.json
-
-cf_release:
-	@echo "$(OK_COLOR)==> Running bosh create release for cf-release ... $(NO_COLOR)"
-	cd $(PWD)/src/cf-release && \
-	bosh create release --force --name cf
-
-cf_usb_release:
-	@echo "$(OK_COLOR)==> Running bosh create release for cf-usb ... $(NO_COLOR)"
-	cd $(PWD)/src/cf-usb/cf-usb-release && \
-	bosh create release --force --name cf-usb
-
-cf_diego_release:
-	@echo "$(OK_COLOR)==> Running bosh create release for diego ... $(NO_COLOR)"
-	cd $(PWD)/src/diego-release && \
-	bosh create release --force --name diego
-
-cf_garden_linux_release:
-	@echo "$(OK_COLOR)==> Running bosh create release for garden-linux ... $(NO_COLOR)"
-	cd $(PWD)/src/garden-linux-release && \
-	bosh create release --force --name garden-linux
-
-cf_etcd_release:
-	@echo "$(OK_COLOR)==> Running bosh create release for etcd ... $(NO_COLOR)"
-	cd $(PWD)/src/etcd-release && \
-	bosh create release --force --name etcd
-
-releases: cf_release cf_usb_release cf_etcd_release cf_garden_linux_release cf_diego_release
-	@echo "$(OK_COLOR)==> Creating BOSH releases ... $(NO_COLOR)"
-
-fissile_compilation_base:
-	@echo "$(OK_COLOR)==> Building compilation base ... $(NO_COLOR)"
-	fissile compilation build-base
-
-fissile_compile_packages: fissile_create_config fissile_compilation_base
-	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
-	mkdir -p "$(HCF_PACKAGE_COMPILATION_CACHE)/" && \
-	mkdir -p "$(FISSILE_COMPILATION_DIR)/" && \
-	rsync -a "$(HCF_PACKAGE_COMPILATION_CACHE)/" "$(FISSILE_COMPILATION_DIR)/" && \
-	fissile dev compile && \
-	rsync -a "$(FISSILE_COMPILATION_DIR)/" "$(HCF_PACKAGE_COMPILATION_CACHE)/"
-
-fissile_create_base:
-	@echo "$(OK_COLOR)==> Creating image base ... $(NO_COLOR)"
-	fissile images create-base
-
-fissile_create_images: fissile_create_base fissile_compile_packages
-	@echo "$(OK_COLOR)==> Creating docker images ... $(NO_COLOR)"
-	fissile dev create-images
-
-fissile_create_config: releases
-	@echo "$(OK_COLOR)==> Generating configuration ... $(NO_COLOR)"
-	fissile dev config-gen
-
-docker_images:
-	@echo "$(OK_COLOR)==> Build all Docker images$(NO_COLOR)"
-	make -C docker-images build APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD)
-
-tag_images: docker_images fissile_create_images
-	make -C docker-images tag APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
-	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source $(PWD)/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
-		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
-		docker tag -f $$image $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
-	done
-
-push_images: tag_images
-	make -C docker-images push APP_VERSION=$(APP_VERSION) BRANCH=$(BRANCH) BUILD=$(BUILD) && \
-	for image in $(shell fissile dev lr); do \
-		role_name=`bash -c "source $(PWD)/container-host-files/opt/hcf/bin/common.sh; get_role_name $$image"` ; \
-		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:$(APP_VERSION) ; \
-		docker push $(REGISTRY_HOST)/hcf/hcf-$$role_name:latest-$(BRANCH) ; \
-	done
-
-clean_out:
-	@echo "$(OK_COLOR)==> Cleaning$(NO_COLOR)"
-	rm -rf $(WORK_DIR)
-
-setup_out: clean_out
-	@echo "$(OK_COLOR)==> Setup$(NO_COLOR)"
-	mkdir -p $(WORK_DIR)
-	mkdir -p $(WORK_DIR)/hcf
-
-create_dist: fissile_create_config setup_out
-	cd $(FISSILE_CONFIG_OUTPUT_DIR) ; tar czf $(WORK_DIR)/hcf-config.tar.gz hcf/
-	cd $(WORK_DIR)/hcf ; cp -r $(PWD)/terraform-scripts . ; cp -r $(PWD)/container-host-files .
-	mv $(WORK_DIR)/hcf/terraform-scripts/hcf $(WORK_DIR)/hcf/terraform-scripts/direct_internet
-	mv $(WORK_DIR)/hcf/terraform-scripts/hcf-proxied $(WORK_DIR)/hcf/terraform-scripts/proxied_internet
-	cd $(WORK_DIR)/hcf/terraform-scripts/direct_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
-	cd $(WORK_DIR)/hcf/terraform-scripts/proxied_internet ; cp $(WORK_DIR)/hcf-config.tar.gz . ; echo "variable \"build\" {\n\tdefault = \"$(APP_VERSION)\"\n}\n" > version.tf
-	cd $(WORK_DIR) ; tar -chzvf $(WORK_DIR)/hcf-$(APP_VERSION).tar.gz ./hcf
-
-release: push_images create_dist
+run: ${WORK_DIR}/hcf-config.tar.gz
+	$(call print_status, Running HCF ...)
+	${CURDIR}/bin/run.sh
 
 stop:
-	@echo "$(OK_COLOR)==> Stopping all HCF roles (this takes a while) ...$(NO_COLOR)"
-	docker rm -f $(shell fissile dev lr | sed -e 's/:/-/g')
+	$(call print_status, Stopping all HCF roles (this takes a while) ...)
+	docker rm -f $(shell fissile dev list-roles | tr : -)
 
-run: docker_images fissile_create_config fissile_create_images
-	@echo "$(OK_COLOR)==> Running HCF ... $(NO_COLOR)"
-	$(PWD)/bin/run.sh
+vagrant-box:
+	cd packer && \
+	packer build vagrant-box.json
+
+vagrant-prep: \
+	compile-base \
+	releases \
+	configs \
+	compile \
+	image-base \
+	images \
+	${NULL}
+
+########## BOSH RELEASE TARGETS ##########
+
+cf-release:
+	$(call print_status, Creating cf-release BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/cf-release --force --name cf
+
+usb-release:
+	$(call print_status, Creating cf-usb BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/cf-usb/cf-usb-release --force --name cf-usb
+
+diego-release:
+	$(call print_status, Creating diego BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/diego-release --force --name diego
+
+etcd-release:
+	$(call print_status, Creating etcd BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/etcd-release --force --name etcd
+
+garden-release:
+	$(call print_status, Creating garden-linux BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/garden-linux-release --force --name garden-linux
+
+releases: cf-release usb-release diego-release etcd-release garden-release
+
+########## FISSILE BUILD TARGETS ##########
+
+configs: ${WORK_DIR}/hcf-config.tar.gz
+
+${WORK_DIR}/hcf-config.tar.gz:
+	$(call print_status, Generating configuration)
+	fissile dev config-gen
+	tar czf $@ -C ${FISSILE_CONFIG_OUTPUT_DIR} hcf/
+
+compile-base:
+	$(call print_status, Compiling build base image)
+	-docker rm fissile-cf-${CF_RELEASE}-cbase
+	-docker rmi fissile-cf-${CF_RELEASE}-cbase
+	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
+
+compile: ${WORK_DIR}/hcf-config.tar.gz
+	$(call print_status, Compiling BOSH release packages)
+	mkdir -p "${FISSILE_COMPILATION_DIR}/"
+	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
+		mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}" ; \
+		rsync -a --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_COMPILATION_DIR}/" ; \
+	fi
+	fissile dev compile
+	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
+		rsync -a --info=progress2 "${FISSILE_COMPILATION_DIR}/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+	fi
+
+images: bosh-images hcf-images
+
+image-base:
+	$(call print_status, Creating BOSH role base image)
+	fissile images create-base --base-image ${UBUNTU_IMAGE}
+
+bosh-images:
+	$(call print_status, Building BOSH role images)
+	fissile dev create-images
+
+hcf-images:
+	$(call print_status, Building HCF docker images)
+	${MAKE} -C docker-images build
+
+build: configs images
+
+tag:
+	$(call print_status, Tagging docker images)
+	make -C docker-images tag
+	set -e ; \
+	for source_image in $$(fissile dev list-roles); do \
+		component=$${source_image%:*} && \
+		component=$${component#fissile-} && \
+		docker tag -f $${source_image} helioncf/cf-$${component}:${APP_VERSION} && \
+		docker tag -f $${source_image} helioncf/cf-$${component}:latest-${BRANCH} ; \
+	done
+
+publish:
+	$(call print_status, Publishing docker images)
+	make -C docker-images push
+	set -e ; \
+	for source_image in $$(fissile dev list-roles); do \
+		component=$${source_image%:*} && \
+		component=$${component#fissile-} && \
+		docker push helioncf/cf-$${component}:${APP_VERSION} && \
+		docker push helioncf/cf-$${component}:latest-${BRANCH} ; \
+	done
+
+DIST_DIR := ${WORK_DIR}/hcf/terraform-scripts/
+terraform: ${WORK_DIR}/hcf-config.tar.gz
+	mkdir -p ${DIST_DIR}/direct_internet
+	mkdir -p ${DIST_DIR}/proxied_internet
+	mkdir -p ${DIST_DIR}/templates
+
+	cp -rL ${CURDIR}/terraform-scripts/hcf/* ${DIST_DIR}/direct_internet/
+	cp -rL ${CURDIR}/terraform-scripts/hcf-proxied/* ${DIST_DIR}/proxied_internet/
+	cp -rL ${CURDIR}/terraform-scripts/templates/* ${DIST_DIR}/templates/
+
+	cp -rL ${CURDIR}/container-host-files ${WORK_DIR}/hcf/
+
+	cp ${WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/direct_internet/
+	cp ${WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/proxied_internet/
+
+	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/direct_internet/version.tf
+	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf
+
+	tar -chzvf ${WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${WORK_DIR} hcf
