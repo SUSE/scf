@@ -18,12 +18,9 @@ export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-r
 export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/role-manifest.yml
 export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/opinions.yml
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/dark-opinions.yml
-export FISSILE_CONFIG_OUTPUT_DIR ?= ${WORK_DIR}/config_target
-export FISSILE_COMPILATION_DIR ?= ${WORK_DIR}/compile_target
-export FISSILE_DOCKERFILES_DIR ?= ${WORK_DIR}/images
-export FISSILE_ROLE_BASE_DOCKERFILE_DIR ?= ${WORK_DIR}/base_image
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_CONFIGGIN_PATH ?= ${WORK_DIR}/configgin.tar.gz
+export FISSILE_WORK_DIR ?= ${WORK_DIR}
 
 ########## UTILITY TARGETS ##########
 
@@ -96,7 +93,7 @@ configs: ${WORK_DIR}/hcf-config.tar.gz
 ${WORK_DIR}/hcf-config.tar.gz:
 	$(call print_status, Generating configuration)
 	fissile dev config-gen
-	tar czf $@ -C ${FISSILE_CONFIG_OUTPUT_DIR} hcf/
+	tar czf $@ -C ${FISSILE_WORK_DIR}/config/ hcf/
 
 compile-base:
 	$(call print_status, Compiling build base image)
@@ -106,14 +103,14 @@ compile-base:
 
 compile: ${WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Compiling BOSH release packages)
-	mkdir -p "${FISSILE_COMPILATION_DIR}/"
+	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
 	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
 		mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}" ; \
-		rsync -a --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_COMPILATION_DIR}/" ; \
+		rsync -a --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/" ; \
 	fi
 	fissile dev compile
 	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
-		rsync -a --info=progress2 "${FISSILE_COMPILATION_DIR}/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+		rsync -a --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
 	fi
 
 images: bosh-images hcf-images
