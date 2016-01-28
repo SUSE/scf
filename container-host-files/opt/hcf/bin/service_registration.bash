@@ -3,6 +3,10 @@
 
 set -e
 
+DIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
+
+. "${DIR}/common.sh"
+
 dea_count="$1"
 if [[ -z "$dea_count" ]]; then
   echo "Usage: service_registration.bash <dea_count>"
@@ -18,11 +22,15 @@ function register_role {
   role_index="$1"
   role_name="$2"
   tag_name="$2"
+
   if [[ -1 != ${role_index} ]]; then
     role_name="${role_name}-${role_index}"
   fi
 
-  monit_addr="cf-${role_name}.hcf"
+  image_name=$(get_image_name $role)
+  container_name=$(get_container_name $image_name)
+
+  monit_addr="${container_name}.hcf"
   shift 2
   job_names="$@"
 
@@ -50,23 +58,17 @@ EOM
 EOM
 }
 
-register_role -1 "consul"
-register_role -1 "nats" "nats" "nats_stream_forwarder"
-register_role -1 "etcd" "etcd" "etcd_metrics_server"
-register_role -1 "stats" "collector"
-register_role -1 "ha_proxy" "haproxy" "consul_template"
-register_role -1 "postgres" "postgres"
-register_role -1 "uaa" "uaa" "uaa_cf-registrar"
-register_role -1 "api" "cloud_controller_migration" "cloud_controller_ng" "cloud_controller_worker_local_1" "cloud_controller_worker_local_2" "nginx_cc" "routing-api" "statsd-injector"
-register_role -1 "clock_global" "cloud_controller_clock"
-register_role -1 "api_worker" "cloud_controller_worker_1"
-register_role -1 "hm9000" "hm9000_analyzer" "hm9000_api_server" "hm9000_evacuator" "hm9000_fetcher" "hm9000_listener" "hm9000_metrics_server" "hm9000_sender" "hm9000_shredder"
-register_role -1 "doppler" "doppler" "syslog_drain_binder"
-register_role -1 "loggregator_trafficcontroller" "loggregator_trafficcontroller"
-register_role -1 "router" "gorouter"
+list_all_non_task_roles | while read role
+do
+  image_name=$(get_image_name "${role}")
 
-i=0
-while [[ $i != $dea_count ]]; do
-  register_role "$i" "runner" "dea_next" "dea_logging_agent"
-  ((++i))
+  echo "Registering health checks for ${role}"
+
+  # Parse all the monit files inside the containers, so we know what to monitor
+  # In the case of process names ending with "<%=", which is the beginning of an
+  # erb block, we assume we need an index and we place a 0.
+  processes=$(docker run --rm --privileged --entrypoint "bash" $image_name -c \
+    "find /var/vcap/jobs-src -name monit -exec cat {} \; | grep ^check\ process | awk '{print \$3}' | sed s/\<\%\=/0/g")
+
+  register_role -1 $role $processes
 done

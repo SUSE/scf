@@ -204,9 +204,8 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
 
   if [ ! -f ${certs_path}/ssh_key ] ; then
     # generate SSH Host certs
-    ssh-keygen -b 2048 -t rsa -f "${certs_path}/ssh_key" -q -N ""
+    ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
   fi
-
 )
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
@@ -416,7 +415,7 @@ gato config set hm9000.url                                            "https://h
 gato config set uaa.url                                               "https://uaa.${domain}"
 
 # pipecat: prepare files for being stored as a multi-line yaml string
-# Assumes `gato config set` verifies values are valid yaml strings, but 
+# Assumes `gato config set` verifies values are valid yaml strings, but
 # doesn't yaml-encode values for storing in consul.
 # Since both simple multi-line strings and literal-(pipe)-introduced
 # indented multi-line strings are both valid YAML, we need to convert

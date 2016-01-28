@@ -121,6 +121,14 @@ function get_role_name() {
   echo ${role#"${FISSILE_REPOSITORY}-"}
 }
 
+# gets an image name from a role name
+# IMPORTANT: assumes the image is in the local Docker registry
+# get_image_name <ROLE_NAME>
+function get_image_name() {
+  role=$1
+  echo $(docker inspect --format "{{index .RepoTags 0}}" `docker images -q --filter "label=role=${role}" | head -n 1`)
+}
+
 # checks if the appropriate version of a role is running
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
@@ -143,4 +151,34 @@ function handle_restart() {
     start_role $image $container_name $role $overlay_gateway $extra
     return 0
   fi
+}
+
+# Reads all roles that are not tasks from role-manifest.yml
+# Uses shyaml for parsing
+# list_all_non_task_roles
+function list_all_non_task_roles() {
+  role_manifest=`readlink -f ""${BINDIR}/../../../etc/hcf/config/role-manifest.yml""`
+
+  while IFS= read -r -d '' role_block; do
+      role_name=$(echo "${role_block}" | shyaml get-value name)
+      is_task=$(echo "${role_block}" | shyaml get-value is_task false)
+      if [[ "${is_task}" == "false" ]] ; then
+        echo $role_name
+      fi
+  done < <(cat ${role_manifest} | shyaml get-values-0 roles)
+}
+
+# Reads all roles that are tasks from role-manifest.yml
+# Uses shyaml for parsing
+# list_all_task_roles
+function list_all_task_roles() {
+  role_manifest=`readlink -f ""${BINDIR}/../../../etc/hcf/config/role-manifest.yml""`
+
+  while IFS= read -r -d '' role_block; do
+    role_name=$(echo "${role_block}" | shyaml get-value name)
+    is_task=$(echo "${role_block}" | shyaml get-value is_task false)
+    if [[ "${is_task}" == "true" ]] ; then
+      echo $role_name
+    fi
+  done < <(cat ${role_manifest} | shyaml get-values-0 roles)
 }

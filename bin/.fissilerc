@@ -18,13 +18,13 @@ export FISSILE_DEV_RELEASE_NAME=
 export FISSILE_DEV_RELEASE_VERSION=
 
 # Path to an HCF role manifest
-export FISSILE_ROLES_MANIFEST="${ROOT}/config-opinions/cf-v217/role-manifest.yml"
+export FISSILE_ROLES_MANIFEST="${ROOT}/container-host-files/etc/hcf/config/role-manifest.yml"
 
 # Path to a BOSH deployment manifest that contains light opinions
-export FISSILE_LIGHT_OPINIONS="${ROOT}/config-opinions/cf-v217/opinions.yml"
+export FISSILE_LIGHT_OPINIONS="${ROOT}/container-host-files/etc/hcf/config/opinions.yml"
 
 # Path to a BOSH deployment manifest that contains dark opinions
-export FISSILE_DARK_OPINIONS="${ROOT}/config-opinions/cf-v217/dark-opinions.yml"
+export FISSILE_DARK_OPINIONS="${ROOT}/container-host-files/etc/hcf/config/dark-opinions.yml"
 
 # Path to a location where all fissile output is stored
 export FISSILE_WORK_DIR="${HOME}/.fissile/"
