@@ -19,7 +19,6 @@ export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/rol
 export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/opinions.yml
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/dark-opinions.yml
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
-export FISSILE_CONFIGGIN_PATH ?= ${WORK_DIR}/configgin.tar.gz
 export FISSILE_WORK_DIR ?= ${WORK_DIR}
 
 ########## UTILITY TARGETS ##########
@@ -97,8 +96,6 @@ ${WORK_DIR}/hcf-config.tar.gz:
 
 compile-base:
 	$(call print_status, Compiling build base image)
-	-docker rm fissile-cf-${CF_RELEASE}-cbase
-	-docker rmi fissile-cf-${CF_RELEASE}-cbase
 	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
 
 compile: ${WORK_DIR}/hcf-config.tar.gz
