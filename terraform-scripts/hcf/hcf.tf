@@ -360,35 +360,6 @@ env bulk_api_password='${var.bulk_api_password}' \
     uaadb_username='${var.uaadb_username}' \
     $OPTDIR/configs.sh
 
-# And these things didn't work in configs.sh, so leave them here:
-
-set -e
-export CONSUL=http://`/opt/hcf/bin/get_ip`:8501
-# Keep this -- otherwise the routing-api component of cf-api fails with the error:
-# Public uaa token must be PEM encoded
-openssl genrsa -out ~/.ssh/jwt_signing.pem -passout pass:"${var.signing_key_passphrase}" 4096
-openssl rsa -in ~/.ssh/jwt_signing.pem -outform PEM -passin pass:"${var.signing_key_passphrase}" -pubout -out ~/.ssh/jwt_signing.pub
-/opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/signing_key ~/.ssh/jwt_signing.pem
-/opt/hcf/bin/set-config-file $CONSUL hcf/user/uaa/jwt/verification_key ~/.ssh/jwt_signing.pub
-
-# Keep this -- otherwise the ha_proxy role gives error mesages of the form:
-# parsing [/var/vcap/jobs/haproxy/config/haproxy.conf:31] : 'bind :443' : 
-# unable to load SSL private key from PEM file '/var/vcap/jobs/haproxy/config/cert.pem'.
-# The problem here is that the 2 parts of the generated key aren't separated
-# by a newline:
-# 
-# cat /var/vcap/jobs/haproxy/config/cert.pem
-# ...
-# ... Z9Is -----END RSA PRIVATE KEY----- -----BEGIN CERTIFICATE----- MIIGFz ...
-# ...
-
-# combine the certs, so we can insert them into ha_proxy's config
-TEMP_CERT=$(mktemp --suffix=.pem)
-cat /home/ubuntu/.run/certs/ca/intermediate/private/${var.cluster-prefix}-root.key.pem > $TEMP_CERT
-cat /home/ubuntu/.run/certs/ca/intermediate/certs/${var.cluster-prefix}-root.cert.pem >> $TEMP_CERT
-/opt/hcf/bin/set-config-file $CONSUL hcf/user/ha_proxy/ssl_pem $TEMP_CERT
-rm $TEMP_CERT
-
 EOF
     }
 
