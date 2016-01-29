@@ -10,8 +10,9 @@ WORK_DIR := ${CURDIR}/_work
 include version.mk
 
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-BUILD := $(shell whoami)-${BRANCH}-$(shell date -u +%Y%m%d%H%M%S)
-APP_VERSION := ${VERSION}-${BUILD}
+COMMIT := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
+APP_VERSION := ${VERSION}+${COMMIT}.${BRANCH}
+APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
 export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release
@@ -37,6 +38,9 @@ all: images tag terraform
 
 fetch-submodules:
 	git submodule update --init --recursive --depth=1 ${CURDIR}/src
+
+print-version:
+	@echo hcf-${APP_VERSION_TAG}
 
 ########## VAGRANT VM TARGETS ##########
 
@@ -133,7 +137,7 @@ tag:
 	for source_image in $$(fissile dev list-roles); do \
 		component=$${source_image%:*} && \
 		component=$${component#fissile-} && \
-		docker tag -f $${source_image} helioncf/cf-$${component}:${APP_VERSION} && \
+		docker tag -f $${source_image} helioncf/cf-$${component}:${APP_VERSION_TAG} && \
 		docker tag -f $${source_image} helioncf/cf-$${component}:latest-${BRANCH} ; \
 	done
 
@@ -144,7 +148,7 @@ publish:
 	for source_image in $$(fissile dev list-roles); do \
 		component=$${source_image%:*} && \
 		component=$${component#fissile-} && \
-		docker push helioncf/cf-$${component}:${APP_VERSION} && \
+		docker push helioncf/cf-$${component}:${APP_VERSION_TAG} && \
 		docker push helioncf/cf-$${component}:latest-${BRANCH} ; \
 	done
 
