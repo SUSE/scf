@@ -4,7 +4,7 @@
 run:
 
 CF_RELEASE ?= $(shell cat cf-release-version)
-UBUNTU_IMAGE ?= ubuntu:14.04.2
+UBUNTU_IMAGE ?= ubuntu:14.04
 WORK_DIR := ${CURDIR}/_work
 
 include version.mk
