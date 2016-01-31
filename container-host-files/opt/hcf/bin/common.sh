@@ -202,3 +202,22 @@ function list_processes_for_role() {
       fi
   done
 }
+
+# Reads all processes for a sepcific role from the role manifest
+# Uses shyaml for parsing
+# list_all_non_task_roles <ROLE_NAME>
+function list_processes_for_role() {
+  role_manifest=`readlink -f ""${BINDIR}/../../../etc/hcf/config/role-manifest.yml""`
+  role_name_filter=$1
+
+  cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
+      role_name=$(echo "${role_block}" | shyaml get-value name)
+
+      if [[ "${role_name}" == "${role_name_filter}" ]] ; then
+        while IFS= read -r -d '' process_block; do
+          process_name=$(echo "${process_block}" | shyaml get-value name)
+          echo $process_name
+        done < <(echo "${role_block}" | shyaml get-values-0 processes)
+      fi
+  done
+}

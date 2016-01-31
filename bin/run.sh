@@ -46,6 +46,9 @@ fi
 # TODO: replace with gato status
 sleep 10
 
+# Setup health checks
+${ROOT}/container-host-files/opt/hcf/bin/service_registration.bash 1
+
 # Start all other roles
 for image in "${other_images[@]}"
 do

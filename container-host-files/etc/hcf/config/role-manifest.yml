@@ -23,6 +23,14 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: cloud_controller_ng
+  - name: cloud_controller_worker_local_1
+  - name: cloud_controller_migration
+  - name: routing-api
+  - name: route_registrar
+  - name: metron_agent
+  - name: consul_agent
 - name: api_worker
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -33,6 +41,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: cloud_controller_worker_1
+  - name: metron_agent
+  - name: consul_agent
 - name: clock_global
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -43,6 +55,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: cloud_controller_clock
+  - name: metron_agent
+  - name: consul_agent
 - name: consul
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -52,6 +68,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: metron_agent
+  - name: consul_agent
 - name: doppler
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -67,6 +86,11 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: doppler
+  - name: route_registrar
+  - name: consul_agent
+  - name: syslog_drain_binder
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -80,6 +104,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: etcd_metrics_server
+  - name: etcd metron_agent
+  - name: consul_agent
 - name: ha_proxy
   jobs:
   - name: haproxy
@@ -88,6 +116,11 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: consul_template
+  - name: haproxy
+  - name: metron_agent
+  - name: consul_agent
 - name: hm9000
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -100,6 +133,17 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: route_registrar
+  - name: hm9000_fetcher
+  - name: hm9000_analyzer
+  - name: hm9000_sender
+  - name: hm9000_metrics_server
+  - name: hm9000_api_server
+  - name: hm9000_evacuator
+  - name: hm9000_shredder
+  - name: metron_agent
+  - name: consul_agent
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -113,6 +157,10 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: loggregator_trafficcontroller
+  - name: route_registrar
+  - name: consul_agent
 - name: nats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -126,6 +174,11 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: metron_agent
+  - name: consul_agent
+  - name: nats
+  - name: nats_stream_forwarder
 - name: postgres
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -137,6 +190,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: postgres
+  - name: metron_agent
+  - name: consul_agent
 - name: router
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -147,6 +204,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: gorouter
+  - name: metron_agent
+  - name: consul_agent
 - name: runner
   scripts:
   - prevent_apparmor_disable.sh
@@ -163,6 +224,13 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: warden
+  - name: dea_next
+  - name: dir_server
+  - name: metron_agent
+  - name: dea_logging_agent
+  - name: consul_agent
 - name: smoke_tests
   is_task: true
   scripts:
@@ -181,6 +249,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: collector
+  - name: metron_agent
+  - name: consul_agent
 - name: uaa
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -193,6 +265,9 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: uaa
+  - name: consul_agent
 - name: cf-usb
   jobs:
   - name: cf-usb
@@ -201,6 +276,10 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  processes:
+  - name: usb
+  - name: route_registrar
+  - name: consul_agent
 - name: diego_database
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -213,6 +292,11 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: bbs
+  - name: etcd
+  - name: metron_agent
+  - name: consul_agent
 - name: diego_brain
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -225,6 +309,11 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: converger
+  - name: auctioneer
+  - name: metron_agent
+  - name: consul_agent
 - name: diego_cell
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -239,6 +328,12 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: rootfses
+  - name: metron_agent
+  - name: consul_agent
+  - name: rep
+  - name: garden
 - name: diego_cc_bridge
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -255,6 +350,13 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: stager
+  - name: tps_watcher
+  - name: nsync_listener
+  - name: nsync_bulker
+  - name: metron_agent
+  - name: consul_agent
 - name: diego_route_emitter
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -265,6 +367,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  processes:
+  - name: route_emitter
+  - name: metron_agent
+  - name: consul_agent
 - name: diego_access
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -277,3 +383,8 @@ roles:
     release_name: cf
   - name: file_server
     release_name: diego
+  processes:
+  - name: file_server
+  - name: metron_agent
+  - name: ssh_proxy
+  - name: consul_agent

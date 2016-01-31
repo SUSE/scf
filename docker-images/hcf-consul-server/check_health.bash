@@ -19,9 +19,19 @@ if [[ "$?" != 0 ]]; then
   exit 2
 fi
 
+# Consul documentation (https://www.consul.io/docs/agent/checks.html)
+# says thet check scripts exit codes mean the following:
+# Exit code 0 - Check is passing
+# Exit code 1 - Check is warning
+# Any other code - Check is failing
+
 echo -n "$(date '+%Y-%m-%d %H:%M:%S')"
 for service_name in ${job_names}; do
-  service_health=$(echo "${monit_status}" | xmlstarlet sel -t -m "monit/service[name='${service_name}']" -v status)
+  {
+    service_health=$(echo "${monit_status}" | xmlstarlet sel -t -m "monit/service[name='${service_name}']" -v status)
+  } || {
+    service_health=2
+  }
   echo -n " ${service_name}=${service_health}"
   if [[ 0 != "${service_health}" ]]; then
     is_unhealthy=2
