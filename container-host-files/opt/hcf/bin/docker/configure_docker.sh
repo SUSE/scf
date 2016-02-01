@@ -24,7 +24,6 @@ opts=( --cluster-store=etcd://${ip_address}:3379
        --cluster-advertise=${cluster_advertise_ip}:2376
        --label=com.docker.network.driver.overlay.bind_interface=eth0
        ${neighbor_ip_label}
-       -H=${daemon_socket_address}:2376
        -H=unix:///var/run/docker.sock
        -s=devicemapper
        )

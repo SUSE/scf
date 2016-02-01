@@ -44,7 +44,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "15.126.242.125:5000"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "15.126.242.125"
   SHELL
 
   config.vm.provision :reload
