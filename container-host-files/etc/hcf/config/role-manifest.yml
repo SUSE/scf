@@ -121,29 +121,6 @@ roles:
   - name: haproxy
   - name: metron_agent
   - name: consul_agent
-- name: hm9000
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  jobs:
-  - name: hm9000
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: cf
-  processes:
-  - name: route_registrar
-  - name: hm9000_fetcher
-  - name: hm9000_analyzer
-  - name: hm9000_sender
-  - name: hm9000_metrics_server
-  - name: hm9000_api_server
-  - name: hm9000_evacuator
-  - name: hm9000_shredder
-  - name: metron_agent
-  - name: consul_agent
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -207,29 +184,6 @@ roles:
   processes:
   - name: gorouter
   - name: metron_agent
-  - name: consul_agent
-- name: runner
-  scripts:
-  - prevent_apparmor_disable.sh
-  - fix_local_ip_for_overlay_networking.sh
-  - fix_warden_local_ip_for_overlay_networking.sh
-  - write_dns_health_check_runner.sh
-  - clear_tmp_warden_cgroup.sh
-  jobs:
-  - name: dea_next
-    release_name: cf
-  - name: dea_logging_agent
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: warden
-  - name: dea_next
-  - name: dir_server
-  - name: metron_agent
-  - name: dea_logging_agent
   - name: consul_agent
 - name: smoke_tests
   is_task: true
@@ -316,6 +270,7 @@ roles:
   - name: consul_agent
 - name: diego_cell
   scripts:
+  - prevent_apparmor_disable.sh
   - fix_local_ip_for_overlay_networking.sh
   jobs:
   - name: rep

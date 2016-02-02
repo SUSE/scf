@@ -378,74 +378,6 @@ jobs:
   - name: nfs_mounter
     release: cf
   update: {}
-- instances: 1
-  name: hm9000_z1
-  networks:
-  - name: cf1
-  properties:
-    metron_agent:
-      zone: z1
-  resource_pool: medium_z1
-  templates:
-  - name: hm9000
-    release: cf
-  - name: metron_agent
-    release: cf
-  update: {}
-- instances: 0
-  name: hm9000_z2
-  networks:
-  - name: cf2
-  properties:
-    metron_agent:
-      zone: z2
-  resource_pool: medium_z2
-  templates:
-  - name: hm9000
-    release: cf
-  - name: metron_agent
-    release: cf
-  update: {}
-- instances: 1
-  name: runner_z1
-  networks:
-  - name: cf1
-    static_ips: null
-  properties:
-    dea_next:
-      zone: z1
-    metron_agent:
-      zone: z1
-  resource_pool: runner_z1
-  templates:
-  - name: dea_next
-    release: cf
-  - name: dea_logging_agent
-    release: cf
-  - name: metron_agent
-    release: cf
-  update:
-    max_in_flight: 1
-- instances: 0
-  name: runner_z2
-  networks:
-  - name: cf2
-    static_ips: null
-  properties:
-    dea_next:
-      zone: z2
-    metron_agent:
-      zone: z2
-  resource_pool: runner_z2
-  templates:
-  - name: dea_next
-    release: cf
-  - name: dea_logging_agent
-    release: cf
-  - name: metron_agent
-    release: cf
-  update:
-    max_in_flight: 1
 - instances: 0
   name: loggregator_z1
   networks:
@@ -852,25 +784,33 @@ properties:
       password: uaaadmin_password
       tag: admin
   dea_next:
+    # Commented-out lines are used only in roles to be dropped.
+    # Retained ones are preceded by the reason to keep.
+    
+    # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
-    allow_host_access: null
-    allow_networks: null
-    default_health_check_timeout: 60
-    deny_networks: null
-    directory_server_protocol: https
-    disk_mb: 2048
-    disk_overcommit_factor: 2
-    evacuation_bail_out_time_in_seconds: 600
-    heartbeat_interval_in_seconds: 10
-    instance_disk_inode_limit: 200000
-    kernel_network_tuning_enabled: true
-    logging_level: debug
-    memory_mb: 1024
-    memory_overcommit_factor: 3
-    rlimit_core: 0
-    staging_disk_inode_limit: 200000
+    # Used in cc_ng and cc_worker
     staging_disk_limit_mb: 6144
+    # Used in cc_ng and cc_worker
     staging_memory_limit_mb: 1024
+    
+    #allow_host_access: null
+    #allow_networks: null
+    #default_health_check_timeout: 60
+    #deny_networks: null
+    #directory_server_protocol: https
+    #disk_mb: 2048
+    #disk_overcommit_factor: 2
+    #evacuation_bail_out_time_in_seconds: 600
+    #heartbeat_interval_in_seconds: 10
+    #instance_disk_inode_limit: 200000
+    #kernel_network_tuning_enabled: true
+    #logging_level: debug
+    #memory_mb: 1024
+    #memory_overcommit_factor: 3
+    #mtu: null
+    #rlimit_core: 0
+    #staging_disk_inode_limit: 200000
   description: Cloud Foundry sponsored by Pivotal
   disk_quota_enabled: true
   domain: example.com
@@ -902,6 +842,7 @@ properties:
       password: nats_password
       username: nats_user
   hm9000:
+    # Used in cc_ng and cc_worker
     url: https://hm9000.example.com
   logger_endpoint:
     port: 4443
@@ -1179,26 +1120,6 @@ resource_pools:
     bosh:
       password: $6$4gDD3aV0rdqlrKC$2axHCxGKIObs6tAmMTqYCspcdvQXh3JJcvWOY2WGb4SrdXtnCyNaWlrf3WEqvYR2MYizEGp3kMmbpwBC6jsHt0
   name: large_z2
-  network: cf2
-  stemcell:
-    name: bosh-openstack-kvm-ubuntu-trusty-go_agent
-    version: latest
-- cloud_properties:
-    instance_type: m1.large
-  env:
-    bosh:
-      password: $6$4gDD3aV0rdqlrKC$2axHCxGKIObs6tAmMTqYCspcdvQXh3JJcvWOY2WGb4SrdXtnCyNaWlrf3WEqvYR2MYizEGp3kMmbpwBC6jsHt0
-  name: runner_z1
-  network: cf1
-  stemcell:
-    name: bosh-openstack-kvm-ubuntu-trusty-go_agent
-    version: latest
-- cloud_properties:
-    instance_type: m1.large
-  env:
-    bosh:
-      password: $6$4gDD3aV0rdqlrKC$2axHCxGKIObs6tAmMTqYCspcdvQXh3JJcvWOY2WGb4SrdXtnCyNaWlrf3WEqvYR2MYizEGp3kMmbpwBC6jsHt0
-  name: runner_z2
   network: cf2
   stemcell:
     name: bosh-openstack-kvm-ubuntu-trusty-go_agent
