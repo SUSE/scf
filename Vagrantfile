@@ -70,9 +70,14 @@ Vagrant.configure(2) do |config|
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
 
+    if [ ! -d "$DIRECTORY" ]; then
+      echo "Looks like the cf-release submodule was not initialized" >&2
+      echo "Did you run 'git submodule update --init --recursive'?" >&2
+      exit 1
+    fi
+
     # TODO: do not run this if it's already initted
     cd /home/vagrant/hcf
-    git submodule update --init
    /home/vagrant/hcf/src/cf-release/scripts/update
   SHELL
 end
