@@ -105,12 +105,14 @@ compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Compiling BOSH release packages)
 	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
 	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
-		mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}" ; \
-		rsync -a --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/" ; \
+		mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}" && \
+		rsync -rlD --exclude="/*/*/sources/***" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/" && \
+		( for i in ${FISSILE_WORK_DIR}/compilation/*/*/ ; do ( cd $$i ; echo unpack $$i ; [ -f compiled.tar ] && rm -rf compiled && tar xf compiled.tar && rm compiled.tar || true ) ; done ) ; \
 	fi
 	fissile dev compile
 	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
-		rsync -a --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+		( for i in ${FISSILE_WORK_DIR}/compilation/*/*/ ; do ( cd $$i ; echo pack $$i ; [ -d compiled ] && tar cf - compiled > compiled.tar && rm -rf compiled || true ) ; done ) && \
+		rsync -rlD --exclude="/*/*/sources/***" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
 	fi
 
 images: bosh-images hcf-images
