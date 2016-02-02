@@ -82,7 +82,6 @@ etcd-release:
 	$(call print_status, Creating etcd BOSH release ... )
 	bosh create release --dir ${CURDIR}/src/etcd-release --force --name etcd
 
-<<<<<<< 4563adfa93d414242635afadc83809dbc13738d6
 garden-release:
 	$(call print_status, Creating garden-linux BOSH release ... )
 	bosh create release --dir ${CURDIR}/src/garden-linux-release --force --name garden-linux
@@ -90,23 +89,6 @@ garden-release:
 releases: cf-release usb-release diego-release etcd-release garden-release
 
 ########## FISSILE BUILD TARGETS ##########
-=======
-fissile_compile_packages: fissile_create_config fissile_compilation_base
-	@echo "$(OK_COLOR)==> Compiling packages from all releases ... $(NO_COLOR)"
-	mkdir -p "$(HCF_PACKAGE_COMPILATION_CACHE)/" && \
-	mkdir -p "$(FISSILE_COMPILATION_DIR)/" && \
-	echo cache pull && \
-	time rsync -rlD --exclude="/*/*/sources/***" "$(HCF_PACKAGE_COMPILATION_CACHE)/" "$(FISSILE_COMPILATION_DIR)/" && \
-	( for i in $(FISSILE_COMPILATION_DIR)/*/*/ ; do ( cd $$i ; echo unpack $$i ; [ -f compiled.tar ] && rm -rf compiled && tar xf compiled.tar && rm compiled.tar || true ) ; done ) && \
-	fissile dev compile && \
-	( for i in $(FISSILE_COMPILATION_DIR)/*/*/ ; do ( cd $$i ; echo pack $$i ; [ -d compiled ] && tar cf - compiled > compiled.tar && rm -rf compiled || true ) ; done ) && \
-	echo cache push && \
-	time rsync -rlD --exclude="/*/*/sources/***" "$(FISSILE_COMPILATION_DIR)/" "$(HCF_PACKAGE_COMPILATION_CACHE)/"
-
-fissile_create_base:
-	@echo "$(OK_COLOR)==> Creating image base ... $(NO_COLOR)"
-	fissile images create-base
->>>>>>> [HCF-482] Save/restore tar files for the compiled/ directories.
 
 configs: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 
