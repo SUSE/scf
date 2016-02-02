@@ -5,7 +5,6 @@ run:
 
 CF_RELEASE ?= $(shell cat cf-release-version)
 UBUNTU_IMAGE ?= ubuntu:14.04
-WORK_DIR := ${CURDIR}/_work
 
 include version.mk
 
@@ -20,7 +19,7 @@ export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/rol
 export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/opinions.yml
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/config-opinions/cf-v${CF_RELEASE}/dark-opinions.yml
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
-export FISSILE_WORK_DIR ?= ${WORK_DIR}
+export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 
 ########## UTILITY TARGETS ##########
 
@@ -28,7 +27,7 @@ print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
 
 clean:
 	$(call print_status, Cleaning work directory)
-	rm -rf ${WORK_DIR}
+	rm -rf ${FISSILE_WORK_DIR}
 
 clean-harder: clean
 	$(call print_status, Cleaning docker containers)
@@ -44,7 +43,7 @@ print-version:
 
 ########## VAGRANT VM TARGETS ##########
 
-run: ${WORK_DIR}/hcf-config.tar.gz
+run: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Running HCF ...)
 	${CURDIR}/bin/run.sh
 
@@ -91,9 +90,9 @@ releases: cf-release usb-release diego-release etcd-release garden-release
 
 ########## FISSILE BUILD TARGETS ##########
 
-configs: ${WORK_DIR}/hcf-config.tar.gz
+configs: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 
-${WORK_DIR}/hcf-config.tar.gz:
+${FISSILE_WORK_DIR}/hcf-config.tar.gz:
 	$(call print_status, Generating configuration)
 	fissile dev config-gen
 	tar czf $@ -C ${FISSILE_WORK_DIR}/config/ hcf/
@@ -102,7 +101,7 @@ compile-base:
 	$(call print_status, Compiling build base image)
 	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
 
-compile: ${WORK_DIR}/hcf-config.tar.gz
+compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Compiling BOSH release packages)
 	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
 	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
@@ -152,8 +151,8 @@ publish:
 		docker push helioncf/cf-$${component}:latest-${BRANCH} ; \
 	done
 
-DIST_DIR := ${WORK_DIR}/hcf/terraform-scripts/
-terraform: ${WORK_DIR}/hcf-config.tar.gz
+DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
+terraform: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	mkdir -p ${DIST_DIR}/direct_internet
 	mkdir -p ${DIST_DIR}/proxied_internet
 	mkdir -p ${DIST_DIR}/templates
@@ -162,12 +161,12 @@ terraform: ${WORK_DIR}/hcf-config.tar.gz
 	cp -rL ${CURDIR}/terraform-scripts/hcf-proxied/* ${DIST_DIR}/proxied_internet/
 	cp -rL ${CURDIR}/terraform-scripts/templates/* ${DIST_DIR}/templates/
 
-	cp -rL ${CURDIR}/container-host-files ${WORK_DIR}/hcf/
+	cp -rL ${CURDIR}/container-host-files ${FISSILE_WORK_DIR}/hcf/
 
-	cp ${WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/direct_internet/
-	cp ${WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/proxied_internet/
+	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/direct_internet/
+	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/proxied_internet/
 
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/direct_internet/version.tf
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf
 
-	tar -chzvf ${WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${WORK_DIR} hcf
+	tar -chzvf ${FISSILE_WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${FISSILE_WORK_DIR} hcf
