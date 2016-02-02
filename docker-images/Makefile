@@ -2,9 +2,10 @@
 
 include ../version.mk
 
-BRANCH:=$(shell git rev-parse --short HEAD)
-BUILD:=$(shell whoami)-$(BRANCH)-$(shell date -u +%Y%m%d%H%M%S)
-APP_VERSION=$(VERSION)-$(BUILD)
+BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+COMMIT ?= $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
+APP_VERSION ?= ${VERSION}+${COMMIT}.${BRANCH}
+APP_VERSION_TAG ?= $(subst +,_,${APP_VERSION})
 
 
 all: hcf-consul-base hcf-consul-client hcf-consul-server

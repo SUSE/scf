@@ -30,7 +30,7 @@ fi
 wait_for_consul $consul_address
 
 # Import spec and opinion configurations
-run_consullin $consul_address $FISSILE_CONFIG_OUTPUT_DIR
+run_consullin $consul_address "${FISSILE_WORK_DIR}/hcf-config.tar.gz"
 
 # Import user and role configurations
 run_configs $consul_address $local_ip
