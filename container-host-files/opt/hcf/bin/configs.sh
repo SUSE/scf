@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
 
@@ -48,6 +47,7 @@ uaa_clients_login_secret="${uaa_clients_login_secret:-login_client_secret}"
 uaa_clients_notifications_secret="${uaa_clients_notifications_secret:-notification_secret}"
 uaa_clients_cc_routing_secret="${uaa_clients_cc_routing_secret:-cc_routing_secret}"
 uaa_clients_cf_usb_secret="${uaa_clients_cf_usb_secret:-cf_usb_secret}"
+uaa_clients_diego_ssh_proxy_secret="${uaa_clients_diego_ssh_proxy_secret:-ssh_proxy_secret}"
 bbs_active_key_label="${bbs_active_key_label:-key1}"
 bbs_active_key_passphrase="${bbs_active_key_passphrase:-key1_passphrase}"
 
@@ -202,11 +202,12 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
       -out "${etcd_peer_certs_dir}/certs/etcd-peer.crt" -infiles "${etcd_peer_certs_dir}/etcd-peer.csr"
   fi
 
-  if [ ! -f ${certs_path}/ssh.pem ] ; then
+  if [ ! -f ${certs_path}/ssh_key ] ; then
     # generate SSH Host certs
-    openssl genrsa -out "${certs_path}/ssh.pem" -passout pass:"${signing_key_passphrase}" 4096
+    ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
   fi
 )
+app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
 which gato >/dev/null || PATH=$PATH:/opt/hcf/bin
 # Setting role values
@@ -296,7 +297,6 @@ gato config set diego.ssh_proxy.bbs.api_location          'bbs.service.cf.intern
 gato config set diego.ssh_proxy.bbs.require_ssl           'true'
 gato config set diego.ssh_proxy.enable_cf_auth            'true'
 gato config set diego.ssh_proxy.enable_diego_auth         'false'
-gato config set diego.ssl.skip_cert_verify                'true'
 gato config set diego.stager.bbs.api_location             'bbs.service.cf.internal:8889'
 gato config set diego.stager.bbs.require_ssl              'true'
 gato config set diego.tps.bbs.api_location                'bbs.service.cf.internal:8889'
@@ -324,9 +324,11 @@ gato config set consul.require_ssl          "false"
 gato config set consul.encrypt_keys         "[]"
 gato config set cf-usb.skip_tsl_validation  'true'
 gato config set cf-usb.management.dev_mode  'true'
+gato config set diego.ssl.skip_cert_verify  'true'
 
 # Setting user values
 gato config set app_domains                                           "[\"${domain}\"]"
+gato config set app_ssh.host_key_fingerprint                          "${app_ssh_host_key_fingerprint}"
 gato config set cc.bulk_api_password                                  "${bulk_api_password}"
 gato config set cc.db_encryption_key                                  "${db_encryption_key}"
 gato config set cc.srv_api_uri                                        "https://api.${domain}"
@@ -364,6 +366,12 @@ gato config set uaa.clients.cc_routing.secret                         "${uaa_cli
 gato config set uaa.clients.doppler.secret                            "${uaa_clients_doppler_secret}"
 gato config set uaa.clients.cloud_controller_username_lookup.secret   "${uaa_cloud_controller_username_lookup_secret}"
 gato config set uaa.clients.gorouter.secret                           "${uaa_clients_gorouter_secret}"
+gato config set uaa.clients.ssh-proxy.secret                          "${uaa_clients_diego_ssh_proxy_secret}"
+gato config set uaa.clients.ssh-proxy.authorized-grant-types          "authorization_code"
+gato config set uaa.clients.ssh-proxy.scope                           "openid,cloud_controller.read,cloud_controller.write"
+gato config set uaa.clients.ssh-proxy.redirect-uri                    "/login"
+gato config set uaa.clients.ssh-proxy.autoapprove                     "true"
+gato config set uaa.clients.ssh-proxy.override                        "true"
 gato config set uaa.scim.users                                        "[\"${cluster_admin_username}|${cluster_admin_password}|${cluster_admin_authorities}\"]"
 gato config set uaadb.roles                                           "[{\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\": \"${uaadb_tag}\"}]"
 gato config set system_domain                                         "${domain}"
@@ -386,8 +394,9 @@ gato config set diego.nsync.cc.staging_upload_password                "${staging
 gato config set diego.nsync.cc.staging_upload_user                    "${staging_upload_user}"
 gato config set diego.route_emitter.nats.user                         "${nats_user}"
 gato config set diego.route_emitter.nats.password                     "${nats_password}"
-gato config set diego.ssh_proxy.servers                               "[${public_ip}]"
+gato config set diego.ssh_proxy.servers                               "[\"ssh-proxy.service.cf.internal\"]"
 gato config set diego.ssh_proxy.uaa_token_url                         "https://uaa.${domain}/oauth/token"
+gato config set diego.ssh_proxy.uaa_secret                            "${uaa_clients_diego_ssh_proxy_secret}"
 gato config set diego.stager.cc.base_url                              "https://api.${domain}"
 gato config set diego.stager.cc.basic_auth_username                   "${internal_api_user}"
 gato config set diego.stager.cc.basic_auth_password                   "${internal_api_password}"
@@ -406,7 +415,7 @@ gato config set hm9000.url                                            "https://h
 gato config set uaa.url                                               "https://uaa.${domain}"
 
 # pipecat: prepare files for being stored as a multi-line yaml string
-# Assumes `gato config set` verifies values are valid yaml strings, but 
+# Assumes `gato config set` verifies values are valid yaml strings, but
 # doesn't yaml-encode values for storing in consul.
 # Since both simple multi-line strings and literal-(pipe)-introduced
 # indented multi-line strings are both valid YAML, we need to convert
@@ -434,7 +443,8 @@ pipecat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set-file etcd.cl
 pipecat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set-file diego.bbs.etcd.client_cert -
 pipecat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set-file etcd.ca_cert -
 pipecat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set-file diego.bbs.etcd.ca_cert -
-pipecat "${certs_path}/ssh.pem" | gato config set-file diego.ssh_proxy.host_key -
+# The "host key" mentioned here is actually an RSA private key file, with no passphrase
+pipecat "${certs_path}/ssh_key" | gato config set-file diego.ssh_proxy.host_key -
 pipecat "${bbs_certs_dir}/private/bbs-server.key" | gato config set-file diego.bbs.server_key -
 pipecat "${bbs_certs_dir}/private/bbs-client.key" | gato config set-file diego.tps.bbs.client_key -
 pipecat "${bbs_certs_dir}/private/bbs-client.key" | gato config set-file diego.stager.bbs.client_key -

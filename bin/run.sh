@@ -64,7 +64,7 @@ do
       extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
       ;;
     "ha_proxy")
-      extra="-p 80:80 -p 443:443 -p 4443:4443"
+      extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
       ;;
     "runner")
       extra="--cap-add=ALL -v /lib/modules:/lib/modules"
