@@ -64,11 +64,15 @@ do
 
   echo "Registering health checks for ${role}"
 
+  # There's some bug in Docker 1.9.1. Running anything without --privileged in
+  # our setup results in an error:
+  # Cannot start container: [8] System error: no such file or directory
+  monit_contents=$(docker run --rm --privileged --entrypoint "bash" $image_name -c \
+    "find /var/vcap/jobs-src -name monit -exec cat {} \;")
   # Parse all the monit files inside the containers, so we know what to monitor
   # In the case of process names ending with "<%=", which is the beginning of an
   # erb block, we assume we need an index and we place a 0.
-  processes=$(docker run --rm --privileged --entrypoint "bash" $image_name -c \
-    "find /var/vcap/jobs-src -name monit -exec cat {} \; | grep ^check\ process | awk '{print \$3}' | sed s/\<\%\=/0/g")
+  processes=$(echo "${monit_contents}" | awk '/^check\ process/ {print \$3}' | sed s/\<\%\=/0/g)
 
   register_role -1 $role $processes
 done

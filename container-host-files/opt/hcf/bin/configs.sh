@@ -443,6 +443,7 @@ pipecat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set-file etcd.cl
 pipecat "${etcd_certs_dir}/certs/etcd-client.crt" | gato config set-file diego.bbs.etcd.client_cert -
 pipecat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set-file etcd.ca_cert -
 pipecat "${etcd_certs_dir}/certs/etcd-ca.crt" | gato config set-file diego.bbs.etcd.ca_cert -
+# The "host key" mentioned here is actually an RSA private key file, with no passphrase
 pipecat "${certs_path}/ssh_key" | gato config set-file diego.ssh_proxy.host_key -
 pipecat "${bbs_certs_dir}/private/bbs-server.key" | gato config set-file diego.bbs.server_key -
 pipecat "${bbs_certs_dir}/private/bbs-client.key" | gato config set-file diego.tps.bbs.client_key -
