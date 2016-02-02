@@ -89,7 +89,8 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
     openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
   fi
-)
+) &> /dev/null
+
 (
   if [ ! -f ${bbs_certs_dir}/certs/bbs-client.crt ] ; then
     # generate BBS certs
@@ -206,7 +207,7 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     # generate SSH Host certs
     ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
   fi
-)
+) &> /dev/null
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
 which gato >/dev/null || PATH=$PATH:/opt/hcf/bin
@@ -471,3 +472,10 @@ pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.nsync.b
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.converger.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.auctioneer.bbs.ca_cert -
+
+echo -e "Your Helion Cloud Foundry endpoint is: \e[1;96mhttps://api.${domain}\e[0m"
+echo -e "  Run the following command to target it: \e[1;96mcf api --skip-ssl-validation https://api.${domain}\e[0m"
+echo -e "The Universal Service Broker endpoint is: \e[1;96mhttps://usb.${domain}\e[0m"
+echo -e "Your administrative credentials are:"
+echo -e "  Username: \e[1;96m${cluster_admin_username}\e[0m"
+echo -e "  Password: \e[1;96m${cluster_admin_password}\e[0m"

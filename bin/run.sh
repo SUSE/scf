@@ -33,7 +33,7 @@ wait_for_consul $consul_address
 run_consullin $consul_address "${FISSILE_WORK_DIR}/hcf-config.tar.gz"
 
 # Import user and role configurations
-run_configs $consul_address $local_ip
+cluster_info=$(run_configs $consul_address $local_ip)
 
 # Manage the consul role ...
 image=$consul_image
@@ -83,5 +83,13 @@ do
 
   handle_restart "$image" "$hcf_overlay_gateway" "$extra" || true
 done
+
+echo -e "\n\n\nDone, all containers have started.\n"
+
+# Print cluster information retrieved from configs.sh
+echo -e "${cluster_info}"
+
+echo -e "\nIt may take some time for everything to come online."
+echo -e "You can use \e[1;96mgato status\e[0m to check if everything is up and running.\n"
 
 exit 0
