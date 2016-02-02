@@ -40,7 +40,7 @@ function register_role {
     "name": "${role_name}", "tags": ["${tag_name}"],
     "check": {
       "id": "${role_name}_check", "interval": "30s",
-      "script": "/opt/hcf/bin/check_health.bash ${monit_addr} consul_agent metron_agent ${job_names}"
+      "script": "/opt/hcf/bin/check_health.bash ${monit_addr} ${job_names}"
     }
   }
 EOM
@@ -58,21 +58,26 @@ EOM
 EOM
 }
 
+function deregister_all_roles()
+{
+  curl -s ${consul_addr}/v1/agent/services | shyaml values-0 | while IFS= read -r -d '' service_block; do
+    service_id=$(echo "${service_block}" | shyaml get-value ID)
+    if [[ "${service_id}" != "consul" ]] ; then
+      # echo "Deregistering service health check '$service_id'"
+      curl -s ${consul_addr}/v1/agent/service/deregister/${service_id}
+    fi
+  done
+}
+
+deregister_all_roles
+
 list_all_non_task_roles | while read role
 do
-  image_name=$(get_image_name "${role}")
+  # echo "Registering health checks for ${role}"
 
-  echo "Registering health checks for ${role}"
-
-  # There's some bug in Docker 1.9.1. Running anything without --privileged in
-  # our setup results in an error:
-  # Cannot start container: [8] System error: no such file or directory
-  monit_contents=$(docker run --rm --privileged --entrypoint "bash" $image_name -c \
-    "find /var/vcap/jobs-src -name monit -exec cat {} \;")
-  # Parse all the monit files inside the containers, so we know what to monitor
-  # In the case of process names ending with "<%=", which is the beginning of an
-  # erb block, we assume we need an index and we place a 0.
-  processes=$(echo "${monit_contents}" | awk '/^check\ process/ {print \$3}' | sed s/\<\%\=/0/g)
+  processes=$(list_processes_for_role $role)
+  processes=$(echo ${processes})
+  # echo -e "  Registered processes: ${processes}"
 
   register_role -1 $role $processes
 done

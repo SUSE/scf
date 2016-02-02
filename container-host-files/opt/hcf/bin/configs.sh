@@ -249,8 +249,7 @@ gato config set --role etcd                           etcd.client_key           
 gato config set --role etcd                           etcd.server_cert                            'null'
 gato config set --role etcd                           etcd.client_cert                            'null'
 gato config set --role etcd                           etcd.ca_cert                                'null'
-
-
+gato config set --role api                            etcd.machines                               '["etcdlog.service.cf.internal"]'
 
 # Constants
 #gato config set consul.agent.servers.lan                  '["cf-consul.hcf"]'
