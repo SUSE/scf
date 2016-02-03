@@ -2,6 +2,24 @@
 
 Build infrastructure for HCF 1.0
 
+Before creating any VMs, do the following step in parallel with the
+others in order to pull down all the cf-release and related
+submodules. Otherwise vagrant (or others) won't see the mounted
+submodules.
+
+```bash
+ cd src
+ for dir in * ; do
+   cd $dir
+   git submodule init
+   git submodule update --recursive
+   test -x scripts/update && bash -ex scripts/update
+   cd ..
+ done
+``` 
+
+This should prevent errors similar to "Package 'etcd' has a glob that resolves to an empty file list: github.com/coreos/etcd/**/*" while running `make vagrant-prep`  
+
 ## Development on OSX with VMWare Fusion
 
 1. Install VMware Fusion 7
