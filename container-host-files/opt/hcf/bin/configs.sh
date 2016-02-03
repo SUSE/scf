@@ -89,7 +89,7 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
     openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
   fi
-) &> /dev/null
+) > /dev/null
 
 (
   if [ ! -f ${bbs_certs_dir}/certs/bbs-client.crt ] ; then
@@ -207,7 +207,7 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     # generate SSH Host certs
     ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
   fi
-) &> /dev/null
+) > /dev/null
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
 which gato >/dev/null || PATH=$PATH:/opt/hcf/bin

@@ -43,6 +43,12 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
 
   config.vm.provision "shell", inline: <<-SHELL
+    if [ ! -d "/home/vagrant/hcf/src/cf-release/.git" ]; then
+      echo "Looks like the cf-release submodule was not initialized" >&2
+      echo "Did you run 'git submodule update --init --recursive'?" >&2
+      exit 1
+    fi
+  
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "192.168.77.77"
   SHELL
@@ -69,12 +75,6 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
-
-    if [ ! -d "$DIRECTORY" ]; then
-      echo "Looks like the cf-release submodule was not initialized" >&2
-      echo "Did you run 'git submodule update --init --recursive'?" >&2
-      exit 1
-    fi
 
     # TODO: do not run this if it's already initted
     cd /home/vagrant/hcf
