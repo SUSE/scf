@@ -43,7 +43,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
 
   config.vm.provision "shell", inline: <<-SHELL
-    if [ ! -d "/home/vagrant/hcf/src/cf-release/.git" ]; then
+    if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
       echo "Looks like the cf-release submodule was not initialized" >&2
       echo "Did you run 'git submodule update --init --recursive'?" >&2
       exit 1
