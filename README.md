@@ -11,6 +11,7 @@ submodules.
  cd src
  for dir in * ; do
    cd $dir
+   # `git submodule update --init --recursive` failed sometimes - no idea why
    git submodule init
    git submodule update --recursive
    test -x scripts/update && bash -ex scripts/update
