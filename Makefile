@@ -101,19 +101,25 @@ compile-base:
 	$(call print_status, Compiling build base image)
 	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
 
-compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
-	$(call print_status, Compiling BOSH release packages)
+# This is run from the Vagrantfile to copy in the existing compilation cache
+copy-compile-cache:
+	$(call print_status, Copying compilation cache)
 	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
 ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
-	rsync -rl --exclude="*" --include="/*/*/compiled.tar" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
+	# rsync takes the first match; need to explicitly include parent directories in order to include the children.
+	rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
 	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled.tar ; do \
+		[ -e $${i} ] || continue ; \
 		i=$$(dirname $${i}) ; \
 		echo unpack $${i} ; \
 		rm -rf $${i}/compiled ; \
 		tar xf $${i}/compiled.tar -C "$${i}" ; \
 	done ; true
 endif
+
+compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
+	$(call print_status, Compiling BOSH release packages)
 	fissile dev compile
 ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \
@@ -121,7 +127,8 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 		echo pack $${i} ; \
 		tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
 	done
-	rsync -rl --exclude="*" --include="/*/*/compiled.tar" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
+	# rsync takes the first match; need to explicitly include parent directories in order to include the children.
+	rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
 endif
 
 images: bosh-images hcf-images
