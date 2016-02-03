@@ -13,3 +13,6 @@
 [submodule "src/etcd-release"]
 	path = src/etcd-release
 	url = https://github.com/hpcloud/etcd-release
+[submodule "src/cf-mysql-release"]
+	path = src/cf-mysql-release
+	url = https://github.com/hpcloud/cf-mysql-release.git
