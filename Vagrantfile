@@ -56,6 +56,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision :reload
 
   config.vm.provision "shell", inline: <<-SHELL
+    set -e
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
     /home/vagrant/hcf/bin/dev/install_bosh.sh
     # Install development tools
@@ -72,12 +73,18 @@ Vagrant.configure(2) do |config|
     chown vagrant /home/vagrant/tmp
   SHELL
 
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -e
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
+  SHELL
 
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    # Start a new shell to pick up .profile changes
+    set -e
     # TODO: do not run this if it's already initted
     cd /home/vagrant/hcf
-   /home/vagrant/hcf/src/cf-release/scripts/update
+    /home/vagrant/hcf/src/cf-release/scripts/update
+    make copy-compile-cache
   SHELL
 end
