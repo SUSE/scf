@@ -104,16 +104,25 @@ compile-base:
 compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Compiling BOSH release packages)
 	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
-	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
-		mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}" && \
-		rsync -rlD --exclude="/*/*/sources/***" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/" && \
-		( for i in ${FISSILE_WORK_DIR}/compilation/*/*/ ; do ( cd $$i ; echo unpack $$i ; [ -f compiled.tar ] && rm -rf compiled && tar xf compiled.tar && rm compiled.tar || true ) ; done ) ; \
-	fi
+ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
+	mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
+	rsync -rl --exclude="*" --include="/*/*/compiled.tar" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
+	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled.tar ; do \
+		i=$$(dirname $${i}) ; \
+		echo unpack $${i} ; \
+		rm -rf $${i}/compiled ; \
+		tar xf $${i}/compiled.tar -C "$${i}" ; \
+	done ; true
+endif
 	fissile dev compile
-	if [ -n "${HCF_PACKAGE_COMPILATION_CACHE}" ] ; then \
-		( for i in ${FISSILE_WORK_DIR}/compilation/*/*/ ; do ( cd $$i ; echo pack $$i ; [ -d compiled ] && tar cf - compiled > compiled.tar && rm -rf compiled || true ) ; done ) && \
-		rsync -rlD --exclude="/*/*/sources/***" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
-	fi
+ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
+	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \
+		i=$$(dirname $${i}) ; \
+		echo pack $${i} ; \
+		tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
+	done
+	rsync -rl --exclude="*" --include="/*/*/compiled.tar" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
+endif
 
 images: bosh-images hcf-images
 
