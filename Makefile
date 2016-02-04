@@ -43,7 +43,7 @@ print-version:
 
 ########## VAGRANT VM TARGETS ##########
 
-run: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
+run: configs
 	$(call print_status, Running HCF ...)
 	${CURDIR}/bin/run.sh
 
@@ -86,16 +86,18 @@ garden-release:
 	$(call print_status, Creating garden-linux BOSH release ... )
 	bosh create release --dir ${CURDIR}/src/garden-linux-release --force --name garden-linux
 
-releases: cf-release usb-release diego-release etcd-release garden-release
+mysql-release:
+	$(call print_status, Creating cf-mysql-release BOSH release ... )
+	bosh create release --dir ${CURDIR}/src/cf-mysql-release --force --name cf-mysql
+
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release
 
 ########## FISSILE BUILD TARGETS ##########
 
-configs: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
-
-${FISSILE_WORK_DIR}/hcf-config.tar.gz:
+configs:
 	$(call print_status, Generating configuration)
 	fissile dev config-gen
-	tar czf $@ -C ${FISSILE_WORK_DIR}/config/ hcf/
+	tar czf ${FISSILE_WORK_DIR}/hcf-config.tar.gz -C ${FISSILE_WORK_DIR}/config/ hcf/
 
 compile-base:
 	$(call print_status, Compiling build base image)
@@ -170,7 +172,7 @@ publish:
 	done
 
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
-terraform: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
+terraform: configs
 	mkdir -p ${DIST_DIR}/direct_internet
 	mkdir -p ${DIST_DIR}/proxied_internet
 	mkdir -p ${DIST_DIR}/templates
