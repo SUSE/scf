@@ -68,27 +68,27 @@ vagrant-prep: \
 
 cf-release:
 	$(call print_status, Creating cf-release BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/cf-release --force --name cf
+	${CURDIR}/bin/create-release.sh src/cf-release cf
 
 usb-release:
 	$(call print_status, Creating cf-usb BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/cf-usb/cf-usb-release --force --name cf-usb
+	${CURDIR}/bin/create-release.sh src/cf-usb/cf-usb-release cf-usb
 
 diego-release:
 	$(call print_status, Creating diego BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/diego-release --force --name diego
+	${CURDIR}/bin/create-release.sh src/diego-release diego
 
 etcd-release:
 	$(call print_status, Creating etcd BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/etcd-release --force --name etcd
+	${CURDIR}/bin/create-release.sh src/etcd-release etcd
 
 garden-release:
 	$(call print_status, Creating garden-linux BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/garden-linux-release --force --name garden-linux
+	${CURDIR}/bin/create-release.sh src/garden-linux-release garden-linux
 
 mysql-release:
 	$(call print_status, Creating cf-mysql-release BOSH release ... )
-	bosh create release --dir ${CURDIR}/src/cf-mysql-release --force --name cf-mysql
+	${CURDIR}/bin/create-release.sh src/cf-mysql-release cf-mysql
 
 releases: cf-release usb-release diego-release etcd-release garden-release mysql-release
 

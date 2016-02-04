@@ -32,5 +32,7 @@ chmod +x $bin_dir/cf
 
 echo "Pulling base image ..."
 docker pull $ubuntu_image
+echo "Pulling ruby bosh image ..."
+docker pull helioncf/hcf-pipeline-ruby-bosh
 
 echo "Done."
