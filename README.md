@@ -44,26 +44,38 @@ Build infrastructure for HCF 1.0
 
 1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
 1. Install dependencies
-```bash
-sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
-```
+ ```bash
+ sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+ ```
+
 1. Allow non-root access to libvirt
-```bash
-sudo usermod -G libvirtd -a YOUR_USER
-```
+ ```bash
+ sudo usermod -G libvirtd -a YOUR_USER
+ ```
+
 1. Logout & Login
 1. Install the `libvirt` plugin for Vagrant
-```bash
-vagrant plugin install vagrant-libvirt
-```
+ ```bash
+ vagrant plugin install vagrant-libvirt
+ ```
+
 1. Install vagrant-reload plugin
  ```bash
  vagrant plugin install vagrant-reload
  ```
+
 1. Bring it online (may fail a few times)
-```bash
-sudo vagrant up --provider libvirt
-```
+ ```bash
+ vagrant up --provider libvirt
+ ```
+
+1. Run HCF in the vagrant box
+ ```bash
+ vagrant ssh
+ cd ~/hcf
+ make vagrant-prep  # Only needed once
+ make run
+ ```
 
 ## Windows (Currently not working, do not try this at home)
 
