@@ -156,21 +156,21 @@ roles:
   - name: consul_agent
   - name: nats
   - name: nats_stream_forwarder
-- name: postgres
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - write_dns_health_check_postgres.sh
-  jobs:
-  - name: postgres
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: postgres
-  - name: metron_agent
-  - name: consul_agent
+# - name: postgres
+#   scripts:
+#   - fix_local_ip_for_overlay_networking.sh
+#   - write_dns_health_check_postgres.sh
+#   jobs:
+#   - name: postgres
+#     release_name: cf
+#   - name: consul_agent
+#     release_name: cf
+#   - name: metron_agent
+#     release_name: cf
+#   processes:
+#   - name: postgres
+#   - name: metron_agent
+#   - name: consul_agent
 - name: router
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -343,3 +343,27 @@ roles:
   - name: metron_agent
   - name: ssh_proxy
   - name: consul_agent
+- name: mysql
+  scripts:
+  - write_dns_health_check_mysql.sh
+  jobs:
+  - name: mysql
+    release_name: cf-mysql
+  - name: consul_agent
+    release_name: cf
+  processes:
+  - name: consul_agent
+  - name: mariadb_ctrl
+  - name: galera-healthcheck
+  - name: gra-log-purger-executable
+- name: mysql_proxy
+  scripts:
+  - write_dns_health_check_mysql_proxy.sh
+  jobs:
+  - name: proxy
+    release_name: cf-mysql
+  - name: consul_agent
+    release_name: cf
+  processes:
+  - name: consul_agent
+  - name: switchboard
