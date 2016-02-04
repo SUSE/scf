@@ -104,37 +104,39 @@ Then, for all submodules: `git submodule foreach --recursive git config core.sym
 
 ### Vagrant VM Targets
 
-name			| effect
---------------- | -
-`run`			| Set up HCF on the current node (`bin/run.sh`)
-`stop`			| Stop HCF on the current node
-`vagrant-box`	| Build the vagrant box image via packer
-`vagrant-prep`	| Shortcut for building everything needed for `make run`
+name			| effect |
+--------------- | ---- |
+`run`			| Set up HCF on the current node (`bin/run.sh`) |
+`stop`			| Stop HCF on the current node |
+`vagrant-box`	| Build the vagrant box image via packer |
+`vagrant-prep`	| Shortcut for building everything needed for `make run` |
 
 ### BOSH Release Targets
-name				| effect
-------------------- | -
-`cf-release`		| `bosh create release` for `cf-release`
-`usb-release`		| `bosh create release` for `cf-usb-release`
-`diego-release`		| `bosh create release` for `diego-release`
-`etcd-release`		| `bosh create release` for `etcd-release`
-`garden-release`	| `bosh create release` for `garden-linux-release`
-`releases`			| Make all BOSH releases above
+
+name				| effect |
+------------------- | ----  |
+`cf-release`		| `bosh create release` for `cf-release` |
+`usb-release`		| `bosh create release` for `cf-usb-release` |
+`diego-release`		| `bosh create release` for `diego-release` |
+`etcd-release`		| `bosh create release` for `etcd-release` |
+`garden-release`	| `bosh create release` for `garden-linux-release` |
+`releases`			| Make all BOSH releases above |
 
 ### Fissile Build Targets
-name			| effect
---------------- | -
-`build`			| `make configs` + `make images`
-`configs`		| `fissile dev config-gen`
-`compile-base`	| `fissile compilation build-base`
-`compile`		| `fissile dev compile`
-`images`		| `make bosh-image` + `make hcf-images`
-`image-base`	| `fissile images create-base`
-`bosh-images`	| `fissile dev create-images`
-`hcf-images`	| `make build` in docker-images
-`tag`			| Tag HCF images + bosh role images
-`publish`		| Publish HCF images + bosh role images to docker hub
-`terraform`		| Make `hcf-*.tar.gz` for distribution
+
+name			| effect |
+--------------- | ---- |
+`build`			| `make configs` + `make images` |
+`configs`		| `fissile dev config-gen` |
+`compile-base`	| `fissile compilation build-base` |
+`compile`		| `fissile dev compile` |
+`images`		| `make bosh-image` + `make hcf-images` |
+`image-base`	| `fissile images create-base` |
+`bosh-images`	| `fissile dev create-images` |
+`hcf-images`	| `make build` in docker-images |
+`tag`			| Tag HCF images + bosh role images |
+`publish`		| Publish HCF images + bosh role images to docker hub |
+`terraform`		| Make `hcf-*.tar.gz` for distribution |
 
 ## Build dependencies
 
