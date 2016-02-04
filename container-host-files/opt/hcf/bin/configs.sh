@@ -50,8 +50,9 @@ uaa_clients_cf_usb_secret="${uaa_clients_cf_usb_secret:-cf_usb_secret}"
 uaa_clients_diego_ssh_proxy_secret="${uaa_clients_diego_ssh_proxy_secret:-ssh_proxy_secret}"
 bbs_active_key_label="${bbs_active_key_label:-key1}"
 bbs_active_key_passphrase="${bbs_active_key_passphrase:-key1_passphrase}"
-
-
+mysql_admin_password="${mysql_admin_password:-mysql_admin_password}"
+mysql_proxy_admin_password="${mysql_proxy_admin_password:-mysql_proxy_admin_password}"
+mysql_bootstrap_endpoint_password="${mysql_bootstrap_endpoint_password:-mysql_bootstrap_endpoint_password}"
 uaa_cloud_controller_username_lookup_secret="${uaa_cloud_controller_username_lookup_secret:-cloud_controller_username_lookup_secret}"
 uaadb_password="${uaadb_password:-uaaadmin_password}"
 uaadb_tag="${uaadb_tag:-admin}"
@@ -233,6 +234,8 @@ gato config set --role diego_cell                     consul.agent.services.dieg
 gato config set --role diego_route_emitter            consul.agent.services.diego_route_emitter   '{}'
 gato config set --role diego_access                   consul.agent.services.file_server           '{}'
 gato config set --role diego_access                   consul.agent.services.ssh_proxy             '{}'
+gato config set --role mysql                          consul.agent.services.mysql                 '{}'
+gato config set --role mysql_proxy                    consul.agent.services.mysql_proxy           '{}'
 gato config set --role uaa                            route_registrar.routes                      "[{\"name\": \"uaa\", \"port\":\"8080\", \"tags\":{\"component\":\"uaa\"}, \"uris\":[\"uaa.${domain}\", \"*.uaa.${domain}\", \"login.${domain}\", \"*.login.${domain}\"]}]"
 gato config set --role api                            route_registrar.routes                      "[{\"name\":\"api\",\"port\":\"9022\",\"tags\":{\"component\":\"CloudController\"},\"uris\":[\"api.${domain}\"]}]"
 gato config set --role hm9000                         route_registrar.routes                      "[{\"name\":\"hm9000\",\"port\":\"5155\",\"tags\":{\"component\":\"HM9K\"},\"uris\":[\"hm9000.${domain}\"]}]"
@@ -251,6 +254,29 @@ gato config set --role etcd                           etcd.server_cert          
 gato config set --role etcd                           etcd.client_cert                            'null'
 gato config set --role etcd                           etcd.ca_cert                                'null'
 gato config set --role api                            etcd.machines                               '["etcdlog.service.cf.internal"]'
+# MySQL configs, forcibly namespaced
+gato config set --role mysql_proxy                    cluster_ips                                 '["mysql.service.cf.internal"]'
+gato config set --role mysql_proxy                    database_startup_timeout                    '300'
+gato config set --role mysql_proxy                    network_name                                'default'
+gato config set --role mysql_proxy                    proxy.api_username                          'mysql_proxy'
+gato config set --role mysql_proxy                    proxy.proxy_ips                             '["mysql-proxy.service.cf.internal"]'
+gato config set --role mysql_proxy                    bootstrap_endpoint.username                 'bootstrap_user'
+gato config set --role mysql                          cluster_ips                                 '["mysql.service.cf.internal"]'
+gato config set --role mysql                          database_startup_timeout                    '300'
+gato config set --role mysql                          network_name                                'default'
+gato config set --role mysql                          proxy.api_username                          'mysql_proxy'
+gato config set --role mysql                          proxy.proxy_ips                             '["mysql-proxy.service.cf.internal"]'
+gato config set --role mysql                          bootstrap_endpoint.username                 'bootstrap_user'
+gato config set --role mysql_proxy                    admin_password                              "${mysql_admin_password}"
+gato config set --role mysql_proxy                    external_host                               "${domain}"
+gato config set --role mysql_proxy                    proxy.api_password                          "${mysql_proxy_admin_password}"
+gato config set --role mysql_proxy                    bootstrap_endpoint.password                 "${mysql_bootstrap_endpoint_password}"
+gato config set --role mysql_proxy                    seeded_databases                            "[{\"name\": \"ccdb\",\"username\": \"${ccdb_role_name}\",\"password\": \"${ccdb_role_password}\"},{\"name\": \"uaadb\",\"username\": \"${uaadb_username}\",\"password\": \"${uaadb_password}\"}]"
+gato config set --role mysql                          admin_password                              "${mysql_admin_password}"
+gato config set --role mysql                          external_host                               "${domain}"
+gato config set --role mysql                          proxy.api_password                          "${mysql_proxy_admin_password}"
+gato config set --role mysql                          bootstrap_endpoint.password                 "${mysql_bootstrap_endpoint_password}"
+gato config set --role mysql                          seeded_databases                            "[{\"name\": \"ccdb\",\"username\": \"${ccdb_role_name}\",\"password\": \"${ccdb_role_password}\"},{\"name\": \"uaadb\",\"username\": \"${uaadb_username}\",\"password\": \"${uaadb_password}\"}]"
 
 # Constants
 #gato config set consul.agent.servers.lan                  '["cf-consul.hcf"]'
@@ -265,8 +291,12 @@ gato config set etcd.cluster                              '[{"instances": 1, "na
 gato config set loggregator.etcd.machines                 '["etcdlog.service.cf.internal"]'
 gato config set router.servers.z1                         '["gorouter.service.cf.internal"]'
 gato config set dea_next.kernel_network_tuning_enabled    'false'
-
-
+gato config set ccdb.port                                 '3306'
+gato config set ccdb.address                              'mysql-proxy.service.cf.internal'
+gato config set ccdb.db_scheme                            'mysql'
+gato config set uaadb.port                                '3306'
+gato config set uaadb.address                             'mysql-proxy.service.cf.internal'
+gato config set uaadb.db_scheme                           'mysql'
 gato config set diego.auctioneer.bbs.require_ssl          'true'
 gato config set diego.auctioneer.bbs.api_location         'bbs.service.cf.internal:8889'
 gato config set diego.bbs.auctioneer.api_url              'http://auctioneer.service.cf.internal:9016'
@@ -314,14 +344,16 @@ gato config set cc.default_to_diego_backend               'true'
 # TODO: Take this out, and place our generated CA cert
 # into the appropriate /usr/share/ca-certificates folders
 # and call update-ca-certificates at container startup
-gato config set ssl.skip_cert_verify        'true'
-gato config set disk_quota_enabled          'false'
-gato config set metron_agent.deployment     "hcf-deployment"
-gato config set consul.require_ssl          "false"
-gato config set consul.encrypt_keys         "[]"
-gato config set cf-usb.skip_tsl_validation  'true'
-gato config set cf-usb.management.dev_mode  'true'
-gato config set diego.ssl.skip_cert_verify  'true'
+gato config set ssl.skip_cert_verify                      'true'
+gato config set disk_quota_enabled                        'false'
+gato config set metron_agent.deployment                   'hcf-deployment'
+gato config set consul.require_ssl                        'false'
+gato config set consul.encrypt_keys                       '[]'
+gato config set cf-usb.skip_tsl_validation                'true'
+gato config set cf-usb.management.dev_mode                'true'
+gato config set diego.ssl.skip_cert_verify                'true'
+gato config set --role mysql_proxy proxy.api_force_https  'false'
+gato config set --role mysql_proxy skip_ssl_validation    'true'
 
 # Setting user values
 gato config set app_domains                                           "[\"${domain}\"]"
@@ -333,6 +365,8 @@ gato config set cc.staging_upload_user                                "${staging
 gato config set cc.staging_upload_password                            "${staging_upload_password}"
 gato config set cc.internal_api_user                                  "${internal_api_user}"
 gato config set cc.internal_api_password                              "${internal_api_password}"
+gato config set ccdb.roles                                            "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
+gato config set uaadb.roles                                           "[{\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\": \"${uaadb_tag}\"}]"
 gato config set domain                                                "${domain}"
 gato config set doppler.zone                                          "${doppler_zone}"
 gato config set doppler_endpoint.shared_secret                        "${loggregator_shared_secret}"
@@ -466,57 +500,6 @@ pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.nsync.b
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.converger.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.auctioneer.bbs.ca_cert -
-
-
-
-gato config set ccdb.roles                                            "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
-gato config set databases.roles                                       "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\",\"tag\": \"${ccdb_role_tag}\"}, {\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\":\"${uaadb_tag}\"}]"
-gato config set uaadb.roles                                           "[{\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\": \"${uaadb_tag}\"}]"
-
-
-gato config set databases.databases                       '[{"citext":true, "name":"ccdb", "tag":"cc"}, {"citext":true, "name":"uaadb", "tag":"uaa"}]'
-gato config set databases.port                            '3306'
-gato config set ccdb.port                                 '3306'
-gato config set uaadb.port                                '3306'
-gato config set ccdb.address                              'mysql-proxy.service.cf.internal'
-gato config set databases.address                         'mysql-proxy.service.cf.internal'
-gato config set uaadb.address                             'mysql-proxy.service.cf.internal'
-gato config set ccdb.db_scheme                              'mysql'
-gato config set databases.db_scheme                         'mysql'
-gato config set uaadb.db_scheme                             'mysql'
-
-
-gato config set --role mysql                       consul.agent.services.mysql              '{}'
-gato config set --role mysql_proxy                           consul.agent.services.mysql_proxy               '{}'
-
-gato config set --role mysql admin_password 'changeme'
-gato config set --role mysql cluster_ips '["mysql.service.cf.internal"]'
-gato config set --role mysql database_startup_timeout "300"
-gato config set --role mysql external_host '192.168.77.77.nip.io'
-gato config set --role mysql network_name 'default'
-gato config set --role mysql proxy.api_force_https 'false'
-gato config set --role mysql proxy.api_password 'changeme'
-gato config set --role mysql proxy.api_username 'proxy_username'
-gato config set --role mysql proxy.proxy_ips '["mysql-proxy.service.cf.internal"]'
-gato config set --role mysql skip_ssl_validation 'true'
-gato config set --role mysql bootstrap_endpoint.username 'bootstrap_user'
-gato config set --role mysql bootstrap_endpoint.password 'bootstrap_pass'
-gato config set --role mysql seeded_databases "[{\"name\": \"ccdb\",\"username\": \"${ccdb_role_name}\",\"password\": \"${ccdb_role_password}\"},{\"name\": \"uaadb\",\"username\": \"${uaadb_username}\",\"password\": \"${uaadb_password}\"}]"
-
-
-gato config set --role mysql_proxy admin_password 'changeme'
-gato config set --role mysql_proxy cluster_ips '["mysql.service.cf.internal"]'
-gato config set --role mysql_proxy database_startup_timeout "300"
-gato config set --role mysql_proxy external_host '192.168.77.77.nip.io'
-gato config set --role mysql_proxy network_name 'default'
-gato config set --role mysql_proxy proxy.api_force_https 'false'
-gato config set --role mysql_proxy proxy.api_password 'changeme'
-gato config set --role mysql_proxy proxy.api_username 'proxy_username'
-gato config set --role mysql_proxy proxy.proxy_ips '["mysql-proxy.service.cf.internal"]'
-gato config set --role mysql_proxy skip_ssl_validation 'true'
-gato config set --role mysql_proxy bootstrap_endpoint.username 'bootstrap_user'
-gato config set --role mysql_proxy bootstrap_endpoint.password 'bootstrap_pass'
-gato config set --role mysql_proxy seeded_databases "[{\"name\": \"ccdb\",\"username\": \"${ccdb_role_name}\",\"password\": \"${ccdb_role_password}\"},{\"name\": \"uaadb\",\"username\": \"${uaadb_username}\",\"password\": \"${uaadb_password}\"}]"
 
 echo -e "Your Helion Cloud Foundry endpoint is: \e[1;96mhttps://api.${domain}\e[0m"
 echo -e "  Run the following command to target it: \e[1;96mcf api --skip-ssl-validation https://api.${domain}\e[0m"
