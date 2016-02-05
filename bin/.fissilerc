@@ -40,7 +40,7 @@ export FISSILE_CONFIGGIN_PATH="${HOME}/tools/configgin.tgz"
 export FISSILE_CONFIG_PREFIX=hcf
 
 # The number of workers to use when compiling packages
-export FISSILE_COMPILATION_WORKER_COUNT=20
+# export FISSILE_COMPILATION_WORKER_COUNT=2
 
 # General number of workers to use.
 # export FISSILE_WORKER_COUNT=1
