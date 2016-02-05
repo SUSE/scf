@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
-    libvirt.memory = 8096
+    libvirt.memory = 8192
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
