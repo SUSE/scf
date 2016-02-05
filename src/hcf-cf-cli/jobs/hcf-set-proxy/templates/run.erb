@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+<%
+require 'shellwords'
+env = {}
+%W{staging running}.each do |runtime|
+  %W{http_proxy https_proxy no_proxy}.each do |var|
+    val = properties.hcf_set_proxy.send("#{runtime}_#{var}")
+    if val
+      env[runtime] ||= {}
+      env[runtime][var] = val
+      env[runtime][var.upcase] = val
+    end
+  end
+end
+%>
+
+cf api <%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation': '' %> api.<%= properties.domain %>
+<% 
+username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
+%>
+cf login -u <%= username.shellescape %> -p <%= password.shellescape %>
+
+<% 
+%W{staging running}.each do |runtime| 
+  if env[runtime] %>
+cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
+<%end 
+end %>
