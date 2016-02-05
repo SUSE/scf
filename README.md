@@ -2,22 +2,7 @@
 
 Build infrastructure for HCF 1.0
 
-Before creating any VMs, do the following step in parallel with the
-others in order to pull down all the cf-release and related
-submodules. Otherwise vagrant (or others) won't see the mounted
-submodules.
-
-```bash
- cd src
- for dir in * ; do
-   cd $dir
-   # `git submodule update --init --recursive` failed sometimes - no idea why
-   git submodule init
-   git submodule update --recursive
-   test -x scripts/update && bash -ex scripts/update
-   cd ..
- done
-``` 
+Before creating any VMs with Vagrant, run `THIS DIR`/bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
 
 This should prevent errors similar to "Package 'etcd' has a glob that resolves to an empty file list: github.com/coreos/etcd/**/*" while running `make vagrant-prep`  
 
