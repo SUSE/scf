@@ -15,6 +15,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 4443, host: 4443
   config.vm.network "forwarded_port", guest: 8501, host: 8501
+  
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -23,7 +24,7 @@ Vagrant.configure(2) do |config|
   config.vm.provider "vmware_fusion" do |vb, override|
     override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
     # Customize the amount of memory on the VM:
-    vb.memory = "8096"
+    vb.memory = "8192"
     # If you need to debug stuff
     # vb.gui = true
 
@@ -32,10 +33,11 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://region-a.geo-1.objects.hpcloudsvc.com/v1/10070729052378/hcf-vagrant-box-images/hcf-libvirt-v0.box"
+    override.vm.box = "https://15.184.137.5:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-libvirt-v0.box"
     libvirt.driver = "kvm"
+    # Allow downloading boxes from sites with self-signed certs
+    override.vm.box_download_insecure = true
     libvirt.memory = 8096
-
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
