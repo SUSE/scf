@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 4443, host: 4443
   config.vm.network "forwarded_port", guest: 8501, host: 8501
-  
+
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -25,6 +25,18 @@ Vagrant.configure(2) do |config|
     override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
+    # If you need to debug stuff
+    # vb.gui = true
+
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+    override.vm.synced_folder ".", "/home/vagrant/hcf"
+  end
+
+  config.vm.provider "virtualbox" do |vb, override|
+    override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-virtualbox-v0.box"
+    # Customize the amount of memory on the VM:
+    vb.memory = "16192"
+    vb.cpus = 8
     # If you need to debug stuff
     # vb.gui = true
 
@@ -50,7 +62,7 @@ Vagrant.configure(2) do |config|
       echo "Did you run 'git submodule update --init --recursive'?" >&2
       exit 1
     fi
-  
+
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "192.168.77.77"
   SHELL

@@ -1,6 +1,35 @@
-# hcf-infrastructure
+# Helion Cloud Foundry
 
-Build infrastructure for HCF 1.0
+This is the repository that integrates all HCF components.
+
+## Using port 80 on your host without root
+
+You will need to change the host ports in the Vagrantfile from `80` to `8080`
+and from `443` to `8443` and run the following:
+
+```
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
+```
+
+## Development on Ubuntu with VirtualBox
+
+1. Install VirtualBox
+1. Install Vagrant (version `1.7.4` minimum)
+1. Install vagrant-reload plugin
+ ```
+ vagrant plugin install vagrant-reload
+ ```
+1. Bring it online
+```
+vagrant up --provider virtualbox
+```
+1. Run HCF in the vagrant box
+ ```
+ vagrant ssh
+ cd ~/hcf
+ make run
+ ```
 
 ## Development on OSX with VMWare Fusion
 
