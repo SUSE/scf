@@ -55,7 +55,7 @@ function start_role {
 
   docker run -it -d --name $name \
     --net=hcf \
-    --privileged \
+    --cap-add=NET_ADMIN --cap-add=NET_RAW \
     --label=fissile_role=$role \
     --dns=127.0.0.1 --dns=8.8.8.8 \
     --cgroup-parent=instance \
@@ -81,7 +81,7 @@ function start_hcf_consul() {
   fi
 
   cid=$(docker run -d \
-    --net=bridge --net=hcf --privileged=true \
+    --net=bridge --net=hcf \
     -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 \
     --name $container_name \
     -v $store_dir/$container_name:/opt/hcf/share/consul \

@@ -61,7 +61,16 @@ do
       touch $store_dir/fake_nfs_share/.nfs_test
       extra="-v ${store_dir}/fake_nfs_share:/var/vcap/nfs/shared"
       ;;
-   "api_worker")
+    "doppler")
+      extra="--privileged"
+      ;;
+    "loggregator_trafficcontroller")
+      extra="--privileged"
+      ;;
+    "router")
+      extra="--privileged"
+      ;;
+    "api_worker")
       mkdir -p $store_dir/fake_nfs_share
       touch $store_dir/fake_nfs_share/.nfs_test
       extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
@@ -69,11 +78,8 @@ do
     "ha_proxy")
       extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
       ;;
-    "runner")
-      extra="--cap-add=ALL -v /lib/modules:/lib/modules"
-      ;;
     "diego_cell")
-      extra="--cap-add=ALL -v /lib/modules:/lib/modules"
+      extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
       ;;
     "cf-usb")
       mkdir -p $store_dir/fake_cf_usb_nfs_share
