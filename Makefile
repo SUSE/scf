@@ -14,7 +14,7 @@ APP_VERSION := ${VERSION}+${COMMIT}.${BRANCH}
 APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
-export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release
+export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-cf-cli
 export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml
 export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/opinions.yml
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/dark-opinions.yml
@@ -90,7 +90,11 @@ mysql-release:
 	$(call print_status, Creating cf-mysql-release BOSH release ... )
 	${CURDIR}/bin/create-release.sh src/cf-mysql-release cf-mysql
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release
+hcf-cf-cli:
+	$(call print_status, Creating hcf-cf-cli BOSH release ... )
+	${CURDIR}/bin/create-release.sh src/hcf-cf-cli hcf-cf-cli
+
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release hcf-cf-cli
 
 ########## FISSILE BUILD TARGETS ##########
 
