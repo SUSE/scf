@@ -106,12 +106,12 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
       -new -x509 -extensions v3_ca \
       -passout pass:"${signing_key_passphrase}" \
-      -subj '/CN=bbs.service.cf.internal/' \
+      -subj '/CN=diego_database.hcf/' \
       -keyout "${bbs_certs_dir}/private/bbs-ca.key" -out "${bbs_certs_dir}/certs/bbs-ca.crt"
 
     openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
         -new -nodes \
-        -subj '/CN=bbs.service.cf.internal/' \
+        -subj '/CN=diego_database.hcf/' \
         -keyout "${bbs_certs_dir}/private/bbs-server.key" -out "${bbs_certs_dir}/bbs-server.csr"
 
     openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
@@ -147,12 +147,12 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
       -new -x509 -extensions v3_ca \
       -passout pass:"${signing_key_passphrase}" \
-      -subj '/CN=etcd.service.cf.internal/' \
+      -subj '/CN=diego_database.hcf/' \
       -keyout "${etcd_certs_dir}/private/etcd-ca.key" -out "${etcd_certs_dir}/certs/etcd-ca.crt"
 
     openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
         -new -nodes \
-        -subj '/CN=etcd.service.cf.internal/' \
+        -subj '/CN=diego_database.hcf/' \
         -keyout "${etcd_certs_dir}/private/etcd-server.key" -out "${etcd_certs_dir}/etcd-server.csr"
 
     openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
@@ -188,12 +188,12 @@ etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
     openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
       -new -x509 -extensions v3_ca \
       -passout pass:"${signing_key_passphrase}" \
-      -subj '/CN=etcd.service.cf.internal/' \
+      -subj '/CN=diego_database.hcf/' \
       -keyout "${etcd_peer_certs_dir}/private/etcd-ca.key" -out "${etcd_peer_certs_dir}/certs/etcd-ca.crt"
 
     openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
         -new -nodes \
-        -subj '/CN=etcd.service.cf.internal/' \
+        -subj '/CN=diego_database.hcf/' \
         -keyout "${etcd_peer_certs_dir}/private/etcd-peer.key" -out "${etcd_peer_certs_dir}/etcd-peer.csr"
 
     openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
@@ -253,19 +253,19 @@ gato config set --role etcd                           etcd.client_key           
 gato config set --role etcd                           etcd.server_cert                            'null'
 gato config set --role etcd                           etcd.client_cert                            'null'
 gato config set --role etcd                           etcd.ca_cert                                'null'
-gato config set --role api                            etcd.machines                               '["etcdlog.service.cf.internal"]'
+gato config set --role api                            etcd.machines                               '["etcd.hcf"]'
 # MySQL configs, forcibly namespaced
-gato config set --role mysql_proxy                    cluster_ips                                 '["mysql.service.cf.internal"]'
+gato config set --role mysql_proxy                    cluster_ips                                 '["mysql.hcf"]'
 gato config set --role mysql_proxy                    database_startup_timeout                    '300'
 gato config set --role mysql_proxy                    network_name                                'default'
 gato config set --role mysql_proxy                    proxy.api_username                          'mysql_proxy'
-gato config set --role mysql_proxy                    proxy.proxy_ips                             '["mysql-proxy.service.cf.internal"]'
+gato config set --role mysql_proxy                    proxy.proxy_ips                             '["mysql_proxy.hcf"]'
 gato config set --role mysql_proxy                    bootstrap_endpoint.username                 'bootstrap_user'
-gato config set --role mysql                          cluster_ips                                 '["mysql.service.cf.internal"]'
+gato config set --role mysql                          cluster_ips                                 '["mysql.hcf"]'
 gato config set --role mysql                          database_startup_timeout                    '300'
 gato config set --role mysql                          network_name                                'default'
 gato config set --role mysql                          proxy.api_username                          'mysql_proxy'
-gato config set --role mysql                          proxy.proxy_ips                             '["mysql-proxy.service.cf.internal"]'
+gato config set --role mysql                          proxy.proxy_ips                             '["mysql_proxy.hcf"]'
 gato config set --role mysql                          bootstrap_endpoint.username                 'bootstrap_user'
 gato config set --role mysql_proxy                    admin_password                              "${mysql_admin_password}"
 gato config set --role mysql_proxy                    external_host                               "${domain}"
@@ -280,61 +280,61 @@ gato config set --role mysql                          seeded_databases          
 
 # Constants
 #gato config set consul.agent.servers.lan                  '["cf-consul.hcf"]'
-gato config set nats.machines                             '["nats.service.cf.internal"]'
-gato config set etcd_metrics_server.nats.machines         '["nats.service.cf.internal"]'
-gato config set etcd_metrics_server.machines              '["nats.service.cf.internal"]'
+gato config set nats.machines                             '["nats.hcf"]'
+gato config set etcd_metrics_server.nats.machines         '["nats.hcf"]'
+gato config set etcd_metrics_server.machines              '["nats.hcf"]'
 gato config set nfs_server.share_path                     '/var/vcap/nfs'
-gato config set etcd.machines                             '["etcd.service.cf.internal"]'
+gato config set etcd.machines                             '["diego_database.hcf"]'
 gato config set etcd.peer_require_ssl                     'true'
 gato config set etcd.require_ssl                          'true'
 gato config set etcd.cluster                              '[{"instances": 1, "name": "database_z1"}]'
-gato config set loggregator.etcd.machines                 '["etcdlog.service.cf.internal"]'
-gato config set router.servers.z1                         '["gorouter.service.cf.internal"]'
+gato config set loggregator.etcd.machines                 '["etcd.hcf"]'
+gato config set router.servers.z1                         '["router.hcf"]'
 gato config set dea_next.kernel_network_tuning_enabled    'false'
 gato config set ccdb.port                                 '3306'
-gato config set ccdb.address                              'mysql-proxy.service.cf.internal'
+gato config set ccdb.address                              'mysql_proxy.hcf'
 gato config set ccdb.db_scheme                            'mysql'
 gato config set uaadb.port                                '3306'
-gato config set uaadb.address                             'mysql-proxy.service.cf.internal'
+gato config set uaadb.address                             'mysql_proxy.hcf'
 gato config set uaadb.db_scheme                           'mysql'
 gato config set diego.auctioneer.bbs.require_ssl          'true'
-gato config set diego.auctioneer.bbs.api_location         'bbs.service.cf.internal:8889'
-gato config set diego.bbs.auctioneer.api_url              'http://auctioneer.service.cf.internal:9016'
-gato config set diego.bbs.etcd.machines                   '["etcd.service.cf.internal"]'
+gato config set diego.auctioneer.bbs.api_location         'diego_database.hcf:8889'
+gato config set diego.bbs.auctioneer.api_url              'http://diego_brain.hcf:9016'
+gato config set diego.bbs.etcd.machines                   '["diego_database.hcf"]'
 gato config set diego.bbs.etcd.require_ssl                'true'
 gato config set diego.bbs.require_ssl                     'true'
-gato config set diego.converger.bbs.api_location          'bbs.service.cf.internal:8889'
+gato config set diego.converger.bbs.api_location          'diego_database.hcf:8889'
 gato config set diego.converger.bbs.require_ssl           'true'
 gato config set diego.converger.log_level                 'debug'
 gato config set diego.executor.drain_timeout_in_seconds   '0'
 gato config set diego.executor.garden.address             '127.0.0.1:7777'
 gato config set diego.executor.garden.network             'tcp'
 gato config set diego.executor.log_level                  'debug'
-gato config set diego.nsync.bbs.api_location              'bbs.service.cf.internal:8889'
+gato config set diego.nsync.bbs.api_location              'diego_database.hcf:8889'
 gato config set diego.nsync.bbs.require_ssl               'true'
 gato config set diego.nsync.log_level                     'debug'
 gato config set diego.rep.bbs.require_ssl                 'true'
 gato config set diego.rep.evacuation_timeout_in_seconds   '60'
 gato config set diego.rep.log_level                       'debug'
-gato config set diego.route_emitter.bbs.api_location      'bbs.service.cf.internal:8889'
+gato config set diego.route_emitter.bbs.api_location      'diego_database.hcf:8889'
 gato config set diego.route_emitter.bbs.require_ssl       'true'
 gato config set diego.route_emitter.log_level             'debug'
 gato config set diego.route_emitter.nats.port             '4222'
-gato config set diego.ssh_proxy.bbs.api_location          'bbs.service.cf.internal:8889'
+gato config set diego.ssh_proxy.bbs.api_location          'diego_database.hcf:8889'
 gato config set diego.ssh_proxy.bbs.require_ssl           'true'
 gato config set diego.ssh_proxy.enable_cf_auth            'true'
 gato config set diego.ssh_proxy.enable_diego_auth         'false'
-gato config set diego.stager.bbs.api_location             'bbs.service.cf.internal:8889'
+gato config set diego.stager.bbs.api_location             'diego_database.hcf:8889'
 gato config set diego.stager.bbs.require_ssl              'true'
-gato config set diego.tps.bbs.api_location                'bbs.service.cf.internal:8889'
+gato config set diego.tps.bbs.api_location                'diego_database.hcf:8889'
 gato config set diego.tps.bbs.require_ssl                 'true'
-gato config set diego.rep.bbs.api_location                'bbs.service.cf.internal:8889'
+gato config set diego.rep.bbs.api_location                'diego_database.hcf:8889'
 gato config set garden.enable_graph_cleanup               'true'
 gato config set garden.listen_address                     '0.0.0.0:7777'
 gato config set garden.listen_network                     'tcp'
 gato config set garden.log_level                          'debug'
 gato config set garden.persistent_image_list              '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
-gato config set diego.route_emitter.nats.machines         '["nats.service.cf.internal"]'
+gato config set diego.route_emitter.nats.machines         '["nats.hcf"]'
 gato config set diego.rep.zone                            'z1'
 gato config set diego.file_server.static_directory        '/var/vcap/packages/'
 gato config set cf-usb.configconnectionstring             '127.0.0.1:8500'
@@ -422,7 +422,7 @@ gato config set diego.nsync.cc.staging_upload_password                "${staging
 gato config set diego.nsync.cc.staging_upload_user                    "${staging_upload_user}"
 gato config set diego.route_emitter.nats.user                         "${nats_user}"
 gato config set diego.route_emitter.nats.password                     "${nats_password}"
-gato config set diego.ssh_proxy.servers                               "[\"ssh-proxy.service.cf.internal\"]"
+gato config set diego.ssh_proxy.servers                               "[\"diego_access.hcf\"]"
 gato config set diego.ssh_proxy.uaa_token_url                         "https://uaa.${domain}/oauth/token"
 gato config set diego.ssh_proxy.uaa_secret                            "${uaa_clients_diego_ssh_proxy_secret}"
 gato config set diego.stager.cc.base_url                              "https://api.${domain}"
@@ -500,6 +500,24 @@ pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.nsync.b
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.converger.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.bbs.ca_cert -
 pipecat "${bbs_certs_dir}/certs/bbs-ca.crt" | gato config set-file diego.auctioneer.bbs.ca_cert -
+
+gato config set cc.diego.nsync_url "http://diego_cc_bridge.hcf:8787"
+gato config set cc.diego.stager_url "http://diego_cc_bridge.hcf:8888"
+gato config set cc.diego.tps_url "http://diego_cc_bridge.hcf:1518"
+gato config set diego.nsync.file_server_url "http://diego_access.hcf:8080"
+
+gato config set diego.stager.staging_task_callback_url "http://diego_cc_bridge.hcf:8888"
+gato config set diego.stager.cc.internal_service_hostname "api.hcf"
+gato config set diego.stager.file_server_url "http://diego_access.hcf:8080"
+gato config set diego.stager.cc_uploader_url "http://diego_cc_bridge.hcf:9090"
+# TODO: configure this once we have the diego docker cache deployed
+# gato config set diego.stager.docker_registry_address "docker-registry.service.cf.internal:8080"
+
+gato config set diego.tps.bbs.api_location "diego_database.hcf:8889"
+gato config set diego.tps.cc.internal_service_hostname "api.hcf"
+gato config set diego.tps.traffic_controller_url "ws://loggregator_trafficcontroller.hcf:8081"
+
+gato config set diego.ssh_proxy.cc.internal_service_hostname "api.hcf"
 
 echo -e "Your Helion Cloud Foundry endpoint is: \e[1;96mhttps://api.${domain}\e[0m"
 echo -e "  Run the following command to target it: \e[1;96mcf api --skip-ssl-validation https://api.${domain}\e[0m"

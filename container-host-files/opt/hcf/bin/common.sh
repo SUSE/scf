@@ -57,7 +57,7 @@ function start_role {
     --net=hcf \
     --cap-add=NET_ADMIN --cap-add=NET_RAW \
     --label=fissile_role=$role \
-    --dns=127.0.0.1 --dns=8.8.8.8 \
+    --hostname=${role}.hcf \
     --cgroup-parent=instance \
     -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
     -e "HCF_NETWORK=overlay" \
@@ -98,7 +98,7 @@ function wait_for_consul() {
 # gets container name from a fissile docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  echo "${1/:/-}"
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
 }
 
 # imports spec and opinion configs into HCF consul

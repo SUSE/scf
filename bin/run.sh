@@ -85,6 +85,9 @@ do
       mkdir -p $store_dir/fake_cf_usb_nfs_share
       extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"
       ;;
+    "diego_database")
+      extra='--add-host="diego-database-0.etcd.service.cf.internal:127.0.0.1"'
+      ;;
   esac
 
   handle_restart "$image" "$hcf_overlay_gateway" "$extra" || true
