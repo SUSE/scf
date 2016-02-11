@@ -10,14 +10,18 @@ function has_upstream() {
 ROOT=$(dirname $(dirname $(readlink -f $0)))
 cd ${ROOT}
 cd src
+# `git submodule update --init --recursive` failed sometimes - no idea why
+( git submodule init && git submodule update --recursive ) || true
+
+# Some of the submodules contain files called scripts/update -- run them
 for dir in * ; do
+  if [[ ! -d "$dir" || ! -x "$dir/scripts/update" ]] ; then
+    continue
+  fi
   cd $dir
-  # `git submodule update --init --recursive` failed sometimes - no idea why
-  git submodule init
-  git submodule update --recursive
   case $dir in
       diego-release)
-	  # Deal with upstream error https://github.com/cloudfoundry-incubator/diego-release#132
+	  # Deal with upstream error https://github.com/cloudfoundry-incubator/diego-release#132 by running the pertinent code from scripts/update
 	  has_upstream && git pull
 	  if [[ "$(git --version | grep 'version 1.7')x" != "x" ]]; then
 	      git submodule foreach --recursive git submodule sync && git submodule update --init --recursive
@@ -26,7 +30,7 @@ for dir in * ; do
 	  fi
 	  ;;
       *)
-	  test -x scripts/update && bash -ex scripts/update
+	  bash -ex scripts/update
 	  ;;
   esac
   cd ..
