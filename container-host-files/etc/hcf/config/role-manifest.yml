@@ -24,7 +24,7 @@ roles:
   - name: route_registrar
     release_name: cf
   - name: cf-set-proxy
-    release_name: hcf-cf-cli
+    release_name: hcf-deployment-hooks
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
