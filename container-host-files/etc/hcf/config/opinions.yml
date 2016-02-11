@@ -765,24 +765,6 @@ properties:
     require_ssl: null
     server_cert: null
     server_key: null
-  databases:
-    address: 0.0.0.4
-    databases:
-    - citext: true
-      name: ccdb
-      tag: cc
-    - citext: true
-      name: uaadb
-      tag: uaa
-    db_scheme: postgres
-    port: 5524
-    roles:
-    - name: ccadmin
-      password: ccadmin_password
-      tag: admin
-    - name: uaaadmin
-      password: uaaadmin_password
-      tag: admin
   dea_next:
     # Commented-out lines are used only in roles to be dropped.
     # Retained ones are preceded by the reason to keep.
@@ -812,7 +794,6 @@ properties:
     #rlimit_core: 0
     #staging_disk_inode_limit: 200000
   description: Cloud Foundry sponsored by Pivotal
-  disk_quota_enabled: true
   domain: example.com
   doppler:
     blacklisted_syslog_ranges: null
