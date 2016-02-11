@@ -31,12 +31,6 @@ properties:
     - name: ccadmin
       password: admin_password
       tag: admin
-  databases:
-    roles:
-    - name: ccadmin
-      password: ccadmin_password
-    - name: uaaadmin
-      password: uaaadmin_password
   domain: example.com
   loggregator_endpoint:
     shared_secret: loggregator_endpoint_secret
