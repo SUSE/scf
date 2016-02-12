@@ -6,15 +6,35 @@ export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
 <%
 require 'shellwords'
 env = {}
-%W{staging running}.each do |runtime|
-  %W{http_proxy https_proxy no_proxy}.each do |var|
-    val = properties.hcf_set_proxy.send("#{runtime}_#{var}")
-    if val
-      env[runtime] ||= {}
-      env[runtime][var] = val
-      env[runtime][var.upcase] = val
-    end
-  end
+if_p("hcf_set_proxy.staging_http_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["http_proxy"] = val
+   env["staging"]["http_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.staging_https_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["https_proxy"] = val
+   env["staging"]["https_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.staging_no_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["no_proxy"] = val
+   env["staging"]["no_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_http_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["http_proxy"] = val
+   env["running"]["http_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_https_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["https_proxy"] = val
+   env["running"]["https_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_no_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["no_proxy"] = val
+   env["running"]["no_proxy".upcase] = val
 end
 %>
 
