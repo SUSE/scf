@@ -18,7 +18,7 @@ docker run \
     --interactive \
     --tty \
     --rm \
-    --volume /home/vagrant/.bosh:/root/.bosh \
+    --volume ${HOME}/.bosh:/root/.bosh \
     --volume $ROOT/:$ROOT/ \
     helioncf/hcf-pipeline-ruby-bosh \
     bash -l -c "rbenv global 2.2.3 && bosh create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
