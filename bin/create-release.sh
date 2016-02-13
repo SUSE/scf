@@ -14,4 +14,11 @@ fi
 release_path=$1
 release_name=$2
 
-docker run -it --rm -v /home/vagrant/.bosh:/root/.bosh -v $ROOT/:/root/hcf/ helioncf/hcf-pipeline-ruby-bosh bash -l -c "rbenv global 2.2.3 && bosh create release --dir /root/hcf/${release_path} --force --name ${release_name}"
+docker run \
+    --interactive \
+    --tty \
+    --rm \
+    --volume /home/vagrant/.bosh:/root/.bosh \
+    --volume $ROOT/:$ROOT/ \
+    helioncf/hcf-pipeline-ruby-bosh \
+    bash -l -c "rbenv global 2.2.3 && bosh create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
