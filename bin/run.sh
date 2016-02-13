@@ -78,6 +78,9 @@ do
     "ha_proxy")
       extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
       ;;
+    "mysql_proxy")
+      extra="-p 3306:3306"
+      ;;
     "diego_cell")
       extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
       ;;
