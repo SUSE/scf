@@ -33,12 +33,13 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "virtualbox" do |vb, override|
-    override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-virtualbox-v0.box"
+    # Need to shorten the URL for Windows' sake
+    override.vm.box = "http://tinyurl.com/hcf-vagrant-vbox"
     # Customize the amount of memory on the VM:
-    vb.memory = "16192"
-    vb.cpus = 8
+    vb.memory = "8192"
+    vb.cpus = 4
     # If you need to debug stuff
-    # vb.gui = true
+    vb.gui = true
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
     override.vm.synced_folder ".", "/home/vagrant/hcf"
@@ -56,13 +57,17 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
 
-  config.vm.provision "shell", inline: <<-SHELL
-    if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
-      echo "Looks like the cf-release submodule was not initialized" >&2
-      echo "Did you run 'git submodule update --init --recursive'?" >&2
-      exit 1
-    fi
+  unless OS.windows?
+    config.vm.provision "shell", inline: <<-SHELL
+        if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
+          echo "Looks like the cf-release submodule was not initialized" >&2
+          echo "Did you run 'git submodule update --init --recursive'?" >&2
+          exit 1
+        fi
+    SHELL
+  end
 
+  config.vm.provision "shell", inline: <<-SHELL
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "192.168.77.77"
   SHELL
@@ -98,4 +103,10 @@ Vagrant.configure(2) do |config|
     cd /home/vagrant/hcf
     make copy-compile-cache
   SHELL
+end
+
+module OS
+  def OS.windows?
+      (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
 end

@@ -106,39 +106,41 @@ vagrant up --provider virtualbox
  make run
  ```
 
-## Windows (Currently not working, do not try this at home)
+## Windows
 
-> Working on a Windows host is more complicated because of heavy usage of symlinks
-> in the cf-release repository.
+> Working on a Windows host is more complicated because of heavy usage of symlinks.
 > Don't use this sort of setup unless you're comfortable with the extra complexity.
+> Only the VirtualBox provider is supported on Windows!
 
-Before you do anything, make sure you handle line endings correctly:
+1. Before you do anything, make sure you handle line endings correctly. Run this on the Windows host:
 
-```bash
-git config --global core.autocrlf input
-```
+  ```bash
+  git config --global core.autocrlf input
+  ```
 
-Do not recursively update submodules - you need to do it in the Vagrant VM,
-so symlinks are configured properly.
+1. Clone this repository, but do not recursively update submodules - you need to do it in the Vagrant VM,
+so symlinks are configured properly. For you do be able to clone everything
+within the VM, you'll need an SSH key within the VM that's allowed on github.com
 
-```bash
-# SSH to the vagrant box
-vagrant ssh
+1. SSH to the vagrant box
+  ```bash
+  vagrant ssh
+  ```
 
-# Setup symlinks
-cd ~/hcf
-git config --global core.symlinks true
-git config core.symlinks true
-git submodule update --init
-git submodule foreach --recursive git config core.symlinks true
+1. Setup symlinks and init submodules
+  ```bash
+  cd ~/hcf
+  git config --global core.symlinks true
+  git config core.symlinks true
+  git submodule update --init --recursive
+  ```
 
-# For cf-release, run the update script
-cd ./src/cf-release/
-./scripts/update
-```
-
-Run `git config core.symlinks true` for the `hcf-infrastructure` repo.
-Then, for all submodules: `git submodule foreach --recursive git config core.symlinks true`
+1. After all that you can continue with the normal stuff:
+  ```bash
+  cd ~/hcf
+  make vagrant-prep  # Only needed once
+  make run
+  ```
 
 ## Makefile targets
 
