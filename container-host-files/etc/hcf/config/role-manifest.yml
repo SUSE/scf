@@ -24,8 +24,6 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-  - name: cf-set-proxy
-    release_name: hcf-deployment-hooks
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -366,3 +364,190 @@ roles:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
   processes: []
+configuration:
+  variables:
+  - name: public_ip
+  - name: bulk_api_password
+    default: password
+  - name: ccdb_role_name
+    default: ccadmin
+  - name: ccdb_role_password
+    default: ccpassword
+  - name: ccdb_role_tag
+    default: admin
+  - name: certs_prefix
+    default: hcf
+  - name: cf_usb_username
+    default: broker-admin
+  - name: cf_usb_password
+    default: changeme
+  - name: cluster_admin_authorities
+    default: scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose
+  - name: cluster_admin_password
+    default: changeme
+  - name: cluster_admin_username
+    default: admin
+  - name: consul_encryption_keys
+    default: consul_key
+  - name: db_encryption_key
+    default: the_key
+  - name: domain
+  - name: doppler_zone
+    default: z1
+  - name: loggregator_shared_secret
+    default: loggregator_endpoint_secret
+  - name: metron_agent_zone
+    default: z1
+  - name: monit_password
+    default: monit_password
+  - name: monit_port
+    default: 2822
+  - name: monit_user
+    default: monit_user
+  - name: nats_password
+    default: nats_password
+  - name: nats_user
+    default: nats_user
+  - name: service_provider_key_passphrase
+    default: foobar
+  - name: signing_key_passphrase
+    default: foobar
+  - name: staging_upload_password
+    default: password
+  - name: staging_upload_user
+    default: username
+  - name: internal_api_password
+    default: internal_password
+  - name: internal_api_user
+    default: internal_user
+  - name: traffic_controller_zone
+    default: z1
+  - name: uaa_admin_client_secret
+    default: admin_secret
+  - name: uaa_batch_password
+    default: batch_password
+  - name: uaa_batch_username
+    default: batch_username
+  - name: uaa_cc_client_secret
+    default: cc_client_secret
+  - name: uaa_clients_app_direct_secret
+    default: app_direct_secret
+  - name: uaa_clients_developer_console_secret
+    default: developer_console_secret
+  - name: uaa_clients_doppler_secret
+    default: doppler_secret
+  - name: uaa_clients_gorouter_secret
+    default: gorouter_secret
+  - name: uaa_clients_login_secret
+    default: login_client_secret
+  - name: uaa_clients_notifications_secret
+    default: notification_secret
+  - name: uaa_clients_cc_routing_secret
+    default: cc_routing_secret
+  - name: uaa_clients_cf_usb_secret
+    default: cf_usb_secret
+  - name: uaa_clients_diego_ssh_proxy_secret
+    default: ssh_proxy_secret
+  - name: bbs_active_key_label
+    default: key1
+  - name: bbs_active_key_passphrase
+    default: key1_passphrase
+  - name: mysql_admin_password
+    default: mysql_admin_password
+  - name: mysql_proxy_admin_password
+    default: mysql_proxy_admin_password
+  - name: mysql_bootstrap_endpoint_password
+    default: mysql_bootstrap_endpoint_password
+  - name: uaa_cloud_controller_username_lookup_secret
+    default: cloud_controller_username_lookup_secret
+  - name: uaadb_password
+    default: uaaadmin_password
+  - name: uaadb_tag
+    default: admin
+  - name: uaadb_username
+    default: uaaadmin
+  templates:
+    app_domains: "[\"${domain}\"]"
+    app_ssh.host_key_fingerprint: "${app_ssh_host_key_fingerprint}"
+    cc.bulk_api_password: "${bulk_api_password}"
+    cc.db_encryption_key: "${db_encryption_key}"
+    cc.srv_api_uri: "https://api.${domain}"
+    cc.staging_upload_user: "${staging_upload_user}"
+    cc.staging_upload_password: "${staging_upload_password}"
+    cc.internal_api_user: "${internal_api_user}"
+    cc.internal_api_password: "${internal_api_password}"
+    ccdb.roles: "[{\"name\": \"${ccdb_role_name}\", \"password\": \"${ccdb_role_password}\", \"tag\": \"${ccdb_role_tag}\"}]"
+    uaadb.roles: "[{\"name\": \"${uaadb_username}\", \"password\": \"${uaadb_password}\", \"tag\": \"${uaadb_tag}\"}]"
+    domain: "${domain}"
+    doppler.zone: "${doppler_zone}"
+    doppler_endpoint.shared_secret: "${loggregator_shared_secret}"
+    etcd_metrics_server.nats.username: "${nats_user}"
+    etcd_metrics_server.nats.password: "${nats_password}"
+    hcf.monit.user: "${monit_user}"
+    hcf.monit.password: "${monit_password}"
+    hcf.monit.port: "${monit_port}"
+    loggregator_endpoint.shared_secret: "${loggregator_shared_secret}"
+    metron_agent.zone: "${metron_agent_zone}"
+    nats.user: "${nats_user}"
+    nats.password: "${nats_password}"
+    uaa.admin.client_secret: "${uaa_admin_client_secret}"
+    uaa.batch.username: "${uaa_batch_username}"
+    uaa.batch.password: "${uaa_batch_password}"
+    uaa.cc.client_secret: "${uaa_cc_client_secret}"
+    uaa.clients.cf-usb.secret: "${uaa_clients_cf_usb_secret}"
+    uaa.clients.cf-usb.authorized-grant-types: "client_credentials"
+    uaa.clients.cf-usb.authorities: "cloud_controller.admin,usb.management.admin"
+    uaa.clients.cf-usb.scope: "usb.management.admin"
+    uaa.clients.app-direct.secret: "${uaa_clients_app_direct_secret}"
+    uaa.clients.developer-console.secret: "${uaa_clients_developer_console_secret}"
+    uaa.clients.notifications.secret: "${uaa_clients_notifications_secret}"
+    uaa.clients.login.secret: "${uaa_clients_login_secret}"
+    uaa.clients.cc_routing.secret: "${uaa_clients_cc_routing_secret}"
+    uaa.clients.doppler.secret: "${uaa_clients_doppler_secret}"
+    uaa.clients.cloud_controller_username_lookup.secret: "${uaa_cloud_controller_username_lookup_secret}"
+    uaa.clients.gorouter.secret: "${uaa_clients_gorouter_secret}"
+    uaa.clients.ssh-proxy.secret: "${uaa_clients_diego_ssh_proxy_secret}"
+    uaa.clients.ssh-proxy.authorized-grant-types: "authorization_code"
+    uaa.clients.ssh-proxy.scope: "openid,cloud_controller.read,cloud_controller.write"
+    uaa.clients.ssh-proxy.redirect-uri: "/login"
+    uaa.clients.ssh-proxy.autoapprove: "true"
+    uaa.clients.ssh-proxy.override: "true"
+    uaa.scim.users: "[\"${cluster_admin_username}|${cluster_admin_password}|${cluster_admin_authorities}\"]"
+    system_domain: "${domain}"
+    traffic_controller.zone: "${traffic_controller_zone}"
+    cf-usb.broker.external_url: "brokers.${domain}"
+    cf-usb.broker.username: "${cf_usb_username}"
+    cf-usb.broker.password: "${cf_usb_password}"
+    cf-usb.management.uaa.secret: "${uaa_clients_cf_usb_secret}"
+    cf-usb.management.uaa.client: "cf-usb"
+    diego.bbs.encryption_keys: "[{\"label\": \"${bbs_active_key_label}\", \"passphrase\": \"${bbs_active_key_passphrase}\"}]"
+    diego.cc_uploader.cc.base_url: "https://api.${domain}"
+    diego.cc_uploader.cc.basic_auth_username: "${internal_api_user}"
+    diego.cc_uploader.cc.basic_auth_password: "${internal_api_password}"
+    diego.cc_uploader.cc.staging_upload_password: "${staging_upload_password}"
+    diego.cc_uploader.cc.staging_upload_user: "${staging_upload_user}"
+    diego.nsync.cc.base_url: "https://api.${domain}"
+    diego.nsync.cc.basic_auth_username: "${internal_api_user}"
+    diego.nsync.cc.basic_auth_password: "${internal_api_password}"
+    diego.nsync.cc.staging_upload_password: "${staging_upload_password}"
+    diego.nsync.cc.staging_upload_user: "${staging_upload_user}"
+    diego.route_emitter.nats.user: "${nats_user}"
+    diego.route_emitter.nats.password: "${nats_password}"
+    diego.ssh_proxy.servers: "[\"diego_access.hcf\"]"
+    diego.ssh_proxy.uaa_token_url: "https://uaa.${domain}/oauth/token"
+    diego.ssh_proxy.uaa_secret: "${uaa_clients_diego_ssh_proxy_secret}"
+    diego.stager.cc.base_url: "https://api.${domain}"
+    diego.stager.cc.basic_auth_username: "${internal_api_user}"
+    diego.stager.cc.basic_auth_password: "${internal_api_password}"
+    diego.stager.cc.staging_upload_password: "${staging_upload_password}"
+    diego.stager.cc.staging_upload_user: "${staging_upload_user}"
+    diego.tps.cc.base_url: "https://api.${domain}"
+    diego.tps.cc.basic_auth_username: "${internal_api_user}"
+    diego.tps.cc.basic_auth_password: "${internal_api_password}"
+    diego.tps.cc.staging_upload_password: "${staging_upload_password}"
+    diego.tps.cc.staging_upload_user: "${staging_upload_user}"
+    diego.tps.traffic_controller_url: "wss://doppler.${domain}:443"
+    diego.bbs.active_key_label: "${bbs_active_key_label}"
+    garden.deny_networks: "[]"
+    hm9000.url: "https://hm9000.${domain}"
+    uaa.url: "https://uaa.${domain}"
