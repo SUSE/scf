@@ -198,6 +198,14 @@ function to_images() {
     done
 }
 
+# Convert a list of image names to associated containers, running or not.
+function image_to_container() {
+    for image in "$@"
+    do
+	docker ps -q -a --filter "ancestor=$image"
+    done
+}
+
 # gets a role name from a fissile image name
 # get_role_name <IMAGE_NAME>
 function get_role_name() {
