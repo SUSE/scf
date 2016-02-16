@@ -22,9 +22,29 @@ def get_roles(path)
   # the_roles.configuration.templates.<any>		/string
 end
 
+def add_parameters(component, variables)
+    para = component["parameters"]
+
+    variables.each do |var|
+      vname    = var["name"]
+      vdefault = var["default"]
+
+      the_para = {
+        "name"        => vname,
+        "description" => "",
+        "default"     => vdefault,
+        "example"     => "",
+        "required"    => true,
+        "secret"      => false,
+      }
+
+      para.push the_para
+    end
+end
+
 def roles_to_upc(roles)
   the_upc = {
-    "name"       => "HDP CF",	# Specify via option?
+    "name"       => "HDP CF",	# TODO Specify via option?
     "version"    => "0.0.0",	# s.a.
     "vendor"     => "HPE",	# s.a.
     "volumes"    => [],		# We do not generate volumes, leave empty
@@ -50,7 +70,7 @@ def roles_to_upc(roles)
       "capabilities"  => ["ALL"],	# This could be role-specific (privileged vs not)
       "depends_on"    => [],		# No dependency info in the RM
       "affinity"      => [],		# No affinity info in the RM
-      "labels"        => [rname],	# Maybe also label with the jobs inside ?
+      "labels"        => [rname],	# TODO Maybe also label with the jobs inside ?
       "min_instances" => 1,
       "max_instances" => 1,
       "service_ports" => [],		# This might require role-specific alteration
@@ -58,23 +78,18 @@ def roles_to_upc(roles)
       "parameters"    => [],		# Fill from role configuration, see below
     }
 
-    para = the_comp["parameters"]
-
-    role["configuration"] && \
-    role["configuration"]["templates"] && \
-    role["configuration"]["templates"].each do |k, v|
-      the_para = {
-        "name"        => k,
-        "description" => "",
-        "default"     => "",	# TODO construct proper default from template ?
-        			# Where do the values to subst in come from ?
-        "example"     => v,	# Using template string in RM for the example for now.
-        "required"    => true,	# TODO flip to false when we have a default.
-        "secret"      => false,
-      }
-
-      para.push the_para
+    # Global parameters
+    if roles["configuration"] && roles["configuration"]["variables"]
+      add_parameters(the_comp, roles["configuration"]["variables"])
     end
+
+    # Per role parameters
+    if role["configuration"] && role["configuration"]["variables"]
+      add_parameters(the_comp, role["configuration"]["variables"])
+    end
+
+    # TODO: Should check that the intersection of between global and
+    # role parameters is empty.
 
     comp.push the_comp
   end
@@ -143,9 +158,7 @@ def main
   # Generate upc manifest
   # Write upc manifest
 
-  roles = get_roles origin
-  upc   = roles_to_upc roles
-  save_upc destination, upc
+  save_upc(destination, roles_to_upc(get_roles(origin)))
 end
 
 main
