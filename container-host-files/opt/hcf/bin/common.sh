@@ -49,7 +49,7 @@ function start_role {
   role=$3
   overlay_gateway=$4
 
-  extra="${@:5}"
+  extra="$(setup_role $role)"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
