@@ -1,21 +1,4 @@
 ---
-director_uuid: DIRECTOR_UUID
-meta:
-  openstack:
-    net_id: net_id
-    auth_url: auth_url
-    tenant: openstack_tenant
-    username: openstack_username
-    api_key: openstack_api_key
-    security_groups: []
-  floating_static_ips:
-  - 0.0.0.0
-networks:
-- name: cf1
-  subnets:
-    - cloud_properties:
-      static:
-      - 0.0.0.0 - 0.0.0.26
 properties:
   cc:
     droplets:
