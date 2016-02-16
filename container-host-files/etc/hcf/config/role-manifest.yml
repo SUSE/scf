@@ -34,7 +34,7 @@ roles:
   - name: consul_agent
   configuration:
     templates:
-      route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
 - name: api_worker
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -99,7 +99,7 @@ roles:
   - name: syslog_drain_binder
   configuration:
     templates:
-      route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -132,18 +132,18 @@ roles:
   - name: consul_agent
   configuration:
     templates:
-      etcd.peer_require_ssl: 'false'
-      etcd.require_ssl: 'false'
-      etcd.cluster: 'null'
-      etcd.peer_key: 'null'
-      etcd.peer_cert: 'null'
-      etcd.peer_ca_cert: 'null'
-      etcd.server_key: 'null'
-      etcd.client_key: 'null'
-      etcd.server_cert: 'null'
-      etcd.client_cert: 'null'
-      etcd.ca_cert: 'null'
-      etcd.machines: '["etcd.hcf"]'
+      properties.etcd.peer_require_ssl: 'false'
+      properties.etcd.require_ssl: 'false'
+      properties.etcd.cluster: 'null'
+      properties.etcd.peer_key: 'null'
+      properties.etcd.peer_cert: 'null'
+      properties.etcd.peer_ca_cert: 'null'
+      properties.etcd.server_key: 'null'
+      properties.etcd.client_key: 'null'
+      properties.etcd.server_cert: 'null'
+      properties.etcd.client_cert: 'null'
+      properties.etcd.ca_cert: 'null'
+      properties.etcd.machines: '["etcd.hcf"]'
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -163,7 +163,7 @@ roles:
   - name: consul_agent
   configuration:
     templates:
-      route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
 - name: nats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -235,7 +235,7 @@ roles:
   - name: consul_agent
   configuration:
     templates:
-      route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
 - name: cf-usb
   jobs:
   - name: cf-usb
@@ -267,7 +267,7 @@ roles:
   - name: consul_agent
   configuration:
     templates:
-      route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
 - name: diego_brain
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -376,17 +376,17 @@ roles:
   - name: gra-log-purger-executable
   configuration:
     templates:
-      cluster_ips: '["mysql.hcf"]'
-      database_startup_timeout: '300'
-      network_name: 'default'
-      proxy.api_username: 'mysql_proxy'
-      proxy.proxy_ips: '["mysql_proxy.hcf"]'
-      bootstrap_endpoint.username: 'bootstrap_user'
-      admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      external_host: "((DOMAIN))"
-      proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cluster_ips: '["mysql.hcf"]'
+      properties.database_startup_timeout: '300'
+      properties.network_name: 'default'
+      properties.proxy.api_username: 'mysql_proxy'
+      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
+      properties.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.external_host: "((DOMAIN))"
+      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql_proxy
   scripts:
   - write_dns_health_check_mysql_proxy.sh
@@ -400,22 +400,22 @@ roles:
   - name: switchboard
   configuration:
     templates:
-      cluster_ips: '["mysql.hcf"]'
-      database_startup_timeout: '300'
-      network_name: 'default'
-      proxy.api_username: 'mysql_proxy'
-      proxy.proxy_ips: '["mysql_proxy.hcf"]'
-      bootstrap_endpoint.username: 'bootstrap_user'
-      admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      external_host: "((DOMAIN))"
-      proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cluster_ips: '["mysql.hcf"]'
+      properties.database_startup_timeout: '300'
+      properties.network_name: 'default'
+      properties.proxy.api_username: 'mysql_proxy'
+      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
+      properties.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.external_host: "((DOMAIN))"
+      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
       # TODO: Take this out, and place our generated CA cert
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
-      proxy.api_force_https: 'false'
-      skip_ssl_validation: 'true'
+      properties.proxy.api_force_https: 'false'
+      properties.skip_ssl_validation: 'true'
 configuration:
   variables:
   - name: PUBLIC_IP
@@ -554,220 +554,220 @@ configuration:
   - name: SSH_KEY
     default: '-----BEGIN RSA PRIVATE KEY-----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-----END RSA PRIVATE KEY-----'
   templates:
-    app_domains: '["((DOMAIN))"]'
-    app_ssh.host_key_fingerprint: "((APP_SSH_HOST_KEY_FINGERPRINT))"
-    cc.bulk_api_password: "((BULK_API_PASSWORD))"
-    cc.db_encryption_key: "((DB_ENCRYPTION_KEY))"
-    cc.srv_api_uri: "https://api.((DOMAIN))"
-    cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
-    cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
-    cc.internal_api_user: "((INTERNAL_API_USER))"
-    cc.internal_api_password: "((INTERNAL_API_PASSWORD))"
-    ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
-    uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    domain: "((DOMAIN))"
-    doppler.zone: "((DOPPLER_ZONE))"
-    doppler_endpoint.shared_secret: "((LOGGREGATOR_SHARED_SECRET))"
-    etcd_metrics_server.nats.username: "((NATS_USER))"
-    etcd_metrics_server.nats.password: "((NATS_PASSWORD))"
-    hcf.monit.user: "((MONIT_USER))"
-    hcf.monit.password: "((MONIT_PASSWORD))"
-    hcf.monit.port: "((MONIT_PORT))"
-    loggregator_endpoint.shared_secret: "((LOGGREGATOR_SHARED_SECRET))"
-    metron_agent.zone: "((METRON_AGENT_ZONE))"
-    nats.user: "((NATS_USER))"
-    nats.password: "((NATS_PASSWORD))"
-    uaa.admin.client_secret: "((UAA_ADMIN_CLIENT_SECRET))"
-    uaa.batch.username: "((UAA_BATCH_USERNAME))"
-    uaa.batch.password: "((UAA_BATCH_PASSWORD))"
-    uaa.cc.client_secret: "((UAA_CC_CLIENT_SECRET))"
-    uaa.clients.cf-usb.secret: "((UAA_CLIENTS_CF_USB_SECRET))"
-    uaa.clients.cf-usb.authorized-grant-types: "client_credentials"
-    uaa.clients.cf-usb.authorities: "cloud_controller.admin,usb.management.admin"
-    uaa.clients.cf-usb.scope: "usb.management.admin"
-    uaa.clients.app-direct.secret: "((UAA_CLIENTS_APP_DIRECT_SECRET))"
-    uaa.clients.developer-console.secret: "((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"
-    uaa.clients.notifications.secret: "((UAA_CLIENTS_NOTIFICATIONS_SECRET))"
-    uaa.clients.login.secret: "((UAA_CLIENTS_LOGIN_SECRET))"
-    uaa.clients.cc_routing.secret: "((UAA_CLIENTS_CC_ROUTING_SECRET))"
-    uaa.clients.doppler.secret: "((UAA_CLIENTS_DOPPLER_SECRET))"
-    uaa.clients.cloud_controller_username_lookup.secret: "((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"
-    uaa.clients.gorouter.secret: "((UAA_CLIENTS_GOROUTER_SECRET))"
-    uaa.clients.ssh-proxy.secret: "((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"
-    uaa.clients.ssh-proxy.authorized-grant-types: "authorization_code"
-    uaa.clients.ssh-proxy.scope: "openid,cloud_controller.read,cloud_controller.write"
-    uaa.clients.ssh-proxy.redirect-uri: "/login"
-    uaa.clients.ssh-proxy.autoapprove: "true"
-    uaa.clients.ssh-proxy.override: "true"
-    uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
-    system_domain: "((DOMAIN))"
-    traffic_controller.zone: "((TRAFFIC_CONTROLLER_ZONE))"
-    cf-usb.broker.external_url: "brokers.((DOMAIN))"
-    cf-usb.broker.username: "((CF_USB_USERNAME))"
-    cf-usb.broker.password: "((CF_USB_PASSWORD))"
-    cf-usb.management.uaa.secret: "((UAA_CLIENTS_CF_USB_SECRET))"
-    cf-usb.management.uaa.client: "cf-usb"
-    diego.bbs.encryption_keys: '[{"label": "((BBS_ACTIVE_KEY_LABEL))", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
-    diego.cc_uploader.cc.base_url: "https://api.((DOMAIN))"
-    diego.cc_uploader.cc.basic_auth_username: "((INTERNAL_API_USER))"
-    diego.cc_uploader.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
-    diego.cc_uploader.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
-    diego.cc_uploader.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
-    diego.nsync.cc.base_url: "https://api.((DOMAIN))"
-    diego.nsync.cc.basic_auth_username: "((INTERNAL_API_USER))"
-    diego.nsync.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
-    diego.nsync.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
-    diego.nsync.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
-    diego.route_emitter.nats.user: "((NATS_USER))"
-    diego.route_emitter.nats.password: "((NATS_PASSWORD))"
-    diego.ssh_proxy.servers: '["diego_access.hcf"]'
-    diego.ssh_proxy.uaa_token_url: "https://uaa.((DOMAIN))/oauth/token"
-    diego.ssh_proxy.uaa_secret: "((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"
-    diego.stager.cc.base_url: "https://api.((DOMAIN))"
-    diego.stager.cc.basic_auth_username: "((INTERNAL_API_USER))"
-    diego.stager.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
-    diego.stager.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
-    diego.stager.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
-    diego.tps.cc.base_url: "https://api.((DOMAIN))"
-    diego.tps.cc.basic_auth_username: "((INTERNAL_API_USER))"
-    diego.tps.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
-    diego.tps.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
-    diego.tps.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
-    diego.tps.traffic_controller_url: "wss://doppler.((DOMAIN)):443"
-    diego.bbs.active_key_label: "((BBS_ACTIVE_KEY_LABEL))"
-    garden.deny_networks: "[]"
-    hm9000.url: "https://hm9000.((DOMAIN))"
-    uaa.url: "https://uaa.((DOMAIN))"
+    properties.app_domains: '["((DOMAIN))"]'
+    properties.app_ssh.host_key_fingerprint: "((APP_SSH_HOST_KEY_FINGERPRINT))"
+    properties.cc.bulk_api_password: "((BULK_API_PASSWORD))"
+    properties.cc.db_encryption_key: "((DB_ENCRYPTION_KEY))"
+    properties.cc.srv_api_uri: "https://api.((DOMAIN))"
+    properties.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
+    properties.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
+    properties.cc.internal_api_user: "((INTERNAL_API_USER))"
+    properties.cc.internal_api_password: "((INTERNAL_API_PASSWORD))"
+    properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
+    properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
+    properties.domain: "((DOMAIN))"
+    properties.doppler.zone: "((DOPPLER_ZONE))"
+    properties.doppler_endpoint.shared_secret: "((LOGGREGATOR_SHARED_SECRET))"
+    properties.etcd_metrics_server.nats.username: "((NATS_USER))"
+    properties.etcd_metrics_server.nats.password: "((NATS_PASSWORD))"
+    properties.hcf.monit.user: "((MONIT_USER))"
+    properties.hcf.monit.password: "((MONIT_PASSWORD))"
+    properties.hcf.monit.port: "((MONIT_PORT))"
+    properties.loggregator_endpoint.shared_secret: "((LOGGREGATOR_SHARED_SECRET))"
+    properties.metron_agent.zone: "((METRON_AGENT_ZONE))"
+    properties.nats.user: "((NATS_USER))"
+    properties.nats.password: "((NATS_PASSWORD))"
+    properties.uaa.admin.client_secret: "((UAA_ADMIN_CLIENT_SECRET))"
+    properties.uaa.batch.username: "((UAA_BATCH_USERNAME))"
+    properties.uaa.batch.password: "((UAA_BATCH_PASSWORD))"
+    properties.uaa.cc.client_secret: "((UAA_CC_CLIENT_SECRET))"
+    properties.uaa.clients.cf-usb.secret: "((UAA_CLIENTS_CF_USB_SECRET))"
+    properties.uaa.clients.cf-usb.authorized-grant-types: "client_credentials"
+    properties.uaa.clients.cf-usb.authorities: "cloud_controller.admin,usb.management.admin"
+    properties.uaa.clients.cf-usb.scope: "usb.management.admin"
+    properties.uaa.clients.app-direct.secret: "((UAA_CLIENTS_APP_DIRECT_SECRET))"
+    properties.uaa.clients.developer-console.secret: "((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"
+    properties.uaa.clients.notifications.secret: "((UAA_CLIENTS_NOTIFICATIONS_SECRET))"
+    properties.uaa.clients.login.secret: "((UAA_CLIENTS_LOGIN_SECRET))"
+    properties.uaa.clients.cc_routing.secret: "((UAA_CLIENTS_CC_ROUTING_SECRET))"
+    properties.uaa.clients.doppler.secret: "((UAA_CLIENTS_DOPPLER_SECRET))"
+    properties.uaa.clients.cloud_controller_username_lookup.secret: "((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"
+    properties.uaa.clients.gorouter.secret: "((UAA_CLIENTS_GOROUTER_SECRET))"
+    properties.uaa.clients.ssh-proxy.secret: "((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"
+    properties.uaa.clients.ssh-proxy.authorized-grant-types: "authorization_code"
+    properties.uaa.clients.ssh-proxy.scope: "openid,cloud_controller.read,cloud_controller.write"
+    properties.uaa.clients.ssh-proxy.redirect-uri: "/login"
+    properties.uaa.clients.ssh-proxy.autoapprove: "true"
+    properties.uaa.clients.ssh-proxy.override: "true"
+    properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
+    properties.system_domain: "((DOMAIN))"
+    properties.traffic_controller.zone: "((TRAFFIC_CONTROLLER_ZONE))"
+    properties.cf-usb.broker.external_url: "brokers.((DOMAIN))"
+    properties.cf-usb.broker.username: "((CF_USB_USERNAME))"
+    properties.cf-usb.broker.password: "((CF_USB_PASSWORD))"
+    properties.cf-usb.management.uaa.secret: "((UAA_CLIENTS_CF_USB_SECRET))"
+    properties.cf-usb.management.uaa.client: "cf-usb"
+    properties.diego.bbs.encryption_keys: '[{"label": "((BBS_ACTIVE_KEY_LABEL))", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.cc_uploader.cc.base_url: "https://api.((DOMAIN))"
+    properties.diego.cc_uploader.cc.basic_auth_username: "((INTERNAL_API_USER))"
+    properties.diego.cc_uploader.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
+    properties.diego.cc_uploader.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
+    properties.diego.cc_uploader.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
+    properties.diego.nsync.cc.base_url: "https://api.((DOMAIN))"
+    properties.diego.nsync.cc.basic_auth_username: "((INTERNAL_API_USER))"
+    properties.diego.nsync.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
+    properties.diego.nsync.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
+    properties.diego.nsync.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
+    properties.diego.route_emitter.nats.user: "((NATS_USER))"
+    properties.diego.route_emitter.nats.password: "((NATS_PASSWORD))"
+    properties.diego.ssh_proxy.servers: '["diego_access.hcf"]'
+    properties.diego.ssh_proxy.uaa_token_url: "https://uaa.((DOMAIN))/oauth/token"
+    properties.diego.ssh_proxy.uaa_secret: "((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"
+    properties.diego.stager.cc.base_url: "https://api.((DOMAIN))"
+    properties.diego.stager.cc.basic_auth_username: "((INTERNAL_API_USER))"
+    properties.diego.stager.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
+    properties.diego.stager.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
+    properties.diego.stager.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
+    properties.diego.tps.cc.base_url: "https://api.((DOMAIN))"
+    properties.diego.tps.cc.basic_auth_username: "((INTERNAL_API_USER))"
+    properties.diego.tps.cc.basic_auth_password: "((INTERNAL_API_PASSWORD))"
+    properties.diego.tps.cc.staging_upload_password: "((STAGING_UPLOAD_PASSWORD))"
+    properties.diego.tps.cc.staging_upload_user: "((STAGING_UPLOAD_USER))"
+    properties.diego.tps.traffic_controller_url: "wss://doppler.((DOMAIN)):443"
+    properties.diego.bbs.active_key_label: "((BBS_ACTIVE_KEY_LABEL))"
+    properties.garden.deny_networks: "[]"
+    properties.hm9000.url: "https://hm9000.((DOMAIN))"
+    properties.uaa.url: "https://uaa.((DOMAIN))"
     # The following look more like constants (except for hostnames)
     # and should be moved to the opinion file
-    nats.machines: '["nats.hcf"]'
-    etcd_metrics_server.nats.machines: '["nats.hcf"]'
-    etcd_metrics_server.machines: '["nats.hcf"]'
-    nfs_server.share_path: '/var/vcap/nfs'
-    etcd.machines: '["diego_database.hcf"]'
-    etcd.peer_require_ssl: 'true'
-    etcd.require_ssl: 'true'
-    etcd.cluster: '[{"instances": 1, "name": "database_z1"}]'
-    loggregator.etcd.machines: '["etcd.hcf"]'
-    router.servers.z1: '["router.hcf"]'
-    dea_next.kernel_network_tuning_enabled: 'false'
-    ccdb.port: '3306'
-    ccdb.address: 'mysql_proxy.hcf'
-    ccdb.db_scheme: 'mysql'
-    uaadb.port: '3306'
-    uaadb.address: 'mysql_proxy.hcf'
-    uaadb.db_scheme: 'mysql'
-    diego.auctioneer.bbs.require_ssl: 'true'
-    diego.auctioneer.bbs.api_location: 'diego_database.hcf:8889'
-    diego.bbs.auctioneer.api_url: 'http://diego_brain.hcf:9016'
-    diego.bbs.etcd.machines: '["diego_database.hcf"]'
-    diego.bbs.etcd.require_ssl: 'true'
-    diego.bbs.require_ssl: 'true'
-    diego.converger.bbs.api_location: 'diego_database.hcf:8889'
-    diego.converger.bbs.require_ssl: 'true'
-    diego.converger.log_level: 'debug'
-    diego.executor.drain_timeout_in_seconds: '0'
-    diego.executor.garden.address: '127.0.0.1:7777'
-    diego.executor.garden.network: 'tcp'
-    diego.executor.log_level: 'debug'
-    diego.nsync.bbs.api_location: 'diego_database.hcf:8889'
-    diego.nsync.bbs.require_ssl: 'true'
-    diego.nsync.log_level: 'debug'
-    diego.rep.bbs.require_ssl: 'true'
-    diego.rep.evacuation_timeout_in_seconds: '60'
-    diego.rep.log_level: 'debug'
-    diego.route_emitter.bbs.api_location: 'diego_database.hcf:8889'
-    diego.route_emitter.bbs.require_ssl: 'true'
-    diego.route_emitter.log_level: 'debug'
-    diego.route_emitter.nats.port: '4222'
-    diego.ssh_proxy.bbs.api_location: 'diego_database.hcf:8889'
-    diego.ssh_proxy.bbs.require_ssl: 'true'
-    diego.ssh_proxy.enable_cf_auth: 'true'
-    diego.ssh_proxy.enable_diego_auth: 'false'
-    diego.stager.bbs.api_location: 'diego_database.hcf:8889'
-    diego.stager.bbs.require_ssl: 'true'
-    diego.tps.bbs.api_location: 'diego_database.hcf:8889'
-    diego.tps.bbs.require_ssl: 'true'
-    diego.rep.bbs.api_location: 'diego_database.hcf:8889'
-    garden.enable_graph_cleanup: 'true'
-    garden.listen_address: '0.0.0.0:7777'
-    garden.listen_network: 'tcp'
-    garden.log_level: 'debug'
-    garden.persistent_image_list: '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
-    diego.route_emitter.nats.machines: '["nats.hcf"]'
-    diego.rep.zone: 'z1'
-    diego.file_server.static_directory: '/var/vcap/packages/'
-    cf-usb.configconnectionstring: '127.0.0.1:8500'
-    cf-usb.configprovider: 'consulConfigProvider'
-    cc.default_to_diego_backend: 'true'
+    properties.nats.machines: '["nats.hcf"]'
+    properties.etcd_metrics_server.nats.machines: '["nats.hcf"]'
+    properties.etcd_metrics_server.machines: '["nats.hcf"]'
+    properties.nfs_server.share_path: '/var/vcap/nfs'
+    properties.etcd.machines: '["diego_database.hcf"]'
+    properties.etcd.peer_require_ssl: 'true'
+    properties.etcd.require_ssl: 'true'
+    properties.etcd.cluster: '[{"instances": 1, "name": "database_z1"}]'
+    properties.loggregator.etcd.machines: '["etcd.hcf"]'
+    properties.router.servers.z1: '["router.hcf"]'
+    properties.dea_next.kernel_network_tuning_enabled: 'false'
+    properties.ccdb.port: '3306'
+    properties.ccdb.address: 'mysql_proxy.hcf'
+    properties.ccdb.db_scheme: 'mysql'
+    properties.uaadb.port: '3306'
+    properties.uaadb.address: 'mysql_proxy.hcf'
+    properties.uaadb.db_scheme: 'mysql'
+    properties.diego.auctioneer.bbs.require_ssl: 'true'
+    properties.diego.auctioneer.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.bbs.auctioneer.api_url: 'http://diego_brain.hcf:9016'
+    properties.diego.bbs.etcd.machines: '["diego_database.hcf"]'
+    properties.diego.bbs.etcd.require_ssl: 'true'
+    properties.diego.bbs.require_ssl: 'true'
+    properties.diego.converger.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.converger.bbs.require_ssl: 'true'
+    properties.diego.converger.log_level: 'debug'
+    properties.diego.executor.drain_timeout_in_seconds: '0'
+    properties.diego.executor.garden.address: '127.0.0.1:7777'
+    properties.diego.executor.garden.network: 'tcp'
+    properties.diego.executor.log_level: 'debug'
+    properties.diego.nsync.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.nsync.bbs.require_ssl: 'true'
+    properties.diego.nsync.log_level: 'debug'
+    properties.diego.rep.bbs.require_ssl: 'true'
+    properties.diego.rep.evacuation_timeout_in_seconds: '60'
+    properties.diego.rep.log_level: 'debug'
+    properties.diego.route_emitter.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.route_emitter.bbs.require_ssl: 'true'
+    properties.diego.route_emitter.log_level: 'debug'
+    properties.diego.route_emitter.nats.port: '4222'
+    properties.diego.ssh_proxy.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.ssh_proxy.bbs.require_ssl: 'true'
+    properties.diego.ssh_proxy.enable_cf_auth: 'true'
+    properties.diego.ssh_proxy.enable_diego_auth: 'false'
+    properties.diego.stager.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.stager.bbs.require_ssl: 'true'
+    properties.diego.tps.bbs.api_location: 'diego_database.hcf:8889'
+    properties.diego.tps.bbs.require_ssl: 'true'
+    properties.diego.rep.bbs.api_location: 'diego_database.hcf:8889'
+    properties.garden.enable_graph_cleanup: 'true'
+    properties.garden.listen_address: '0.0.0.0:7777'
+    properties.garden.listen_network: 'tcp'
+    properties.garden.log_level: 'debug'
+    properties.garden.persistent_image_list: '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
+    properties.diego.route_emitter.nats.machines: '["nats.hcf"]'
+    properties.diego.rep.zone: 'z1'
+    properties.diego.file_server.static_directory: '/var/vcap/packages/'
+    properties.cf-usb.configconnectionstring: '127.0.0.1:8500'
+    properties.cf-usb.configprovider: 'consulConfigProvider'
+    properties.cc.default_to_diego_backend: 'true'
     # TODO: Take this out, and place our generated CA cert
     # into the appropriate /usr/share/ca-certificates folders
     # and call update-ca-certificates at container startup
-    ssl.skip_cert_verify: 'true'
-    disk_quota_enabled: 'false'
-    metron_agent.deployment: 'hcf-deployment'
-    consul.require_ssl: 'false'
-    consul.encrypt_keys: '[]'
-    cf-usb.skip_tsl_validation: 'true'
-    cf-usb.management.dev_mode: 'true'
-    diego.ssl.skip_cert_verify: 'true'
-    cc.diego.nsync_url: "http://diego_cc_bridge.hcf:8787"
-    cc.diego.stager_url: "http://diego_cc_bridge.hcf:8888"
-    cc.diego.tps_url: "http://diego_cc_bridge.hcf:1518"
-    diego.nsync.file_server_url: "http://diego_access.hcf:8080"
-    diego.stager.staging_task_callback_url: "http://diego_cc_bridge.hcf:8888"
-    diego.stager.cc.internal_service_hostname: "api.hcf"
-    diego.stager.file_server_url: "http://diego_access.hcf:8080"
-    diego.stager.cc_uploader_url: "http://diego_cc_bridge.hcf:9090"
+    properties.ssl.skip_cert_verify: 'true'
+    properties.disk_quota_enabled: 'false'
+    properties.metron_agent.deployment: 'hcf-deployment'
+    properties.consul.require_ssl: 'false'
+    properties.consul.encrypt_keys: '[]'
+    properties.cf-usb.skip_tsl_validation: 'true'
+    properties.cf-usb.management.dev_mode: 'true'
+    properties.diego.ssl.skip_cert_verify: 'true'
+    properties.cc.diego.nsync_url: "http://diego_cc_bridge.hcf:8787"
+    properties.cc.diego.stager_url: "http://diego_cc_bridge.hcf:8888"
+    properties.cc.diego.tps_url: "http://diego_cc_bridge.hcf:1518"
+    properties.diego.nsync.file_server_url: "http://diego_access.hcf:8080"
+    properties.diego.stager.staging_task_callback_url: "http://diego_cc_bridge.hcf:8888"
+    properties.diego.stager.cc.internal_service_hostname: "api.hcf"
+    properties.diego.stager.file_server_url: "http://diego_access.hcf:8080"
+    properties.diego.stager.cc_uploader_url: "http://diego_cc_bridge.hcf:9090"
     # TODO: configure this once we have the diego docker cache deployed
     # diego.stager.docker_registry_address: "docker-registry.service.cf.internal:8080"
-    diego.tps.bbs.api_location: "diego_database.hcf:8889"
-    diego.tps.cc.internal_service_hostname: "api.hcf"
-    diego.tps.traffic_controller_url: "ws://loggregator_trafficcontroller.hcf:8081"
-    diego.ssh_proxy.cc.internal_service_hostname: "api.hcf"
+    properties.diego.tps.bbs.api_location: "diego_database.hcf:8889"
+    properties.diego.tps.cc.internal_service_hostname: "api.hcf"
+    properties.diego.tps.traffic_controller_url: "ws://loggregator_trafficcontroller.hcf:8081"
+    properties.diego.ssh_proxy.cc.internal_service_hostname: "api.hcf"
     # Setting certificate values
-    ha_proxy.ssl_pem: "((CERTS_ROOT_CHAIN_PEM))"
-    uaa.jwt.signing_key: "((JWT_SIGNING_PEM))"
-    uaa.jwt.verification_key: "((JWT_SIGNING_PUB))"
-    cf-usb.management.public_key: "((JWT_SIGNING_PUB))"
+    properties.ha_proxy.ssl_pem: "((CERTS_ROOT_CHAIN_PEM))"
+    properties.uaa.jwt.signing_key: "((JWT_SIGNING_PEM))"
+    properties.uaa.jwt.verification_key: "((JWT_SIGNING_PUB))"
+    properties.cf-usb.management.public_key: "((JWT_SIGNING_PUB))"
     # Diego certificates
-    etcd.peer_key: "((ETCD_PEER_KEY))"
-    etcd.peer_cert: "((ETCD_PEER_CRT))"
-    etcd.peer_ca_cert: "((ETCD_CA_CRT))"
-    etcd.server_key: "((ETCD_SERVER_KEY))"
-    etcd.client_key: "((ETCD_CLIENT_KEY))"
-    diego.bbs.etcd.client_key: "((ETCD_CLIENT_KEY))"
-    etcd.server_cert: "((ETCD_SERVER_CRT))"
-    etcd.client_cert: "((ETCD_CLIENT_CRT))"
-    diego.bbs.etcd.client_cert: "((ETCD_CLIENT_CRT))"
-    etcd.ca_cert: "((ETCD_CA_CRT))"
-    diego.bbs.etcd.ca_cert: "((ETCD_CA_CRT))"
-    diego.bbs.server_key: "((BBS_SERVER_KEY))"
-    diego.tps.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.stager.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.ssh_proxy.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.route_emitter.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.rep.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.nsync.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.converger.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.auctioneer.bbs.client_key: "((BBS_CLIENT_KEY))"
-    diego.bbs.server_cert: "((BBS_SERVER_CRT))"
-    diego.tps.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.stager.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.ssh_proxy.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.route_emitter.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.rep.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.nsync.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.converger.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.auctioneer.bbs.client_cert: "((BBS_CLIENT_CRT))"
-    diego.tps.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.stager.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.ssh_proxy.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.route_emitter.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.rep.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.nsync.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.converger.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.bbs.ca_cert: "((BBS_CA_CRT))"
-    diego.auctioneer.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.etcd.peer_key: "((ETCD_PEER_KEY))"
+    properties.etcd.peer_cert: "((ETCD_PEER_CRT))"
+    properties.etcd.peer_ca_cert: "((ETCD_CA_CRT))"
+    properties.etcd.server_key: "((ETCD_SERVER_KEY))"
+    properties.etcd.client_key: "((ETCD_CLIENT_KEY))"
+    properties.diego.bbs.etcd.client_key: "((ETCD_CLIENT_KEY))"
+    properties.etcd.server_cert: "((ETCD_SERVER_CRT))"
+    properties.etcd.client_cert: "((ETCD_CLIENT_CRT))"
+    properties.diego.bbs.etcd.client_cert: "((ETCD_CLIENT_CRT))"
+    properties.etcd.ca_cert: "((ETCD_CA_CRT))"
+    properties.diego.bbs.etcd.ca_cert: "((ETCD_CA_CRT))"
+    properties.diego.bbs.server_key: "((BBS_SERVER_KEY))"
+    properties.diego.tps.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.stager.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.ssh_proxy.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.route_emitter.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.rep.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.nsync.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.converger.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.auctioneer.bbs.client_key: "((BBS_CLIENT_KEY))"
+    properties.diego.bbs.server_cert: "((BBS_SERVER_CRT))"
+    properties.diego.tps.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.stager.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.ssh_proxy.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.route_emitter.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.rep.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.nsync.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.converger.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.auctioneer.bbs.client_cert: "((BBS_CLIENT_CRT))"
+    properties.diego.tps.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.stager.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.ssh_proxy.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.route_emitter.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.rep.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.nsync.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.converger.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.bbs.ca_cert: "((BBS_CA_CRT))"
+    properties.diego.auctioneer.bbs.ca_cert: "((BBS_CA_CRT))"
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
-    diego.ssh_proxy.host_key: "((SSH_KEY))"
+    properties.diego.ssh_proxy.host_key: "((SSH_KEY))"
