@@ -42,13 +42,14 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
 function start_role {
   image=$1
   name=$2
   role=$3
   overlay_gateway=$4
-  extra="${@:5}"
+  env_vars_file=$5
+  extra="${@:6}"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
@@ -59,14 +60,13 @@ function start_role {
     --label=fissile_role=$role \
     --hostname=${role}.hcf \
     --cgroup-parent=instance \
+    --env-file=${env_vars_file} \
     -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
     -e "HCF_NETWORK=overlay" \
     -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
-    $image \
-    $consul_address \
-    $config_prefix > /dev/null
+    $image > /dev/null
 }
 
 # Starts the hcf consul server
@@ -134,11 +134,12 @@ function get_image_name() {
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
+# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
 function handle_restart() {
   image=$1
   overlay_gateway=$2
-  extra="${@:3}"
+  env_vars_file=$3
+  extra="${@:4}"
 
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)
@@ -149,12 +150,12 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $overlay_gateway $extra
+    start_role $image $container_name $role $overlay_gateway $env_vars_file $extra
     return 0
   fi
 }
 
-# Reads all roles that are not tasks from role-manifest.yml
+# Reads all roles that are bosh roles from role-manifest.yml
 # Uses shyaml for parsing
 # list_all_non_task_roles
 function list_all_non_task_roles() {
@@ -162,8 +163,8 @@ function list_all_non_task_roles() {
 
   cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
       role_name=$(echo "${role_block}" | shyaml get-value name)
-      is_task=$(echo "${role_block}" | shyaml get-value is_task false)
-      if [[ "${is_task}" == "false" ]] ; then
+      role_type=$(echo "${role_block}" | shyaml get-value type bosh)
+      if [[ "${role_type}" == "bosh" ]] ; then
         echo $role_name
       fi
   done
@@ -177,8 +178,8 @@ function list_all_task_roles() {
 
   cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
     role_name=$(echo "${role_block}" | shyaml get-value name)
-    is_task=$(echo "${role_block}" | shyaml get-value is_task false)
-    if [[ "${is_task}" == "true" ]] ; then
+    role_type=$(echo "${role_block}" | shyaml get-value type bosh)
+    if [[ "${role_type}" == "bosh-task" ]] ; then
       echo $role_name
     fi
   done
