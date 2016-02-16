@@ -729,7 +729,7 @@ configuration:
     ha_proxy.ssl_pem: "((CERTS_ROOT_CHAIN_PEM))"
     uaa.jwt.signing_key: "((JWT_SIGNING_PEM))"
     uaa.jwt.verification_key: "((JWT_SIGNING_PUB))"
-    cf-usb.management.public_key:"((JWT_SIGNING_PUB))"
+    cf-usb.management.public_key: "((JWT_SIGNING_PUB))"
     # Diego certificates
     etcd.peer_key: "((ETCD_PEER_KEY))"
     etcd.peer_cert: "((ETCD_PEER_CRT))"
