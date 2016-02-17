@@ -7,8 +7,8 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 . "${ROOT}/bin/.runrc"
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
-consul_image=($(get_consul_image))
-other_images=($(get_role_images))
+consul_image=($(fissile dev list-roles | grep 'consul'))
+other_images=($(fissile dev list-roles | grep -v 'consul\|smoke_tests\|acceptance_tests'))
 
 local_ip="${local_ip:-$(${ROOT}/container-host-files/opt/hcf/bin/get_ip eth1)}"
 store_dir=$HCF_RUN_STORE
@@ -52,7 +52,45 @@ ${ROOT}/container-host-files/opt/hcf/bin/service_registration.bash 1
 # Start all other roles
 for image in "${other_images[@]}"
 do
-  handle_restart "$image" "$hcf_overlay_gateway" || true
+  extra=""
+
+  role=$(get_role_name $image)
+  case "$role" in
+    "api")
+      mkdir -p $store_dir/fake_nfs_share
+      touch $store_dir/fake_nfs_share/.nfs_test
+      extra="-v ${store_dir}/fake_nfs_share:/var/vcap/nfs/shared"
+      ;;
+    "doppler")
+      extra="--privileged"
+      ;;
+    "loggregator_trafficcontroller")
+      extra="--privileged"
+      ;;
+    "router")
+      extra="--privileged"
+      ;;
+    "api_worker")
+      mkdir -p $store_dir/fake_nfs_share
+      touch $store_dir/fake_nfs_share/.nfs_test
+      extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
+      ;;
+    "ha_proxy")
+      extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
+      ;;
+    "mysql_proxy")
+      extra="-p 3306:3306"
+      ;;
+    "diego_cell")
+      extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
+      ;;
+    "cf-usb")
+      mkdir -p $store_dir/fake_cf_usb_nfs_share
+      extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"
+      ;;
+  esac
+
+  handle_restart "$image" "$hcf_overlay_gateway" "$extra" || true
 done
 
 echo -e "\n\n\nDone, all containers have started.\n"
