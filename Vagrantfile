@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 4443, host: 4443
   config.vm.network "forwarded_port", guest: 8501, host: 8501
-  
+
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -33,6 +33,19 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "/home/vagrant/hcf"
   end
 
+  config.vm.provider "virtualbox" do |vb, override|
+    # Need to shorten the URL for Windows' sake
+    override.vm.box = "http://tinyurl.com/hcf-vagrant-vbox"
+    # Customize the amount of memory on the VM:
+    vb.memory = "8192"
+    vb.cpus = 4
+    # If you need to debug stuff
+    vb.gui = true
+
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
+    override.vm.synced_folder ".", "/home/vagrant/hcf"
+  end
+
   config.vm.provider "libvirt" do |libvirt, override|
     override.vm.box = "https://15.184.137.5:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-libvirt-v0.box"
     libvirt.driver = "kvm"
@@ -45,13 +58,17 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
 
+  unless OS.windows?
+    config.vm.provision "shell", inline: <<-SHELL
+        if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
+          echo "Looks like the cf-release submodule was not initialized" >&2
+          echo "Did you run 'git submodule update --init --recursive'?" >&2
+          exit 1
+        fi
+    SHELL
+  end
+
   config.vm.provision "shell", inline: <<-SHELL
-    if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
-      echo "Looks like the cf-release submodule was not initialized" >&2
-      echo "Did you run 'git submodule update --init --recursive'?" >&2
-      exit 1
-    fi
-  
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "192.168.77.77"
   SHELL
@@ -87,4 +104,10 @@ Vagrant.configure(2) do |config|
     cd /home/vagrant/hcf
     make copy-compile-cache
   SHELL
+end
+
+module OS
+  def OS.windows?
+      (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
 end

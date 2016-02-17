@@ -62,10 +62,10 @@ keyUsage               = digitalSignature, keyEncipherment
 basicConstraints       = CA:FALSE
 extendedKeyUsage       = clientAuth, serverAuth
 keyUsage               = digitalSignature, keyEncipherment
-subjectAltName         = DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal
+subjectAltName         = DNS:diego_database.hcf, DNS:*.diego_database.hcf, DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal
 
 [ etcd_server ]
 basicConstraints       = CA:FALSE
 extendedKeyUsage       = clientAuth, serverAuth
 keyUsage               = digitalSignature, keyEncipherment
-subjectAltName         = DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal
+subjectAltName         = DNS:diego_database.hcf, DNS:*.diego_database.hcf, DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal

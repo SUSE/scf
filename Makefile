@@ -122,6 +122,7 @@ endif
 
 compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
 	$(call print_status, Compiling BOSH release packages)
+	@echo Please allow a long time for mariadb to compile
 	fissile dev compile
 ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \

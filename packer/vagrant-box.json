@@ -43,6 +43,33 @@
             }
         },
         {
+            "type": "virtualbox-iso",
+            "headless": true,
+            "vm_name": "{{user `vm_name`}}",
+            "guest_os_type": "Ubuntu_64",
+            "disk_size": 150000,
+            "ssh_username": "{{user `ssh_username`}}",
+            "ssh_password": "{{user `ssh_password`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "http_directory": "{{user `http_directory`}}",
+            "virtualbox_version_file": ".vbox_version",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "shutdown_command": "{{user `shutdown_command`}}",
+            "boot_command": [
+                "<esc><esc><enter><wait>",
+                "/install/vmlinuz noapic ",
+                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+                "hostname=hcf-vagrant ",
+                "fb=false debconf/frontend=noninteractive ",
+                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+                "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+                "initrd=/install/initrd.gz -- <enter>"
+            ]
+        },
+        {
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
@@ -88,6 +115,15 @@
             "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
             "scripts": [
                 "scripts/vmware_tools.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["virtualbox-iso"],
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "scripts": [
+                "scripts/virtualbox_tools.sh"
             ],
             "start_retry_timeout": "7m"
         },

@@ -1,6 +1,35 @@
-# hcf-infrastructure
+# Helion Cloud Foundry
 
-Build infrastructure for HCF 1.0
+This is the repository that integrates all HCF components.
+
+## Using port 80 on your host without root
+
+You will need to change the host ports in the Vagrantfile from `80` to `8080`
+and from `443` to `8443` and run the following:
+
+```
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
+```
+
+## Development on Ubuntu with VirtualBox
+
+1. Install VirtualBox
+1. Install Vagrant (version `1.7.4` minimum)
+1. Install vagrant-reload plugin
+ ```
+ vagrant plugin install vagrant-reload
+ ```
+1. Bring it online
+```
+vagrant up --provider virtualbox
+```
+1. Run HCF in the vagrant box
+ ```
+ vagrant ssh
+ cd ~/hcf
+ make run
+ ```
 
 Before creating any VMs with Vagrant, run `THIS DIR`/bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
 
@@ -81,39 +110,41 @@ This should prevent errors similar to "Package 'etcd' has a glob that resolves t
  make run
  ```
 
-## Windows (Currently not working, do not try this at home)
+## Windows
 
-> Working on a Windows host is more complicated because of heavy usage of symlinks
-> in the cf-release repository.
+> Working on a Windows host is more complicated because of heavy usage of symlinks.
 > Don't use this sort of setup unless you're comfortable with the extra complexity.
+> Only the VirtualBox provider is supported on Windows!
 
-Before you do anything, make sure you handle line endings correctly:
+1. Before you do anything, make sure you handle line endings correctly. Run this on the Windows host:
 
-```bash
-git config --global core.autocrlf input
-```
+  ```bash
+  git config --global core.autocrlf input
+  ```
 
-Do not recursively update submodules - you need to do it in the Vagrant VM,
-so symlinks are configured properly.
+1. Clone this repository, but do not recursively update submodules - you need to do it in the Vagrant VM,
+so symlinks are configured properly. For you do be able to clone everything
+within the VM, you'll need an SSH key within the VM that's allowed on github.com
 
-```bash
-# SSH to the vagrant box
-vagrant ssh
+1. SSH to the vagrant box
+  ```bash
+  vagrant ssh
+  ```
 
-# Setup symlinks
-cd ~/hcf
-git config --global core.symlinks true
-git config core.symlinks true
-git submodule update --init
-git submodule foreach --recursive git config core.symlinks true
+1. Setup symlinks and init submodules
+  ```bash
+  cd ~/hcf
+  git config --global core.symlinks true
+  git config core.symlinks true
+  git submodule update --init --recursive
+  ```
 
-# For cf-release, run the update script
-cd ./src/cf-release/
-./scripts/update
-```
-
-Run `git config core.symlinks true` for the `hcf-infrastructure` repo.
-Then, for all submodules: `git submodule foreach --recursive git config core.symlinks true`
+1. After all that you can continue with the normal stuff:
+  ```bash
+  cd ~/hcf
+  make vagrant-prep  # Only needed once
+  make run
+  ```
 
 ## Makefile targets
 

@@ -257,6 +257,7 @@ roles:
   scripts:
   - prevent_apparmor_disable.sh
   - fix_local_ip_for_overlay_networking.sh
+  - fix_linux_garden_dns.sh
   jobs:
   - name: rep
     release_name: diego
