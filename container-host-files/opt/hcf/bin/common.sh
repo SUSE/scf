@@ -42,13 +42,14 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY>
 function start_role {
   image=$1
   name=$2
   role=$3
   overlay_gateway=$4
-  extra="${@:5}"
+
+  extra="$(setup_role $role)"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
@@ -68,6 +69,52 @@ function start_role {
     $consul_address \
     $config_prefix > /dev/null
 }
+
+# Perform role-specific setup. Return extra arguments needed to start
+# the role's container.
+# setup_role <ROLE_NAME>
+function setup_role() {
+  role=$1
+  extra=""
+
+  case "$role" in
+    "api")
+      mkdir -p $store_dir/fake_nfs_share
+      touch $store_dir/fake_nfs_share/.nfs_test
+      extra="-v ${store_dir}/fake_nfs_share:/var/vcap/nfs/shared"
+      ;;
+    "doppler")
+      extra="--privileged"
+      ;;
+    "loggregator_trafficcontroller")
+      extra="--privileged"
+      ;;
+    "router")
+      extra="--privileged"
+      ;;
+    "api_worker")
+      mkdir -p $store_dir/fake_nfs_share
+      touch $store_dir/fake_nfs_share/.nfs_test
+      extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
+      ;;
+    "ha_proxy")
+      extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
+      ;;
+    "mysql_proxy")
+      extra="-p 3306:3306"
+      ;;
+    "diego_cell")
+      extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
+      ;;
+    "cf-usb")
+      mkdir -p $store_dir/fake_cf_usb_nfs_share
+      extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"
+      ;;
+  esac
+
+  echo "$extra"
+}
+
 
 # Starts the hcf consul server
 # start_hcf_consul <CONTAINER_NAME>
@@ -114,6 +161,51 @@ function run_configs() {
   public_ip=$2 $BINDIR/configs.sh
 }
 
+# get list of all possible images
+# get_all_images
+function get_all_images() {
+    fissile dev list-roles
+}
+
+# get consul image
+# get_consul_image
+function get_consul_image() {
+    get_all_images | grep 'consul'
+}
+
+# get all possible role images (except consul, and test roles)
+# get_role_images
+function get_role_images() {
+    get_all_images | grep -v 'consul\|smoke_tests\|acceptance_tests'
+}
+
+# Convert a list of image names to role names. For use in a pipe.
+function to_roles() {
+    awk -F":" '{print $1}' | sed -e "s/^${FISSILE_REPOSITORY}-//"
+}
+
+# Convert a list of role and image names to images.
+# By allowing both role and image names this function can be used to normalize arguments.
+function to_images() {
+    for role in "$@"
+    do
+	case "$role" in
+	    ${FISSILE_REPOSITORY}-*) echo $role
+		;;
+	    *) get_image_name $role
+		;;
+	esac
+    done
+}
+
+# Convert a list of image names to associated containers, running or not.
+function image_to_container() {
+    for image in "$@"
+    do
+	docker ps -q -a --filter "ancestor=$image"
+    done
+}
+
 # gets a role name from a fissile image name
 # get_role_name <IMAGE_NAME>
 function get_role_name() {
@@ -127,18 +219,17 @@ function get_role_name() {
 # get_image_name <ROLE_NAME>
 function get_image_name() {
   role=$1
-  echo $(docker inspect --format "{{index .RepoTags 0}}" `docker images -q --filter "label=role=${role}" | head -n 1`)
+  echo $(docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1))
 }
 
 # checks if the appropriate version of a role is running
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <EXTRA_DOCKER_ARGUMENTS>
+# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY>
 function handle_restart() {
   image=$1
   overlay_gateway=$2
-  extra="${@:3}"
 
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)
@@ -149,7 +240,7 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $overlay_gateway $extra
+    start_role $image $container_name $role $overlay_gateway
     return 0
   fi
 }
