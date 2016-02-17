@@ -42,8 +42,8 @@ def add_parameters(component, variables)
     end
 end
 
-def roles_to_upc(roles)
-  the_upc = {
+def roles_to_ucp(roles)
+  the_ucp = {
     "name"       => "HDP CF",	# TODO Specify via option?
     "version"    => "0.0.0",	# s.a.
     "vendor"     => "HPE",	# s.a.
@@ -51,7 +51,7 @@ def roles_to_upc(roles)
     "components" => [],		# Fill from the roles, see below
   }
 
-  comp = the_upc["components"]
+  comp = the_ucp["components"]
   roles["roles"].each do |role|
     rname = role["name"]
     ename = rname # TODO construct proper external name
@@ -94,71 +94,71 @@ def roles_to_upc(roles)
     comp.push the_comp
   end
 
-  return the_upc
+  return the_ucp
   # Generated structure
   ##
-  # the_upc.name
-  # the_upc.version
-  # the_upc.vendor
-  # the_upc.volumes[].name
-  # the_upc.volumes[].size_gb
-  # the_upc.volumes[].filesystem
-  # the_upc.volumes[].shared
-  # the_upc.components[].name
-  # the_upc.components[].version
-  # the_upc.components[].vendor
-  # the_upc.components[].external_name
-  # the_upc.components[].image
-  # the_upc.components[].min_RAM_mb		/float
-  # the_upc.components[].min_disk_gb		/float
-  # the_upc.components[].min_VCPU		/int
-  # the_upc.components[].platform
-  # the_upc.components[].capabilities[]
-  # the_upc.components[].depends_on[].name	/string \See 1st 3 comp attributes
-  # the_upc.components[].depends_on[].version	/string \
-  # the_upc.components[].depends_on[].vendor	/string \
-  # the_upc.components[].affinity[]		/?
-  # the_upc.components[].labels[]
-  # the_upc.components[].min_instances		/int
-  # the_upc.components[].max_instances		/int
-  # the_upc.components[].service_ports[].name
-  # the_upc.components[].service_ports[].protocol
-  # the_upc.components[].service_ports[].source_port
-  # the_upc.components[].service_ports[].target_port
-  # the_upc.components[].service_ports[].public		/bool
-  # the_upc.components[].volume_mounts[].volume_name
-  # the_upc.components[].volume_mounts[].mountpoint
-  # the_upc.components[].parameters[].name
-  # the_upc.components[].parameters[].description
-  # the_upc.components[].parameters[].default
-  # the_upc.components[].parameters[].example
-  # the_upc.components[].parameters[].required		/bool
-  # the_upc.components[].parameters[].secret		/bool
+  # the_ucp.name
+  # the_ucp.version
+  # the_ucp.vendor
+  # the_ucp.volumes[].name
+  # the_ucp.volumes[].size_gb
+  # the_ucp.volumes[].filesystem
+  # the_ucp.volumes[].shared
+  # the_ucp.components[].name
+  # the_ucp.components[].version
+  # the_ucp.components[].vendor
+  # the_ucp.components[].external_name
+  # the_ucp.components[].image
+  # the_ucp.components[].min_RAM_mb		/float
+  # the_ucp.components[].min_disk_gb		/float
+  # the_ucp.components[].min_VCPU		/int
+  # the_ucp.components[].platform
+  # the_ucp.components[].capabilities[]
+  # the_ucp.components[].depends_on[].name	/string \See 1st 3 comp attributes
+  # the_ucp.components[].depends_on[].version	/string \
+  # the_ucp.components[].depends_on[].vendor	/string \
+  # the_ucp.components[].affinity[]		/?
+  # the_ucp.components[].labels[]
+  # the_ucp.components[].min_instances		/int
+  # the_ucp.components[].max_instances		/int
+  # the_ucp.components[].service_ports[].name
+  # the_ucp.components[].service_ports[].protocol
+  # the_ucp.components[].service_ports[].source_port
+  # the_ucp.components[].service_ports[].target_port
+  # the_ucp.components[].service_ports[].public		/bool
+  # the_ucp.components[].volume_mounts[].volume_name
+  # the_ucp.components[].volume_mounts[].mountpoint
+  # the_ucp.components[].parameters[].name
+  # the_ucp.components[].parameters[].description
+  # the_ucp.components[].parameters[].default
+  # the_ucp.components[].parameters[].example
+  # the_ucp.components[].parameters[].required		/bool
+  # the_ucp.components[].parameters[].secret		/bool
 end
 
-def save_upc(path,upc)
+def save_ucp(path,ucp)
   File.open(path,"w") do |handle|
-    #handle.puts (JSON.generate upc)
+    #handle.puts (JSON.generate ucp)
 
     # While in dev I want something at least semi-readable
-    handle.puts (JSON.pretty_generate upc)
+    handle.puts (JSON.pretty_generate ucp)
   end
 end
 
 def main
-  # Syntax: <roles-manifest.yml> <upc-manifest.json>
+  # Syntax: <roles-manifest.yml> <ucp-manifest.json>
   # Process arguments
   # - origin      = roles manifest
-  # - destination = upc manifest
+  # - destination = ucp manifest
 
   origin      = ARGV[0]
   destination = ARGV[1]
 
   # Read roles manifest
-  # Generate upc manifest
-  # Write upc manifest
+  # Generate ucp manifest
+  # Write ucp manifest
 
-  save_upc(destination, roles_to_upc(get_roles(origin)))
+  save_ucp(destination, roles_to_ucp(get_roles(origin)))
 end
 
 main
