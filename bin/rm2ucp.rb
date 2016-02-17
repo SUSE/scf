@@ -4,7 +4,7 @@ require 'yaml'
 require 'json'
 
 def get_roles(path)
-  return YAML.load_file(path)
+  YAML.load_file(path)
 
   # Loaded structure
   ##
@@ -23,69 +23,69 @@ def get_roles(path)
 end
 
 def add_parameters(component, variables)
-    para = component["parameters"]
+  para = component['parameters']
 
-    variables.each do |var|
-      vname    = var["name"]
-      vdefault = var["default"]
+  variables.each do |var|
+    vname    = var['name']
+    vdefault = var['default']
 
-      the_para = {
-        "name"        => vname,
-        "description" => "",
-        "default"     => vdefault,
-        "example"     => "",
-        "required"    => true,
-        "secret"      => false,
-      }
+    the_para = {
+      'name'        => vname,
+      'description' => '',
+      'default'     => vdefault,
+      'example'     => '',
+      'required'    => true,
+      'secret'      => false
+    }
 
-      para.push the_para
-    end
+    para.push the_para
+  end
 end
 
 def roles_to_ucp(roles)
   the_ucp = {
-    "name"       => "HDP CF",	# TODO Specify via option?
-    "version"    => "0.0.0",	# s.a.
-    "vendor"     => "HPE",	# s.a.
-    "volumes"    => [],		# We do not generate volumes, leave empty
-    "components" => [],		# Fill from the roles, see below
+    'name'       => 'HDP CF', # TODO: Specify via option?
+    'version'    => '0.0.0',  # s.a.
+    'vendor'     => 'HPE',    # s.a.
+    'volumes'    => [],	      # We do not generate volumes, leave empty
+    'components' => []	      # Fill from the roles, see below
   }
 
-  comp = the_ucp["components"]
-  roles["roles"].each do |role|
-    rname = role["name"]
-    ename = rname # TODO construct proper external name
-    iname = rname # TODO construct proper image name
+  comp = the_ucp['components']
+  roles['roles'].each do |role|
+    rname = role['name']
+    ename = rname # TODO: construct proper external name
+    iname = rname # TODO: construct proper image name
 
     the_comp = {
-      "name"          => rname,
-      "version"       => "0.0.0",	# See also toplevel version
-      "vendor"        => "HPE",		# See also toplevel vendor
-      "external_name" => ename,
-      "image"         => iname,
-      "min_RAM_mb"    => 128,		# Pulled out of thin air
-      "min_disk_gb"   => 1,		# Ditto
-      "min_VCPU"      => 1,
-      "platform"      => "linux-x86_64",
-      "capabilities"  => ["ALL"],	# This could be role-specific (privileged vs not)
-      "depends_on"    => [],		# No dependency info in the RM
-      "affinity"      => [],		# No affinity info in the RM
-      "labels"        => [rname],	# TODO Maybe also label with the jobs inside ?
-      "min_instances" => 1,
-      "max_instances" => 1,
-      "service_ports" => [],		# This might require role-specific alteration
-      "volume_mounts" => [],
-      "parameters"    => [],		# Fill from role configuration, see below
+      'name'          => rname,
+      'version'       => '0.0.0', # See also toplevel version
+      'vendor'        => 'HPE',	  # See also toplevel vendor
+      'external_name' => ename,
+      'image'         => iname,
+      'min_RAM_mb'    => 128,	  # Pulled out of thin air
+      'min_disk_gb'   => 1,	  # Ditto
+      'min_VCPU'      => 1,
+      'platform'      => 'linux-x86_64',
+      'capabilities'  => ['ALL'], # Might be role-specific (privileged vs not)
+      'depends_on'    => [],	  # No dependency info in the RM
+      'affinity'      => [],	  # No affinity info in the RM
+      'labels'        => [rname], # TODO: Maybe also label with the jobs ?
+      'min_instances' => 1,
+      'max_instances' => 1,
+      'service_ports' => [],	  # This might require role-specific alteration
+      'volume_mounts' => [],
+      'parameters'    => []	  # Fill from role configuration, see below
     }
 
     # Global parameters
-    if roles["configuration"] && roles["configuration"]["variables"]
-      add_parameters(the_comp, roles["configuration"]["variables"])
+    if roles['configuration'] && roles['configuration']['variables']
+      add_parameters(the_comp, roles['configuration']['variables'])
     end
 
     # Per role parameters
-    if role["configuration"] && role["configuration"]["variables"]
-      add_parameters(the_comp, role["configuration"]["variables"])
+    if role['configuration'] && role['configuration']['variables']
+      add_parameters(the_comp, role['configuration']['variables'])
     end
 
     # TODO: Should check that the intersection of between global and
@@ -94,7 +94,7 @@ def roles_to_ucp(roles)
     comp.push the_comp
   end
 
-  return the_ucp
+  the_ucp
   # Generated structure
   ##
   # the_ucp.name
@@ -136,12 +136,12 @@ def roles_to_ucp(roles)
   # the_ucp.components[].parameters[].secret		/bool
 end
 
-def save_ucp(path,ucp)
-  File.open(path,"w") do |handle|
-    #handle.puts (JSON.generate ucp)
+def save_ucp(path, ucp)
+  File.open(path, 'w') do |handle|
+    # handle.puts (JSON.generate(ucp))
 
     # While in dev I want something at least semi-readable
-    handle.puts (JSON.pretty_generate ucp)
+    handle.puts(JSON.pretty_generate(ucp))
   end
 end
 
