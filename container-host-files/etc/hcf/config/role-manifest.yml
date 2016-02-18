@@ -7,6 +7,14 @@ roles:
   jobs:
   - name: acceptance-tests
     release_name: cf
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: api
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -32,6 +40,17 @@ roles:
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs/shared'
+      size: 100
+      tag: 'cc'
+    max-memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
@@ -50,6 +69,17 @@ roles:
   - name: cloud_controller_worker_1
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs/shared'
+      size: 100
+      tag: 'cc'
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: clock_global
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -65,6 +95,14 @@ roles:
   - name: cloud_controller_clock
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: consul
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -77,6 +115,16 @@ roles:
   processes:
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes:
+      - path: /var/vcap/store
+        size: 100
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: doppler
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -100,6 +148,14 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+  run:
+    capabilities: ['ALL']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: etcd
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -117,6 +173,16 @@ roles:
   - name: etcd_metrics_server
   - name: etcd metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes:
+      - path: /var/vcap/store
+        size: 100
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: ha_proxy
   jobs:
   - name: haproxy
@@ -144,6 +210,14 @@ roles:
       properties.etcd.client_cert: 'null'
       properties.etcd.ca_cert: 'null'
       properties.etcd.machines: '["etcd.hcf"]'
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: ["80:80", "443:443", "4443:4443", "2222:2222"]
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -164,6 +238,14 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+  run:
+    capabilities: ['ALL']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: nats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -182,6 +264,14 @@ roles:
   - name: consul_agent
   - name: nats
   - name: nats_stream_forwarder
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 4
+    exposed-ports: []
 - name: router
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -196,6 +286,14 @@ roles:
   - name: gorouter
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['ALL']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
 - name: smoke_tests
   type: bosh-task
   scripts:
@@ -203,6 +301,14 @@ roles:
   jobs:
   - name: smoke-tests
     release_name: cf
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: stats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -218,6 +324,14 @@ roles:
   - name: collector
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: uaa
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -233,6 +347,14 @@ roles:
   processes:
   - name: uaa
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
@@ -265,6 +387,18 @@ roles:
   - name: etcd
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes:
+      - path: /var/vcap/store
+        size: 100
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+    hosts:
+      - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
@@ -285,6 +419,14 @@ roles:
   - name: auctioneer
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 4
+    exposed-ports: []
 - name: diego_cell
   scripts:
   - prevent_apparmor_disable.sh
@@ -307,6 +449,14 @@ roles:
   - name: consul_agent
   - name: rep
   - name: garden
+  run:
+    capabilities: ['ALL']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
 - name: diego_cc_bridge
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -330,6 +480,14 @@ roles:
   - name: nsync_bulker
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 4
+    exposed-ports: []
 - name: diego_route_emitter
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -344,6 +502,14 @@ roles:
   - name: route_emitter
   - name: metron_agent
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: diego_access
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -361,6 +527,14 @@ roles:
   - name: metron_agent
   - name: ssh_proxy
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: mysql
   scripts:
   - write_dns_health_check_mysql.sh
@@ -374,6 +548,14 @@ roles:
   - name: mariadb_ctrl
   - name: galera-healthcheck
   - name: gra-log-purger-executable
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
   configuration:
     templates:
       properties.cluster_ips: '["mysql.hcf"]'
@@ -398,6 +580,14 @@ roles:
   processes:
   - name: consul_agent
   - name: switchboard
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    cgroup-instance: 'instance'
+    persistent-volumes: []
+    shared-volumes: []
+    max-memory: 1024
+    virtual-cpus: 2
+    exposed-ports: ["3306:3306"]
   configuration:
     templates:
       properties.cluster_ips: '["mysql.hcf"]'
