@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+<%
+require 'shellwords'
+env = {}
+if_p("hcf_set_proxy.staging_http_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["http_proxy"] = val
+   env["staging"]["http_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.staging_https_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["https_proxy"] = val
+   env["staging"]["https_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.staging_no_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["no_proxy"] = val
+   env["staging"]["no_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_http_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["http_proxy"] = val
+   env["running"]["http_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_https_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["https_proxy"] = val
+   env["running"]["https_proxy".upcase] = val
+end
+if_p("hcf_set_proxy.running_no_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["no_proxy"] = val
+   env["running"]["no_proxy".upcase] = val
+end
+%>
+
+cf api <%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation': '' %> api.<%= properties.domain %>
+<% 
+username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
+%>
+cf login -u <%= username.shellescape %> -p <%= password.shellescape %>
+
+<% 
+%W{staging running}.each do |runtime| 
+  if env[runtime] %>
+cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
+<%end 
+end %>

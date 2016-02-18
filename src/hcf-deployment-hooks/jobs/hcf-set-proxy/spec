@@ -1,0 +1,24 @@
+---
+name: cf-set-proxy
+
+description: cf-set-proxy will initialize the running- and staging-environment-variable-groups for the current HTTP(S) proxy settings
+
+packages:
+  - cli
+
+templates:
+  run.erb: bin/run
+
+properties:
+  hcf_set_proxy.staging_http_proxy:
+    description: The HTTP proxy to use during staging
+  hcf_set_proxy.staging_https_proxy:
+    description: The HTTPS proxy to use during staging
+  hcf_set_proxy.staging_no_proxy:
+    description: The NO_PROXY setting to use during staging
+  hcf_set_proxy.running_http_proxy:
+    description: The HTTP proxy to use during running
+  hcf_set_proxy.running_https_proxy:
+    description: The HTTPS proxy to use during running
+  hcf_set_proxy.running_no_proxy:
+    description: The NO_PROXY setting to use during running

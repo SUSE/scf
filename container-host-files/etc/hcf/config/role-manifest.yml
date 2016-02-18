@@ -23,6 +23,8 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  - name: cf-set-proxy
+    release_name: hcf-deployment-hooks
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -353,3 +355,11 @@ roles:
   processes:
   - name: consul_agent
   - name: switchboard
+- name: post_deployment_setup
+  is_task: true
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: cf-set-proxy
+    release_name: hcf-deployment-hooks
+  processes: []
