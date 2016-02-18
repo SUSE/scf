@@ -9,10 +9,9 @@ roles:
     release_name: cf
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: api
@@ -42,13 +41,12 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
       size: 100
       tag: 'cc'
-    max-memory: 2048
+    memory: 2048
     virtual-cpus: 4
     exposed-ports: []
   configuration:
@@ -71,13 +69,12 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
       size: 100
       tag: 'cc'
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: clock_global
@@ -97,10 +94,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: consul
@@ -117,12 +113,11 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: doppler
@@ -150,10 +145,9 @@ roles:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
     capabilities: ['ALL']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: etcd
@@ -175,12 +169,11 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: ha_proxy
@@ -212,12 +205,31 @@ roles:
       properties.etcd.machines: '["etcd.hcf"]'
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
-    exposed-ports: ["80:80", "443:443", "4443:4443", "2222:2222"]
+    exposed-ports:
+      - name: 'api_http'
+        protocol: 'TCP'
+        source: 80
+        target: 80
+        public: true
+      - name: 'api_https'
+        protocol: 'TCP'
+        source: 443
+        target: 443
+        public: true
+      - name: 'doppler'
+        protocol: 'TCP'
+        source: 4443
+        target: 4443
+        public: true
+      - name: 'app_ssh'
+        protocol: 'TCP'
+        source: 2222
+        target: 2222
+        public: true
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -240,10 +252,9 @@ roles:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
     capabilities: ['ALL']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: nats
@@ -266,10 +277,9 @@ roles:
   - name: nats_stream_forwarder
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 4
     exposed-ports: []
 - name: router
@@ -288,10 +298,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['ALL']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 2048
+    memory: 2048
     virtual-cpus: 4
     exposed-ports: []
 - name: smoke_tests
@@ -303,10 +312,9 @@ roles:
     release_name: cf
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: stats
@@ -326,10 +334,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: uaa
@@ -349,10 +356,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
   configuration:
@@ -370,6 +376,13 @@ roles:
   - name: usb
   - name: route_registrar
   - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: diego_database
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -389,12 +402,11 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
     hosts:
@@ -421,10 +433,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 4
     exposed-ports: []
 - name: diego_cell
@@ -451,10 +462,9 @@ roles:
   - name: garden
   run:
     capabilities: ['ALL']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 2048
+    memory: 2048
     virtual-cpus: 4
     exposed-ports: []
 - name: diego_cc_bridge
@@ -482,10 +492,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 4
     exposed-ports: []
 - name: diego_route_emitter
@@ -504,10 +513,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: diego_access
@@ -529,10 +537,9 @@ roles:
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
 - name: mysql
@@ -550,10 +557,9 @@ roles:
   - name: gra-log-purger-executable
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
     exposed-ports: []
   configuration:
@@ -582,12 +588,16 @@ roles:
   - name: switchboard
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
-    cgroup-instance: 'instance'
     persistent-volumes: []
     shared-volumes: []
-    max-memory: 1024
+    memory: 1024
     virtual-cpus: 2
-    exposed-ports: ["3306:3306"]
+    exposed-ports:
+      - name: 'mysql'
+        protocol: 'TCP'
+        source: 3306
+        target: 3306
+        public: false
   configuration:
     templates:
       properties.cluster_ips: '["mysql.hcf"]'
