@@ -519,6 +519,8 @@ gato config set diego.tps.traffic_controller_url "ws://loggregator_trafficcontro
 
 gato config set diego.ssh_proxy.cc.internal_service_hostname "api.hcf"
 
+gato config set cc.internal_service_hostname "api.hcf"
+
 echo -e "Your Helion Cloud Foundry endpoint is: \e[1;96mhttps://api.${domain}\e[0m"
 echo -e "  Run the following command to target it: \e[1;96mcf api --skip-ssl-validation https://api.${domain}\e[0m"
 echo -e "The Universal Service Broker endpoint is: \e[1;96mhttps://usb.${domain}\e[0m"

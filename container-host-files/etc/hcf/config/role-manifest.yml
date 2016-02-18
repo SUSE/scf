@@ -10,6 +10,7 @@ roles:
 - name: api
   scripts:
   - fix_local_ip_for_overlay_networking.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -34,6 +35,7 @@ roles:
 - name: api_worker
   scripts:
   - fix_local_ip_for_overlay_networking.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -48,6 +50,7 @@ roles:
 - name: clock_global
   scripts:
   - fix_local_ip_for_overlay_networking.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
