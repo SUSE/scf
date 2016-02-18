@@ -2,7 +2,7 @@
 .dev_builds
 .final_builds/jobs/**/*.tgz
 .final_builds/packages/**/*.tgz
-blobs
+blobs/*
 config/dev.yml
 dev_releases
 releases/*.tgz
