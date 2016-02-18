@@ -118,7 +118,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	done ; true
 endif
 
-compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
+compile:
 	$(call print_status, Compiling BOSH release packages)
 	@echo Please allow a long time for mariadb to compile
 	fissile dev compile
@@ -175,9 +175,6 @@ terraform:
 	cp -rL ${CURDIR}/terraform-scripts/templates/* ${DIST_DIR}/templates/
 
 	cp -rL ${CURDIR}/container-host-files ${FISSILE_WORK_DIR}/hcf/
-
-	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/direct_internet/
-	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/proxied_internet/
 
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/direct_internet/version.tf
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf
