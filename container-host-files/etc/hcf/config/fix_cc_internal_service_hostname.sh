@@ -11,7 +11,7 @@ read -d '' setup_patch <<PATCH || true
  local_route: <%= discover_external_ip %>
  external_port: <%= p("cc.external_port") %>
 -internal_service_hostname: cloud-controller-ng.service.cf.internal
-+internal_service_hostname: p("cc.internal_service_hostname")
++internal_service_hostname: <%= p("cc.internal_service_hostname") %>
 
  pid_filename: /var/vcap/sys/run/cloud_controller_ng/cloud_controller_ng.pid
  newrelic_enabled: <%= !!properties.cc.newrelic.license_key || p("cc.development_mode") %>
@@ -34,7 +34,7 @@ read -d '' setup_patch <<PATCH || true
  local_route: <%= discover_external_ip %>
  external_port: <%= p("cc.external_port") %>
 -internal_service_hostname: cloud-controller-ng.service.cf.internal
-+internal_service_hostname: p("cc.internal_service_hostname")
++internal_service_hostname: <%= p("cc.internal_service_hostname") %>
 
  pid_filename: /this/isnt/used/by/the/worker
  newrelic_enabled: <%= !!properties.cc.newrelic.license_key %>
@@ -57,7 +57,7 @@ read -d '' setup_patch <<PATCH || true
  local_route: <%= discover_external_ip %>
  external_port: <%= p("cc.external_port") %>
 -internal_service_hostname: cloud-controller-ng.service.cf.internal
-+internal_service_hostname: p("cc.internal_service_hostname")
++internal_service_hostname: <%= p("cc.internal_service_hostname") %>
 
  pid_filename: /var/vcap/sys/run/cloud_controller_clock/cloud_controller_ng.pid
  newrelic_enabled: false
