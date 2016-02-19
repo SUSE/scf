@@ -45,7 +45,7 @@ def add_parameters(component, variables)
 
     the_para = {
       'name'        => vname,
-      'description' => '',
+      'description' => 'placeholder',
       'default'     => vdefault,
       'example'     => '',
       'required'    => true,
