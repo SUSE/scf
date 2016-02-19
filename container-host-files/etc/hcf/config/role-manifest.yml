@@ -1,104 +1,104 @@
 ---
 roles:
-- name: acceptance_tests
-  type: bosh-task
+- name: nats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
+  - write_dns_health_check_nats.sh
   jobs:
-  - name: acceptance-tests
+  - name: nats
     release_name: cf
+  - name: nats_stream_forwarder
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: metron_agent
+  - name: consul_agent
+  - name: nats
+  - name: nats_stream_forwarder
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 4
+    exposed-ports: []
+- name: mysql
+  scripts:
+  - write_dns_health_check_mysql.sh
+  jobs:
+  - name: mysql
+    release_name: cf-mysql
+  - name: consul_agent
+    release_name: cf
+  processes:
+  - name: consul_agent
+  - name: mariadb_ctrl
+  - name: galera-healthcheck
+  - name: gra-log-purger-executable
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
-- name: api
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - fix_cc_internal_service_hostname.sh
-  jobs:
-  - name: cloud_controller_ng
-    release_name: cf
-  - name: routing-api
-    release_name: cf
-  - name: statsd-injector
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: cf
-  processes:
-  - name: cloud_controller_ng
-  - name: cloud_controller_worker_local_1
-  - name: cloud_controller_migration
-  - name: routing-api
-  - name: route_registrar
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs/shared'
-      size: 100
-      tag: 'cc'
-    memory: 2048
-    virtual-cpus: 4
     exposed-ports: []
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
-- name: api_worker
+      properties.cluster_ips: '["mysql.hcf"]'
+      properties.database_startup_timeout: '300'
+      properties.network_name: 'default'
+      properties.proxy.api_username: 'mysql_proxy'
+      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
+      properties.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.external_host: "((DOMAIN))"
+      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+- name: mysql_proxy
   scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - fix_cc_internal_service_hostname.sh
+  - write_dns_health_check_mysql_proxy.sh
   jobs:
-  - name: cloud_controller_worker
-    release_name: cf
+  - name: proxy
+    release_name: cf-mysql
   - name: consul_agent
-    release_name: cf
-  - name: metron_agent
     release_name: cf
   processes:
-  - name: cloud_controller_worker_1
-  - name: metron_agent
   - name: consul_agent
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs/shared'
-      size: 100
-      tag: 'cc'
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-- name: clock_global
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - fix_cc_internal_service_hostname.sh
-  jobs:
-  - name: cloud_controller_clock
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: cloud_controller_clock
-  - name: metron_agent
-  - name: consul_agent
+  - name: switchboard
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'mysql'
+        protocol: 'TCP'
+        source: 3306
+        target: 3306
+        public: false
+  configuration:
+    templates:
+      properties.cluster_ips: '["mysql.hcf"]'
+      properties.database_startup_timeout: '300'
+      properties.network_name: 'default'
+      properties.proxy.api_username: 'mysql_proxy'
+      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
+      properties.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.external_host: "((DOMAIN))"
+      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      # TODO: Take this out, and place our generated CA cert
+      # into the appropriate /usr/share/ca-certificates folders
+      # and call update-ca-certificates at container startup
+      properties.proxy.api_force_https: 'false'
+      properties.skip_ssl_validation: 'true'
 - name: consul
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -110,62 +110,6 @@ roles:
     release_name: cf
   processes:
   - name: metron_agent
-  - name: consul_agent
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes:
-      - path: /var/vcap/store
-        size: 100
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-- name: doppler
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - write_dns_health_check_doppler.sh
-  jobs:
-  - name: doppler
-    release_name: cf
-  - name: syslog_drain_binder
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: cf
-  processes:
-  - name: doppler
-  - name: route_registrar
-  - name: consul_agent
-  - name: syslog_drain_binder
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
-  run:
-    capabilities: ['ALL']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-- name: etcd
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - write_dns_health_check_etcdlog.sh
-  jobs:
-  - name: etcd
-    release_name: cf
-  - name: etcd_metrics_server
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: etcd_metrics_server
-  - name: etcd metron_agent
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
@@ -230,6 +174,209 @@ roles:
         source: 2222
         target: 2222
         public: true
+- name: router
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: gorouter
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: gorouter
+  - name: metron_agent
+  - name: consul_agent
+  run:
+    capabilities: ['ALL']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
+- name: uaa
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: uaa
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: uaa
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
+- name: api
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: cloud_controller_ng
+    release_name: cf
+  - name: routing-api
+    release_name: cf
+  - name: statsd-injector
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: cloud_controller_ng
+  - name: cloud_controller_worker_local_1
+  - name: cloud_controller_migration
+  - name: routing-api
+  - name: route_registrar
+  - name: metron_agent
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs/shared'
+      size: 100
+      tag: 'cc'
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
+- name: api_worker
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: cloud_controller_worker
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: cloud_controller_worker_1
+  - name: metron_agent
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs/shared'
+      size: 100
+      tag: 'cc'
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+- name: clock_global
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: cloud_controller_clock
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: cloud_controller_clock
+  - name: metron_agent
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+- name: cf-usb
+  jobs:
+  - name: cf-usb
+    release_name: cf-usb
+  - name: consul_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: usb
+  - name: route_registrar
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+- name: doppler
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  - write_dns_health_check_doppler.sh
+  jobs:
+  - name: doppler
+    release_name: cf
+  - name: syslog_drain_binder
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: doppler
+  - name: route_registrar
+  - name: consul_agent
+  - name: syslog_drain_binder
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+  run:
+    capabilities: ['ALL']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+- name: etcd
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  - write_dns_health_check_etcdlog.sh
+  jobs:
+  - name: etcd
+    release_name: cf
+  - name: etcd_metrics_server
+    release_name: cf
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: etcd_metrics_server
+  - name: etcd metron_agent
+  - name: consul_agent
+  run:
+    capabilities: ['NET_ADMIN', 'NET_RAW']
+    persistent-volumes:
+      - path: /var/vcap/store
+        size: 100
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: loggregator_trafficcontroller
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -257,66 +404,6 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-- name: nats
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  - write_dns_health_check_nats.sh
-  jobs:
-  - name: nats
-    release_name: cf
-  - name: nats_stream_forwarder
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: metron_agent
-  - name: consul_agent
-  - name: nats
-  - name: nats_stream_forwarder
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 4
-    exposed-ports: []
-- name: router
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  jobs:
-  - name: gorouter
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: gorouter
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    capabilities: ['ALL']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 2048
-    virtual-cpus: 4
-    exposed-ports: []
-- name: smoke_tests
-  type: bosh-task
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  jobs:
-  - name: smoke-tests
-    release_name: cf
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
 - name: stats
   scripts:
   - fix_local_ip_for_overlay_networking.sh
@@ -331,50 +418,6 @@ roles:
   processes:
   - name: collector
   - name: metron_agent
-  - name: consul_agent
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-- name: uaa
-  scripts:
-  - fix_local_ip_for_overlay_networking.sh
-  jobs:
-  - name: uaa
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: cf
-  processes:
-  - name: uaa
-  - name: consul_agent
-  run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
-- name: cf-usb
-  jobs:
-  - name: cf-usb
-    release_name: cf-usb
-  - name: consul_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: cf
-  processes:
-  - name: usb
-  - name: route_registrar
   - name: consul_agent
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
@@ -436,35 +479,6 @@ roles:
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
-    virtual-cpus: 4
-    exposed-ports: []
-- name: diego_cell
-  scripts:
-  - prevent_apparmor_disable.sh
-  - fix_local_ip_for_overlay_networking.sh
-  - fix_linux_garden_dns.sh
-  jobs:
-  - name: rep
-    release_name: diego
-  - name: consul_agent
-    release_name: cf
-  - name: garden
-    release_name: garden-linux
-  - name: rootfses
-    release_name: diego
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: rootfses
-  - name: metron_agent
-  - name: consul_agent
-  - name: rep
-  - name: garden
-  run:
-    capabilities: ['ALL']
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 2048
     virtual-cpus: 4
     exposed-ports: []
 - name: diego_cc_bridge
@@ -542,19 +556,42 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-- name: mysql
+- name: diego_cell
   scripts:
-  - write_dns_health_check_mysql.sh
+  - prevent_apparmor_disable.sh
+  - fix_local_ip_for_overlay_networking.sh
+  - fix_linux_garden_dns.sh
   jobs:
-  - name: mysql
-    release_name: cf-mysql
+  - name: rep
+    release_name: diego
   - name: consul_agent
     release_name: cf
+  - name: garden
+    release_name: garden-linux
+  - name: rootfses
+    release_name: diego
+  - name: metron_agent
+    release_name: cf
   processes:
+  - name: rootfses
+  - name: metron_agent
   - name: consul_agent
-  - name: mariadb_ctrl
-  - name: galera-healthcheck
-  - name: gra-log-purger-executable
+  - name: rep
+  - name: garden
+  run:
+    capabilities: ['ALL']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
+- name: acceptance_tests
+  type: bosh-task
+  scripts:
+  - fix_local_ip_for_overlay_networking.sh
+  jobs:
+  - name: acceptance-tests
+    release_name: cf
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
     persistent-volumes: []
@@ -562,60 +599,20 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-  configuration:
-    templates:
-      properties.cluster_ips: '["mysql.hcf"]'
-      properties.database_startup_timeout: '300'
-      properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
-- name: mysql_proxy
+- name: smoke_tests
+  type: bosh-task
   scripts:
-  - write_dns_health_check_mysql_proxy.sh
+  - fix_local_ip_for_overlay_networking.sh
   jobs:
-  - name: proxy
-    release_name: cf-mysql
-  - name: consul_agent
+  - name: smoke-tests
     release_name: cf
-  processes:
-  - name: consul_agent
-  - name: switchboard
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports:
-      - name: 'mysql'
-        protocol: 'TCP'
-        source: 3306
-        target: 3306
-        public: false
-  configuration:
-    templates:
-      properties.cluster_ips: '["mysql.hcf"]'
-      properties.database_startup_timeout: '300'
-      properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["mysql_proxy.hcf"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
-      # TODO: Take this out, and place our generated CA cert
-      # into the appropriate /usr/share/ca-certificates folders
-      # and call update-ca-certificates at container startup
-      properties.proxy.api_force_https: 'false'
-      properties.skip_ssl_validation: 'true'
+    exposed-ports: []
 configuration:
   variables:
   - name: PUBLIC_IP
