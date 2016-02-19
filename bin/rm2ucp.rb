@@ -47,7 +47,7 @@ def add_parameters(component, variables)
       'name'        => vname,
       'description' => 'placeholder',
       'default'     => vdefault,
-      'example'     => '',
+      'example'     => vdefault || "unknown",
       'required'    => true,
       'secret'      => false
     }
@@ -76,7 +76,7 @@ def add_volumes(fs, component, volumes)
 
     the_vol = {
       'volume_name' => vname,
-      'mount_point' => vmount
+      'mountpoint' => vmount
     }
 
     vols.push(the_vol)
@@ -207,41 +207,45 @@ def roles_to_ucp(roles)
   the_ucp
   # Generated structure
   ##
-  # the_ucp.name
-  # the_ucp.version
-  # the_ucp.vendor
-  # the_ucp.volumes[].name
-  # the_ucp.volumes[].size_gb
-  # the_ucp.volumes[].filesystem
-  # the_ucp.volumes[].shared
-  # the_ucp.components[].name
-  # the_ucp.components[].version
-  # the_ucp.components[].vendor
-  # the_ucp.components[].external_name
-  # the_ucp.components[].image
-  # the_ucp.components[].min_RAM_mb		/float
-  # the_ucp.components[].min_disk_gb		/float
-  # the_ucp.components[].min_VCPU		/int
-  # the_ucp.components[].platform
-  # the_ucp.components[].capabilities[]
-  # the_ucp.components[].depends_on[].name	/string \See 1st 3 comp attributes
-  # the_ucp.components[].depends_on[].version	/string \
-  # the_ucp.components[].depends_on[].vendor	/string \
-  # the_ucp.components[].affinity[]		/?
-  # the_ucp.components[].labels[]
-  # the_ucp.components[].min_instances		/int
-  # the_ucp.components[].max_instances		/int
-  # the_ucp.components[].service_ports[].name
-  # the_ucp.components[].service_ports[].protocol
-  # the_ucp.components[].service_ports[].source_port
-  # the_ucp.components[].service_ports[].target_port
+  # the_ucp.name					/string
+  # the_ucp.version					/string
+  # the_ucp.vendor					/string
+  # the_ucp.preflight[].	subset of comp below
+  # the_ucp.postflight[].	subset of comp below
+  # the_ucp.volumes[].name				/string
+  # the_ucp.volumes[].size_gb				/int32
+  # the_ucp.volumes[].filesystem			/string ('ext4', 'xfs', 'ntfs' (platform-dependent))
+  # the_ucp.volumes[].shared				/bool
+  # the_ucp.components[].name				/string
+  # the_ucp.components[].version			/string
+  # the_ucp.components[].vendor				/string
+  # the_ucp.components[].external_name			/string	Human readable name of the component
+  # the_ucp.components[].image				/string	Container image name for component
+  # the_ucp.components[].min_RAM_mb			/int32
+  # the_ucp.components[].min_disk_gb			/int32
+  # the_ucp.components[].min_VCPU			/int32
+  # the_ucp.components[].platform			/string	('linux-x86_64', 'win2012r2-x86_64')
+  # the_ucp.components[].capabilities[]			/string (*1)
+  # the_ucp.components[].workload_type			/string ('container', 'vm')
+  # the_ucp.components[].entrypoint			/string
+  # the_ucp.components[].depends_on[].name		/string \See 1st 3 comp attributes
+  # the_ucp.components[].depends_on[].version		/string \
+  # the_ucp.components[].depends_on[].vendor		/string \
+  # the_ucp.components[].affinity[]			/string
+  # the_ucp.components[].labels[]			/string
+  # the_ucp.components[].min_instances			/int
+  # the_ucp.components[].max_instances			/int
+  # the_ucp.components[].service_ports[].name		/string
+  # the_ucp.components[].service_ports[].protocol	/string	('TCP', 'UDP')
+  # the_ucp.components[].service_ports[].source_port	/int32
+  # the_ucp.components[].service_ports[].target_port	/int32
   # the_ucp.components[].service_ports[].public		/bool
-  # the_ucp.components[].volume_mounts[].volume_name
-  # the_ucp.components[].volume_mounts[].mountpoint
-  # the_ucp.components[].parameters[].name
-  # the_ucp.components[].parameters[].description
-  # the_ucp.components[].parameters[].default
-  # the_ucp.components[].parameters[].example
+  # the_ucp.components[].volume_mounts[].volume_name	/string
+  # the_ucp.components[].volume_mounts[].mountpoint	/string
+  # the_ucp.components[].parameters[].name		/string
+  # the_ucp.components[].parameters[].description	/string, !empty
+  # the_ucp.components[].parameters[].default		/string
+  # the_ucp.components[].parameters[].example		/string, !empty
   # the_ucp.components[].parameters[].required		/bool
   # the_ucp.components[].parameters[].secret		/bool
 end
