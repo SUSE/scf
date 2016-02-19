@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "0",
+        "version": "1.0.0",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -104,8 +104,8 @@
               "scripts/dependencies.sh",
               "scripts/vagrant.sh",
               "../container-host-files/opt/hcf/bin/docker/install_kernel.sh",
-              "../container-host-files/opt/hcf/bin/docker/install_etcd.sh",
-              "../container-host-files/opt/hcf/bin/docker/install_docker.sh"
+              "../container-host-files/opt/hcf/bin/docker/install_docker.sh",
+              "../container-host-files/opt/hcf/bin/tools/install_shyaml.sh"
             ],
             "start_retry_timeout": "7m"
         },

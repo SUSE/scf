@@ -77,11 +77,9 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     set -e
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
-    # Install runtime tools
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/tools/install_shyaml.sh
 
     mkdir -p /home/vagrant/tmp
 
