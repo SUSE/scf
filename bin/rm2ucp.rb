@@ -41,7 +41,7 @@ def add_parameters(component, variables)
 
   variables.each do |var|
     vname    = var['name']
-    vdefault = var['default']
+    vdefault = var['default'].to_s
 
     the_para = {
       'name'        => vname,
