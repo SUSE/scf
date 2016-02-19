@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
   config.vm.provider "vmware_fusion" do |vb, override|
     override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "6144"
     vb.cpus = "2"
     # If you need to debug stuff
     # vb.gui = true
@@ -37,10 +37,10 @@ Vagrant.configure(2) do |config|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "http://tinyurl.com/hcf-vagrant-vbox"
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "6144"
     vb.cpus = 4
     # If you need to debug stuff
-    vb.gui = true
+    # vb.gui = true
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
     override.vm.synced_folder ".", "/home/vagrant/hcf"
