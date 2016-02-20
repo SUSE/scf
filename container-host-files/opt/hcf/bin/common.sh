@@ -170,7 +170,7 @@ function list_all_non_task_roles() {
   done
 }
 
-# Reads all roles that are tasks from role-manifest.yml
+# Reads all roles that are bosh tasks from role-manifest.yml
 # Uses shyaml for parsing
 # list_all_task_roles
 function list_all_task_roles() {

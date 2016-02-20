@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../"`
+
+. "${ROOT}/opt/hcf/bin/common.sh"
+
+roles=$(list_all_non_task_roles)
+max_role_name_length=$($containers | awk '{print ${#$1}} | sort -nr | head -n1')
+
+echo $max_role_name_length
+
+for role in $roles; do
+  containers=$(docker ps -q --filter label=role=$role)
+
+  containers_count=$($containers | wc)
+  monit_running="false"
+  processes_running="0"
+
+  printf "%50s %s %s %s\n" $role "${containers_count}" "${monit_running}" "${processes_running}"
+done

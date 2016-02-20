@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "/Users/vladi/code/hcf-infrastructure/packer/hcf-virtualbox-v1.0.0.box"
+    override.vm.box = "http://tinyurl.com/hcf-vbox-1-0-0"
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
     vb.cpus = 4
@@ -62,7 +62,10 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     set -e
 
+    # Configure Docker things
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
+
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
 
@@ -86,6 +89,8 @@ Vagrant.configure(2) do |config|
     set -e
     cd /home/vagrant/hcf
     make copy-compile-cache
+
+    echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
 end
 

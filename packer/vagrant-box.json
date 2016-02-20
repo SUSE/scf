@@ -27,8 +27,8 @@
             "virtualbox_version_file": ".vbox_version",
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
-            "vboxmanage": [
-              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "70000" ],
+            "vboxmanage_post": [
+              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "70000"],
               [ "storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"],
               [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vmdk" ]
             ],
@@ -81,14 +81,6 @@
               "scripts/vagrant.sh",
               "../container-host-files/opt/hcf/bin/docker/install_docker.sh",
               "../container-host-files/opt/hcf/bin/tools/install_shyaml.sh"
-            ],
-            "start_retry_timeout": "7m"
-        },
-        {
-            "type": "shell",
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}' /dev/sdb 64 4 helioncf/hcf-pipeline-ruby-bosh",
-            "scripts": [
-                "../container-host-files/opt/hcf/bin/docker/configure_docker.sh"
             ],
             "start_retry_timeout": "7m"
         },
