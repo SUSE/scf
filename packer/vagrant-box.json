@@ -13,41 +13,11 @@
     },
     "builders": [
         {
-            "type": "vmware-iso",
-            "headless": true,
-            "vm_name": "{{user `vm_name`}}",
-            "guest_os_type": "ubuntu-64",
-            "disk_size": 150000,
-            "ssh_username": "{{user `ssh_username`}}",
-            "ssh_password": "{{user `ssh_password`}}",
-            "iso_url": "{{user `iso_url`}}",
-            "iso_checksum": "{{user `iso_checksum`}}",
-            "iso_checksum_type": "{{user `iso_checksum_type`}}",
-            "http_directory": "{{user `http_directory`}}",
-            "tools_upload_flavor": "linux",
-            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
-            "shutdown_command": "{{user `shutdown_command`}}",
-            "boot_command": [
-                "<esc><esc><enter><wait>",
-                "/install/vmlinuz noapic ",
-                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-                "hostname=hcf-vagrant ",
-                "fb=false debconf/frontend=noninteractive ",
-                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
-                "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-                "initrd=/install/initrd.gz -- <enter>"
-            ],
-            "vmx_data": {
-                "memsize": "4096"
-            }
-        },
-        {
             "type": "virtualbox-iso",
-            "headless": true,
+            "headless": false,
             "vm_name": "{{user `vm_name`}}",
             "guest_os_type": "Ubuntu_64",
-            "disk_size": 150000,
+            "disk_size": 70000,
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
@@ -57,6 +27,11 @@
             "virtualbox_version_file": ".vbox_version",
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
+            "vboxmanage": [
+              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "70000" ],
+              [ "storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"],
+              [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vmdk" ]
+            ],
             "boot_command": [
                 "<esc><esc><enter><wait>",
                 "/install/vmlinuz noapic ",
@@ -101,9 +76,9 @@
             "type": "shell",
             "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
             "scripts": [
+              "../container-host-files/opt/hcf/bin/docker/install_kernel.sh",
               "scripts/dependencies.sh",
               "scripts/vagrant.sh",
-              "../container-host-files/opt/hcf/bin/docker/install_kernel.sh",
               "../container-host-files/opt/hcf/bin/docker/install_docker.sh",
               "../container-host-files/opt/hcf/bin/tools/install_shyaml.sh"
             ],
@@ -111,17 +86,16 @@
         },
         {
             "type": "shell",
-            "only": ["vmware-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}' /dev/sdb 64 4 helioncf/hcf-pipeline-ruby-bosh",
             "scripts": [
-                "scripts/vmware_tools.sh"
+                "../container-host-files/opt/hcf/bin/docker/configure_docker.sh"
             ],
             "start_retry_timeout": "7m"
         },
         {
             "type": "shell",
             "only": ["virtualbox-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}' ; rm ~/VBoxGuestAdditions.iso",
             "scripts": [
                 "scripts/virtualbox_tools.sh"
             ],
