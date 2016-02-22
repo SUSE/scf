@@ -228,7 +228,7 @@ roles:
 - name: api
   scripts:
   - fix_consul_address_lookup.sh
-  - fix_cc_internal_hostname.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -267,7 +267,7 @@ roles:
 - name: api-worker
   scripts:
   - fix_consul_address_lookup.sh
-  - fix_cc_internal_hostname.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -292,7 +292,7 @@ roles:
 - name: clock-global
   scripts:
   - fix_consul_address_lookup.sh
-  - fix_cc_internal_hostname.sh
+  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -584,7 +584,7 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: post_deployment_setup
-  is_task: true
+  type: bosh-task
   jobs:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks

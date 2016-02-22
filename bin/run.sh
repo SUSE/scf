@@ -7,7 +7,9 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 . "${ROOT}/bin/.runrc"
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
-other_images=($(fissile dev list-roles | grep -v 'smoke_tests\|acceptance_tests'))
+set_colors
+
+other_images=($(fissile dev list-roles | grep -v 'smoke-tests\|acceptance-tests\|post_deployment_setup'))
 
 local_ip="${local_ip:-$(${ROOT}/container-host-files/opt/hcf/bin/get_ip eth1)}"
 store_dir=$HCF_RUN_STORE
@@ -66,5 +68,17 @@ do
     "${ROOT}/bin/dev-certs.env" \
     "$extra" || true
 done
+
+. "${ROOT}/bin/dev-settings.env"
+
+echo -e "\nYour Helion Cloud Foundry endpoint is: ${bldcyn}https://api.${DOMAIN}${txtrst}"
+echo -e "  Run the following command to target it: ${bldcyn}cf api --skip-ssl-validation https://api.${DOMAIN}${txtrst}"
+echo -e "The Universal Service Broker endpoint is: ${bldcyn}https://usb.${DOMAIN}${txtrst}"
+echo -e "Your administrative credentials are:"
+echo -e "  Username: ${bldcyn}${CLUSTER_ADMIN_USERNAME}${txtrst}"
+echo -e "  Password: ${bldcyn}${CLUSTER_ADMIN_PASSWORD}${txtrst}"
+
+echo -e "\nIt may take some time for everything to come online."
+echo -e "You can use ${bldcyn}hcf-status${txtrst} or ${bldcyn}hcf-status-watch${txtrst} to check if everything is up and running.\n"
 
 exit 0
