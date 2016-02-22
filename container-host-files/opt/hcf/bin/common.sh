@@ -42,14 +42,15 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <CERTS_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
 function start_role {
   image=$1
   name=$2
   role=$3
   overlay_gateway=$4
   env_vars_file=$5
-  extra="${@:6}"
+  certs_vars_file=$6
+  extra="${@:7}"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
@@ -61,6 +62,7 @@ function start_role {
     --hostname=${role}.hcf \
     --cgroup-parent=instance \
     --env-file=${env_vars_file} \
+    --env-file=${certs_vars_file} \
     -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
     -e "HCF_NETWORK=overlay" \
     -v $store_dir/$role:/var/vcap/store \
@@ -134,12 +136,13 @@ function get_image_name() {
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
+# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <CERTS_VARS_FILE> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
 function handle_restart() {
   image=$1
   overlay_gateway=$2
   env_vars_file=$3
-  extra="${@:4}"
+  certs_vars_file=$4
+  extra="${@:5}"
 
   container_name=$(get_container_name $image)
   role_name=$(get_role_name $image)
@@ -150,8 +153,36 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $overlay_gateway $env_vars_file $extra
+    start_role $image $container_name $role $overlay_gateway $env_vars_file $certs_vars_file $extra
     return 0
+  fi
+}
+
+# Loads all roles from the role-manifest.yml
+function load_all_roles() {
+  role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    declare -gA 'role_manifest=()'
+    declare -gA 'role_manifest_types=()'
+    declare -gA 'role_manifest_processes=()'
+
+    # Using this style of while loop so we don't get a subshell
+    # because of piping (see http://stackoverflow.com/questions/11942214)
+    while IFS= read -r -d '' role_block; do
+      role_name=$(echo -n "${role_block}" | grep '^name: ' | awk '{print $2}')
+      role_type=$(echo -n "${role_block}" | grep '^type: ' | awk '{print $2}')
+      role_processes=$(echo "${role_block}" | shyaml get-value processes '')
+
+      # Default role_type to 'bosh'
+      if [ -z "${role_type}" ] ; then
+        role_type='bosh'
+      fi
+
+      role_manifest["${role_name}"]=$role_block
+      role_manifest_types["${role_name}"]=$role_type
+      role_manifest_processes["${role_name}"]=$role_processes
+    done < <(cat ${role_manifest_file} | shyaml get-values-0 roles)
   fi
 }
 
@@ -159,14 +190,15 @@ function handle_restart() {
 # Uses shyaml for parsing
 # list_all_non_task_roles
 function list_all_non_task_roles() {
-  role_manifest=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
 
-  cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
-      role_name=$(echo "${role_block}" | shyaml get-value name)
-      role_type=$(echo "${role_block}" | shyaml get-value type bosh)
-      if [[ "${role_type}" == "bosh" ]] ; then
-        echo $role_name
-      fi
+  for role_name in "${!role_manifest_types[@]}"; do
+    if [ "${role_manifest_types["$role_name"]}" == "bosh" ] ; then
+      echo $role_name
+    fi
   done
 }
 
@@ -174,51 +206,50 @@ function list_all_non_task_roles() {
 # Uses shyaml for parsing
 # list_all_task_roles
 function list_all_task_roles() {
-  role_manifest=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
 
-  cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
-    role_name=$(echo "${role_block}" | shyaml get-value name)
-    role_type=$(echo "${role_block}" | shyaml get-value type bosh)
-    if [[ "${role_type}" == "bosh-task" ]] ; then
+  for role_name in "${!role_manifest_types[@]}"; do
+    if [ "${role_manifest_types["${role_name}"]}" == "bosh-task" ] ; then
       echo $role_name
     fi
   done
 }
 
-# Reads all processes for a sepcific role from the role manifest
+# Reads all processes for a specific role from the role manifest
 # Uses shyaml for parsing
-# list_all_non_task_roles <ROLE_NAME>
+# list_processes_for_role <ROLE_NAME>
 function list_processes_for_role() {
-  role_manifest=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
   role_name_filter=$1
 
-  cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
-      role_name=$(echo "${role_block}" | shyaml get-value name)
-
-      if [[ "${role_name}" == "${role_name_filter}" ]] ; then
-        while IFS= read -r -d '' process_block; do
-          process_name=$(echo "${process_block}" | shyaml get-value name)
-          echo $process_name
-        done < <(echo "${role_block}" | shyaml get-values-0 processes)
-      fi
-  done
+  echo "${role_manifest_processes["${role_name_filter}"]}" | awk '{ print $3 }'
 }
 
-# Reads all processes for a sepcific role from the role manifest
-# Uses shyaml for parsing
-# list_all_non_task_roles <ROLE_NAME>
-function list_processes_for_role() {
-  role_manifest=`readlink -f ""${BINDIR}/../../../etc/hcf/config/role-manifest.yml""`
-  role_name_filter=$1
+# sets the appropiate color values based on $use_colors
+function set_colors()
+{
+  txtrst=$(tput sgr0)  # Text Reset
+  txtbold=$(tput bold) # Text Bold
 
-  cat ${role_manifest} | shyaml get-values-0 roles | while IFS= read -r -d '' role_block; do
-      role_name=$(echo "${role_block}" | shyaml get-value name)
-
-      if [[ "${role_name}" == "${role_name_filter}" ]] ; then
-        while IFS= read -r -d '' process_block; do
-          process_name=$(echo "${process_block}" | shyaml get-value name)
-          echo $process_name
-        done < <(echo "${role_block}" | shyaml get-values-0 processes)
-      fi
-  done
+	txtred=${txtrst}$(tput setaf 1) # Red
+	txtgrn=${txtrst}$(tput setaf 2) # Green
+	txtylw=${txtrst}$(tput setaf 3) # Yellow
+	txtblu=${txtrst}$(tput setaf 4) # Blue
+	txtpur=${txtrst}$(tput setaf 5) # Purple
+	txtcyn=${txtrst}$(tput setaf 6) # Cyan
+	txtwht=${txtrst}$(tput setaf 7) # White
+  bldred=${txtbold}$(tput setaf 1) # Red
+	bldgrn=${txtbold}$(tput setaf 2) # Green
+	bldylw=${txtbold}$(tput setaf 3) # Yellow
+	bldblu=${txtbold}$(tput setaf 4) # Blue
+	bldpur=${txtbold}$(tput setaf 5) # Purple
+	bldcyn=${txtbold}$(tput setaf 6) # Cyan
+	bldwht=${txtbold}$(tput setaf 7) # White
 }

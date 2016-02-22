@@ -1,21 +1,100 @@
 #!/bin/bash
-set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../"`
 
 . "${ROOT}/opt/hcf/bin/common.sh"
 
-roles=$(list_all_non_task_roles)
-max_role_name_length=$($containers | awk '{print ${#$1}} | sort -nr | head -n1')
+# Initialize colors
+set_colors
 
-echo $max_role_name_length
+# Get all possible roles from the role manifest
+load_all_roles
 
+roles=$(list_all_non_task_roles | sort)
+
+# Calculate the length of the first column for the
+# table we're going to display later on
+col_len=$(echo "${roles}" | awk '{ print length($0); }' | sort -nr | head -n1)
+
+# Define the format of a row
+rowfmt="%${col_len}s%s%12s%s%7s%s%11s${txtrst}\n"
+#       │           │ │   │ │  │ │   │
+#       │           │ │   │ │  │ │   └──────────────────────────┐
+#       │           │ │   │ │  │ └───────────────────┐          │
+#       │           │ │   │ │  └──────────────┐      │          │
+#       │    ┌──────┘ │   │ └──────────┐      │      │          │
+# ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │
+# <role name><COLOR><containers><COLOR><monit><COLOR><processes><COLOR RESET>
+
+# Print a table header
+printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes"
+# Print  a line after the header (30 is the fixed length of all but the first columns)
+printf '=%.0s' $(seq 1 $(($col_len+30)))
+printf '\n'
+
+# Loop through all roles
 for role in $roles; do
-  containers=$(docker ps -q --filter label=role=$role)
+  # Set all status colors to bad colors (assume everything is down)
+  containers_color=${bldred}
+  monit_color=${bldred}
+  processes_color=${bldred}
 
-  containers_count=$($containers | wc)
-  monit_running="false"
-  processes_running="0"
+  # Get container count from docker
+  containers=$(docker ps -q --filter label=role=${role}  || true)
+  containers_count=$(echo "${containers}" | wc -w)
+  # Get first live container
+  # We only check the first container for monit and processes
+  container_id=$(echo "${containers}" | head -n1)
 
-  printf "%50s %s %s %s\n" $role "${containers_count}" "${monit_running}" "${processes_running}"
+  # Get process count for a role
+  processes=$(list_processes_for_role ${role})
+  process_count=$(echo "${processes}" | wc -w)
+  processes_running="0/${process_count}"
+
+  # Assume monit is down
+  monit_status="down"
+
+  if [ "${containers_count}" != "0" ] ; then
+    # Container is running, make green
+    containers_color=${txtgrn}
+
+    # Get monit status
+    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+    if [ "$?" == "0" ]; then
+      # Monit is up, make it green
+      monit_status="up"
+      monit_color=${txtgrn}
+
+      # Analyse for process status
+      ok_processes=0
+      for process in $processes; do
+        # Look for the status "Running" on the
+        # line following a process definition
+        process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
+
+        # Increase the number of processes that are working ok
+        if [ "${process_status}" == "Running" ] ; then
+          ok_processes=$(($ok_processes + 1))
+        fi
+      done
+
+      # Set correct status
+      processes_running="${ok_processes}/${process_count}"
+
+      # If some processes are running, make status purple
+      if [ "$ok_processes" != "0" ] ; then
+        processes_color=${bldpur}
+      fi
+
+      # If all processes are running, make status green
+      if [ "$ok_processes" == "${process_count}" ] ; then
+        processes_color=${bldgrn}
+      fi
+    fi
+  fi
+
+  printf $rowfmt $role \
+    ${containers_color} ${containers_count} \
+    ${monit_color} ${monit_status} \
+    ${processes_color} ${processes_running}
 done
