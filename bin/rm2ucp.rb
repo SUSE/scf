@@ -210,8 +210,8 @@ def roles_to_ucp(roles)
   # the_ucp.name					/string
   # the_ucp.version					/string
   # the_ucp.vendor					/string
-  # the_ucp.preflight[].	subset of comp below
-  # the_ucp.postflight[].	subset of comp below
+  # the_ucp.preflight[].	subset of comp below (- external_name + retry_count /int32)
+  # the_ucp.postflight[].	Ditto
   # the_ucp.volumes[].name				/string
   # the_ucp.volumes[].size_gb				/int32
   # the_ucp.volumes[].filesystem			/string ('ext4', 'xfs', 'ntfs' (platform-dependent))
@@ -227,7 +227,7 @@ def roles_to_ucp(roles)
   # the_ucp.components[].platform			/string	('linux-x86_64', 'win2012r2-x86_64')
   # the_ucp.components[].capabilities[]			/string (*1)
   # the_ucp.components[].workload_type			/string ('container', 'vm')
-  # the_ucp.components[].entrypoint			/string
+  # the_ucp.components[].entrypoint[]			/string (cmd and parameters, each a separate entry)
   # the_ucp.components[].depends_on[].name		/string \See 1st 3 comp attributes
   # the_ucp.components[].depends_on[].version		/string \
   # the_ucp.components[].depends_on[].vendor		/string \
@@ -248,6 +248,12 @@ def roles_to_ucp(roles)
   # the_ucp.components[].parameters[].example		/string, !empty
   # the_ucp.components[].parameters[].required		/bool
   # the_ucp.components[].parameters[].secret		/bool
+  #
+  # (*1) Too many to list here. See ucp-developer/service_models.md for the full list.
+  #      Notables:
+  #      - ALL
+  #      - NET_ADMIN
+  #      Note further, NET_RAW accepted, but not supported.
 end
 
 def save_ucp(path, ucp)
