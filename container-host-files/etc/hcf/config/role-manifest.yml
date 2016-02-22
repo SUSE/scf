@@ -228,6 +228,7 @@ roles:
 - name: api
   scripts:
   - fix_consul_address_lookup.sh
+  - fix_cc_internal_hostname.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -266,6 +267,7 @@ roles:
 - name: api-worker
   scripts:
   - fix_consul_address_lookup.sh
+  - fix_cc_internal_hostname.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -290,6 +292,7 @@ roles:
 - name: clock-global
   scripts:
   - fix_consul_address_lookup.sh
+  - fix_cc_internal_hostname.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -580,6 +583,12 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: post_deployment_setup
+  is_task: true
+  jobs:
+  - name: cf-set-proxy
+    release_name: hcf-deployment-hooks
+  processes: []
 configuration:
   variables:
   - name: PUBLIC_IP
@@ -829,6 +838,7 @@ configuration:
     properties.loggregator.etcd.machines: '["etcd.hcf"]'
     properties.router.servers.z1: '["router.hcf"]'
     properties.dea_next.kernel_network_tuning_enabled: 'false'
+    properties.cc.internal_service_hostname: '"api.hcf"'
     properties.ccdb.port: '3306'
     properties.ccdb.address: 'mysql-proxy.hcf'
     properties.ccdb.db_scheme: 'mysql'
