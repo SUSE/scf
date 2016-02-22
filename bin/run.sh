@@ -30,36 +30,41 @@ do
     "doppler")
       extra="--privileged"
       ;;
-    "loggregator_trafficcontroller")
+    "loggregator")
       extra="--privileged"
       ;;
     "router")
       extra="--privileged"
       ;;
-    "api_worker")
+    "api-worker")
       mkdir -p $store_dir/fake_nfs_share
       touch $store_dir/fake_nfs_share/.nfs_test
       extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
       ;;
-    "ha_proxy")
+    "ha-proxy")
       extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
       ;;
-    "mysql_proxy")
+    "mysql-proxy")
       extra="-p 3306:3306"
       ;;
-    "diego_cell")
+    "diego-cell")
       extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
       ;;
     "cf-usb")
       mkdir -p $store_dir/fake_cf_usb_nfs_share
       extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"
       ;;
-    "diego_database")
+    "diego-database")
       extra='--add-host="diego-database-0.etcd.service.cf.internal:127.0.0.1"'
       ;;
   esac
 
-  handle_restart "$image" "$hcf_overlay_gateway" "${ROOT}/bin/dev-settings.env" "$extra" || true
+  handle_restart \
+    "$image" \
+    "$hcf_overlay_gateway" \
+    "${ROOT}/bin/dev-settings.env" \
+    "${ROOT}/bin/dev-certs.env" \
+    "$extra" || true
 done
 
 exit 0

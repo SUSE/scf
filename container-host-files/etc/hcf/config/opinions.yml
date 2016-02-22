@@ -281,11 +281,7 @@ properties:
     saml: null
     self_service_links_enabled: null
     signups_enabled: null
-    smtp:
-      host: null
-      password: null
-      port: null
-      user: null
+    smtp: null
     spring_profiles: null
     tiles: null
     uaa_base: null
@@ -399,6 +395,8 @@ properties:
       external_groups: null
       userids_enabled: true
       users: []
+      user:
+        override: true
     spring_profiles: null
     url: https://uaa.example.com
     user: null
