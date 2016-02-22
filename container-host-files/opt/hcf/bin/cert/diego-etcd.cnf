@@ -68,4 +68,4 @@ subjectAltName         = DNS:diego-database.hcf, DNS:*.diego-database.hcf, DNS:e
 basicConstraints       = CA:FALSE
 extendedKeyUsage       = clientAuth, serverAuth
 keyUsage               = digitalSignature, keyEncipherment
-subjectAltName         = DNS:diego_database.hcf, DNS:*.diego_database.hcf, DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal
+subjectAltName         = DNS:diego-database.hcf, DNS:*.diego-database.hcf, DNS:etcd.service.cf.internal, DNS:*.etcd.service.cf.internal

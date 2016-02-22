@@ -261,6 +261,7 @@ roles:
     exposed-ports: []
   configuration:
     templates:
+      properties.etcd.machines: '["etcd.hcf"]'
       properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
 - name: api-worker
   scripts:
