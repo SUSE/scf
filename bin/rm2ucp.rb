@@ -1,11 +1,16 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'yaml'
 require 'json'
 
 def get_roles(path)
-  YAML.load_file(path)
-
+  if path == '-'
+    # Read from stdin.
+    YAML.load($stdin)
+  else
+    YAML.load_file(path)
+  end
   # Loaded structure
   ##
   # the_roles.roles[].name				/string
@@ -217,9 +222,8 @@ def roles_to_ucp(roles)
   roles['roles'].each do |role|
     type = role['type']
     if type && type == 'bosh-task'
-
       # Ignore dev parts by default.
-      next if role['dev-only']
+      next if role['dev-only'] && !$options[:dev]
 
       add_component(roles, fs, post, role, 5)
       # 5 == default retry count.
@@ -283,19 +287,32 @@ def roles_to_ucp(roles)
 end
 
 def save_ucp(path, ucp)
-  File.open(path, 'w') do |handle|
-    # handle.puts (JSON.generate(ucp))
+  if path == '-'
+    $stdout.puts(JSON.pretty_generate(ucp))
+  else
+    File.open(path, 'w') do |handle|
+      # handle.puts (JSON.generate(ucp))
 
-    # While in dev I want something at least semi-readable
-    handle.puts(JSON.pretty_generate(ucp))
+      # While in dev I want something at least semi-readable
+      handle.puts(JSON.pretty_generate(ucp))
+    end
   end
 end
 
 def main
-  # Syntax: <roles-manifest.yml> <ucp-manifest.json>
+  # Syntax: ?--dev? <roles-manifest.yml>|- <ucp-manifest.json>|-
   # Process arguments
-  # - origin      = roles manifest
-  # - destination = ucp manifest
+  # & --dev       ~ Include dev-only parts in generated UCP service definition
+  # & origin      = roles manifest, or stdin (-)
+  # & destination = UCP service definition, or stdout (-)
+
+  $options = {}
+  OptionParser.new do |opts|
+    opts.banner = 'Usage: rm2ucp [--dev] roles|- services|-'
+    opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
+      $options[:dev] = v
+    end
+  end.parse!
 
   origin      = ARGV[0]
   destination = ARGV[1]
