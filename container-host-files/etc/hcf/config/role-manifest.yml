@@ -560,6 +560,7 @@ roles:
     virtual-cpus: 4
     exposed-ports: []
 - name: acceptance-tests
+  dev-only: true
   type: bosh-task
   jobs:
   - name: acceptance-tests
@@ -572,6 +573,7 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: smoke-tests
+  dev-only: true
   type: bosh-task
   jobs:
   - name: smoke-tests

@@ -9,6 +9,7 @@ def get_roles(path)
   # Loaded structure
   ##
   # the_roles.roles[].name				/string
+  # the_roles.roles[].dev-only				/bool
   # the_roles.roles[].type				/string (allowed "bosh-task")
   # the_roles.roles[].scripts[]				/string
   # the_roles.roles[].jobs[].name			/string
@@ -216,7 +217,14 @@ def roles_to_ucp(roles)
   roles['roles'].each do |role|
     type = role['type']
     if type && type == 'bosh-task'
-      add_component(roles, fs, post, role, 5) # default retry count. Option to override ? Manifest override?
+
+      # Ignore dev parts by default.
+      next if role['dev-only']
+
+      add_component(roles, fs, post, role, 5)
+      # 5 == default retry count.
+      #   Option to override ?
+      #   Manifest override?
     else
       add_component(roles, fs, comp, role)
     end
