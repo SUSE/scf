@@ -47,7 +47,7 @@ def add_parameters(component, variables)
       'name'        => vname,
       'description' => 'placeholder',
       'default'     => vdefault,
-      'example'     => vdefault || "unknown",
+      'example'     => vdefault || 'unknown',
       'required'    => true,
       'secret'      => false
     }
@@ -122,7 +122,8 @@ def collect_shared_filesystems(roles)
   shared = {}
   roles.each do |role|
     runtime = role['run']
-    next unless runtime['shared-volumes']
+    next unless runtime && runtime['shared-volumes']
+
     runtime['shared-volumes'].each do |v|
       vname = v['tag']
       vsize = v['size']
@@ -139,69 +140,86 @@ def save_shared_filesystems(fs, shared)
   end
 end
 
+def add_component(roles, fs, comps, role, retrycount = 0)
+  rname = role['name']
+  iname = rname # TODO: construct proper image name
+
+  runtime = role['run']
+
+  the_comp = {
+    'name'          => rname,
+    'version'       => '0.0.0', # See also toplevel version
+    'vendor'        => 'HPE',	  # See also toplevel vendor
+    'image'         => iname,
+    'min_RAM_mb'    => runtime['memory'],
+    'min_disk_gb'   => 1,	  		# Out of thin air
+    'min_VCPU'      => runtime['virtual-cpus'],
+    'platform'      => 'linux-x86_64',
+    'capabilities'  => runtime['capabilities'],
+    'depends_on'    => [],	  # No dependency info in the RM
+    'affinity'      => [],	  # No affinity info in the RM
+    'labels'        => [rname], # TODO: Maybe also label with the jobs ?
+    'min_instances' => 1,
+    'max_instances' => 1,
+    'service_ports' => [],	# Fill from role runtime config, see below
+    'volume_mounts' => [],	# Ditto
+    'parameters'    => []	# Fill from role configuration, see below
+  }
+
+  if retrycount > 0
+    the_comp['retry_count'] = retrycount
+  else
+    ename = 'Role: ' + rname
+    the_comp['external_name'] = ename
+  end
+
+  # Record persistent and shared volumes, ports
+  add_volumes(fs, the_comp, runtime['persistent-volumes']) if runtime['persistent-volumes']
+  add_volumes(fs, the_comp, runtime['shared-volumes']) if runtime['shared-volumes']
+
+  add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
+
+  # Global parameters
+  if roles['configuration'] && roles['configuration']['variables']
+    add_parameters(the_comp, roles['configuration']['variables'])
+  end
+
+  # Per role parameters
+  if role['configuration'] && role['configuration']['variables']
+    add_parameters(the_comp, role['configuration']['variables'])
+  end
+
+  # TODO: Should check that the intersection of between global and
+  # role parameters is empty.
+
+  comps.push(the_comp)
+end
+
 def roles_to_ucp(roles)
   the_ucp = {
     'name'       => 'HDP CF', # TODO: Specify via option?
     'version'    => '0.0.0',  # s.a.
     'vendor'     => 'HPE',    # s.a.
     'volumes'    => [],	      # We do not generate volumes, leave empty
-    'components' => []	      # Fill from the roles, see below
+    'components' => [],	      # Fill from the roles, see below
+    'preflight'  => [],	      # Fill from the roles, see below
+    'postflight' => []	      # Fill from the roles, see below
   }
 
   comp = the_ucp['components']
+  post = the_ucp['postflight']
   fs   = the_ucp['volumes']
- 
+
   save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
 
   # Phase II. Generate UCP data per-role.
   roles['roles'].each do |role|
-    rname = role['name']
-    ename = rname # TODO: construct proper external name
-    iname = rname # TODO: construct proper image name
-
-    runtime = role['run']
-
-    the_comp = {
-      'name'          => rname,
-      'version'       => '0.0.0', # See also toplevel version
-      'vendor'        => 'HPE',	  # See also toplevel vendor
-      'external_name' => ename,
-      'image'         => iname,
-      'min_RAM_mb'    => runtime['memory'],
-      'min_disk_gb'   => 1,	  		# Out of thin air
-      'min_VCPU'      => runtime['virtual-cpus'],
-      'platform'      => 'linux-x86_64',
-      'capabilities'  => runtime['capabilities'],
-      'depends_on'    => [],	  # No dependency info in the RM
-      'affinity'      => [],	  # No affinity info in the RM
-      'labels'        => [rname], # TODO: Maybe also label with the jobs ?
-      'min_instances' => 1,
-      'max_instances' => 1,
-      'service_ports' => [],	# Fill from role runtime config, see below
-      'volume_mounts' => [],	# Ditto
-      'parameters'    => []	# Fill from role configuration, see below
-    }
-
-    # Record persistent and shared volumes, ports
-    add_volumes(fs, the_comp, runtime['persistent-volumes']) if runtime['persistent-volumes']
-    add_volumes(fs, the_comp, runtime['shared-volumes']) if runtime['shared-volumes']
-
-    add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
-
-    # Global parameters
-    if roles['configuration'] && roles['configuration']['variables']
-      add_parameters(the_comp, roles['configuration']['variables'])
+    type = role['type']
+    if type && type == 'bosh-task'
+      add_component(roles, fs, post, role, 5) # default retry count. Option to override ? Manifest override?
+    else
+      add_component(roles, fs, comp, role)
     end
-
-    # Per role parameters
-    if role['configuration'] && role['configuration']['variables']
-      add_parameters(the_comp, role['configuration']['variables'])
-    end
-
-    # TODO: Should check that the intersection of between global and
-    # role parameters is empty.
-
-    comp.push(the_comp)
   end
 
   the_ucp

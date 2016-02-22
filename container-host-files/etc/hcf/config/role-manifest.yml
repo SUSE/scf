@@ -589,6 +589,13 @@ roles:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
   processes: []
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
 configuration:
   variables:
   - name: PUBLIC_IP
