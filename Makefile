@@ -43,7 +43,7 @@ print-version:
 
 ########## VAGRANT VM TARGETS ##########
 
-run: configs
+run:
 	$(call print_status, Running HCF ...)
 	${CURDIR}/bin/run.sh
 
@@ -58,7 +58,6 @@ vagrant-box:
 vagrant-prep: \
 	compile-base \
 	releases \
-	configs \
 	compile \
 	image-base \
 	images \
@@ -98,11 +97,6 @@ releases: cf-release usb-release diego-release etcd-release garden-release mysql
 
 ########## FISSILE BUILD TARGETS ##########
 
-configs:
-	$(call print_status, Generating configuration)
-	fissile dev config-gen
-	tar czf ${FISSILE_WORK_DIR}/hcf-config.tar.gz -C ${FISSILE_WORK_DIR}/config/ hcf/
-
 compile-base:
 	$(call print_status, Compiling build base image)
 	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
@@ -124,7 +118,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	done ; true
 endif
 
-compile: ${FISSILE_WORK_DIR}/hcf-config.tar.gz
+compile:
 	$(call print_status, Compiling BOSH release packages)
 	@echo Please allow a long time for mariadb to compile
 	fissile dev compile
@@ -138,7 +132,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
 endif
 
-images: bosh-images hcf-images
+images: bosh-images
 
 image-base:
 	$(call print_status, Creating BOSH role base image)
@@ -148,15 +142,10 @@ bosh-images:
 	$(call print_status, Building BOSH role images)
 	fissile dev create-images
 
-hcf-images:
-	$(call print_status, Building HCF docker images)
-	${MAKE} -C docker-images build
-
-build: configs images
+build: images
 
 tag:
 	$(call print_status, Tagging docker images)
-	make -C docker-images tag
 	set -e ; \
 	for source_image in $$(fissile dev list-roles); do \
 		component=$${source_image%:*} && \
@@ -167,7 +156,6 @@ tag:
 
 publish:
 	$(call print_status, Publishing docker images)
-	make -C docker-images push
 	set -e ; \
 	for source_image in $$(fissile dev list-roles); do \
 		component=$${source_image%:*} && \
@@ -177,7 +165,7 @@ publish:
 	done
 
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
-terraform: configs
+terraform:
 	mkdir -p ${DIST_DIR}/direct_internet
 	mkdir -p ${DIST_DIR}/proxied_internet
 	mkdir -p ${DIST_DIR}/templates
@@ -187,9 +175,6 @@ terraform: configs
 	cp -rL ${CURDIR}/terraform-scripts/templates/* ${DIST_DIR}/templates/
 
 	cp -rL ${CURDIR}/container-host-files ${FISSILE_WORK_DIR}/hcf/
-
-	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/direct_internet/
-	cp ${FISSILE_WORK_DIR}/hcf-config.tar.gz ${DIST_DIR}/proxied_internet/
 
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/direct_internet/version.tf
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf

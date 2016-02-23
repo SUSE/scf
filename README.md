@@ -173,8 +173,7 @@ name				| effect |
 
 name			| effect |
 --------------- | ---- |
-`build`			| `make configs` + `make images` |
-`configs`		| `fissile dev config-gen` |
+`build`			| `make` + `make images` |
 `compile-base`	| `fissile compilation build-base` |
 `compile`		| `fissile dev compile` |
 `images`		| `make bosh-image` + `make hcf-images` |

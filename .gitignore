@@ -12,3 +12,4 @@ password
 .fissile/*
 .vagrant
 *.box
+*.vmdk

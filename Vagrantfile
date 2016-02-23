@@ -11,31 +11,22 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
 
   # Create port forward mappings
-  config.vm.network "forwarded_port", guest: 80, host: 80
-  config.vm.network "forwarded_port", guest: 443, host: 443
-  config.vm.network "forwarded_port", guest: 4443, host: 4443
-  config.vm.network "forwarded_port", guest: 8501, host: 8501
+  # These are not normally required, since all access happens on the
+  # 192.168.77.77 IP address
+  #
+  # config.vm.network "forwarded_port", guest: 80, host: 80
+  # config.vm.network "forwarded_port", guest: 443, host: 443
+  # config.vm.network "forwarded_port", guest: 4443, host: 4443
+  # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.77.77"
 
-  config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box = "https://region-b.geo-1.objects.hpcloudsvc.com/v1/54026737306152/hcf-vagrant-box/hcf-vmware-v0.box"
-    # Customize the amount of memory on the VM:
-    vb.memory = "6144"
-    vb.cpus = "2"
-    # If you need to debug stuff
-    # vb.gui = true
-
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    override.vm.synced_folder ".", "/home/vagrant/hcf"
-  end
-
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "http://tinyurl.com/hcf-vagrant-vbox"
+    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-virtualbox-v1.0.0.box"
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
     vb.cpus = 4
@@ -56,8 +47,6 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
-  config.vm.provision "file", source: "./container-host-files/etc/init/etcd.conf", destination: "/tmp/etcd.conf"
-
   unless OS.windows?
     config.vm.provision "shell", inline: <<-SHELL
         if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
@@ -68,20 +57,17 @@ Vagrant.configure(2) do |config|
     SHELL
   end
 
-  config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_etcd.sh "hcf" "192.168.77.77"
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh "192.168.77.77" "192.168.77.77"
-  SHELL
-
   config.vm.provision :reload
 
   config.vm.provision "shell", inline: <<-SHELL
     set -e
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_overlay_network.sh "192.168.252.0/24" "192.168.252.1"
+
+    # Configure Docker things
+    sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
+
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
-    # Install runtime tools
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/tools/install_shyaml.sh
 
     mkdir -p /home/vagrant/tmp
 
@@ -96,6 +82,9 @@ Vagrant.configure(2) do |config|
     set -e
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
+
+    echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
+    echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -103,6 +92,8 @@ Vagrant.configure(2) do |config|
     set -e
     cd /home/vagrant/hcf
     make copy-compile-cache
+
+    echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
 end
 

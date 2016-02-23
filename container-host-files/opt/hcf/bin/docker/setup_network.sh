@@ -5,4 +5,4 @@ set -e
 overlay_subnet=$1
 overlay_gateway=$2
 
-docker network create -d overlay --subnet="${overlay_subnet}" --gateway="${overlay_gateway}" hcf 
+docker network create --driver=bridge --subnet="${overlay_subnet}" --gateway="${overlay_gateway}" hcf

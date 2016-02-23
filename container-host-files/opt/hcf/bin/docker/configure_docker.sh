@@ -1,44 +1,34 @@
 #!/bin/bash
 
-# Usage: configure_docker.sh <IP_ADDRESS> [<NETWORK_IP>] 
-# The network IP is needed to configure DEA containers.
+set -e
 
-ip_address=$1
-case $# in
-    1) is_dea_node=0
-	cluster_advertise_ip=$1
-	neighbor_ip_label=
-	daemon_socket_address=$1
-	;;
-    2) is_dea_node=1
-	cluster_advertise_ip=$2
-	neighbor_ip_label="--label=com.docker.network.driver.overlay.neighbor_ip=${ip_address}:2376"
-	daemon_socket_address=$2
-	;;
-    *) echo "Expected 1 or 2 args, got $@" ; exit 0
-	;;
-esac
+# Usage: configure_docker.sh <DEVICE_MAPPER_VOLUME> <DEVICE_MAPPER_DATA_SIZE> <DEVICE_MAPPER_METADATA_SIZE>
 
-# Make the code that sets up DOCKER_OPTS more readable.
-opts=( --cluster-store=etcd://${ip_address}:3379
-       --cluster-advertise=${cluster_advertise_ip}:2376
-       --label=com.docker.network.driver.overlay.bind_interface=eth0
-       ${neighbor_ip_label}
-       -H=${daemon_socket_address}:2376
-       -H=unix:///var/run/docker.sock
-       -s=devicemapper
-       )
-case $is_dea_node in
-    0) opts[${#opts[@]}]="-g=/data/docker" ;;
-esac
+read -d '' usage <<PATCH || true
+Usage (needs root):
+  configure_docker.sh <DEVICE_MAPPER_VOLUME> <DEVICE_MAPPER_DATA_SIZE> <DEVICE_MAPPER_METADATA_SIZE>
 
-echo DOCKER_OPTS=\"${opts[@]}\" | sudo tee -a /etc/default/docker
+  DEVICE_MAPPER_VOLUME - e.g. /dev/sdb
+  DEVICE_MAPPER_DATA_SIZE - size in GB (e.g. 60)
+  DEVICE_MAPPER_METADATA_SIZE - size in GB (e.g. 40); Note that DATA+METADATA must both fit on your volume
+PATCH
 
-# enable cgroup memory and swap accounting
-sudo sed -idockerbak 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"cgroup_enable=memory swapaccount=1\"/' /etc/default/grub
-sudo update-grub
+if [ -z ${1} ]; then echo "${usage}"; exit 1; else DEVICE_MAPPER_VOLUME=$1; fi
+if [ -z ${2} ]; then echo "${usage}"; exit 1; else DEVICE_MAPPER_DATA_SIZE=$2; fi
+if [ -z ${3} ]; then echo "${usage}"; exit 1; else DEVICE_MAPPER_METADATA_SIZE=$3; fi
 
-case $is_dea_node in
-    0) sudo sed -idockerbak 's/local-filesystems and net-device-up IFACE!=lo/local-filesystems and net-device-up IFACE!=lo and started etcd/' /etc/init/docker.conf
-    ;;
-esac
+# Setup devicemapper
+service docker stop
+pvcreate $DEVICE_MAPPER_VOLUME
+vgcreate vg-docker $DEVICE_MAPPER_VOLUME
+lvcreate -L ${DEVICE_MAPPER_DATA_SIZE}G -n data vg-docker
+lvcreate -L ${DEVICE_MAPPER_METADATA_SIZE}G -n metadata vg-docker
+
+echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.datadev=/dev/vg-docker/data --storage-opt dm.metadatadev=/dev/vg-docker/metadata\" | sudo tee -a /etc/default/docker
+
+service docker start
+
+# Download images
+if [ -n "${IMAGE_TO_PULL}" ]; then
+    docker pull ${IMAGE_TO_PULL}
+fi
