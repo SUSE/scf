@@ -17,7 +17,7 @@ roles=$(list_all_bosh_roles | sort)
 col_len=$(echo "${roles}" | awk '{ print length($0); }' | sort -nr | head -n1)
 
 # Define the format of a row
-rowfmt="%${col_len}s%s%12s%s%7s%s%11s${txtrst}\n"
+rowfmt="%${col_len}b%b%12b%b%7b%b%11b${txtrst}\n"
 #       │           │ │   │ │  │ │   │
 #       │           │ │   │ │  │ │   └──────────────────────────┐
 #       │           │ │   │ │  │ └───────────────────┐          │
@@ -59,8 +59,10 @@ for role in $roles; do
     containers_color=${txtgrn}
 
     # Get monit status
-    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status')
-    if [ "$?" == "0" ]; then
+
+    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+
+    if [ "$monit_data" != "" ]; then
       # Monit is up, make it green
       monit_status="up"
       monit_color=${txtgrn}
