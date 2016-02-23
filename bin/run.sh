@@ -71,8 +71,7 @@ done
 
 . "${ROOT}/bin/dev-settings.env"
 
-cat <<MESSAGE
-
+echo -e "
 Your Helion Cloud Foundry endpoint is: ${bldcyn}https://api.${DOMAIN}${txtrst}
 Run the following command to target it: ${bldcyn}cf api --skip-ssl-validation https://api.${DOMAIN}${txtrst}
 The Universal Service Broker endpoint is: ${bldcyn}https://usb.${DOMAIN}${txtrst}
@@ -82,6 +81,6 @@ Your administrative credentials are:
 
 It may take some time for everything to come online.
 You can use ${bldcyn}hcf-status${txtrst} or ${bldcyn}hcf-status-watch${txtrst} to check if everything is up and running.
-MESSAGE
+"
 
 exit 0

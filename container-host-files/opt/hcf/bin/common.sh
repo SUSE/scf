@@ -235,21 +235,20 @@ function list_processes_for_role() {
 # sets the appropiate color values based on $use_colors
 function set_colors()
 {
-  txtrst=$(tput sgr0)  # Text Reset
-  txtbold=$(tput bold) # Text Bold
-
-  txtred=${txtrst}$(tput setaf 1) # Red
-  txtgrn=${txtrst}$(tput setaf 2) # Green
-  txtylw=${txtrst}$(tput setaf 3) # Yellow
-  txtblu=${txtrst}$(tput setaf 4) # Blue
-  txtpur=${txtrst}$(tput setaf 5) # Purple
-  txtcyn=${txtrst}$(tput setaf 6) # Cyan
-  txtwht=${txtrst}$(tput setaf 7) # White
-  bldred=${txtbold}$(tput setaf 1) # Red
-  bldgrn=${txtbold}$(tput setaf 2) # Green
-  bldylw=${txtbold}$(tput setaf 3) # Yellow
-  bldblu=${txtbold}$(tput setaf 4) # Blue
-  bldpur=${txtbold}$(tput setaf 5) # Purple
-  bldcyn=${txtbold}$(tput setaf 6) # Cyan
-  bldwht=${txtbold}$(tput setaf 7) # White
+  txtred='\e[0;31m' # Red
+  txtgrn='\e[0;32m' # Green
+  txtylw='\e[0;33m' # Yellow
+  txtblu='\e[0;34m' # Blue
+  txtpur='\e[0;35m' # Purple
+  txtcyn='\e[0;36m' # Cyan
+  txtwht='\e[0;37m' # White
+  bldblk='\e[1;30m' # Black - Bold
+  bldred='\e[1;31m' # Red
+  bldgrn='\e[1;32m' # Green
+  bldylw='\e[1;33m' # Yellow
+  bldblu='\e[1;34m' # Blue
+  bldpur='\e[1;35m' # Purple
+  bldcyn='\e[1;36m' # Cyan
+  bldwht='\e[1;37m' # White
+  txtrst='\e[0m'    # Text Reset
 }
