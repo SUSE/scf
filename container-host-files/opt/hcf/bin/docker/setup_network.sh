@@ -1,4 +1,5 @@
 #!/bin/bash
+# © Copyright 2015 Hewlett Packard Enterprise Development LP
 set -e
 
 # Usage: setup_overlay_network.sh <OVERLAY_SUBNET> <OVERLAY_GATEWAY>
