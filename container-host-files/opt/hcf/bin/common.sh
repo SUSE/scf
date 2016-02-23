@@ -170,8 +170,8 @@ function load_all_roles() {
     # Using this style of while loop so we don't get a subshell
     # because of piping (see http://stackoverflow.com/questions/11942214)
     while IFS= read -r -d '' role_block; do
-      role_name=$(echo -n "${role_block}" | grep '^name: ' | awk '{print $2}')
-      role_type=$(echo -n "${role_block}" | grep '^type: ' | awk '{print $2}')
+      role_name=$(echo -n "${role_block}" | awk '/^name: / { print $2 }')
+      role_type=$(echo -n "${role_block}" | awk '/^type: / { print $2 }')
       role_processes=$(echo "${role_block}" | shyaml get-value processes '')
 
       # Default role_type to 'bosh'
@@ -188,8 +188,8 @@ function load_all_roles() {
 
 # Reads all roles that are bosh roles from role-manifest.yml
 # Uses shyaml for parsing
-# list_all_non_task_roles
-function list_all_non_task_roles() {
+# list_all_bosh_roles
+function list_all_bosh_roles() {
   if [ "${#role_manifest[@]}" == "0" ]; then
     printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
     exit 1
@@ -204,8 +204,8 @@ function list_all_non_task_roles() {
 
 # Reads all roles that are bosh tasks from role-manifest.yml
 # Uses shyaml for parsing
-# list_all_task_roles
-function list_all_task_roles() {
+# list_all_bosh_task_roles
+function list_all_bosh_task_roles() {
   if [ "${#role_manifest[@]}" == "0" ]; then
     printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
     exit 1
@@ -238,18 +238,18 @@ function set_colors()
   txtrst=$(tput sgr0)  # Text Reset
   txtbold=$(tput bold) # Text Bold
 
-	txtred=${txtrst}$(tput setaf 1) # Red
-	txtgrn=${txtrst}$(tput setaf 2) # Green
-	txtylw=${txtrst}$(tput setaf 3) # Yellow
-	txtblu=${txtrst}$(tput setaf 4) # Blue
-	txtpur=${txtrst}$(tput setaf 5) # Purple
-	txtcyn=${txtrst}$(tput setaf 6) # Cyan
-	txtwht=${txtrst}$(tput setaf 7) # White
+  txtred=${txtrst}$(tput setaf 1) # Red
+  txtgrn=${txtrst}$(tput setaf 2) # Green
+  txtylw=${txtrst}$(tput setaf 3) # Yellow
+  txtblu=${txtrst}$(tput setaf 4) # Blue
+  txtpur=${txtrst}$(tput setaf 5) # Purple
+  txtcyn=${txtrst}$(tput setaf 6) # Cyan
+  txtwht=${txtrst}$(tput setaf 7) # White
   bldred=${txtbold}$(tput setaf 1) # Red
-	bldgrn=${txtbold}$(tput setaf 2) # Green
-	bldylw=${txtbold}$(tput setaf 3) # Yellow
-	bldblu=${txtbold}$(tput setaf 4) # Blue
-	bldpur=${txtbold}$(tput setaf 5) # Purple
-	bldcyn=${txtbold}$(tput setaf 6) # Cyan
-	bldwht=${txtbold}$(tput setaf 7) # White
+  bldgrn=${txtbold}$(tput setaf 2) # Green
+  bldylw=${txtbold}$(tput setaf 3) # Yellow
+  bldblu=${txtbold}$(tput setaf 4) # Blue
+  bldpur=${txtbold}$(tput setaf 5) # Purple
+  bldcyn=${txtbold}$(tput setaf 6) # Cyan
+  bldwht=${txtbold}$(tput setaf 7) # White
 }

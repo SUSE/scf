@@ -87,7 +87,7 @@
         {
             "type": "shell",
             "only": ["virtualbox-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}' ; rm ~/VBoxGuestAdditions.iso",
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
             "scripts": [
                 "scripts/virtualbox_tools.sh"
             ],

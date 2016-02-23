@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -u
 
 if [[ "$1" == "--help" ]]; then
 cat <<EOL
@@ -9,8 +10,8 @@ EOL
 exit 0
 fi
 
-signing_key_passphrase=$1
-output_path=$2
+signing_key_passphrase="$1"
+output_path="$2"
 
 if [ -z "$signing_key_passphrase" ] || [ -z "$output_path" ] ; then
   cat <<EOL
@@ -27,8 +28,8 @@ ca_path="$certs_path/ca"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
 etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
-
-rm -rf $certs_path
+certs_prefix="hcf"
+domain="192.168.77.77.nip.io"
 
 # prepare directories
 rm -rf ${certs_path}
@@ -59,7 +60,7 @@ mkdir -p $bbs_certs_dir
 cd $bbs_certs_dir
 mkdir -p private certs newcerts crl
 touch index.txt
-echo '01' > serial
+printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
   -new -x509 -extensions v3_ca \
@@ -98,7 +99,7 @@ mkdir -p $etcd_certs_dir
 cd $etcd_certs_dir
 mkdir -p private certs newcerts crl
 touch index.txt
-echo '01' > serial
+printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
   -new -x509 -extensions v3_ca \
@@ -137,7 +138,7 @@ mkdir -p $etcd_peer_certs_dir
 cd $etcd_peer_certs_dir
 mkdir -p private certs newcerts crl
 touch index.txt
-echo '01' > serial
+printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
   -new -x509 -extensions v3_ca \

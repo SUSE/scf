@@ -10,7 +10,7 @@ set_colors
 # Get all possible roles from the role manifest
 load_all_roles
 
-roles=$(list_all_non_task_roles | sort)
+roles=$(list_all_bosh_roles | sort)
 
 # Calculate the length of the first column for the
 # table we're going to display later on
@@ -59,7 +59,7 @@ for role in $roles; do
     containers_color=${txtgrn}
 
     # Get monit status
-    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status')
     if [ "$?" == "0" ]; then
       # Monit is up, make it green
       monit_status="up"

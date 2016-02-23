@@ -63,7 +63,7 @@ Vagrant.configure(2) do |config|
     set -e
 
     # Configure Docker things
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
+    sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
 
     # Install development tools
@@ -82,8 +82,9 @@ Vagrant.configure(2) do |config|
     set -e
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
-    echo 'alias hcf-status=/home/vagrant/hcf/container-host-files/opt/hcf/bin/hcf-status' >> .profile
-    echo "alias hcf-status-watch='watch --color /home/vagrant/hcf/container-host-files/opt/hcf/bin/hcf-status'" >> .profile
+
+    echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
+    echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
