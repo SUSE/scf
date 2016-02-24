@@ -560,6 +560,7 @@ roles:
     virtual-cpus: 4
     exposed-ports: []
 - name: acceptance-tests
+  dev-only: true
   type: bosh-task
   jobs:
   - name: acceptance-tests
@@ -572,6 +573,7 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: smoke-tests
+  dev-only: true
   type: bosh-task
   jobs:
   - name: smoke-tests
@@ -589,6 +591,13 @@ roles:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
   processes: []
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
 configuration:
   variables:
   - name: PUBLIC_IP
