@@ -184,10 +184,6 @@ name			| effect |
 `publish`		| Publish HCF images + bosh role images to docker hub |
 `terraform`		| Make `hcf-*.tar.gz` for distribution |
 
-## Build dependencies
-
-[![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)
-
 ## Generating UCP service definitions
 
 Assuming that the vagrant box for CF is running simply log into it with ssh and then run
@@ -200,5 +196,9 @@ docker run -it --rm \
   "rbenv global 2.2.3 && /home/vagrant/hcf/bin/rm2ucp.rb /home/vagrant/hcf/container-host-files/etc/hcf/config/role-manifest.yml /home/vagrant/hcf/hcf-ucp.json"
 ```
 
-The generates the `hcf-ucp.json` file containing the UCP service
+This generates the `hcf-ucp.json` file containing the UCP service
 definition for the current set of roles.
+
+## Build dependencies
+
+[![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)

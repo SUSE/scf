@@ -308,11 +308,11 @@ def main
 
   $options = {}
   OptionParser.new do |opts|
-    opts.banner = 'Usage: rm2ucp [--dev] roles|- services|-
+    opts.banner = 'Usage: rm2ucp [--dev] role-manifest|- ucp-service|-
 
-        Read the roles from the specified file, or stdin (-),
+        Read the role-manifest from the specified file, or stdin (-),
         then generate the equivalent UCP service definition.
-        The result is written to services, or stdout (-).
+        The result is written to ucp-service, or stdout (-).
 
 '
 
