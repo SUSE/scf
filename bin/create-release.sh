@@ -4,7 +4,7 @@ set -e
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
 if [[ $# < 2 || -z "$1" || -z "$2" ]]; then
-  echo <<HELP
+  cat <<HELP
   Usage: create-release.sh <RELEASE_PATH> <RELEASE_NAME>"
   RELEASE_PATH must be relative to the root of hcf-infrastructure
 HELP
