@@ -334,7 +334,7 @@ roles:
     exposed-ports: []
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.${domain}", "*.usb.${domain}"]}, {"name":"broker", "port":"54054", "uris":["brokers.${domain}", "*.brokers.${domain}"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
 - name: doppler
   jobs:
   - name: doppler
