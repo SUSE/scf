@@ -321,6 +321,11 @@ def main
     end
   end.parse!
 
+  if ARGV.length != 2
+    op.parse!(['--help'])
+    exit 1
+  end
+
   origin      = ARGV[0]
   destination = ARGV[1]
 
