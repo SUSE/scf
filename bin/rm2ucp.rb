@@ -307,7 +307,7 @@ def main
   # & destination = UCP service definition, or stdout (-)
 
   $options = {}
-  OptionParser.new do |opts|
+  op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm2ucp [--dev] role-manifest|- ucp-service|-
 
         Read the role-manifest from the specified file, or stdin (-),
@@ -319,7 +319,8 @@ def main
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
       $options[:dev] = v
     end
-  end.parse!
+  end
+  op.parse!
 
   if ARGV.length != 2
     op.parse!(['--help'])
