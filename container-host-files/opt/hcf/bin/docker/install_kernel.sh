@@ -8,7 +8,7 @@ echo "Install a kernel with quota support"
 sudo apt-get update
 # Switch was initially made for aufs stability.
 # There is currently no hard dependency on this.
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-wily linux-image-extra-virtual-lts-wily
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
 
 sudo reboot now
 sleep 60
