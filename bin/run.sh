@@ -11,22 +11,13 @@ set_colors
 
 other_images=($(get_role_images))
 
-local_ip="${local_ip:-$(${ROOT}/container-host-files/opt/hcf/bin/get_ip eth1)}"
-store_dir=$HCF_RUN_STORE
-log_dir=$HCF_RUN_LOG_DIRECTORY
-config_prefix=$FISSILE_CONFIG_PREFIX
-hcf_overlay_gateway=$HCF_OVERLAY_GATEWAY
-
-# Start all other roles
+# Start the specified roles
 for image in "${other_images[@]}"
 do
-  handle_restart \
-      "$image" \
-      "$hcf_overlay_gateway" \
-      "${ROOT}/bin/dev-settings.env" \
-      "${ROOT}/bin/dev-certs.env" \
-      || true
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "$image"
 done
+
+# Show targeting and other information.
 
 . "${ROOT}/bin/dev-settings.env"
 
