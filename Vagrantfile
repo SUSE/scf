@@ -38,7 +38,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.0.box"
+    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.1.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
