@@ -2,5 +2,5 @@
 
 To create the boxes, run the following:
 ```bash
-packer build -only=<ONE OF: virtualbox-iso, qemu> vagrant-box.json
+packer build -only=<ONE OF: virtualbox-iso, qemu, vmware-iso> vagrant-box.json
 ```
