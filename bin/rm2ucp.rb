@@ -169,14 +169,12 @@ def add_component(roles, fs, comps, role, retrycount = 0)
     'max_instances' => 1,
     'service_ports' => [],	# Fill from role runtime config, see below
     'volume_mounts' => [],	# Ditto
-    'parameters'    => []	# Fill from role configuration, see below
+    'parameters'    => [],	# Fill from role configuration, see below
+    'external_name' => "HCF Role '#{rname}'"
   }
 
   if retrycount > 0
     the_comp['retry_count'] = retrycount
-  else
-    ename = 'Role: ' + rname
-    the_comp['external_name'] = ename
   end
 
   # Record persistent and shared volumes, ports
