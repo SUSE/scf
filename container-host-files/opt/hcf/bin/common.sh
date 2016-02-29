@@ -78,12 +78,47 @@ function setup_role() {
   role="$1"
   extra=""
 
+  # roles/[name]/run
+  # - shared-volumes[]/path => fake nfs mounts.
+  # - exposed-ports
+  # - capabilities
+
+  # Get all possible roles from the role manifest
+  load_all_roles
+
+  # Pull the runtime information out of the block
+  role_info="${role_manifest["${role}"]}"
+
+  # Add capabilities
+  for cap in $(echo "${role_info}" | shyaml get-values run.capabilities '')
+  do
+      extra="$extra --cap-add=$cap"
+  done
+
+  # Add exposed ports
+  while IFS= read -r -d '' port_spec; do
+      srcport=$(echo "${port_spec}" | shyaml get-value source '')
+      dstport=$(echo "${port_spec}" | shyaml get-value target '')
+
+      # TODO Review - Is this the correct order ?
+      extra="$extra -p ${srcport}:${dstport}"
+  done < <(echo "${role_info}" | shyaml get-values-0 run.exposed-ports '')
+
+  # Add shared volumes
+  while IFS= read -r -d '' volume_spec; do
+      path=$(echo "${volume_spec}" | shyaml get-value path '')
+
+      # Create a fake outer path from the inner path.
+      outer=$store_dir/fake_$(echo $path|tr / _)__nfs_share
+
+      mkdir -p $outer
+      touch $outer/.nfs_test
+
+      extra="$extra -v ${outer}:${path} "
+  done < <(echo "${role_info}" | shyaml get-values-0 run.shared-volumes '')
+
+  # Add anything not found in roles-manifest.yml
   case "$role" in
-    "api")
-      mkdir -p $store_dir/fake_nfs_share
-      touch $store_dir/fake_nfs_share/.nfs_test
-      extra="-v ${store_dir}/fake_nfs_share:/var/vcap/nfs/shared"
-      ;;
     "doppler")
       extra="--privileged"
       ;;
@@ -93,19 +128,8 @@ function setup_role() {
     "router")
       extra="--privileged"
       ;;
-    "api_worker")
-      mkdir -p $store_dir/fake_nfs_share
-      touch $store_dir/fake_nfs_share/.nfs_test
-      extra="-v $store_dir/fake_nfs_share:/var/vcap/nfs/shared"
-      ;;
-    "ha_proxy")
-      extra="-p 80:80 -p 443:443 -p 4443:4443 -p 2222:2222"
-      ;;
-    "mysql_proxy")
-      extra="-p 3306:3306"
-      ;;
     "diego_cell")
-      extra="--privileged --cap-add=ALL -v /lib/modules:/lib/modules"
+      extra="--privileged -v /lib/modules:/lib/modules"
       ;;
     "cf-usb")
       mkdir -p $store_dir/fake_cf_usb_nfs_share
@@ -238,7 +262,7 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $overlay_gateway $env_vars_file $certs_vars_file
+    start_role $image $container_name $role_name $overlay_gateway $env_vars_file $certs_vars_file
     return 0
   fi
 }
