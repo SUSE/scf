@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ROOT=`readlink -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"`
+ROOT=`readlink -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../../"`
 
 . "${ROOT}/bin/.fissilerc"
 . "${ROOT}/bin/.runrc"
