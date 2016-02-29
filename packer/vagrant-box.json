@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "1.0.0",
+        "version": "1.0.1",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -111,6 +111,15 @@
               "scripts/vagrant.sh",
               "../container-host-files/opt/hcf/bin/docker/install_docker.sh",
               "../container-host-files/opt/hcf/bin/tools/install_shyaml.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["vmware-iso"],
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "scripts": [
+                "scripts/vmware_tools.sh"
             ],
             "start_retry_timeout": "7m"
         },
