@@ -120,20 +120,25 @@ function setup_role() {
   # Add anything not found in roles-manifest.yml
   case "$role" in
     "doppler")
-      extra="$extra --privileged"
-      ;;
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --privileged"
+	  ;;
     "loggregator_trafficcontroller")
-      extra="$extra --privileged"
-      ;;
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --privileged"
+	  ;;
     "router")
-      extra="$extra --privileged"
-      ;;
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --privileged"
+	  ;;
     "diego_cell")
-      extra="$extra --privileged -v /lib/modules:/lib/modules"
-      ;;
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --privileged -v /lib/modules:/lib/modules"
+	  ;;
     "diego_database")
-      extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
-      ;;
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
+	  ;;
   esac
   echo "$extra"
 }
