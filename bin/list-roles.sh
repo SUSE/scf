@@ -3,11 +3,11 @@ set -e
 
 ROOT=`readlink -f "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)/../"`
 
-. "${ROOT}/bin/.fissilerc"
-. "${ROOT}/bin/.runrc"
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
-for r in $(get_role_images  | to_roles | sort)
+load_all_roles
+
+for r in $(list_all_bosh_roles | sort)
 do
     echo -e "\t$r"
 done

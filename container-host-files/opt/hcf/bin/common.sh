@@ -237,15 +237,16 @@ function get_image_name() {
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <CERTS_VARS_FILE> <ENV_VARS_FILE>
+# handle_restart <ROLE_NAME> <OVERLAY_GATEWAY> <CERTS_VARS_FILE> <ENV_VARS_FILE>
 function handle_restart() {
-  image=$1
-  overlay_gateway=$2
-  env_vars_file=$3
-  certs_vars_file=$4
+  role="$1"
+  #image=$1
+  overlay_gateway="$2"
+  env_vars_file="$3"
+  certs_vars_file="$4"
 
+  image=$(get_image_name $role)
   container_name=$(get_container_name $image)
-  role_name=$(get_role_name $image)
 
   if container_running $container_name ; then
     echo "Role ${role_name} running with appropriate version ..."

@@ -3,13 +3,12 @@ set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
-. "${ROOT}/bin/.fissilerc"
-. "${ROOT}/bin/.runrc"
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
 set_colors
+load_all_roles
 
-other_images=($(get_role_images))
+other_images=($(list_all_bosh_roles))
 
 # Start the specified roles
 for image in "${other_images[@]}"
