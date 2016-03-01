@@ -91,7 +91,10 @@ function setup_role() {
   # Add capabilities
   for cap in $(echo "${role_info}" | shyaml get-values run.capabilities '')
   do
-      extra="$extra --cap-add=$cap"
+      extra="$extra --privileged --cap-add=$cap"
+      # This simple code may create multiple --privileged in the command line.
+      # (One per cap). Decided I wante simple code. The docker app can sort it
+      # it out.
   done
 
   # Add exposed ports
@@ -118,21 +121,9 @@ function setup_role() {
 
   # Add anything not found in roles-manifest.yml
   case "$role" in
-    "doppler")
+    "diego_cell") -- GOOD
 	  # TODO: Move into role-manifest.yml
-	  extra="$extra --privileged"
-	  ;;
-    "loggregator_trafficcontroller")
-	  # TODO: Move into role-manifest.yml
-	  extra="$extra --privileged"
-	  ;;
-    "router")
-	  # TODO: Move into role-manifest.yml
-	  extra="$extra --privileged"
-	  ;;
-    "diego_cell")
-	  # TODO: Move into role-manifest.yml
-	  extra="$extra --privileged -v /lib/modules:/lib/modules"
+	  extra="$extra -v /lib/modules:/lib/modules"
 	  ;;
     "diego_database")
 	  # TODO: Move into role-manifest.yml
