@@ -178,53 +178,8 @@ function run_configs() {
   public_ip=$2 $BINDIR/configs.sh
 }
 
-# get list of all possible images
-# get_all_images
-function get_all_images() {
-    fissile dev list-roles
-}
-
-# get all possible role images (except consul, and test roles)
-# get_role_images
-function get_role_images() {
-    get_all_images | grep -v 'smoke_tests\|acceptance_tests'
-}
-
-# Convert a list of image names to role names. For use in a pipe.
-function to_roles() {
-    awk -F":" '{print $1}' | sed -e "s/^${FISSILE_REPOSITORY}-//"
-}
-
-# Convert a list of role and image names to images.
-# By allowing both role and image names this function can be used to normalize arguments.
-function to_images() {
-    for role in "$@"
-    do
-	case "$role" in
-	    ${FISSILE_REPOSITORY}-*) echo $role
-		;;
-	    *) get_image_name $role
-		;;
-	esac
-    done
-}
-
-# Convert a list of image names to associated containers, running or not.
-function image_to_container() {
-    for image in "$@"
-    do
-	docker ps -q -a --filter "ancestor=$image"
-    done
-}
-
-# gets a role name from a fissile image name
-# get_role_name <IMAGE_NAME>
-function get_role_name() {
-  role=$(echo $1 | awk -F":" '{print $1}')
-  echo ${role#"${FISSILE_REPOSITORY}-"}
-}
-
 # gets an image name from a role name
+# Current user is to_images() here
 # IMPORTANT: assumes the image is in the local Docker registry
 # IMPORTANT: if more than one image is found, it retrieves the first
 # get_image_name <ROLE_NAME>
