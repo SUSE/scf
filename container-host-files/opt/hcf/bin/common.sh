@@ -121,11 +121,11 @@ function setup_role() {
 
   # Add anything not found in roles-manifest.yml
   case "$role" in
-    "diego_cell") -- GOOD
+    "diego-cell")
 	  # TODO: Move into role-manifest.yml
 	  extra="$extra -v /lib/modules:/lib/modules"
 	  ;;
-    "diego_database")
+    "diego-database")
 	  # TODO: Move into role-manifest.yml
 	  extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
 	  ;;
