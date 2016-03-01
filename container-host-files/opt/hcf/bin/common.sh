@@ -57,7 +57,6 @@ function start_role {
 
   docker run -it -d --name $name \
     --net=hcf \
-    --cap-add=NET_ADMIN --cap-add=NET_RAW \
     --label=fissile_role=$role \
     --hostname=${role}.hcf \
     --cgroup-parent=instance \
