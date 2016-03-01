@@ -120,23 +120,19 @@ function setup_role() {
   # Add anything not found in roles-manifest.yml
   case "$role" in
     "doppler")
-      extra="--privileged"
+      extra="$extra --privileged"
       ;;
     "loggregator_trafficcontroller")
-      extra="--privileged"
+      extra="$extra --privileged"
       ;;
     "router")
-      extra="--privileged"
+      extra="$extra --privileged"
       ;;
     "diego_cell")
-      extra="--privileged -v /lib/modules:/lib/modules"
-      ;;
-    "cf-usb")
-      mkdir -p $store_dir/fake_cf_usb_nfs_share
-      extra="-v ${store_dir}/fake_cf_usb_nfs_share:/var/vcap/nfs"
+      extra="$extra --privileged -v /lib/modules:/lib/modules"
       ;;
     "diego_database")
-      extra='--add-host="diego-database-0.etcd.service.cf.internal:127.0.0.1"'
+      extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
       ;;
   esac
   echo "$extra"

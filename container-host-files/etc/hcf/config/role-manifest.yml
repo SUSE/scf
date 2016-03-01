@@ -328,7 +328,10 @@ roles:
   run:
     capabilities: ['NET_ADMIN', 'NET_RAW']
     persistent-volumes: []
-    shared-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs'
+      size: 100
+      tag: 'cfusb'
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
