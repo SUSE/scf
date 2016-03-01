@@ -13,7 +13,7 @@ other_images=($(list_all_bosh_roles))
 # Start the specified roles
 for image in "${other_images[@]}"
 do
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "$image"
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$image"
 done
 
 # Show targeting and other information.

@@ -3,12 +3,13 @@
 # Assume that everything else is already active.
 set -e
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
-    echo 1>&2 "Usage: $(basename "$0") role"
+    echo 1>&2 "Usage: $(basename "$0") /path/to/setup/dir role"
     exit 1
 else
-    role_name="$1"
+    setup_dir="$1"
+    role_name="$2"
 fi
 
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
@@ -44,8 +45,8 @@ hcf_overlay_gateway=$HCF_OVERLAY_GATEWAY
 # (Re)start the specified role
 handle_restart "$role_name" \
     "$hcf_overlay_gateway" \
-    "${ROOT}/bin/dev-settings.env" \
-    "${ROOT}/bin/dev-certs.env" \
+    "${setup_dir}/dev-settings.env" \
+    "${setup_dir}/dev-certs.env" \
     || true
 
 exit 0
