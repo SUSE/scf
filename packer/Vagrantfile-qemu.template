@@ -1,0 +1,8 @@
+Vagrant.configure('2') do |config|
+  config.vm.provider :libvirt do |libvirt|
+    # We require a secondary disk at /dev/sdb for the docker graph storage
+    # This means the primary must be /dev/sda (to bump the available names)
+    libvirt.disk_bus = 'scsi'
+    libvirt.storage :file, :size => '70G', bus: 'scsi', device: 'sdb'
+  end
+end
