@@ -80,6 +80,7 @@
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
             "disk_size": 50000,
+            "disk_interface": "scsi",
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
@@ -144,7 +145,12 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "output": "hcf-{{.Provider}}-v{{user `version`}}.box"
+            "output": "hcf-{{.Provider}}-v{{user `version`}}.box",
+            "override": {
+                "libvirt": {
+                    "vagrantfile_template": "Vagrantfile-qemu.template"
+                }
+            }
         }
     ]
 }
