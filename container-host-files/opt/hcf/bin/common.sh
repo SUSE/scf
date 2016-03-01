@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
+BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
 # Determines whether a container is running
 # container_running <CONTAINER_NAME>

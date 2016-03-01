@@ -1,14 +1,6 @@
 #!/bin/bash
 set -e
 
-if [ $# -ne 1 ]
-then
-    echo 1>&2 "Usage: $(basename "$0") role"
-    exit 1
-else
-    role_name="$1"
-fi
-
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
 # SELF    = /opt/hcf/bin/list-roles.sh
 # SELFDIR = /opt/hcf/bin
@@ -24,8 +16,11 @@ ROOT="$(readlink -f "$SELFDIR/../../../")"
 
 . "${ROOT}/opt/hcf/bin/common.sh"
 
-# Stop the specified role
-echo "Stopping ${role_name} ..."
-kill_role "$role_name" || true
+load_all_roles
+
+for r in $(list_all_bosh_roles | sort)
+do
+    echo -e "\t$r"
+done
 
 exit 0
