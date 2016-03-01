@@ -97,8 +97,8 @@ function setup_role() {
 
   # Add exposed ports
   while IFS= read -r -d '' port_spec; do
-      srcport=$(echo "${port_spec}" | shyaml get-value source '')
-      dstport=$(echo "${port_spec}" | shyaml get-value target '')
+      srcport=$(echo "${port_spec}" | awk '/^source: / { print $2 }')
+      dstport=$(echo "${port_spec}" | awk '/^target: / { print $2 }')
 
       # TODO Review - Is this the correct order ?
       extra="$extra -p ${srcport}:${dstport}"
@@ -106,7 +106,7 @@ function setup_role() {
 
   # Add shared volumes
   while IFS= read -r -d '' volume_spec; do
-      path=$(echo "${volume_spec}" | shyaml get-value path '')
+      path=$(echo "${volume_spec}" | awk '/^path: / { print $2 }')
 
       # Create a fake outer path from the inner path.
       outer=$store_dir/fake_$(echo $path|tr / _)__nfs_share
