@@ -190,6 +190,13 @@ publish:
 	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
+ucp:
+	docker run -it --rm \
+	  -v /home/vagrant/hcf:/home/vagrant/hcf \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "rbenv global 2.2.3 && /home/vagrant/hcf/bin/rm2ucp.rb /home/vagrant/hcf/container-host-files/etc/hcf/config/role-manifest.yml /home/vagrant/hcf/hcf-ucp.json docker.helion.lol helioncf develop"
+
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
 terraform:
 	mkdir -p ${DIST_DIR}/direct_internet

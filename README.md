@@ -10,7 +10,7 @@ This is the repository that integrates all HCF components.
 	- [Development on OSX with VMWare Fusion](#development-on-osx-with-vmware-fusion)
 	- [Development on Ubuntu with libvirt](#development-on-ubuntu-with-libvirt)
 	- [Development on Windows with VirtualBox](#development-on-windows-with-virtualbox)
-	- [Windows Cell Add-on](#windows-cell-add-on)
+	- [Windows](#windows)
 	- [Makefile targets](#makefile-targets)
 		- [Vagrant VM Targets](#vagrant-vm-targets)
 		- [BOSH Release Targets](#bosh-release-targets)
@@ -184,7 +184,7 @@ within the VM, you'll need an SSH key within the VM that's allowed on github.com
   make run
   ```
 
-## Windows Cell Add-on
+## Windows
 
 [See Windows Cell README](windows/README.md)
 
@@ -225,7 +225,7 @@ name			| effect |
 `tag`			| Tag HCF images + bosh role images |
 `publish`		| Publish HCF images + bosh role images to docker hub |
 `terraform`		| Make `hcf-*.tar.gz` for distribution |
-
+`ucp`  			| Creates a UCP service definition `hcf-ucp.json` |
 
 ## Development FAQ
 
