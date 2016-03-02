@@ -49,7 +49,7 @@ run:
 
 stop:
 	$(call print_status, Stopping all HCF roles (this takes a while) ...)
-	docker rm -f $(shell fissile dev list-roles | tr : -)
+	for r in $$(container-host-files/opt/hcf/bin/list-roles.sh) ; do container-host-files/opt/hcf/bin/stop-role.sh $$r ; done
 
 vagrant-box:
 	cd packer && \

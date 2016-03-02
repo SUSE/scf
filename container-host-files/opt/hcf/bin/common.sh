@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"`
+BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
 # Determines whether a container is running
 # container_running <CONTAINER_NAME>
@@ -42,59 +42,92 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <CERTS_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <ENV_VARS_FILE> <CERTS_VARS_FILE>
 function start_role {
   image=$1
   name=$2
   role=$3
-  overlay_gateway=$4
-  env_vars_file=$5
-  certs_vars_file=$6
-  extra="${@:7}"
+  env_vars_file=$4
+  certs_vars_file=$5
+  extra="$(setup_role $role)"
 
   mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
 
   docker run -it -d --name $name \
     --net=hcf \
-    --cap-add=NET_ADMIN --cap-add=NET_RAW \
     --label=fissile_role=$role \
     --hostname=${role}.hcf \
     --cgroup-parent=instance \
     --env-file=${env_vars_file} \
     --env-file=${certs_vars_file} \
-    -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
-    -e "HCF_NETWORK=overlay" \
     -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
     $image > /dev/null
 }
 
-# Starts the hcf consul server
-# start_hcf_consul <CONTAINER_NAME>
-function start_hcf_consul() {
-  container_name=$1
+# Perform role-specific setup. Return extra arguments needed to start
+# the role's container.
+# setup_role <ROLE_NAME>
+function setup_role() {
+  role="$1"
+  extra=""
 
-  mkdir -p $store_dir/$container_name
+  # roles/[name]/run
+  # - shared-volumes[]/path => fake nfs mounts.
+  # - exposed-ports
+  # - capabilities
 
-  if container_exists $container_name ; then
-    docker rm $container_name > /dev/null 2>&1
-  fi
+  # Get all possible roles from the role manifest
+  load_all_roles
 
-  cid=$(docker run -d \
-    --net=bridge --net=hcf \
-    -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 \
-    --name $container_name \
-    -v $store_dir/$container_name:/opt/hcf/share/consul \
-    -t helioncf/hcf-consul-server:latest \
-    -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json)
-}
+  # Pull the runtime information out of the block
+  role_info="${role_manifest["${role}"]}"
 
-# Waits for the hcf consul server to start
-# wait_hcf_consul <CONSUL_ADDRESS>
-function wait_for_consul() {
-  $BINDIR/wait_for_consul.bash $1
+  # Add capabilities
+  for cap in $(echo "${role_info}" | shyaml get-values run.capabilities '')
+  do
+      extra="$extra --privileged --cap-add=$cap"
+      # This simple code may create multiple --privileged in the command line.
+      # (One per cap). Decided I wanted simple code. The docker app can sort it
+      # it out.
+  done
+
+  # Add exposed ports
+  while IFS= read -r -d '' port_spec; do
+      srcport=$(echo "${port_spec}" | awk '/^source: / { print $2 }')
+      dstport=$(echo "${port_spec}" | awk '/^target: / { print $2 }')
+
+      # TODO Review - Is this the correct order ?
+      extra="$extra -p ${srcport}:${dstport}"
+  done < <(echo "${role_info}" | shyaml get-values-0 run.exposed-ports '')
+
+  # Add shared volumes
+  while IFS= read -r -d '' volume_spec; do
+      path=$(echo "${volume_spec}" | awk '/^path: / { print $2 }')
+
+      # Create a fake outer path from the inner path.
+      outer=$store_dir/fake_$(echo $path|tr / _)__nfs_share
+
+      mkdir -p $outer
+      touch $outer/.nfs_test
+
+      extra="$extra -v ${outer}:${path} "
+  done < <(echo "${role_info}" | shyaml get-values-0 run.shared-volumes '')
+
+  # Add anything not found in roles-manifest.yml
+  case "$role" in
+    "diego-cell")
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra -v /lib/modules:/lib/modules"
+	  ;;
+    "diego-database")
+	  # TODO: Move into role-manifest.yml
+	  extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
+	  ;;
+  esac
+  echo "$extra"
 }
 
 # gets container name from a fissile docker image name
@@ -103,49 +136,28 @@ function get_container_name() {
   echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
 }
 
-# imports spec and opinion configs into HCF consul
-# run_consullin <CONSUL_ADDRESS> <CONFIG_SOURCE>
-function run_consullin() {
-  $BINDIR/consullin.bash $1 $2
-}
-
-# imports default user and role configs
-# run_config <CONSUL_ADDRESS> <PUBLIC_IP>
-function run_configs() {
-  gato api $1
-  public_ip=$2 $BINDIR/configs.sh
-}
-
-# gets a role name from a fissile image name
-# get_role_name <IMAGE_NAME>
-function get_role_name() {
-  role=$(echo $1 | awk -F":" '{print $1}')
-  echo ${role#"${FISSILE_REPOSITORY}-"}
-}
-
 # gets an image name from a role name
+# Current user is to_images() here
 # IMPORTANT: assumes the image is in the local Docker registry
 # IMPORTANT: if more than one image is found, it retrieves the first
 # get_image_name <ROLE_NAME>
 function get_image_name() {
   role=$1
-  echo $(docker inspect --format "{{index .RepoTags 0}}" `docker images -q --filter "label=role=${role}" | head -n 1`)
+  echo $(docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1))
 }
 
 # checks if the appropriate version of a role is running
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <IMAGE_NAME> <OVERLAY_GATEWAY> <CERTS_VARS_FILE> <ENV_VARS_FILE> <EXTRA_DOCKER_ARGUMENTS>
+# handle_restart <ROLE_NAME> <CERTS_VARS_FILE> <ENV_VARS_FILE>
 function handle_restart() {
-  image=$1
-  overlay_gateway=$2
-  env_vars_file=$3
-  certs_vars_file=$4
-  extra="${@:5}"
+  role="$1"
+  env_vars_file="$2"
+  certs_vars_file="$3"
 
+  image=$(get_image_name $role)
   container_name=$(get_container_name $image)
-  role_name=$(get_role_name $image)
 
   if container_running $container_name ; then
     echo "Role ${role_name} running with appropriate version ..."
@@ -153,7 +165,7 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role $overlay_gateway $env_vars_file $certs_vars_file $extra
+    start_role $image $container_name $role_name $env_vars_file $certs_vars_file
     return 0
   fi
 }

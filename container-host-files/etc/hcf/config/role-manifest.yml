@@ -13,7 +13,7 @@ roles:
   - name: nats
   - name: nats_stream_forwarder
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -29,7 +29,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
@@ -49,7 +49,7 @@ roles:
   - name: galera-healthcheck
   - name: gra-log-purger-executable
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -75,7 +75,7 @@ roles:
   processes:
   - name: switchboard
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -122,7 +122,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
@@ -151,7 +151,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -216,7 +216,7 @@ roles:
   - name: route_registrar
   - name: metron_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -251,7 +251,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
@@ -280,7 +280,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
@@ -305,7 +305,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -326,9 +326,12 @@ roles:
   - name: route_registrar
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
-    shared-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs'
+      size: 100
+      tag: 'cfusb'
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
@@ -372,7 +375,7 @@ roles:
   - name: etcd
   - name: metron_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
@@ -425,7 +428,7 @@ roles:
   - name: collector
   - name: metron_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -449,7 +452,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -479,7 +482,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -500,7 +503,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -524,7 +527,7 @@ roles:
   - name: ssh_proxy
   - name: consul_agent
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -566,7 +569,7 @@ roles:
   - name: acceptance-tests
     release_name: cf
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -579,7 +582,7 @@ roles:
   - name: smoke-tests
     release_name: cf
   run:
-    capabilities: ['NET_ADMIN', 'NET_RAW']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
