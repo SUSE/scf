@@ -758,6 +758,7 @@ configuration:
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
+    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"}, {"name": "windows2012R2", "description": "Windows Server 2012 R2"}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["consul.hcf"]'
