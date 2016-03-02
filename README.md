@@ -9,7 +9,8 @@ This is the repository that integrates all HCF components.
 	- [Development on Ubuntu with VirtualBox](#development-on-ubuntu-with-virtualbox)
 	- [Development on OSX with VMWare Fusion](#development-on-osx-with-vmware-fusion)
 	- [Development on Ubuntu with libvirt](#development-on-ubuntu-with-libvirt)
-	- [Windows](#windows)
+	- [Development on Windows with VirtualBox](#development-on-windows-with-virtualbox)
+	- [Windows Cell Add-on](#windows-cell-addon)
 	- [Makefile targets](#makefile-targets)
 		- [Vagrant VM Targets](#vagrant-vm-targets)
 		- [BOSH Release Targets](#bosh-release-targets)
@@ -141,7 +142,7 @@ This should prevent errors similar to "Package 'etcd' has a glob that resolves t
  make run
  ```
 
-## Windows
+## Development on Windows with VirtualBox
 
 > Working on a Windows host is more complicated because of heavy usage of symlinks.
 > Don't use this sort of setup unless you're comfortable with the extra complexity.
@@ -176,6 +177,10 @@ within the VM, you'll need an SSH key within the VM that's allowed on github.com
   make vagrant-prep  # Only needed once
   make run
   ```
+
+## Windows Cell Add-on
+
+[See Windows Cell README](windows/README.md)
 
 ## Makefile targets
 
