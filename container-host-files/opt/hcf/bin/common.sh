@@ -42,14 +42,13 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <OVERLAY_GATEWAY> <ENV_VARS_FILE> <CERTS_VARS_FILE>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <ENV_VARS_FILE> <CERTS_VARS_FILE>
 function start_role {
   image=$1
   name=$2
   role=$3
-  overlay_gateway=$4
-  env_vars_file=$5
-  certs_vars_file=$6
+  env_vars_file=$4
+  certs_vars_file=$5
   extra="$(setup_role $role)"
 
   mkdir -p $store_dir/$role
@@ -62,8 +61,6 @@ function start_role {
     --cgroup-parent=instance \
     --env-file=${env_vars_file} \
     --env-file=${certs_vars_file} \
-    -e "HCF_OVERLAY_GATEWAY=${overlay_gateway}" \
-    -e "HCF_NETWORK=overlay" \
     -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
@@ -93,7 +90,7 @@ function setup_role() {
   do
       extra="$extra --privileged --cap-add=$cap"
       # This simple code may create multiple --privileged in the command line.
-      # (One per cap). Decided I wante simple code. The docker app can sort it
+      # (One per cap). Decided I wanted simple code. The docker app can sort it
       # it out.
   done
 
@@ -133,49 +130,10 @@ function setup_role() {
   echo "$extra"
 }
 
-# Starts the hcf consul server
-# start_hcf_consul <CONTAINER_NAME>
-function start_hcf_consul() {
-  container_name=$1
-
-  mkdir -p $store_dir/$container_name
-
-  if container_exists $container_name ; then
-    docker rm $container_name > /dev/null 2>&1
-  fi
-
-  cid=$(docker run -d \
-    --net=bridge --net=hcf \
-    -p 8401:8401 -p 8501:8501 -p 8601:8601 -p 8310:8310 -p 8311:8311 -p 8312:8312 \
-    --name $container_name \
-    -v $store_dir/$container_name:/opt/hcf/share/consul \
-    -t helioncf/hcf-consul-server:latest \
-    -bootstrap -client=0.0.0.0 --config-file /opt/hcf/etc/consul.json)
-}
-
-# Waits for the hcf consul server to start
-# wait_hcf_consul <CONSUL_ADDRESS>
-function wait_for_consul() {
-  $BINDIR/wait_for_consul.bash $1
-}
-
 # gets container name from a fissile docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
   echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
-}
-
-# imports spec and opinion configs into HCF consul
-# run_consullin <CONSUL_ADDRESS> <CONFIG_SOURCE>
-function run_consullin() {
-  $BINDIR/consullin.bash $1 $2
-}
-
-# imports default user and role configs
-# run_config <CONSUL_ADDRESS> <PUBLIC_IP>
-function run_configs() {
-  gato api $1
-  public_ip=$2 $BINDIR/configs.sh
 }
 
 # gets an image name from a role name
@@ -192,13 +150,11 @@ function get_image_name() {
 # if it isn't, the currently running role is killed, and
 # the correct image is started;
 # uses fissile to determine what are the correct images to run
-# handle_restart <ROLE_NAME> <OVERLAY_GATEWAY> <CERTS_VARS_FILE> <ENV_VARS_FILE>
+# handle_restart <ROLE_NAME> <CERTS_VARS_FILE> <ENV_VARS_FILE>
 function handle_restart() {
   role="$1"
-  #image=$1
-  overlay_gateway="$2"
-  env_vars_file="$3"
-  certs_vars_file="$4"
+  env_vars_file="$2"
+  certs_vars_file="$3"
 
   image=$(get_image_name $role)
   container_name=$(get_container_name $image)
@@ -209,7 +165,7 @@ function handle_restart() {
   else
     echo "Restarting ${role_name} ..."
     kill_role $role_name
-    start_role $image $container_name $role_name $overlay_gateway $env_vars_file $certs_vars_file
+    start_role $image $container_name $role_name $env_vars_file $certs_vars_file
     return 0
   fi
 }

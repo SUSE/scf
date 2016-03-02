@@ -35,7 +35,6 @@ if [ -f "${ROOT}/../bin/.runrc" ] ; then
 else
     HCF_RUN_STORE="$HOME/.run/store"
     HCF_RUN_LOG_DIRECTORY="$HOME/.run/log"
-    HCF_OVERLAY_GATEWAY="192.168.252.1"
 fi
 
 store_dir=$HCF_RUN_STORE
@@ -44,7 +43,6 @@ hcf_overlay_gateway=$HCF_OVERLAY_GATEWAY
 
 # (Re)start the specified role
 handle_restart "$role_name" \
-    "$hcf_overlay_gateway" \
     "${setup_dir}/dev-settings.env" \
     "${setup_dir}/dev-certs.env" \
     || true
