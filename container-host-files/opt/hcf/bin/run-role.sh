@@ -32,14 +32,13 @@ ROOT="$(readlink -f "$SELFDIR/../../../")"
 
 if [ -f "${ROOT}/../bin/.runrc" ] ; then
     . "${ROOT}/../bin/.runrc"
-else
-    HCF_RUN_STORE="$HOME/.run/store"
-    HCF_RUN_LOG_DIRECTORY="$HOME/.run/log"
 fi
+
+HCF_RUN_STORE="${HCF_RUN_STORE:-$HOME/.run/store}"
+HCF_RUN_LOG_DIRECTORY="${HCF_RUN_LOG_DIRECTORY:-$HOME/.run/log}"
 
 store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
-hcf_overlay_gateway=$HCF_OVERLAY_GATEWAY
 
 # (Re)start the specified role
 handle_restart "$role_name" \
