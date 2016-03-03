@@ -601,6 +601,20 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
+- name: windows-dns
+  type: docker
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'dns'
+        protocol: 'UDP'
+        source: 53
+        target: 8600
+        public: true
 configuration:
   variables:
   - name: PUBLIC_IP
