@@ -160,7 +160,7 @@ roles:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   jobs:
   - name: haproxy
@@ -252,7 +252,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
   - fix_consul_address_lookup.sh
@@ -295,7 +295,7 @@ roles:
   configuration:
     templates:
       properties.etcd.machines: '["((ETCD_HOST))"]'
-      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   jobs:
   - name: cloud_controller_worker
@@ -371,7 +371,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
   - make_sys_proc_tweaks_optional.sh
@@ -390,7 +390,7 @@ roles:
   - name: syslog_drain_binder
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -470,7 +470,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
