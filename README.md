@@ -59,11 +59,13 @@ vagrant up --provider virtualbox
 1. Run HCF in the vagrant box
  ```
  vagrant ssh
+ 
  cd ~/hcf
+ 
  make run
  ```
 
-Before creating any VMs with Vagrant, run `THIS DIR`/bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
+Before creating any VMs with Vagrant, run `THIS DIR` /bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
 
 This should prevent errors similar to "Package 'etcd' has a glob that resolves to an empty file list: `github.com/coreos/etcd/**/*`" while running `make vagrant-prep`  
 
