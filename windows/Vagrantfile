@@ -16,9 +16,12 @@ Vagrant.configure(2) do |config|
      override.vm.synced_folder "../", "/hcf"
   end
 
+  config.vm.provision "file", source: "container-host-files/diego-kit/install-garden.ps1", destination: "C:\\diego-kit\\intall-garden.ps1"
   config.vm.provision "file", source: "container-host-files/diego-kit/install-diego.ps1", destination: "C:\\diego-kit\\intall-diego.ps1"
 
+
   config.vm.provision "shell", inline: <<-SHELL
+    & C:\\diego-kit\\intall-garden.ps1
     & C:\\diego-kit\\intall-diego.ps1
     echo "Diego Windows installation finished."
   SHELL

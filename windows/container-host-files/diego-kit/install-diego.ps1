@@ -4,13 +4,7 @@ cd $wd
 
 
 ## Download installers
-
-curl -UseBasicParsing -OutFile $wd\setup.ps1 https://github.com/cloudfoundry/garden-windows-release/releases/download/v0.97/setup.ps1 -Verbose
 curl -UseBasicParsing -OutFile $wd\DiegoWindows.msi https://github.com/cloudfoundry/diego-windows-release/releases/download/v0.166/DiegoWindows.msi -Verbose
-
-# Download the latest version to have a proper external ip announced
-curl -UseBasicParsing -OutFile $wd\GardenWindows.msi https://github.com/cloudfoundry/garden-windows-release/releases/download/v0.104/GardenWindows.msi -Verbose
-
 
 ## Setup diego networking
 
@@ -54,9 +48,6 @@ $file="$wd\bbs_client.key"
 
 $mip = Get-Content $wd\machine_ip
 
-echo "msiexec /passive /norestart /i $wd\GardenWindows.msi ADMIN_USERNAME=vagrant ADMIN_PASSWORD=vagrant MACHINE_IP=$mip EXTERNAL_IP=$mip" | Out-File -Encoding ascii $wd\install-garden.bat
-
-# TODO: add this when the installer is patched  BBS_ADDRESS=https://diego-database.hcf:8889 ^
 echo "msiexec /passive /norestart /i $wd\DiegoWindows.msi ^
   BBS_CA_FILE=$wd\bbs_ca.crt ^
   BBS_CLIENT_CERT_FILE=$wd\bbs_client.crt ^
@@ -70,8 +61,6 @@ echo "msiexec /passive /norestart /i $wd\DiegoWindows.msi ^
   EXTERNAL_IP=$mip" `
  | Out-File -Encoding ascii $wd\install-diego.bat
 
-powershell -NonInteractive $wd\setup.ps1
-cmd /c "$wd\install-garden.bat"
 cmd /c "$wd\install-diego.bat"
 
 
