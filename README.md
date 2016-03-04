@@ -62,6 +62,8 @@ vagrant up --provider virtualbox
  
  cd ~/hcf
  
+ make vagrant-prep # only after you first create the VM
+ 
  make run
  ```
 
