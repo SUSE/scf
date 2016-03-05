@@ -111,6 +111,7 @@ roles:
 - name: diego-database
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -185,6 +186,7 @@ roles:
 - name: router
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -197,7 +199,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 2048
@@ -345,6 +347,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
 - name: doppler
+  scripts:
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -362,7 +366,7 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -405,6 +409,8 @@ roles:
       properties.etcd.ca_cert: 'null'
       properties.etcd.machines: '["etcd.hcf"]'
 - name: loggregator
+  scripts:
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -419,7 +425,7 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -468,6 +474,7 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: stager
     release_name: diego
@@ -519,6 +526,7 @@ roles:
 - name: diego-access
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -545,6 +553,7 @@ roles:
   - fix_consul_address_lookup.sh
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: rep
     release_name: diego
@@ -997,3 +1006,14 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    # These settings must remain in the role manifest until they're available
+    # in the upstream specs; even though they're also defined in the opinions file
+    properties.router.tweak_proc_sys: false
+    properties.doppler.tweak_locked_memory: false
+    properties.traffic_controller.tweak_locked_memory: false
+    properties.syslog_drain_binder.tweak_locked_memory: false
+    properties.diego.bbs.tweak_proc_sys: false
+    properties.diego.cc_uploader.tweak_proc_sys: false
+    properties.diego.file_server.tweak_proc_sys: false
+    properties.diego.rep.tweak_proc_sys: false
+    properties.diego.stager.tweak_proc_sys: false
