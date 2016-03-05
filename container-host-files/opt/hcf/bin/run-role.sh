@@ -5,7 +5,7 @@ set -e
 
 if [ $# -ne 2 ]
 then
-    echo 1>&2 "Usage: $(basename "$0") /path/to/setup/dir role"
+    echo 1>&2 "Usage: $(basename "$0") <DIR_WITH_ENV_FILES> <ROLE_NAME>"
     exit 1
 else
     setup_dir="$1"

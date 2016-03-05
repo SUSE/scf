@@ -35,7 +35,7 @@ function container_exists {
 # kill_role <ROLE_NAME>
 function kill_role {
   role=$1
-  container=$(docker ps -a -q --filter "label=fissile_role=${role}")
+  container=$(docker ps -a -q --filter "label=hcf_role=${role}")
   if [[ ! -z $container ]]; then
     docker rm --force $container > /dev/null 2>&1
   fi
@@ -51,17 +51,14 @@ function start_role {
   certs_vars_file=$5
   extra="$(setup_role $role)"
 
-  mkdir -p $store_dir/$role
   mkdir -p $log_dir/$role
 
   docker run -it -d --name $name \
     --net=hcf \
-    --label=fissile_role=$role \
+    --label=hcf_role=$role \
     --hostname=${role}.hcf \
-    --cgroup-parent=instance \
     --env-file=${env_vars_file} \
     --env-file=${certs_vars_file} \
-    -v $store_dir/$role:/var/vcap/store \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
     $image > /dev/null
@@ -83,54 +80,33 @@ function setup_role() {
   load_all_roles
 
   # Pull the runtime information out of the block
-  role_info="${role_manifest["${role}"]}"
+  role_info="${role_manifest_run["${role}"]}"
 
   # Add capabilities
-  for cap in $(echo "${role_info}" | shyaml get-values run.capabilities '')
-  do
-      extra="$extra --privileged --cap-add=$cap"
-      # This simple code may create multiple --privileged in the command line.
-      # (One per cap). Decided I wanted simple code. The docker app can sort it
-      # it out.
-  done
+  capabilities=$(echo "${role_info}" | jq --raw-output --compact-output '.capabilities[] | if length > 0 then "--privileged --cap-add=" + ([.] | join(" --cap-add=")) else "" end')
 
   # Add exposed ports
-  while IFS= read -r -d '' port_spec; do
-      srcport=$(echo "${port_spec}" | awk '/^source: / { print $2 }')
-      dstport=$(echo "${port_spec}" | awk '/^target: / { print $2 }')
+  ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | if length > 0 then "-p " + ([(.source | tostring) + ":" + (.target | tostring)] | join(" -p ")) else "" end')
 
-      # TODO Review - Is this the correct order ?
-      extra="$extra -p ${srcport}:${dstport}"
-  done < <(echo "${role_info}" | shyaml get-values-0 run.exposed-ports '')
+  # Add persistent volumes
+  persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add shared volumes
-  while IFS= read -r -d '' volume_spec; do
-      path=$(echo "${volume_spec}" | awk '/^path: / { print $2 }')
-
-      # Create a fake outer path from the inner path.
-      outer=$store_dir/fake_$(echo $path|tr / _)__nfs_share
-
-      mkdir -p $outer
-      touch $outer/.nfs_test
-
-      extra="$extra -v ${outer}:${path} "
-  done < <(echo "${role_info}" | shyaml get-values-0 run.shared-volumes '')
+  shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add anything not found in roles-manifest.yml
+  extra=""
   case "$role" in
-    "diego-cell")
-	  # TODO: Move into role-manifest.yml
-	  extra="$extra -v /lib/modules:/lib/modules"
-	  ;;
     "diego-database")
 	  # TODO: Move into role-manifest.yml
 	  extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
 	  ;;
   esac
-  echo "$extra"
+
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${extra}"
 }
 
-# gets container name from a fissile docker image name
+# gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
   echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
@@ -178,28 +154,29 @@ function load_all_roles() {
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
     declare -gA 'role_manifest_processes=()'
+    declare -gA 'role_manifest_run=()'
 
     # Using this style of while loop so we don't get a subshell
     # because of piping (see http://stackoverflow.com/questions/11942214)
-    while IFS= read -r -d '' role_block; do
-      role_name=$(echo -n "${role_block}" | awk '/^name: / { print $2 }')
-      role_type=$(echo -n "${role_block}" | awk '/^type: / { print $2 }')
-      role_processes=$(echo "${role_block}" | shyaml get-value processes '')
-
-      # Default role_type to 'bosh'
-      if [ -z "${role_type}" ] ; then
-        role_type='bosh'
-      fi
-
+    while IFS= read -r role_block; do
+      role_name=$(echo "${role_block}" | awk '{ print $1 }')
+      role_type=$(echo "${role_block}" | awk '{ print $2 }')
+      role_processes=$(echo "${role_block}" | awk '{ print $3 }')
+      role_processes=${role_processes//,/$'\n'}
       role_manifest["${role_name}"]=$role_block
       role_manifest_types["${role_name}"]=$role_type
       role_manifest_processes["${role_name}"]=$role_processes
-    done < <(cat ${role_manifest_file} | shyaml get-values-0 roles)
+    done < <(cat ${role_manifest_file} | y2j | jq --raw-output '.roles[] | .name + " " + (.type // "bosh") + " " + ([(.processes//[])[].name]//[] | join(","))')
+
+    while IFS= read -r role_block; do
+      role_name=$(echo "${role_block}" | jq --raw-output '.name')
+      role_run=$(echo "${role_block}" | jq --raw-output --compact-output '.run')
+      role_manifest_run["${role_name}"]=$role_run
+    done < <(cat ${role_manifest_file} | y2j | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
   fi
 }
 
 # Reads all roles that are bosh roles from role-manifest.yml
-# Uses shyaml for parsing
 # list_all_bosh_roles
 function list_all_bosh_roles() {
   if [ "${#role_manifest[@]}" == "0" ]; then
@@ -215,7 +192,6 @@ function list_all_bosh_roles() {
 }
 
 # Reads all roles that are docker roles from role-manifest.yml
-# Uses shyaml for parsing
 # list_all_docker_roles
 function list_all_docker_roles() {
   if [ "${#role_manifest[@]}" == "0" ]; then
@@ -231,7 +207,6 @@ function list_all_docker_roles() {
 }
 
 # Reads all roles that are bosh tasks from role-manifest.yml
-# Uses shyaml for parsing
 # list_all_bosh_task_roles
 function list_all_bosh_task_roles() {
   if [ "${#role_manifest[@]}" == "0" ]; then
@@ -247,7 +222,6 @@ function list_all_bosh_task_roles() {
 }
 
 # Reads all processes for a specific role from the role manifest
-# Uses shyaml for parsing
 # list_processes_for_role <ROLE_NAME>
 function list_processes_for_role() {
   if [ "${#role_manifest[@]}" == "0" ]; then
@@ -257,7 +231,7 @@ function list_processes_for_role() {
 
   role_name_filter=$1
 
-  echo "${role_manifest_processes["${role_name_filter}"]}" | awk '{ print $3 }'
+  echo "${role_manifest_processes["${role_name_filter}"]}"
 }
 
 # sets the appropiate color values based on $use_colors
