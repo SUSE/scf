@@ -123,13 +123,16 @@ compile:
 	@echo Please allow a long time for mariadb to compile
 	fissile dev compile
 ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
-	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \
-		i=$$(dirname $${i}) ; \
-		echo pack $${i} ; \
-		tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
-	done
 	# rsync takes the first match; need to explicitly include parent directories in order to include the children.
-	rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
+	{ \
+		set -e ; \
+		for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \
+			i=$$(dirname $${i}) ; \
+			echo pack $${i} ; \
+			tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
+		done ; \
+		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+	} >"${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 endif
 
 images: bosh-images
