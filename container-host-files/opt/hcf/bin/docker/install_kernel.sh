@@ -10,5 +10,8 @@ sudo apt-get update
 # There is currently no hard dependency on this.
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-vivid linux-image-extra-virtual-lts-vivid
 
+# Load aufs at boot time
+echo "aufs" | sudo tee -a /etc/modules
+
 sudo reboot now
 sleep 60
