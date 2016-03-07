@@ -151,6 +151,7 @@ function load_all_roles() {
   role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
 
   if [ "${#role_manifest[@]}" == "0" ]; then
+    declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
     declare -gA 'role_manifest_processes=()'
@@ -163,6 +164,8 @@ function load_all_roles() {
       role_type=$(echo "${role_block}" | awk '{ print $2 }')
       role_processes=$(echo "${role_block}" | awk '{ print $3 }')
       role_processes=${role_processes//,/$'\n'}
+
+      role_names+=( "${role_name}" )
       role_manifest["${role_name}"]=$role_block
       role_manifest_types["${role_name}"]=$role_type
       role_manifest_processes["${role_name}"]=$role_processes
@@ -184,7 +187,7 @@ function list_all_bosh_roles() {
     exit 1
   fi
 
-  for role_name in "${!role_manifest_types[@]}"; do
+  for role_name in "${role_names[@]}"; do
     if [ "${role_manifest_types["$role_name"]}" == "bosh" ] ; then
       echo $role_name
     fi
@@ -199,22 +202,7 @@ function list_all_docker_roles() {
     exit 1
   fi
 
-  for role_name in "${!role_manifest_types[@]}"; do
-    if [ "${role_manifest_types["$role_name"]}" == "docker" ] ; then
-      echo $role_name
-    fi
-  done
-}
-
-# Reads all roles that are docker roles from role-manifest.yml
-# list_all_docker_roles
-function list_all_docker_roles() {
-  if [ "${#role_manifest[@]}" == "0" ]; then
-    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
-    exit 1
-  fi
-
-  for role_name in "${!role_manifest_types[@]}"; do
+  for role_name in "${role_names[@]}"; do
     if [ "${role_manifest_types["$role_name"]}" == "docker" ] ; then
       echo $role_name
     fi
@@ -229,7 +217,7 @@ function list_all_bosh_task_roles() {
     exit 1
   fi
 
-  for role_name in "${!role_manifest_types[@]}"; do
+  for role_name in "${role_names[@]}"; do
     if [ "${role_manifest_types["${role_name}"]}" == "bosh-task" ] ; then
       echo $role_name
     fi
