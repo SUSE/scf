@@ -133,17 +133,18 @@ function setup_role() {
 # gets container name from a fissile docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
+  # The .Container here is the container used to build the image; we are just
+  # using it here to ensure it changes every time the image is rebuilt.
+  docker inspect --format '{{.ContainerConfig.Labels.role}}_{{.Container}}' $1 | tr -d '\n' | tr -c '[[:alnum:]-]' _
 }
 
 # gets an image name from a role name
-# Current user is to_images() here
 # IMPORTANT: assumes the image is in the local Docker registry
 # IMPORTANT: if more than one image is found, it retrieves the first
 # get_image_name <ROLE_NAME>
 function get_image_name() {
   role=$1
-  echo $(docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1))
+  docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1)
 }
 
 # checks if the appropriate version of a role is running
