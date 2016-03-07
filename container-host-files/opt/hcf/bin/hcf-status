@@ -10,7 +10,7 @@ set_colors
 # Get all possible roles from the role manifest
 load_all_roles
 
-roles=$(list_all_bosh_roles | sort)
+roles=$(${ROOT}/opt/hcf/bin/list-roles.sh)
 
 # Calculate the length of the first column for the
 # table we're going to display later on
@@ -39,61 +39,78 @@ for role in $roles; do
   monit_color=${bldred}
   processes_color=${bldred}
 
+  # Get role type
+  role_type="${role_manifest_types["${role}"]}"
+
   # Get container count from docker
   containers=$(docker ps -q --filter label=role=${role}  || true)
   containers_count=$(echo "${containers}" | wc -w)
   # Get first live container
   # We only check the first container for monit and processes
   container_id=$(echo "${containers}" | head -n1)
-
-  # Get process count for a role
-  processes=$(list_processes_for_role ${role})
-  process_count=$(echo "${processes}" | wc -w)
-  processes_running="0/${process_count}"
-
-  # Assume monit is down
-  monit_status="down"
-
-  if [ "${containers_count}" != "0" ] ; then
-    # Container is running, make green
-    containers_color=${txtgrn}
-
-    # Get monit status
-
-    monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
-
-    if [ "$monit_data" != "" ]; then
-      # Monit is up, make it green
-      monit_status="up"
+  case "$role_type" in
+    "docker")
+      # If we're dealing with a docker role, we don't have
+      # any monit or process information
+      monit_status="n/a"
       monit_color=${txtgrn}
+      processes_running="n/a"
+      processes_color=${txtgrn}
 
-      # Analyse for process status
-      ok_processes=0
-      for process in $processes; do
-        # Look for the status "Running" on the
-        # line following a process definition
-        process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
+      if [ "${containers_count}" != "0" ] ; then
+        # Container is running, make green
+        containers_color=${bldgrn}
+      fi
+    ;;
+    "bosh")
+      # Get process count for a role
+      processes=$(list_processes_for_role ${role})
+      process_count=$(echo "${processes}" | wc -w)
+      processes_running="0/${process_count}"
+      # Assume monit is down
+      monit_status="down"
 
-        # Increase the number of processes that are working ok
-        if [ "${process_status}" == "Running" ] ; then
-          ok_processes=$(($ok_processes + 1))
+      if [ "${containers_count}" != "0" ] ; then
+        # Container is running, make green
+        containers_color=${txtgrn}
+
+        # Get monit status
+        monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+
+        if [ "$monit_data" != "" ]; then
+          # Monit is up, make it green
+          monit_status="up"
+          monit_color=${txtgrn}
+
+          # Analyse for process status
+          ok_processes=0
+          for process in $processes; do
+            # Look for the status "Running" on the
+            # line following a process definition
+            process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
+
+            # Increase the number of processes that are working ok
+            if [ "${process_status}" == "Running" ] ; then
+              ok_processes=$(($ok_processes + 1))
+            fi
+          done
+
+          # Set correct status
+          processes_running="${ok_processes}/${process_count}"
+
+          # If some processes are running, make status purple
+          if [ "$ok_processes" != "0" ] ; then
+            processes_color=${bldpur}
+          fi
+
+          # If all processes are running, make status green
+          if [ "$ok_processes" == "${process_count}" ] ; then
+            processes_color=${bldgrn}
+          fi
         fi
-      done
-
-      # Set correct status
-      processes_running="${ok_processes}/${process_count}"
-
-      # If some processes are running, make status purple
-      if [ "$ok_processes" != "0" ] ; then
-        processes_color=${bldpur}
       fi
-
-      # If all processes are running, make status green
-      if [ "$ok_processes" == "${process_count}" ] ; then
-        processes_color=${bldgrn}
-      fi
-    fi
-  fi
+    ;;
+  esac
 
   printf $rowfmt $role \
     ${containers_color} ${containers_count} \

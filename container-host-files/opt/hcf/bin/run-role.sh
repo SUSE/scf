@@ -27,13 +27,6 @@ ROOT="$(readlink -f "$SELFDIR/../../../")"
 
 . "${ROOT}/opt/hcf/bin/common.sh"
 
-# Vagrant has .runrc 2 level up in the mounted hierarchy.
-# Terraform has no such copied to its VM, thus requires defaults.
-
-if [ -f "${ROOT}/../bin/.runrc" ] ; then
-    . "${ROOT}/../bin/.runrc"
-fi
-
 HCF_RUN_STORE="${HCF_RUN_STORE:-$HOME/.run/store}"
 HCF_RUN_LOG_DIRECTORY="${HCF_RUN_LOG_DIRECTORY:-$HOME/.run/log}"
 

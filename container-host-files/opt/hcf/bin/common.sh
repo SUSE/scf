@@ -206,6 +206,21 @@ function list_all_docker_roles() {
   done
 }
 
+# Reads all roles that are docker roles from role-manifest.yml
+# list_all_docker_roles
+function list_all_docker_roles() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  for role_name in "${!role_manifest_types[@]}"; do
+    if [ "${role_manifest_types["$role_name"]}" == "docker" ] ; then
+      echo $role_name
+    fi
+  done
+}
+
 # Reads all roles that are bosh tasks from role-manifest.yml
 # list_all_bosh_task_roles
 function list_all_bosh_task_roles() {

@@ -8,12 +8,20 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 set_colors
 load_all_roles
 
-other_images=($(list_all_bosh_roles))
+bosh_roles=($(list_all_bosh_roles))
 
-# Start the specified roles
-for image in "${other_images[@]}"
+# Start the bosh roles
+for bosh_role in "${bosh_roles[@]}"
 do
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$image"
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$bosh_role"
+done
+
+docker_roles=($(list_all_docker_roles))
+
+# Start the docker roles
+for docker_role in "${docker_roles[@]}"
+do
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$docker_role"
 done
 
 # Show targeting and other information.
