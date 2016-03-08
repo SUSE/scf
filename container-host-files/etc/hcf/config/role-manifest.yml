@@ -57,11 +57,11 @@ roles:
     exposed-ports: []
   configuration:
     templates:
-      properties.cluster_ips: '["mysql.hcf"]'
+      properties.cluster_ips: '["((MYSQL_HOST))"]'
       properties.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["mysql-proxy.hcf"]'
+      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
       properties.bootstrap_endpoint.username: 'bootstrap_user'
       properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.external_host: "((DOMAIN))"
@@ -88,11 +88,11 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cluster_ips: '["mysql.hcf"]'
+      properties.cluster_ips: '["((MYSQL_HOST))"]'
       properties.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["mysql-proxy.hcf"]'
+      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
       properties.bootstrap_endpoint.username: 'bootstrap_user'
       properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.external_host: "((DOMAIN))"
@@ -262,7 +262,7 @@ roles:
     exposed-ports: []
   configuration:
     templates:
-      properties.etcd.machines: '["etcd.hcf"]'
+      properties.etcd.machines: '["((ETCD_HOST))"]'
       properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
 - name: api-worker
   scripts:
@@ -396,7 +396,7 @@ roles:
       properties.etcd.server_cert: 'null'
       properties.etcd.client_cert: 'null'
       properties.etcd.ca_cert: 'null'
-      properties.etcd.machines: '["etcd.hcf"]'
+      properties.etcd.machines: '["((ETCD_HOST))"]'
 - name: loggregator
   jobs:
   - name: loggregator_trafficcontroller
@@ -603,6 +603,30 @@ roles:
     exposed-ports: []
 configuration:
   variables:
+  - name: API_HOST
+    default: "api.hcf"
+  - name: DIEGO_DATABASE_HOST
+    default: "diego-database.hcf"
+  - name: DIEGO_ACCESS_HOST
+    default: "diego-access.hcf"
+  - name: DIEGO_CC_BRIDGE_HOST
+    default: "diego-cc-bridge.hcf"
+  - name: DIEGO_BRAIN_HOST
+    default: "diego-brain.hcf"
+  - name: NATS_HOST
+    default: "nats.hcf"
+  - name: MYSQL_PROXY_HOST
+    default: "mysql-proxy.hcf"
+  - name: MYSQL_HOST
+    default: "mysql.hcf"
+  - name: ETCD_HOST
+    default: "etcd.hcf"
+  - name: CONSUL_HOST
+    default: "consul.hcf"
+  - name: ROUTER_HOST
+    default: "router.hcf"
+  - name: LOGGREGATOR_HOST
+    default: "loggregator.hcf"
   - name: PUBLIC_IP
     default: "192.168.77.77"
   - name: BULK_API_PASSWORD
@@ -764,7 +788,7 @@ configuration:
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"}, {"name": "windows2012R2", "description": "Windows Server 2012 R2"}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    properties.consul.agent.servers.lan: '["consul.hcf"]'
+    properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -820,7 +844,7 @@ configuration:
     properties.diego.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.route_emitter.nats.user: '"((NATS_USER))"'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.servers: '["diego-access.hcf"]'
+    properties.diego.ssh_proxy.servers: '["((DIEGO_ACCESS_HOST))"]'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.stager.cc.base_url: '"https://api.((DOMAIN))"'
@@ -840,62 +864,62 @@ configuration:
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     # The following look more like constants (except for hostnames)
     # and should be moved to the opinion file
-    properties.nats.machines: '["nats.hcf"]'
-    properties.etcd_metrics_server.nats.machines: '["nats.hcf"]'
-    properties.etcd_metrics_server.machines: '["nats.hcf"]'
+    properties.nats.machines: '["((NATS_HOST))"]'
+    properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"]'
+    properties.etcd_metrics_server.machines: '["((NATS_HOST))"]'
     properties.nfs_server.share_path: '/var/vcap/nfs'
-    properties.etcd.machines: '["diego-database.hcf"]'
+    properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.etcd.peer_require_ssl: 'true'
     properties.etcd.require_ssl: 'true'
     properties.etcd.cluster: '[{"instances": 1, "name": "database_z1"}]'
-    properties.loggregator.etcd.machines: '["etcd.hcf"]'
-    properties.router.servers.z1: '["router.hcf"]'
+    properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
+    properties.router.servers.z1: '["((ROUTER_HOST))"]'
     properties.dea_next.kernel_network_tuning_enabled: 'false'
-    properties.cc.internal_service_hostname: '"api.hcf"'
+    properties.cc.internal_service_hostname: '"((API_HOST))"'
     properties.ccdb.port: '3306'
-    properties.ccdb.address: 'mysql-proxy.hcf'
+    properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.ccdb.db_scheme: 'mysql'
     properties.uaadb.port: '3306'
-    properties.uaadb.address: 'mysql-proxy.hcf'
+    properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.db_scheme: 'mysql'
     properties.diego.auctioneer.bbs.require_ssl: 'true'
-    properties.diego.auctioneer.bbs.api_location: 'diego-database.hcf:8889'
-    properties.diego.bbs.auctioneer.api_url: 'http://diego-brain.hcf:9016'
-    properties.diego.bbs.etcd.machines: '["diego-database.hcf"]'
+    properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
+    properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.diego.bbs.etcd.require_ssl: 'true'
     properties.diego.bbs.require_ssl: 'true'
-    properties.diego.converger.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.converger.bbs.require_ssl: 'true'
     properties.diego.converger.log_level: 'debug'
     properties.diego.executor.drain_timeout_in_seconds: '0'
     properties.diego.executor.garden.address: '127.0.0.1:7777'
     properties.diego.executor.garden.network: 'tcp'
     properties.diego.executor.log_level: 'debug'
-    properties.diego.nsync.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.nsync.bbs.require_ssl: 'true'
     properties.diego.nsync.log_level: 'debug'
     properties.diego.rep.bbs.require_ssl: 'true'
     properties.diego.rep.evacuation_timeout_in_seconds: '60'
     properties.diego.rep.log_level: 'debug'
-    properties.diego.route_emitter.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.route_emitter.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.route_emitter.bbs.require_ssl: 'true'
     properties.diego.route_emitter.log_level: 'debug'
     properties.diego.route_emitter.nats.port: '4222'
-    properties.diego.ssh_proxy.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.ssh_proxy.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.ssh_proxy.bbs.require_ssl: 'true'
     properties.diego.ssh_proxy.enable_cf_auth: 'true'
     properties.diego.ssh_proxy.enable_diego_auth: 'false'
-    properties.diego.stager.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.stager.bbs.require_ssl: 'true'
-    properties.diego.tps.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.tps.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.tps.bbs.require_ssl: 'true'
-    properties.diego.rep.bbs.api_location: 'diego-database.hcf:8889'
+    properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.garden.enable_graph_cleanup: 'true'
     properties.garden.listen_address: '0.0.0.0:7777'
     properties.garden.listen_network: 'tcp'
     properties.garden.log_level: 'debug'
     properties.garden.persistent_image_list: '[/var/vcap/packages/rootfs_cflinuxfs2/rootfs]'
-    properties.diego.route_emitter.nats.machines: '["nats.hcf"]'
+    properties.diego.route_emitter.nats.machines: '["((NATS_HOST))"]'
     properties.diego.rep.zone: 'z1'
     properties.diego.file_server.static_directory: '/var/vcap/packages/'
     properties.cf-usb.configconnectionstring: '127.0.0.1:8500'
@@ -913,20 +937,20 @@ configuration:
     properties.cf-usb.skip_tls_validation: 'true'
     properties.cf-usb.management.dev_mode: 'true'
     properties.diego.ssl.skip_cert_verify: 'true'
-    properties.cc.diego.nsync_url: "http://diego-cc-bridge.hcf:8787"
-    properties.cc.diego.stager_url: "http://diego-cc-bridge.hcf:8888"
-    properties.cc.diego.tps_url: "http://diego-cc-bridge.hcf:1518"
-    properties.diego.nsync.file_server_url: "http://diego-access.hcf:8080"
-    properties.diego.stager.staging_task_callback_url: "http://diego-cc-bridge.hcf:8888"
-    properties.diego.stager.cc.internal_service_hostname: "api.hcf"
-    properties.diego.stager.file_server_url: "http://diego-access.hcf:8080"
-    properties.diego.stager.cc_uploader_url: "http://diego-cc-bridge.hcf:9090"
+    properties.cc.diego.nsync_url: "http://((DIEGO_CC_BRIDGE_HOST)):8787"
+    properties.cc.diego.stager_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
+    properties.cc.diego.tps_url: "http://((DIEGO_CC_BRIDGE_HOST)):1518"
+    properties.diego.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
+    properties.diego.stager.staging_task_callback_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
+    properties.diego.stager.cc.internal_service_hostname: "((API_HOST))"
+    properties.diego.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
+    properties.diego.stager.cc_uploader_url: "http://((DIEGO_CC_BRIDGE_HOST)):9090"
     # TODO: configure this once we have the diego docker cache deployed
     # diego.stager.docker_registry_address: "docker-registry.service.cf.internal:8080"
-    properties.diego.tps.bbs.api_location: "diego-database.hcf:8889"
-    properties.diego.tps.cc.internal_service_hostname: "api.hcf"
-    properties.diego.tps.traffic_controller_url: "ws://loggregator.hcf:8081"
-    properties.diego.ssh_proxy.cc.internal_service_hostname: "api.hcf"
+    properties.diego.tps.bbs.api_location: "((DIEGO_DATABASE_HOST)):8889"
+    properties.diego.tps.cc.internal_service_hostname: "((API_HOST))"
+    properties.diego.tps.traffic_controller_url: "ws://((LOGGREGATOR_HOST)):8081"
+    properties.diego.ssh_proxy.cc.internal_service_hostname: "((API_HOST))"
     # Setting certificate values
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'

@@ -22,6 +22,8 @@ fi
 
 BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-files/opt/hcf/bin" && pwd )/"`
 
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/dev-settings.env"
+
 # Certificate generation
 certs_path="/tmp/hcf/certs"
 ca_path="$certs_path/ca"
@@ -30,6 +32,7 @@ etcd_certs_dir="${certs_path}/diego/etcd"
 etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
 certs_prefix="hcf"
 domain="192.168.77.77.nip.io"
+output_path="$(readlink --canonicalize-missing "${output_path}")"
 
 # prepare directories
 rm -rf ${certs_path}
@@ -65,12 +68,12 @@ printf "%024d" $(date +%s%N) > serial
 openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
   -new -x509 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
-  -subj '/CN=diego-database.hcf/' \
+  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${bbs_certs_dir}/private/bbs-ca.key" -out "${bbs_certs_dir}/certs/bbs-ca.crt"
 
 openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
     -new -nodes \
-    -subj '/CN=diego-database.hcf/' \
+    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
     -keyout "${bbs_certs_dir}/private/bbs-server.key" -out "${bbs_certs_dir}/bbs-server.csr"
 
 openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
@@ -104,12 +107,12 @@ printf "%024d" $(date +%s%N) > serial
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
   -new -x509 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
-  -subj '/CN=diego-database.hcf/' \
+  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${etcd_certs_dir}/private/etcd-ca.key" -out "${etcd_certs_dir}/certs/etcd-ca.crt"
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
     -new -nodes \
-    -subj '/CN=diego-database.hcf/' \
+    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
     -keyout "${etcd_certs_dir}/private/etcd-server.key" -out "${etcd_certs_dir}/etcd-server.csr"
 
 openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
@@ -143,12 +146,12 @@ printf "%024d" $(date +%s%N) > serial
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
   -new -x509 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
-  -subj '/CN=diego-database.hcf/' \
+  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${etcd_peer_certs_dir}/private/etcd-ca.key" -out "${etcd_peer_certs_dir}/certs/etcd-ca.crt"
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
     -new -nodes \
-    -subj '/CN=diego-database.hcf/' \
+    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
     -keyout "${etcd_peer_certs_dir}/private/etcd-peer.key" -out "${etcd_peer_certs_dir}/etcd-peer.csr"
 
 openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
@@ -206,3 +209,5 @@ APP_SSH_HOST_KEY_FINGERPRINT=${APP_SSH_HOST_KEY_FINGERPRINT}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
 ENVS
+
+echo "Keys wrote to ${output_path}"
