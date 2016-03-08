@@ -948,6 +948,13 @@ configuration:
     properties.uaa.clients.notifications.secret: '"((UAA_CLIENTS_NOTIFICATIONS_SECRET))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cf.access-token-validity: "600"
+    properties.uaa.clients.cf.authorities: uaa.none
+    properties.uaa.clients.cf.authorized-grant-types: implicit,password,refresh_token
+    properties.uaa.clients.cf.autoapprove: "true"
+    properties.uaa.clients.cf.override: "true"
+    properties.uaa.clients.cf.refresh-token-validity: "2592000"
+    properties.uaa.clients.cf.scope: "cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read"
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
@@ -1027,7 +1034,8 @@ configuration:
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
-    properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
+    properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
+    properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     # Diego certificates
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
