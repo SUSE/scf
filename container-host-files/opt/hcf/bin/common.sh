@@ -83,7 +83,7 @@ function setup_role() {
   role_info="${role_manifest_run["${role}"]}"
 
   # Add capabilities
-  # If there are any exposed ports, this creates a string that resembles the
+  # If there are any capabilities defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # --privileged --cap-add="SYS_ADMIN" --cap-add="NET_RAW"
   capabilities=$(echo "${role_info}" | jq --raw-output --compact-output '.capabilities[] | if length > 0 then "--privileged --cap-add=" + ([.] | join(" --cap-add=")) else "" end')
@@ -95,13 +95,13 @@ function setup_role() {
   ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | if length > 0 then "-p " + ([(.source | tostring) + ":" + (.target | tostring)] | join(" -p ")) else "" end')
 
   # Add persistent volumes
-  # If there are any exposed ports, this creates a string that resembles the
+  # If there are any persistent volume mounts defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
   persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add shared volumes
-  # If there are any exposed ports, this creates a string that resembles the
+  # If there are any shared volumes defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
   shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
