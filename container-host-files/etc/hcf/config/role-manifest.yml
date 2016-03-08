@@ -32,6 +32,7 @@ roles:
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
+        tag: consul-data
         size: 100
     shared-volumes: []
     memory: 1024
@@ -50,7 +51,10 @@ roles:
   - name: gra-log-purger-executable
   run:
     capabilities: []
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /var/vcap/store
+        tag: mysql-data
+        size: 100
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -107,6 +111,7 @@ roles:
 - name: diego-database
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -125,6 +130,7 @@ roles:
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
+        tag: diego-database-data
         size: 100
     shared-volumes: []
     memory: 1024
@@ -180,6 +186,7 @@ roles:
 - name: router
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -192,7 +199,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 2048
@@ -229,6 +236,7 @@ roles:
   scripts:
   - fix_consul_address_lookup.sh
   - fix_cc_internal_service_hostname.sh
+  - perform_nfs_test.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -255,8 +263,8 @@ roles:
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
+      tag: api-data
       size: 100
-      tag: 'cc'
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
@@ -285,7 +293,7 @@ roles:
     shared-volumes:
     - path: '/var/vcap/nfs/shared'
       size: 100
-      tag: 'cc'
+      tag: 'api-data'
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
@@ -331,7 +339,7 @@ roles:
     shared-volumes:
     - path: '/var/vcap/nfs'
       size: 100
-      tag: 'cfusb'
+      tag: 'cf-usb-data'
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
@@ -339,6 +347,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
 - name: doppler
+  scripts:
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -356,7 +366,7 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -379,6 +389,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         size: 100
+        tag: cf-etcd-data
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -398,6 +409,8 @@ roles:
       properties.etcd.ca_cert: 'null'
       properties.etcd.machines: '["((ETCD_HOST))"]'
 - name: loggregator
+  scripts:
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -412,7 +425,7 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
   run:
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -461,6 +474,7 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: stager
     release_name: diego
@@ -512,6 +526,7 @@ roles:
 - name: diego-access
   scripts:
   - fix_consul_address_lookup.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -538,6 +553,7 @@ roles:
   - fix_consul_address_lookup.sh
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: rep
     release_name: diego
@@ -601,6 +617,20 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
+- name: windows-dns
+  type: docker
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'dns'
+        protocol: 'UDP'
+        source: 53
+        target: 8600
+        public: true
 configuration:
   variables:
   - name: API_HOST
@@ -1000,3 +1030,14 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    # These settings must remain in the role manifest until they're available
+    # in the upstream specs; even though they're also defined in the opinions file
+    properties.router.tweak_proc_sys: false
+    properties.doppler.tweak_locked_memory: false
+    properties.traffic_controller.tweak_locked_memory: false
+    properties.syslog_drain_binder.tweak_locked_memory: false
+    properties.diego.bbs.tweak_proc_sys: false
+    properties.diego.cc_uploader.tweak_proc_sys: false
+    properties.diego.file_server.tweak_proc_sys: false
+    properties.diego.rep.tweak_proc_sys: false
+    properties.diego.stager.tweak_proc_sys: false

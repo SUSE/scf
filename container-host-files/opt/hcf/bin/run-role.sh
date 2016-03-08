@@ -5,7 +5,7 @@ set -e
 
 if [ $# -ne 2 ]
 then
-    echo 1>&2 "Usage: $(basename "$0") /path/to/setup/dir role"
+    echo 1>&2 "Usage: $(basename "$0") <DIR_WITH_ENV_FILES> <ROLE_NAME>"
     exit 1
 else
     setup_dir="$1"
@@ -26,13 +26,6 @@ SELFDIR="$(readlink -f "$(cd "$(dirname "$0")" && pwd)")"
 ROOT="$(readlink -f "$SELFDIR/../../../")"
 
 . "${ROOT}/opt/hcf/bin/common.sh"
-
-# Vagrant has .runrc 2 level up in the mounted hierarchy.
-# Terraform has no such copied to its VM, thus requires defaults.
-
-if [ -f "${ROOT}/../bin/.runrc" ] ; then
-    . "${ROOT}/../bin/.runrc"
-fi
 
 HCF_RUN_STORE="${HCF_RUN_STORE:-$HOME/.run/store}"
 HCF_RUN_LOG_DIRECTORY="${HCF_RUN_LOG_DIRECTORY:-$HOME/.run/log}"

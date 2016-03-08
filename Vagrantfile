@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-virtualbox-v1.0.0.box"
+    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-virtualbox-v1.0.2.box"
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
     vb.cpus = 4
@@ -38,7 +38,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.1.box"
+    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.2.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "6144"

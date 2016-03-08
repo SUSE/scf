@@ -18,9 +18,12 @@ ROOT="$(readlink -f "$SELFDIR/../../../")"
 
 load_all_roles
 
-for r in $(list_all_bosh_roles | sort)
-do
-    echo -e "\t$r"
-done
+bosh_roles=$(list_all_bosh_roles)
+docker_roles=$(list_all_docker_roles)
+
+OLDIFS="$IFS"
+IFS=$'\n'
+for role in "${bosh_roles[@]}" "${docker_roles[@]}" ; do echo "$role" ; done | sort -du
+IFS="$OLDIFS"
 
 exit 0

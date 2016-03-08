@@ -21,6 +21,8 @@ export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/da
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 
+.PHONY: docker-images
+
 ########## UTILITY TARGETS ##########
 
 print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
@@ -135,7 +137,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 	} >"${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 endif
 
-images: bosh-images
+images: bosh-images docker-images
 
 image-base:
 	$(call print_status, Creating BOSH role base image)
@@ -144,6 +146,13 @@ image-base:
 bosh-images:
 	$(call print_status, Building BOSH role images)
 	fissile dev create-images
+
+docker-images:
+	$(call print_status, Building Docker role images)
+	for docker_role in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles") ; do \
+		cd ${CURDIR}/docker-images/$${docker_role} && \
+		docker build -t $${docker_role}:${APP_VERSION_TAG} . ; \
+	done
 
 build: images
 
