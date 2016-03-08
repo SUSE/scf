@@ -79,6 +79,7 @@ Vagrant.configure(2) do |config|
     # Configure Docker things
     sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
+    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/create_docker_dns_server.sh
 
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
