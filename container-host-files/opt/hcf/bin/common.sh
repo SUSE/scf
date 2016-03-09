@@ -3,16 +3,16 @@ set -e
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
-# Determines whether a container is running
-# container_running <CONTAINER_NAME>
+# Determines whether a container is running, given a container name and an image name
+# container_running <CONTAINER_NAME> <IMAGE_NAME>
 function container_running {
-  container_name=$1
+  local container_name=$1
+  local image_name=$2
 
-  if out=$(docker inspect --format='{{.State.Running}}' ${container_name} 2>/dev/null); then
-    if [ "$out" == "false" ]; then
-      return 1
-    fi
-  else
+  local running=$(docker inspect --format='{{.State.Running}}' ${container_name} 2>/dev/null)
+  local running_image=$(docker inspect --format='{{.Config.Image}}' ${container_name} 2>/dev/null)
+
+  if [ "$running" == "false" -o "$running_image" != "$image_name" ] ; then
     return 1
   fi
 
@@ -22,7 +22,7 @@ function container_running {
 # Determines whether a container exists
 # container_exists <CONTAINER_NAME>
 function container_exists {
-  container_name=$1
+  local container_name=$1
 
   if out=$(docker inspect ${container_name} 2>/dev/null); then
     return 0
@@ -34,8 +34,8 @@ function container_exists {
 # Kills an hcf role
 # kill_role <ROLE_NAME>
 function kill_role {
-  role=$1
-  container=$(docker ps -a -q --filter "label=hcf_role=${role}")
+  local role=$1
+  local container=$(docker ps -a -q --filter "label=hcf_role=${role}")
   if [[ ! -z $container ]]; then
     docker rm --force $container > /dev/null 2>&1
   fi
@@ -44,12 +44,12 @@ function kill_role {
 # Starts an hcf role
 # start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <ENV_VARS_FILE> <CERTS_VARS_FILE>
 function start_role {
-  image=$1
-  name=$2
-  role=$3
-  env_vars_file=$4
-  certs_vars_file=$5
-  extra="$(setup_role $role)"
+  local image=$1
+  local name=$2
+  local role=$3
+  local env_vars_file=$4
+  local certs_vars_file=$5
+  local extra="$(setup_role $role)"
 
   mkdir -p $log_dir/$role
 
@@ -68,8 +68,7 @@ function start_role {
 # the role's container.
 # setup_role <ROLE_NAME>
 function setup_role() {
-  role="$1"
-  extra=""
+  local role="$1"
 
   # roles/[name]/run
   # - shared-volumes[]/path => fake nfs mounts.
@@ -80,34 +79,34 @@ function setup_role() {
   load_all_roles
 
   # Pull the runtime information out of the block
-  role_info="${role_manifest_run["${role}"]}"
+  local role_info="${role_manifest_run["${role}"]}"
 
   # Add capabilities
   # If there are any capabilities defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # --privileged --cap-add="SYS_ADMIN" --cap-add="NET_RAW"
-  capabilities=$(echo "${role_info}" | jq --raw-output --compact-output '.capabilities[] | if length > 0 then "--privileged --cap-add=" + ([.] | join(" --cap-add=")) else "" end')
+  local capabilities=$(echo "${role_info}" | jq --raw-output --compact-output '.capabilities[] | if length > 0 then "--privileged --cap-add=" + ([.] | join(" --cap-add=")) else "" end')
 
   # Add exposed ports
   # If there are any exposed ports, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -p 80:80 -p 443:443
-  ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | if length > 0 then "-p " + ([(.source | tostring) + ":" + (.target | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
+  local ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | if length > 0 then "-p " + ([(.source | tostring) + ":" + (.target | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
 
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
-  persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
+  local persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add shared volumes
   # If there are any shared volumes defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
-  shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
+  local shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add anything not found in roles-manifest.yml
-  extra=""
+  local extra=""
   case "$role" in
     "diego-database")
 	  # TODO: Move into role-manifest.yml
@@ -121,9 +120,7 @@ function setup_role() {
 # gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  # The .Container here is the container used to build the image; we are just
-  # using it here to ensure it changes every time the image is rebuilt.
-  docker inspect --format '{{.ContainerConfig.Labels.role}}_{{.Container}}' $1 | tr -d '\n' | tr -c '[[:alnum:]-]' _
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
 }
 
 # gets an image name from a role name
@@ -131,7 +128,7 @@ function get_container_name() {
 # IMPORTANT: if more than one image is found, it retrieves the first
 # get_image_name <ROLE_NAME>
 function get_image_name() {
-  role=$1
+  local role=$1
   docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1)
 }
 
@@ -141,27 +138,27 @@ function get_image_name() {
 # uses fissile to determine what are the correct images to run
 # handle_restart <ROLE_NAME> <CERTS_VARS_FILE> <ENV_VARS_FILE>
 function handle_restart() {
-  role="$1"
-  env_vars_file="$2"
-  certs_vars_file="$3"
+  local role="$1"
+  local env_vars_file="$2"
+  local certs_vars_file="$3"
 
-  image=$(get_image_name $role)
-  container_name=$(get_container_name $image)
+  local image=$(get_image_name $role)
+  local container_name=$(get_container_name $image)
 
-  if container_running $container_name ; then
-    echo "Role ${role_name} running with appropriate version ..."
+  if container_running $container_name $image ; then
+    echo "Role ${role} running with appropriate version ..."
     return 1
   else
-    echo "Restarting ${role_name} ..."
-    kill_role $role_name
-    start_role $image $container_name $role_name $env_vars_file $certs_vars_file
+    echo "Restarting ${role} ..."
+    kill_role $role
+    start_role $image $container_name $role $env_vars_file $certs_vars_file
     return 0
   fi
 }
 
 # Loads all roles from the role-manifest.yml
 function load_all_roles() {
-  role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  local role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -ga 'role_names=()'
@@ -245,7 +242,7 @@ function list_processes_for_role() {
     exit 1
   fi
 
-  role_name_filter=$1
+  local role_name_filter=$1
 
   echo "${role_manifest_processes["${role_name_filter}"]}"
 }
