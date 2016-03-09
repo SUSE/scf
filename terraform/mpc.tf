@@ -1,23 +1,33 @@
 # # ## ###
 ## Section: Cloud API - Exported to user
 
+output "environment" {
+    value = "${null_resource.rm_configuration.triggers.rm_configuration}"
+}
+
 output "floating_ip" {
     value = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
 }
 
-output "environment" {
-    value = "${null_resource.rm_configuration.triggers.rm_configuration}"
+output "floating_domain" {
+    value = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.nip.io"
 }
 
 # # ## ###
 ## API into the generated declarations.
 ## - Definition of PUBLIC_IP (special variable)
+## - Definition of DOMAIN (special variable)
 ## - Filesystem paths, local and remote
-## - Docker image origin location configuration
 
 resource "null_resource" "PUBLIC_IP" {
     triggers = {
         PUBLIC_IP = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
+    }
+}
+
+resource "null_resource" "DOMAIN" {
+    triggers = {
+        DOMAIN = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}.nip.io"
     }
 }
 
@@ -106,7 +116,7 @@ variable "core_volume_size_data" {
 }
 
 variable "core_volume_size_mapper" {
-	default = "70"
+	default = "72"
 }
 
 # Locations for component state and log files.

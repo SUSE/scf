@@ -169,6 +169,7 @@ API
 
     # Global configs become plain tf variables.
     have_pip = false
+    have_domain = false
     roles['configuration']['variables'].each do |config|
       name = config['name']
       value = config['default']
@@ -181,11 +182,16 @@ API
         have_pip = true
         next
       end
+      if name == 'DOMAIN'
+        have_domain = true
+        next
+      end
 
       emit_variable(name, value)
     end
 
     puts "PUBLIC_IP is missing from input role-manifest" unless have_pip
+    puts "DOMAIN is missing from input role-manifest" unless have_domain
   end
 
   def emit_loader(roles)
@@ -250,10 +256,21 @@ SETUP
     roles['configuration']['variables'].each do |config|
       name = config['name']
 
+      # Note, no double-quotes around any values. Would become part of
+      # the value when docker run read the --env-file. Bad.
       if name == 'PUBLIC_IP'
-        assignment = %Q|#{name}="\$\{null_resource.#{name}.triggers.#{name}\}"\n|
+        assignment = %Q|#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n|
+      elsif name == 'DOMAIN'
+        assignment = %Q|#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n|
       else
-        assignment = %Q|#{name}=\$\{replace(var.#{name},"\\n", "\\\\n")\}\n|
+        assignment = %Q|#{name}=\$\{replace(var.#{name},"\\n", "\\\\\\\\n")\}\n|
+        # In the hcf.tf this becomes replace(XXX,"\n", "\\\\n")
+        # The replacement string looks like "....\\n....".
+        # The echo saving this into the final .env file makes this "...\n..."
+        # And docker sees the '\n" and makes it a proper EOL character in the value
+        # of the variable.
+        #
+        # TODO: Check if TF can generate a local file, with less levels of quoting involved.
       end
 
       # Collect assignments for the aggregate variable, see below.
