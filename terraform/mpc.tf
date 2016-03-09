@@ -5,6 +5,10 @@ output "floating_ip" {
     value = "${openstack_networking_floatingip_v2.hcf-core-host-fip.address}"
 }
 
+output "environment" {
+    value = "${null_resource.rm_configuration.triggers.rm_configuration}"
+}
+
 # # ## ###
 ## API into the generated declarations.
 ## - Definition of PUBLIC_IP (special variable)

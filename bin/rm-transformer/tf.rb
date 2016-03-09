@@ -173,13 +173,12 @@ API
       name = config['name']
       value = config['default']
 
-      # Special case this RM variable (null_resource). We wire it to the
-      # HOS/MPC networking setup, see below.
+      # Special case this RM variable (null_resource). We skip it and
+      # and expect an external file to provide a null_resource wiring
+      # it to the networking setup. Because only thsi external context
+      # knows where the value actually comes from in terms of vars, etc.
       if name == 'PUBLIC_IP'
         have_pip = true
-        # We expect that the definition comes from external file(s).
-        # Because only the context knows where the value actually comes from.
-        #emit_null_simple(name, ${openstack_networking_floatingip_v2.hcf-core-host-fip.address}')
         next
       end
 
@@ -254,7 +253,7 @@ SETUP
       if name == 'PUBLIC_IP'
         assignment = %Q|#{name}="\$\{null_resource.#{name}.triggers.#{name}\}"\n|
       else
-        assignment = %Q|#{name}="\$\{var.#{name}\}"\n|
+        assignment = %Q|#{name}=\$\{replace(var.#{name},"\\n", "\\\\n")\}\n|
       end
 
       # Collect assignments for the aggregate variable, see below.
