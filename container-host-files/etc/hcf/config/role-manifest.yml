@@ -1036,6 +1036,7 @@ configuration:
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
+    properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     # Diego certificates
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
