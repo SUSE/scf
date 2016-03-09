@@ -14,6 +14,13 @@ properties:
     - name: ccadmin
       password: admin_password
       tag: admin
+  cf-usb:
+    broker:
+      username: cf-usb_username
+      password: cf-usb_password
+    management:
+      uaa:
+        secret: cf-usb_secret
   domain: example.com
   loggregator_endpoint:
     shared_secret: loggregator_endpoint_secret
@@ -21,7 +28,6 @@ properties:
     user: nats_user
     password: nats_password
   router:
-    enable_ssl: true
     ssl_cert: ''
     ssl_key: ''
     status:
@@ -38,6 +44,8 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
+      cf-usb:
+        secret: cf-usb_secret
       developer_console:
         secret: developer_console_secret
       notifications:
@@ -50,6 +58,8 @@ properties:
         secret: cloud_controller_username_lookup_secret
       gorouter:
         secret: gorouter_secret
+      ssh-proxy:
+        secret: ssh-proxy_secret
     jwt:
       verification_key: vk
       signing_key: sk
