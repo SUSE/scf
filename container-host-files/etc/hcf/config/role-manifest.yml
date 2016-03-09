@@ -18,7 +18,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: 'nats'
+        protocol: 'TCP'
+        source: 4222
+        target: 4222
+        public: false
 - name: consul
   jobs:
   - name: consul_agent
@@ -37,7 +42,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'consul'
+        protocol: 'TCP'
+        source: 8500
+        target: 8500
+        public: false
   configuration:
     templates:
       properties.consul.agent.mode: '"server"'
@@ -58,7 +68,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'mysql'
+        protocol: 'TCP'
+        source: 3306
+        target: 3306
+        public: false
   configuration:
     templates:
       properties.cluster_ips: '["((MYSQL_HOST))"]'
@@ -135,7 +150,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'bbs'
+        protocol: 'TCP'
+        source: 8889
+        target: 8889
+        public: false
     hosts:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
@@ -204,7 +224,12 @@ roles:
     shared-volumes: []
     memory: 2048
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: 'router'
+        protocol: 'TCP'
+        source: 80
+        target: 80
+        public: false
 - name: uaa
   scripts:
   - fix_consul_address_lookup.sh
@@ -228,7 +253,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'uaa'
+        protocol: 'TCP'
+        source: 8080
+        target: 8080
+        public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
@@ -267,7 +297,12 @@ roles:
       size: 100
     memory: 2048
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: api'
+        protocol: 'TCP'
+        source: 9022
+        target: 9022
+        public: false
   configuration:
     templates:
       properties.etcd.machines: '["((ETCD_HOST))"]'
@@ -342,7 +377,17 @@ roles:
       tag: 'cf-usb-data'
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'usb-broker'
+        protocol: 'TCP'
+        source: 54054
+        target: 54054
+        public: false
+      - name: 'usb-management'
+        protocol: 'TCP'
+        source: 54053
+        target: 54053
+        public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
@@ -371,7 +416,18 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'incoming-port'
+        protocol: 'TCP'
+        source: 3456
+        target: 3456
+        public: false
+    exposed-ports:
+      - name: 'incoming-dropsnode'
+        protocol: 'TCP'
+        source: 3457
+        target: 3457
+        public: false
 - name: etcd
   jobs:
   - name: etcd
@@ -393,7 +449,17 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'client'
+        protocol: 'TCP'
+        source: 2379
+        target: 2379
+        public: false
+      - name: 'peer'
+        protocol: 'TCP'
+        source: 2380
+        target: 2380
+        public: false
   configuration:
     templates:
       properties.etcd.peer_require_ssl: 'false'
@@ -430,23 +496,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
-- name: stats
-  jobs:
-  - name: collector
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: collector
-  - name: metron_agent
-  run:
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'loggregator'
+        protocol: 'TCP'
+        source: 8080
+        target: 8080
+        public: false
 - name: diego-brain
   scripts:
   - fix_consul_address_lookup.sh
@@ -470,7 +525,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: 'auctioneer'
+        protocol: 'TCP'
+        source: 9016
+        target: 9016
+        public: false
 - name: diego-cc-bridge
   scripts:
   - fix_consul_address_lookup.sh
@@ -501,7 +561,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: 'file-server'
+        protocol: 'TCP'
+        source: 9090
+        target: 9090
+        public: false
 - name: diego-route-emitter
   scripts:
   - fix_consul_address_lookup.sh
@@ -547,7 +612,12 @@ roles:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports: []
+    exposed-ports:
+      - name: 'ssh'
+        protocol: 'TCP'
+        source: 2222
+        target: 2222
+        public: false
 - name: diego-cell
   scripts:
   - fix_consul_address_lookup.sh
