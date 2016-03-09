@@ -3,16 +3,16 @@ set -e
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
-# Determines whether a container is running
-# container_running <CONTAINER_NAME>
+# Determines whether a container is running, given a role name and an image name
+# container_running <ROLE_NAME> <IMAGE_NAME>
 function container_running {
-  container_name=$1
+  role_name=$1
+  image_name=$2
 
-  if out=$(docker inspect --format='{{.State.Running}}' ${container_name} 2>/dev/null); then
-    if [ "$out" == "false" ]; then
-      return 1
-    fi
-  else
+  running=$(docker inspect --format='{{.State.Running}}' ${container_name} 2>/dev/null)
+  running_image=$(docker inspect --format='{{.Config.Image}}' ${container_name} 2>/dev/null)
+
+  if [ "$running" == "false" -o "$running_image" != "$image_name" ] ; then
     return 1
   fi
 
@@ -121,9 +121,7 @@ function setup_role() {
 # gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  # The .Container here is the container used to build the image; we are just
-  # using it here to ensure it changes every time the image is rebuilt.
-  docker inspect --format '{{.ContainerConfig.Labels.role}}_{{.Container}}' $1 | tr -d '\n' | tr -c '[[:alnum:]-]' _
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
 }
 
 # gets an image name from a role name
@@ -148,13 +146,13 @@ function handle_restart() {
   image=$(get_image_name $role)
   container_name=$(get_container_name $image)
 
-  if container_running $container_name ; then
-    echo "Role ${role_name} running with appropriate version ..."
+  if container_running $container_name $image ; then
+    echo "Role ${role} running with appropriate version ..."
     return 1
   else
-    echo "Restarting ${role_name} ..."
-    kill_role $role_name
-    start_role $image $container_name $role_name $env_vars_file $certs_vars_file
+    echo "Restarting ${role} ..."
+    kill_role $role
+    start_role $image $container_name $role $env_vars_file $certs_vars_file
     return 0
   fi
 }
