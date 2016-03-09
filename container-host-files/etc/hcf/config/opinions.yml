@@ -51,7 +51,7 @@ properties:
     default_staging_security_groups:
     - public_networks
     - dns
-    default_to_diego_backend: false
+    default_to_diego_backend: true
     development_mode: false
     directories: null
     disable_custom_buildpacks: false
@@ -184,49 +184,103 @@ properties:
     user_buildpacks: []
     users_can_select_backend: true
   ccdb:
-    address: 0.0.0.4
     databases:
     - name: ccdb
       tag: cc
-    db_scheme: postgres
-    port: 5524
+    db_scheme: mysql
+    port: 3306
     roles:
     - name: ccadmin
       password: admin_password
       tag: admin
+  cf-usb:
+    broker:
+      external_url: brokers.example.com
+      username: cf-usb_username
+      password: cf-usb_password
+    configconnectionstring: 127.0.0.1:8500
+    configprovider: consulConfigProvider
+    management:
+      dev_mode: true
+      uaa:
+        client: cf-usb
+        secret: cf-usb_secret
+    skip_tls_validation: true
   collector: null
   consul:
     agent:
       log_level: null
-      servers:
-        lan:
-        - 0.0.0.12
     agent_cert: null
     agent_key: null
     ca_cert: null
     encrypt_keys: []
-    require_ssl: null
+    require_ssl: false
     server_cert: null
     server_key: null
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
+    kernel_network_tuning_enabled: false
     # Used in cc_ng and cc_worker
     staging_disk_limit_mb: 6144
     # Used in cc_ng and cc_worker
     staging_memory_limit_mb: 1024
   description: Helion Cloud Foundry
   diego:
+    auctioneer:
+      bbs:
+        require_ssl: true
     bbs:
+      etcd:
+        require_ssl: true
+      require_ssl: true
       tweak_proc_sys: false
     cc_uploader:
       tweak_proc_sys: false
+    converger:
+      bbs:
+        require_ssl: true
+      log_level: debug
+    executor:
+      drain_timeout_in_seconds: 0
+      garden:
+        address: 127.0.0.1:7777
+        network: tcp
+      log_level: debug
     file_server:
+      static_directory: /var/vcap/packages/
       tweak_proc_sys: false
+    nsync:
+      bbs:
+        require_ssl: true
+      log_level: debug
     rep:
+      bbs:
+        require_ssl: true
+      evacuation_timeout_in_seconds: 60
+      log_level: debug
       tweak_proc_sys: false
+      zone: z1
+    route_emitter:
+      bbs:
+        require_ssl: true
+      log_level: debug
+      nats:
+        port: 4222
+    ssh_proxy:
+      bbs:
+        require_ssl: true
+      enable_cf_auth: true
+      enable_diego_auth: false
+    ssl:
+      skip_cert_verify: true
     stager:
+      bbs:
+        require_ssl: true
       tweak_proc_sys: false
+    tps:
+      bbs:
+        require_ssl: true
   domain: example.com
   doppler:
     tweak_locked_memory: false
@@ -243,19 +297,25 @@ properties:
     ca_cert: null
     client_cert: null
     client_key: null
-    cluster: null
-    machines:
-    - 0.0.0.8
-    peer_require_ssl: null
-    require_ssl: null
+    cluster:
+    - instances: 1
+      name: database_z1
+    peer_require_ssl: true
+    require_ssl: true
     server_cert: null
     server_key: null
   etcd_metrics_server:
     nats:
-      machines:
-      - 0.0.0.2
-      password: nats_password
-      username: nats_user
+      password: *nats_password
+      username: *nats_user
+  garden:
+    deny_networks: []
+    enable_graph_cleanup: true
+    listen_address: 0.0.0.0:7777
+    listen_network: tcp
+    log_level: debug
+    persistent_image_list:
+    - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://hm9000.example.com
@@ -300,26 +360,25 @@ properties:
     uaa_certificate: null
     url: null
   metron_agent:
-    deployment: null
+    deployment: hcf-deployment
   metron_endpoint:
     shared_secret: loggregator_endpoint_secret
   nats:
     address: 0.0.0.2
     debug: false
-    machines:
-    - 0.0.0.2
     monitor_port: 0
-    password: nats_password
+    password: &nats_password nats_password
     port: 4222
     prof_port: 0
     trace: false
-    user: nats_user
+    user: &nats_user nats_user
   nfs_server:
     address: 0.0.0.3
     allow_from_entries:
     - null
     - null
     share: null
+    share_path: /var/vcap/nfs
   request_timeout_in_seconds: 900
   router:
     tweak_proc_sys: false
@@ -340,7 +399,10 @@ properties:
       user: router_user
   smoke_tests: null
   ssl:
-    skip_cert_verify: false
+    # TODO: Default to false, and place our generated CA cert
+    # into the appropriate /usr/share/ca-certificates folders
+    # and call update-ca-certificates at container startup
+    skip_cert_verify: true
   support_address: http://support.cloudfoundry.com
   syslog_daemon_config: null
   syslog_drain_binder:
@@ -366,6 +428,11 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
+      cf-usb:
+        authorities: cloud_controller.admin,usb.management.admin
+        authorized-grant-types: client_credentials
+        scope: usb.management.admin
+        secret: cf-usb_secret
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials
@@ -392,6 +459,13 @@ properties:
         authorities: cloud_controller.admin,scim.read
         authorized-grant-types: client_credentials
         secret: notification_secret
+      ssh-proxy:
+        authorized-grant-types: authorization_code
+        autoapprove: true
+        override: true
+        redirect-uri: /login
+        scope: openid,cloud_controller.read,cloud_controller.write
+        secret: ssh-proxy_secret
     database:
       abandoned_timeout: 600
       log_abandoned: true
@@ -419,12 +493,11 @@ properties:
     user: null
     zones: null
   uaadb:
-    address: 0.0.0.4
     databases:
     - name: uaadb
       tag: uaa
-    db_scheme: postgresql
-    port: 5524
+    db_scheme: mysql
+    port: 3306
     roles:
     - name: uaaadmin
       password: admin_password
