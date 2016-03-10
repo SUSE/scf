@@ -116,7 +116,7 @@ variable "core_volume_size_data" {
 }
 
 variable "core_volume_size_mapper" {
-	default = "72"
+	default = "74"
 }
 
 # Locations for component state and log files.

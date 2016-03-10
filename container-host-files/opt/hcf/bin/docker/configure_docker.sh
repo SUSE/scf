@@ -23,9 +23,18 @@ if [ -z ${3} ]; then echo "${usage}"; exit 1; else DEVICE_MAPPER_METADATA_SIZE=$
 
 service docker stop
 pvcreate -ff -y    $DEVICE_MAPPER_VOLUME
+pvs
+
 vgcreate vg-docker $DEVICE_MAPPER_VOLUME
-lvcreate -L ${DEVICE_MAPPER_DATA_SIZE}G -n data vg-docker
+vgs
+
+echo ___ LV data
+lvcreate -L ${DEVICE_MAPPER_DATA_SIZE}G     -n data     vg-docker
+lvs
+
+echo ___ LV metadata
 lvcreate -L ${DEVICE_MAPPER_METADATA_SIZE}G -n metadata vg-docker
+lvs
 
 # Insert the device information into the docker configuration
 
@@ -33,6 +42,7 @@ dopts="--storage-driver=devicemapper"
 dopts="$dopts --storage-opt dm.datadev=/dev/vg-docker/data"
 dopts="$dopts --storage-opt dm.metadatadev=/dev/vg-docker/metadata"
 
+echo ___ Insert
 echo DOCKER_OPTS=\"$dopts\" | sudo tee -a /etc/default/docker
 
 # Activate the now-configured system
