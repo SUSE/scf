@@ -44,10 +44,18 @@ properties:
         secret: app-direct_secret
       cf-usb:
         secret: cf-usb_secret
+      cc_routing:
+        secret: cc_routing_secret
+      cc-service-dashboards:
+        secret: cc-broker-secret
       developer_console:
         secret: developer_console_secret
       notifications:
         secret: notification_secret
+      tcp_emitter:
+         secret: tcp-emitter-secret
+      tcp_router:
+        secret: tcp-router-secret
       login:
         secret: login_client_secret
       doppler:
