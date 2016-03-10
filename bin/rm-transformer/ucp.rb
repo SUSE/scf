@@ -33,8 +33,11 @@ class ToUCP
 
     # Phase II. Generate UCP data per-role.
     roles['roles'].each do |role|
-      type = role['type']
-      if type && type == 'bosh-task'
+      type = role['type'] || 'bosh'
+
+      next if type == 'docker'
+
+      if type == 'bosh-task'
         # Ignore dev parts by default.
         next if role['dev-only'] && !@options[:dev]
 
@@ -42,9 +45,10 @@ class ToUCP
         # 5 == default retry count.
         #   Option to override ?
         #   Manifest override?
-      else
-        add_component(roles, fs, comp, role)
+        next
       end
+
+      add_component(roles, fs, comp, role)
     end
 
     the_ucp

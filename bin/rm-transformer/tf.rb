@@ -228,19 +228,22 @@ SETUP
 
     roles['roles'].each do |role|
       name = role['name']
-      type = role['type']
+      type = role['type'] || 'bosh'
+
+      next if type == 'docker'
 
       runcmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{envdir} "
       runcmd += name
       runcmd += ' --restart=always'
 
-      if type && type == 'bosh-task'
+      if type == 'bosh-task'
         # Ignore dev parts by default.
         next if role['dev-only'] && !@options[:dev]
         runner_tasks += runcmd + "\n"
-      else
-        runner_jobs += runcmd + "\n"
+        next
       end
+
+      runner_jobs += runcmd + "\n"
     end
 
     emit_header 'Running of job roles'
@@ -290,16 +293,20 @@ SETUP
 
     roles['roles'].each do |role|
       name = role['name']
-      type = role['type']
+      type = role['type'] || 'bosh'
+
+      next if type == 'docker'
 
       the_roles.push(name)
-      if type && type == 'bosh-task'
+
+      if type == 'bosh-task'
         # Ignore dev parts by default.
         next if role['dev-only'] && !@options[:dev]
         the_tasks.push(name)
-      else
-        the_jobs.push(name)
+        next
       end
+
+      the_jobs.push(name)
     end
 
     emit_variable('all_the_roles', the_roles.join(' '))
