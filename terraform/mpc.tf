@@ -298,8 +298,8 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 	    "echo ___ Setting up docker network ___________",
 	    "bash -e ${var.fs_host_root}/opt/hcf/bin/docker/setup_network.sh 172.20.10.0/24 172.20.10.1",
 
-	    "echo ___ Install shyaml support ______________",
-	    "bash -e ${var.fs_host_root}/opt/hcf/bin/tools/install_shyaml.sh",
+	    "echo ___ Install y2j support ______________",
+	    "bash -e ${var.fs_host_root}/opt/hcf/bin/tools/install_y2j.sh",
 
             "echo ___ Logging into Docker Trusted Registry for image pulls",
             "docker login '-e=${var.docker_email}' '-u=${var.docker_username}' '-p=${var.docker_password}' ${var.docker_trusted_registry}",
