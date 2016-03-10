@@ -1,53 +1,49 @@
-## Requirements
+## Installation
 
-### 1. Add windows2012R2 stack to CF
-You can run this commands in vagrant hcf box:
-```
-cf api --skip-ssl-validation https://api.192.168.77.77.nip.io && \
-cf auth admin changeme && \
-cf curl /v2/stacks -X POST  -d '{"name":"windows2012R2","description":"Windows Server 2012 R2"}'
-```
+- Make sure the hcf-infrastructure vagrant box in the parent directory is up and all roles are running (use `hcf-status` to check the status).
+- Go to 'windows' directory `cd windows`
+- Run `vagrant up`
 
-### 2. Install a DNS server to allow other components to access the .hcf domain
-Until this gets backed-in into the hcf-infrastructure repo, this docker DNS service
-based on consul can be used:
+## Sample .Net App
+
+To push a sample .NET application that uses the windows cell use the following snippet:
 ```
-docker run  -p 192.168.77.77:53:8600/udp --net=hcf -d --restart=always \
-  --name dnsb voxxit/consul agent -data-dir /data -server -bootstrap \
-  -client=0.0.0.0 -recursor=127.0.0.11
+git clone https://github.com/cloudfoundry-incubator/NET-sample-app
+cd NET-sample-app/ViewEnvironment
+
+cf push dotnet-env -s windows2012R2 -b http://buildpack.url.ignored.on.windows
 ```
 
-To test the DNS server run:
-```
-dig api.hcf @192.168.77.77
-```
+## How to install windows_app_lifecycle with buildpacks support
 
-To stop the DNS server run:
+Download and copy the new lifecycle in the diego-access container from the hcf vagrant VM:
 ```
-docker rm -f dnsb
-```
+cd /tmp
+wget https://ci.appveyor.com/api/buildjobs/lufj2q4f7dmyunp6/artifacts/output/windows_app_lifecycle-8970681.tgz  -O windows_app_lifecycle.tgz
 
-## Optional Features
-
-### Install windows_app_lifecycle with buildpacks support
-
-Download the release from Github ( https://github.com/hpcloud/windows_app_lifecycle/releases ) into hcf-infrastructure folder.
-
-Copy the new lifecycle in the diego-access container from the hcf console:
-```
-cd ~/hcf
+# create a backup first
 docker cp diego-access:/var/vcap/packages/windows_app_lifecycle/windows_app_lifecycle.tgz windows_app_lifecycle.tgz.bak
+
 docker cp windows_app_lifecycle.tgz diego-access:/var/vcap/packages/windows_app_lifecycle/windows_app_lifecycle.tgz
 ```
 
-To restore the backup:
+To restore the backup use:
 ```
 docker cp windows_app_lifecycle.tgz.bak diego-access:/var/vcap/packages/windows_app_lifecycle/windows_app_lifecycle.tgz
 ```
 
-Restart rep from the windows box to invalidate the cache.
+Restart rep from the windows box to invalidate the windows_app_lifecycle cache.
+
+Use following example to push an app that uses the git url buildpack support:
+```
+git clone https://github.com/cloudfoundry-incubator/NET-sample-app
+cd NET-sample-app/ViewEnvironment
+
+cf push dotnet-env -s windows2012R2 -b https://github.com/hpcloud/cf-iis8-buildpack
+```
 
 ## Troubleshooting
+
 - Error to ignore when running `vagrant up`:
 ```
 ==> default: Running provisioner: file...
@@ -67,17 +63,20 @@ Restart rep from the windows box to invalidate the cache.
 ```
 
 -  If the 'NoCompatibleCell' error is thrown when pushing a windows app, try the following steps:
- 1. Run `vagrant rdp` and use the 'vagrant' username and 'vagrant' password credentials to get a remote desktop connection.
+ 1. Run `vagrant rdp` and use the 'vagrant' username and 'vagrant' password to get a remote desktop connection.
  2. Make sure the docker DNS and CF components are IP accessible by running `ping api.hcf`
  3. Make sure that all diego services are running with this powershell snippet:
 ```
-Get-Service   "CF Consul", "CF Metron", "CF Containerizer", "CF GardenWindows", "rep"
-Start-Service "CF Consul", "CF Metron", "CF Containerizer", "CF GardenWindows", "rep"
-Get-Service   "CF Consul", "CF Metron", "CF Containerizer", "CF GardenWindows", "rep"
+Get-Service   "consul", "metron", "rep", "CF Containerizer", "CF GardenWindows"
+Start-Service   "consul", "metron", "rep", "CF Containerizer", "CF GardenWindows" -PassThru
 ```
 
-- To search for 'error' or other strings in diego's components logs use:
+- To search the logs for Containerizer and GardenWindows use:
 ```
-Get-EventLog Application | %{ $_.message} | sls error
-cat C:\diego-logs\rep.log | sls error
+Get-EventLog Application | %{ $_.message} | sls 'error'
+```
+
+- To search the logs for consul, rep, and metron use:
+```
+cat C:\diego\logs\* | sls 'error'
 ```
