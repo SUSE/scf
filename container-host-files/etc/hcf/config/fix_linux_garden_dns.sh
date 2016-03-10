@@ -10,7 +10,7 @@ read -d '' setup_patch <<PATCH || true
  # In this case, the container must use the network_host_ip address
  # as the nameserver.
 -if [[ "\$(cat /etc/resolv.conf)" == "nameserver 127.0.0.1" ]]
-+if [[ "\$(cat /etc/resolv.conf)" == "nameserver 127.0.0."* ]]
++if [[ "\$(cat /etc/resolv.conf)" == *"nameserver 127.0.0."* ]]
  then
    cat > \$rootfs_path/etc/resolv.conf <<-EOS
 -nameserver \$network_host_ip
