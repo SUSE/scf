@@ -436,9 +436,11 @@ properties:
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
         scope: openid,cloud_controller_service_permissions.read
+        secret: cc-broker-secret
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
+        secret: cc_routing_secret
       cf:
         access-token-validity: 600
         authorities: uaa.none
