@@ -112,11 +112,16 @@ variable "dns_server" {
 }
 
 variable "core_volume_size_data" {
-	default = "40"
+	default = "70"
+	# We need only 40, but this way the two disks are
+	# interchangeable, defeating the race-condition switching
+	# their /dev/vd assignments. Consider it a band-aid until
+	# either TF openstack provider honors device assignments, or
+	# we can determine the actual assignment from a provisioner.
 }
 
 variable "core_volume_size_mapper" {
-	default = "74"
+	default = "70"
 }
 
 # Locations for component state and log files.
@@ -295,21 +300,21 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
         inline = [
-	    "echo ___ Setting up docker network ___________",
-	    "bash -e ${var.fs_host_root}/opt/hcf/bin/docker/setup_network.sh 172.20.10.0/24 172.20.10.1",
+            "echo ___ Setting up docker network ___________",
+            "bash -e ${var.fs_host_root}/opt/hcf/bin/docker/setup_network.sh 172.20.10.0/24 172.20.10.1",
 
-	    "echo ___ Install y2j support ______________",
-	    "bash -e ${var.fs_host_root}/opt/hcf/bin/tools/install_y2j.sh",
+            "echo ___ Install y2j support ______________",
+            "bash -e ${var.fs_host_root}/opt/hcf/bin/tools/install_y2j.sh",
 
             "echo ___ Logging into Docker Trusted Registry for image pulls",
             "docker login '-e=${var.docker_email}' '-u=${var.docker_username}' '-p=${var.docker_password}' ${var.docker_trusted_registry}",
 
-	    "echo ___ Pull docker images __________________",
+            "echo ___ Pull docker images __________________",
             "${null_resource.docker_loader.triggers.docker_loader}",
 
             # Put the RM config settings into the host
 
-	    "echo ___ Save RM settings ____________________",
+            "echo ___ Save RM settings ____________________",
             "mkdir -p ${var.fs_host_root}/opt/hcf/etc/",
             "echo '${null_resource.rm_configuration.triggers.rm_configuration}' > ${var.fs_host_root}/opt/hcf/etc/dev-settings.env",
 
