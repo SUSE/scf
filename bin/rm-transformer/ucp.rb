@@ -5,6 +5,15 @@ class ToUCP
   def initialize(options, remainder)
     raise 'UCP conversion does not accept add-on files' if remainder and not remainder.empty?
     @options = options
+    # Get options, set defaults for missing parts
+    @dtr         = @options[:dtr] || 'docker.helion.lol'
+    @dtr_org     = @options[:dtr_org] || 'helioncf'
+    @hcf_version = @options[:hcf_version] || 'develop'
+    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
+
+    if @dtr.length > 0
+      @dtr = "#{@dtr}/"
+    end
   end
 
   # Public API
@@ -16,13 +25,13 @@ class ToUCP
 
   def to_ucp(roles)
     the_ucp = {
-      'name'       => 'HDP CF', # TODO: Specify via option?
+      'name'       => 'hcf',    # TODO: Specify via option?
       'version'    => '0.0.0',  # s.a.
       'vendor'     => 'HPE',    # s.a.
-      'volumes'    => [],	      # We do not generate volumes, leave empty
-      'components' => [],	      # Fill from the roles, see below
-      'preflight'  => [],	      # Fill from the roles, see below
-      'postflight' => []	      # Fill from the roles, see below
+      'volumes'    => [],	# We do not generate volumes, leave empty
+      'components' => [],	# Fill from the roles, see below
+      'preflight'  => [],	# Fill from the roles, see below
+      'postflight' => []	# Fill from the roles, see below
     }
 
     comp = the_ucp['components']
@@ -144,7 +153,7 @@ class ToUCP
   end
   def add_component(roles, fs, comps, role, retrycount = 0)
     rname = role['name']
-    iname = rname # TODO: construct proper image name
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
 
     runtime = role['run']
 
@@ -166,7 +175,8 @@ class ToUCP
       'service_ports' => [],	# Fill from role runtime config, see below
       'volume_mounts' => [],	# Ditto
       'parameters'    => [],	# Fill from role configuration, see below
-      'external_name' => "HCF Role '#{rname}'"
+      'external_name' => "HCF Role '#{rname}'",
+      'workload_type' => 'container'
     }
 
     if retrycount > 0
@@ -174,8 +184,8 @@ class ToUCP
     end
 
     # Record persistent and shared volumes, ports
-    add_volumes(fs, the_comp, runtime['persistent-volumes']) if runtime['persistent-volumes']
-    add_volumes(fs, the_comp, runtime['shared-volumes']) if runtime['shared-volumes']
+    add_volumes(fs, the_comp, runtime['persistent-volumes'], false) if runtime['persistent-volumes']
+    add_volumes(fs, the_comp, runtime['shared-volumes'], true) if runtime['shared-volumes']
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
@@ -195,23 +205,20 @@ class ToUCP
     comps.push(the_comp)
   end
 
-  def add_volumes(fs, component, volumes)
+  def add_volumes(fs, component, volumes, shared_fs)
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, component)
+      serial, the_vol = convert_volume(fs, v, serial, component, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, component)
+  def convert_volume(fs, v, serial, component, shared_fs)
     vmount = v['path']
-    if v['tag']
-      # Shared volume, already collected
-      vname = v['tag']
-    else
+    vname = v['tag']
+    if not shared_fs
       # Private volume, export now
-      vname = 'V$' + component['name'] + '$' + serial.to_s
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
 

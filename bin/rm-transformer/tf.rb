@@ -5,6 +5,12 @@
 class ToTerraform
   def initialize(options, remainder)
     @options   = options
+    # Get options, set defaults for missing parts
+    @dtr         = @options[:dtr] || 'docker.helion.lol'
+    @dtr_org     = @options[:dtr_org] || 'helioncf'
+    @hcf_version = @options[:hcf_version] || 'develop'
+    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
+
     @out       = ['# © Copyright 2015 Hewlett Packard Enterprise Development LP', '']
     @indent    = ['']
     @secnumber = 1
@@ -29,22 +35,22 @@ class ToTerraform
     emit <<API
 variable "hcf_image_prefix" {
     description = "The prefix to use before the role name to construct the full image name"
-    default = "hcf-"
+    default = "#{@hcf_prefix}-"
 }
 
 variable "hcf_version" {
     description = "The image version of interest"
-    default = "develop"
+    default = "#{@hcf_version}"
 }
 
 variable "docker_trusted_registry" {
     description = "Location of the trusted registry holding the images to use"
-    default = "docker.helion.lol"
+    default = "#{@dtr}"
 }
 
 variable "docker_org" {
     description = "The organization the images belong to"
-    default = "hpcloud"
+    default = "#{@dtr_org}"
 }
 
 variable "docker_username" {
