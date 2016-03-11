@@ -207,14 +207,18 @@ terraform:
 
 	tar -chzvf ${FISSILE_WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${FISSILE_WORK_DIR} hcf
 
-generate: rm2ucp rm2mpc
+generate: ucp mpc
 
-rm2ucp:
-	./bin/rm-transformer.rb --provider ucp \
-		${FISSILE_ROLES_MANIFEST} \
-		> ${CURDIR}/ucp.json
+ucp:
+	docker run -it --rm \
+	  -v /home/vagrant/hcf:/home/vagrant/hcf \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "rbenv global 2.2.3 && /home/vagrant/hcf/bin/rm-transformer.rb --provider ucp /home/vagrant/hcf/container-host-files/etc/hcf/config/role-manifest.yml > /home/vagrant/hcf/hcf-ucp.json"
 
-rm2mpc:
-	./bin/rm-transformer.rb --provider tf \
-		${FISSILE_ROLES_MANIFEST} ${CURDIR}/terraform/mpc.tf \
-		> ${CURDIR}/hcf.tf
+mpc:
+	docker run -it --rm \
+	  -v /home/vagrant/hcf:/home/vagrant/hcf \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "rbenv global 2.2.3 && /home/vagrant/hcf/bin/rm-transformer.rb --provider tf /home/vagrant/hcf/container-host-files/etc/hcf/config/role-manifest.yml /home/vagrant/hcf/terraform/mpc.tf > /home/vagrant/hcf/hcf.tf"
