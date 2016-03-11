@@ -16,7 +16,7 @@ for dir in * ; do
     continue
   fi
   cd "$dir"
-  case $dir in
+  case "$dir" in
       diego-release)
 	  has_upstream && git pull
 	  if [[ "$(git --version | grep 'version 1.7')x" != "x" ]]; then
