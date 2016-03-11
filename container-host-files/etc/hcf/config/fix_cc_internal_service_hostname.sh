@@ -66,7 +66,7 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_clock/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch --batch
+  echo -e "${setup_patch}" | patch --force
 fi
 
 exit 0

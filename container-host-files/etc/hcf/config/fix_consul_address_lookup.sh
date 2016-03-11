@@ -2,7 +2,7 @@ set -e
 
 cd /var/vcap/jobs-src/consul_agent/templates/
 
-exec patch --batch <<"PATCH"
+exec patch --force <<"PATCH"
 --- agent_ctl.sh.erb    2016-02-14 22:04:12.000000000 +0000
 +++ agent_ctl.sh.erb.patched    2016-02-21 14:39:16.832971103 +0000
 @@ -138,7 +138,13 @@
