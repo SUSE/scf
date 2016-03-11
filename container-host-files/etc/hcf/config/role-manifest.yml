@@ -100,7 +100,7 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'mysql'
+      - name: 'mysql-proxy'
         protocol: 'TCP'
         source: 3306
         target: 3306
@@ -151,7 +151,7 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'bbs'
+      - name: 'diego-database'
         protocol: 'TCP'
         source: 8889
         target: 8889
@@ -183,25 +183,20 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'api_http'
+      - name: 'ha-proxy'
         protocol: 'TCP'
         source: 80
         target: 80
         public: true
-      - name: 'api_https'
+      - name: 'ha-proxy2'
         protocol: 'TCP'
         source: 443
         target: 443
         public: true
-      - name: 'doppler'
+      - name: 'ha-proxy3'
         protocol: 'TCP'
         source: 4443
         target: 4443
-        public: true
-      - name: 'app_ssh'
-        protocol: 'TCP'
-        source: 2222
-        target: 2222
         public: true
 - name: router
   scripts:
@@ -267,6 +262,7 @@ roles:
   - fix_consul_address_lookup.sh
   - fix_cc_internal_service_hostname.sh
   - perform_nfs_test.sh
+  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -298,7 +294,7 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports:
-      - name: api'
+      - name: 'api'
         protocol: 'TCP'
         source: 9022
         target: 9022
@@ -378,12 +374,12 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'usb-broker'
+      - name: 'usb'
         protocol: 'TCP'
         source: 54054
         target: 54054
         public: false
-      - name: 'usb-management'
+      - name: 'usb2'
         protocol: 'TCP'
         source: 54053
         target: 54053
@@ -417,13 +413,13 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'incoming-port'
+      - name: 'doppler'
         protocol: 'TCP'
         source: 3456
         target: 3456
         public: false
     exposed-ports:
-      - name: 'incoming-dropsnode'
+      - name: 'doppler2'
         protocol: 'TCP'
         source: 3457
         target: 3457
@@ -450,12 +446,12 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'client'
+      - name: 'etcd'
         protocol: 'TCP'
         source: 2379
         target: 2379
         public: false
-      - name: 'peer'
+      - name: 'etcd2'
         protocol: 'TCP'
         source: 2380
         target: 2380
@@ -526,7 +522,7 @@ roles:
     memory: 1024
     virtual-cpus: 4
     exposed-ports:
-      - name: 'auctioneer'
+      - name: 'diego-brain'
         protocol: 'TCP'
         source: 9016
         target: 9016
@@ -562,7 +558,7 @@ roles:
     memory: 1024
     virtual-cpus: 4
     exposed-ports:
-      - name: 'file-server'
+      - name: 'diego-cc-bridge'
         protocol: 'TCP'
         source: 9090
         target: 9090
@@ -613,11 +609,11 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'ssh'
+      - name: 'diego-access'
         protocol: 'TCP'
         source: 2222
         target: 2222
-        public: false
+        public: true
 - name: diego-cell
   scripts:
   - fix_consul_address_lookup.sh
@@ -676,6 +672,7 @@ roles:
     exposed-ports: []
 - name: post_deployment_setup
   type: bosh-task
+  dev-only: true
   jobs:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
@@ -689,6 +686,7 @@ roles:
     exposed-ports: []
 - name: windows-dns
   type: docker
+  dev-only: true
   run:
     capabilities: []
     persistent-volumes: []
@@ -696,7 +694,7 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'dns'
+      - name: 'windows-dns'
         protocol: 'UDP'
         source: 53
         target: 8600
@@ -704,29 +702,29 @@ roles:
 configuration:
   variables:
   - name: API_HOST
-    default: "api.hcf"
+    default: "api"
   - name: DIEGO_DATABASE_HOST
-    default: "diego-database.hcf"
+    default: "diego-database"
   - name: DIEGO_ACCESS_HOST
-    default: "diego-access.hcf"
+    default: "diego-access"
   - name: DIEGO_CC_BRIDGE_HOST
-    default: "diego-cc-bridge.hcf"
+    default: "diego-cc-bridge"
   - name: DIEGO_BRAIN_HOST
-    default: "diego-brain.hcf"
+    default: "diego-brain"
   - name: NATS_HOST
-    default: "nats.hcf"
+    default: "nats"
   - name: MYSQL_PROXY_HOST
-    default: "mysql-proxy.hcf"
+    default: "mysql-proxy"
   - name: MYSQL_HOST
-    default: "mysql.hcf"
+    default: "mysql"
   - name: ETCD_HOST
-    default: "etcd.hcf"
+    default: "etcd"
   - name: CONSUL_HOST
-    default: "consul.hcf"
+    default: "consul"
   - name: ROUTER_HOST
-    default: "router.hcf"
+    default: "router"
   - name: LOGGREGATOR_HOST
-    default: "loggregator.hcf"
+    default: "loggregator"
   - name: PUBLIC_IP
     default: "192.168.77.77"
   - name: BULK_API_PASSWORD
