@@ -8,6 +8,12 @@ UBUNTU_IMAGE ?= ubuntu:14.04
 
 include version.mk
 
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+COMMIT := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
+APP_VERSION := ${VERSION}+${COMMIT}.${BRANCH}
+APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
+
+# CI configuration. Empty strings not allowed, except for the registry.
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
 IMAGE_REGISTRY :=
@@ -16,11 +22,6 @@ IMAGE_REGISTRY :=
 # Examples:
 # - localhost:5000/
 # - docker.helion.lol/
-
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-COMMIT := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
-APP_VERSION := ${VERSION}+${COMMIT}.${BRANCH}
-APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
 export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks
@@ -168,21 +169,23 @@ build: images
 tag:
 	$(call print_status, Tagging docker images)
 	set -e ; \
+	org=${IMAGE_ORG} ; pfx=${IMAGE_PREFIX} ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 publish:
 	$(call print_status, Publishing docker images)
 	set -e ; \
+	org=${IMAGE_ORG} ; pfx=${IMAGE_PREFIX} ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker push ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker push ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
