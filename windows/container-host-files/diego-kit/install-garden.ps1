@@ -42,15 +42,47 @@ Install-WindowsFeature  Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Fr
 Install-WindowsFeature  Web-Net-Ext, Web-AppInit # Extra features for the cf-iis8-buildpack
 
 
+## Enable disk quota
+
+echo "Enableing disk quota"
+fsutil quota enforce C:
+
+
+## Configure firewall
+
+echo "Configuring Windows Firewall"
+
+# Snippet source: https://github.com/cloudfoundry/garden-windows-release/blob/master/scripts/setup.ps1#L134
+$admins = New-Object System.Security.Principal.NTAccount("Administrators")
+$adminsSid = $admins.Translate([System.Security.Principal.SecurityIdentifier])
+
+$LocalUser = "D:(A;;CC;;;$adminsSid)"
+$otherAdmins = Get-WmiObject win32_groupuser |
+  Where-Object { $_.GroupComponent -match 'Administrators' } |
+  ForEach-Object { [wmi]$_.PartComponent }
+
+foreach($admin in $otherAdmins)
+{
+  $ntAccount = New-Object System.Security.Principal.NTAccount($admin.Name)
+  $sid = $ntAccount.Translate([System.Security.Principal.SecurityIdentifier]).Value
+  $LocalUser = $LocalUser + "(A;;CC;;;$sid)"
+}
+
+Remove-NetFirewallRule -Name CFAllowAdmins -ErrorAction Ignore
+New-NetFirewallRule -Name CFAllowAdmins -DisplayName "Allow admins" `
+  -Description "Allow admin users" -RemotePort Any `
+  -LocalPort Any -LocalAddress Any -RemoteAddress Any `
+  -Enabled True -Profile Any -Action Allow -Direction Outbound `
+  -LocalUser $LocalUser
+
+Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction Block -Enabled True
+
+
 ## Download installers
 
 $gardenVersion = "v0.116"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
-
-echo "Downloading GardenWindows setup.ps1 $gardenVersion"
-curl  -UseBasicParsing -Verbose  -OutFile $wd\setup.ps1  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/setup.ps1
-
 
 ## Prepare configs
 
@@ -81,9 +113,6 @@ echo "msiexec /passive /norestart /i $wd\GardenWindows.msi ^
 
 
 ## Install the msi
-
-echo "Running GardenWindows setup.ps1"
-powershell -NonInteractive $wd\setup.ps1
 
 echo "Installing GardenWindows"
 cmd /c "$wd\install-garden.bat"

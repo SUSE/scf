@@ -24,6 +24,14 @@ $currentDNS = ((Get-DnsClientServerAddress -InterfaceAlias $diegoInterface.Inter
 Set-DnsClientServerAddress -InterfaceAlias $diegoInterface.InterfaceAlias -ServerAddresses (($hcfServiceDiscoveryDns + $currentDNS) -join ",")
 
 
+## Disable negative DNS client cache
+
+New-Item 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters' -Force | `
+  New-ItemProperty -Name MaxNegativeCacheTtl -PropertyType "DWord" -Value 1 -Force
+
+Clear-DnsClientCache
+
+
 ## Make sure the IP is static (only necessary for vagrant + vmware)
 
 $ipaddr = $diegoInterface.IPAddress
