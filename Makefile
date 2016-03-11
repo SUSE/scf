@@ -23,6 +23,10 @@ IMAGE_REGISTRY :=
 # - localhost:5000/
 # - docker.helion.lol/
 
+# Redefine the CI configuration variables, validation
+IMAGE_ORG    := $(if ${IMAGE_ORG},${IMAGE_ORG},$(error Need a non-empty IMAGE_ORG))
+IMAGE_PREFIX := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-empty IMAGE_PREFIX))
+
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
 export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks
 export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml
@@ -169,23 +173,21 @@ build: images
 tag:
 	$(call print_status, Tagging docker images)
 	set -e ; \
-	org=${IMAGE_ORG} ; pfx=${IMAGE_PREFIX} ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 publish:
 	$(call print_status, Publishing docker images)
 	set -e ; \
-	org=${IMAGE_ORG} ; pfx=${IMAGE_PREFIX} ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
-	        docker push ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker push ${IMAGE_REGISTRY}$${org:?need IMAGE_ORG}/$${pfx:?need IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
