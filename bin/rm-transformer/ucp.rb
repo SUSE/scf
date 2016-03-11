@@ -5,6 +5,14 @@ class ToUCP
   def initialize(options, remainder)
     raise 'UCP conversion does not accept add-on files' if remainder and not remainder.empty?
     @options = options
+    # Get options, set defaults for missing parts
+    @dtr         = @options[:dtr] || 'docker.helion.lol'
+    @dtr_org     = @options[:dtr_org] || 'helioncf'
+    @hcf_version = @options[:hcf_version] || 'develop'
+
+    if @dtr.length > 0
+      @dtr = "#{@dtr}/"
+    end
   end
 
   # Public API
@@ -144,7 +152,7 @@ class ToUCP
   end
   def add_component(roles, fs, comps, role, retrycount = 0)
     rname = role['name']
-    iname = rname # TODO: construct proper image name
+    iname = "#{@dtr}#{@dtr_org}/hcf-#{rname}:#{@hcf_version}"
 
     runtime = role['run']
 
@@ -166,7 +174,7 @@ class ToUCP
       'service_ports' => [],	# Fill from role runtime config, see below
       'volume_mounts' => [],	# Ditto
       'parameters'    => [],	# Fill from role configuration, see below
-      'external_name' => "HCF Role '#{rname}'"
+      'external_name' => "HCF Role '#{rname}'",
       'workload_type' => 'container'
     }
 

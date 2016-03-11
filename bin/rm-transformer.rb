@@ -17,6 +17,11 @@ def main
   # --provider <name> ~ Choose the output format.
   #                     Known: ucp, tf
   #                     Default: ucp
+  # --dtr             ~ Location of trusted docker registry     (Default: empty)
+  # --dtr-org         ~ Org to use for images stored to the DTR (Default: helioncf)
+  # --hcf-version     ~ And tag to use for the same             (Default: develop)
+  #                     Used to construct the image names to look for.
+  #
   # ?...?               Additional files, format-dependent
   ##
   # The generated definitions are written to stdout
@@ -25,14 +30,26 @@ def main
   provider = 'ucp'
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--provider ucp|tf|terraform] role-manifest|- ?...?
+    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] role-manifest|- ?...?
 
         Read the role-manifest from the specified file, or stdin (-),
         then transform according to the chosen provider (Default: ucp)
         The result is written to stdout.
 
+        --dtr         - a docker trusted registry to use for image source (Default: docker.helion.lol)
+        --dtr-org     - a docker trusted registry organization used for image source (Default: helioncf)
+        --hcf-version - the version of hcf to use as an image source (Default: develop)
 '
 
+    opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
+      $options[:dtr] = v
+    end
+    opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
+      $options[:dtr_org] = v
+    end
+    opts.on('-H', '--hcf-version text', 'Label to use in docker images') do |v|
+      $options[:hcf_version] = v
+    end
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
       $options[:dev] = v
     end
