@@ -9,6 +9,7 @@ class ToUCP
     @dtr         = @options[:dtr] || 'docker.helion.lol'
     @dtr_org     = @options[:dtr_org] || 'helioncf'
     @hcf_version = @options[:hcf_version] || 'develop'
+    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
 
     if @dtr.length > 0
       @dtr = "#{@dtr}/"
@@ -152,7 +153,7 @@ class ToUCP
   end
   def add_component(roles, fs, comps, role, retrycount = 0)
     rname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/hcf-#{rname}:#{@hcf_version}"
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
 
     runtime = role['run']
 

@@ -20,6 +20,7 @@ def main
   # --dtr             ~ Location of trusted docker registry     (Default: empty)
   # --dtr-org         ~ Org to use for images stored to the DTR (Default: helioncf)
   # --hcf-version     ~ And tag to use for the same             (Default: develop)
+  # --hcf-prefix      ~ The prefix used during image generation (Default: hcf)
   #                     Used to construct the image names to look for.
   #
   # ?...?               Additional files, format-dependent
@@ -39,6 +40,7 @@ def main
         --dtr         - a docker trusted registry to use for image source (Default: docker.helion.lol)
         --dtr-org     - a docker trusted registry organization used for image source (Default: helioncf)
         --hcf-version - the version of hcf to use as an image source (Default: develop)
+        --hcf-prefix  - the prefix used during image generation (Default: hcf)
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
@@ -49,6 +51,9 @@ def main
     end
     opts.on('-H', '--hcf-version text', 'Label to use in docker images') do |v|
       $options[:hcf_version] = v
+    end
+    opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
+      $options[:hcf_prefix] = v
     end
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
       $options[:dev] = v

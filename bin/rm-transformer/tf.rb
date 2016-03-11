@@ -9,6 +9,7 @@ class ToTerraform
     @dtr         = @options[:dtr] || 'docker.helion.lol'
     @dtr_org     = @options[:dtr_org] || 'helioncf'
     @hcf_version = @options[:hcf_version] || 'develop'
+    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
 
     @out       = ['# © Copyright 2015 Hewlett Packard Enterprise Development LP', '']
     @indent    = ['']
@@ -34,7 +35,7 @@ class ToTerraform
     emit <<API
 variable "hcf_image_prefix" {
     description = "The prefix to use before the role name to construct the full image name"
-    default = "hcf-"
+    default = "#{@hcf_prefix}-"
 }
 
 variable "hcf_version" {
