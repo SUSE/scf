@@ -123,9 +123,9 @@ roles:
       # and call update-ca-certificates at container startup
       properties.proxy.api_force_https: 'false'
       properties.skip_ssl_validation: 'true'
+      properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: etcd
@@ -198,7 +198,6 @@ roles:
         public: true
 - name: router
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: gorouter
@@ -255,7 +254,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  - fix_consul_address_lookup.sh
   - fix_cc_internal_service_hostname.sh
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
@@ -526,7 +524,6 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: stager
@@ -581,7 +578,6 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: ssh_proxy
@@ -845,6 +841,8 @@ configuration:
     default: batch_username
   - name: UAA_CC_CLIENT_SECRET
     default: cc_client_secret
+  - name: UAA_CC_ROUTING_SECRET
+    default: cc_routing_secret
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     default: app_direct_secret
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
@@ -939,8 +937,9 @@ configuration:
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"}, {"name": "windows2012R2", "description": "Windows Server 2012 R2"}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
-    properties.uaadb.roles: '[{"name": "uaaadmin", "password": "uaaadmin_password", "tag": "admin"}]'
+    properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
+    properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -958,7 +957,7 @@ configuration:
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
-    properties.uaa.clients.cc-routing.secret: cc_routing_secret
+    properties.uaa.clients.cc-routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc-routing.authorities: '"routing.router_groups.read"'
     properties.uaa.clients.cc-routing.authorized-grant-types: client_credentials
     properties.uaa.clients.cc-service-dashboards.authorities: '"clients.read,clients.write,clients.admin"'

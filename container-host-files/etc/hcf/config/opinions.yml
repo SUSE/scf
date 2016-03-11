@@ -305,6 +305,7 @@ properties:
     cluster:
     - instances: 1
       name: database_z1
+    dns_health_check_host: consul.hcf
     peer_require_ssl: true
     require_ssl: true
     server_cert: null
@@ -385,7 +386,7 @@ properties:
   request_timeout_in_seconds: 900
   router:
     tweak_proc_sys: false
-    cipher_suites: TLS_RSA_WITH_RC4_128_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
+    cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
