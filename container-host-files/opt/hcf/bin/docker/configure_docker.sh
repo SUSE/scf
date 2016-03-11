@@ -48,9 +48,3 @@ echo DOCKER_OPTS=\"$dopts\" | sudo tee -a /etc/default/docker
 # Activate the now-configured system
 
 service docker start
-
-# Download images - Where does IMAGE_TO_PULL come from ?
-
-if [ -n "${IMAGE_TO_PULL}" ]; then
-    docker pull ${IMAGE_TO_PULL}
-fi
