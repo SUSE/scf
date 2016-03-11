@@ -42,14 +42,16 @@ function kill_role {
 }
 
 # Starts an hcf role
-# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <ENV_VARS_FILE> <CERTS_VARS_FILE>
+# start_role <IMAGE_NAME> <CONTAINER_NAME> <ROLE_NAME> <ENV_FILE_DIR> <EXTRA>...
 function start_role {
   local image=$1
   local name=$2
   local role=$3
-  local env_vars_file=$4
-  local certs_vars_file=$5
+  local env_file_dir=$4
   local extra="$(setup_role $role)"
+  local env_files="$(collect_env "$env_file_dir")"
+  shift 4
+  local user_extra="$@"
 
   mkdir -p $log_dir/$role
 
@@ -57,11 +59,26 @@ function start_role {
     --net=hcf \
     --label=hcf_role=$role \
     --hostname=${role}.hcf \
-    --env-file=${env_vars_file} \
-    --env-file=${certs_vars_file} \
+    $env_files \
     -v $log_dir/$role:/var/vcap/sys/log \
     $extra \
+    $user_extra \
     $image > /dev/null
+}
+
+# Collect the .env files to use by docker run to initialize the
+# container environment. Only files matching *.env are used.
+# collect_env <PATH_TO_ENV_FILES>
+function collect_env() {
+    env_path="$(readlink -f "$1")"
+    options=""
+
+    for e in $(ls 2>/dev/null "$env_path"/*.env)
+    do
+	options="$options --env-file=${e}"
+    done
+
+    echo $options
 }
 
 # Perform role-specific setup. Return extra arguments needed to start
@@ -129,20 +146,36 @@ function get_container_name() {
 # get_image_name <ROLE_NAME>
 function get_image_name() {
   local role=$1
-  docker inspect --format "{{index .RepoTags 0}}" $(docker images -q --filter "label=role=${role}" | head -n 1)
+  local imageid=$(docker images -q --filter "label=role=${role}" | head -n 1)
+
+  if [ "X$imageid" = X ] ; then
+      echo ""
+      return
+  fi
+  docker inspect --format "{{index .RepoTags 0}}" $imageid
 }
 
-# checks if the appropriate version of a role is running
-# if it isn't, the currently running role is killed, and
-# the correct image is started;
-# uses fissile to determine what are the correct images to run
-# handle_restart <ROLE_NAME> <CERTS_VARS_FILE> <ENV_VARS_FILE>
+# checks if the appropriate version of a role is running if it isn't,
+# the currently running role is killed, and the correct image is
+# started; uses fissile to determine what are the correct images to
+# run. The optional extras are user-specified arguments, to enter
+# environment-specific settings, see run-role.sh.
+#
+# handle_restart <ROLE_NAME> <ENV_FILE_DIR> <EXTRA>...
 function handle_restart() {
   local role="$1"
-  local env_vars_file="$2"
-  local certs_vars_file="$3"
+  local env_file_dir="$2"
+  shift 2
+  local extras="$@"
+  # The extras are handed down to the 'docker run' command in start_role
 
   local image=$(get_image_name $role)
+
+  if [ "X$image" = "X" ] ; then
+      echo 1>&2 "Unknown role $role, no image found"
+      return 1
+  fi
+
   local container_name=$(get_container_name $image)
 
   if container_running $container_name $image ; then
@@ -151,7 +184,7 @@ function handle_restart() {
   else
     echo "Restarting ${role} ..."
     kill_role $role
-    start_role $image $container_name $role $env_vars_file $certs_vars_file
+    start_role $image $container_name $role $env_file_dir $extras
     return 0
   fi
 }

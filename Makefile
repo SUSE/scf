@@ -192,3 +192,15 @@ terraform:
 	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf
 
 	tar -chzvf ${FISSILE_WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${FISSILE_WORK_DIR} hcf
+
+generate: rm2ucp rm2mpc
+
+rm2ucp:
+	./bin/rm-transformer.rb --provider ucp \
+		${FISSILE_ROLES_MANIFEST} \
+		> ${CURDIR}/ucp.json
+
+rm2mpc:
+	./bin/rm-transformer.rb --provider tf \
+		${FISSILE_ROLES_MANIFEST} ${CURDIR}/terraform/mpc.tf \
+		> ${CURDIR}/hcf.tf
