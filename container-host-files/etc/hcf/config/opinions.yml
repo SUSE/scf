@@ -64,23 +64,24 @@ properties:
     external_protocol: http
     install_buildpacks:
     - name: staticfile_buildpack
-      package: buildpack_staticfile
+      package: staticfile-buildpack
     - name: java_buildpack
       package: buildpack_java
     - name: ruby_buildpack
-      package: buildpack_ruby
+      package: ruby-buildpack
     - name: nodejs_buildpack
-      package: buildpack_nodejs
+      package: nodejs-buildpack
     - name: go_buildpack
-      package: buildpack_go
+      package: go-buildpack
     - name: python_buildpack
-      package: buildpack_python
+      package: python-buildpack
     - name: php_buildpack
-      package: buildpack_php
+      package: php-buildpack
     - name: binary_buildpack
-      package: buildpack_binary
+      package: binary-buildpack
     internal_api_password: password
     internal_api_user: internal_user
+    internal_service_hostname: api.hcf
     jobs:
       app_bits_packer:
         timeout_in_seconds: null
@@ -277,6 +278,10 @@ properties:
     stager:
       bbs:
         require_ssl: true
+      cc:
+        internal_service_hostname: api.hcf
+      cc_uploader_url: http://diego-cc-bridge.hcf:9090
+      file_server_url: http://diego-access.hcf:8080
       tweak_proc_sys: false
     tps:
       bbs:

@@ -270,6 +270,20 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  - name: go-buildpack
+    release_name: cf
+  - name: binary-buildpack
+    release_name: cf
+  - name: nodejs-buildpack
+    release_name: cf
+  - name: ruby-buildpack
+    release_name: cf
+  - name: php-buildpack
+    release_name: cf
+  - name: python-buildpack
+    release_name: cf
+  - name: staticfile-buildpack
+    release_name: cf
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
