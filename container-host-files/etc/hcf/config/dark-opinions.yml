@@ -33,38 +33,6 @@ properties:
     status:
       user: router_user
       password: router_password
-  uaa:
-    admin:
-      client_secret: admin_secret
-    batch:
-      username: batch_username
-      password: batch_password
-    cc:
-      client_secret: cc_client_secret
-    clients:
-      app-direct:
-        secret: app-direct_secret
-      cf-usb:
-        secret: cf-usb_secret
-      developer_console:
-        secret: developer_console_secret
-      notifications:
-        secret: notification_secret
-      login:
-        secret: login_client_secret
-      doppler:
-        secret: doppler_secret
-      cloud_controller_username_lookup:
-        secret: cloud_controller_username_lookup_secret
-      gorouter:
-        secret: gorouter_secret
-      ssh-proxy:
-        secret: ssh-proxy_secret
-    jwt:
-      verification_key: vk
-      signing_key: sk
-    scim:
-      users: []
   uaadb:
     roles:
     - name: uaaadmin

@@ -699,6 +699,64 @@ roles:
         source: 53
         target: 8600
         public: true
+- name: mongodb-manager
+  type: docker
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
+- name: mysql-manager
+  type: docker
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
+- name: postgres-manager
+  type: docker
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
+- name: rabbitmq-manager
+  type: docker
+  run:
+    capabilities: ['ALL']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
+- name: redis-manager
+  type: docker
+  run:
+    capabilities: ['ALL']
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
+- name: usb_create_services
+  type: bosh-task
+  jobs:
+  - name: usb-create-services
+    release_name: hcf-deployment-hooks
+  processes: []
+  run:
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
 configuration:
   variables:
   - name: API_HOST

@@ -16,3 +16,6 @@
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
 	url = https://github.com/hpcloud/cf-mysql-release.git
+[submodule "src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb"]
+	path = src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb
+	url = git@github.com:hpcloud/cf-plugin-usb.git
