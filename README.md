@@ -31,7 +31,9 @@ This is the repository that integrates all HCF components.
 		- [What if I'm coding for an upstream PR?](#what-if-im-coding-for-an-upstream-pr)
 		- [What is the difference between a BOSH role and a Docker role?](#what-is-the-difference-between-a-bosh-role-and-a-docker-role)
 		- [How can I add a Docker role to HCF?](#how-can-i-add-a-docker-role-to-hcf)
+	- [How do I publish the HCF and bosh images](#how-do-i-publish-the-hcf-and-bosh-images)
 	- [Generating UCP service definitions](#generating-ucp-service-definitions)
+	- [Generating Terraform MPC service definitions](#generating-terraform-mpc-service-definitions)
 	- [Build dependencies](#build-dependencies)
 
 <!-- /TOC -->
@@ -61,11 +63,11 @@ vagrant up --provider virtualbox
 1. Run HCF in the vagrant box
  ```
  vagrant ssh
- 
+
  cd ~/hcf
- 
+
  make vagrant-prep # only after you first create the VM
- 
+
  make run
  ```
 
@@ -213,8 +215,8 @@ name				| effect |
 
 ### Fissile Build Targets
 
-name			| effect |
---------------- | ---- |
+name			| effect | notes |
+--------------- | ---- | --- |
 `build`			| `make` + `make images` |
 `compile-base`	| `fissile compilation build-base` |
 `compile`		| `fissile dev compile` |
@@ -224,8 +226,9 @@ name			| effect |
 `docker-images`	| `docker build` in each dir in `./docker-images` |
 `tag`			| Tag HCF images + bosh role images |
 `publish`		| Publish HCF images + bosh role images to docker hub |
-`terraform`		| Make `hcf-*.tar.gz` for distribution |
-
+`ucp`		| Generate UCP service definitions |
+`mpc`		| Generate terraform MPC definitions for 1-node u-cloud |
+`terraform`		| Make `hcf-*.tar.gz` for distribution | __outdated__ |
 
 ## Development FAQ
 
@@ -461,20 +464,60 @@ name			| effect |
   4. Add your role in `role-manifest.yml`
   5. Test: `make docker-images run`
 
+## How do I publish the HCF and bosh images
+
+Assuming that the vagrant box for CF is running simply log into it with ssh and then run
+
+```
+make tag publish
+```
+
+This tags the images into the chosen registry and then pushes them to the same.
+
+This target uses the make variables listed below to construct the image names and tags.
+
+|Variable	|Meaning|Default|
+| ---		| ---	| ---	|
+|IMAGE_REGISTRY	| Name of trusted registry to publish to. __Including trailing slash__	| _empty_|
+|IMAGE_PREFIX	| Prefix to use for image names. Must not be empty	|hcf|
+|IMAGE_ORG	| Organization in the registry for the images		|helioncf|
+|BRANCH		| Tag to use for the images | _Current git branch_ |
+
+To publish to the standard trusted registry for example run the command
+
+```
+make tag publish IMAGE_REGISTRY=docker.helion.lol/
+```
+
 ## Generating UCP service definitions
 
 Assuming that the vagrant box for CF is running simply log into it with ssh and then run
 
 ```
-docker run -it --rm \
-  -v /home/vagrant/hcf:/home/vagrant/hcf \
-  helioncf/hcf-pipeline-ruby-bosh \
-  bash -l -c \
-  "rbenv global 2.2.3 && /home/vagrant/hcf/bin/rm2ucp.rb /home/vagrant/hcf/container-host-files/etc/hcf/config/role-manifest.yml /home/vagrant/hcf/hcf-ucp.json"
+make ucp
 ```
 
 This generates the `hcf-ucp.json` file containing the UCP service
 definition for the current set of roles.
+
+__Note__, this target takes the same make variables as the __tag__ and
+__publish__ targets explained in the previous section.
+
+
+## Generating Terraform MPC service definitions
+
+Assuming that the vagrant box for CF is running simply log into it with ssh and then run
+
+```
+make mpc
+```
+
+This generates the `hcf.tf` file containing the Terraform definitions
+for an MPC-based single-node u-cloud.
+
+__Note__, this target takes the same make variables as the __tag__ and
+__publish__ targets explained in the twice-previous section.
+
 
 ## Build dependencies
 

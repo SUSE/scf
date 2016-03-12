@@ -253,4 +253,27 @@ if [ -d "$job_dir" ]; then
 PATCH
 fi
 
+# *********************************************
+# cloud_controller_ng fix
+# *********************************************
+job_dir="/var/vcap/jobs-src/cloud_controller_ng/templates/"
+if [ -d "$job_dir" ]; then
+  cd $job_dir
+
+  patch -t <<"PATCH"
+--- cloud_controller_api_ctl.erb
++++ cloud_controller_api_ctl.erb
+@@ -83,7 +83,9 @@ case $1 in
+     # Configure the core file location
+     mkdir -p /var/vcap/sys/cores
+     chown vcap:vcap /var/vcap/sys/cores
++    <% if p("cc.tweak_proc_sys") %>
+     echo /var/vcap/sys/cores/core-%e-%s-%p-%t > /proc/sys/kernel/core_pattern
++    <% end %>
+
+     ulimit -c unlimited
+PATCH
+fi
+
+
 exit 0

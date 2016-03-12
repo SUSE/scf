@@ -13,3 +13,4 @@ password
 .vagrant
 *.box
 *.vmdk
+hcf-ucp.json
