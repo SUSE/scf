@@ -1,0 +1,7 @@
+---
+name: cf-plugin-usb
+
+files:
+  - github.com/hpcloud/cf-plugin-usb/**/*
+dependencies:
+  - golang1.4

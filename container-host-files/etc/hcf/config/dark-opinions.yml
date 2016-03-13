@@ -64,7 +64,7 @@ properties:
       verification_key: vk
       signing_key: sk
     scim:
-      users: []
+      users: []      
   uaadb:
     roles:
     - name: uaaadmin

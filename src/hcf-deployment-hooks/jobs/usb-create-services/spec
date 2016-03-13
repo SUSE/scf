@@ -1,0 +1,11 @@
+---
+name: usb-create-services
+
+description: usb-create-services will create service instances for each docker service running
+
+packages:
+  - cli
+  - cf-plugin-usb
+
+templates:
+  run.erb: bin/run
