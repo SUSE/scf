@@ -1095,6 +1095,7 @@ configuration:
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
+    properties.cc.tweak_proc_sys: false
     properties.router.tweak_proc_sys: false
     properties.doppler.tweak_locked_memory: false
     properties.traffic_controller.tweak_locked_memory: false

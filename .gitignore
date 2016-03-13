@@ -14,3 +14,6 @@ password
 *.box
 *.vmdk
 hcf-ucp.json
+.demos
+hcf.tf
+src/*-clone

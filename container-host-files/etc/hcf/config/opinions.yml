@@ -5,6 +5,7 @@ properties:
   - example.com
   app_ssh: null
   cc:
+    tweak_proc_sys: false
     allow_app_ssh_access: true
     allowed_cors_domains: []
     app_events:
@@ -206,7 +207,6 @@ properties:
         client: cf-usb
         secret: cf-usb_secret
     skip_tls_validation: true
-  collector: null
   consul:
     agent:
       log_level: null
