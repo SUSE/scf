@@ -4,8 +4,13 @@
 # Provider for UCP specifications derived from a role-manifest.
 class ToUCP
   def initialize(options, remainder)
-    raise 'UCP conversion does not accept add-on files' if remainder && !remainder.empty?
+    raise 'UCP conversion does not accept add-on files' if remainder &&
+                                                           !remainder.empty?
     @options = options
+    initialize_dtr_information
+  end
+
+  def initialize_dtr_information
     # Get options, set defaults for missing parts
     @dtr         = @options[:dtr] || 'docker.helion.lol'
     @dtr_org     = @options[:dtr_org] || 'helioncf'
@@ -23,7 +28,75 @@ class ToUCP
   # Internal definitions
 
   def to_ucp(roles)
-    the_ucp = {
+    the_ucp = empty_ucp
+
+    fs = the_ucp['volumes']
+    save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
+    process_roles(roles, the_ucp, fs)
+
+    the_ucp
+    # Generated structure
+    ##
+    # the_ucp.name					/string
+    # the_ucp.version					/string
+    # the_ucp.vendor					/string
+    # the_ucp.preflight[].				(*9)
+    # the_ucp.postflight[].				(*9)
+    # the_ucp.volumes[].name				/string
+    # the_ucp.volumes[].size_gb				/int32
+    # the_ucp.volumes[].filesystem			/string (*2)
+    # the_ucp.volumes[].shared				/bool
+    # the_ucp.components[].name				/string
+    # the_ucp.components[].version			/string
+    # the_ucp.components[].vendor			/string
+    # the_ucp.components[].external_name		/string	(*6)
+    # the_ucp.components[].image			/string	(*7)
+    # the_ucp.components[].min_RAM_mb			/int32
+    # the_ucp.components[].min_disk_gb			/int32
+    # the_ucp.components[].min_VCPU			/int32
+    # the_ucp.components[].platform			/string	(*3)
+    # the_ucp.components[].capabilities[]		/string (*1)
+    # the_ucp.components[].workload_type		/string (*4)
+    # the_ucp.components[].entrypoint[]			/string (*5)
+    # the_ucp.components[].depends_on[].name		/string \(*8)
+    # the_ucp.components[].depends_on[].version		/string \
+    # the_ucp.components[].depends_on[].vendor		/string \
+    # the_ucp.components[].affinity[]			/string
+    # the_ucp.components[].labels[]			/string
+    # the_ucp.components[].min_instances		/int
+    # the_ucp.components[].max_instances		/int
+    # the_ucp.components[].service_ports[].name		/string
+    # the_ucp.components[].service_ports[].protocol	/string	('TCP', 'UDP')
+    # the_ucp.components[].service_ports[].source_port	/int32
+    # the_ucp.components[].service_ports[].target_port	/int32
+    # the_ucp.components[].service_ports[].public	/bool
+    # the_ucp.components[].volume_mounts[].volume_name	/string
+    # the_ucp.components[].volume_mounts[].mountpoint	/string
+    # the_ucp.components[].parameters[].name		/string
+    # the_ucp.components[].parameters[].description	/string, !empty
+    # the_ucp.components[].parameters[].default		/string
+    # the_ucp.components[].parameters[].example		/string, !empty
+    # the_ucp.components[].parameters[].required	/bool
+    # the_ucp.components[].parameters[].secret		/bool
+    #
+    # (*1) Too many to list here. See ucp-developer/service_models.md
+    #      for the full list. Notables:
+    #      - ALL
+    #      - NET_ADMIN
+    #      Note further, NET_RAW accepted, but not supported.
+    #
+    # (*2) ('ext4', 'xfs', 'ntfs' (platform-dependent))
+    # (*3) ('linux-x86_64', 'win2012r2-x86_64')
+    # (*4) ('container', 'vm')
+    # (*5) (cmd and parameters, each a separate entry)
+    # (*6) Human readable name of the component
+    # (*7) Container image name for component
+    # (*8) See the 1st 3 attributes of components
+    # (*9) Subset of comp below (- external_name + retry_count /int32)
+  end
+
+  def empty_ucp
+    {
       'name'       => 'hcf',    # TODO: Specify via option?
       'version'    => '0.0.0',  # s.a.
       'vendor'     => 'HPE',    # s.a.
@@ -32,83 +105,33 @@ class ToUCP
       'preflight'  => [],	# Fill from the roles, see below
       'postflight' => []	# Fill from the roles, see below
     }
+  end
 
+  def process_roles(roles, the_ucp, fs)
     comp = the_ucp['components']
     post = the_ucp['postflight']
-    fs   = the_ucp['volumes']
 
-    save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
-
-    # Phase II. Generate UCP data per-role.
     roles['roles'].each do |role|
       type = role['type'] || 'bosh'
 
-      next if type == 'docker'
+      next if type == 'docker' ||
+              (type == 'bosh-task' &&
+               role['dev-only'] &&
+               !@options[:dev])
 
-      if type == 'bosh-task'
-        # Ignore dev parts by default.
-        next if role['dev-only'] && !@options[:dev]
+      rc = choose(type, 5, 0)
+      dst = choose(type, post, comp)
 
-        add_component(roles, fs, post, role, 5)
-        # 5 == default retry count.
-        #   Option to override ?
-        #   Manifest override?
-        next
-      end
-
-      add_component(roles, fs, comp, role)
+      add_component(roles, fs, dst, role, rc)
     end
+  end
 
-    the_ucp
-    # Generated structure
-    ##
-    # the_ucp.name					/string
-    # the_ucp.version					/string
-    # the_ucp.vendor					/string
-    # the_ucp.preflight[].	subset of comp below (- external_name + retry_count /int32)
-    # the_ucp.postflight[].	Ditto
-    # the_ucp.volumes[].name				/string
-    # the_ucp.volumes[].size_gb				/int32
-    # the_ucp.volumes[].filesystem			/string ('ext4', 'xfs', 'ntfs' (platform-dependent))
-    # the_ucp.volumes[].shared				/bool
-    # the_ucp.components[].name				/string
-    # the_ucp.components[].version			/string
-    # the_ucp.components[].vendor				/string
-    # the_ucp.components[].external_name			/string	Human readable name of the component
-    # the_ucp.components[].image				/string	Container image name for component
-    # the_ucp.components[].min_RAM_mb			/int32
-    # the_ucp.components[].min_disk_gb			/int32
-    # the_ucp.components[].min_VCPU			/int32
-    # the_ucp.components[].platform			/string	('linux-x86_64', 'win2012r2-x86_64')
-    # the_ucp.components[].capabilities[]			/string (*1)
-    # the_ucp.components[].workload_type			/string ('container', 'vm')
-    # the_ucp.components[].entrypoint[]			/string (cmd and parameters, each a separate entry)
-    # the_ucp.components[].depends_on[].name		/string \See 1st 3 comp attributes
-    # the_ucp.components[].depends_on[].version		/string \
-    # the_ucp.components[].depends_on[].vendor		/string \
-    # the_ucp.components[].affinity[]			/string
-    # the_ucp.components[].labels[]			/string
-    # the_ucp.components[].min_instances			/int
-    # the_ucp.components[].max_instances			/int
-    # the_ucp.components[].service_ports[].name		/string
-    # the_ucp.components[].service_ports[].protocol	/string	('TCP', 'UDP')
-    # the_ucp.components[].service_ports[].source_port	/int32
-    # the_ucp.components[].service_ports[].target_port	/int32
-    # the_ucp.components[].service_ports[].public		/bool
-    # the_ucp.components[].volume_mounts[].volume_name	/string
-    # the_ucp.components[].volume_mounts[].mountpoint	/string
-    # the_ucp.components[].parameters[].name		/string
-    # the_ucp.components[].parameters[].description	/string, !empty
-    # the_ucp.components[].parameters[].default		/string
-    # the_ucp.components[].parameters[].example		/string, !empty
-    # the_ucp.components[].parameters[].required		/bool
-    # the_ucp.components[].parameters[].secret		/bool
-    #
-    # (*1) Too many to list here. See ucp-developer/service_models.md for the full list.
-    #      Notables:
-    #      - ALL
-    #      - NET_ADMIN
-    #      Note further, NET_RAW accepted, but not supported.
+  def choose(type, task, job)
+    if type == 'bosh-task'
+      task
+    else
+      job
+    end
   end
 
   def collect_shared_filesystems(roles)
@@ -118,20 +141,24 @@ class ToUCP
       next unless runtime && runtime['shared-volumes']
 
       runtime['shared-volumes'].each do |v|
-        vname = v['tag']
-        vsize = v['size']
-        abort_on_mismatch(shared, vname, vsize)
-        shared[vname] = vsize
+        add_shared_fs(shared, v)
       end
     end
     shared
+  end
+
+  def add_shared_fs(shared, v)
+    vname = v['tag']
+    vsize = v['size']
+    abort_on_mismatch(shared, vname, vsize)
+    shared[vname] = vsize
   end
 
   def abort_on_mismatch(shared, vname, vsize)
     if shared[vname] && vsize != shared[vname]
       # Raise error about definition mismatch
       raise 'Size mismatch for shared volume "' + vname + '": ' +
-        vsize + ', previously ' + shared[vname]
+            vsize + ', previously ' + shared[vname]
     end
   end
 
@@ -163,7 +190,7 @@ class ToUCP
       'vendor'        => 'HPE',	  # See also toplevel vendor
       'image'         => iname,
       'min_RAM_mb'    => runtime['memory'],
-      'min_disk_gb'   => 1,	  		# Out of thin air
+      'min_disk_gb'   => 1, 	# Out of thin air
       'min_VCPU'      => runtime['virtual-cpus'],
       'platform'      => 'linux-x86_64',
       'capabilities'  => runtime['capabilities'],
@@ -182,8 +209,11 @@ class ToUCP
     the_comp['retry_count'] = retrycount if retrycount > 0
 
     # Record persistent and shared volumes, ports
-    add_volumes(fs, the_comp, runtime['persistent-volumes'], false) if runtime['persistent-volumes']
-    add_volumes(fs, the_comp, runtime['shared-volumes'], true) if runtime['shared-volumes']
+    pv = runtime['persistent-volumes']
+    sv = runtime['shared-volumes']
+
+    add_volumes(fs, the_comp, pv, false) if pv
+    add_volumes(fs, the_comp, sv, true) if sv
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
@@ -213,7 +243,6 @@ class ToUCP
   end
 
   def convert_volume(fs, v, serial, shared_fs)
-    vmount = v['path']
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
@@ -223,10 +252,14 @@ class ToUCP
       add_filesystem(fs, vname, vsize, false)
     end
 
-    [serial, {
-       'volume_name' => vname,
-       'mountpoint'  => vmount
-    }]
+    [serial, a_volume_spec(vname, v['path'])]
+  end
+
+  def a_volume_spec(name, path)
+    {
+      'volume_name' => name,
+      'mountpoint'  => path
+    }
   end
 
   def add_ports(component, ports)
