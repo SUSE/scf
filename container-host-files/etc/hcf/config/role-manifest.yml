@@ -25,6 +25,8 @@ roles:
         target: 4222
         public: false
 - name: consul
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -127,6 +129,9 @@ roles:
 - name: diego-database
   scripts:
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
+  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
+  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -162,6 +167,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -199,6 +206,7 @@ roles:
 - name: router
   scripts:
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -223,6 +231,8 @@ roles:
         target: 80
         public: false
 - name: uaa
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -254,9 +264,11 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  - fix_cc_internal_service_hostname.sh
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
+  # cc_internal_hostname fixed in cloud_controller_ng.git#8f9f27ae
+  - fix_cc_internal_service_hostname.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -309,6 +321,8 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"]'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -331,6 +345,8 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: clock-global
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -350,6 +366,8 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -422,6 +440,9 @@ roles:
         target: 3457
         public: false
 - name: etcd
+  scripts:
+  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
+  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -496,6 +517,8 @@ roles:
         target: 8080
         public: false
 - name: diego-brain
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -525,6 +548,7 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: stager
     release_name: diego
@@ -558,6 +582,8 @@ roles:
         target: 9090
         public: false
 - name: diego-route-emitter
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -579,6 +605,7 @@ roles:
 - name: diego-access
   scripts:
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -610,6 +637,9 @@ roles:
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
+  post_config_scripts:
+  - diego-cell-pre-start.sh
   jobs:
   - name: rep
     release_name: diego
@@ -622,7 +652,6 @@ roles:
   - name: metron_agent
     release_name: cf
   processes:
-  - name: rootfses
   - name: metron_agent
   - name: consul_agent
   - name: rep
