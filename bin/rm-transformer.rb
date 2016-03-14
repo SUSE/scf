@@ -3,7 +3,7 @@
 ## ### ##### ########
 # Tool to convert role-manifest.yml into various other forms
 # - UCP definitions
-# - (MPC) Terraform definitions   [MPC for now, TODO: Read and merge fixed parts from support file]
+# - (MPC) Terraform definitions
 # ... more
 
 require 'optparse'
@@ -17,10 +17,14 @@ def main
   # --provider <name> ~ Choose the output format.
   #                     Known: ucp, tf
   #                     Default: ucp
-  # --dtr             ~ Location of trusted docker registry     (Default: empty)
-  # --dtr-org         ~ Org to use for images stored to the DTR (Default: helioncf)
-  # --hcf-version     ~ And tag to use for the same             (Default: develop)
-  # --hcf-prefix      ~ The prefix used during image generation (Default: hcf)
+  # --dtr             ~ Location of trusted docker registry
+  #                     (Default: empty)
+  # --dtr-org         ~ Org to use for images stored to the DTR
+  #                     (Default: helioncf)
+  # --hcf-version     ~ And tag to use for the same
+  #                     (Default: develop)
+  # --hcf-prefix      ~ The prefix used during image generation
+  #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   #
   # ?...?               Additional files, format-dependent
@@ -59,13 +63,11 @@ def main
       $options[:dev] = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
-      if v == 'ucp'
-        provider = v
-      elsif v == 'tf' || v == 'terraform'
-        provider = 'tf'
-      else
-        provider = nil
-      end
+      provider = if v == 'ucp'
+                   v
+                 elsif v == 'tf' || v == 'terraform'
+                   'tf'
+                 end
     end
   end
   op.parse!
@@ -77,19 +79,22 @@ def main
 
   origin = ARGV[0]
 
-  # Convert provider name to package and class
-  if provider == 'ucp'
-    require_relative 'rm-transformer/ucp'
-    provider = ToUCP
-  elsif provider == 'tf'
-    require_relative 'rm-transformer/tf'
-    provider = ToTerraform
-  end
-
   the_roles = get_roles(origin)
-  the_result = provider.new($options, ARGV[1, ARGV.size]).transform(the_roles)
+  provider = get_provider(provider).new($options, ARGV[1, ARGV.size])
+  the_result = provider.transform(the_roles)
 
   $stdout.puts(the_result)
+end
+
+def get_provider(name)
+  # Convert provider name to package and class
+  if name == 'ucp'
+    require_relative 'rm-transformer/ucp'
+    ToUCP
+  elsif name == 'tf'
+    require_relative 'rm-transformer/tf'
+    ToTerraform
+  end
 end
 
 def get_roles(path)

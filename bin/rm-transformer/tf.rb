@@ -2,9 +2,11 @@
 ## Terraform output provider
 # # ## ### ##### ########
 
+# Provider for terraform declarations derived from a role-manifest.
+# Takes additional files containing the execution context.
 class ToTerraform
   def initialize(options, remainder)
-    @options   = options
+    @options = options
     # Get options, set defaults for missing parts
     @dtr         = @options[:dtr] || 'docker.helion.lol'
     @dtr_org     = @options[:dtr_org] || 'helioncf'
@@ -80,7 +82,7 @@ API
   end
 
   def indent
-    @indent.push(@indent.last + ' '*4)
+    @indent.push(@indent.last + ' ' * 4)
     yield
     @indent.pop
   end
@@ -196,8 +198,8 @@ API
       emit_variable(name, value)
     end
 
-    puts "PUBLIC_IP is missing from input role-manifest" unless have_pip
-    puts "DOMAIN is missing from input role-manifest" unless have_domain
+    puts 'PUBLIC_IP is missing from input role-manifest' unless have_pip
+    puts 'DOMAIN is missing from input role-manifest' unless have_domain
   end
 
   def emit_loader(roles)

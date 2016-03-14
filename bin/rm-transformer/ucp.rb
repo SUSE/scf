@@ -1,9 +1,10 @@
 ## UCP output provider
 # # ## ### ##### ########
 
+# Provider for UCP specifications derived from a role-manifest.
 class ToUCP
   def initialize(options, remainder)
-    raise 'UCP conversion does not accept add-on files' if remainder and not remainder.empty?
+    raise 'UCP conversion does not accept add-on files' if remainder && !remainder.empty?
     @options = options
     # Get options, set defaults for missing parts
     @dtr         = @options[:dtr] || 'docker.helion.lol'
@@ -11,9 +12,7 @@ class ToUCP
     @hcf_version = @options[:hcf_version] || 'develop'
     @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
 
-    if @dtr.length > 0
-      @dtr = "#{@dtr}/"
-    end
+    @dtr = "#{@dtr}/" unless @dtr.empty?
   end
 
   # Public API
@@ -151,6 +150,7 @@ class ToUCP
     }
     fs.push(the_fs)
   end
+
   def add_component(roles, fs, comps, role, retrycount = 0)
     rname = role['name']
     iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
@@ -179,9 +179,7 @@ class ToUCP
       'workload_type' => 'container'
     }
 
-    if retrycount > 0
-      the_comp['retry_count'] = retrycount
-    end
+    the_comp['retry_count'] = retrycount if retrycount > 0
 
     # Record persistent and shared volumes, ports
     add_volumes(fs, the_comp, runtime['persistent-volumes'], false) if runtime['persistent-volumes']
@@ -209,15 +207,15 @@ class ToUCP
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, component, shared_fs)
+      serial, the_vol = convert_volume(fs, v, serial, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, component, shared_fs)
+  def convert_volume(fs, v, serial, shared_fs)
     vmount = v['path']
     vname = v['tag']
-    if not shared_fs
+    if !shared_fs
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
@@ -227,8 +225,8 @@ class ToUCP
 
     [serial, {
        'volume_name' => vname,
-       'mountpoint' => vmount
-     }]
+       'mountpoint'  => vmount
+    }]
   end
 
   def add_ports(component, ports)
