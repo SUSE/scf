@@ -155,29 +155,29 @@ class ToTerraform < Common
   end
 
   def emit_dtr_variables
-    emit_variable("hcf_image_prefix",
+    emit_variable('hcf_image_prefix',
                   value: "#{@hcf_prefix}-",
-                  desc: "The prefix to use before the role name to construct the full image name")
+                  desc: 'The prefix to use before the role name to construct the full image name')
 
-    emit_variable("hcf_version",
-                  value: "#{@hcf_version}",
-                  desc: "The image version of interest")
+    emit_variable('hcf_version',
+                  value: @hcf_version.to_s,
+                  desc: 'The image version of interest')
 
-    emit_variable("docker_trusted_registry",
-                  value: "#{@dtr}",
-                  desc: "Location of the trusted registry holding the images to use")
+    emit_variable('docker_trusted_registry',
+                  value: @dtr.to_s,
+                  desc: 'Location of the trusted registry holding the images to use')
 
-    emit_variable("docker_org",
-                  value: "#{@dtr_org}",
-                  desc: "The organization the images belong to")
+    emit_variable('docker_org',
+                  value: @dtr_org.to_s,
+                  desc: 'The organization the images belong to')
 
-    emit_variable("docker_username",
-                  desc: "Access to the trusted registry, user to use"        )
+    emit_variable('docker_username',
+                  desc: 'Access to the trusted registry, user to use')
 
-    emit_variable("docker_email",
-                  desc: "Access to the trusted registry, the user's email"      )
+    emit_variable('docker_email',
+                  desc: "Access to the trusted registry, the user's email")
 
-    emit_variable("docker_password",
+    emit_variable('docker_password',
                   desc: "Access to the trusted registry, the user's password")
   end
 
