@@ -170,22 +170,45 @@ docker-images:
 
 build: images
 
-tag:
-	$(call print_status, Tagging docker images)
+tag: bosh-tag docker-tag
+
+bosh-tag:
+	$(call print_status, Tagging bosh docker images)
 	set -e ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
+	        echo Tagging $${source_image} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
-publish:
-	$(call print_status, Publishing docker images)
+docker-tag:
+	$(call print_status, Tagging docker images)
+	set -e ; \
+	for component in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles"); do \
+	        source_image=$${component}:${APP_VERSION_TAG} && \
+	        echo Tagging $${source_image} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	done
+
+publish: bosh-publish docker-publish
+
+bosh-publish:
+	$(call print_status, Publishing bosh docker images)
 	set -e ; \
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
+	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	done
+
+docker-publish:
+	$(call print_status, Publishing docker images)
+	set -e ; \
+	for component in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles"); do \
 	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
 	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
