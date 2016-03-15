@@ -37,14 +37,10 @@ def main
   op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] role-manifest|- ?...?
 
-        Read the role-manifest from the specified file, or stdin (-),
-        then transform according to the chosen provider (Default: ucp)
-        The result is written to stdout.
+    Read the role-manifest from the specified file, or stdin (-),
+    then transform according to the chosen provider (Default: ucp)
+    The result is written to stdout.
 
-        --dtr         - a docker trusted registry to use for image source (Default: docker.helion.lol)
-        --dtr-org     - a docker trusted registry organization used for image source (Default: helioncf)
-        --hcf-version - the version of hcf to use as an image source (Default: develop)
-        --hcf-prefix  - the prefix used during image generation (Default: hcf)
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|

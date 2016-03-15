@@ -90,23 +90,11 @@ class ToTerraform
     text.gsub('"', '\\"')
   end
 
-  def emit_variable(name, value)
+  def emit_variable(name, value:nil, desc:nil)
     # Quote the double-quotes in the value to satisfy tf syntax.
     block %(variable "#{name}") do
-      emit(%(default = "#{tf_quote(value)}"))
-    end
-  end
-
-  def emit_variable_with_explanation(name, explanation, value)
-    block %(variable "#{name}") do
-      emit(%(description = "#{explanation}"))
-      emit(%(default = "#{tf_quote(value)}"))
-    end
-  end
-
-  def emit_user_variable_with_explanation(name, explanation)
-    block %(variable "#{name}") do
-      emit(%(description = "#{explanation}"))
+      emit(%(description = "#{desc}")) unless desc.nil?
+      emit(%(default = "#{tf_quote(value)}")) unless value.nil?
     end
   end
 
@@ -145,7 +133,7 @@ class ToTerraform
       name = config['name']
       next if special?(name)
       value = config['default']
-      emit_variable(name, value)
+      emit_variable(name, value: value)
     end
     puts 'PUBLIC_IP is missing from input role-manifest' unless @have_public_ip
     puts 'DOMAIN is missing from input role-manifest' unless @have_domain
@@ -166,39 +154,30 @@ class ToTerraform
   end
 
   def emit_dtr_variables
-    emit <<API
-variable "hcf_image_prefix" {
-    description = "The prefix to use before the role name to construct the full image name"
-    default = "#{@hcf_prefix}-"
-}
+    emit_variable("hcf_image_prefix",
+                  value: "#{@hcf_prefix}-",
+                  desc: "The prefix to use before the role name to construct the full image name")
 
-variable "hcf_version" {
-    description = "The image version of interest"
-    default = "#{@hcf_version}"
-}
+    emit_variable("hcf_version",
+                  value: "#{@hcf_version}",
+                  desc: "The image version of interest")
 
-variable "docker_trusted_registry" {
-    description = "Location of the trusted registry holding the images to use"
-    default = "#{@dtr}"
-}
+    emit_variable("docker_trusted_registry",
+                  value: "#{@dtr}",
+                  desc: "Location of the trusted registry holding the images to use")
 
-variable "docker_org" {
-    description = "The organization the images belong to"
-    default = "#{@dtr_org}"
-}
+    emit_variable("docker_org",
+                  value: "#{@dtr_org}",
+                  desc: "The organization the images belong to")
 
-variable "docker_username" {
-    description = "Access to the trusted registry, user to use"
-}
+    emit_variable("docker_username",
+                  desc: "Access to the trusted registry, user to use"        )
 
-variable "docker_email" {
-    description = "Access to the trusted registry, the user's email"
-}
+    emit_variable("docker_email",
+                  desc: "Access to the trusted registry, the user's email"      )
 
-variable "docker_password" {
-    description = "Access to the trusted registry, the user's password"
-}
-API
+    emit_variable("docker_password",
+                  desc: "Access to the trusted registry, the user's password")
   end
 
   def emit_loader(roles)
@@ -334,7 +313,7 @@ SETUP
       the_roles.push(role['name'])
     end
 
-    emit_variable('all_the_roles', the_roles.join(' '))
+    emit_variable('all_the_roles', value: the_roles.join(' '))
   end
 
   def emit_list_of_job_roles(roles)
@@ -347,7 +326,7 @@ SETUP
       the_jobs.push(role['name'])
     end
 
-    emit_variable('all_the_jobs', the_jobs.join(' '))
+    emit_variable('all_the_jobs', value: the_jobs.join(' '))
   end
 
   def emit_list_of_task_roles(roles)
@@ -362,7 +341,7 @@ SETUP
       the_tasks.push(role['name'])
     end
 
-    emit_variable('all_the_tasks', the_tasks.join(' '))
+    emit_variable('all_the_tasks', value: the_tasks.join(' '))
   end
 end
 
