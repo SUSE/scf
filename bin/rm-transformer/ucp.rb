@@ -4,8 +4,7 @@
 # Provider for UCP specifications derived from a role-manifest.
 class ToUCP
   def initialize(options, remainder)
-    raise 'UCP conversion does not accept add-on files' if remainder &&
-                                                           !remainder.empty?
+    raise 'UCP conversion does not accept add-on files' unless remainder.empty?
     @options = options
     initialize_dtr_information
   end
