@@ -892,6 +892,10 @@ configuration:
     default: cf_usb_secret
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     default: ssh_proxy_secret
+  - name: UAA_CLIENTS_TCP_EMITTER_SECRET
+    default: uaa_client_tcp_emitter_secret
+  - name: UAA_CLIENTS_TCP_ROUTER_SECRET
+    default: uaa_client_tcp_router_secret
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
@@ -993,42 +997,14 @@ configuration:
     properties.uaa.clients.notifications.secret: '"((UAA_CLIENTS_NOTIFICATIONS_SECRET))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
     properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
-    properties.uaa.clients.login.scope: "openid,oauth.approvals"
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cf.access-token-validity: "600"
-    properties.uaa.clients.cf.authorities: uaa.none
-    properties.uaa.clients.cf.authorized-grant-types: implicit,password,refresh_token,client_credentials
-    properties.uaa.clients.cf.autoapprove: "true"
-    properties.uaa.clients.cf.override: "true"
-    properties.uaa.clients.cf.refresh-token-validity: "2592000"
-    properties.uaa.clients.cf.scope: '"cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read"'
-    properties.uaa.clients.doppler.authorities: uaa.resource
-    properties.uaa.clients.doppler.override: "true"
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.uaa.clients.cloud_controller.authorized-grant-types: client_credentials
-    properties.uaa.clients.cloud_controller.authorities: "scim.read,scim.write,password.write"
-    properties.uaa.clients.cloud_controller.id: cloud_controller
-    properties.uaa.clients.cloud_controller.secret: "cc_client_secret"
-    properties.uaa.clients.cloud_controller.access-token-validity: "604800"
+    properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
-    properties.uaa.clients.cloud_controller_username_lookup.authorities: "scim.userids"
-    properties.uaa.clients.cloud_controller_username_lookup.authorized-grant-types: client_credentials
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
-    properties.uaa.clients.gorouter.authorities: "clients.read,clients.write,clients.admin,route.admin,route.advertise"
-    properties.uaa.clients.gorouter.authorized-grant-types: "client_credentials,refresh_token"
-    properties.uaa.clients.gorouter.scope: "openid,cloud_controller_service_permissions.read"
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.uaa.clients.ssh-proxy.authorized-grant-types: '"authorization_code"'
-    properties.uaa.clients.ssh-proxy.scope: '"openid,cloud_controller.read,cloud_controller.write"'
-    properties.uaa.clients.ssh-proxy.redirect-uri: '"/login"'
-    properties.uaa.clients.ssh-proxy.autoapprove: "true"
-    properties.uaa.clients.ssh-proxy.override: "true"
-    properties.uaa.clients.tcp_emitter.authorities: "routing.routes.write,routing.routes.read"
-    properties.uaa.clients.tcp_emitter.authorized-grant-types: "client_credentials,refresh_token"
-    properties.uaa.clients.tcp_emitter.secret: tcp-emitter-secret
-    properties.uaa.clients.tcp_router.authorities: "routing.routes.read"
-    properties.uaa.clients.tcp_router.authorized-grant-types: "client_credentials,refresh_token"
-    properties.uaa.clients.tcp_router.secret: "tcp-router-secret"
+    properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.system_domain: '"((DOMAIN))"'
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
