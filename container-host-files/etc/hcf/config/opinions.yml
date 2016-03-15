@@ -325,8 +325,6 @@ properties:
     blacklisted_syslog_ranges: null
     debug: false
     maxRetainedLogMessages: 100
-  loggregator_endpoint:
-    shared_secret: loggregator_endpoint_secret
   login:
     analytics:
       code: null

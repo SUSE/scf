@@ -76,17 +76,17 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cluster_ips: '["((MYSQL_HOST))"]'
-      properties.database_startup_timeout: '300'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cf_mysql.proxy.api_username: 'mysql_proxy'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
   jobs:
   - name: proxy
@@ -107,17 +107,17 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cluster_ips: '["((MYSQL_HOST))"]'
-      properties.database_startup_timeout: '300'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cf_mysql.proxy.api_username: 'mysql_proxy'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
       # TODO: Take this out, and place our generated CA cert
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
@@ -162,8 +162,6 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
 - name: ha-proxy
-  scripts:
-  - fix_consul_address_lookup.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -226,8 +224,6 @@ roles:
         target: 80
         public: false
 - name: uaa
-  scripts:
-  - fix_consul_address_lookup.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -266,8 +262,6 @@ roles:
   jobs:
   - name: cloud_controller_ng
     release_name: cf
-  - name: routing-api
-    release_name: cf
   - name: statsd-injector
     release_name: cf
   - name: consul_agent
@@ -280,7 +274,6 @@ roles:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
   - name: cloud_controller_migration
-  - name: routing-api
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
@@ -302,11 +295,8 @@ roles:
   configuration:
     templates:
       properties.etcd.machines: '["((ETCD_HOST))"]'
-      properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
 - name: api-worker
-  scripts:
-  - fix_consul_address_lookup.sh
-  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -329,9 +319,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: clock-global
-  scripts:
-  - fix_consul_address_lookup.sh
-  - fix_cc_internal_service_hostname.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -351,8 +338,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
-  scripts:
-  - fix_consul_address_lookup.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -499,8 +484,6 @@ roles:
         target: 8080
         public: false
 - name: diego-brain
-  scripts:
-  - fix_consul_address_lookup.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -564,8 +547,6 @@ roles:
         target: 9090
         public: false
 - name: diego-route-emitter
-  scripts:
-  - fix_consul_address_lookup.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -616,7 +597,6 @@ roles:
         public: true
 - name: diego-cell
   scripts:
-  - fix_consul_address_lookup.sh
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
@@ -955,7 +935,6 @@ configuration:
     properties.hcf.monit.user: '"((MONIT_USER))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.monit.port: '((MONIT_PORT))'
-    properties.loggregator_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.user: '"((NATS_USER))"'
     properties.nats.password: '"((NATS_PASSWORD))"'

@@ -22,8 +22,6 @@ properties:
       uaa:
         secret: cf-usb_secret
   domain: example.com
-  loggregator_endpoint:
-    shared_secret: loggregator_endpoint_secret
   nats:
     user: nats_user
     password: nats_password
