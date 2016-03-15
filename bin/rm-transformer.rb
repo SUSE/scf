@@ -3,7 +3,7 @@
 ## ### ##### ########
 # Tool to convert role-manifest.yml into various other forms
 # - UCP definitions
-# - (MPC) Terraform definitions   [MPC for now, TODO: Read and merge fixed parts from support file]
+# - (MPC) Terraform definitions
 # ... more
 
 require 'optparse'
@@ -17,10 +17,14 @@ def main
   # --provider <name> ~ Choose the output format.
   #                     Known: ucp, tf
   #                     Default: ucp
-  # --dtr             ~ Location of trusted docker registry     (Default: empty)
-  # --dtr-org         ~ Org to use for images stored to the DTR (Default: helioncf)
-  # --hcf-version     ~ And tag to use for the same             (Default: develop)
-  # --hcf-prefix      ~ The prefix used during image generation (Default: hcf)
+  # --dtr             ~ Location of trusted docker registry
+  #                     (Default: empty)
+  # --dtr-org         ~ Org to use for images stored to the DTR
+  #                     (Default: helioncf)
+  # --hcf-version     ~ And tag to use for the same
+  #                     (Default: develop)
+  # --hcf-prefix      ~ The prefix used during image generation
+  #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   #
   # ?...?               Additional files, format-dependent
@@ -33,14 +37,10 @@ def main
   op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] role-manifest|- ?...?
 
-        Read the role-manifest from the specified file, or stdin (-),
-        then transform according to the chosen provider (Default: ucp)
-        The result is written to stdout.
+    Read the role-manifest from the specified file, or stdin (-),
+    then transform according to the chosen provider (Default: ucp)
+    The result is written to stdout.
 
-        --dtr         - a docker trusted registry to use for image source (Default: docker.helion.lol)
-        --dtr-org     - a docker trusted registry organization used for image source (Default: helioncf)
-        --hcf-version - the version of hcf to use as an image source (Default: develop)
-        --hcf-prefix  - the prefix used during image generation (Default: hcf)
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
@@ -59,13 +59,11 @@ def main
       $options[:dev] = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
-      if v == 'ucp'
-        provider = v
-      elsif v == 'tf' || v == 'terraform'
-        provider = 'tf'
-      else
-        provider = nil
-      end
+      provider = case v
+                 when 'ucp'             then 'ucp'
+                 when 'tf', 'terraform' then 'tf'
+                 else abort "Unknown provider: #{v}"
+                 end
     end
   end
   op.parse!
@@ -77,19 +75,22 @@ def main
 
   origin = ARGV[0]
 
-  # Convert provider name to package and class
-  if provider == 'ucp'
-    require_relative 'rm-transformer/ucp'
-    provider = ToUCP
-  elsif provider == 'tf'
-    require_relative 'rm-transformer/tf'
-    provider = ToTerraform
-  end
-
   the_roles = get_roles(origin)
-  the_result = provider.new($options, ARGV[1, ARGV.size]).transform(the_roles)
+  provider = get_provider(provider).new($options, ARGV[1, ARGV.size])
+  the_result = provider.transform(the_roles)
 
-  $stdout.puts(the_result)
+  puts(the_result)
+end
+
+def get_provider(name)
+  # Convert provider name to package and class
+  if name == 'ucp'
+    require_relative 'rm-transformer/ucp'
+    ToUCP
+  elsif name == 'tf'
+    require_relative 'rm-transformer/tf'
+    ToTerraform
+  end
 end
 
 def get_roles(path)
