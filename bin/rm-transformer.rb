@@ -104,7 +104,7 @@ def get_roles(path)
   ##
   # the_roles.roles[].name				/string
   # the_roles.roles[].dev-only				/bool
-  # the_roles.roles[].type				/string (allowed "bosh-task")
+  # the_roles.roles[].type				/string (*)
   # the_roles.roles[].scripts[]				/string
   # the_roles.roles[].jobs[].name			/string
   # the_roles.roles[].jobs[].release_name		/string
@@ -129,6 +129,8 @@ def get_roles(path)
   # the_roles.configuration.variables[].name		/string
   # the_roles.configuration.variables[].default		/string
   # the_roles.configuration.templates.<any>		/string (key -> value)
+
+  # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
 end
 
 main

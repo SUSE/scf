@@ -2,14 +2,15 @@
 ## Terraform output provider
 # # ## ### ##### ########
 
+require_relative 'common'
+
 # Provider for terraform declarations derived from a role-manifest.
 # Takes additional files containing the execution context.
-class ToTerraform
+class ToTerraform < Common
   def initialize(options, remainder)
-    @options = options
+    super(options)
     @have_public_ip = false
     @have_domain = false
-    initialize_dtr_information
     initialize_emitter_state
     copy_addons(remainder)
   end
@@ -205,9 +206,7 @@ class ToTerraform
     runner_jobs = run_environment_setup
 
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-
-      next if type == 'docker' || type == 'bosh-task'
+      next if task?(role)
 
       runner_jobs += make_run_cmd_for(role['name'])
     end
@@ -220,12 +219,7 @@ class ToTerraform
     runner_tasks = run_environment_setup
 
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-
-      next if type == 'docker' ||
-              type == 'bosh' ||
-              (role['dev-only'] && !@options[:dev])
-      # type == bosh-task now
+      next if job?(role) || dev?(role)
 
       runner_tasks += make_run_cmd_for(role['name'])
     end
@@ -303,12 +297,7 @@ SETUP
   def emit_list_of_all_roles(roles)
     the_roles = []
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-
-      next if type == 'docker' ||
-              (type == 'bosh-task' &&
-               role['dev-only'] &&
-               !@options[:dev])
+      next if task?(role) && dev?(role)
 
       the_roles.push(role['name'])
     end
@@ -318,10 +307,8 @@ SETUP
 
   def emit_list_of_job_roles(roles)
     the_jobs = []
-
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-      next if type == 'docker' || type == 'bosh-task'
+      next if task?(role)
 
       the_jobs.push(role['name'])
     end
@@ -333,16 +320,15 @@ SETUP
     the_tasks = []
 
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-      next if type == 'docker' ||
-              type == 'bosh' ||
-              (role['dev-only'] && !@options[:dev])
+      next if job?(role) || dev?(role)
 
       the_tasks.push(role['name'])
     end
 
     emit_variable('all_the_tasks', value: the_tasks.join(' '))
   end
+
+  # # ## ### ##### ########
 end
 
 # # ## ### ##### ########
