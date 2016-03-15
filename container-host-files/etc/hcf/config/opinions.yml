@@ -154,7 +154,11 @@ properties:
         ports: "53"
         protocol: udp
     srv_api_uri: https://api.example.com
-    stacks: null
+    stacks:
+    - name: cflinuxfs2
+      description: Cloud Foundry Linux-based filesystem
+    - name: windows2012R2
+      description: Windows Server 2012 R2
     staging_upload_password: password
     staging_upload_user: username
     system_buildpacks:

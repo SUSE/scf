@@ -886,6 +886,8 @@ configuration:
     default: notification_secret
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     default: cc_routing_secret
+  - name: UAA_CLIENTS_CC_SERVICE_SECRET
+    default: cc_service_secret
   - name: UAA_CLIENTS_CF_USB_SECRET
     default: cf_usb_secret
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
@@ -964,7 +966,6 @@ configuration:
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
-    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"}, {"name": "windows2012R2", "description": "Windows Server 2012 R2"}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
@@ -986,22 +987,11 @@ configuration:
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
-    properties.uaa.clients.cc-routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cc-routing.authorities: '"routing.router_groups.read"'
-    properties.uaa.clients.cc-routing.authorized-grant-types: client_credentials
-    properties.uaa.clients.cc-service-dashboards.authorities: '"clients.read,clients.write,clients.admin"'
-    properties.uaa.clients.cc-service-dashboards.authorized-grant-types: client_credentials
-    properties.uaa.clients.cc-service-dashboards.scope: "openid,cloud_controller_service_permissions.read"
-    properties.uaa.clients.cc-service-dashboards.secret: "cc-broker-secret"
+    properties.uaa.clients.cc_routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.developer_console.secret: '"((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"'
-    properties.uaa.clients.notifications.authorities: "cloud_controller.admin,scim.read"
-    properties.uaa.clients.notifications.authorized-grant-types: "client_credentials"
     properties.uaa.clients.notifications.secret: '"((UAA_CLIENTS_NOTIFICATIONS_SECRET))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
-    properties.uaa.clients.login.authorities: "oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write"
-    properties.uaa.clients.login.authorized-grant-types: "authorization_code,client_credentials,refresh_token"
-    properties.uaa.clients.login.override: "true"
-    properties.uaa.clients.login.autoapprove: "true"
     properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
     properties.uaa.clients.login.scope: "openid,oauth.approvals"
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
