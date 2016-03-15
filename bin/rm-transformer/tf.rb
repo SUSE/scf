@@ -181,55 +181,50 @@ class ToTerraform < Common
                   desc: "Access to the trusted registry, the user's password")
   end
 
-  def emit_loader(roles)
-    loader = ''
-    roles['roles'].each do |role|
-      name = role['name']
-
-      rload = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
-      rload += '${var.hcf_image_prefix}' + name
-      rload += ':${var.hcf_version}'
-
-      loader += rload + "\n"
-    end
-
+  def emit_loader(manifest)
+    loader = to_names(manifest['roles']).map do |name|
+      make_pull_command(name)
+    end.reduce(:+)
     emit_header 'Retrieving docker images for roles'
     emit_null('docker_loader', loader)
   end
 
-  def emit_runner(roles)
-    emit_jobs(roles)
-    emit_tasks(roles)
+  # Construct a docker pull command for the named image/role
+  def make_pull_command(name)
+    cmd = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
+    cmd += '${var.hcf_image_prefix}' + name
+    cmd += ':${var.hcf_version}'
+    cmd += "\n"
+    cmd
   end
 
-  def emit_jobs(roles)
-    runner_jobs = run_environment_setup
+  def emit_runner(manifest)
+    emit_jobs(manifest)
+    emit_tasks(manifest)
+  end
 
-    roles['roles'].each do |role|
-      next if task?(role)
-
-      runner_jobs += make_run_cmd_for(role['name'])
-    end
+  def emit_jobs(manifest)
+    runner = run_environment_setup
+    runner += to_names(get_job_roles(manifest)).map do |name|
+      make_run_cmd(name)
+    end.reduce(:+)
 
     emit_header 'Running of job roles'
-    emit_null('runner_jobs', runner_jobs)
+    emit_null('runner_jobs', runner)
   end
 
-  def emit_tasks(roles)
-    runner_tasks = run_environment_setup
-
-    roles['roles'].each do |role|
-      next if job?(role) || dev?(role)
-
-      runner_tasks += make_run_cmd_for(role['name'])
-    end
+  def emit_tasks(manifest)
+    runner = run_environment_setup
+    runner += to_names(get_task_roles(manifest)).map do |name|
+      make_run_cmd(name)
+    end.reduce(:+)
 
     emit_header 'NOT USED YET - TODO - Change to suit actual invokation'
-    emit_null('runner_tasks', runner_tasks)
+    emit_null('runner_tasks', runner)
   end
 
   # Construct the command used in the host to start the named role.
-  def make_run_cmd_for(name)
+  def make_run_cmd(name)
     cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
     cmd += name
     cmd += ' --restart=always'
@@ -254,9 +249,9 @@ mkdir -p $HCF_RUN_LOG_DIRECTORY
 SETUP
   end
 
-  def emit_settings(roles)
+  def emit_settings(manifest)
     rm_configuration = ''
-    roles['configuration']['variables'].each do |config|
+    manifest['configuration']['variables'].each do |config|
       rm_configuration += make_assignment_for(config['name'])
     end
 
@@ -287,45 +282,34 @@ SETUP
     end
   end
 
-  def emit_list_of_roles(roles)
+  def emit_list_of_roles(manifest)
     emit_header 'List of all roles'
-    emit_list_of_all_roles(roles)
-    emit_list_of_job_roles(roles)
-    emit_list_of_task_roles(roles)
+    emit_variable('all_the_roles',
+                  value: to_names(get_all_roles(manifest)).join(' '))
+    emit_variable('all_the_jobs',
+                  value: to_names(get_job_roles(manifest)).join(' '))
+    emit_variable('all_the_tasks',
+                  value: to_names(get_task_roles(manifest)).join(' '))
   end
 
-  def emit_list_of_all_roles(roles)
-    the_roles = []
-    roles['roles'].each do |role|
-      next if task?(role) && dev?(role)
-
-      the_roles.push(role['name'])
+  def get_all_roles(manifest)
+    manifest['roles'].select do |role|
+      job?(role) || !dev?(role)
     end
-
-    emit_variable('all_the_roles', value: the_roles.join(' '))
   end
 
-  def emit_list_of_job_roles(roles)
-    the_jobs = []
-    roles['roles'].each do |role|
-      next if task?(role)
-
-      the_jobs.push(role['name'])
-    end
-
-    emit_variable('all_the_jobs', value: the_jobs.join(' '))
+  def get_job_roles(manifest)
+    manifest['roles'].select { |role| job?(role) }
   end
 
-  def emit_list_of_task_roles(roles)
-    the_tasks = []
-
-    roles['roles'].each do |role|
-      next if job?(role) || dev?(role)
-
-      the_tasks.push(role['name'])
+  def get_task_roles(manifest)
+    manifest['roles'].select do |role|
+      task?(role) && !dev?(role)
     end
+  end
 
-    emit_variable('all_the_tasks', value: the_tasks.join(' '))
+  def to_names(roles)
+    roles.map { |role| role['name'] }
   end
 
   # # ## ### ##### ########
