@@ -38,22 +38,22 @@ class ToTerraform < Common
   end
 
   # Public API
-  def transform(roles)
-    to_terraform(roles)
+  def transform(manifest)
+    to_terraform(manifest)
     @out.join("\n")
   end
 
   # Internal definitions
 
-  def to_terraform(roles)
+  def to_terraform(manifest)
     hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
     emit_header(hdr)
     emit_dtr_variables
-    emit_loader(roles)
-    emit_runner(roles)
-    emit_settings(roles)
-    emit_list_of_roles(roles)
-    emit_configuration(roles)
+    emit_loader(manifest)
+    emit_runner(manifest)
+    emit_settings(manifest)
+    emit_list_of_roles(manifest)
+    emit_configuration(manifest)
     emit_header 'Done'
   end
 
@@ -128,9 +128,9 @@ class ToTerraform < Common
 
   # High level emitters, HCF specific structures ...
 
-  def emit_configuration(roles)
+  def emit_configuration(manifest)
     emit_header 'Role manifest configuration variables'
-    roles['configuration']['variables'].each do |config|
+    manifest['configuration']['variables'].each do |config|
       name = config['name']
       next if special?(name)
       value = config['default']
