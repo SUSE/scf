@@ -63,10 +63,10 @@ def main
       $options[:dev] = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
-      provider = if v == 'ucp'
-                   v
-                 elsif v == 'tf' || v == 'terraform'
-                   'tf'
+      provider = case v
+                 when 'ucp'             then 'ucp'
+                 when 'tf', 'terraform' then 'tf'
+                 else abort "Unknown provider: #{v}"
                  end
     end
   end
@@ -83,7 +83,7 @@ def main
   provider = get_provider(provider).new($options, ARGV[1, ARGV.size])
   the_result = provider.transform(the_roles)
 
-  $stdout.puts(the_result)
+  puts(the_result)
 end
 
 def get_provider(name)

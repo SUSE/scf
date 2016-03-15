@@ -7,7 +7,7 @@
 class ToTerraform
   def initialize(options, remainder)
     @options = options
-    @have_pip = false
+    @have_public_ip = false
     @have_domain = false
     initialize_dtr_information
     initialize_emitter_state
@@ -24,7 +24,6 @@ class ToTerraform
 
   def initialize_emitter_state
     @out = ['# © Copyright 2015 Hewlett Packard Enterprise Development LP', '']
-    @indent    = ['']
     @secnumber = 1
     @level     = 0
   end
@@ -60,15 +59,13 @@ class ToTerraform
   # Low level emitter management, individual lines, indentation control
 
   def emit(text)
-    @out.push(@indent[-1] + text)
+    @out.push('    ' * @level + text)
   end
 
   def indent
-    @indent.push(@indent.last + ' ' * 4)
     @level += 1
     yield
     @level -= 1
-    @indent.pop
   end
 
   def block(text)
@@ -150,7 +147,7 @@ class ToTerraform
       value = config['default']
       emit_variable(name, value)
     end
-    puts 'PUBLIC_IP is missing from input role-manifest' unless @have_pip
+    puts 'PUBLIC_IP is missing from input role-manifest' unless @have_public_ip
     puts 'DOMAIN is missing from input role-manifest' unless @have_domain
   end
 
@@ -160,15 +157,12 @@ class ToTerraform
     # them to the networking setup. Because only the external
     # context knows where the value actually comes from in terms of
     # vars, etc.
-    if name == 'PUBLIC_IP'
-      @have_pip = true
-      return true
+    case name
+    when 'PUBLIC_IP' then @have_public_ip = true
+    when 'DOMAIN'    then @have_domain = true
+    else return false
     end
-    if name == 'DOMAIN'
-      @have_domain = true
-      return true
-    end
-    false
+    true
   end
 
   def emit_dtr_variables
@@ -236,7 +230,7 @@ API
 
       next if type == 'docker' || type == 'bosh-task'
 
-      runner_jobs += run_cmd(role['name']) + "\n"
+      runner_jobs += make_run_cmd_for(role['name'])
     end
 
     emit_header 'Running of job roles'
@@ -254,17 +248,19 @@ API
               (role['dev-only'] && !@options[:dev])
       # type == bosh-task now
 
-      runner_tasks += run_cmd(role['name']) + "\n"
+      runner_tasks += make_run_cmd_for(role['name'])
     end
 
     emit_header 'NOT USED YET - TODO - Change to suit actual invokation'
     emit_null('runner_tasks', runner_tasks)
   end
 
-  def run_cmd(name)
+  # Construct the command used in the host to start the named role.
+  def make_run_cmd_for(name)
     cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
     cmd += name
     cmd += ' --restart=always'
+    cmd += "\n"
     cmd
   end
 
@@ -288,14 +284,16 @@ SETUP
   def emit_settings(roles)
     rm_configuration = ''
     roles['configuration']['variables'].each do |config|
-      rm_configuration += assignment_for(config['name'])
+      rm_configuration += make_assignment_for(config['name'])
     end
 
     emit_header 'Role configuration'
     emit_null('rm_configuration', rm_configuration)
   end
 
-  def assignment_for(name)
+  # Construct the VAR=VALUE assignment going into the docker env-file
+  # later, for the named setting of the role-manifest.
+  def make_assignment_for(name)
     # Note, no double-quotes around any values. Would become part of
     # the value when docker run read the --env-file. Bad.
     if name == 'PUBLIC_IP'

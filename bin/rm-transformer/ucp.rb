@@ -28,56 +28,56 @@ class ToUCP
   # Internal definitions
 
   def to_ucp(roles)
-    the_ucp = empty_ucp
+    definition = empty_ucp
 
-    fs = the_ucp['volumes']
+    fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
-    process_roles(roles, the_ucp, fs)
+    process_roles(roles, definition, fs)
 
-    the_ucp
+    definition
     # Generated structure
     ##
-    # the_ucp.name					/string
-    # the_ucp.version					/string
-    # the_ucp.vendor					/string
-    # the_ucp.preflight[].				(*9)
-    # the_ucp.postflight[].				(*9)
-    # the_ucp.volumes[].name				/string
-    # the_ucp.volumes[].size_gb				/int32
-    # the_ucp.volumes[].filesystem			/string (*2)
-    # the_ucp.volumes[].shared				/bool
-    # the_ucp.components[].name				/string
-    # the_ucp.components[].version			/string
-    # the_ucp.components[].vendor			/string
-    # the_ucp.components[].external_name		/string	(*6)
-    # the_ucp.components[].image			/string	(*7)
-    # the_ucp.components[].min_RAM_mb			/int32
-    # the_ucp.components[].min_disk_gb			/int32
-    # the_ucp.components[].min_VCPU			/int32
-    # the_ucp.components[].platform			/string	(*3)
-    # the_ucp.components[].capabilities[]		/string (*1)
-    # the_ucp.components[].workload_type		/string (*4)
-    # the_ucp.components[].entrypoint[]			/string (*5)
-    # the_ucp.components[].depends_on[].name		/string \(*8)
-    # the_ucp.components[].depends_on[].version		/string \
-    # the_ucp.components[].depends_on[].vendor		/string \
-    # the_ucp.components[].affinity[]			/string
-    # the_ucp.components[].labels[]			/string
-    # the_ucp.components[].min_instances		/int
-    # the_ucp.components[].max_instances		/int
-    # the_ucp.components[].service_ports[].name		/string
-    # the_ucp.components[].service_ports[].protocol	/string	('TCP', 'UDP')
-    # the_ucp.components[].service_ports[].source_port	/int32
-    # the_ucp.components[].service_ports[].target_port	/int32
-    # the_ucp.components[].service_ports[].public	/bool
-    # the_ucp.components[].volume_mounts[].volume_name	/string
-    # the_ucp.components[].volume_mounts[].mountpoint	/string
-    # the_ucp.components[].parameters[].name		/string
-    # the_ucp.components[].parameters[].description	/string, !empty
-    # the_ucp.components[].parameters[].default		/string
-    # the_ucp.components[].parameters[].example		/string, !empty
-    # the_ucp.components[].parameters[].required	/bool
-    # the_ucp.components[].parameters[].secret		/bool
+    # DEF.name						/string
+    # DEF.version					/string
+    # DEF.vendor					/string
+    # DEF.preflight[].					(*9)
+    # DEF.postflight[].					(*9)
+    # DEF.volumes[].name				/string
+    # DEF.volumes[].size_gb				/int32
+    # DEF.volumes[].filesystem				/string (*2)
+    # DEF.volumes[].shared				/bool
+    # DEF.components[].name				/string
+    # DEF.components[].version				/string
+    # DEF.components[].vendor				/string
+    # DEF.components[].external_name			/string	(*6)
+    # DEF.components[].image				/string	(*7)
+    # DEF.components[].min_RAM_mb			/int32
+    # DEF.components[].min_disk_gb			/int32
+    # DEF.components[].min_VCPU				/int32
+    # DEF.components[].platform				/string	(*3)
+    # DEF.components[].capabilities[]			/string (*1)
+    # DEF.components[].workload_type			/string (*4)
+    # DEF.components[].entrypoint[]			/string (*5)
+    # DEF.components[].depends_on[].name		/string \(*8)
+    # DEF.components[].depends_on[].version		/string \
+    # DEF.components[].depends_on[].vendor		/string \
+    # DEF.components[].affinity[]			/string
+    # DEF.components[].labels[]				/string
+    # DEF.components[].min_instances			/int
+    # DEF.components[].max_instances			/int
+    # DEF.components[].service_ports[].name		/string
+    # DEF.components[].service_ports[].protocol		/string	('TCP', 'UDP')
+    # DEF.components[].service_ports[].source_port	/int32
+    # DEF.components[].service_ports[].target_port	/int32
+    # DEF.components[].service_ports[].public		/bool
+    # DEF.components[].volume_mounts[].volume_name	/string
+    # DEF.components[].volume_mounts[].mountpoint	/string
+    # DEF.components[].parameters[].name		/string
+    # DEF.components[].parameters[].description		/string, !empty
+    # DEF.components[].parameters[].default		/string
+    # DEF.components[].parameters[].example		/string, !empty
+    # DEF.components[].parameters[].required		/bool
+    # DEF.components[].parameters[].secret		/bool
     #
     # (*1) Too many to list here. See ucp-developer/service_models.md
     #      for the full list. Notables:
@@ -107,9 +107,9 @@ class ToUCP
     }
   end
 
-  def process_roles(roles, the_ucp, fs)
-    comp = the_ucp['components']
-    post = the_ucp['postflight']
+  def process_roles(roles, definition, fs)
+    comp = definition['components']
+    post = definition['postflight']
 
     roles['roles'].each do |role|
       type = role['type'] || 'bosh'
