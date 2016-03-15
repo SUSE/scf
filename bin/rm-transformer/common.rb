@@ -14,10 +14,10 @@ class Common
 
   def initialize_dtr_information
     # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr] || 'docker.helion.lol'
-    @dtr_org     = @options[:dtr_org] || 'helioncf'
-    @hcf_version = @options[:hcf_version] || 'develop'
-    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
+    @dtr         = @options[:dtr]
+    @dtr_org     = @options[:dtr_org]
+    @hcf_version = @options[:hcf_version]
+    @hcf_prefix  = @options[:hcf_prefix]
   end
 
   # # ## ### ##### ########
