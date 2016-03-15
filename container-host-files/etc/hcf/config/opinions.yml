@@ -405,7 +405,19 @@ properties:
     status:
       password: router_password
       user: router_user
-  smoke_tests: null
+  smoke_tests:
+    suite_name: CF_SMOKE_TESTS
+    api: api.((DOMAIN))
+    apps_domain: [ ((DOMAIN)) ]
+    user: ((CLUSTER_ADMIN_USERNAME))
+    password: ((CLUSTER_ADMIN_PASSWORD))
+    org: smoke-test-org
+    space: smoke-test-space
+    use_existing_org: false
+    use_existing_space: false
+    logging_app: ""
+    runtime_app: ""
+    skip_ssl_validation: true
   ssl:
     # TODO: Default to false, and place our generated CA cert
     # into the appropriate /usr/share/ca-certificates folders

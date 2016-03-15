@@ -31,6 +31,11 @@ properties:
     status:
       user: router_user
       password: router_password
+  smoke_tests:
+    api: api.((DOMAIN))
+    apps_domain: [ ((DOMAIN)) ]
+    user: ((CLUSTER_ADMIN_USERNAME))
+    password: ((CLUSTER_ADMIN_PASSWORD))
   uaa:
     admin:
       client_secret: admin_secret
