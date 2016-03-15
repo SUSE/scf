@@ -15,7 +15,7 @@ APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 # CI configuration. Empty strings not allowed, except for the registry.
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
-IMAGE_REGISTRY :=
+IMAGE_REGISTRY := docker.helion.lol
 
 # Note: When used the registry must not have a trailing "/". That is
 # added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
@@ -36,7 +36,7 @@ export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/da
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 
-.PHONY: docker-images mpc mpc-dist
+.PHONY: docker-images mpc mpc-dist aws aws-dist
 
 ########## UTILITY TARGETS ##########
 
@@ -221,10 +221,14 @@ show-docker-setup:
 	@echo "hcf version     = '${BRANCH}'"
 	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
 
+<<<<<<< a743253a593d5615ffb9d54fc6b2902b90fd2a6e
 
 ########## CONFIGURATION TARGETS ##########
 
 generate: ucp mpc
+=======
+generate: ucp mpc aws
+>>>>>>> [HCF-554] Created a basic (u-cloud) terraform setup for AWS.
 
 DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
 # Note, _not_ IMAGE_REGISTRY_MAKE. The rm-transformer script adds a trailing "/" itself, where needed
@@ -245,9 +249,18 @@ mpc:
 	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
 	echo Generated ${CURDIR}/hcf.tf
 
+aws:
+	$(call print_status, Generate AWS terraform configuration)
+	docker run --rm \
+	  -v ${CURDIR}:${CURDIR} \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
+	echo Generated ${CURDIR}/hcf-aws.tf
+
 ########## DISTRIBUTION TARGETS ##########
 
-dist: mpc-dist
+dist: mpc-dist aws-dist
 
 mpc-dist: mpc
 	$(call print_status, Package MPC terraform configuration for distribution)
@@ -257,3 +270,13 @@ mpc-dist: mpc
 	( cd $$base && zip -qr9 ${CURDIR}/mpc-$(APP_VERSION).zip mpc ) && \
 	rm -rf $$base && \
 	echo Generated mpc-$(APP_VERSION).zip
+
+aws-dist: aws
+	$(call print_status, Package AWS terraform configuration for distribution)
+	base=$$(mktemp -d aws_XXXXXXXXXX) && \
+	mkdir $$base/aws && \
+	cp -rf container-host-files terraform/aws.tfvars.example terraform/README-aws.md hcf-aws.tf $$base/aws/ && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \
+	rm -rf $$base && \
+	echo Generated aws-$(APP_VERSION).zip
+
