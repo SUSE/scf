@@ -285,17 +285,12 @@ SETUP
   def emit_list_of_roles(manifest)
     emit_header 'List of all roles'
     emit_variable('all_the_roles',
-                  value: to_names(get_all_roles(manifest)).join(' '))
+                  value: to_names(get_job_roles(manifest) +
+                                  get_task_roles(manifest)).join(' '))
     emit_variable('all_the_jobs',
                   value: to_names(get_job_roles(manifest)).join(' '))
     emit_variable('all_the_tasks',
                   value: to_names(get_task_roles(manifest)).join(' '))
-  end
-
-  def get_all_roles(manifest)
-    manifest['roles'].select do |role|
-      job?(role) || !dev?(role)
-    end
   end
 
   def get_job_roles(manifest)
