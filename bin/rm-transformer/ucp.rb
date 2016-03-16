@@ -105,18 +105,10 @@ class ToUCP < Common
     roles['roles'].each do |role|
       next if task?(role) && dev?(role)
 
-      rcount = choose(role, 5, 0)
-      dst    = choose(role, post, comp)
+      rcount = task?(role) ? 5    : 0
+      dst    = task?(role) ? post : comp
 
       add_component(roles, fs, dst, role, rcount)
-    end
-  end
-
-  def choose(role, task_value, job_value)
-    if task?(role)
-      task_value
-    else
-      job_value
     end
   end
 
