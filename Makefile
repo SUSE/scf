@@ -163,7 +163,7 @@ bosh-images:
 
 docker-images:
 	$(call print_status, Building Docker role images)
-	for docker_role in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles") ; do \
+	for docker_role in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh) ; do \
 		cd ${CURDIR}/docker-images/$${docker_role} && \
 		docker build -t $${docker_role}:${APP_VERSION_TAG} . ; \
 	done
@@ -186,7 +186,7 @@ bosh-tag:
 docker-tag:
 	$(call print_status, Tagging docker images)
 	set -e ; \
-	for component in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles"); do \
+	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
 	        source_image=$${component}:${APP_VERSION_TAG} && \
 	        echo Tagging $${source_image} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
@@ -208,7 +208,7 @@ bosh-publish:
 docker-publish:
 	$(call print_status, Publishing docker images)
 	set -e ; \
-	for component in $$(bash -c "source ${CURDIR}/container-host-files/opt/hcf/bin/common.sh && load_all_roles && list_all_docker_roles"); do \
+	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
 	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
 	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
