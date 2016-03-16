@@ -2,14 +2,15 @@
 ## Terraform output provider
 # # ## ### ##### ########
 
+require_relative 'common'
+
 # Provider for terraform declarations derived from a role-manifest.
 # Takes additional files containing the execution context.
-class ToTerraform
+class ToTerraform < Common
   def initialize(options, remainder)
-    @options = options
+    super(options)
     @have_public_ip = false
     @have_domain = false
-    initialize_dtr_information
     initialize_emitter_state
     copy_addons(remainder)
   end
@@ -37,22 +38,22 @@ class ToTerraform
   end
 
   # Public API
-  def transform(roles)
-    to_terraform(roles)
+  def transform(manifest)
+    to_terraform(manifest)
     @out.join("\n")
   end
 
   # Internal definitions
 
-  def to_terraform(roles)
+  def to_terraform(manifest)
     hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
     emit_header(hdr)
     emit_dtr_variables
-    emit_loader(roles)
-    emit_runner(roles)
-    emit_settings(roles)
-    emit_list_of_roles(roles)
-    emit_configuration(roles)
+    emit_loader(manifest)
+    emit_runner(manifest)
+    emit_settings(manifest)
+    emit_list_of_roles(manifest)
+    emit_configuration(manifest)
     emit_header 'Done'
   end
 
@@ -127,9 +128,9 @@ class ToTerraform
 
   # High level emitters, HCF specific structures ...
 
-  def emit_configuration(roles)
+  def emit_configuration(manifest)
     emit_header 'Role manifest configuration variables'
-    roles['configuration']['variables'].each do |config|
+    manifest['configuration']['variables'].each do |config|
       name = config['name']
       next if special?(name)
       value = config['default']
@@ -154,88 +155,76 @@ class ToTerraform
   end
 
   def emit_dtr_variables
-    emit_variable("hcf_image_prefix",
+    emit_variable('hcf_image_prefix',
                   value: "#{@hcf_prefix}-",
-                  desc: "The prefix to use before the role name to construct the full image name")
+                  desc: 'The prefix to use before the role name to construct the full image name')
 
-    emit_variable("hcf_version",
-                  value: "#{@hcf_version}",
-                  desc: "The image version of interest")
+    emit_variable('hcf_version',
+                  value: @hcf_version.to_s,
+                  desc: 'The image version of interest')
 
-    emit_variable("docker_trusted_registry",
-                  value: "#{@dtr}",
-                  desc: "Location of the trusted registry holding the images to use")
+    emit_variable('docker_trusted_registry',
+                  value: @dtr.to_s,
+                  desc: 'Location of the trusted registry holding the images to use')
 
-    emit_variable("docker_org",
-                  value: "#{@dtr_org}",
-                  desc: "The organization the images belong to")
+    emit_variable('docker_org',
+                  value: @dtr_org.to_s,
+                  desc: 'The organization the images belong to')
 
-    emit_variable("docker_username",
-                  desc: "Access to the trusted registry, user to use"        )
+    emit_variable('docker_username',
+                  desc: 'Access to the trusted registry, user to use')
 
-    emit_variable("docker_email",
-                  desc: "Access to the trusted registry, the user's email"      )
+    emit_variable('docker_email',
+                  desc: "Access to the trusted registry, the user's email")
 
-    emit_variable("docker_password",
+    emit_variable('docker_password',
                   desc: "Access to the trusted registry, the user's password")
   end
 
-  def emit_loader(roles)
-    loader = ''
-    roles['roles'].each do |role|
-      name = role['name']
-
-      rload = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
-      rload += '${var.hcf_image_prefix}' + name
-      rload += ':${var.hcf_version}'
-
-      loader += rload + "\n"
-    end
-
+  def emit_loader(manifest)
+    loader = to_names(manifest['roles']).map do |name|
+      make_pull_command(name)
+    end.reduce(:+)
     emit_header 'Retrieving docker images for roles'
     emit_null('docker_loader', loader)
   end
 
-  def emit_runner(roles)
-    emit_jobs(roles)
-    emit_tasks(roles)
+  # Construct a docker pull command for the named image/role
+  def make_pull_command(name)
+    cmd = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
+    cmd += '${var.hcf_image_prefix}' + name
+    cmd += ':${var.hcf_version}'
+    cmd += "\n"
+    cmd
   end
 
-  def emit_jobs(roles)
-    runner_jobs = run_environment_setup
+  def emit_runner(manifest)
+    emit_jobs(manifest)
+    emit_tasks(manifest)
+  end
 
-    roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-
-      next if type == 'docker' || type == 'bosh-task'
-
-      runner_jobs += make_run_cmd_for(role['name'])
-    end
+  def emit_jobs(manifest)
+    runner = run_environment_setup
+    runner += to_names(get_job_roles(manifest)).map do |name|
+      make_run_cmd(name)
+    end.reduce(:+)
 
     emit_header 'Running of job roles'
-    emit_null('runner_jobs', runner_jobs)
+    emit_null('runner_jobs', runner)
   end
 
-  def emit_tasks(roles)
-    runner_tasks = run_environment_setup
-
-    roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-
-      next if type == 'docker' ||
-              type == 'bosh' ||
-              (role['dev-only'] && !@options[:dev])
-      # type == bosh-task now
-
-      runner_tasks += make_run_cmd_for(role['name'])
-    end
+  def emit_tasks(manifest)
+    runner = run_environment_setup
+    runner += to_names(get_task_roles(manifest)).map do |name|
+      make_run_cmd(name)
+    end.reduce(:+)
 
     emit_header 'NOT USED YET - TODO - Change to suit actual invokation'
-    emit_null('runner_tasks', runner_tasks)
+    emit_null('runner_tasks', runner)
   end
 
   # Construct the command used in the host to start the named role.
-  def make_run_cmd_for(name)
+  def make_run_cmd(name)
     cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
     cmd += name
     cmd += ' --restart=always'
@@ -260,9 +249,9 @@ mkdir -p $HCF_RUN_LOG_DIRECTORY
 SETUP
   end
 
-  def emit_settings(roles)
+  def emit_settings(manifest)
     rm_configuration = ''
-    roles['configuration']['variables'].each do |config|
+    manifest['configuration']['variables'].each do |config|
       rm_configuration += make_assignment_for(config['name'])
     end
 
@@ -293,56 +282,32 @@ SETUP
     end
   end
 
-  def emit_list_of_roles(roles)
+  def emit_list_of_roles(manifest)
     emit_header 'List of all roles'
-    emit_list_of_all_roles(roles)
-    emit_list_of_job_roles(roles)
-    emit_list_of_task_roles(roles)
+    emit_variable('all_the_roles',
+                  value: to_names(get_job_roles(manifest) +
+                                  get_task_roles(manifest)).join(' '))
+    emit_variable('all_the_jobs',
+                  value: to_names(get_job_roles(manifest)).join(' '))
+    emit_variable('all_the_tasks',
+                  value: to_names(get_task_roles(manifest)).join(' '))
   end
 
-  def emit_list_of_all_roles(roles)
-    the_roles = []
-    roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
+  def get_job_roles(manifest)
+    manifest['roles'].select { |role| job?(role) }
+  end
 
-      next if type == 'docker' ||
-              (type == 'bosh-task' &&
-               role['dev-only'] &&
-               !@options[:dev])
-
-      the_roles.push(role['name'])
+  def get_task_roles(manifest)
+    manifest['roles'].select do |role|
+      task?(role) && !dev?(role)
     end
-
-    emit_variable('all_the_roles', value: the_roles.join(' '))
   end
 
-  def emit_list_of_job_roles(roles)
-    the_jobs = []
-
-    roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-      next if type == 'docker' || type == 'bosh-task'
-
-      the_jobs.push(role['name'])
-    end
-
-    emit_variable('all_the_jobs', value: the_jobs.join(' '))
+  def to_names(roles)
+    roles.map { |role| role['name'] }
   end
 
-  def emit_list_of_task_roles(roles)
-    the_tasks = []
-
-    roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
-      next if type == 'docker' ||
-              type == 'bosh' ||
-              (role['dev-only'] && !@options[:dev])
-
-      the_tasks.push(role['name'])
-    end
-
-    emit_variable('all_the_tasks', value: the_tasks.join(' '))
-  end
+  # # ## ### ##### ########
 end
 
 # # ## ### ##### ########

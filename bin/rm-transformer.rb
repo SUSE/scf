@@ -31,8 +31,13 @@ def main
   ##
   # The generated definitions are written to stdout
 
-  $options = {}
   provider = 'ucp'
+  options = {
+    dtr:         'docker.helion.lol',
+    dtr_org:     'helioncf',
+    hcf_version: 'develop',
+    hcf_prefix:  'hcf'
+  }
 
   op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] role-manifest|- ?...?
@@ -44,19 +49,19 @@ def main
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
-      $options[:dtr] = v
+      options[:dtr] = v
     end
     opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
-      $options[:dtr_org] = v
+      options[:dtr_org] = v
     end
     opts.on('-H', '--hcf-version text', 'Label to use in docker images') do |v|
-      $options[:hcf_version] = v
+      options[:hcf_version] = v
     end
     opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
-      $options[:hcf_prefix] = v
+      options[:hcf_prefix] = v
     end
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
-      $options[:dev] = v
+      options[:dev] = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       provider = case v
@@ -76,7 +81,7 @@ def main
   origin = ARGV[0]
 
   the_roles = get_roles(origin)
-  provider = get_provider(provider).new($options, ARGV[1, ARGV.size])
+  provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
   the_result = provider.transform(the_roles)
 
   puts(the_result)
@@ -104,7 +109,7 @@ def get_roles(path)
   ##
   # the_roles.roles[].name				/string
   # the_roles.roles[].dev-only				/bool
-  # the_roles.roles[].type				/string (allowed "bosh-task")
+  # the_roles.roles[].type				/string (*)
   # the_roles.roles[].scripts[]				/string
   # the_roles.roles[].jobs[].name			/string
   # the_roles.roles[].jobs[].release_name		/string
@@ -129,6 +134,8 @@ def get_roles(path)
   # the_roles.configuration.variables[].name		/string
   # the_roles.configuration.variables[].default		/string
   # the_roles.configuration.templates.<any>		/string (key -> value)
+
+  # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
 end
 
 main

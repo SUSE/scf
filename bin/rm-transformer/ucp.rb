@@ -1,21 +1,13 @@
 ## UCP output provider
 # # ## ### ##### ########
 
+require_relative 'common'
+
 # Provider for UCP specifications derived from a role-manifest.
-class ToUCP
+class ToUCP < Common
   def initialize(options, remainder)
     raise 'UCP conversion does not accept add-on files' unless remainder.empty?
-    @options = options
-    initialize_dtr_information
-  end
-
-  def initialize_dtr_information
-    # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr] || 'docker.helion.lol'
-    @dtr_org     = @options[:dtr_org] || 'helioncf'
-    @hcf_version = @options[:hcf_version] || 'develop'
-    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
-
+    super(options)
     @dtr = "#{@dtr}/" unless @dtr.empty?
   end
 
@@ -111,25 +103,12 @@ class ToUCP
     post = definition['postflight']
 
     roles['roles'].each do |role|
-      type = role['type'] || 'bosh'
+      next if task?(role) && dev?(role)
 
-      next if type == 'docker' ||
-              (type == 'bosh-task' &&
-               role['dev-only'] &&
-               !@options[:dev])
+      rcount = task?(role) ? 5    : 0
+      dst    = task?(role) ? post : comp
 
-      rc = choose(type, 5, 0)
-      dst = choose(type, post, comp)
-
-      add_component(roles, fs, dst, role, rc)
-    end
-  end
-
-  def choose(type, task, job)
-    if type == 'bosh-task'
-      task
-    else
-      job
+      add_component(roles, fs, dst, role, rcount)
     end
   end
 
