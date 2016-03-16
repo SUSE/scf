@@ -238,11 +238,11 @@ ucp:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml > ${CURDIR}/hcf-ucp.json"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
 
 mpc:
 	docker run -it --rm \
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf > ${CURDIR}/hcf.tf"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf"
