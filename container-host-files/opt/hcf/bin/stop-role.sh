@@ -12,17 +12,14 @@ fi
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
 # SELF    = /opt/hcf/bin/list-roles.sh
 # SELFDIR = /opt/hcf/bin
-# ROOT    = /            (3x .. from SELFDIR)
 #
 # Vagrant
 # SELF    = PWD/container-host-files/opt/hcf/bin/list-roles.sh
 # SELFDIR = PWD/container-host-files/opt/hcf/bin
-# ROOT    = PWD/container-host-files             (3x .. from SELFDIR)
 
 SELFDIR="$(readlink -f "$(cd "$(dirname "$0")" && pwd)")"
-ROOT="$(readlink -f "$SELFDIR/../../../")"
 
-. "${ROOT}/opt/hcf/bin/common.sh"
+. "${SELFDIR}/common.sh"
 
 # Stop the specified role
 echo "Stopping ${role_name} ..."
