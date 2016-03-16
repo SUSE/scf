@@ -25,6 +25,8 @@ roles:
         target: 4222
         public: false
 - name: consul
+  scripts:
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -76,17 +78,17 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cluster_ips: '["((MYSQL_HOST))"]'
-      properties.database_startup_timeout: '300'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cf_mysql.proxy.api_username: 'mysql_proxy'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
   jobs:
   - name: proxy
@@ -107,26 +109,29 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cluster_ips: '["((MYSQL_HOST))"]'
-      properties.database_startup_timeout: '300'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
-      properties.proxy.api_username: 'mysql_proxy'
-      properties.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
-      properties.bootstrap_endpoint.username: 'bootstrap_user'
-      properties.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.external_host: "((DOMAIN))"
-      properties.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
+      properties.cf_mysql.proxy.api_username: 'mysql_proxy'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
       # TODO: Take this out, and place our generated CA cert
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
       properties.proxy.api_force_https: 'false'
       properties.skip_ssl_validation: 'true'
+      properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
+  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
+  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -160,10 +165,10 @@ roles:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
-  - fix_consul_address_lookup.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -200,8 +205,8 @@ roles:
         public: true
 - name: router
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -227,7 +232,7 @@ roles:
         public: false
 - name: uaa
   scripts:
-  - fix_consul_address_lookup.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -256,17 +261,16 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  - fix_consul_address_lookup.sh
-  - fix_cc_internal_service_hostname.sh
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
+  # cc_internal_hostname fixed in cloud_controller_ng.git#8f9f27ae
+  - fix_cc_internal_service_hostname.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_ng
-    release_name: cf
-  - name: routing-api
     release_name: cf
   - name: statsd-injector
     release_name: cf
@@ -276,11 +280,24 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  - name: go-buildpack
+    release_name: cf
+  - name: binary-buildpack
+    release_name: cf
+  - name: nodejs-buildpack
+    release_name: cf
+  - name: ruby-buildpack
+    release_name: cf
+  - name: php-buildpack
+    release_name: cf
+  - name: python-buildpack
+    release_name: cf
+  - name: staticfile-buildpack
+    release_name: cf
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
   - name: cloud_controller_migration
-  - name: routing-api
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
@@ -302,11 +319,10 @@ roles:
   configuration:
     templates:
       properties.etcd.machines: '["((ETCD_HOST))"]'
-      properties.route_registrar.routes: '[{"name":"api", "port":"9022", "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
-  - fix_consul_address_lookup.sh
-  - fix_cc_internal_service_hostname.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -330,8 +346,7 @@ roles:
     exposed-ports: []
 - name: clock-global
   scripts:
-  - fix_consul_address_lookup.sh
-  - fix_cc_internal_service_hostname.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -352,7 +367,7 @@ roles:
     exposed-ports: []
 - name: cf-usb
   scripts:
-  - fix_consul_address_lookup.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -386,7 +401,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"]}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
   - make_sys_proc_tweaks_optional.sh
@@ -405,7 +420,7 @@ roles:
   - name: syslog_drain_binder
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -425,6 +440,9 @@ roles:
         target: 3457
         public: false
 - name: etcd
+  scripts:
+  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
+  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -485,7 +503,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"]}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"]}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -500,7 +518,7 @@ roles:
         public: false
 - name: diego-brain
   scripts:
-  - fix_consul_address_lookup.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -529,8 +547,8 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: stager
     release_name: diego
@@ -565,7 +583,7 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
-  - fix_consul_address_lookup.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -586,8 +604,8 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fix_consul_address_lookup.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -616,10 +634,12 @@ roles:
         public: true
 - name: diego-cell
   scripts:
-  - fix_consul_address_lookup.sh
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
+  - consul_agent_loopback_ip.sh
+  post_config_scripts:
+  - diego-cell-pre-start.sh
   jobs:
   - name: rep
     release_name: diego
@@ -632,7 +652,6 @@ roles:
   - name: metron_agent
     release_name: cf
   processes:
-  - name: rootfses
   - name: metron_agent
   - name: consul_agent
   - name: rep
@@ -804,7 +823,7 @@ configuration:
   - name: CF_USB_PASSWORD
     default: changeme
   - name: CLUSTER_ADMIN_AUTHORITIES
-    default: scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose
+    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
   - name: CLUSTER_ADMIN_PASSWORD
     default: changeme
   - name: CLUSTER_ADMIN_USERNAME
@@ -851,6 +870,8 @@ configuration:
     default: batch_username
   - name: UAA_CC_CLIENT_SECRET
     default: cc_client_secret
+  - name: UAA_CC_ROUTING_SECRET
+    default: cc_routing_secret
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     default: app_direct_secret
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
@@ -865,10 +886,16 @@ configuration:
     default: notification_secret
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     default: cc_routing_secret
+  - name: UAA_CLIENTS_CC_SERVICE_SECRET
+    default: cc_service_secret
   - name: UAA_CLIENTS_CF_USB_SECRET
     default: cf_usb_secret
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     default: ssh_proxy_secret
+  - name: UAA_CLIENTS_TCP_EMITTER_SECRET
+    default: uaa_client_tcp_emitter_secret
+  - name: UAA_CLIENTS_TCP_ROUTER_SECRET
+    default: uaa_client_tcp_router_secret
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
@@ -943,10 +970,10 @@ configuration:
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
-    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"}, {"name": "windows2012R2", "description": "Windows Server 2012 R2"}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
+    properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -955,7 +982,6 @@ configuration:
     properties.hcf.monit.user: '"((MONIT_USER))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.monit.port: '((MONIT_PORT))'
-    properties.loggregator_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.user: '"((NATS_USER))"'
     properties.nats.password: '"((NATS_PASSWORD))"'
@@ -965,14 +991,20 @@ configuration:
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
-    properties.uaa.clients.developer-console.secret: '"((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"'
+    properties.uaa.clients.cc_routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
+    properties.uaa.clients.developer_console.secret: '"((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"'
     properties.uaa.clients.notifications.secret: '"((UAA_CLIENTS_NOTIFICATIONS_SECRET))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
+    properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+    properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
+    properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.system_domain: '"((DOMAIN))"'
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
@@ -1048,6 +1080,8 @@ configuration:
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
+    properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
+    properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     # Diego certificates
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
@@ -1093,6 +1127,10 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    properties.smoke_tests.api: '"api.((DOMAIN))"'
+    properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
+    properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
+    properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
     properties.cc.tweak_proc_sys: false

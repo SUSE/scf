@@ -20,7 +20,7 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_ng/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch
+  echo -e "${setup_patch}" | patch --force
 fi
 
 # *********************************************
@@ -43,7 +43,7 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_worker/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch
+  echo -e "${setup_patch}" | patch --force
 fi
 
 # *********************************************
@@ -66,7 +66,7 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_clock/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch
+  echo -e "${setup_patch}" | patch --force
 fi
 
 exit 0

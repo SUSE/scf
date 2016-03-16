@@ -64,23 +64,24 @@ properties:
     external_protocol: http
     install_buildpacks:
     - name: staticfile_buildpack
-      package: buildpack_staticfile
+      package: staticfile-buildpack
     - name: java_buildpack
       package: buildpack_java
     - name: ruby_buildpack
-      package: buildpack_ruby
+      package: ruby-buildpack
     - name: nodejs_buildpack
-      package: buildpack_nodejs
+      package: nodejs-buildpack
     - name: go_buildpack
-      package: buildpack_go
+      package: go-buildpack
     - name: python_buildpack
-      package: buildpack_python
+      package: python-buildpack
     - name: php_buildpack
-      package: buildpack_php
+      package: php-buildpack
     - name: binary_buildpack
-      package: buildpack_binary
+      package: binary-buildpack
     internal_api_password: password
     internal_api_user: internal_user
+    internal_service_hostname: api.hcf
     jobs:
       app_bits_packer:
         timeout_in_seconds: null
@@ -153,7 +154,11 @@ properties:
         ports: "53"
         protocol: udp
     srv_api_uri: https://api.example.com
-    stacks: null
+    stacks:
+    - name: cflinuxfs2
+      description: Cloud Foundry Linux-based filesystem
+    - name: windows2012R2
+      description: Windows Server 2012 R2
     staging_upload_password: password
     staging_upload_user: username
     system_buildpacks:
@@ -277,6 +282,10 @@ properties:
     stager:
       bbs:
         require_ssl: true
+      cc:
+        internal_service_hostname: api.hcf
+      cc_uploader_url: http://diego-cc-bridge.hcf:9090
+      file_server_url: http://diego-access.hcf:8080
       tweak_proc_sys: false
     tps:
       bbs:
@@ -300,6 +309,7 @@ properties:
     cluster:
     - instances: 1
       name: database_z1
+    dns_health_check_host: consul.hcf
     peer_require_ssl: true
     require_ssl: true
     server_cert: null
@@ -325,8 +335,6 @@ properties:
     blacklisted_syslog_ranges: null
     debug: false
     maxRetainedLogMessages: 100
-  loggregator_endpoint:
-    shared_secret: loggregator_endpoint_secret
   login:
     analytics:
       code: null
@@ -382,7 +390,7 @@ properties:
   request_timeout_in_seconds: 900
   router:
     tweak_proc_sys: false
-    cipher_suites: TLS_RSA_WITH_RC4_128_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
+    cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
@@ -397,7 +405,19 @@ properties:
     status:
       password: router_password
       user: router_user
-  smoke_tests: null
+  smoke_tests:
+    suite_name: CF_SMOKE_TESTS
+    api: api.((DOMAIN))
+    apps_domain: [ ((DOMAIN)) ]
+    user: ((CLUSTER_ADMIN_USERNAME))
+    password: ((CLUSTER_ADMIN_PASSWORD))
+    org: smoke-test-org
+    space: smoke-test-space
+    use_existing_org: false
+    use_existing_space: false
+    logging_app: ""
+    runtime_app: ""
+    skip_ssl_validation: true
   ssl:
     # TODO: Default to false, and place our generated CA cert
     # into the appropriate /usr/share/ca-certificates folders
@@ -422,7 +442,8 @@ properties:
     batch:
       password: batch_password
       username: batch_username
-    catalina_opts: -Xmx768m -XX:MaxPermSize=256m
+    catalina_opts:
+      "-Xmx768m -XX:MaxPermSize=256m"
     cc:
       client_secret: cc_client_secret
     clients:
@@ -433,6 +454,31 @@ properties:
         authorized-grant-types: client_credentials
         scope: usb.management.admin
         secret: cf-usb_secret
+      cc-service-dashboards:
+        authorities: clients.read,clients.write,clients.admin
+        authorized-grant-types: client_credentials
+        scope: openid,cloud_controller_service_permissions.read
+        secret: cc-broker-secret
+      cc_routing:
+        authorities: routing.router_groups.read
+        authorized-grant-types: client_credentials
+        secret: cc_routing_secret
+      cf:
+        access-token-validity: 600
+        authorities: uaa.none
+        authorized-grant-types: implicit,password,refresh_token,client_credentials
+        autoapprove: true
+        override: true
+        refresh-token-validity: 2592000
+        scope: cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read
+
+      cloud_controller:
+        authorized-grant-types: client_credentials
+        authorities: scim.read,scim.write,password.write
+        id: cloud_controller
+        secret: "cc_client_secret"
+        access-token-validity: 604800
+
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials
@@ -451,6 +497,7 @@ properties:
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
         authorized-grant-types: authorization_code,client_credentials,refresh_token
+        autoapprove: true
         override: true
         redirect-uri: https://login.example.com
         scope: openid,oauth.approvals
@@ -466,6 +513,12 @@ properties:
         redirect-uri: /login
         scope: openid,cloud_controller.read,cloud_controller.write
         secret: ssh-proxy_secret
+      tcp_emitter:
+        authorities: routing.routes.write,routing.routes.read
+        authorized-grant-types: client_credentials,refresh_token
+      tcp_router:
+        authorities: routing.routes.read
+        authorized-grant-types: client_credentials,refresh_token
     database:
       abandoned_timeout: 600
       log_abandoned: true
