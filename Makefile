@@ -6,11 +6,10 @@ run:
 CF_RELEASE ?= $(shell cat cf-release-version)
 UBUNTU_IMAGE ?= ubuntu:14.04
 
-include version.mk
-
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-COMMIT := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
-APP_VERSION := ${VERSION}+${COMMIT}.${BRANCH}
+VERSION := $(shell cat VERSION)
+VERSION_OFFSET := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
+BRANCH := $(shell (git describe --all --exact-match HEAD 2>/dev/null || echo HEAD) | sed 's@.*/@@')
+APP_VERSION := ${VERSION}+${VERSION_OFFSET}.${BRANCH}
 APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 
 # CI configuration. Empty strings not allowed, except for the registry.
