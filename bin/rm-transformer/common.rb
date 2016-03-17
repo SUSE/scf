@@ -23,39 +23,24 @@ class Common
   # # ## ### ##### ########
   ## Predicates on roles.
 
-  def dev?(role)
-    role['dev-only'] && !@options[:dev]
-  end
-
   def typeof(role)
     role['type'] || 'bosh'
   end
 
+  def flight_stage_of(role)
+    role['run']['flight-stage'] || 'flight'
+  end
+
+  def skip_manual?(role)
+    flight_stage_of(role) == 'manual' && !@options[:manual]
+  end
+
   def job?(role)
-    t_job?(typeof(role))
+    flight_stage_of(role) == 'flight'
   end
 
   def task?(role)
-    t_task?(typeof(role))
-  end
-
-  # # ## ### ##### ########
-  ## Predicates on role types
-
-  def t_job?(type)
-    type == 'bosh' || type == 'docker'
-  end
-
-  def t_task?(type)
-    type == 'bosh-task'
-  end
-
-  def t_bosh?(type)
-    type == 'bosh' || type == 'bosh-task'
-  end
-
-  def t_docker?(type)
-    type == 'docker'
+    !job?(role)
   end
 
   # # ## ### ##### ########

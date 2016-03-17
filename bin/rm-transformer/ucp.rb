@@ -99,16 +99,18 @@ class ToUCP < Common
   end
 
   def process_roles(roles, definition, fs)
-    comp = definition['components']
-    post = definition['postflight']
-
+    section_map = {
+        'pre-flight'  => 'preflight',
+        'flight'      => 'components',
+        'post-flight' => 'postflight'
+    }
     roles['roles'].each do |role|
-      next if task?(role) && dev?(role)
+      # UCP doesn't have manual jobs
+      next if flight_stage_of(role) == 'manual'
 
-      rcount = task?(role) ? 5    : 0
-      dst    = task?(role) ? post : comp
-
-      add_component(roles, fs, dst, role, rcount)
+      retries = task?(role) ? 5 : 0
+      dst = definition[section_map[flight_stage_of(role)]]
+      add_component(roles, fs, dst, role, retries)
     end
   end
 
