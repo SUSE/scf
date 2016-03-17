@@ -26,6 +26,7 @@ def main
   # --hcf-prefix      ~ The prefix used during image generation
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
+  # --env <dir>       ~ Read all *.env files from this directory.
   #
   # ?...?               Additional files, format-dependent
   ##
@@ -38,9 +39,10 @@ def main
     hcf_version: 'develop',
     hcf_prefix:  'hcf'
   }
+  env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] role-manifest|- ?...?
+    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] [--env-dir DIR] role-manifest|- ?...?
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -63,6 +65,9 @@ def main
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
       options[:dev] = v
     end
+    opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
+      env_dir = v
+    end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       provider = case v
                  when 'ucp'             then 'ucp'
@@ -80,7 +85,7 @@ def main
 
   origin = ARGV[0]
 
-  the_roles = get_roles(origin)
+  the_roles = get_roles(origin, env_dir)
   provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
   the_result = provider.transform(the_roles)
 
@@ -98,13 +103,32 @@ def get_provider(name)
   end
 end
 
-def get_roles(path)
+def get_roles(path, env_dir)
   if path == '-'
     # Read from stdin.
-    YAML.load($stdin)
+    roles = YAML.load($stdin)
   else
-    YAML.load_file(path)
+    roles = YAML.load_file(path)
   end
+
+  unless env_dir.nil?
+    vars = roles['configuration']['variables']
+    Dir.glob(File.join(env_dir, "*.env")).each do |env_file|
+      File.readlines(env_file).each do |line|
+        name, value = line.chomp.split('=', 2)
+        i = vars.find_index{|x| x['name'] == name }
+        if i.nil?
+          STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
+        else
+          vars[i]['default'] = value
+        end
+      end
+    end
+  end
+
+  return roles
+end
+
   # Loaded structure
   ##
   # the_roles.roles[].name				/string
@@ -136,6 +160,5 @@ def get_roles(path)
   # the_roles.configuration.templates.<any>		/string (key -> value)
 
   # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
-end
 
 main
