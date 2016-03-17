@@ -55,15 +55,28 @@ function start_role {
 
   mkdir -p $log_dir/$role
 
-  docker run -it -d --name $name \
-    --net=hcf \
-    --label=hcf_role=$role \
-    --hostname=${role}.hcf \
-    $env_files \
-    -v $log_dir/$role:/var/vcap/sys/log \
-    $extra \
-    $user_extra \
-    $image > /dev/null
+  if [[ "$(get_role_flight_stage ${role})" == "flight" ]]; then
+    docker run -it --name $name \
+        --detach \
+        --net=hcf \
+        --label=hcf_role=$role \
+        --hostname=${role}.hcf \
+        $env_files \
+        -v $log_dir/$role:/var/vcap/sys/log \
+        $extra \
+        $user_extra \
+        $image > /dev/null
+  else
+    docker run -it --name $name \
+        --net=hcf \
+        --label=hcf_role=$role \
+        --hostname=${role}.hcf \
+        $env_files \
+        -v $log_dir/$role:/var/vcap/sys/log \
+        $extra \
+        $user_extra \
+        $image
+  fi
 }
 
 # Collect the .env files to use by docker run to initialize the
@@ -191,80 +204,104 @@ function handle_restart() {
 
 # Loads all roles from the role-manifest.yml
 function load_all_roles() {
+  local role_block
   local role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
 
   if [ "${#role_manifest[@]}" == "0" ]; then
+    declare -g  'role_manifest_data'
     declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
     declare -gA 'role_manifest_processes=()'
     declare -gA 'role_manifest_run=()'
 
+    role_manifest_data=$(y2j < ${role_manifest_file})
     # Using this style of while loop so we don't get a subshell
     # because of piping (see http://stackoverflow.com/questions/11942214)
     while IFS= read -r role_block; do
-      role_name=$(echo "${role_block}" | awk '{ print $1 }')
-      role_type=$(echo "${role_block}" | awk '{ print $2 }')
-      role_processes=$(echo "${role_block}" | awk '{ print $3 }')
-      role_processes=${role_processes//,/$'\n'}
+      local role_info=(${role_block})
+      local role_name=${role_info[0]}
+      local role_type=${role_info[1]}
+      local role_processes=${role_info[2]//,/$'\n'}
 
       role_names+=( "${role_name}" )
       role_manifest["${role_name}"]=$role_block
       role_manifest_types["${role_name}"]=$role_type
       role_manifest_processes["${role_name}"]=$role_processes
-    done < <(cat ${role_manifest_file} | y2j | jq --raw-output '.roles[] | .name + " " + (.type // "bosh") + " " + ([(.processes//[])[].name]//[] | join(","))')
+    done < <(echo "${role_manifest_data}" | jq --raw-output '.roles[] | .name + " " + (.type // "bosh") + " " + ([(.processes//[])[].name]//[] | join(","))')
 
     while IFS= read -r role_block; do
       role_name=$(echo "${role_block}" | jq --raw-output '.name')
       role_run=$(echo "${role_block}" | jq --raw-output --compact-output '.run')
       role_manifest_run["${role_name}"]=$role_run
-    done < <(cat ${role_manifest_file} | y2j | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
+    done < <(echo "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
   fi
+}
+
+# Return all roles that are of the given stage
+# list_roles_by_flight_stage <FLIGHT_STAGE>
+function list_roles_by_flight_stage() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  local stage="$1"
+  echo "${role_manifest_data}" | jq --raw-output --compact-output '.roles | map(select((.run."flight-stage" // "flight") == "'${stage}'") | .name) | .[]'
+}
+
+# Get the flight stage of the given role
+# get_role_flight_stage <ROLE_NAME>
+function get_role_flight_stage() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  local role_name="$1"
+  echo "${role_manifest_data}" | jq --raw-output --compact-output ' .roles | map(select(.name=="'${role_name}'")) | .[0].run."flight-stage" // "flight" '
+}
+
+# Get the type of the given role
+# get_role_type <ROLE_NAME>
+function get_role_type() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  local role_name="$1"
+  echo ${role_manifest_types[${role_name}]}
+}
+
+# Return all roles that are of the given type
+# list_roles_by_type <ROLE_TYPE>
+function list_roles_by_type() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  local type="$1"
+  echo "${role_manifest_data}" | jq --raw-output --compact-output '.roles | map(select((.type // "bosh") == "'${type}'") | .name) | .[]'
 }
 
 # Reads all roles that are bosh roles from role-manifest.yml
 # list_all_bosh_roles
 function list_all_bosh_roles() {
-  if [ "${#role_manifest[@]}" == "0" ]; then
-    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
-    exit 1
-  fi
-
-  for role_name in "${role_names[@]}"; do
-    if [ "${role_manifest_types["$role_name"]}" == "bosh" ] ; then
-      echo $role_name
-    fi
-  done
+  list_roles_by_type bosh
 }
 
 # Reads all roles that are docker roles from role-manifest.yml
 # list_all_docker_roles
 function list_all_docker_roles() {
-  if [ "${#role_manifest[@]}" == "0" ]; then
-    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
-    exit 1
-  fi
-
-  for role_name in "${role_names[@]}"; do
-    if [ "${role_manifest_types["$role_name"]}" == "docker" ] ; then
-      echo $role_name
-    fi
-  done
+  list_roles_by_type docker
 }
 
 # Reads all roles that are bosh tasks from role-manifest.yml
 # list_all_bosh_task_roles
 function list_all_bosh_task_roles() {
-  if [ "${#role_manifest[@]}" == "0" ]; then
-    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
-    exit 1
-  fi
-
-  for role_name in "${role_names[@]}"; do
-    if [ "${role_manifest_types["${role_name}"]}" == "bosh-task" ] ; then
-      echo $role_name
-    fi
-  done
+  list_roles_by_type bosh-task
 }
 
 # Reads all processes for a specific role from the role manifest

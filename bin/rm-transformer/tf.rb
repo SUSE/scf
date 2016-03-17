@@ -294,13 +294,11 @@ SETUP
   end
 
   def get_job_roles(manifest)
-    manifest['roles'].select { |role| job?(role) }
+    manifest['roles'].select { |role| job?(role) && !skip_manual?(role) }
   end
 
   def get_task_roles(manifest)
-    manifest['roles'].select do |role|
-      task?(role) && !dev?(role)
-    end
+    manifest['roles'].select { |role| task?(role) && !skip_manual?(role) }
   end
 
   def to_names(roles)
