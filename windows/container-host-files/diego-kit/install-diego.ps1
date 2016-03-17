@@ -57,6 +57,7 @@ $env:DIEGO_CELL_IP = $ipaddr
 $env:DIEGO_NETADAPTER = $diegoInterface.InterfaceAlias
 $env:STACK = "windows2012R2"
 $env:REP_ZONE = "windows"
+$env:REP_MEMORY_MB = "auto"
 
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
 
