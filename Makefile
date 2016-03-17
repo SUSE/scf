@@ -214,23 +214,6 @@ docker-publish:
 	        docker push ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
-DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
-terraform:
-	mkdir -p ${DIST_DIR}/direct_internet
-	mkdir -p ${DIST_DIR}/proxied_internet
-	mkdir -p ${DIST_DIR}/templates
-
-	cp -rL ${CURDIR}/terraform-scripts/hcf/* ${DIST_DIR}/direct_internet/
-	cp -rL ${CURDIR}/terraform-scripts/hcf-proxied/* ${DIST_DIR}/proxied_internet/
-	cp -rL ${CURDIR}/terraform-scripts/templates/* ${DIST_DIR}/templates/
-
-	cp -rL ${CURDIR}/container-host-files ${FISSILE_WORK_DIR}/hcf/
-
-	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/direct_internet/version.tf
-	echo "variable \"build\" {\n\tdefault = \"${APP_VERSION}\"\n}\n" > ${DIST_DIR}/proxied_internet/version.tf
-
-	tar -chzvf ${FISSILE_WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${FISSILE_WORK_DIR} hcf
-
 show-docker-setup:
 	@echo "docker registry = '${IMAGE_REGISTRY}'"
 	@echo "       for make = '${IMAGE_REGISTRY_MAKE}'"
