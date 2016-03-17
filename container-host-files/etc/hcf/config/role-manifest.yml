@@ -664,12 +664,12 @@ roles:
     virtual-cpus: 4
     exposed-ports: []
 - name: acceptance-tests
-  dev-only: true
   type: bosh-task
   jobs:
   - name: acceptance-tests
     release_name: cf
   run:
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -677,12 +677,12 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: smoke-tests
-  dev-only: true
   type: bosh-task
   jobs:
   - name: smoke-tests
     release_name: cf
   run:
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -696,6 +696,7 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
+    flight-stage: post-flight
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -704,7 +705,6 @@ roles:
     exposed-ports: []
 - name: windows-dns
   type: docker
-  dev-only: true
   run:
     capabilities: []
     persistent-volumes: []
@@ -784,6 +784,7 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
+    flight-stage: post-flight
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
