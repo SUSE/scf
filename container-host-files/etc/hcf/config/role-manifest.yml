@@ -904,6 +904,8 @@ configuration:
   - name: APP_SSH_HOST_KEY_FINGERPRINT
   - name: ROUTER_SSL_CERT
   - name: ROUTER_SSL_KEY
+  - name: UAA_PRIVATE_KEY
+  - name: UAA_CERTIFICATE
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
