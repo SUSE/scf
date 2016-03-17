@@ -33,6 +33,7 @@ HCF_RUN_LOG_DIRECTORY="${HCF_RUN_LOG_DIRECTORY:-$HOME/.run/log}"
 store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 
+load_all_roles
 # (Re)start the specified role
 handle_restart "$role_name" \
     "${setup_dir}" \
