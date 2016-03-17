@@ -157,6 +157,8 @@ end
   # the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
   # the_roles.configuration.variables[].name		/string
   # the_roles.configuration.variables[].default		/string
+  # the_roles.configuration.variables[].example		/string
+  # the_roles.configuration.variables[].secret		/bool
   # the_roles.configuration.templates.<any>		/string (key -> value)
 
   # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'

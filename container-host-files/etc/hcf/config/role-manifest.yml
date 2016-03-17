@@ -804,9 +804,11 @@ configuration:
   - name: PUBLIC_IP
     default: "192.168.77.77"
   - name: BULK_API_PASSWORD
+    secret: true
   - name: CCDB_ROLE_NAME
     default: ccadmin
   - name: CCDB_ROLE_PASSWORD
+    secret: true
   - name: CCDB_ROLE_TAG
     default: admin
   - name: CERTS_PREFIX
@@ -818,9 +820,11 @@ configuration:
   - name: CF_USB_USERNAME
     default: broker-admin
   - name: CF_USB_PASSWORD
+    secret: true
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
   - name: CLUSTER_ADMIN_PASSWORD
+    secret: true
   - name: CLUSTER_ADMIN_USERNAME
     default: admin
   - name: CONSUL_ENCRYPTION_KEYS
@@ -832,80 +836,128 @@ configuration:
   - name: DOPPLER_ZONE
     default: z1
   - name: LOGGREGATOR_SHARED_SECRET
+    secret: true
   - name: METRON_AGENT_ZONE
     default: z1
   - name: MONIT_PASSWORD
+    secret: true
   - name: MONIT_PORT
     default: '2822'
   - name: MONIT_USER
     default: monit_user
   - name: NATS_PASSWORD
+    secret: true
   - name: NATS_USER
     default: nats_user
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
     default: foobar
   - name: STAGING_UPLOAD_PASSWORD
+    secret: true
   - name: STAGING_UPLOAD_USER
     default: username
   - name: INTERNAL_API_PASSWORD
+    secret: true
   - name: INTERNAL_API_USER
     default: internal_user
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
   - name: UAA_ADMIN_CLIENT_SECRET
+    secret: true
   - name: UAA_BATCH_PASSWORD
+    secret: true
   - name: UAA_BATCH_USERNAME
     default: batch_username
   - name: UAA_CC_CLIENT_SECRET
+    secret: true
   - name: UAA_CC_ROUTING_SECRET
+    secret: true
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
+    secret: true
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
+    secret: true
   - name: UAA_CLIENTS_DOPPLER_SECRET
+    secret: true
   - name: UAA_CLIENTS_GOROUTER_SECRET
+    secret: true
   - name: UAA_CLIENTS_LOGIN_SECRET
+    secret: true
   - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
+    secret: true
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
+    secret: true
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
+    secret: true
   - name: UAA_CLIENTS_CF_USB_SECRET
+    secret: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
+    secret: true
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
+    secret: true
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
+    secret: true
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     default: key1_passphrase
   - name: MYSQL_ADMIN_PASSWORD
+    secret: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
+    secret: true
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
+    secret: true
   - name: UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
+    secret: true
   - name: UAADB_PASSWORD
+    secret: true
   - name: UAADB_TAG
     default: admin
   - name: UAADB_USERNAME
     default: uaaadmin
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
+    secret: true
   - name: JWT_SIGNING_PEM
+    secret: true
   - name: JWT_SIGNING_PUB
+    secret: true
   - name: ETCD_PEER_KEY
+    secret: true
   - name: ETCD_PEER_CRT
+    secret: true
   - name: ETCD_PEER_CA_CRT
+    secret: true
   - name: ETCD_SERVER_KEY
+    secret: true
   - name: ETCD_CLIENT_KEY
+    secret: true
   - name: ETCD_SERVER_CRT
+    secret: true
   - name: ETCD_CLIENT_CRT
+    secret: true
   - name: ETCD_CA_CRT
+    secret: true
   - name: BBS_SERVER_KEY
+    secret: true
   - name: BBS_CLIENT_KEY
+    secret: true
   - name: BBS_SERVER_CRT
+    secret: true
   - name: BBS_CLIENT_CRT
+    secret: true
   - name: BBS_CA_CRT
+    secret: true
   - name: SSH_KEY
+    secret: true
   - name: APP_SSH_HOST_KEY_FINGERPRINT
+    secret: true
   - name: ROUTER_SSL_CERT
+    secret: true
   - name: ROUTER_SSL_KEY
+    secret: true
   - name: UAA_PRIVATE_KEY
+    secret: true
   - name: UAA_CERTIFICATE
+    secret: true
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
