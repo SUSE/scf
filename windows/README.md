@@ -42,41 +42,92 @@ cd NET-sample-app/ViewEnvironment
 cf push dotnet-env -s windows2012R2 -b https://github.com/hpcloud/cf-iis8-buildpack
 ```
 
+## How to run Windows Acceptance Tests (WATS)
+
+Windows acceptance tests can be run from OS X or a Linux box with access to HCF and golang installed.
+The test suite requires approximately 8 GiB of RAM for the Windows Cell. The default config only has 2 GiB, so increasing the RAM or over committing is necessary.
+
+To increase the RAM change the vb.memory in the Windows Vagrant file form `vb.memory = "2048"` to `vb.memory = "8192"`. After the change, run `vagrant reload` for the Windows Cell to restart the VM.
+
+To overcommit the Windows Cell capacity to 8 GiB without increasing the actual VM RAM, change the config line `$env:REP_MEMORY_MB = "auto"` to `$env:REP_MEMORY_MB = "8192"` in install-diego.ps1. After the change, run `vagrant provision` for the Windows Cell to apply the new config value.
+
+Run this snippet to clone the WATS repo and start the testing:
+
+```
+git clone https://github.com/cloudfoundry/wats
+cd wats
+
+cat > scripts/wats_hcf_config.json <<EOL
+{
+  "api": "api.192.168.77.77.nip.io",
+  "admin_user": "admin",
+  "admin_password": "changeme",
+  "apps_domain": "192.168.77.77.nip.io",
+  "secure_address": "192.168.77.77:80",
+  "skip_ssl_validation": true
+}
+EOL
+
+NUM_WIN_CELLS=1 scripts/run_wats.sh scripts/wats_hcf_config.json
+```
+
+## Rebuild Windows Vagrant box
+
+The current Windows 2012 R2 Vagrant box is built with [Packer](https://www.packer.io/) with the base packer template from:  
+https://github.com/stefanschneider/packer-windows.
+
+The above packer template is a fork from: https://github.com/joefitzgerald/packer-windows with the following changes:
+ - Built with a retail iso
+ - Installed with GVLK key
+ - Sysprep
+
+Requirements for building the Windows Vagrant box:
+ - Retail Windows Server 2012 R2 ISO from MSDN
+ - VirtualBox and/or VMware Workstation/Fusion
+ - Packer
+
+
+ Use this sample snippet to build the image for VirtualBox:
+ ```
+ packer build \
+  -var iso_url=~/software/en_windows_server_2012_r2_with_update_x64_dvd_6052708.iso  \
+  -var iso_checksum=865494e969704be1c4496d8614314361d025775e  \
+  -var iso_checksum_type=sha1  \
+  -only virtualbox-iso \
+   windows_2012_r2.json
+ ```
+
+ Use this sample snippet to build the image for VMware Workstation / Fusion:
+ ```
+ packer build \
+  -var iso_url=~/software/en_windows_server_2012_r2_with_update_x64_dvd_6052708.iso  \
+  -var iso_checksum=865494e969704be1c4496d8614314361d025775e  \
+  -var iso_checksum_type=sha1  \
+  -only vmware-iso \
+   windows_2012_r2.json
+ ```
+
+Other open source packer templates that could potentially be compatible:
+ - https://github.com/mwrock/packer-templates
+ - https://github.com/boxcutter/windows
+
 ## Troubleshooting
 
-- Error to ignore when running `vagrant up`:
-```
-==> default: Running provisioner: file...
-==> default: Running provisioner: shell...
-    default: Running: vagrant-install-wrapper.ps1 as c:\tmp\vagrant-shell.ps1
-==> default: del : Cannot remove item C:\Windows\Temp\WinRM_Elevated_Shell.log: The process
-==> default: cannot access the file 'C:\Windows\Temp\WinRM_Elevated_Shell.log' because it
-==> default: is being used by another process.
-==> default: At C:\tmp\vagrant-elevated-shell.ps1:19 char:3
-==> default: +   del $out_file
-==> default: +   ~~~~~~~~~~~~~
-==> default:     + CategoryInfo          : WriteError: (C:\Windows\Temp\WinRM_Elevated_Shel
-==> default:    l.log:FileInfo) [Remove-Item], IOException
-==> default:     + FullyQualifiedErrorId : RemoveFileSystemItemIOError,Microsoft.PowerShell
-==> default:    .Commands.RemoveItemCommand
-==> default: Diego Windows installation finished.
-```
-
 -  If the 'NoCompatibleCell' error is thrown when pushing a windows app, try the following steps:
- 1. Run `vagrant rdp` and use the 'vagrant' username and 'vagrant' password to get a remote desktop connection.
- 2. Make sure the docker DNS and CF components are IP accessible by running `ping api.hcf`
- 3. Make sure that all diego services are running with this powershell snippet:
+ 1. Run `vagrant rdp` and use the 'vagrant' username and 'vagrant' password to get a remote desktop connection to the Vagrant Windows Cell.
+ 2. Make sure the docker DNS server is running and CF components are accessible. To check if the Windows Cell can ping the CF Cloud Controller use: `ping api.hcf`
+ 3. Make sure that all required services are running. To check status and start services use:
 ```
 Get-Service   "consul", "metron", "rep", "CF Containerizer", "CF GardenWindows"
 Start-Service   "consul", "metron", "rep", "CF Containerizer", "CF GardenWindows" -PassThru
 ```
 
-- To search the logs for Containerizer and GardenWindows use:
+- To search in the logs of Containerizer and GardenWindows use:
 ```
 Get-EventLog Application | %{ $_.message} | sls 'error'
 ```
 
-- To search the logs for consul, rep, and metron use:
+- To search in the logs of consul, rep, and metron use:
 ```
 cat C:\diego\logs\* | sls 'error'
 ```

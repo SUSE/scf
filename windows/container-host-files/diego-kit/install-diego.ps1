@@ -4,7 +4,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://hcfwin.azureedge.net/diego-installer-v0.1.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://hcfwin.azureedge.net/diego-installer-5e84b4b.exe -Verbose
 
 ## Setup diego networking
 
@@ -57,6 +57,7 @@ $env:DIEGO_CELL_IP = $ipaddr
 $env:DIEGO_NETADAPTER = $diegoInterface.InterfaceAlias
 $env:STACK = "windows2012R2"
 $env:REP_ZONE = "windows"
+$env:REP_MEMORY_MB = "auto"
 
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
 
