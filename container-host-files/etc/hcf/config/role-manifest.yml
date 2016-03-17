@@ -691,7 +691,6 @@ roles:
     exposed-ports: []
 - name: post_deployment_setup
   type: bosh-task
-  dev-only: true
   jobs:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
