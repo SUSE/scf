@@ -11,9 +11,9 @@ require 'yaml'
 require 'json'
 
 def main
-  # Syntax: ?--dev? ?--provider <name>? <roles-manifest.yml>|- ?...?
+  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|- ?...?
   ##
-  # --dev             ~ Include dev-only parts in the output
+  # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
   #                     Known: ucp, tf
   #                     Default: ucp
@@ -36,7 +36,8 @@ def main
     dtr:         'docker.helion.lol',
     dtr_org:     'helioncf',
     hcf_version: 'develop',
-    hcf_prefix:  'hcf'
+    hcf_prefix:  'hcf',
+    manual:      false
   }
 
   op = OptionParser.new do |opts|
@@ -60,8 +61,8 @@ def main
     opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
       options[:hcf_prefix] = v
     end
-    opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
-      options[:dev] = v
+    opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
+      options[:manual] = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       provider = case v
@@ -80,9 +81,10 @@ def main
 
   origin = ARGV[0]
 
-  the_roles = get_roles(origin)
+  role_manifest = load_role_manifest(origin)
+  check_roles role_manifest['roles']
   provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
-  the_result = provider.transform(the_roles)
+  the_result = provider.transform(role_manifest)
 
   puts(the_result)
 end
@@ -98,7 +100,7 @@ def get_provider(name)
   end
 end
 
-def get_roles(path)
+def load_role_manifest(path)
   if path == '-'
     # Read from stdin.
     YAML.load($stdin)
@@ -108,7 +110,6 @@ def get_roles(path)
   # Loaded structure
   ##
   # the_roles.roles[].name				/string
-  # the_roles.roles[].dev-only				/bool
   # the_roles.roles[].type				/string (*)
   # the_roles.roles[].scripts[]				/string
   # the_roles.roles[].jobs[].name			/string
@@ -118,6 +119,7 @@ def get_roles(path)
   # the_roles.roles[].configuration.variables[].default	/string
   # the_roles.roles[].configuration.templates.<any>	/string
   # the_roles.roles[].run.capabilities[]		/string
+  # the_roles.roles[].run.flight-stage			/string (**)
   # the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
   # the_roles.roles[].run.persistent-volumes[].size	/float [GB]
   # the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
@@ -136,6 +138,38 @@ def get_roles(path)
   # the_roles.configuration.templates.<any>		/string (key -> value)
 
   # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
+  # (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
+end
+
+# Sanity check the role definitions
+def check_roles(roles)
+  errors = []
+  roles.each do |role|
+    role_type = role.fetch('type', 'bosh')
+    role_stage = role['run'].fetch('flight-stage', 'flight')
+
+    unless ['bosh', 'bosh-task', 'docker'].include? role_type
+      errors << "Role #{role['name']} has invalid type #{role_type}"
+    end
+
+    unless ['pre-flight', 'post-flight', 'flight', 'manual'].include? role_stage
+      errors << "Role #{role['name']} has invalid flight-stage #{role_stage}"
+    end
+
+    if role_type == 'bosh' || role_type == 'bosh-task'
+      if (role_type == 'bosh') ^ (role_stage == 'flight')
+        errors << "Role #{role['name']} can't be a #{role_stage} role with type #{role_type}"
+      end
+    end
+  end
+
+  unless errors.empty?
+    STDERR.puts 'Found errors with role definitions:'
+    errors.each do |error|
+      STDERR.puts "    #{error}"
+    end
+    exit 1
+  end
 end
 
 main
