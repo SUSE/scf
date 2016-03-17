@@ -45,9 +45,9 @@ cf push dotnet-env -s windows2012R2 -b https://github.com/hpcloud/cf-iis8-buildp
 ## How to run Windows Acceptance Tests (WATS)
 
 Windows acceptance tests can be run from OS X or a Linux box with access to HCF and golang installed.
-The test suite require approximately 8 GiB of RAM for the Windows Cell. The default config only has 2 GiB, so increasing the RAM or over committing is necessary.
+The test suite requires approximately 8 GiB of RAM for the Windows Cell. The default config only has 2 GiB, so increasing the RAM or over committing is necessary.
 
-To increate the RAM change the vb.memory in the Windows Vagrant file form `vb.memory = "2048"` to `vb.memory = "8192"`. After the change, run `vagrant reload` for the Windows Cell to restart the VM.
+To increase the RAM change the vb.memory in the Windows Vagrant file form `vb.memory = "2048"` to `vb.memory = "8192"`. After the change, run `vagrant reload` for the Windows Cell to restart the VM.
 
 To overcommit the Windows Cell capacity to 8 GiB without increasing the actual VM RAM, change the config line `$env:REP_MEMORY_MB = "auto"` to `$env:REP_MEMORY_MB = "8192"` in install-diego.ps1. After the change, run `vagrant provision` for the Windows Cell to apply the new config value.
 
@@ -73,7 +73,7 @@ NUM_WIN_CELLS=1 scripts/run_wats.sh scripts/wats_hcf_config.json
 
 ## Rebuild Windows Vagrant box
 
-The current Windows 2012 R2 Vagrant box is build with [Packer](https://www.packer.io/) with the base packer template from:  
+The current Windows 2012 R2 Vagrant box is built with [Packer](https://www.packer.io/) with the base packer template from:  
 https://github.com/stefanschneider/packer-windows.
 
 The above packer template is a fork from: https://github.com/joefitzgerald/packer-windows with the following changes:
@@ -115,7 +115,7 @@ Other open source packer templates that could potentially be compatible:
 
 -  If the 'NoCompatibleCell' error is thrown when pushing a windows app, try the following steps:
  1. Run `vagrant rdp` and use the 'vagrant' username and 'vagrant' password to get a remote desktop connection to the Vagrant Windows Cell.
- 2. Make sure the docker DNS server is running and CF components are accessible. To check if Windows Cell can ping the CF Cloud Controller use: `ping api.hcf`
+ 2. Make sure the docker DNS server is running and CF components are accessible. To check if the Windows Cell can ping the CF Cloud Controller use: `ping api.hcf`
  3. Make sure that all required services are running. To check status and start services use:
 ```
 Get-Service   "consul", "metron", "rep", "CF Containerizer", "CF GardenWindows"
