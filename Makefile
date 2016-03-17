@@ -16,15 +16,17 @@ APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
 IMAGE_REGISTRY :=
-# Note: When used the registry must include a trailing "/" for proper
-# separation from the image path itself
+
+# Note: When used the registry must not have a trailing "/". That is
+# added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
 # Examples:
-# - localhost:5000/
-# - docker.helion.lol/
+# - localhost:5000
+# - docker.helion.lol
 
 # Redefine the CI configuration variables, validation
-IMAGE_ORG    := $(if ${IMAGE_ORG},${IMAGE_ORG},$(error Need a non-empty IMAGE_ORG))
-IMAGE_PREFIX := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-empty IMAGE_PREFIX))
+IMAGE_ORG           := $(if ${IMAGE_ORG},${IMAGE_ORG},$(error Need a non-empty IMAGE_ORG))
+IMAGE_PREFIX        := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-empty IMAGE_PREFIX))
+IMAGE_REGISTRY_MAKE := $(if ${IMAGE_REGISTRY},"${IMAGE_REGISTRY}/",${IMAGE_REGISTRY})
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
 export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks
@@ -178,8 +180,8 @@ bosh-tag:
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
 	        echo Tagging $${source_image} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 docker-tag:
@@ -188,8 +190,8 @@ docker-tag:
 	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
 	        source_image=$${component}:${APP_VERSION_TAG} && \
 	        echo Tagging $${source_image} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker tag $${source_image} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 publish: bosh-publish docker-publish
@@ -200,16 +202,16 @@ bosh-publish:
 	for source_image in $$(fissile dev list-roles); do \
 	        component=$${source_image%:*} && \
 	        component=$${component#fissile-} && \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker push ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker push ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 docker-publish:
 	$(call print_status, Publishing docker images)
 	set -e ; \
 	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
-	        docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
+	        docker push ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
+	        docker push ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
 	done
 
 DIST_DIR := ${FISSILE_WORK_DIR}/hcf/terraform-scripts/
@@ -229,9 +231,17 @@ terraform:
 
 	tar -chzvf ${FISSILE_WORK_DIR}/hcf-${APP_VERSION}.tar.gz -C ${FISSILE_WORK_DIR} hcf
 
+show-docker-setup:
+	@echo "docker registry = '${IMAGE_REGISTRY}'"
+	@echo "       for make = '${IMAGE_REGISTRY_MAKE}'"
+	@echo "docker org      = '${IMAGE_ORG}'"
+	@echo "hcf version     = '${BRANCH}'"
+	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
+
 generate: ucp mpc
 
 DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
+# Note, _not_ IMAGE_REGISTRY_MAKE. The rm-transformer script adds a trailing "/" itself, where needed
 
 ucp:
 	docker run -it --rm \
