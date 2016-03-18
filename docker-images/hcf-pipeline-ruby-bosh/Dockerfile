@@ -1,5 +1,8 @@
 FROM ubuntu:14.04
 
+# Don't run mesg unless we have a tty; otherwise we'll get a warning from `docker run ... bash -l -c ...`
+RUN perl -i -pe 's/mesg n/tty -s && mesg n/' /root/.profile
+
 # Install packages for building ruby
 RUN apt-get update
 RUN apt-get install -y --force-yes build-essential curl git zlib1g-dev libssl-dev libreadline-dev libyaml-dev libxml2-dev libxslt-dev
