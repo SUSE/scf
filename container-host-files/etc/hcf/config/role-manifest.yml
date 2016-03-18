@@ -828,9 +828,9 @@ configuration:
   - name: CLUSTER_ADMIN_USERNAME
     default: admin
   - name: CONSUL_ENCRYPTION_KEYS
-    default: consul_key
+    secret: true
   - name: DB_ENCRYPTION_KEY
-    default: the_key
+    secret: true
   - name: DOMAIN
     default: "192.168.77.77.nip.io"
   - name: DOPPLER_ZONE
@@ -850,7 +850,7 @@ configuration:
   - name: NATS_USER
     default: nats_user
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
-    default: foobar
+    secret: true
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
   - name: STAGING_UPLOAD_USER
@@ -898,7 +898,7 @@ configuration:
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
-    default: key1_passphrase
+    secret: true
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
