@@ -721,7 +721,10 @@ roles:
   type: docker
   run:
     capabilities: []
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /data/db
+        tag: mongodb-manager-data
+        size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
@@ -730,7 +733,10 @@ roles:
   type: docker
   run:
     capabilities: []
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /var/lib/mysql
+        tag: mysql-manager-data
+        size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
@@ -739,7 +745,10 @@ roles:
   type: docker
   run:
     capabilities: []
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /var/lib/postgresql/data
+        tag: postgres-manager-data
+        size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
@@ -748,7 +757,10 @@ roles:
   type: docker
   run:
     capabilities: ['ALL']
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /var/rabbitmq-data
+        tag: rabbitmq-manager-data
+        size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
@@ -757,7 +769,10 @@ roles:
   type: docker
   run:
     capabilities: ['ALL']
-    persistent-volumes: []
+    persistent-volumes:
+      - path: /var/redis-data
+        tag: redis-manager-data
+        size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
