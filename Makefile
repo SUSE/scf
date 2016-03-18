@@ -7,7 +7,7 @@ CF_RELEASE ?= $(shell cat cf-release-version)
 UBUNTU_IMAGE ?= ubuntu:14.04
 
 VERSION := $(shell cat VERSION)
-VERSION_OFFSET := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
+VERSION_OFFSET := $(shell git describe --tags --long | sed -E 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
 BRANCH := $(shell (git describe --all --exact-match HEAD 2>/dev/null || echo HEAD) | sed 's@.*/@@')
 APP_VERSION := ${VERSION}+${VERSION_OFFSET}.${BRANCH}
 APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
@@ -244,3 +244,27 @@ mpc-dist: mpc
 	rm -rf mpc.zip mpc ; mkdir mpc
 	cp -l terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf mpc/
 	zip -r9 mpc-$(APP_VERSION).zip mpc
+
+fetch-versioning:
+	git fetch origin 'refs/notes/versioning:refs/notes/versioning'
+
+push-versioning:
+	git push --no-verify origin refs/notes/versioning 2>&1
+
+bumped:
+	git rev-list --tags HEAD --not origin/develop | while read object; do git notes --ref=versioning show $$object 2>/dev/null;	done | grep -E '(MAJOR|MINOR|PATCH)'
+
+bump:
+	git notes --ref=versioning add --message ${BUMP}
+
+unbump:
+	git notes --ref=versioning remove
+
+major:
+	${MAKE} BUMP=MAJOR bump
+
+minor:
+	${MAKE} BUMP=MINOR bump
+
+patch:
+	${MAKE} BUMP=PATCH bump
