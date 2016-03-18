@@ -267,14 +267,18 @@ class ToUCP < Common
   def convert_parameter(var)
     vname    = var['name']
     vdefault = var['default'].to_s
-    {
+    vsecret  = var['secret'] || false
+    vexample = (var['example'] || var['default']).to_s
+    vexample = 'unknown' if vexample == ''
+    param = {
       'name'        => vname,
       'description' => 'placeholder',
-      'default'     => vdefault,
-      'example'     => vdefault || 'unknown',
+      'example'     => vexample,
       'required'    => true,
-      'secret'      => false
+      'secret'      => vsecret,
     }
+    param['default'] = vdefault unless vdefault == ''
+    return param
   end
 
   # # ## ### ##### ########
