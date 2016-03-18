@@ -49,9 +49,11 @@ properties:
     default_running_security_groups:
     - public_networks
     - dns
+    - dev_services
     default_staging_security_groups:
     - public_networks
     - dns
+    - dev_services
     default_to_diego_backend: true
     development_mode: false
     directories: null
@@ -144,6 +146,10 @@ properties:
       - destination: 172.32.0.0-192.167.255.255
         protocol: all
       - destination: 192.169.0.0-255.255.255.255
+        protocol: all
+    - name: dev_services
+      rules:
+      - destination: 172.20.10.0/24
         protocol: all
     - name: dns
       rules:
