@@ -26,7 +26,7 @@ def main
   # --hcf-prefix      ~ The prefix used during image generation
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
-  # --env <dir>       ~ Read all *.env files from this directory.
+  # --env-dir <dir>   ~ Read all *.env files from this directory.
   #
   # ?...?               Additional files, format-dependent
   ##
