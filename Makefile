@@ -16,6 +16,7 @@ APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
 IMAGE_REGISTRY := docker.helion.lol
+ENV_DIR        :=
 
 # Note: When used the registry must not have a trailing "/". That is
 # added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
@@ -188,7 +189,7 @@ docker-tag:
 	$(call print_status, Tagging docker images)
 	set -e ; \
 	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
-	        source_image=$${component}:${APP_VERSION_TAG} && \
+	        source_image=$${component} && \
 	        echo Tagging $${source_image} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
