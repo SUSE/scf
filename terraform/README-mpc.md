@@ -24,15 +24,20 @@
   instances of `mpc.tfvars` in the commands below must be replaced
   with the actual name of the file.
 
-* Source the file `openrc.sh` into the local environment.
+* Source the file `openrc.sh` into the local environment, i.e.
+  run
+
+```bash
+   source /path/to/openrc.sh
+```
 
   This file is supplied by MPC/Openstack when the user account was
   created.
 
 * Run
 
-```
-   tf plan -var-file=mpc.tfvars .
+```bash
+   terraform plan -var-file=mpc.tfvars .
 ```
 
   This checks that everything is ok. Terraform should __not__ ask for
@@ -40,8 +45,8 @@
 
 * Run
 
-```
-   tf apply -var-file=mpc.tfvars .
+```bash
+   terraform apply -var-file=mpc.tfvars .
 ```
 
   to set up the specified configration.
