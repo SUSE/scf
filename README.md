@@ -9,6 +9,7 @@ This is the repository that integrates all HCF components.
 	- [Development on Ubuntu with VirtualBox](#development-on-ubuntu-with-virtualbox)
 	- [Development on OSX with VMWare Fusion](#development-on-osx-with-vmware-fusion)
 	- [Development on Ubuntu with libvirt](#development-on-ubuntu-with-libvirt)
+	- [Development on Fedora with libvirt](#development-on-fedora-with-libvirt)
 	- [Development on Windows with VirtualBox](#development-on-windows-with-virtualbox)
 	- [Windows Cell Add-on](#windows-cell-add-on)
 	- [Makefile targets](#makefile-targets)
@@ -136,6 +137,64 @@ This should prevent errors similar to "Package 'etcd' has a glob that resolves t
  ```bash
  vagrant plugin install vagrant-reload
  ```
+
+1. Bring it online (may fail a few times)
+ ```bash
+ vagrant up --provider libvirt
+ ```
+
+1. Run HCF in the vagrant box
+ ```bash
+ vagrant ssh
+ cd ~/hcf
+ make vagrant-prep  # Only needed once
+ make run
+ ```
+
+## Development on Fedora with libvirt
+
+1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
+
+1. Enable NFS over UDP in the firewall
+ ```bash
+ sudo firewall-cmd --zone FedoraWorkstation --change-interface vboxnet0
+ sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service nfs
+ sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service rpc-bind
+ sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service mountd
+ sudo firewall-cmd --permanent --zone FedoraWorkstation --add-port 2049/udp
+ sudo firewall-cmd --reload
+ sudo systemctl enable nfs-server.service
+ sudo systemctl start nfs-server.service
+ ```
+
+1. Install dependencies
+ ```bash
+ sudo dnf install libvirt-daemon-kvm libvirt-devel
+ ```
+
+1. Allow non-root access to libvirt
+ ```bash
+ sudo usermod -G libvirt -a YOUR_USER
+ ```
+
+1. newgrp libvirt
+
+1. Install a specific version of fog-libvirt
+ ```bash
+ # Workaround for https://github.com/fog/fog-libvirt/issues/16
+ vagrant plugin install --plugin-version 0.0.3 fog-libvirt
+ ```
+1. Install the `libvirt` plugin for Vagrant
+ ```bash
+ vagrant plugin install vagrant-libvirt
+ ```
+
+1. Install vagrant-reload plugin
+ ```bash
+ vagrant plugin install vagrant-reload
+ ```
+
+1. Set libvert daemon user to your username / group by editing /etc/libvirt/qemu.conf: `user = "YOUR_USER"` and `group = "YOUR_USER"`
 
 1. Bring it online (may fail a few times)
  ```bash
