@@ -1,4 +1,3 @@
-
 # How to use the MPC terraform setup.
 
 ## Files in the archive

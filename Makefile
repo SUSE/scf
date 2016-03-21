@@ -243,4 +243,4 @@ mpc:
 mpc-dist: mpc
 	rm -rf mpc.zip mpc ; mkdir mpc
 	cp -l terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf mpc/
-	zip -r9 mpc.zip mpc
+	zip -r9 mpc-$(APP_VERSION).zip mpc
