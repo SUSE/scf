@@ -26,7 +26,7 @@ def main
   # --hcf-prefix      ~ The prefix used during image generation
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
-  # --env <dir>       ~ Read all *.env files from this directory.
+  # --env-dir <dir>   ~ Read all *.env files from this directory.
   #
   # ?...?               Additional files, format-dependent
   ##
@@ -65,7 +65,7 @@ def main
     opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
       options[:dev] = v
     end
-    opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
+    opts.on('-e', '--env-dir [dir]', 'Directory containing *.env files') do |v|
       env_dir = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
@@ -111,7 +111,7 @@ def get_roles(path, env_dir)
     roles = YAML.load_file(path)
   end
 
-  unless env_dir.nil?
+  unless env_dir.nil? || env_dir == ''
     vars = roles['configuration']['variables']
     Dir.glob(File.join(env_dir, "*.env")).each do |env_file|
       File.readlines(env_file).each do |line|
