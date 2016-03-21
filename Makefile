@@ -239,3 +239,8 @@ mpc:
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
 	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf"
+
+mpc-dist: mpc
+	mkdir mpc
+	cp -l terraform/mpc-example.tfvars terraform/README-mpc.md hcf.tf mpc/
+	cd mpc ; zip -r9 ../mpc.zip *
