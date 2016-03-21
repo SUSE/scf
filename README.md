@@ -445,7 +445,7 @@ name			| effect | notes |
   ```bash
   # IMPORTANT: from this point forward, do everything in the Vagrant box
   cd ~/hcf
-  ./bin/create-release src/cf-release-clone cf
+  ./bin/create-release.sh src/cf-release-clone cf
   ```
 
   4. Run the config diff
