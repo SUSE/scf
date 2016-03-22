@@ -36,7 +36,7 @@ export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/da
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 
-.PHONY: docker-images
+.PHONY: docker-images mpc mpc-dist
 
 ########## UTILITY TARGETS ##########
 
@@ -254,7 +254,6 @@ mpc-dist: mpc
 	@base=$$(mktemp -d mpc_XXXXXXXXXX) && \
 	mkdir $$base/mpc && \
 	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ && \
-	here=$$(pwd) && \
-	( cd $$base && zip -qr9 $$here/mpc-$(APP_VERSION).zip mpc ) && \
+	( cd $$base && zip -qr9 ${CURDIR}/mpc-$(APP_VERSION).zip mpc ) && \
 	rm -rf $$base && \
 	echo Generated mpc-$(APP_VERSION).zip
