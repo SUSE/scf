@@ -316,7 +316,9 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
             "echo ___ Save RM settings ____________________",
             "mkdir -p ${var.fs_host_root}/opt/hcf/etc/",
-            "echo '${null_resource.rm_configuration.triggers.rm_configuration}' > ${var.fs_host_root}/opt/hcf/etc/dev-settings.env",
+            "cat > ${var.fs_host_root}/opt/hcf/etc/dev-settings.env <<'EOTF'",
+            "${null_resource.rm_configuration.triggers.rm_configuration}",
+            "EOTF",
 
             # (25) Run the jobs
 
