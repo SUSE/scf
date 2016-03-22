@@ -182,10 +182,9 @@ def check_roles(roles)
       errors << "Role #{role['name']} has invalid flight-stage #{role_stage}"
     end
 
-    if role_type == 'bosh' || role_type == 'bosh-task'
-      if (role_type == 'bosh') ^ (role_stage == 'flight')
-        errors << "Role #{role['name']} can't be a #{role_stage} role with type #{role_type}"
-      end
+    if (role_type == 'bosh'      && role_stage != 'flight') ||
+       (role_type == 'bosh-task' && role_stage == 'flight')
+      errors << "Role #{role['name']} can't be a #{role_stage} role with type #{role_type}"
     end
   end
 
