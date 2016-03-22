@@ -36,7 +36,7 @@ export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/da
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 
-.PHONY: docker-images
+.PHONY: docker-images mpc mpc-dist
 
 ########## UTILITY TARGETS ##########
 
@@ -221,6 +221,9 @@ show-docker-setup:
 	@echo "hcf version     = '${BRANCH}'"
 	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
 
+
+########## CONFIGURATION TARGETS ##########
+
 generate: ucp mpc
 
 DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
@@ -234,13 +237,23 @@ ucp:
 	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
 
 mpc:
-	docker run --rm \
+	$(call print_status, Generate MPC terraform configuration)
+	@docker run --rm \
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
+	echo Generated ${CURDIR}/hcf.tf
+
+########## DISTRIBUTION TARGETS ##########
+
+dist: mpc-dist
 
 mpc-dist: mpc
-	rm -rf mpc.zip mpc ; mkdir mpc
-	cp -l terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf mpc/
-	zip -r9 mpc-$(APP_VERSION).zip mpc
+	$(call print_status, Package MPC terraform configuration for distribution)
+	@base=$$(mktemp -d mpc_XXXXXXXXXX) && \
+	mkdir $$base/mpc && \
+	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ && \
+	( cd $$base && zip -qr9 ${CURDIR}/mpc-$(APP_VERSION).zip mpc ) && \
+	rm -rf $$base && \
+	echo Generated mpc-$(APP_VERSION).zip

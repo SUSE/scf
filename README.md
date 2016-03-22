@@ -16,6 +16,7 @@ This is the repository that integrates all HCF components.
 		- [Vagrant VM Targets](#vagrant-vm-targets)
 		- [BOSH Release Targets](#bosh-release-targets)
 		- [Fissile Build Targets](#fissile-build-targets)
+		- [Distribution Targets](#distribution-targets)
 	- [Development FAQ](#development-faq)
 		- [Where do I find logs?](#where-do-i-find-logs)
 		- [How do I clear all data for the cluster? (start fresh without rebuilding everything)](#how-do-i-clear-all-data-for-the-cluster-start-fresh-without-rebuilding-everything)
@@ -288,6 +289,13 @@ name			| effect | notes |
 `ucp`		| Generate UCP service definitions |
 `mpc`		| Generate terraform MPC definitions for 1-node u-cloud |
 `terraform`		| Make `hcf-*.tar.gz` for distribution | __outdated__ |
+
+### Distribution Targets
+
+name		| effect | notes |
+--------------- | ---- | --- |
+`dist`		| Generate and package various setups |
+`mpc-dist`	| Generate and package terraform MPC definitions for 1-node u-cloud |
 
 ## Development FAQ
 
