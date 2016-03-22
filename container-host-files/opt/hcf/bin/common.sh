@@ -78,6 +78,7 @@ function start_role {
     docker run -it --name ${name} \
         ${detach} \
         --net=hcf \
+        --dns-search=hcf \
         --label=hcf_role=${role} \
         --hostname=${role}.hcf \
         ${restart} \
