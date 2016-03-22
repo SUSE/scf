@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'json'
 require 'tempfile'
 
 class CalledProcessError < RuntimeError ; end
@@ -20,7 +21,7 @@ def setup_environment
         ENV[name] = value unless value.empty?
         next
       end
-      ENV[name] = value if name.start_with? 'OS_'
+      ENV[name] = value if name.start_with?('OS_') || name.start_with?('HCF_')
     end
   end
 end
@@ -39,19 +40,30 @@ class TerraformTester
 
   def ensure_overrides_file
     open(overrides_path, 'w') do |file|
-      file.write <<-EOF
-        openstack_keypair = "#{ENV['OS_SSH_KEYPAIR']}"
-        key_file = "#{ENV['OS_SSH_KEY_PATH']}"
-
-        openstack_availability_zone = "nova"
-        openstack_network_id = "#{ENV['OS_NETWORK_ID']}"
-        openstack_network_name = "#{ENV['OS_NETWORK_NAME']}"
-        openstack_region = "#{ENV['OS_REGION_NAME']}"
-
-        docker_username = "#{ENV['DOCKER_USERNAME']}"
-        docker_password = "#{ENV['DOCKER_PASSWORD']}"
-        docker_email = "#{ENV['DOCKER_EMAIL']}"
-      EOF
+      # tf var name => [env name, default] ; default is optional
+      ({
+        openstack_keypair:           'OS_SSH_KEYPAIR',
+        key_file:                    'OS_SSH_KEY_PATH',
+        openstack_availability_zone: ['OS_AVAILABILITY_ZONE', 'nova'],
+        openstack_network_id:        'OS_NETWORK_ID',
+        openstack_network_name:      'OS_NETWORK_NAME',
+        openstack_region:            'OS_REGION_NAME',
+        docker_username:             'DOCKER_USERNAME',
+        docker_password:             'DOCKER_PASSWORD',
+        docker_email:                'DOCKER_EMAIL',
+        hcf_version:                 ['HCF_VERSION', 'develop']
+      }).each_pair do |var_name, env_info|
+        if env_info.is_a? String
+          file.puts %(#{var_name} = "#{ENV[env_info]}")
+        else
+          env_name, default = env_info
+          if default.nil?
+            file.puts %(#{var_name} = "#{ENV[env_name]}") unless (ENV[env_name] || '').empty?
+          else
+            file.puts %(#{var_name} = "#{ENV[env_name] || default}")
+          end
+        end
+      end
     end
   end
 
@@ -61,17 +73,29 @@ class TerraformTester
     Dir.chdir top_src_dir
 
     ensure_overrides_file
-    at_exit do
-      begin
-        run_processs '/usr/local/bin/terraform', 'destroy', '-force', "-var-file=#{overrides_path}"
-      rescue CalledProcessError
-        sleep 1
-        retry
-      end
-    end
-
+    at_exit { cleanup }
     run_processs '/usr/local/bin/terraform', 'apply', "-var-file=#{overrides_path}"
 
+    run_processs('ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
+                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-t', floating_ip,
+                 'opt/hcf/bin/run-role.sh opt/hcf/etc smoke-tests && docker logs -f smoke-tests')
+  end
+
+  def cleanup
+    begin
+      run_processs '/usr/local/bin/terraform', 'destroy', '-force', "-var-file=#{overrides_path}"
+    rescue CalledProcessError
+      sleep 1
+      retry
+    end
+  end
+
+  def floating_ip
+    return @floating_ip if @floating_ip
+    open('terraform.tfstate', 'rb') do |f|
+      data = JSON.load(f)
+      @floating_ip = data['modules'].first['outputs']['floating_ip']
+    end
   end
 end
 
