@@ -251,10 +251,10 @@ dist: mpc-dist
 
 mpc-dist: mpc
 	$(call print_status, Package MPC terraform configuration for distribution)
-	@base=$$(mktemp -d mpc_XXXXXXXXXX) ; \
-	mkdir $$base/mpc ; \
-	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ ; \
-	( cd $$base ; zip -qr9 mpc.zip mpc ) ; \
-	mv $$base/mpc.zip mpc-$(APP_VERSION).zip ; \
-	rm -rf $$base ; \
+	@base=$$(mktemp -d mpc_XXXXXXXXXX) && \
+	mkdir $$base/mpc && \
+	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ && \
+	here=$$(pwd) && \
+	( cd $$base && zip -qr9 $$here/mpc-$(APP_VERSION).zip mpc ) && \
+	rm -rf $$base && \
 	echo Generated mpc-$(APP_VERSION).zip
