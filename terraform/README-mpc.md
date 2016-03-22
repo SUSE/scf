@@ -13,6 +13,11 @@
   setup at the beginning, followed by a series of variables whose
   values are provided by HCF's `roles-manifest.yml`.
 
+* `container-host-files`
+
+  Scripts and configuration files uploaded into the u-cloud to support
+  its provisioning.
+
 ## Usage
 
 * Copy `mpc.tfvars.example` to `mpc.tfvars` and then edit the

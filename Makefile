@@ -221,6 +221,9 @@ show-docker-setup:
 	@echo "hcf version     = '${BRANCH}'"
 	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
 
+
+########## CONFIGURATION TARGETS ##########
+
 generate: ucp mpc
 
 DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
@@ -234,16 +237,24 @@ ucp:
 	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
 
 mpc:
-	docker run --rm \
+	$(call print_status, Generate MPC terraform configuration)
+	@docker run --rm \
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
+	echo Generated ${CURDIR}/hcf.tf
+
+########## DISTRIBUTION TARGETS ##########
+
+dist: mpc-dist
 
 mpc-dist: mpc
-	base=$$(mktemp -d mpc_XXXXXXXXXX) ; \
+	$(call print_status, Package MPC terraform configuration for distribution)
+	@base=$$(mktemp -d mpc_XXXXXXXXXX) ; \
 	mkdir $$base/mpc ; \
 	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ ; \
-	( cd $$base ; zip -r9 mpc.zip mpc ) ; \
+	( cd $$base ; zip -qr9 mpc.zip mpc ) ; \
 	mv $$base/mpc.zip mpc-$(APP_VERSION).zip ; \
-	rm -rf $$base
+	rm -rf $$base ; \
+	echo Generated mpc-$(APP_VERSION).zip
