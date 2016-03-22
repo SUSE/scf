@@ -11,9 +11,9 @@ require 'yaml'
 require 'json'
 
 def main
-  # Syntax: ?--dev? ?--provider <name>? <roles-manifest.yml>|- ?...?
+  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|- ?...?
   ##
-  # --dev             ~ Include dev-only parts in the output
+  # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
   #                     Known: ucp, tf
   #                     Default: ucp
@@ -37,7 +37,8 @@ def main
     dtr:         'docker.helion.lol',
     dtr_org:     'helioncf',
     hcf_version: 'develop',
-    hcf_prefix:  'hcf'
+    hcf_prefix:  'hcf',
+    manual:      false
   }
   env_dir = nil
 
@@ -62,8 +63,8 @@ def main
     opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
       options[:hcf_prefix] = v
     end
-    opts.on('-d', '--dev', 'Include dev-only parts in the output') do |v|
-      options[:dev] = v
+    opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
+      options[:manual] = v
     end
     opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
       env_dir = v
@@ -85,9 +86,11 @@ def main
 
   origin = ARGV[0]
 
-  the_roles = get_roles(origin, env_dir)
+  role_manifest = load_role_manifest(origin, env_dir)
+  check_roles role_manifest['roles']
+
   provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
-  the_result = provider.transform(the_roles)
+  the_result = provider.transform(role_manifest)
 
   puts(the_result)
 end
@@ -103,16 +106,16 @@ def get_provider(name)
   end
 end
 
-def get_roles(path, env_dir)
+def load_role_manifest(path, env_dir)
   if path == '-'
     # Read from stdin.
-    roles = YAML.load($stdin)
+    role_manifest = YAML.load($stdin)
   else
-    roles = YAML.load_file(path)
+    role_manifest = YAML.load_file(path)
   end
 
   unless env_dir.nil?
-    vars = roles['configuration']['variables']
+    vars = role_manifest['configuration']['variables']
     Dir.glob(File.join(env_dir, "*.env")).each do |env_file|
       File.readlines(env_file).each do |line|
         name, value = line.chomp.split('=', 2)
@@ -126,13 +129,12 @@ def get_roles(path, env_dir)
     end
   end
 
-  return roles
+  role_manifest
 end
 
   # Loaded structure
   ##
   # the_roles.roles[].name				/string
-  # the_roles.roles[].dev-only				/bool
   # the_roles.roles[].type				/string (*)
   # the_roles.roles[].scripts[]				/string
   # the_roles.roles[].jobs[].name			/string
@@ -142,6 +144,7 @@ end
   # the_roles.roles[].configuration.variables[].default	/string
   # the_roles.roles[].configuration.templates.<any>	/string
   # the_roles.roles[].run.capabilities[]		/string
+  # the_roles.roles[].run.flight-stage			/string (**)
   # the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
   # the_roles.roles[].run.persistent-volumes[].size	/float [GB]
   # the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
@@ -162,5 +165,36 @@ end
   # the_roles.configuration.templates.<any>		/string (key -> value)
 
   # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
+  # (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
+
+# Sanity check the role definitions
+def check_roles(roles)
+  errors = []
+  roles.each do |role|
+    role_type = role.fetch('type', 'bosh')
+    role_stage = role['run'].fetch('flight-stage', 'flight')
+
+    unless ['bosh', 'bosh-task', 'docker'].include? role_type
+      errors << "Role #{role['name']} has invalid type #{role_type}"
+    end
+
+    unless ['pre-flight', 'post-flight', 'flight', 'manual'].include? role_stage
+      errors << "Role #{role['name']} has invalid flight-stage #{role_stage}"
+    end
+
+    if (role_type == 'bosh'      && role_stage != 'flight') ||
+       (role_type == 'bosh-task' && role_stage == 'flight')
+      errors << "Role #{role['name']} can't be a #{role_stage} role with type #{role_type}"
+    end
+  end
+
+  unless errors.empty?
+    STDERR.puts 'Found errors with role definitions:'
+    errors.each do |error|
+      STDERR.puts "    #{error}"
+    end
+    exit 1
+  end
+end
 
 main

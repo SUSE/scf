@@ -8,20 +8,37 @@ ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 set_colors
 load_all_roles
 
-bosh_roles=($(list_all_bosh_roles))
-
-# Start the bosh roles
-for bosh_role in "${bosh_roles[@]}"
+# Start pre-flight roles
+echo -e "${txtgrn}Starting pre-flight roles...${txtrst}"
+for role in $(list_roles_by_flight_stage pre-flight)
 do
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$bosh_role"
+    if [[ "$(get_role_type ${role})" == "bosh" ]]
+    then
+        echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
+    fi
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
 done
 
-docker_roles=($(list_all_docker_roles))
-
-# Start the docker roles
-for docker_role in "${docker_roles[@]}"
+# Start flight roles
+echo -e "${txtgrn}Starting flight roles...${txtrst}"
+for role in $(list_roles_by_flight_stage flight)
 do
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$docker_role"
+    if [[ "$(get_role_type ${role})" == "bosh-task" ]]
+    then
+        echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
+    fi
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
+done
+
+# Start post-flight roles
+echo -e "${txtgrn}Starting post-flight roles...${txtrst}"
+for role in $(list_roles_by_flight_stage post-flight)
+do
+    if [[ "$(get_role_type ${role})" == "bosh" ]]
+    then
+        echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
+    fi
+    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
 done
 
 # Show targeting and other information.
