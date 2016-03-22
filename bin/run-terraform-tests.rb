@@ -76,9 +76,20 @@ class TerraformTester
     at_exit { cleanup }
     run_processs '/usr/local/bin/terraform', 'apply', "-var-file=#{overrides_path}"
 
-    run_processs('ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
-                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-t', floating_ip,
-                 'opt/hcf/bin/run-role.sh opt/hcf/etc smoke-tests && docker logs -f smoke-tests')
+    puts 'Waiting for roles to be ready...'
+    stop_time = Time.now + 30 * 60
+    loop do
+      begin
+        run_ssh 'opt/hcf/bin/hcf-status --silent'
+      rescue CalledProcessError
+        raise if Time.now > stop_time
+        sleep 30
+      else
+        break
+      end
+    end
+
+    run_ssh 'opt/hcf/bin/run-role.sh opt/hcf/etc smoke-tests && docker logs -f smoke-tests'
   end
 
   def cleanup
@@ -96,6 +107,12 @@ class TerraformTester
       data = JSON.load(f)
       @floating_ip = data['modules'].first['outputs']['floating_ip']
     end
+  end
+
+  def run_ssh(cmd)
+    run_processs('ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
+                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-t', floating_ip, '--',
+                 cmd)
   end
 end
 
