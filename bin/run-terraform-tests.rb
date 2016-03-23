@@ -5,8 +5,8 @@ require 'tempfile'
 
 class CalledProcessError < RuntimeError ; end
 
-def run_processs(*args)
-  puts args.map(&:to_s).join(' ')
+def run_processs(*args, silent: false)
+  puts args.map(&:to_s).join(' ') unless silent
   status = Process.wait2(Process.spawn(*args)).last
   return if status.success?
   raise CalledProcessError, "Failed to run #{args.join(' ')}: #{status.exitstatus}"
@@ -80,7 +80,7 @@ class TerraformTester
     stop_time = Time.now + 30 * 60
     loop do
       begin
-        run_ssh 'opt/hcf/bin/hcf-status --silent'
+        run_ssh 'opt/hcf/bin/hcf-status --silent', silent: true
       rescue CalledProcessError
         raise if Time.now > stop_time
         sleep 30
@@ -109,10 +109,18 @@ class TerraformTester
     end
   end
 
-  def run_ssh(cmd)
-    run_processs('ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
-                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-t', floating_ip, '--',
-                 cmd)
+  def ssh_hosts_path
+    return @ssh_hosts_file.path unless @ssh_hosts_file.nil?
+    @ssh_hosts_file = Tempfile.new('ssh_known_hosts')
+    @ssh_hosts_file.close
+    at_exit { @ssh_hosts_file.delete }
+    @ssh_hosts_file.path
+  end
+
+  def run_ssh(cmd, silent: false)
+    run_processs('ssh', '-o', "UserKnownHostsFile=#{ssh_hosts_path}", '-o', 'StrictHostKeyChecking=no',
+                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-q', '-tt', floating_ip, '--',
+                 cmd, silent: silent)
   end
 end
 
