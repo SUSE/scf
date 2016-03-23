@@ -1010,6 +1010,9 @@ configuration:
     default: internal_user
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
+  - name: TRUSTED_CERTS
+    secret: true
+    default: ""
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
   - name: UAA_BATCH_PASSWORD
@@ -1283,6 +1286,7 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
+    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
