@@ -320,8 +320,10 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
             # (25) Run the jobs
 
-	    "echo ___ Start the jobs ______________________",
+            "echo ___ Start the jobs ______________________",
+            "${null_resource.runner_tasks_pre_flight.triggers.runner_tasks_pre_flight}"
             "${null_resource.runner_jobs.triggers.runner_jobs}"
+            "${null_resource.runner_tasks_post_flight.triggers.runner_tasks_post_flight}"
         ]
     }
 }

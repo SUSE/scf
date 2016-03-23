@@ -199,35 +199,35 @@ class ToTerraform < Common
   end
 
   def emit_runner(manifest)
-    emit_jobs(manifest)
-    emit_tasks(manifest)
+    emit_tasks manifest, stage: 'pre-flight'
+    emit_jobs manifest
+    emit_tasks manifest, stage: 'post-flight'
   end
 
   def emit_jobs(manifest)
     runner = run_environment_setup
     runner += to_names(get_job_roles(manifest)).map do |name|
-      make_run_cmd(name)
+      make_run_cmd(name, restart: true)
     end.reduce(:+)
 
     emit_header 'Running of job roles'
     emit_null('runner_jobs', runner)
   end
 
-  def emit_tasks(manifest)
-    runner = run_environment_setup
-    runner += to_names(get_task_roles(manifest)).map do |name|
-      make_run_cmd(name)
-    end.reduce(:+)
+  def emit_tasks(manifest, stage:)
+    emit_header "Running #{stage} tasks"
+    runner = to_names(get_task_roles(manifest, stage: stage)).map do |name|
+      make_run_cmd(name, restart: false)
+    end.reduce(run_environment_setup, :+)
 
-    emit_header 'NOT USED YET - TODO - Change to suit actual invokation'
-    emit_null('runner_tasks', runner)
+    emit_null("runner_tasks_#{stage.gsub('-', '_')}", runner)
   end
 
   # Construct the command used in the host to start the named role.
-  def make_run_cmd(name)
+  def make_run_cmd(name, restart: true)
     cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
     cmd += name
-    cmd += ' --restart=always'
+    cmd += ' --restart=always' if restart
     cmd += "\n"
     cmd
   end
@@ -294,11 +294,13 @@ SETUP
   end
 
   def get_job_roles(manifest)
-    manifest['roles'].select { |role| job?(role) && !skip_manual?(role) }
+    manifest['roles'].select { |role| job?(role) }
   end
 
-  def get_task_roles(manifest)
-    manifest['roles'].select { |role| task?(role) && !skip_manual?(role) }
+  def get_task_roles(manifest, stage: nil)
+    tasks = manifest['roles'].select { |role| task?(role) && !skip_manual?(role) }
+    tasks.select! { |role| flight_stage_of(role) == stage } unless stage.nil?
+    tasks
   end
 
   def to_names(roles)
