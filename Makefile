@@ -221,14 +221,9 @@ show-docker-setup:
 	@echo "hcf version     = '${BRANCH}'"
 	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
 
-<<<<<<< a743253a593d5615ffb9d54fc6b2902b90fd2a6e
-
 ########## CONFIGURATION TARGETS ##########
 
-generate: ucp mpc
-=======
 generate: ucp mpc aws
->>>>>>> [HCF-554] Created a basic (u-cloud) terraform setup for AWS.
 
 DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
 # Note, _not_ IMAGE_REGISTRY_MAKE. The rm-transformer script adds a trailing "/" itself, where needed
