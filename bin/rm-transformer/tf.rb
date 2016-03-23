@@ -228,7 +228,7 @@ class ToTerraform < Common
     cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
     cmd += name
     cmd += ' --restart=always' if restart
-    cmd += "\n"
+    cmd += " </dev/null\n"
     cmd
   end
 
