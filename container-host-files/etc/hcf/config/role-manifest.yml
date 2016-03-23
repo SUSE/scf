@@ -970,7 +970,7 @@ configuration:
   - name: LOGGREGATOR_HOST
     default: "loggregator"
   - name: PUBLIC_IP
-    default: "192.168.77.77"
+    example: "192.168.77.77"
   - name: BULK_API_PASSWORD
     secret: true
   - name: CCDB_ROLE_NAME
@@ -1006,7 +1006,7 @@ configuration:
   - name: DNS_SUFFIX
     default: ""
   - name: DOMAIN
-    default: "192.168.77.77.nip.io"
+    example: "192.168.77.77.nip.io"
   - name: DOPPLER_ZONE
     default: z1
   - name: LOGGREGATOR_SHARED_SECRET
