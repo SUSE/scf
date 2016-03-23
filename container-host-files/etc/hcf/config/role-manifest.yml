@@ -179,11 +179,6 @@ roles:
 - name: diego-database
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
-  # etcd_custom_dns_suffix.sh merged in https://github.com/cloudfoundry-incubator/etcd-release/pull/9/files?diff=unified
-  #- etcd_custom_dns_suffix.sh
   - remove-hardcoded-bbs-advertise-url.sh
   jobs:
   - name: etcd
@@ -524,9 +519,6 @@ roles:
         target: 3458
         public: false
 - name: etcd
-  scripts:
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -986,6 +978,8 @@ configuration:
     secret: true
   - name: DB_ENCRYPTION_KEY
     secret: true
+  - name: DNS_SUFFIX
+    default: ""
   - name: DOMAIN
     default: "192.168.77.77.nip.io"
   - name: DOPPLER_ZONE
@@ -1209,6 +1203,7 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"]'
     properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"]'
     properties.etcd_metrics_server.machines: '["((NATS_HOST))"]'
+    properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
