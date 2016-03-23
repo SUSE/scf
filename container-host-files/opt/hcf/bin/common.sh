@@ -52,31 +52,44 @@ function start_role {
   local env_files="$(collect_env "$env_file_dir")"
   shift 4
   local user_extra="$@"
+  local detach=""
+  local restart=""
+  local stdin=""
 
-  mkdir -p $log_dir/$role
+  case "$(get_role_flight_stage ${role})" in
+    pre-flight)
+      restart="--restart=no"
+      stdin="</dev/null"
+      ;;
+    flight)
+      detach="--detach"
+      restart="--restart=always"
+      ;;
+    post-flight)
+      detach="--detach"
+      restart="--restart=on-failure"
+      stdin="</dev/null"
+      ;;
+  esac
 
-  if [[ "$(get_role_flight_stage ${role})" == "flight" ]]; then
-    docker run -it --name $name \
-        --detach \
+  mkdir -p ${log_dir}/${role}
+
+  function _do_start_role() {
+    docker run -it --name ${name} \
+        ${detach} \
         --net=hcf \
-        --label=hcf_role=$role \
+        --label=hcf_role=${role} \
         --hostname=${role}.hcf \
-        $env_files \
-        -v $log_dir/$role:/var/vcap/sys/log \
-        $extra \
-        $user_extra \
-        $image > /dev/null
-  else
-    docker run -it --name $name \
-        --net=hcf \
-        --label=hcf_role=$role \
-        --hostname=${role}.hcf \
-        $env_files \
-        -v $log_dir/$role:/var/vcap/sys/log \
-        $extra \
-        $user_extra \
-        $image
-  fi
+        ${restart} \
+        ${env_files} \
+        -v ${log_dir}/${role}:/var/vcap/sys/log \
+        ${extra} \
+        ${user_extra} \
+        ${image}
+  }
+
+  eval _do_start_role "${stdin}" "${detach:+>/dev/null}"
+  unset _do_start_role
 }
 
 # Collect the .env files to use by docker run to initialize the
@@ -193,7 +206,7 @@ function handle_restart() {
 
   if container_running $container_name $image ; then
     echo "Role ${role} running with appropriate version ..."
-    return 1
+    return 0
   else
     echo "Restarting ${role} ..."
     kill_role $role

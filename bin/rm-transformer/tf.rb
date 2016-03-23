@@ -50,7 +50,6 @@ class ToTerraform < Common
     emit_header(hdr)
     emit_dtr_variables
     emit_loader(manifest)
-    emit_runner(manifest)
     emit_settings(manifest)
     emit_list_of_roles(manifest)
     emit_configuration(manifest)
@@ -196,57 +195,6 @@ class ToTerraform < Common
     cmd += ':${var.hcf_version}'
     cmd += "\n"
     cmd
-  end
-
-  def emit_runner(manifest)
-    emit_tasks manifest, stage: 'pre-flight'
-    emit_jobs manifest
-    emit_tasks manifest, stage: 'post-flight'
-  end
-
-  def emit_jobs(manifest)
-    runner = run_environment_setup
-    runner += to_names(get_job_roles(manifest)).map do |name|
-      make_run_cmd(name, restart: true)
-    end.reduce(:+)
-
-    emit_header 'Running of job roles'
-    emit_null('runner_jobs', runner)
-  end
-
-  def emit_tasks(manifest, stage:)
-    emit_header "Running #{stage} tasks"
-    runner = to_names(get_task_roles(manifest, stage: stage)).map do |name|
-      make_run_cmd(name, restart: false)
-    end.reduce(run_environment_setup, :+)
-
-    emit_null("runner_tasks_#{stage.gsub('-', '_')}", runner)
-  end
-
-  # Construct the command used in the host to start the named role.
-  def make_run_cmd(name, restart: true)
-    cmd = "${var.fs_host_root}/opt/hcf/bin/run-role.sh #{run_environment_path} "
-    cmd += name
-    cmd += ' --restart=always' if restart
-    cmd += " </dev/null\n"
-    cmd
-  end
-
-  def run_environment_path
-    '${var.fs_host_root}/opt/hcf/etc'
-  end
-
-  def run_environment_setup
-    <<SETUP
-# Configuration for run-role.sh, to place logs and state into the data volume
-
-export    HCF_RUN_STORE=${var.runtime_store_directory}
-mkdir -p $HCF_RUN_STORE
-
-export    HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}
-mkdir -p $HCF_RUN_LOG_DIRECTORY
-
-SETUP
   end
 
   def emit_settings(manifest)

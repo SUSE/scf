@@ -3,17 +3,14 @@
 # Assume that everything else is already active.
 set -e
 
-if [ $# -lt 2 ]
-then
+if [ $# -lt 2 ]; then
     echo 1>&2 "Usage: $(basename "$0") <DIR_WITH_ENV_FILES> <ROLE_NAME> ?<EXTRA-DOCKER> ...?"
     exit 1
-else
-    setup_dir="$1"
-    role_name="$2"
-    shift 2
-    extras="$@"
-    # The extras are handed down to the 'docker run' command in start_role
 fi
+
+setup_dir="$1"
+role_name="$2"
+shift 2
 
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
 # SELF    = /opt/hcf/bin/list-roles.sh
@@ -35,9 +32,4 @@ log_dir=$HCF_RUN_LOG_DIRECTORY
 
 load_all_roles
 # (Re)start the specified role
-handle_restart "$role_name" \
-    "${setup_dir}" \
-    $extras \
-    || true
-
-exit 0
+handle_restart "$role_name" "${setup_dir}" "$@"
