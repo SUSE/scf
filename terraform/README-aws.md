@@ -52,3 +52,62 @@ export AWS_DEFAULT_REGION="us-west-2"
 ```
 
   to set up the specified configration.
+
+
+# Troublespots
+
+## Certificates and other secrets
+
+Until ENV_DIR support lands in the Makefile my workaround is to
+
+```
+  -DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
+  +DTR := --env-dir=${CURDIR}/bin --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
+```
+
+in the Makefile to ensure that the generated `.tf` files contain the
+certs data.
+
+## Terraform
+
+If you see
+
+```
+  Errors:
+    * provider.aws: : invalid or unknown key: insecure
+```
+
+upgrade your installation of ```terraform``` to version 0.6.12 or
+higher.
+
+## ACL destruction
+
+TF claims that it is sucessfully destroying the ACL.
+
+It is not.
+
+The ACL must be destroyed manually.
+
+See next section for information about the AWS web console.
+
+## AWS Web console
+
+The important sections are EC2 and VPC.
+
+   * (https://us-west-2.console.aws.amazon.com/vpc/home?region=us-west-2#acls:)[VPC]
+
+      * Your VPC
+      * Subnets
+      * Internet Gateway
+      * Network ACLs
+
+   * (https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#Instances:sort=tag:Name)[EC2]
+
+      *	Instances
+      *	Security Groups
+      *	Key Pairs
+
+## Docker Trusted Registry
+
+The account information (name, password) in the provided example
+.tfvars file is __fixed__. Do __not change__ that part.
