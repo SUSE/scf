@@ -66,7 +66,7 @@ touch index.txt
 printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
-  -new -x509 -extensions v3_ca \
+  -new -x509 -days 3650 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
   -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${bbs_certs_dir}/private/bbs-ca.key" -out "${bbs_certs_dir}/certs/bbs-ca.crt"
@@ -105,7 +105,7 @@ touch index.txt
 printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -new -x509 -extensions v3_ca \
+  -new -x509 -days 3650 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
   -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${etcd_certs_dir}/private/etcd-ca.key" -out "${etcd_certs_dir}/certs/etcd-ca.crt"
@@ -144,7 +144,7 @@ touch index.txt
 printf "%024d" $(date +%s%N) > serial
 
 openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -new -x509 -extensions v3_ca \
+  -new -x509 -days 3650 -extensions v3_ca \
   -passout pass:"${signing_key_passphrase}" \
   -subj "/CN=${DIEGO_DATABASE_HOST}/" \
   -keyout "${etcd_peer_certs_dir}/private/etcd-ca.key" -out "${etcd_peer_certs_dir}/certs/etcd-ca.crt"
