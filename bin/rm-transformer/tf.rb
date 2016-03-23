@@ -39,6 +39,8 @@ class ToTerraform < Common
 
   # Public API
   def transform(manifest)
+    hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
+    emit_header(hdr)
     to_terraform(manifest)
     @out.join("\n")
   end
@@ -46,8 +48,6 @@ class ToTerraform < Common
   # Internal definitions
 
   def to_terraform(manifest)
-    hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
-    emit_header(hdr)
     emit_dtr_variables
     emit_loader(manifest)
     emit_settings(manifest)

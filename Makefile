@@ -254,7 +254,7 @@ aws:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf
 
 ########## DISTRIBUTION TARGETS ##########
