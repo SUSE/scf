@@ -116,11 +116,6 @@ variable "core_volume_device_mapper" {
 
 variable "core_volume_size_data" {
     default = "40"
-    # We need only 40, but this way the two disks are
-    # interchangeable, defeating the race-condition switching
-    # their /dev/vd assignments. Consider it a band-aid until
-    # either TF openstack provider honors device assignments, or
-    # we can determine the actual assignment from a provisioner.
 }
 
 variable "core_volume_size_mapper" {
