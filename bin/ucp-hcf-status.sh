@@ -17,6 +17,6 @@ if ! type y2j > /dev/null; then
 fi
 SCRIPT
 
-# 2. Run hcf-status
+# 3. Run hcf-status
 echo "Running hcf-status ..."
 sshpass -p "vagrant" ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@192.168.200.3 'bash -c "sudo /home/vagrant/hcf/opt/hcf/bin/hcf-status"'
