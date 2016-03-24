@@ -320,8 +320,8 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
             # (25) Run the jobs
 
-	    "echo ___ Start the jobs ______________________",
-            "${null_resource.runner_jobs.triggers.runner_jobs}"
+            "echo ___ Start the jobs ______________________",
+            "bash -e ${var.fs_host_root}/opt/hcf/bin/run-all-roles.sh ${var.fs_host_root}/opt/hcf/etc"
         ]
     }
 }

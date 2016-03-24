@@ -3,43 +3,11 @@ set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
+"${ROOT}/container-host-files/opt/hcf/bin/run-all-roles.sh" "${ROOT}/bin/"
+
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
 set_colors
-load_all_roles
-
-# Start pre-flight roles
-echo -e "${txtgrn}Starting pre-flight roles...${txtrst}"
-for role in $(list_roles_by_flight_stage pre-flight)
-do
-    if [[ "$(get_role_type ${role})" == "bosh" ]]
-    then
-        echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
-    fi
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
-done
-
-# Start flight roles
-echo -e "${txtgrn}Starting flight roles...${txtrst}"
-for role in $(list_roles_by_flight_stage flight)
-do
-    if [[ "$(get_role_type ${role})" == "bosh-task" ]]
-    then
-        echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
-    fi
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
-done
-
-# Start post-flight roles
-echo -e "${txtgrn}Starting post-flight roles...${txtrst}"
-for role in $(list_roles_by_flight_stage post-flight)
-do
-    if [[ "$(get_role_type ${role})" == "bosh" ]]
-    then
-        echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
-    fi
-    ${ROOT}/container-host-files/opt/hcf/bin/run-role.sh "${ROOT}/bin" "$role"
-done
 
 # Show targeting and other information.
 
