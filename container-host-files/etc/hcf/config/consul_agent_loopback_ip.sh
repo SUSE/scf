@@ -1,7 +1,12 @@
 #!/bin/sh
 set -e
 
-if [ ! -f "/var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb.sentinel" ]; then
+SENTINEL="/var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
 patch -p0 --force <<"PATCH"
 --- /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
 +++ /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
@@ -25,5 +30,4 @@ patch -p0 --force <<"PATCH"
    recursors=""
 PATCH
 
-  touch "/var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb.sentinel"
-fi
+touch "${SENTINEL}"

@@ -1,5 +1,11 @@
 set -e
 
+SENTINEL="/var/vcap/${0##*/}.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
 # *********************************************
 # gorouter fix
 # *********************************************
@@ -7,8 +13,7 @@ job_dir="/var/vcap/jobs-src/gorouter/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "gorouter_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- gorouter_ctl.erb
 +++ gorouter_ctl.erb
 @@ -24,6 +24,7 @@ case $1 in
@@ -28,9 +33,6 @@ if [ -d "$job_dir" ]; then
      # Allowed number of open file descriptors
      ulimit -n 100000
 PATCH
-
-    touch "gorouter_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -40,8 +42,7 @@ job_dir="/var/vcap/jobs-src/doppler/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "doppler_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- doppler_ctl.erb
 +++ doppler_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -56,9 +57,6 @@ if [ -d "$job_dir" ]; then
 
      <% p("doppler.debug") == true ? debug_string = "--debug " : debug_string = "" %>
 PATCH
-
-    touch "doppler_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -68,8 +66,7 @@ job_dir="/var/vcap/jobs-src/loggregator_trafficcontroller/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "loggregator_trafficcontroller_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- loggregator_trafficcontroller_ctl.erb
 +++ loggregator_trafficcontroller_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -84,9 +81,6 @@ if [ -d "$job_dir" ]; then
 
      <% p("traffic_controller.debug") == true ? debug_string = "--debug " : debug_string = "" %>
 PATCH
-
-    touch "loggregator_trafficcontroller_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -96,8 +90,7 @@ job_dir="/var/vcap/jobs-src/syslog_drain_binder/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "syslog_drain_binder_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- syslog_drain_binder_ctl.erb
 +++ syslog_drain_binder_ctl.erb
 @@ -16,7 +16,10 @@ case $1 in
@@ -112,9 +105,6 @@ if [ -d "$job_dir" ]; then
 
      <% p("syslog_drain_binder.debug") == true ? debug_string = "--debug " : debug_string = "" %>
 PATCH
-
-    touch "syslog_drain_binder_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -124,8 +114,7 @@ job_dir="/var/vcap/jobs-src/bbs/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "bbs_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- bbs_ctl.erb
 +++ bbs_ctl.erb
 @@ -51,6 +51,7 @@ case $1 in
@@ -145,9 +134,6 @@ if [ -d "$job_dir" ]; then
      # Allowed number of open file descriptors
      ulimit -n 100000
 PATCH
-
-    touch "bbs_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -157,8 +143,7 @@ job_dir="/var/vcap/jobs-src/cc_uploader/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "cc_uploader_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- cc_uploader_ctl.erb
 +++ cc_uploader_ctl.erb
 @@ -21,6 +21,7 @@ case $1 in
@@ -178,9 +163,6 @@ if [ -d "$job_dir" ]; then
      # Allowed number of open file descriptors
      ulimit -n 100000
 PATCH
-
-    touch "cc_uploader_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -190,8 +172,7 @@ job_dir="/var/vcap/jobs-src/file_server/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "file_server_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- file_server_ctl.erb
 +++ file_server_ctl.erb
 @@ -21,9 +21,12 @@ case $1 in
@@ -218,9 +199,6 @@ if [ -d "$job_dir" ]; then
      ulimit -n 100000
 
 PATCH
-
-    touch "file_server_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -230,8 +208,7 @@ job_dir="/var/vcap/jobs-src/rep/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "rep_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- rep_ctl.erb
 +++ rep_ctl.erb
 @@ -43,6 +43,7 @@ case $1 in
@@ -251,9 +228,6 @@ if [ -d "$job_dir" ]; then
      # Allowed number of open file descriptors
      ulimit -n 100000
 PATCH
-
-    touch "rep_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -263,8 +237,7 @@ job_dir="/var/vcap/jobs-src/stager/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "stager_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- stager_ctl.erb
 +++ stager_ctl.erb
 @@ -37,6 +37,7 @@ case $1 in
@@ -284,9 +257,6 @@ if [ -d "$job_dir" ]; then
      # Allowed number of open file descriptors
      ulimit -n 100000
 PATCH
-
-    touch "stager_ctl.erb.sentinel"
-  fi
 fi
 
 # *********************************************
@@ -296,8 +266,7 @@ job_dir="/var/vcap/jobs-src/cloud_controller_ng/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  if [ ! -f "cloud_controller_api_ctl.erb.sentinel" ]; then
-    patch -t --forward <<"PATCH"
+  patch -t <<"PATCH"
 --- cloud_controller_api_ctl.erb
 +++ cloud_controller_api_ctl.erb
 @@ -83,7 +83,9 @@ case $1 in
@@ -310,11 +279,8 @@ if [ -d "$job_dir" ]; then
 
      ulimit -c unlimited
 PATCH
-
-
-    touch "cloud_controller_api_ctl.erb.sentinel"
-  fi
 fi
 
+touch "${SENTINEL}"
 
 exit 0

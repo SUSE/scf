@@ -1,7 +1,12 @@
 #!/bin/sh
 set -e
 
-if [ ! -f "/var/vcap/jobs-src/etcd/templates/etcd_ctl.erb.sentinel" ]; then
+SENTINEL="/var/vcap/jobs-src/etcd/templates/etcd_ctl.erb.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
 patch -p0 --force <<"PATCH"
 --- /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
 +++ /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
@@ -16,5 +21,4 @@ patch -p0 --force <<"PATCH"
          exit 1
 PATCH
 
-  touch "/var/vcap/jobs-src/etcd/templates/etcd_ctl.erb.sentinel"
-fi
+touch "${SENTINEL}"
