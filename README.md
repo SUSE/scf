@@ -91,7 +91,7 @@ This repository integrates all HCF components.
   
 6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
-  __Important:__ You need to run this command only after initially creating the VM.
+  __Note:__ You need to run this command only after initially creating the VM.
 
 7. Start HCF using the `make run` command.
 
@@ -138,47 +138,57 @@ This repository integrates all HCF components.
 
 6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
-  __Important:__ You need to run this command only after initially creating the VM.
+  __Only:__ You need to run this command only after initially creating the VM.
 
 7. Start HCF using the `make run` command.
 
 
-## Development on Ubuntu with libvirt
+## Deploy HCF on Ubuntu Using `libvirt`
 
-1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
-1. Install dependencies
- ```bash
- sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
- ```
+1. [Install Vagrant](https://www.virtualbox.org/wiki/Linux_Downloads) and its dependencies:
 
-1. Allow non-root access to libvirt
- ```bash
- sudo usermod -G libvirtd -a YOUR_USER
- ```
+  ```
+  bash
+  sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+  ```
 
-1. Logout & Login
-1. Install the `libvirt` plugin for Vagrant
- ```bash
- vagrant plugin install vagrant-libvirt
- ```
+2. Allow non-`root` access to `libvirt`:
 
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
+  ```
+  bash
+  sudo usermod -G libvirtd -a <username>
+  ```
 
-1. Bring it online (may fail a few times)
- ```bash
- vagrant up --provider libvirt
- ```
+3. Log out, log in, and then install the `libvirt` plugin for Vagrant:
 
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
+  ```
+  bash
+  vagrant plugin install vagrant-libvirt
+  ```
+
+4. Install the `vagrant-reload` plugin:
+
+  ```
+  bash
+  vagrant plugin install vagrant-reload
+  ```
+
+5. Bring the VM online and `ssh` into it:
+
+  __Important:__ The VM may not come online during your first attempt.
+
+  ```
+  bash
+  vagrant up --provider libvirt
+  vagrant ssh
+  ```
+
+6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+7. Start HCF using the `make run` command.
+
 
 ## Development on Fedora with libvirt
 
