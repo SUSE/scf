@@ -83,7 +83,6 @@ properties:
       package: binary-buildpack
     internal_api_password: password
     internal_api_user: internal_user
-    internal_service_hostname: api.hcf
     jobs:
       app_bits_packer:
         timeout_in_seconds: null
@@ -243,7 +242,8 @@ properties:
         require_ssl: true
     bbs:
       etcd:
-        require_ssl: true
+        # Until we figure out DNS names
+        require_ssl: false
       require_ssl: true
       tweak_proc_sys: false
     cc_uploader:
@@ -288,10 +288,6 @@ properties:
     stager:
       bbs:
         require_ssl: true
-      cc:
-        internal_service_hostname: api.hcf
-      cc_uploader_url: http://diego-cc-bridge.hcf:9090
-      file_server_url: http://diego-access.hcf:8080
       tweak_proc_sys: false
     tps:
       bbs:
@@ -314,10 +310,11 @@ properties:
     client_key: null
     cluster:
     - instances: 1
-      name: database_z1
-    dns_health_check_host: consul.hcf
-    peer_require_ssl: true
-    require_ssl: true
+      name: diego-database
+    # Until we figure out DNS names
+    peer_require_ssl: false
+    # Until we figure out DNS names
+    require_ssl: false
     server_cert: null
     server_key: null
   etcd_metrics_server:
@@ -329,6 +326,7 @@ properties:
     enable_graph_cleanup: true
     listen_address: 0.0.0.0:7777
     listen_network: tcp
+    network_pool: 10.38.0.0/22
     log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs

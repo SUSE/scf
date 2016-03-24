@@ -45,7 +45,37 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'consul'
+      - name: 'server-rpc'
+        protocol: 'TCP'
+        source: 8300
+        target: 8300
+        public: false
+      - name: 'serf-lan-tcp'
+        protocol: 'TCP'
+        source: 8301
+        target: 8301
+        public: false
+      - name: 'serf-lan-udp'
+        protocol: 'UDP'
+        source: 8301
+        target: 8301
+        public: false
+      - name: 'serf-wan-tcp'
+        protocol: 'TCP'
+        source: 8302
+        target: 8302
+        public: false
+      - name: 'serf-wan-udp'
+        protocol: 'UDP'
+        source: 8302
+        target: 8302
+        public: false
+      - name: 'cli-rpc'
+        protocol: 'TCP'
+        source: 8400
+        target: 8400
+        public: false
+      - name: 'http-api'
         protocol: 'TCP'
         source: 8500
         target: 8500
@@ -75,6 +105,16 @@ roles:
         protocol: 'TCP'
         source: 3306
         target: 3306
+        public: false
+      - name: 'galera'
+        protocol: 'TCP'
+        source: 4567
+        target: 4567
+        public: false
+      - name: 'healthcheck'
+        protocol: 'tcp'
+        source: 9200
+        target: 9200
         public: false
   configuration:
     templates:
@@ -107,6 +147,16 @@ roles:
         source: 3306
         target: 3306
         public: false
+      - name: 'api'
+        protocol: 'TCP'
+        source: 80
+        target: 80
+        public: false
+      - name: 'healthcheck'
+        protocol: 'TCP'
+        source: 1936
+        target: 1936
+        public: false
   configuration:
     templates:
       properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
@@ -132,6 +182,8 @@ roles:
   - consul_agent_loopback_ip.sh
   # etcd_health_check_ipv4_only.sh merged in etcd-release v37
   - etcd_health_check_ipv4_only.sh
+  # etcd_custom_dns_suffix.sh merged in https://github.com/cloudfoundry-incubator/etcd-release/pull/9/files?diff=unified
+  #- etcd_custom_dns_suffix.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -156,10 +208,30 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'diego-database'
+      - name: 'cell-etcd'
+        protocol: 'TCP'
+        source: 4001
+        target: 4001
+        public: false
+      - name: 'cell-etcd-peer'
+        protocol: 'TCP'
+        source: 7001
+        target: 7001
+        public: false
+      - name: 'cell-metrics'
+        protocol: 'TCP'
+        source: 5678
+        target: 5678
+        public: false
+      - name: 'cell-bbs-api'
         protocol: 'TCP'
         source: 8889
         target: 8889
+        public: false
+      - name: 'cell-bbs-dbg'
+        protocol: 'TCP'
+        source: 17017
+        target: 17017
         public: false
     hosts:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
@@ -316,6 +388,11 @@ roles:
         source: 9022
         target: 9022
         public: false
+      - name: 'statsd'
+        protocol: 'TCP'
+        source: 8125
+        target: 8125
+        public: false
   configuration:
     templates:
       properties.etcd.machines: '["((ETCD_HOST))"]'
@@ -428,16 +505,20 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'doppler'
+      - name: 'doppler-in'
         protocol: 'TCP'
         source: 3456
         target: 3456
         public: false
-    exposed-ports:
-      - name: 'doppler2'
+      - name: 'dropsnode-in'
         protocol: 'TCP'
         source: 3457
         target: 3457
+        public: false
+      - name: 'doppler-tls'
+        protocol: 'TCP'
+        source: 3458
+        target: 3458
         public: false
 - name: etcd
   scripts:
@@ -464,15 +545,15 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'etcd'
+      - name: 'etcd-client'
         protocol: 'TCP'
-        source: 2379
-        target: 2379
+        source: 4001
+        target: 4001
         public: false
-      - name: 'etcd2'
+      - name: 'etcd-peer'
         protocol: 'TCP'
-        source: 2380
-        target: 2380
+        source: 7001
+        target: 7001
         public: false
   configuration:
     templates:
@@ -540,7 +621,7 @@ roles:
     memory: 1024
     virtual-cpus: 4
     exposed-ports:
-      - name: 'diego-brain'
+      - name: 'diego-auction'
         protocol: 'TCP'
         source: 9016
         target: 9016
@@ -576,10 +657,55 @@ roles:
     memory: 1024
     virtual-cpus: 4
     exposed-ports:
-      - name: 'diego-cc-bridge'
+      - name: 'nsync-listen'
+        protocol: 'TCP'
+        source: 8787
+        target: 8787
+        public: false
+      - name: 'nsync-dbg-l'
+        protocol: 'TCP'
+        source: 17006
+        target: 17006
+        public: false
+      - name: 'nsync-dbg-b'
+        protocol: 'TCP'
+        source: 17007
+        target: 17007
+        public: false
+      - name: 'stager-dbg'
+        protocol: 'TCP'
+        source: 17011
+        target: 17011
+        public: false
+      - name: 'stager-listen'
+        protocol: 'TCP'
+        source: 8888
+        target: 8888
+        public: false
+      - name: 'tps-listen'
+        protocol: 'TCP'
+        source: 1518
+        target: 1518
+        public: false
+      - name: 'tps-dbg-l'
+        protocol: 'TCP'
+        source: 17014
+        target: 17014
+        public: false
+      - name: 'tps-dbg-w'
+        protocol: 'TCP'
+        source: 17015
+        target: 17015
+        public: false
+      - name: 'cc-up-listen'
         protocol: 'TCP'
         source: 9090
         target: 9090
+        public: false
+      - name: 'cc-up-dbg'
+        protocol: 'TCP'
+        source: 17018
+        target: 17018
         public: false
 - name: diego-route-emitter
   scripts:
@@ -627,11 +753,16 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'diego-access'
+      - name: 'diego-ssh'
         protocol: 'TCP'
         source: 2222
         target: 2222
         public: true
+      - name: 'diego-files'
+        protocol: 'TCP'
+        source: 8080
+        target: 8080
+        public: false
 - name: diego-cell
   scripts:
   - prevent_apparmor_disable.sh
@@ -689,8 +820,9 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-- name: post_deployment_setup
+- name: post-deployment-setup
   type: bosh-task
+  dev-only: true
   jobs:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
@@ -714,8 +846,8 @@ roles:
     exposed-ports:
       - name: 'windows-dns'
         protocol: 'UDP'
-        source: 53
-        target: 8600
+        source: 8600
+        target: 53
         public: true
 - name: mongodb-manager
   type: docker
@@ -730,6 +862,7 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 - name: mysql-manager
+  dev-only: true
   type: docker
   run:
     capabilities: []
@@ -777,8 +910,9 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: usb_create_services
+- name: usb-create-services
   type: bosh-task
+  dev-only: true
   jobs:
   - name: usb-create-services
     release_name: hcf-deployment-hooks

@@ -78,6 +78,7 @@ function start_role {
     docker run -it --name ${name} \
         ${detach} \
         --net=hcf \
+        --dns-search=hcf \
         --label=hcf_role=${role} \
         --hostname=${role}.hcf \
         ${restart} \
@@ -134,7 +135,7 @@ function setup_role() {
   # If there are any exposed ports, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -p 80:80 -p 443:443
-  local ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | select(.public == true) |  if length > 0 then "-p " + ([(.source | tostring) + ":" + (.target | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
+  local ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | select(.public == true) |  if length > 0 then "-p " + ([(.target | tostring) + ":" + (.source | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
 
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the

@@ -16,6 +16,7 @@ APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
 IMAGE_REGISTRY := docker.helion.lol
+ENV_DIR        :=
 
 # Note: When used the registry must not have a trailing "/". That is
 # added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
@@ -79,6 +80,9 @@ vagrant-prep: \
 	image-base \
 	images \
 	${NULL}
+
+registry:
+	docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
 ########## BOSH RELEASE TARGETS ##########
 
@@ -188,7 +192,7 @@ docker-tag:
 	$(call print_status, Tagging docker images)
 	set -e ; \
 	for component in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh); do \
-	        source_image=$${component}:${APP_VERSION_TAG} && \
+	        source_image=$${component} && \
 	        echo Tagging $${source_image} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${APP_VERSION_TAG} && \
 	        docker tag $${source_image} ${IMAGE_REGISTRY_MAKE}${IMAGE_ORG}/${IMAGE_PREFIX}-$${component}:${BRANCH} ; \
@@ -233,7 +237,7 @@ ucp:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
 
 mpc:
 	$(call print_status, Generate MPC terraform configuration)
@@ -241,7 +245,7 @@ mpc:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
 	echo Generated ${CURDIR}/hcf.tf
 
 aws:
@@ -250,7 +254,7 @@ aws:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf
 
 ########## DISTRIBUTION TARGETS ##########
@@ -274,4 +278,3 @@ aws-dist: aws
 	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \
 	rm -rf $$base && \
 	echo Generated aws-$(APP_VERSION).zip
-

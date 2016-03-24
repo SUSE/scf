@@ -35,6 +35,7 @@ This is the repository that integrates all HCF components.
 		- [How can I add a Docker role to HCF?](#how-can-i-add-a-docker-role-to-hcf)
 	- [How do I publish the HCF and bosh images](#how-do-i-publish-the-hcf-and-bosh-images)
 	- [Generating UCP service definitions](#generating-ucp-service-definitions)
+		- [Working with UCP](#working-with-ucp)
 	- [Generating Terraform MPC service definitions](#generating-terraform-mpc-service-definitions)
 	- [Build dependencies](#build-dependencies)
 
@@ -570,6 +571,68 @@ definition for the current set of roles.
 __Note__, this target takes the same make variables as the __tag__ and
 __publish__ targets explained in the previous section.
 
+### Working with UCP
+
+1. You'll need a Docker registry. You can run a local one using:
+
+	```bash
+	make registry
+	```
+
+	After the registry is up and running, you can run the following to tag and
+	publish:
+
+	```bash
+	make tag IMAGE_REGISTRY=localhost:5000
+	make publish IMAGE_REGISTRY=localhost:5000
+	```
+
+1. Register the service definition on UCP
+
+	> IMPORTANT: pick an IP address on your host that you'll use as for your API endpoint
+	> use that IP address for the `PUBLIC_IP` and `DOMAIN` settings in `./bin/dev-settings.env`
+
+	From the HCF Vagrant box, run:
+
+	```bash
+	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp.json http://192.168.200.3:30000/v1/services
+	```
+
+	Create a service instance json that looks like this in `/home/vagrant/hcf/hcf-ucp-instance.json`
+
+	```json
+	{
+	    "name": "hcf",
+	    "version": "0.0.0",
+	    "vendor": "HPE",
+	    "labels": ["my-hcf-cluster"],
+	    "instance_id": "my-hcf-cluster",
+	    "description": "HCF test cluster"
+	}
+	```
+
+	Run the following:
+
+	```bash
+	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp-instance.json http://192.168.200.3:30000/v1/instances
+	```
+
+	Follow the documentation in UCP to forward ports from your hosts interface to
+	the HCF instance that will be created.
+
+1. Using `hcf-status` on UCP
+
+	In the UCP Dev Harness directory that contains the Vagrantfile, run the
+	`install-hcf-status-on-ucp.sh` script. This will install prerequisites and
+	copy the necessary scripts on the node VM.
+
+	Then, you can run the following:
+
+	```bash
+	vagrant ssh node
+	# Then, inside the VM
+	sudo ~/hcf/opt/hcf/bin/hcf-status
+	```
 
 ## Generating Terraform MPC service definitions
 
