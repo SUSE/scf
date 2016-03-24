@@ -10,10 +10,6 @@ set -e
 DEVICE=$1
 DEVICE1=${DEVICE}1
 
-echo ___ Show attachments
-# Disk only, not the partitions. This part may be MPC-specific
-for i in $(ls /dev/vd* | grep -v 'vd.1') ; do sudo fdisk -l $i 2>/dev/null | grep Disk ; done
-
 echo Mounting at $DEVICE
 
 # Partition and format device. Single partition (Covering the entire disk?)
