@@ -21,6 +21,6 @@ read -d '' setup_patch <<PATCH || true
 PATCH
 
 cd /var/vcap/packages/garden-linux/src/github.com/cloudfoundry-incubator/garden-linux/linux_backend/skeleton/
-echo -e "${setup_patch}" | patch --force
+echo -e "${setup_patch}" | patch --force --forward
 
 exit 0

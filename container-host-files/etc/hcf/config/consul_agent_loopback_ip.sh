@@ -1,5 +1,5 @@
 #!/bin/sh
-exec patch -p0 --force <<"PATCH"
+exec patch -p0 --force --forward <<"PATCH"
 --- /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
 +++ /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
 @@ -39,7 +39,7 @@ function setup_resolvconf() {

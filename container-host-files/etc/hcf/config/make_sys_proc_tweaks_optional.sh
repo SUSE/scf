@@ -7,7 +7,7 @@ job_dir="/var/vcap/jobs-src/gorouter/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- gorouter_ctl.erb
 +++ gorouter_ctl.erb
 @@ -24,6 +24,7 @@ case $1 in
@@ -36,7 +36,7 @@ job_dir="/var/vcap/jobs-src/doppler/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- doppler_ctl.erb
 +++ doppler_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -60,7 +60,7 @@ job_dir="/var/vcap/jobs-src/loggregator_trafficcontroller/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- loggregator_trafficcontroller_ctl.erb
 +++ loggregator_trafficcontroller_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -84,7 +84,7 @@ job_dir="/var/vcap/jobs-src/syslog_drain_binder/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- syslog_drain_binder_ctl.erb
 +++ syslog_drain_binder_ctl.erb
 @@ -16,7 +16,10 @@ case $1 in
@@ -108,7 +108,7 @@ job_dir="/var/vcap/jobs-src/bbs/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- bbs_ctl.erb
 +++ bbs_ctl.erb
 @@ -51,6 +51,7 @@ case $1 in
@@ -137,7 +137,7 @@ job_dir="/var/vcap/jobs-src/cc_uploader/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- cc_uploader_ctl.erb
 +++ cc_uploader_ctl.erb
 @@ -21,6 +21,7 @@ case $1 in
@@ -166,7 +166,7 @@ job_dir="/var/vcap/jobs-src/file_server/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- file_server_ctl.erb
 +++ file_server_ctl.erb
 @@ -21,9 +21,12 @@ case $1 in
@@ -202,7 +202,7 @@ job_dir="/var/vcap/jobs-src/rep/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- rep_ctl.erb
 +++ rep_ctl.erb
 @@ -43,6 +43,7 @@ case $1 in
@@ -231,7 +231,7 @@ job_dir="/var/vcap/jobs-src/stager/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- stager_ctl.erb
 +++ stager_ctl.erb
 @@ -37,6 +37,7 @@ case $1 in
@@ -260,7 +260,7 @@ job_dir="/var/vcap/jobs-src/cloud_controller_ng/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t --forward <<"PATCH"
 --- cloud_controller_api_ctl.erb
 +++ cloud_controller_api_ctl.erb
 @@ -83,7 +83,9 @@ case $1 in

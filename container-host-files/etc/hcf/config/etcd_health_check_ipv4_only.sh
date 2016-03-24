@@ -1,5 +1,5 @@
 #!/bin/sh
-exec patch -p0 --force <<"PATCH"
+exec patch -p0 --force --forward <<"PATCH"
 --- /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
 +++ /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
 @@ -30,7 +30,7 @@ case $1 in
