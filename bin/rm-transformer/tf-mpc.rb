@@ -59,7 +59,7 @@ HEADER
   def emit_sg_ingress(port)
     name     = port['name']
     protocol = port['protocol']
-    port     = port['source']
+    port     = port['target']
 
     emit <<RULE
     # Exposing #{name}
