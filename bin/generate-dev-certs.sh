@@ -44,9 +44,9 @@ mkdir -p $hcf_certs_path
 cd $hcf_certs_path
 
 openssl genrsa -out hcf.key 4096
-openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.192.168.77.77.nip.io/C=US"
+openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${domain}/C=US"
 openssl x509 -req -in hcf.csr -signkey hcf.key -out hcf.crt
-(cat hcf.crt && cat hcf.key) > hcf.pem
+cat hcf.crt hcf.key > hcf.pem
 
 # generate JWT certs
 openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
@@ -171,7 +171,7 @@ uaa_server_crt="${certs_path}/uaa_ca.crt"
 # 1. Generate your private key with any passphrase
 openssl genrsa -aes256 -out ${uaa_server_key} -passout pass:"${signing_key_passphrase}" 1024
 # 2. Remove passphrase from key
-openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}" 
+openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}"
 # 3. Generate certificate signing request for CA
 openssl req -x509 -sha256 -new -key ${uaa_server_key} -out ${uaa_server_csr} -subj "/CN=${DIEGO_DATABASE_HOST}/"
 # 4. Generate self-signed certificate with 365 days expiry-time
