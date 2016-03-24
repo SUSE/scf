@@ -143,53 +143,6 @@ provider "openstack" {
     insecure = "${var.skip_ssl_validation}"
 }
 
-resource "openstack_compute_secgroup_v2" "hcf-container-host-secgroup" {
-    name = "${var.cluster-prefix}-container-host"
-    description = "HCF Container Hosts"
-    rule {
-        from_port = 1
-        to_port = 65535
-        ip_protocol = "tcp"
-        self = true
-    }
-    rule {
-        from_port = 1
-        to_port = 65535
-        ip_protocol = "udp"
-        self = true
-    }
-    rule {
-        from_port = 22
-        to_port = 22
-        ip_protocol = "tcp"
-        cidr = "0.0.0.0/0"
-    }
-    rule {
-        from_port = 2222
-        to_port = 2222
-        ip_protocol = "tcp"
-        cidr = "0.0.0.0/0"
-    }
-    rule {
-        from_port = 80
-        to_port = 80
-        ip_protocol = "tcp"
-        cidr = "0.0.0.0/0"
-    }
-    rule {
-        from_port = 443
-        to_port = 443
-        ip_protocol = "tcp"
-        cidr = "0.0.0.0/0"
-    }
-    rule {
-        from_port = 4443
-        to_port = 4443
-        ip_protocol = "tcp"
-        cidr = "0.0.0.0/0"
-    }
-}
-
 resource "openstack_networking_floatingip_v2" "hcf-core-host-fip" {
   pool = "${var.openstack_floating_ip_pool}"
 }

@@ -80,6 +80,12 @@ def main
                       'terraform-aws',
                       'terraform/aws',
                       'terraform:aws'   then 'tf-aws'
+                 when 'tf-mpc',
+                      'tf/mpc',
+                      'tf:mpc',
+                      'terraform-mpc',
+                      'terraform/mpc',
+                      'terraform:mpc'   then 'tf-mpc'
                  else abort "Unknown provider: #{v}"
                  end
     end
@@ -113,6 +119,9 @@ def get_provider(name)
   elsif name == 'tf-aws'
     require_relative 'rm-transformer/tf-aws'
     ToTerraformAWS
+  elsif name == 'tf-mpc'
+    require_relative 'rm-transformer/tf-mpc'
+    ToTerraformMPC
   end
 end
 
