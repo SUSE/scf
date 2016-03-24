@@ -587,6 +587,39 @@ __publish__ targets explained in the previous section.
 	make publish IMAGE_REGISTRY=localhost:5000
 	```
 
+1. Register the service definition on UCP
+
+	> IMPORTANT: pick an IP address on your host that you'll use as for your API endpoint
+	> use that IP address for the `PUBLIC_IP` and `DOMAIN` settings in `./bin/dev-settings.env`
+
+	From the HCF Vagrant box, run:
+
+	```bash
+	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp.json http://192.168.200.3:30000/v1/services
+	```
+
+	Create a service instance json that looks like this in `/home/vagrant/hcf/hcf-ucp-instance.json`
+
+	```json
+	{
+	    "name": "hcf",
+	    "version": "0.0.0",
+	    "vendor": "HPE",
+	    "labels": ["my-hcf-cluster"],
+	    "instance_id": "my-hcf-cluster",
+	    "description": "HCF test cluster"
+	}
+	```
+
+	Run the following:
+
+	```bash
+	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp-instance.json http://192.168.200.3:30000/v1/instances
+	```
+
+	Follow the documentation in UCP to forward ports from your hosts interface to
+	the HCF instance that will be created.
+
 1. Using `hcf-status` on UCP
 
 	In the UCP Dev Harness directory that contains the Vagrantfile, run the
