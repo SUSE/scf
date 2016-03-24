@@ -1,0 +1,4 @@
+# abort script on any command that exits with a non zero value
+set -e
+
+cp cf-iis8-buildpack.zip ${BOSH_INSTALL_TARGET}

@@ -1,0 +1,6 @@
+# abort script on any command that exits with a non zero value
+set -e
+
+cd ${BUILD_DIR}
+
+curl -L -o windows_buildpack_app_lifecycle.tgz https://ci.appveyor.com/api/buildjobs/lufj2q4f7dmyunp6/artifacts/output/windows_app_lifecycle-8970681.tgz
