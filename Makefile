@@ -18,6 +18,9 @@ IMAGE_ORG      := helioncf
 IMAGE_REGISTRY := docker.helion.lol
 ENV_DIR        :=
 
+# Where to find the secrets. By default (empty string) no secrets.
+ENV_DIR        :=
+
 # Note: When used the registry must not have a trailing "/". That is
 # added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
 # Examples:
@@ -233,11 +236,13 @@ DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --
 # Note, _not_ IMAGE_REGISTRY_MAKE. The rm-transformer script adds a trailing "/" itself, where needed
 
 ucp:
-	docker run --rm \
+	$(call print_status, Generate Helion UCP configuration)
+	@docker run --rm \
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json"
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json" ; \
+	echo Generated ${CURDIR}/hcf-ucp.json
 
 mpc:
 	$(call print_status, Generate MPC terraform configuration)
@@ -245,16 +250,16 @@ mpc:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
 	echo Generated ${CURDIR}/hcf.tf
 
 aws:
 	$(call print_status, Generate AWS terraform configuration)
-	docker run --rm \
+	@docker run --rm \
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf
 
 ########## DISTRIBUTION TARGETS ##########
@@ -272,7 +277,7 @@ mpc-dist: mpc
 
 aws-dist: aws
 	$(call print_status, Package AWS terraform configuration for distribution)
-	base=$$(mktemp -d aws_XXXXXXXXXX) && \
+	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
 	mkdir $$base/aws && \
 	cp -rf container-host-files terraform/aws.tfvars.example terraform/README-aws.md hcf-aws.tf $$base/aws/ && \
 	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \

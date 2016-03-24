@@ -39,6 +39,8 @@ class ToTerraform < Common
 
   # Public API
   def transform(manifest)
+    hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
+    emit_header(hdr)
     to_terraform(manifest)
     @out.join("\n")
   end
@@ -46,8 +48,6 @@ class ToTerraform < Common
   # Internal definitions
 
   def to_terraform(manifest)
-    hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
-    emit_header(hdr)
     emit_dtr_variables
     emit_loader(manifest)
     emit_settings(manifest)
@@ -253,6 +253,35 @@ class ToTerraform < Common
 
   def to_names(roles)
     roles.map { |role| role['name'] }
+  end
+
+  def get_exposed_ports(roles)
+    result = [ ssh_port ]
+
+    roles.each do |role|
+      # Skip everything without runtime data or ports
+      next unless role['run']
+      next unless role['run']['exposed-ports']
+      next if     role['run']['exposed-ports'].empty?
+
+      role['run']['exposed-ports'].each do |port|
+        # Skip all internal ports
+        next unless port['public']
+        result.push(port)
+      end
+    end
+
+    result
+  end
+
+  def ssh_port
+    {
+      'name'        => 'ssh',
+      'protocol'    => 'tcp',
+      'source'      => 22,
+      'target'      => 22,
+      'public'      => true
+    }
   end
 
   # # ## ### ##### ########

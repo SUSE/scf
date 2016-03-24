@@ -43,7 +43,7 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|terraform] [--env-dir DIR] role-manifest|- ?...?
+    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|- ?...?
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -71,8 +71,7 @@ def main
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       provider = case v
-                 when 'ucp'             then 'ucp'
-                 when 'tf', 'terraform' then 'tf'
+                 when 'ucp', 'tf', 'tf:aws', 'tf:mpc' then v
                  else abort "Unknown provider: #{v}"
                  end
     end
@@ -103,6 +102,12 @@ def get_provider(name)
   elsif name == 'tf'
     require_relative 'rm-transformer/tf'
     ToTerraform
+  elsif name == 'tf:aws'
+    require_relative 'rm-transformer/tf-aws'
+    ToTerraformAWS
+  elsif name == 'tf:mpc'
+    require_relative 'rm-transformer/tf-mpc'
+    ToTerraformMPC
   end
 end
 
