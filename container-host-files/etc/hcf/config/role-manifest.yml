@@ -929,6 +929,8 @@ configuration:
     default: admin
   - name: UAADB_USERNAME
     default: uaaadmin
+  - name: ALLOWED_SERVICES_SUBNET
+    default: 172.20.10.0/24
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -989,6 +991,7 @@ configuration:
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
+    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]' 
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
