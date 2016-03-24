@@ -18,6 +18,9 @@ IMAGE_ORG      := helioncf
 IMAGE_REGISTRY := docker.helion.lol
 ENV_DIR        :=
 
+# Where to find the secrets. By default (empty string) no secrets.
+ENV_DIR        :=
+
 # Note: When used the registry must not have a trailing "/". That is
 # added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
 # Examples:
