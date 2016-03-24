@@ -1,5 +1,11 @@
 set -e
 
+SENTINEL="/var/vcap/jobs-src/cloud_controller_ng/templates/${0##*/}.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
 # *********************************************
 # cloud_controller_ng fix
 # *********************************************
@@ -68,5 +74,7 @@ if [ -d "$job_dir" ]; then
   cd $job_dir
   echo -e "${setup_patch}" | patch --force
 fi
+
+touch "${SENTINEL}"
 
 exit 0

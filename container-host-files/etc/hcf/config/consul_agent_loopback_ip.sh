@@ -1,5 +1,13 @@
 #!/bin/sh
-exec patch -p0 --force <<"PATCH"
+set -e
+
+SENTINEL="/var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
+patch -p0 --force <<"PATCH"
 --- /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
 +++ /var/vcap/jobs-src/consul_agent/templates/agent_ctl.sh.erb
 @@ -39,7 +39,7 @@ function setup_resolvconf() {
@@ -21,3 +29,5 @@ exec patch -p0 --force <<"PATCH"
    local recursors
    recursors=""
 PATCH
+
+touch "${SENTINEL}"

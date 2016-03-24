@@ -1,6 +1,12 @@
 set -e
 
+PATCH_DIR="/var/vcap/packages/garden-linux/src/github.com/cloudfoundry-incubator/garden-linux/linux_backend/skeleton"
+SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 GARDEN_LINUX_DNS_SERVER=${GARDEN_LINUX_DNS_SERVER:-8.8.8.8}
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
 
 read -d '' setup_patch <<PATCH || true
 --- setup.sh	2016-01-05 03:55:59.000000000 -0800
@@ -20,7 +26,8 @@ read -d '' setup_patch <<PATCH || true
    # some images may have something set up here; the host's should be the source
 PATCH
 
-cd /var/vcap/packages/garden-linux/src/github.com/cloudfoundry-incubator/garden-linux/linux_backend/skeleton/
+cd "$PATCH_DIR"
 echo -e "${setup_patch}" | patch --force
+touch "${SENTINEL}"
 
 exit 0

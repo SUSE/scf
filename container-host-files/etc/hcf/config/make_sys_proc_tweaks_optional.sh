@@ -1,5 +1,11 @@
 set -e
 
+SENTINEL="/var/vcap/${0##*/}.sentinel"
+
+if [ -f "${SENTINEL}" ]; then
+  exit 0
+fi
+
 # *********************************************
 # gorouter fix
 # *********************************************
@@ -275,5 +281,6 @@ if [ -d "$job_dir" ]; then
 PATCH
 fi
 
+touch "${SENTINEL}"
 
 exit 0
