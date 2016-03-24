@@ -26,31 +26,27 @@ BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-f
 
 # Certificate generation
 certs_path="/tmp/hcf/certs"
-ca_path="$certs_path/ca"
+hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
 etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
-certs_prefix="hcf"
 domain="192.168.77.77.nip.io"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
 # prepare directories
 rm -rf ${certs_path}
-rm -rf ${ca_path}
 mkdir -p ${certs_path}
-mkdir -p ${ca_path}
 
-cd $ca_path
+# generate cf ha_proxy certs
+# Source: https://github.com/cloudfoundry/cf-release/blob/master/example_manifests/README.md#dns-configuration
+rm -rf $hcf_certs_path
+mkdir -p $hcf_certs_path
+cd $hcf_certs_path
 
-cp ${BINDIR}/cert/intermediate_openssl.cnf ./
-cp ${BINDIR}/cert/root_openssl.cnf ./
-
-# generate ha_proxy certs
-bash ${BINDIR}/cert/generate_root.sh
-bash ${BINDIR}/cert/generate_intermediate.sh
-bash ${BINDIR}/cert/generate_host.sh "${certs_prefix}-root" "*.${domain}"
-cat intermediate/private/${certs_prefix}-root.key.pem > intermediate/private/${certs_prefix}-root.chain.pem
-cat intermediate/certs/${certs_prefix}-root.cert.pem >> intermediate/private/${certs_prefix}-root.chain.pem
+openssl genrsa -out hcf.key 4096
+openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${domain}/C=US"
+openssl x509 -req -in hcf.csr -signkey hcf.key -out hcf.crt
+cat hcf.crt hcf.key > hcf.pem
 
 # generate JWT certs
 openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
@@ -175,13 +171,13 @@ uaa_server_crt="${certs_path}/uaa_ca.crt"
 # 1. Generate your private key with any passphrase
 openssl genrsa -aes256 -out ${uaa_server_key} -passout pass:"${signing_key_passphrase}" 1024
 # 2. Remove passphrase from key
-openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}" 
+openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}"
 # 3. Generate certificate signing request for CA
 openssl req -x509 -sha256 -new -key ${uaa_server_key} -out ${uaa_server_csr} -subj "/CN=${DIEGO_DATABASE_HOST}/"
 # 4. Generate self-signed certificate with 365 days expiry-time
 openssl x509 -sha256 -days 365 -in ${uaa_server_csr} -signkey ${uaa_server_key} -out ${uaa_server_crt}
 
-CERTS_ROOT_CHAIN_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${ca_path}/intermediate/private/${certs_prefix}-root.chain.pem")
+CERTS_ROOT_CHAIN_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/hcf/hcf.pem")
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
 ETCD_PEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_peer_certs_dir}/private/etcd-peer.key")
