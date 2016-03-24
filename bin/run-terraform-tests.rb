@@ -67,7 +67,9 @@ class TerraformTester
     end
   end
 
-  def run
+  def setup
+    return if @setup_complete
+
     ENV['DOCKER_EMAIL'] ||= 'nobody@example.invalid'
 
     Dir.chdir top_src_dir
@@ -76,20 +78,26 @@ class TerraformTester
     at_exit { cleanup }
     run_processs '/usr/local/bin/terraform', 'apply', "-var-file=#{overrides_path}"
 
-    puts 'Waiting for roles to be ready...'
+    puts "Waiting for roles to be ready...\n"
     stop_time = Time.now + 30 * 60
-    loop do
+    %w{/ - \\ |}.cycle do |c|
       begin
         run_ssh 'opt/hcf/bin/hcf-status --silent', silent: true
       rescue CalledProcessError
-        raise if Time.now > stop_time
-        sleep 30
+        delta = (stop_time - Time.now).to_i
+        if delta < 0
+          puts "\rTimed out waiting for roles"
+          raise
+        end
+        printf "\r%c Waiting for roles, %d:%02d remaining", c, delta / 60, delta % 60
+        sleep 10
       else
         break
       end
     end
 
-    run_ssh 'opt/hcf/bin/run-role.sh opt/hcf/etc smoke-tests && docker logs -f smoke-tests'
+    puts "\rRoles are ready"
+    @setup_complete = true
   end
 
   def cleanup
@@ -99,6 +107,7 @@ class TerraformTester
       sleep 1
       retry
     end
+    @setup_complete = false
   end
 
   def floating_ip
@@ -122,11 +131,16 @@ class TerraformTester
                  '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-q', '-tt', floating_ip, '--',
                  cmd, silent: silent)
   end
+
+  def smoke_test
+    setup
+    run_ssh 'opt/hcf/bin/run-role.sh opt/hcf/etc smoke-tests'
+  end
 end
 
 def main
   setup_environment
-  TerraformTester.new.run
+  TerraformTester.new.smoke_test
 end
 
 main
