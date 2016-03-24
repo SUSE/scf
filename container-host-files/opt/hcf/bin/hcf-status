@@ -10,11 +10,9 @@ set_colors
 # Get all possible roles from the role manifest
 load_all_roles
 
-roles=$(${ROOT}/opt/hcf/bin/list-roles.sh)
-
 # Calculate the length of the first column for the
 # table we're going to display later on
-col_len=$(echo "${roles}" | awk '{ print length($0); }' | sort -nr | head -n1)
+col_len=$(echo ${role_names[@]} | awk 'BEGIN { RS="[ \t\n]" } { print length($0); }' | sort -nr | head -n1)
 
 # Define the format of a row
 rowfmt="%${col_len}b%b%12b%b%7b%b%11b${txtrst}\n"
@@ -32,88 +30,102 @@ printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes"
 printf '=%.0s' $(seq 1 $(($col_len+30)))
 printf '\n'
 
-# Loop through all roles
-for role in $roles; do
-  # Set all status colors to bad colors (assume everything is down)
-  containers_color=${bldred}
-  monit_color=${bldred}
-  processes_color=${bldred}
+# Print the status of a bosh job
+function status_job_bosh() {
+  local role="${1}"
+  local containers=( $(docker ps -q --filter label=role=${role}) )
+  if [[ "${#containers[@]}" == 0 ]]; then
+    # No containers running
+    printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a"
+    return
+  fi
 
-  # Get role type
-  role_type="${role_manifest_types["${role}"]}"
-
-  # Get container count from docker
-  containers=$(docker ps -q --filter label=role=${role}  || true)
-  containers_count=$(echo "${containers}" | wc -w)
-  # Get first live container
+  processes=( $(list_processes_for_role ${role}) )
   # We only check the first container for monit and processes
-  container_id=$(echo "${containers}" | head -n1)
-  case "$role_type" in
-    "docker")
-      # If we're dealing with a docker role, we don't have
-      # any monit or process information
-      monit_status="n/a"
-      monit_color=${txtgrn}
-      processes_running="n/a"
-      processes_color=${txtgrn}
+  local monit_data=$(docker exec ${containers[0]} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+  if [[ -z "${monit_data}" ]]; then
+    # monit is down
+    printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${bldred} "down" ${bldred} "0/${#processes[@]}"
+    return
+  fi
 
-      if [ "${containers_count}" != "0" ] ; then
-        # Container is running, make green
-        containers_color=${bldgrn}
-      fi
-    ;;
-    "bosh")
-      # Get process count for a role
-      processes=$(list_processes_for_role ${role})
-      process_count=$(echo "${processes}" | wc -w)
-      processes_running="0/${process_count}"
-      # Assume monit is down
-      monit_status="down"
+  local ok_processes=0
+  local process
+  for process in ${processes[@]}; do
+    # Look for the status "Running" on the line following a process definition
+    local process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
 
-      if [ "${containers_count}" != "0" ] ; then
-        # Container is running, make green
-        containers_color=${txtgrn}
-
-        # Get monit status
-        monit_data=$(docker exec ${container_id} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
-
-        if [ "$monit_data" != "" ]; then
-          # Monit is up, make it green
-          monit_status="up"
-          monit_color=${txtgrn}
-
-          # Analyse for process status
-          ok_processes=0
-          for process in $processes; do
-            # Look for the status "Running" on the
-            # line following a process definition
-            process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
-
-            # Increase the number of processes that are working ok
-            if [ "${process_status}" == "Running" ] ; then
-              ok_processes=$(($ok_processes + 1))
-            fi
-          done
-
-          # Set correct status
-          processes_running="${ok_processes}/${process_count}"
-
-          # If some processes are running, make status purple
-          if [ "$ok_processes" != "0" ] ; then
-            processes_color=${bldpur}
-          fi
-
-          # If all processes are running, make status green
-          if [ "$ok_processes" == "${process_count}" ] ; then
-            processes_color=${bldgrn}
-          fi
-        fi
-      fi
-    ;;
+    # Increase the number of processes that are working ok
+    if [[ "${process_status}" == "Running" ]]; then
+      ok_processes=$(($ok_processes + 1))
+    fi
+  done
+  local processes_color
+  case ${ok_processes} in
+    0)                processes_color=${bldred};;
+    ${#processes[@]}) processes_color=${bldgrn};;
+    *)                processes_color=${bldpur};;
   esac
 
-  printf $rowfmt $role \
-    ${containers_color} ${containers_count} \
-    ${monit_color} ${monit_status} \
-    ${processes_color} ${processes_running}
+  printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${txtgrn} "up" ${processes_color} "${ok_processes}/${#processes[@]}"
+}
+
+# Print the status of a docker job
+function status_job_docker() {
+  local role="${1}"
+  local containers=( $(docker ps -q --filter label=role=${role}) )
+  local containers_color=${bldred}
+  if [[ ${#containers[@]} -gt 0 ]]; then
+    containers_color=${bldgrn}
+  fi
+
+  printf ${rowfmt} ${role} ${containers_color} ${#containers[@]} ${txtgrn} n/a ${txtgrn} n/a
+}
+
+# Print the status of a pre/post flight role
+function status_task() {
+  local role="${1}"
+  local container=$(docker ps -q -a --filter label=role=${role} | head -n1)
+  if [[ -z "${container}" ]]; then
+    printf ${rowfmt} ${role} ${bldred} 0 ${txtgrn} n/a ${txtgrn} n/a
+    return
+  fi
+  local color
+  local process_state=$(docker inspect --format '{{.State.Status}}' ${container})
+  # valid states: paused restarting running dead created exited
+  case ${process_state} in
+    exited)             color=${bldgrn};;
+    running|created)    color=${bldpur};;
+    *)                  color=${bldred};;
+  esac
+  printf ${rowfmt} ${role} ${txtgrn} 1 ${txtgrn} n/a ${color} ${process_state}
+}
+
+# Print pre-flight roles
+for role in $(list_roles_by_flight_stage pre-flight | sort); do
+  status_task ${role}
+done
+
+# Find all flight roles, and separate by bosh/docker (sorted)
+bosh_roles=""
+docker_roles=""
+for role in $(list_roles_by_flight_stage flight | sort); do
+  if [[ "$(get_role_type ${role})" == docker ]]; then
+    docker_roles="${docker_roles} ${role}"
+  else
+    bosh_roles="${bosh_roles} ${role}"
+  fi
+done
+# Print bosh flight roles
+for role in ${bosh_roles}; do
+  status_job_bosh ${role}
+done
+# Print docker flight roles
+for role in ${docker_roles}; do
+  status_job_docker ${role}
+done
+
+# Print post-flight roles
+for role in $(list_roles_by_flight_stage post-flight | sort); do
+  status_task ${role}
 done
