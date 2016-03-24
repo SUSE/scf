@@ -1,5 +1,8 @@
 #!/bin/sh
-exec patch -p0 --force --forward <<"PATCH"
+set -e
+
+if [ ! -f "/var/vcap/jobs-src/etcd/templates/etcd_ctl.erb.sentinel" ]; then
+patch -p0 --force <<"PATCH"
 --- /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
 +++ /var/vcap/jobs-src/etcd/templates/etcd_ctl.erb
 @@ -30,7 +30,7 @@ case $1 in
@@ -12,3 +15,6 @@ exec patch -p0 --force --forward <<"PATCH"
          echo "DNS is not up"
          exit 1
 PATCH
+
+  touch "/var/vcap/jobs-src/etcd/templates/etcd_ctl.erb.sentinel"
+fi

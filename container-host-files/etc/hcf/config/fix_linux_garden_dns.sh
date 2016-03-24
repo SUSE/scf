@@ -21,6 +21,10 @@ read -d '' setup_patch <<PATCH || true
 PATCH
 
 cd /var/vcap/packages/garden-linux/src/github.com/cloudfoundry-incubator/garden-linux/linux_backend/skeleton/
-echo -e "${setup_patch}" | patch --force --forward
+
+if [ ! -f "setup.sh.sentinel" ]; then
+  echo -e "${setup_patch}" | patch --force --forward
+  touch "setup.sh.sentinel"
+fi
 
 exit 0

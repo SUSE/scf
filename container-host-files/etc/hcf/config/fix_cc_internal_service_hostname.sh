@@ -20,7 +20,11 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_ng/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch --force --forward
+
+  if [ ! -f "cloud_controller_api.yml.erb.sentinel" ]; then
+    echo -e "${setup_patch}" | patch --force --forward
+    touch "cloud_controller_api.yml.erb.sentinel"
+  fi
 fi
 
 # *********************************************
@@ -43,7 +47,11 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_worker/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch --force --forward
+
+  if [ ! -f "cloud_controller_worker.yml.erb.sentinel" ]; then
+    echo -e "${setup_patch}" | patch --force --forward
+    touch "cloud_controller_worker.yml.erb.sentinel"
+  fi
 fi
 
 # *********************************************
@@ -66,7 +74,11 @@ PATCH
 job_dir="/var/vcap/jobs-src/cloud_controller_clock/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
-  echo -e "${setup_patch}" | patch --force --forward
+
+  if [ ! -f "cloud_controller_clock.yml.erb.sentinel" ]; then
+    echo -e "${setup_patch}" | patch --force --forward
+    touch "cloud_controller_clock.yml.erb.sentinel"
+  fi
 fi
 
 exit 0
