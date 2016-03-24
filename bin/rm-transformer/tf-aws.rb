@@ -71,35 +71,6 @@ HEADER
 RULE
   end
 
-  def get_exposed_ports(roles)
-    result = [ ssh_port ]
-
-    roles.each do |role|
-      # Skip everything without runtime data or ports
-      next unless role['run']
-      next unless role['run']['exposed-ports']
-      next if     role['run']['exposed-ports'].empty?
-
-      role['run']['exposed-ports'].each do |port|
-        # Skip all internal ports
-        next unless port['public']
-        result.push(port)
-      end
-    end
-
-    result
-  end
-
-  def ssh_port
-    {
-      'name'        => 'ssh',
-      'protocol'    => 'tcp',
-      'source'      => 22,
-      'target'      => 22,
-      'public'      => true
-    }
-  end
-
   # # ## ### ##### ########
 end
 
