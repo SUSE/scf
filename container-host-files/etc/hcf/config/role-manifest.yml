@@ -366,6 +366,8 @@ roles:
     release_name: cf
   - name: staticfile-buildpack
     release_name: cf
+  - name: cf_iis_buildpack
+    release_name: windows-runtime-release
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -741,6 +743,8 @@ roles:
     release_name: cf
   - name: file_server
     release_name: diego
+  - name: windows_buildpack_app_lifecycle
+    release_name: windows-runtime-release
   processes:
   - name: file_server
   - name: metron_agent

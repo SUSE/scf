@@ -33,7 +33,7 @@ IMAGE_PREFIX        := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-e
 IMAGE_REGISTRY_MAKE := $(if ${IMAGE_REGISTRY},"${IMAGE_REGISTRY}/",${IMAGE_REGISTRY})
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
-export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks
+export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks,${CURDIR}/src/windows-runtime-release
 export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml
 export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/opinions.yml
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/dark-opinions.yml
@@ -116,8 +116,12 @@ mysql-release:
 hcf-deployment-hooks:
 	$(call print_status, Creating hcf-deployment-hooks BOSH release ... )
 	${CURDIR}/bin/create-release.sh src/hcf-deployment-hooks hcf-deployment-hooks
+	
+windows-runtime-release:
+	$(call print_status, Creating windows-runtime-release BOSH release ... )
+	${CURDIR}/bin/create-release.sh src/windows-runtime-release windows-runtime-release
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release hcf-deployment-hooks
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release hcf-deployment-hooks windows-runtime-release
 
 ########## FISSILE BUILD TARGETS ##########
 

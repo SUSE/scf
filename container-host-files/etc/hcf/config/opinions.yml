@@ -44,6 +44,8 @@ properties:
       package: buildpack_php
     - name: binary_buildpack
       package: buildpack_binary
+    - name: cf_iis_buildpack
+      package: cf_iis_buildpack
     default_health_check_timeout: 60
     default_quota_definition: default
     default_running_security_groups:
@@ -81,6 +83,8 @@ properties:
       package: php-buildpack
     - name: binary_buildpack
       package: binary-buildpack
+    - name: cf_iis_buildpack
+      package: cf_iis_buildpack
     internal_api_password: password
     internal_api_user: internal_user
     jobs:
@@ -162,7 +166,7 @@ properties:
     stacks:
     - name: cflinuxfs2
       description: Cloud Foundry Linux-based filesystem
-    - name: windows2012R2
+    - name: win2012r2
       description: Windows Server 2012 R2
     staging_upload_password: password
     staging_upload_user: username
@@ -183,6 +187,8 @@ properties:
       package: buildpack_php
     - name: binary_buildpack
       package: buildpack_binary
+    - name: cf_iis_buildpack
+      package: cf_iis_buildpack
     thresholds:
       api:
         alert_if_above_mb: null
@@ -265,6 +271,11 @@ properties:
       bbs:
         require_ssl: true
       log_level: debug
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     rep:
       bbs:
         require_ssl: true
@@ -289,6 +300,11 @@ properties:
       bbs:
         require_ssl: true
       tweak_proc_sys: false
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     tps:
       bbs:
         require_ssl: true

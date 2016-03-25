@@ -56,7 +56,7 @@ $env:DIEGO_USER_PASSWORD = "changeme1234!"
 $env:REP_CELL_ID = $env:COMPUTERNAME
 $env:DIEGO_CELL_IP = $ipaddr
 $env:DIEGO_NETADAPTER = $diegoInterface.InterfaceAlias
-$env:STACK = "windows2012R2"
+$env:STACK = "win2012r2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "auto"
 
