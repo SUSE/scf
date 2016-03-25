@@ -23,6 +23,7 @@ $diegoInterface = Get-NetIPAddress -IPAddress $machineIp
 $currentDNS = ((Get-DnsClientServerAddress -InterfaceAlias $diegoInterface.InterfaceAlias) | where {$_.ServerAddresses -notmatch $hcfServiceDiscoveryDns } ).ServerAddresses
 Set-DnsClientServerAddress -InterfaceAlias $diegoInterface.InterfaceAlias -ServerAddresses (($hcfServiceDiscoveryDns + $currentDNS) -join ",")
 
+Set-DnsClientGlobalSetting -SuffixSearchList @("hcf")
 
 ## Disable negative DNS client cache
 
