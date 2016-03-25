@@ -378,20 +378,21 @@ name		| effect | notes |
 
   1. Add a git submodule to the BOSH release in `./src`
   2. Mention the new release in `./bin/.fissilerc`
-  3. Change `./container-host-files/etc/hcf/config/role-manifest.yml`
+  3. Run `source ~/hcf/bin/.fissilerc` in the Vagrant box
+  4. Change `./container-host-files/etc/hcf/config/role-manifest.yml`
     - Add new roles or change existing ones
     - Add exposed environment variables (`yaml path: /configuration/variables`)
     - Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`)
     - Add defaults for your configuration settings in `~/hcf/bin/dev-settings.env`
     - If you need any extra default certs, add them here: `~/hcf/bin/dev-settings.env`.
     Also make sure to add generation code for the certs here: `~/hcf/bin/generate-dev-certs.sh`
-  4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user)
+  5. Add any opinions (static defaults) and dark opinions (configuration that must be set by user)
   to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`
   respectively
-  5. Change the `./Makefile` so it builds the new release
+  6. Change the `./Makefile` so it builds the new release
     - Add a new target `<RELEASE_NAME>-release`
     - Add the new target as a dependency for `make releases`
-  6. Test, test and test
+  7. Test, test and test
     - `make <RELEASE_NAME>-release compile images run`
     - repeat
 
