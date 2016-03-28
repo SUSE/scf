@@ -23,6 +23,7 @@ class ToUCP < Common
 
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
+    collect_global_parameters(roles, definition)
     process_roles(roles, definition, fs)
 
     definition
@@ -64,11 +65,12 @@ class ToUCP < Common
     # DEF.components[].volume_mounts[].volume_name	/string
     # DEF.components[].volume_mounts[].mountpoint	/string
     # DEF.components[].parameters[].name		/string
-    # DEF.components[].parameters[].description		/string, !empty
-    # DEF.components[].parameters[].default		/string
-    # DEF.components[].parameters[].example		/string, !empty
-    # DEF.components[].parameters[].required		/bool
-    # DEF.components[].parameters[].secret		/bool
+    # DEF.parameters[].name				/string
+    # DEF.parameters[].description			/string, !empty
+    # DEF.parameters[].default				/string
+    # DEF.parameters[].example				/string, !empty
+    # DEF.parameters[].required				/bool
+    # DEF.parameters[].secret				/bool
     #
     # (*1) Too many to list here. See ucp-developer/service_models.md
     #      for the full list. Notables:
@@ -93,6 +95,7 @@ class ToUCP < Common
       'vendor'     => 'HPE',    # s.a.
       'volumes'    => [],	# We do not generate volumes, leave empty
       'components' => [],	# Fill from the roles, see below
+      'parameters' => [],	# Fill from the roles, see below
       'preflight'  => [],	# Fill from the roles, see below
       'postflight' => []	# Fill from the roles, see below
     }
@@ -100,10 +103,11 @@ class ToUCP < Common
 
   def process_roles(roles, definition, fs)
     section_map = {
-        'pre-flight'  => 'preflight',
-        'flight'      => 'components',
-        'post-flight' => 'postflight'
+      'pre-flight'  => 'preflight',
+      'flight'      => 'components',
+      'post-flight' => 'postflight'
     }
+    gparam = definition['parameters']
     roles['roles'].each do |role|
       # UCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
@@ -111,6 +115,18 @@ class ToUCP < Common
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
       add_component(roles, fs, dst, role, retries)
+
+      # Collect per-role parameters
+      if role['configuration'] && role['configuration']['variables']
+        collect_parameters(gparam, role['configuration']['variables'])
+      end
+    end
+  end
+
+  def collect_global_parameters(roles, definition)
+    p = definition['parameters']
+    if roles['configuration'] && roles['configuration']['variables']
+      collect_parameters(p, roles['configuration']['variables'])
     end
   end
 
@@ -197,12 +213,12 @@ class ToUCP < Common
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
-    # Global parameters
+    # Reference global parameters
     if roles['configuration'] && roles['configuration']['variables']
       add_parameters(the_comp, roles['configuration']['variables'])
     end
 
-    # Per role parameters
+    # Reference per-role parameters
     if role['configuration'] && role['configuration']['variables']
       add_parameters(the_comp, role['configuration']['variables'])
     end
@@ -259,10 +275,16 @@ class ToUCP < Common
     }
   end
 
+  def collect_parameters(para, variables)
+    variables.each do |var|
+      para.push(convert_parameter(var))
+    end
+  end
+
   def add_parameters(component, variables)
     para = component['parameters']
     variables.each do |var|
-      para.push(convert_parameter(var))
+      para.push(convert_parameter_ref(var))
     end
   end
 
@@ -277,10 +299,16 @@ class ToUCP < Common
       'description' => 'placeholder',
       'example'     => vexample,
       'required'    => true,
-      'secret'      => vsecret,
+      'secret'      => vsecret
     }
     param['default'] = vdefault unless vdefault == ''
-    return param
+    param
+  end
+
+  def convert_parameter_ref(var)
+    {
+      'name' => var['name']
+    }
   end
 
   # # ## ### ##### ########
