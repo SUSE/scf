@@ -18,6 +18,12 @@ Vagrant.configure(2) do |config|
     # vb.gui = true
   end
 
+  config.vm.provider "vmware_workstation" do |vb, override|
+    override.vm.box = "https://hcfwin.azureedge.net/windows_2012_r2_sysprepvm_gvlk_vmware.box"
+    vb.memory = "4096"
+    # vb.gui = true
+  end
+
   config.vm.provision "file", source: "container-host-files/diego-kit/install-garden.ps1", destination: "C:\\diego-kit\\intall-garden.ps1"
   config.vm.provision "file", source: "container-host-files/diego-kit/install-diego.ps1", destination: "C:\\diego-kit\\intall-diego.ps1"
 
