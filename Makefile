@@ -16,7 +16,6 @@ APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
 IMAGE_PREFIX   := hcf
 IMAGE_ORG      := helioncf
 IMAGE_REGISTRY := docker.helion.lol
-ENV_DIR        :=
 
 # Where to find the secrets. By default (empty string) no secrets.
 ENV_DIR        :=
@@ -27,10 +26,14 @@ ENV_DIR        :=
 # - localhost:5000
 # - docker.helion.lol
 
+# NOTE 2: When ENV_DIR is used we automatically add the --env
+# option. See ENV_DIR_MAKE below.
+
 # Redefine the CI configuration variables, validation
 IMAGE_ORG           := $(if ${IMAGE_ORG},${IMAGE_ORG},$(error Need a non-empty IMAGE_ORG))
 IMAGE_PREFIX        := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-empty IMAGE_PREFIX))
 IMAGE_REGISTRY_MAKE := $(if ${IMAGE_REGISTRY},"${IMAGE_REGISTRY}/",${IMAGE_REGISTRY})
+ENV_DIR_MAKE        := $(if ${ENV_DIR},--env "${ENV_DIR}",)
 
 # The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
 export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks,${CURDIR}/src/windows-runtime-release
@@ -116,7 +119,7 @@ mysql-release:
 hcf-deployment-hooks:
 	$(call print_status, Creating hcf-deployment-hooks BOSH release ... )
 	${CURDIR}/bin/create-release.sh src/hcf-deployment-hooks hcf-deployment-hooks
-	
+
 windows-runtime-release:
 	$(call print_status, Creating windows-runtime-release BOSH release ... )
 	${CURDIR}/bin/create-release.sh src/windows-runtime-release windows-runtime-release
@@ -245,7 +248,7 @@ ucp:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json" ; \
 	echo Generated ${CURDIR}/hcf-ucp.json
 
 mpc:
@@ -254,7 +257,7 @@ mpc:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/mpc.tf" > "${CURDIR}/hcf.tf" ; \
 	echo Generated ${CURDIR}/hcf.tf
 
 aws:
@@ -263,7 +266,7 @@ aws:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} --env "${ENV_DIR}" --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
+	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml ${CURDIR}/terraform/aws.tf" > "${CURDIR}/hcf-aws.tf" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf
 
 ########## DISTRIBUTION TARGETS ##########
