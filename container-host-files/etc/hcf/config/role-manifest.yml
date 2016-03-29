@@ -407,6 +407,42 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: blobstore
+  jobs:
+  - name: blobstore
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: blobstore_nginx
+  - name: blobstore_url_signer
+  - name: route_registrar
+  - name: metron_agent
+  run:
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag: blobstore-data
+      size: 100
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+    - name: 'blobstore-ext'
+      protocol: 'TCP'
+      source: 80
+      target: 80
+      public: false
+    - name: 'blobstore-int'
+      protocol: 'TCP'
+      source: 443
+      target: 443
+      public: false
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   jobs:
   - name: cloud_controller_clock
@@ -903,6 +939,14 @@ configuration:
   variables:
   - name: API_HOST
     default: "api"
+  - name: BLOBSTORE_HOST
+    default: "blobstore"
+  - name: BLOBSTORE_USERNAME
+    default: "blobstore_user"
+  - name: BLOBSTORE_PASSWORD
+    secret: true
+  - name: BLOBSTORE_SECURE_LINK
+    secret: true
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
   - name: DIEGO_ACCESS_HOST
@@ -938,9 +982,13 @@ configuration:
   - name: CERTS_PREFIX
     default: hcf
   - name: DROPLET_DIRECTORY_KEY
-    default: droplet_directory_key
+    default: "cc-droplets"
   - name: BUILDPACK_DIRECTORY_KEY
-    default: buildpack_directory_key
+    default: "cc-buildpacks"
+  - name: APP_PACKAGE_DIRECTORY_KEY
+    default: "cc-packages"
+  - name: RESOURCE_DIRECTORY_KEY
+    default: "cc-resources"
   - name: CF_USB_USERNAME
     default: broker-admin
   - name: CF_USB_PASSWORD
@@ -1103,13 +1151,35 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
-    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
     properties.cc.srv_api_uri: '"https://api.((DOMAIN))"'
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.cc.buildpacks.blobstore_type: webdav
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
+    properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.buildpacks.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.droplets.blobstore_type: webdav
+    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
+    properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.droplets.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.packages.blobstore_type: webdav
+    properties.cc.packages.app_package_directory_key: '"((APP_PACKAGE_DIRECTORY_KEY))"'
+    properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.packages.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.resource_pool.blobstore_type: webdav
+    properties.cc.resource_pool.resource_directory_key: '"((RESOURCE_DIRECTORY_KEY))"'
+    properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
@@ -1289,3 +1359,9 @@ configuration:
     properties.diego.file_server.tweak_proc_sys: false
     properties.diego.rep.tweak_proc_sys: false
     properties.diego.stager.tweak_proc_sys: false
+    properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
+    properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
+    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
+    properties.blobstore.tls.port: 443
+    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
