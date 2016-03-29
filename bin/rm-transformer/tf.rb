@@ -193,7 +193,7 @@ class ToTerraform < Common
     cmd = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
     cmd += '${var.hcf_image_prefix}' + name
     cmd += ':${var.hcf_version}'
-    cmd += ' | tee $$ ; rm $$'
+    cmd += ' | cat'
     cmd += "\n"
     cmd
   end
