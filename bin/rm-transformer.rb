@@ -121,7 +121,7 @@ def load_role_manifest(path, env_dir)
 
   unless env_dir.nil?
     vars = role_manifest['configuration']['variables']
-    Dir.glob(File.join(env_dir, "*.env")).each do |env_file|
+    Dir.glob(File.join(env_dir, "*.env")).sort.each do |env_file|
       File.readlines(env_file).each do |line|
         name, value = line.chomp.split('=', 2)
         i = vars.find_index{|x| x['name'] == name }
