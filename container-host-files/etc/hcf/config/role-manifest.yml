@@ -184,6 +184,7 @@ roles:
   - etcd_health_check_ipv4_only.sh
   # etcd_custom_dns_suffix.sh merged in https://github.com/cloudfoundry-incubator/etcd-release/pull/9/files?diff=unified
   #- etcd_custom_dns_suffix.sh
+  - remove-hardcoded-bbs-advertise-url.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -1102,6 +1103,8 @@ configuration:
     secret: true
   - name: BBS_CA_CRT
     secret: true
+  - name: BBS_AD_ADDRESS_SUFFIX
+    default: bbs.service.cf.internal
   - name: SSH_KEY
     secret: true
   - name: APP_SSH_HOST_KEY_FINGERPRINT
@@ -1200,6 +1203,7 @@ configuration:
     properties.diego.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.tps.traffic_controller_url: '"wss://doppler.((DOMAIN)):443"'
     properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
+    properties.diego.bbs.ad_address_suffix: '"((BBS_AD_ADDRESS_SUFFIX))"'
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.nats.machines: '["((NATS_HOST))"]'
