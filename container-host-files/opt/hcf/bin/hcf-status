@@ -2,6 +2,12 @@
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../"`
 
+SILENT=
+case "$1" in
+  -s|--silent)
+    SILENT=1 ;;
+esac
+
 . "${ROOT}/opt/hcf/bin/common.sh"
 
 # Initialize colors
@@ -24,11 +30,13 @@ rowfmt="%${col_len}b%b%12b%b%7b%b%11b${txtrst}\n"
 # ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │
 # <role name><COLOR><containers><COLOR><monit><COLOR><processes><COLOR RESET>
 
-# Print a table header
-printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes"
-# Print  a line after the header (30 is the fixed length of all but the first columns)
-printf '=%.0s' $(seq 1 $(($col_len+30)))
-printf '\n'
+if [ -z "${SILENT}" ]; then
+  # Print a table header
+  printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes"
+  # Print  a line after the header (30 is the fixed length of all but the first columns)
+  printf '=%.0s' $(seq 1 $(($col_len+30)))
+  printf '\n'
+fi
 
 # Print the status of a bosh job
 function status_job_bosh() {
@@ -36,6 +44,9 @@ function status_job_bosh() {
   local containers=( $(docker ps -q --filter label=role=${role}) )
   if [[ "${#containers[@]}" == 0 ]]; then
     # No containers running
+    if [[ -n "${SILENT}" ]]; then
+      exit 1
+    fi
     printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a"
     return
   fi
@@ -45,6 +56,9 @@ function status_job_bosh() {
   local monit_data=$(docker exec ${containers[0]} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
   if [[ -z "${monit_data}" ]]; then
     # monit is down
+    if [[ -n "${SILENT}" ]]; then
+      exit 1
+    fi
     printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${bldred} "down" ${bldred} "0/${#processes[@]}"
     return
   fi
@@ -60,6 +74,14 @@ function status_job_bosh() {
       ok_processes=$(($ok_processes + 1))
     fi
   done
+
+  if [[ -n "${SILENT}" ]]; then
+    if [[ "${ok_processes}" != "${#processes[@]}" ]]; then
+      exit 1
+    fi
+    return
+  fi
+
   local processes_color
   case ${ok_processes} in
     0)                processes_color=${bldred};;
@@ -79,6 +101,13 @@ function status_job_docker() {
     containers_color=${bldgrn}
   fi
 
+  if [[ -n "${SILENT}" ]]; then
+    if [[ ${#containers[@]} -le 0 ]]; then
+      exit 1
+    fi
+    return
+  fi
+
   printf ${rowfmt} ${role} ${containers_color} ${#containers[@]} ${txtgrn} n/a ${txtgrn} n/a
 }
 
@@ -87,12 +116,23 @@ function status_task() {
   local role="${1}"
   local container=$(docker ps -q -a --filter label=role=${role} | head -n1)
   if [[ -z "${container}" ]]; then
+    if [[ -n "${SILENT}" ]]; then
+      exit 1
+    fi
     printf ${rowfmt} ${role} ${bldred} 0 ${txtgrn} n/a ${txtgrn} n/a
     return
   fi
   local color
   local process_state=$(docker inspect --format '{{.State.Status}}' ${container})
   # valid states: paused restarting running dead created exited
+
+  if [[ -n "${SILENT}" ]]; then
+    if [[ "${process_state}" != "exited" ]]; then
+      exit 1
+    fi
+    return
+  fi
+
   case ${process_state} in
     exited)             color=${bldgrn};;
     running|created)    color=${bldpur};;

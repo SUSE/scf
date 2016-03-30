@@ -290,3 +290,18 @@ aws-dist: aws
 	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \
 	rm -rf $$base && \
 	echo Generated aws-$(APP_VERSION).zip
+
+ENV_FILE := $(shell mktemp -q -u -t make.environ.XXXXXX)
+
+.INTERMEDIATE: ${ENV_FILE}
+
+${ENV_FILE}:
+	cat /proc/self/environ > $@
+
+mpc-terraform-tests: ${ENV_FILE}
+	docker run --rm \
+	  -v ${CURDIR}:${CURDIR} \
+	  -v ${OS_SSH_KEY_PATH}:${OS_SSH_KEY_PATH}:ro \
+	  -v ${ENV_FILE}:/environ:ro \
+	  helioncf/terraform-tests \
+	  ruby ${CURDIR}/bin/run-terraform-tests.rb
