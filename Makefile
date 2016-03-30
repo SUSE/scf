@@ -1,7 +1,11 @@
 #!/usr/bin/env make
 
+GIT_ROOT:=$(shell git rev-parse --show-toplevel)
+
 # Default target specification
 run:
+
+.PHONY: docker-images mpc mpc-dist aws aws-dist
 
 UBUNTU_IMAGE ?= ubuntu:14.04
 
@@ -41,8 +45,6 @@ export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/o
 export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/dark-opinions.yml
 export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
 export FISSILE_WORK_DIR ?= ${CURDIR}/_work
-
-.PHONY: docker-images mpc mpc-dist aws aws-dist
 
 ########## UTILITY TARGETS ##########
 
