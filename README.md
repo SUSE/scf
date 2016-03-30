@@ -408,6 +408,9 @@ name		| effect | notes |
   2. Add or change configuration templates
     - `yaml path: /configuration/templates`
     - `yaml path: /roles/*/configuration/templates`
+    - Put new variables in role specific sections if:
+      - two or more roles need to have different values for the same setting
+      - the setting isn't namespaced properly in a BOSH release (ie a global `hostname`)
   3. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`
   4. If you need any extra default certs, add them here: `~/hcf/bin/dev-certs.env`
   Also make sure to add generation code for the certs here: `~/hcf/bin/generate-dev-certs.sh`
