@@ -180,7 +180,7 @@ docker-images:
 	$(call print_status, Building Docker role images)
 	for docker_role in $$(${CURDIR}/container-host-files/opt/hcf/bin/list-docker-roles.sh) ; do \
 		cd ${CURDIR}/docker-images/$${docker_role} && \
-		docker build -t $${docker_role}:${APP_VERSION_TAG} . ; \
+		docker build -t $${docker_role} . ; \
 	done
 
 build: images
