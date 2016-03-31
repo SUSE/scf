@@ -5,8 +5,7 @@ require_relative 'common'
 
 # Provider for UCP specifications derived from a role-manifest.
 class ToUCP < Common
-  def initialize(options, remainder)
-    raise 'UCP conversion does not accept add-on files' unless remainder.empty?
+  def initialize(options)
     super(options)
     @dtr = "#{@dtr}/" unless @dtr.empty?
   end

@@ -8,10 +8,6 @@ require_relative 'tf'
 # Provider for terraform declarations derived from a role-manifest.
 # Takes additional files containing the execution context.
 class ToTerraformAWS < ToTerraform
-  def initialize(options, remainder)
-    super(options,remainder)
-  end
-
   # Internal definitions
 
   def to_terraform(manifest)
@@ -20,55 +16,39 @@ class ToTerraformAWS < ToTerraform
   end
 
   def emit_security_group(roles)
-    emit_sg_header
-    get_exposed_ports(roles).map { |port| emit_sg_ingress(port) }
-    emit_sg_trailer
-  end
+    rules = get_exposed_ports(roles).map do |port|
+      ({
+        'from_port' => port['target'],
+        'to_port' =>   port['target'],
+        'protocol' => port['protocol'].downcase,
+        'cidr_blocks' => ['0.0.0.0/0']
+      })
+    end
 
-  def emit_sg_header
-    emit <<HEADER
-# Add a security group for the Frontend endpoints
-resource "aws_security_group" "frontend" {
-    tags {
-        Name = "${var.cluster-prefix}-frontend"
+    @out['resource'] ||= []
+    @out['resource'] << {
+      # Add a security group for the Frontend endpoints
+      'aws_security_group' => {
+        'frontend' => {
+          'tags' => {
+            'Name' => '${var.cluster-prefix}-frontend'
+          },
+          'name' => '${var.cluster-prefix}-frontend',
+          'description' => 'Frontend',
+          'vpc_id' => '${aws_vpc.cluster.id}',
+          'egress' => [
+            # Allow outbound traffic to all ports everywhere
+            {
+              'from_port' => 0,
+              'to_port' => 0,
+              'protocol' => '-1',
+              'cidr_blocks' => ['0.0.0.0/0']
+            }
+          ],
+          'ingress' => rules
+        }
+      }
     }
-
-    name        = "${var.cluster-prefix}-frontend"
-    description = "Frontend"
-    vpc_id      = "${aws_vpc.cluster.id}"
-
-    # Allow outbound traffic to all ports everywhere
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    # Allow inbound traffic on all the public ports named
-    # in the role manifest, plus ssh (22).
-HEADER
-  end
-
-  def emit_sg_trailer
-    emit "}"
-    emit ""
-  end
-
-  def emit_sg_ingress(port)
-    name     = port['name']
-    protocol = port['protocol']
-    port     = port['target']
-
-    emit <<RULE
-    # Exposing #{name}
-    ingress {
-        from_port   = #{port}
-        to_port     = #{port}
-        protocol    = "#{protocol.downcase}"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-RULE
   end
 
   # # ## ### ##### ########
