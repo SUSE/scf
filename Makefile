@@ -72,8 +72,7 @@ stop:
 	${GIT_ROOT}/make/stop
 
 vagrant-box:
-	cd packer && \
-	packer build vagrant-box.json
+	${GIT_ROOT}/make/vagrant-box
 
 vagrant-prep: \
 	compile-base \
