@@ -124,8 +124,7 @@ releases: cf-release usb-release diego-release etcd-release garden-release mysql
 ########## FISSILE BUILD TARGETS ##########
 
 compile-base:
-	$(call print_status, Compiling build base image)
-	fissile compilation build-base --base-image ${UBUNTU_IMAGE}
+	${GIT_ROOT}/make/compile-base
 
 # This is run from the Vagrantfile to copy in the existing compilation cache
 copy-compile-cache:
