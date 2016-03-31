@@ -11,7 +11,7 @@ require 'yaml'
 require 'json'
 
 def main
-  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|- ?...?
+  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
   ##
   # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
@@ -27,8 +27,6 @@ def main
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
-  #
-  # ?...?               Additional files, format-dependent
   ##
   # The generated definitions are written to stdout
 
@@ -43,7 +41,7 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|- ?...?
+    opts.banner = 'Usage: rm-transform [--manual] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -70,15 +68,13 @@ def main
       env_dir = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
-      provider = case v
-                 when 'ucp', 'tf', 'tf:aws', 'tf:mpc' then v
-                 else abort "Unknown provider: #{v}"
-                 end
+      abort "Unknown provider: #{v}" if provider_constructor[v].nil?
+      provider = v
     end
   end
   op.parse!
 
-  if ARGV.empty? || provider.nil?
+  if ARGV.length != 1 || provider.nil?
     op.parse!(['--help'])
     exit 1
   end
@@ -88,27 +84,31 @@ def main
   role_manifest = load_role_manifest(origin, env_dir)
   check_roles role_manifest['roles']
 
-  provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
+  provider = provider_constructor[provider].call.new(options)
   the_result = provider.transform(role_manifest)
 
   puts(the_result)
 end
 
-def get_provider(name)
-  # Convert provider name to package and class
-  if name == 'ucp'
-    require_relative 'rm-transformer/ucp'
-    ToUCP
-  elsif name == 'tf'
-    require_relative 'rm-transformer/tf'
-    ToTerraform
-  elsif name == 'tf:aws'
-    require_relative 'rm-transformer/tf-aws'
-    ToTerraformAWS
-  elsif name == 'tf:mpc'
-    require_relative 'rm-transformer/tf-mpc'
-    ToTerraformMPC
-  end
+def provider_constructor
+  ({
+    'ucp' => lambda {
+      require_relative 'rm-transformer/ucp'
+      ToUCP
+    },
+    'tf' => lambda {
+      require_relative 'rm-transformer/tf'
+      ToTerraform
+    },
+    'tf:aws' => lambda {
+      require_relative 'rm-transformer/tf-aws'
+      ToTerraformAWS
+    },
+    'tf:mpc' => lambda {
+      require_relative 'rm-transformer/tf-mpc'
+      ToTerraformMPC
+    },
+  })
 end
 
 def load_role_manifest(path, env_dir)
