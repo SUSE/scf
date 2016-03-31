@@ -258,8 +258,8 @@ mpc:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf.tf" ; \
-	echo Generated ${CURDIR}/hcf.tf
+	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf.tf.json" ; \
+	echo Generated ${CURDIR}/hcf.tf.json
 
 aws:
 	$(call print_status, Generate AWS terraform configuration)
@@ -268,8 +268,8 @@ aws:
 	  -v ${CURDIR}:${CURDIR} \
 	  helioncf/hcf-pipeline-ruby-bosh \
 	  bash -l -c \
-	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws.tf" ; \
-	echo Generated ${CURDIR}/hcf-aws.tf
+	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws.tf.json" ; \
+	echo Generated ${CURDIR}/hcf-aws.tf.json
 
 ########## DISTRIBUTION TARGETS ##########
 
@@ -279,7 +279,7 @@ mpc-dist: mpc
 	$(call print_status, Package MPC terraform configuration for distribution)
 	@base=$$(mktemp -d mpc_XXXXXXXXXX) && \
 	mkdir $$base/mpc && \
-	cp -rf container-host-files terraform/mpc.tfvars.example terraform/README-mpc.md hcf.tf $$base/mpc/ && \
+	cp -rf container-host-files terraform/mpc.tfvars.example terraform/mpc.tf terraform/README-mpc.md hcf.tf.json $$base/mpc/ && \
 	( cd $$base && zip -qr9 ${CURDIR}/mpc-$(APP_VERSION).zip mpc ) && \
 	rm -rf $$base && \
 	echo Generated mpc-$(APP_VERSION).zip
@@ -288,7 +288,7 @@ aws-dist: aws
 	$(call print_status, Package AWS terraform configuration for distribution)
 	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
 	mkdir $$base/aws && \
-	cp -rf container-host-files terraform/aws.tfvars.example terraform/README-aws.md hcf-aws.tf $$base/aws/ && \
+	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws.tf terraform/README-aws.md hcf-aws.tf.json $$base/aws/ && \
 	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \
 	rm -rf $$base && \
 	echo Generated aws-$(APP_VERSION).zip

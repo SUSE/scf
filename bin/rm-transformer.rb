@@ -11,7 +11,7 @@ require 'yaml'
 require 'json'
 
 def main
-  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|- ?...?
+  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
   ##
   # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
@@ -27,8 +27,6 @@ def main
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
-  #
-  # ?...?               Additional files, format-dependent
   ##
   # The generated definitions are written to stdout
 
@@ -43,7 +41,7 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)

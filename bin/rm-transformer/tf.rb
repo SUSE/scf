@@ -6,13 +6,12 @@ require_relative 'common'
 require 'json'
 
 # Provider for terraform declarations derived from a role-manifest.
-# Takes additional files containing the execution context.
 class ToTerraform < Common
   def initialize(options)
     super(options)
     @have_public_ip = false
     @have_domain = false
-    initialize_emitter_state
+    @out = {}
   end
 
   def initialize_dtr_information
@@ -21,10 +20,6 @@ class ToTerraform < Common
     @dtr_org     = @options[:dtr_org] || 'helioncf'
     @hcf_version = @options[:hcf_version] || 'develop'
     @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
-  end
-
-  def initialize_emitter_state
-    @out = {}
   end
 
   # Public API
