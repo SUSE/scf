@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+DOCKER_FRIENDLY_TAGS=${DOCKER_FRIENDLY_TAGS:-'false'}
+
+. ${GIT_ROOT}/make/include/versioning
+
+case ${DOCKER_FRIENDLY_TAGS} in
+    false)
+        echo ${APP_VERSION}
+        ;;
+    *)
+        echo ${APP_VERSION} | tr + _
+        ;;
+esac

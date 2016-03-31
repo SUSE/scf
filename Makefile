@@ -61,7 +61,7 @@ clean-harder: clean reap
 all: images tag terraform
 
 print-version:
-	@echo hcf-${APP_VERSION_TAG}
+	@ ${GIT_ROOT}/make/print-version
 
 ########## VAGRANT VM TARGETS ##########
 
