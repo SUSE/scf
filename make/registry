@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+REGISTRY_PORT=${REGISTRY_PORT:-'5000'}
+REGISTRY_HOST_PORT=${REGISTRY_HOST_PORT:-${REGISTRY_PORT}}
+REGISTRY_IMAGE=${REGISTRY_IMAGE:-'registry:2'}
+REGISTRY_NAME=${REGISTRY_NAME:-'registry'}
+
+docker run --detach --publish ${REGISTRY_HOST_PORT}:5000 --restart always --name ${REGISTRY_NAME} ${REGISTRY_IMAGE}
