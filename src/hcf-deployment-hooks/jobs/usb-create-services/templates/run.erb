@@ -15,8 +15,8 @@ username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_contr
 cf login -u <%= username.shellescape %> -p <%= password.shellescape %>
 
 for i in {1..10}; do cf usb target http://usb.<%= properties.domain %> && break || sleep 30; done
-cf usb create-instance mongo mongodb -c "{\"server\":\"mongodb-manager.hcf\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"password\"}"
-cf usb create-instance mysql mysql -c "{\"server\":\"mysql-manager.hcf\",\"port\":\"3306\",\"userid\":\"root\",\"password\":\"password\"}"
-cf usb create-instance postgres postgres -c "{\"host\":\"postgres-manager.hcf\",\"port\":\"5432\",\"user\":\"postgres\",\"password\":\"password\",\"dbname\":\"postgres\",\"sslmode\":\"disable\"}"
-cf usb create-instance rabbitmq rabbitmq -c "{\"docker_endpoint\":\"http://rabbitmq-manager.hcf:4444\",\"docker_image\":\"rabbitmq\",\"docker_image_version\":\"3.6.0-management\"}"
-cf usb create-instance redis redis -c "{\"docker_endpoint\":\"http://redis-manager.hcf:4444\",\"docker_image\":\"redis\",\"docker_image_version\":\"3.0.7\"}"
+cf usb create-instance mongo mongodb -c "{\"server\":\"dev-service-mongodb.hcf\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"password\"}"
+cf usb create-instance mysql mysql -c "{\"server\":\"dev-service-mysql.hcf\",\"port\":\"3306\",\"userid\":\"root\",\"password\":\"password\"}"
+cf usb create-instance postgres postgres -c "{\"host\":\"dev-service-postgres.hcf\",\"port\":\"5432\",\"user\":\"postgres\",\"password\":\"password\",\"dbname\":\"postgres\",\"sslmode\":\"disable\"}"
+cf usb create-instance rabbitmq rabbitmq -c "{\"docker_endpoint\":\"http://dev-service-rabbitmq.hcf:4444\",\"docker_image\":\"rabbitmq\",\"docker_image_version\":\"3.6.0-management\"}"
+cf usb create-instance redis redis -c "{\"docker_endpoint\":\"http://dev-service-redis.hcf:4444\",\"docker_image\":\"redis\",\"docker_image_version\":\"3.0.7\"}"

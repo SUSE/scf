@@ -1,3 +1,3 @@
 FROM jpetazzo/dind
-LABEL role=redis-manager
+LABEL role=dev-service-redis
 ENV PORT 4444

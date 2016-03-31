@@ -1,3 +1,3 @@
 FROM postgres:9.4
-LABEL role=postgres-manager
+LABEL role=dev-service-postgres
 ENV POSTGRES_PASSWORD password

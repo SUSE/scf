@@ -1,3 +1,3 @@
 FROM jpetazzo/dind
-LABEL role=rabbitmq-manager
+LABEL role=dev-service-rabbitmq
 ENV PORT 4444

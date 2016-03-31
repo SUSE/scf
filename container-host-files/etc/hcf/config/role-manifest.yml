@@ -864,62 +864,62 @@ roles:
         source: 8600
         target: 53
         public: true
-- name: mongodb-manager
+- name: dev-service-mongodb
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /data/db
-        tag: mongodb-manager-data
+        tag: dev-service-mongodb-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: mysql-manager
+- name: dev-service-mysql
   dev-only: true
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /var/lib/mysql
-        tag: mysql-manager-data
+        tag: dev-service-mysql-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: postgres-manager
+- name: dev-service-postgres
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /var/lib/postgresql/data
-        tag: postgres-manager-data
+        tag: dev-service-postgres-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: rabbitmq-manager
+- name: dev-service-rabbitmq
   type: docker
   run:
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/rabbitmq-data
-        tag: rabbitmq-manager-data
+        tag: dev-service-rabbitmq-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: redis-manager
+- name: dev-service-redis
   type: docker
   run:
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/redis-data
-        tag: redis-manager-data
+        tag: dev-service-redis-data
         size: 200
     shared-volumes: []
     memory: 1024
