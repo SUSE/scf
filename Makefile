@@ -69,8 +69,7 @@ run:
 	${GIT_ROOT}/make/run
 
 stop:
-	$(call print_status, Stopping all HCF roles (this takes a while) ...)
-	for r in $$(container-host-files/opt/hcf/bin/list-roles.sh) ; do container-host-files/opt/hcf/bin/stop-role.sh $$r ; done
+	${GIT_ROOT}/make/stop
 
 vagrant-box:
 	cd packer && \
