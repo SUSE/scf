@@ -60,9 +60,6 @@ clean-harder: clean reap
 
 all: images tag terraform
 
-fetch-submodules:
-	git submodule update --init --recursive --depth=1 ${CURDIR}/src
-
 print-version:
 	@echo hcf-${APP_VERSION_TAG}
 
