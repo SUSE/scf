@@ -51,8 +51,7 @@ export FISSILE_WORK_DIR ?= ${CURDIR}/_work
 print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
 
 clean:
-	$(call print_status, Cleaning work directory)
-	rm -rf ${FISSILE_WORK_DIR}
+	${GIT_ROOT}/make/clean
 
 clean-harder: clean
 	$(call print_status, Cleaning docker containers)
