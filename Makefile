@@ -53,9 +53,10 @@ print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
 clean:
 	${GIT_ROOT}/make/clean
 
-clean-harder: clean
-	$(call print_status, Cleaning docker containers)
-	-docker rm --force $(shell docker ps --all --quiet --filter=name=fissile-)
+reap:
+	${GIT_ROOT}/make/reap
+
+clean-harder: clean reap
 
 all: images tag terraform
 
