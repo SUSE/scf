@@ -66,8 +66,7 @@ print-version:
 ########## VAGRANT VM TARGETS ##########
 
 run:
-	$(call print_status, Running HCF ...)
-	${CURDIR}/bin/run.sh
+	${GIT_ROOT}/make/run
 
 stop:
 	$(call print_status, Stopping all HCF roles (this takes a while) ...)
