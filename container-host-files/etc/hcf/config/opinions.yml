@@ -575,3 +575,6 @@ properties:
     - name: uaaadmin
       password: admin_password
       tag: admin
+  cf_mysql:
+    proxy:
+      healthcheck_timeout_millis: 30000
