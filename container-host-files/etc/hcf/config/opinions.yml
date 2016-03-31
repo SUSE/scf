@@ -168,6 +168,8 @@ properties:
       description: Cloud Foundry Linux-based filesystem
     - name: win2012r2
       description: Windows Server 2012 R2
+    - name: windows2012R2
+      description: Windows Server 2012 R2
     staging_upload_password: password
     staging_upload_user: username
     system_buildpacks:
@@ -273,7 +275,7 @@ properties:
       log_level: debug
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     rep:
@@ -302,7 +304,7 @@ properties:
       tweak_proc_sys: false
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     tps:
