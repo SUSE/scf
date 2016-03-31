@@ -25,8 +25,6 @@ roles:
         target: 4222
         public: false
 - name: consul
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -179,11 +177,6 @@ roles:
 - name: diego-database
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
-  # etcd_custom_dns_suffix.sh merged in https://github.com/cloudfoundry-incubator/etcd-release/pull/9/files?diff=unified
-  #- etcd_custom_dns_suffix.sh
   - remove-hardcoded-bbs-advertise-url.sh
   jobs:
   - name: etcd
@@ -238,10 +231,8 @@ roles:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -279,7 +270,6 @@ roles:
 - name: router
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -304,8 +294,6 @@ roles:
         target: 80
         public: false
 - name: uaa
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -334,14 +322,11 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
-  # cc_internal_hostname fixed in cloud_controller_ng.git#8f9f27ae
-  - fix_cc_internal_service_hostname.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -401,8 +386,6 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"]'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -424,9 +407,43 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: blobstore
+  jobs:
+  - name: blobstore
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: blobstore_nginx
+  - name: blobstore_url_signer
+  - name: route_registrar
+  - name: metron_agent
+  run:
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag: blobstore-data
+      size: 100
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+    - name: 'blobstore-ext'
+      protocol: 'TCP'
+      source: 80
+      target: 80
+      public: false
+    - name: 'blobstore-int'
+      protocol: 'TCP'
+      source: 443
+      target: 443
+      public: false
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -446,8 +463,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -481,7 +496,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
   - make_sys_proc_tweaks_optional.sh
@@ -500,7 +515,7 @@ roles:
   - name: syslog_drain_binder
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port": 8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port": 8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -524,9 +539,6 @@ roles:
         target: 3458
         public: false
 - name: etcd
-  scripts:
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -587,7 +599,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -601,8 +613,6 @@ roles:
         target: 8080
         public: false
 - name: diego-brain
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -632,7 +642,6 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: stager
     release_name: diego
@@ -711,8 +720,6 @@ roles:
         target: 17018
         public: false
 - name: diego-route-emitter
-  scripts:
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -734,7 +741,6 @@ roles:
 - name: diego-access
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -773,7 +779,6 @@ roles:
   - prevent_apparmor_disable.sh
   - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
   jobs:
@@ -934,6 +939,14 @@ configuration:
   variables:
   - name: API_HOST
     default: "api"
+  - name: BLOBSTORE_HOST
+    default: "blobstore"
+  - name: BLOBSTORE_USERNAME
+    default: "blobstore_user"
+  - name: BLOBSTORE_PASSWORD
+    secret: true
+  - name: BLOBSTORE_SECURE_LINK
+    secret: true
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
   - name: DIEGO_ACCESS_HOST
@@ -957,7 +970,7 @@ configuration:
   - name: LOGGREGATOR_HOST
     default: "loggregator"
   - name: PUBLIC_IP
-    default: "192.168.77.77"
+    example: "192.168.77.77"
   - name: BULK_API_PASSWORD
     secret: true
   - name: CCDB_ROLE_NAME
@@ -969,9 +982,13 @@ configuration:
   - name: CERTS_PREFIX
     default: hcf
   - name: DROPLET_DIRECTORY_KEY
-    default: droplet_directory_key
+    default: "cc-droplets"
   - name: BUILDPACK_DIRECTORY_KEY
-    default: buildpack_directory_key
+    default: "cc-buildpacks"
+  - name: APP_PACKAGE_DIRECTORY_KEY
+    default: "cc-packages"
+  - name: RESOURCE_DIRECTORY_KEY
+    default: "cc-resources"
   - name: CF_USB_USERNAME
     default: broker-admin
   - name: CF_USB_PASSWORD
@@ -986,8 +1003,10 @@ configuration:
     secret: true
   - name: DB_ENCRYPTION_KEY
     secret: true
+  - name: DNS_SUFFIX
+    default: ""
   - name: DOMAIN
-    default: "192.168.77.77.nip.io"
+    example: "192.168.77.77.nip.io"
   - name: DOPPLER_ZONE
     default: z1
   - name: LOGGREGATOR_SHARED_SECRET
@@ -1016,6 +1035,9 @@ configuration:
     default: internal_user
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
+  - name: TRUSTED_CERTS
+    secret: true
+    default: ""
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
   - name: UAA_BATCH_PASSWORD
@@ -1117,6 +1139,10 @@ configuration:
     secret: true
   - name: UAA_CERTIFICATE
     secret: true
+  - name: BLOBSTORE_TLS_CERT
+    secret: true
+  - name: BLOBSTORE_TLS_KEY
+    secret: true
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
@@ -1125,14 +1151,36 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
-    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
     properties.cc.srv_api_uri: '"https://api.((DOMAIN))"'
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.cc.buildpacks.blobstore_type: webdav
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
-    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]' 
+    properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.buildpacks.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.droplets.blobstore_type: webdav
+    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
+    properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.droplets.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.packages.blobstore_type: webdav
+    properties.cc.packages.app_package_directory_key: '"((APP_PACKAGE_DIRECTORY_KEY))"'
+    properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.packages.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.resource_pool.blobstore_type: webdav
+    properties.cc.resource_pool.resource_directory_key: '"((RESOURCE_DIRECTORY_KEY))"'
+    properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
@@ -1209,6 +1257,7 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"]'
     properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"]'
     properties.etcd_metrics_server.machines: '["((NATS_HOST))"]'
+    properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
@@ -1288,9 +1337,12 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
+    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
+    properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
@@ -1307,3 +1359,9 @@ configuration:
     properties.diego.file_server.tweak_proc_sys: false
     properties.diego.rep.tweak_proc_sys: false
     properties.diego.stager.tweak_proc_sys: false
+    properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
+    properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
+    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
+    properties.blobstore.tls.port: 443
+    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
