@@ -158,7 +158,7 @@ class ToTerraform < Common
     elsif name == 'DOMAIN'
       %(#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n)
     else
-      %(#{name}=\$\{replace(var.#{name},"\\n", "\\\\\\\\n")\}\n)
+      %(#{name}=\$\{replace(var.#{name},"\\\\n", "\\\\\\\\n")\}\n)
       # In the hcf.tf this becomes replace(XXX,"\n", "\\\\n")
       # The replacement string looks like "....\\n....".
       # The echo saving this into the final .env file makes this
