@@ -20,6 +20,14 @@ EOL
   exit 1
 fi
 
+# build and install `certstrap` tool if it's not installed
+command -v certstrap > /dev/null 2>&1 || {
+  buildCertstrap=$(docker run -d golang:1.6 bash -c "go get github.com/square/certstrap")
+  docker wait  $buildCertstrap
+  docker cp $buildCertstrap:/go/bin/certstrap /home/vagrant/bin/
+  docker rm  $buildCertstrap
+}
+
 BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-files/opt/hcf/bin" && pwd )/"`
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/dev-settings.env"
@@ -29,7 +37,6 @@ certs_path="/tmp/hcf/certs"
 hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
-etcd_peer_certs_dir="${certs_path}/diego/etcd_peer"
 domain="192.168.77.77.nip.io"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
@@ -52,110 +59,28 @@ cat hcf.crt hcf.key > hcf.pem
 openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
 openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
 
-# generate BBS certs
-rm -rf $bbs_certs_dir
-mkdir -p $bbs_certs_dir
+# generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
+certstrap --depot-path "${bbs_certs_dir}"   init --common-name "bbsCA" --passphrase $signing_key_passphrase
 
-cd $bbs_certs_dir
-mkdir -p private certs newcerts crl
-touch index.txt
-printf "%024d" $(date +%s%N) > serial
+certstrap --depot-path "${bbs_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${bbs_certs_dir}"  sign bbsServer  --CA bbsCA  --passphrase $signing_key_passphrase
 
-openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
-  -new -x509 -days 3650 -extensions v3_ca \
-  -passout pass:"${signing_key_passphrase}" \
-  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-  -keyout "${bbs_certs_dir}/private/bbs-ca.key" -out "${bbs_certs_dir}/certs/bbs-ca.crt"
+certstrap --depot-path "${bbs_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
+certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA bbsCA  --passphrase $signing_key_passphrase
 
-openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
-    -new -nodes \
-    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-    -keyout "${bbs_certs_dir}/private/bbs-server.key" -out "${bbs_certs_dir}/bbs-server.csr"
 
-openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
-  -extensions bbs_server -batch \
-  -passin pass:"${signing_key_passphrase}" \
-  -keyfile "${bbs_certs_dir}/private/bbs-ca.key" \
-  -cert "${bbs_certs_dir}/certs/bbs-ca.crt" \
-  -out "${bbs_certs_dir}/certs/bbs-server.crt" -infiles "${bbs_certs_dir}/bbs-server.csr"
+# generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
+certstrap --depot-path "${etcd_certs_dir}"  init --common-name "etcdCA" --passphrase $signing_key_passphrase
 
-openssl req -config "${BINDIR}/cert/diego-bbs.cnf" \
-    -new -nodes \
-    -subj '/CN=bbs client/' \
-    -keyout "${bbs_certs_dir}/private/bbs-client.key" -out "${bbs_certs_dir}/bbs-client.csr"
+certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdServer  --CA etcdCA  --passphrase $signing_key_passphrase
 
-openssl ca -config "${BINDIR}/cert/diego-bbs.cnf" \
-  -extensions bbs_client -batch \
-  -passin pass:"${signing_key_passphrase}" \
-  -keyfile "${bbs_certs_dir}/private/bbs-ca.key" \
-  -cert "${bbs_certs_dir}/certs/bbs-ca.crt" \
-  -out "${bbs_certs_dir}/certs/bbs-client.crt" -infiles "${bbs_certs_dir}/bbs-client.csr"
+certstrap --depot-path "${etcd_certs_dir}"  request-cert  --common-name "etcdClient"  --passphrase ""
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdClient  --CA etcdCA  --passphrase $signing_key_passphrase
 
-# generate ETCD certs
-rm -rf $etcd_certs_dir
-mkdir -p $etcd_certs_dir
-
-cd $etcd_certs_dir
-mkdir -p private certs newcerts crl
-touch index.txt
-printf "%024d" $(date +%s%N) > serial
-
-openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -new -x509 -days 3650 -extensions v3_ca \
-  -passout pass:"${signing_key_passphrase}" \
-  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-  -keyout "${etcd_certs_dir}/private/etcd-ca.key" -out "${etcd_certs_dir}/certs/etcd-ca.crt"
-
-openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-    -new -nodes \
-    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-    -keyout "${etcd_certs_dir}/private/etcd-server.key" -out "${etcd_certs_dir}/etcd-server.csr"
-
-openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -extensions etcd_server -batch \
-  -passin pass:"${signing_key_passphrase}" \
-  -keyfile "${etcd_certs_dir}/private/etcd-ca.key" \
-  -cert "${etcd_certs_dir}/certs/etcd-ca.crt" \
-  -out "${etcd_certs_dir}/certs/etcd-server.crt" -infiles "${etcd_certs_dir}/etcd-server.csr"
-
-openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-    -new -nodes \
-    -subj '/CN=diego etcd client/' \
-    -keyout "${etcd_certs_dir}/private/etcd-client.key" -out "${etcd_certs_dir}/etcd-client.csr"
-
-openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -extensions etcd_client -batch \
-  -passin pass:"${signing_key_passphrase}" \
-  -keyfile "${etcd_certs_dir}/private/etcd-ca.key" \
-  -cert "${etcd_certs_dir}/certs/etcd-ca.crt" \
-  -out "${etcd_certs_dir}/certs/etcd-client.crt" -infiles "${etcd_certs_dir}/etcd-client.csr"
-
-# generate ETCD peer certs
-rm -rf $etcd_peer_certs_dir
-mkdir -p $etcd_peer_certs_dir
-
-cd $etcd_peer_certs_dir
-mkdir -p private certs newcerts crl
-touch index.txt
-printf "%024d" $(date +%s%N) > serial
-
-openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -new -x509 -days 3650 -extensions v3_ca \
-  -passout pass:"${signing_key_passphrase}" \
-  -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-  -keyout "${etcd_peer_certs_dir}/private/etcd-ca.key" -out "${etcd_peer_certs_dir}/certs/etcd-ca.crt"
-
-openssl req -config "${BINDIR}/cert/diego-etcd.cnf" \
-    -new -nodes \
-    -subj "/CN=${DIEGO_DATABASE_HOST}/" \
-    -keyout "${etcd_peer_certs_dir}/private/etcd-peer.key" -out "${etcd_peer_certs_dir}/etcd-peer.csr"
-
-openssl ca -config "${BINDIR}/cert/diego-etcd.cnf" \
-  -extensions etcd_peer -batch \
-  -passin pass:"${signing_key_passphrase}" \
-  -keyfile "${etcd_peer_certs_dir}/private/etcd-ca.key" \
-  -cert "${etcd_peer_certs_dir}/certs/etcd-ca.crt" \
-  -out "${etcd_peer_certs_dir}/certs/etcd-peer.crt" -infiles "${etcd_peer_certs_dir}/etcd-peer.csr"
+certstrap --depot-path "${etcd_certs_dir}"  init  --common-name "etcdPeerCA"  --passphrase $signing_key_passphrase
+certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdPeer  --CA etcdPeerCA  --passphrase $signing_key_passphrase
 
 # generate SSH Host certs
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
@@ -188,19 +113,19 @@ openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
 CERTS_ROOT_CHAIN_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/hcf/hcf.pem")
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
-ETCD_PEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_peer_certs_dir}/private/etcd-peer.key")
-ETCD_PEER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_peer_certs_dir}/certs/etcd-peer.crt")
-ETCD_PEER_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_peer_certs_dir}/certs/etcd-ca.crt")
-ETCD_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/private/etcd-server.key")
-ETCD_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/private/etcd-client.key")
-ETCD_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/certs/etcd-server.crt")
-ETCD_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/certs/etcd-client.crt")
-ETCD_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/certs/etcd-ca.crt")
-BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/private/bbs-server.key")
-BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/private/bbs-client.key")
-BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/certs/bbs-server.crt")
-BBS_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/certs/bbs-client.crt")
-BBS_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/certs/bbs-ca.crt")
+ETCD_PEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdPeer.key")
+ETCD_PEER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdPeer.crt")
+ETCD_PEER_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdPeerCA.crt")
+ETCD_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdServer.key")
+ETCD_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdClient.key")
+ETCD_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdServer.crt")
+ETCD_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdClient.crt")
+ETCD_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${etcd_certs_dir}/etcdCA.crt")
+BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsServer.key")
+BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsClient.key")
+BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsServer.crt")
+BBS_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsClient.crt")
+BBS_CA_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsCA.crt")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_private_key.pem")
 UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
