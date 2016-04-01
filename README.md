@@ -1,6 +1,6 @@
 # Helion Cloud Foundry
 
-This is the repository that integrates all HCF components.
+This repository integrates all HCF components.
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
@@ -41,117 +41,155 @@ This is the repository that integrates all HCF components.
 
 <!-- /TOC -->
 
-## Using port 80 on your host without root
+# Preparing to Deploy HCF
 
-You will need to change the host ports in the Vagrantfile from `80` to `8080`
-and from `443` to `8443` and run the following:
+## To Use Port 80 on Your Host Without `root` Privileges
 
-```
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
-```
+1. Change the host ports in the `Vagrantfile` from `80` to `8080` and from `443` to `8443`.
 
-## Development on Ubuntu with VirtualBox
+2. Run the following commands:
 
-1. Install VirtualBox
-1. Install Vagrant (version `1.7.4` minimum)
-1. Install vagrant-reload plugin
- ```
- vagrant plugin install vagrant-reload
- ```
-1. Bring it online
-```
-vagrant up --provider virtualbox
-```
-1. Run HCF in the vagrant box
- ```
- vagrant ssh
+  ```
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+  ```
+  ```
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
+  ```
 
- cd ~/hcf
 
- make vagrant-prep # only after you first create the VM
+## To Deploy HCF on Ubuntu Using VirtualBox
 
- make run
- ```
+1. Install VirtualBox and Vagrant (version 1.7.4 and higher).
 
-Before creating any VMs with Vagrant, run `THIS DIR` /bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
+2. Install the `vagrant-reload` plugin:
 
-This should prevent errors similar to "Package 'etcd' has a glob that resolves to an empty file list: `github.com/coreos/etcd/**/*`" while running `make vagrant-prep`  
+  ```
+  vagrant plugin install vagrant-reload
+  ```
 
-## Development on OSX with VMWare Fusion
+3. Clone the project to a convenient directory.
 
-1. Install VMware Fusion 7
-1. Get a license for VMware Fusion 7
- > From your HPE e-mail address, send an e-mail to hp@vmware.com,
- > with the subject "Fusion license request"
+4. To allow Vagrant to interact with the mounted submodules, run the following command:
 
-1. Install Vagrant (version `1.7.4` minimum)
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
+  ```
+  /bin/init-host-for-vagrant.sh
+  ```
 
-1. Install the Vagrant Fusion provider
- ```bash
- vagrant plugin install vagrant-vmware-fusion
- ```
+  __Note:__ Running this command prevents error messages such as `Package 'etcd' has a glob that resolves
+  to an empty file list: github.com/coreos/etcd/**/*`. You can run this command in parallel with the
+  `vagrant up` command. However, this command must complete before you run the `make vagrant-prep` command
+  on the VM.
+  
+5. Bring the VM online and `ssh` into it:
 
-1. Setup the license for the Vagrant Fusion provider:
- - Download the license from our [wiki page](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense)
- - Install the license:
- ```bash
- vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
- ```
+  ```
+  vagrant up --provider virtualbox  
+  ```
 
-1. Bring it online (make sure you don't have uncommited changes in any submodules - they will get clobbered)
- ```bash
- vagrant up --provider vmware_fusion
- ```
+  ```
+  vagrant ssh
+  ```
+  
+6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
+  __Note:__ You need to run this command only after initially creating the VM.
 
-## Development on Ubuntu with libvirt
+7. Start HCF using the `make run` command.
 
-1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
-1. Install dependencies
- ```bash
- sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
- ```
 
-1. Allow non-root access to libvirt
- ```bash
- sudo usermod -G libvirtd -a YOUR_USER
- ```
+## To Deploy HCF on OS X Using VMWare Fusion
 
-1. Logout & Login
-1. Install the `libvirt` plugin for Vagrant
- ```bash
- vagrant plugin install vagrant-libvirt
- ```
+1. Install VMware Fusion 7 and Vagrant (version `1.7.4` and higher).
 
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
+  __Note:__ To get a license for VMware Fusion 7, use your HPE email address to send a message to hp@vmware.com with the subject `Fusion license request`.
 
-1. Bring it online (may fail a few times)
- ```bash
- vagrant up --provider libvirt
- ```
+2. Install the `vagrant-reload` plugin:
 
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
+  ```
+  bash
+  vagrant plugin install vagrant-reload
+  ```
+3. Install the Vagrant Fusion provider:
+
+  ```
+  bash
+  vagrant plugin install vagrant-vmware-fusion
+  ```
+
+4. Configure the license for the Vagrant Fusion provider:
+
+  a. [Download the license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense).
+
+  b. Install the license:
+  
+  ```
+  bash
+  vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
+  ```
+
+5. Bring the VM online and `ssh` into it:
+
+  __Important:__ Ensure you do not have uncommited changes in any submodules.
+
+  ```
+  bash
+  vagrant up --provider vmware_fusion
+  vagrant ssh
+  ```
+
+6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Only:__ You need to run this command only after initially creating the VM.
+
+7. Start HCF using the `make run` command.
+
+
+## Deploy HCF on Ubuntu Using `libvirt`
+
+1. [Install Vagrant](https://www.virtualbox.org/wiki/Linux_Downloads) and its dependencies:
+
+  ```
+  bash
+  sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+  ```
+
+2. Allow non-`root` access to `libvirt`:
+
+  ```
+  bash
+  sudo usermod -G libvirtd -a <username>
+  ```
+
+3. Log out, log in, and then install the `libvirt` plugin for Vagrant:
+
+  ```
+  bash
+  vagrant plugin install vagrant-libvirt
+  ```
+
+4. Install the `vagrant-reload` plugin:
+
+  ```
+  bash
+  vagrant plugin install vagrant-reload
+  ```
+
+5. Bring the VM online and `ssh` into it:
+
+  __Important:__ The VM may not come online during your first attempt.
+
+  ```
+  bash
+  vagrant up --provider libvirt
+  vagrant ssh
+  ```
+
+6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+7. Start HCF using the `make run` command.
+
 
 ## Development on Fedora with libvirt
 
