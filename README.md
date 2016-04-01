@@ -1,291 +1,253 @@
 # Helion Cloud Foundry
 
-This is the repository that integrates all HCF components.
+This repository integrates all HCF components.
 
-<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+# Preparing to Deploy HCF
 
-- [Helion Cloud Foundry](#helion-cloud-foundry)
-	- [Get the source of HCF](#get-the-source-of-hcf)
-	- [Using port 80 on your host without root](#using-port-80-on-your-host-without-root)
-	- [Development on Ubuntu with VirtualBox](#development-on-ubuntu-with-virtualbox)
-	- [Development on OSX with VMWare Fusion](#development-on-osx-with-vmware-fusion)
-	- [Development on Ubuntu with libvirt](#development-on-ubuntu-with-libvirt)
-	- [Development on Fedora with libvirt](#development-on-fedora-with-libvirt)
-	- [Development on Windows with VirtualBox](#development-on-windows-with-virtualbox)
-	- [Windows Cell Add-on](#windows-cell-add-on)
-	- [Makefile targets](#makefile-targets)
-		- [Vagrant VM Targets](#vagrant-vm-targets)
-		- [BOSH Release Targets](#bosh-release-targets)
-		- [Fissile Build Targets](#fissile-build-targets)
-		- [Distribution Targets](#distribution-targets)
-	- [Development FAQ](#development-faq)
-		- [Where do I find logs?](#where-do-i-find-logs)
-		- [How do I clear all data for the cluster? (start fresh without rebuilding everything)](#how-do-i-clear-all-data-for-the-cluster-start-fresh-without-rebuilding-everything)
-		- [How do I clear the logs?](#how-do-i-clear-the-logs)
-		- [How do I recreate images? `fissile` refuses to create images that already exist.](#how-do-i-recreate-images-fissile-refuses-to-create-images-that-already-exist)
-		- [My vagrant box is frozen. What do I do?](#my-vagrant-box-is-frozen-what-do-i-do)
-		- [Can I use the `cf` CLI from the host?](#can-i-use-the-cf-cli-from-the-host)
-		- [How do I connect to the Cloud Foundry database?](#how-do-i-connect-to-the-cloud-foundry-database)
-		- [How do I add a new BOSH release to HCF?](#how-do-i-add-a-new-bosh-release-to-hcf)
-		- [If I'm working on component `X`, how does my dev cycle look like?](#if-im-working-on-component-x-how-does-my-dev-cycle-look-like)
-		- [How do I expose new settings via environment variables?](#how-do-i-expose-new-settings-via-environment-variables)
-		- [How do I bump the submodules for the various releases?](#how-do-i-bump-the-submodules-for-the-various-releases)
-		- [Can I suspend/resume my vagrant VM?](#can-i-suspendresume-my-vagrant-vm)
-		- [What if I'm coding for an upstream PR?](#what-if-im-coding-for-an-upstream-pr)
-		- [What is the difference between a BOSH role and a Docker role?](#what-is-the-difference-between-a-bosh-role-and-a-docker-role)
-		- [How can I add a Docker role to HCF?](#how-can-i-add-a-docker-role-to-hcf)
-	- [How do I publish the HCF and bosh images](#how-do-i-publish-the-hcf-and-bosh-images)
-	- [Generating UCP service definitions](#generating-ucp-service-definitions)
-		- [Working with UCP](#working-with-ucp)
-	- [Generating Terraform MPC service definitions](#generating-terraform-mpc-service-definitions)
-	- [Build dependencies](#build-dependencies)
+## To Use Port 80 on Your Host Without `root` Privileges
 
-<!-- /TOC -->
+1. Change the host ports in the `Vagrantfile` from `80` to `8080` and from `443` to `8443`.
 
-## Get the source of HCF
+2. Run the following commands:
 
-```
-git clone git@github.com:hpcloud/hcf.git
-cd hcf
-git submodule update --init --recursive
-```
-
-## Using port 80 on your host without root
-
-You will need to change the host ports in the Vagrantfile from `80` to `8080`
-and from `443` to `8443` and run the following:
-
-```
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
-```
-
-## Development on Ubuntu with VirtualBox
-
-1. Install VirtualBox
-1. Install Vagrant (version `1.7.4` minimum)
-1. Install vagrant-reload plugin
- ```
- vagrant plugin install vagrant-reload
- ```
-1. Bring it online
-```
-vagrant up --provider virtualbox
-```
-1. Run HCF in the vagrant box
- ```
- vagrant ssh
-
- cd ~/hcf
-
- make vagrant-prep # only after you first create the VM
-
- make run
- ```
-
-Before creating any VMs with Vagrant, run `THIS DIR` /bin/init-host-for-vagrant.sh. Otherwise vagrant (or others) won't see the mounted submodules.  This command can be run in parallel with `vagrant up`, but needs to complete before running `make vagrant-prep` on the VM.
-
-This should prevent errors similar to "Package 'etcd' has a glob that resolves to an empty file list: `github.com/coreos/etcd/**/*`" while running `make vagrant-prep`  
-
-## Development on OSX with VMWare Fusion
-
-1. Install VMware Fusion 7
-1. Get a license for VMware Fusion 7
- > From your HPE e-mail address, send an e-mail to hp@vmware.com,
- > with the subject "Fusion license request"
-
-1. Install Vagrant (version `1.7.4` minimum)
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
-
-1. Install the Vagrant Fusion provider
- ```bash
- vagrant plugin install vagrant-vmware-fusion
- ```
-
-1. Setup the license for the Vagrant Fusion provider:
- - Download the license from our [wiki page](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense)
- - Install the license:
- ```bash
- vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
- ```
-
-1. Bring it online (make sure you don't have uncommited changes in any submodules - they will get clobbered)
- ```bash
- vagrant up --provider vmware_fusion
- ```
-
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
-
-## Development on Ubuntu with libvirt
-
-1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
-1. Install dependencies
- ```bash
- sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
- ```
-
-1. Allow non-root access to libvirt
- ```bash
- sudo usermod -G libvirtd -a YOUR_USER
- ```
-
-1. Logout & Login
-1. Install the `libvirt` plugin for Vagrant
- ```bash
- vagrant plugin install vagrant-libvirt
- ```
-
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
-
-1. Bring it online (may fail a few times)
- ```bash
- vagrant up --provider libvirt
- ```
-
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
-
-## Development on Fedora with libvirt
-
-1. Install Vagrant as detailed [here](https://www.virtualbox.org/wiki/Linux_Downloads)
-
-1. Enable NFS over UDP in the firewall
- ```bash
- sudo firewall-cmd --zone FedoraWorkstation --change-interface vboxnet0
- sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service nfs
- sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service rpc-bind
- sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service mountd
- sudo firewall-cmd --permanent --zone FedoraWorkstation --add-port 2049/udp
- sudo firewall-cmd --reload
- sudo systemctl enable nfs-server.service
- sudo systemctl start nfs-server.service
- ```
-
-1. Install dependencies
- ```bash
- sudo dnf install libvirt-daemon-kvm libvirt-devel
- ```
-
-1. Allow non-root access to libvirt
- ```bash
- sudo usermod -G libvirt -a YOUR_USER
- ```
-
-1. newgrp libvirt
-
-1. Install a specific version of fog-libvirt
- ```bash
- # Workaround for https://github.com/fog/fog-libvirt/issues/16
- vagrant plugin install --plugin-version 0.0.3 fog-libvirt
- ```
-1. Install the `libvirt` plugin for Vagrant
- ```bash
- vagrant plugin install vagrant-libvirt
- ```
-
-1. Install vagrant-reload plugin
- ```bash
- vagrant plugin install vagrant-reload
- ```
-
-1. Set libvert daemon user to your username / group by editing /etc/libvirt/qemu.conf: `user = "YOUR_USER"` and `group = "YOUR_USER"`
-
-1. Bring it online (may fail a few times)
- ```bash
- vagrant up --provider libvirt
- ```
-
-1. Run HCF in the vagrant box
- ```bash
- vagrant ssh
- cd ~/hcf
- make vagrant-prep  # Only needed once
- make run
- ```
-
-## Development on Windows with VirtualBox
-
-> Working on a Windows host is more complicated because of heavy usage of symlinks.
-> Don't use this sort of setup unless you're comfortable with the extra complexity.
-> Only the VirtualBox provider is supported on Windows!
-
-1. Before you do anything, make sure you handle line endings correctly. Run this on the Windows host:
-
-  ```bash
-  git config --global core.autocrlf input
+  ```
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+  sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   ```
 
-1. Clone this repository, but do not recursively update submodules - you need to do it in the Vagrant VM,
-so symlinks are configured properly. For you do be able to clone everything
-within the VM, you'll need an SSH key within the VM that's allowed on github.com
 
-1. SSH to the vagrant box
-  ```bash
+## To Deploy HCF on Ubuntu Using VirtualBox
+
+1. Install VirtualBox and Vagrant (version 1.7.4 and higher).
+
+2. Install the `vagrant-reload` plugin:
+
+  ```
+  vagrant plugin install vagrant-reload
+  ```
+
+3. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
+
+  ```
+  /bin/init-host-for-vagrant.sh
+  ```
+
+  __Note:__ Running this command prevents error messages such as `Package 'etcd' has a glob that resolves
+  to an empty file list: github.com/coreos/etcd/**/*`. You can run this command in parallel with the
+  `vagrant up` command. However, this command must complete before you run the `make vagrant-prep` command
+  on the VM.
+  
+4. Bring the VM online and `ssh` into it:
+
+  ```
+  vagrant up --provider virtualbox  
+  vagrant ssh
+  ```
+  
+5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+6. Start HCF using the `make run` command.
+
+
+## To Deploy HCF on OS X Using VMWare Fusion
+
+1. Install VMware Fusion 7 and Vagrant (version `1.7.4` and higher).
+
+  __Note:__ To get a license for VMware Fusion 7, use your HPE email address to send a message to hp@vmware.com with the subject `Fusion license request`.
+
+2. Install the `vagrant-reload` plugin and the Vagrant Fusion provider:
+
+  ```
+  bash
+  vagrant plugin install vagrant-reload
+  vagrant plugin install vagrant-vmware-fusion
+  ```
+
+3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
+  
+  ```
+  bash
+  vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
+  ```
+
+4. Clone the repository, bring the VM online, and `ssh` into it:
+
+  __Important:__ Ensure you do not have uncommited changes in any submodules.
+
+  ```
+  bash
+  vagrant up --provider vmware_fusion
   vagrant ssh
   ```
 
-1. Setup symlinks and init submodules
-  ```bash
+5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Only:__ You need to run this command only after initially creating the VM.
+
+6. Start HCF using the `make run` command.
+
+
+## To Deploy HCF on Ubuntu Using `libvirt`
+
+1. Install Vagrant (version `1.7.4` and higher) and the `libvirt` dependencies and allow non-`root` access to `libvirt`:
+
+  ```
+  bash
+  sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+  ```
+
+2. Allow non-`root` access to `libvirt`:
+
+  ```
+  bash
+  sudo usermod -G libvirtd -a <username>
+  ```
+
+3. Log out, log in, and then install the `libvirt` and `vagrant-reload` plugins:
+
+  ```
+  bash
+  vagrant plugin install vagrant-libvirt
+  vagrant plugin install vagrant-reload
+  ```
+
+4. Clone the repository, bring the VM online, and `ssh` into it:
+
+  __Important:__ The VM may not come online during your first attempt.
+
+  ```
+  bash
+  vagrant up --provider libvirt
+  vagrant ssh
+  ```
+
+5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+6. Start HCF using the `make run` command.
+
+
+## To Deploy HCF on Fedora using `libvirt`
+
+1. Install Vagrant (version `1.7.4` and higher) and enable NFS over UDP:
+
+  ```
+  bash
+  sudo firewall-cmd --zone FedoraWorkstation --change-interface vboxnet0
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service nfs
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service rpc-bind
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service mountd
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-port 2049/udp
+  sudo firewall-cmd --reload
+  sudo systemctl enable nfs-server.service
+  sudo systemctl start nfs-server.service
+  ```
+
+2. Install `libvirt` dependencies, allow non-`root` access to `libvirt`, and create a group for the `libvirt` user:
+
+  ```
+  bash
+  sudo dnf install libvirt-daemon-kvm libvirt-devel
+  sudo usermod -G libvirt -a <username>
+  newgrp libvirt
+  ```
+
+3. Install `fog-libvirt` 0.0.3 and the `libvirt` and `vagrant-reload` plugins:
+
+  ```
+  bash
+  # Workaround for https://github.com/fog/fog-libvirt/issues/16
+  vagrant plugin install --plugin-version 0.0.3 fog-libvirt
+  vagrant plugin install vagrant-libvirt
+  vagrant plugin install vagrant-reload
+  ```
+
+4. To set the `libvert` daemon user to your username/group, edit `/etc/libvirt/qemu.conf` as follows:
+
+  ```
+  user = "<username>"
+  group = "<username>"
+  ```
+
+5. Clone the repository, bring the VM online, and `ssh` into it:
+
+  __Important:__ The VM may not come online during your first attempt.
+
+  ```
+  bash
+  vagrant up --provider libvirt
+  ```
+
+6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+7. Start HCF using the `make run` command.
+
+
+## To Deploy HCF on Windows Using VirtualBox
+
+__Important:__ Working on a Windows host is more complicated because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
+
+1. Ensure that line endings are handled correctly.
+
+  ```
+  bash
+  git config --global core.autocrlf input
+  ```
+
+2. Clone the repository.
+
+  __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
+
+3. `ssh` into the vagrant box, configure symlinks and initialize submodules:
+
+  ```
+  bash
+  vagrant ssh
   cd ~/hcf
   git config --global core.symlinks true
   git config core.symlinks true
   git submodule update --init --recursive
   ```
 
-1. After all that you can continue with the normal stuff:
-  ```bash
-  cd ~/hcf
-  make vagrant-prep  # Only needed once
-  make run
-  ```
+4. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
-## Windows Cell Add-on
+  __Note:__ You need to run this command only after initially creating the VM.
 
-[See Windows Cell README](windows/README.md)
+5. Start HCF using the `make run` command.
+
+6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
+
 
 ## Makefile targets
 
-
 ### Vagrant VM Targets
 
-name			| effect |
+Name			| Effect |
 --------------- | ---- |
 `run`			| Set up HCF on the current node (`bin/run.sh`) |
 `stop`			| Stop HCF on the current node |
-`vagrant-box`	| Build the vagrant box image via packer |
+`vagrant-box`	| Build the Vagrant box image using `packer` |
 `vagrant-prep`	| Shortcut for building everything needed for `make run` |
 
 ### BOSH Release Targets
 
-name				| effect |
+Name				| Effect |
 ------------------- | ----  |
 `cf-release`		| `bosh create release` for `cf-release` |
 `usb-release`		| `bosh create release` for `cf-usb-release` |
 `diego-release`		| `bosh create release` for `diego-release` |
 `etcd-release`		| `bosh create release` for `etcd-release` |
 `garden-release`	| `bosh create release` for `garden-linux-release` |
-`releases`			| Make all BOSH releases above |
+`releases`			| Make all of the BOSH releases above |
 
 ### Fissile Build Targets
 
-name			| effect | notes |
+Name			| Effect | Notes |
 --------------- | ---- | --- |
 `build`			| `make` + `make images` |
 `compile-base`	| `fissile compilation build-base` |
@@ -294,374 +256,338 @@ name			| effect | notes |
 `image-base`	| `fissile images create-base` |
 `bosh-images`	| `fissile dev create-images` |
 `docker-images`	| `docker build` in each dir in `./docker-images` |
-`tag`			| Tag HCF images + bosh role images |
-`publish`		| Publish HCF images + bosh role images to docker hub |
+`tag`			| Tag HCF images and bosh role images |
+`publish`		| Publish HCF images and bosh role images to Docker Hub |
 `ucp`		| Generate UCP service definitions |
-`mpc`		| Generate terraform MPC definitions for 1-node u-cloud |
+`mpc`		| Generate Terraform MPC definitions for a single-node microcloud |
 `terraform`		| Make `hcf-*.tar.gz` for distribution | __outdated__ |
 
 ### Distribution Targets
 
-name		| effect | notes |
+Name		| Effect | Notes |
 --------------- | ---- | --- |
 `dist`		| Generate and package various setups |
-`mpc-dist`	| Generate and package terraform MPC definitions for 1-node u-cloud |
+`mpc-dist`	| Generate and package Terraform MPC definitions for a single-node microcloud |
 
 ## Development FAQ
 
 ### Where do I find logs?
 
-  1. The easiest way to look at entrypoint logs is `docker logs <ROLE_NAME>`.
-  To follow the logs, use `docker logs -f <ROLE_NAME>`.
+  1. To look at entrypoint logs, run the `docker logs <role-name>` command. To follow the logs, run the `docker logs -f <role-name>` command.
 
-  For `bosh` roles, this will show `monit` logs. For `docker` roles, this will
-  show whatever your entrypoint is printing on stdout and stderr.
+    __Note:__ For `bosh` roles, `monit` logs are displayed. For `docker` roles, the `stdout` and `stderr` from the entry point are displayed.
 
-  2. All logs for all components can be found here (in the Vagrant box): `~/.run/log`
+  2. All logs for all components can be found here on the Vagrant box in `~/.run/log`.
 
-### How do I clear all data for the cluster? (start fresh without rebuilding everything)
+### How do I clear all data and begin anew without rebuilding everything?
 
-  In the Vagrant box, you should run the following:
-  ```bash
-  cd ~/hcf
-  # We're nuking everything, so no need to stop gracefully.
-  docker rm -f $(docker ps -a -q)
-  # Delete all data
-  sudo rm -rf ~/.run/store
-  # Start everything
-  make run
-  ```
+  On the Vagrant box, run the following commands:
+  
+    ```
+	bash
+    cd ~/hcf
+    
+	# (There is no need for a graceful stop.)
+	docker rm -f $(docker ps -a -q)
+	
+	# Delete all data.
+	sudo rm -rf ~/.run/store
+	
+	# Start everything.
+	make run
+	```
 
 ### How do I clear the logs?
 
-  In the Vagrant box, you should run the following:
-  ```bash
-  cd ~/hcf
-  # Stop gracefully.
-  make stop
-  # Delete all logs
-  sudo rm -rf ~/.run/log
-  # Start everything
-  make run
-  ```
+  On the Vagrant box, run the following commands:
+  
+    ```
+	bash
+    cd ~/hcf
+  
+    # Stop gracefully.
+    make stop
+  
+    # Delete all logs.
+    sudo rm -rf ~/.run/log
+  
+    # Start everything.
+    make run
+    ```
 
-### How do I recreate images? `fissile` refuses to create images that already exist.
+### `fissile` refuses to create images that already exist. How do I recreate images? 
 
-  In the Vagrant box, you should run the following:
-  ```bash
-  cd ~/hcf
-  # Stop gracefully.
-  make stop
-  # Delete all fissile images
-  docker rmi $(fissile dev lr)
-  # Re-create your images then run
-  make images run
-  ```
+  On the Vagrant box, run the following commands:
+  
+    ```
+	bash
+    cd ~/hcf
+    
+	# Stop gracefully.
+    make stop
+  
+    # Delete all fissile images.
+    docker rmi $(fissile dev lr)
+  
+    # Re-create the images and then run them.
+    make images run
+    ```
 
-### My vagrant box is frozen. What do I do?
+### My vagrant box is frozen. What can I do?
 
-  1. If you have an SSH connection that's frozen, type in: `~.<ENTER>`
-  2. Then, do: `vagrant reload`
-  3. If this hangs use: `vagrant halt && vagrant reload`
-  4. If that hangs, manually stop the virtual machine, then run: `vagrant reload`
-  5. Last resort: `vagrant destroy -f && vagrant up`
-  6. Finally, you run `make run` inside the vagrant box to bring everything back up.
+  Try each of the following solutions sequentially:
+  
+    * Run the `~. && vagrant reload` command.
+	
+	* Run `vagrant halt && vagrant reload` command.
 
-### Can I use the `cf` CLI from the host?
+	* Manually stop the virtual machine and then run the `vagrant reload` command.
+	
+	* Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
+	
 
-  Yes, you can. The Vagrant box will always expose the Cloud Foundry endpoints on the
-  `192.168.77.77` IP address.
+### Can I target the cluster from the host using the `cf` CLI?
 
-  This is assigned to a host-only network adapter, so
-  any URL/endpoint that references this address can be accessed from your host.  
+  You can target the cluster on the hardcoded `192.168.77.77` address assigned to a host-only network adapter.
+  You can access any URL or endpoint that references this address from your host.
+  
 
 ### How do I connect to the Cloud Foundry database?
 
-  For your convenience, we expose the MySQL instance on `192.168.77.77:3306`.
+  1. The MySQL instance is exposed at `192.168.77.77:3306`.
+  
+  2. The default username is: `root`.
+  
+  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/dev-settings.env` file on the Vagrant box.
 
-  The default username is: `root`. Default password can be found in the following
-  environment variables file (path in the Vagrant box): `~/hcf/bin/dev-settings.env`.
-  Look for the `MYSQL_ADMIN_PASSWORD` variable.
 
 ### How do I add a new BOSH release to HCF?
 
-  1. Add a git submodule to the BOSH release in `./src`
+  1. Add a Git submodule to the BOSH release in `./src`.
+  
   2. Mention the new release in `./bin/.fissilerc`
-  3. Run `source ~/hcf/bin/.fissilerc` in the Vagrant box
-  4. Change `./container-host-files/etc/hcf/config/role-manifest.yml`
-    - Add new roles or change existing ones
-    - Add exposed environment variables (`yaml path: /configuration/variables`)
-    - Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`)
-    - Add defaults for your configuration settings in `~/hcf/bin/dev-settings.env`
-    - If you need any extra default certs, add them here: `~/hcf/bin/dev-settings.env`.
-    Also make sure to add generation code for the certs here: `~/hcf/bin/generate-dev-certs.sh`
-  5. Add any opinions (static defaults) and dark opinions (configuration that must be set by user)
-  to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`
-  respectively
-  6. Change the `./Makefile` so it builds the new release
-    - Add a new target `<RELEASE_NAME>-release`
-    - Add the new target as a dependency for `make releases`
-  7. Test, test and test
-    - `make <RELEASE_NAME>-release compile images run`
-    - repeat
+  
+  3. Edit the release parameters:
+  
+    a. Add new roles or change existing ones in `./container-host-files/etc/hcf/config/role-manifest.yml`.
+	
+    b. Add exposed environment variables (`yaml path: /configuration/variables`).
+	
+    c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
+	
+    d. Add defaults for your configuration settings to `~/hcf/bin/dev-settings.env`.
+	
+    e. If you need any extra default certificates, add them to `~/hcf/bin/dev-settings.env`.
+	
+    f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
+	
+  4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`, respectively.
+  
+  5. Change the `./Makefile` so it builds the new release:
+  
+    a. Add a new target `<release-name>-release`.
+	
+    b. Add the new target as a dependency for `make releases`.
+	
+  6. Test the changes.
+  
+  7. Run the `make <release-name>-release compile images run` command.
 
-### If I'm working on component `X`, how does my dev cycle look like?
 
-  1. Make a change to component `X`, in its respective release (`X-release`)
-  2. Run `make X-release compile images run` to build your changes and run them
+### What does my dev cycle look like when I work on Component X?
+
+  1. Make a change to component `X`, in its respective release (`X-release`).
+  
+  2. Run `make X-release compile images run` to build your changes and run them.
+
 
 ### How do I expose new settings via environment variables?
 
-  In `./container-host-files/etc/hcf/config/role-manifest.yml`:
-  1. Add your new exposed environment variables (`yaml path: /configuration/variables`)
-  2. Add or change configuration templates
-    - `yaml path: /configuration/templates`
-    - `yaml path: /roles/*/configuration/templates`
-    - Put new variables in role specific sections if:
-      - two or more roles need to have different values for the same setting
-      - the setting isn't namespaced properly in a BOSH release (ie a global `hostname`)
-  3. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`
-  4. If you need any extra default certs, add them here: `~/hcf/bin/dev-certs.env`
-  Also make sure to add generation code for the certs here: `~/hcf/bin/generate-dev-certs.sh`
-  5. At this point, you'll need to rebuild the role images that need this new setting:
+  1. Edit `./container-host-files/etc/hcf/config/role-manifest.yml`:
+  
+    a. Add the new exposed environment variables (`yaml path: /configuration/variables`).
+	
+    b. Add or change configuration templates:
+    
+	   i. `yaml path: /configuration/templates`
+	   
+       ii. `yaml path: /roles/*/configuration/templates`
+	   
+  2. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`.
+  
+  3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
+  
+  4. Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`
+  
+  5. Rebuild the role images that need this new setting:
 
-    ```bash
-    docker stop <ROLE>
-    docker rmi -f fissile-<ROLE>:<TAB_FOR_COMPLETION>
+    ```
+	bash
+    docker stop <role>
+    docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```
+	
+	__Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
 
-    If you don't know which roles need your new setting, you can use this catch-all:
-
-    ```bash
-    make stop
-    docker rmi -f $(fissile dev lr)
-    make images run
-    ```
+      ```
+	  bash
+      make stop
+      docker rmi -f $(fissile dev lr)
+      make images run
+      ```
 
 ### How do I bump the submodules for the various releases?
 
-  > Please note that this may be lengthy process, since it involves cloning
-  > and building a release.
+  __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
-  The following example is provided for `cf-release`. The same steps should be
-  followed for other releases as well.
+  The following example is for `cf-release`. You can follow the same steps for other releases.
 
-  1. Locally clone the repo you want to bump
+  1. On the host machine, clone the repository that you want to bump:
 
-  ```bash
-  # IMPORTANT: do this on the HOST
-  git clone src/cf-release/ ./src/cf-release-clone --recursive
-  ```
+    ```
+	bash
+	git clone src/cf-release/ ./src/cf-release-clone --recursive
+    ```
 
-  2. Bump the clone to the version you want
+  2. On the host, bump the clone to the desired version:
 
-  ```bash
-  # IMPORTANT: still on the HOST
-  git checkout v217
-  git submodule update --init --recursive --force
-  ```
+    ```
+	bash
+    git checkout v217
+    git submodule update --init --recursive --force
+    ```
 
-  3. Create a release for the cloned repo
+  3. Create a release for the cloned repository:
 
-  ```bash
-  # IMPORTANT: from this point forward, do everything in the Vagrant box
-  cd ~/hcf
-  ./bin/create-release.sh src/cf-release-clone cf
-  ```
+    __Important:__ From this point on, perform all actions on the Vagrant box.
 
-  4. Run the config diff
+    ```
+	bash
+    cd ~/hcf
+    ./bin/create-release.sh src/cf-release-clone cf
+    ```
 
-  ```bash
-  FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone  
-  ```
+  4. Run the `config-diff` command:
 
-  5. Act on config changes
+    ```
+	bash
+    FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone  
+    ```
 
-  > If you're not sure how to treat a configuration setting, discuss it with the HCF team.
+  5. Act on configuration changes:
 
-  For any configuration changes discovered in step **4**, you can do one of the following:
+    __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
 
-   - Keep the defaults in the new spec
-   - Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`
-   - Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`
+    For any configuration changes discovered in step the previous step, you can do one of the following:
 
-  For any secrets, make sure to define them in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as an environment variable
+      * Keep the defaults in the new specification.
+	  
+      * Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`.
+	  
+      * Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`.
 
-   - If you need any extra default certs, add them here: `~/hcf/bin/dev-certs.env`.
-   - Also make sure to add generation code for the certs here: `~/hcf/bin/generate-dev-certs.sh`
+    Define any secrets in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as environment variables.
 
-  6. Role changes
+      * If you need any extra default certificates, add them here: `~/hcf/bin/dev-certs.env`.
+	  
+      * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
 
-  You must consult the release notes for the new version of the release.
+  6. Evaluate role changes:
 
-  If there are any role changes, please discuss them with the HCF team,
-  then follow steps **3** and **4** from [here](#how-do-i-add-a-new-bosh-release-to-hcf).
+    a. Consult the release notes of the new version of the release.
+	
+	b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
-  7. Bump real submodule
+  7. Bump the real submodule:
 
-  At this point you can bump the 'real' submodule and start testing.
+    a. Bump the real submodule and begin testing.
 
-  The clone you used for the release can be removed.
+    b. Remove the clone you used for the release.
 
-  8. Test, test and test
-    - `make <RELEASE_NAME>-release compile images run`
-    - repeat
+  8. Test the release by running the `make <release-name>-release compile images run` command.
 
-### Can I suspend/resume my vagrant VM?
 
-  Yes, to get it back up you have to `vagrant reload` and
-  and then `make run` inside to bring everything back up.
+### Can I suspend or resume my vagrant VM?
 
-### What if I'm coding for an upstream PR?
+  1. Run the `vagrant reload` command.
+  
+  2. Run the `make run` command.
 
-  There are a couple of scenarios:
-  1. If our submodules are close to the HEAD of upstream,
-  so there are no merge conflicts that you have to deal with.
 
-  > In this case, you can use the steps described [here](#if-im-working-on-component-x-how-does-my-dev-cycle-look-like)
-  > to do your development.
+### How do I develop an upstream PR?
 
-  2. If there are merge conflicts, or the component is referenced as a submodule,
-  and it's not compatible with the parent release.
+  * If our submodules are close to the `HEAD` of upstream and no merge conflicts occur, follow [the steps described here](#if-im-working-on-component-x-how-does-my-dev-cycle-look-like).
 
-  > We don't have a good story for this at the moment, since it assumes there are
-  > unresolved incompatibilities. These cases will have to be resolved on an ad-hoc
-  > basis.
+  * If merge conflicts occur, or if the component is referenced as a submodule, and it is not compatible with the parent release, work with the HCF team to resolve the issue on a case-by-case basis.
+
 
 ### What is the difference between a BOSH role and a Docker role?
 
-  `bosh` and `bosh-task` roles are generated by `fissile` using BOSH releases.
-  `docker` roles are created using normal Dockerfiles.
+  * `fissile` generates `bosh` and `bosh-task` roles using BOSH releases while regular `Dockerfiles` create `docker` roles.
 
-  Both types of roles can be included in the role manifest, using the same run
-  information.
+  * You can include both types of role in the role manifest, using the same run information.
+
 
 ### How can I add a Docker role to HCF?
 
   1. Name your new role.
-  2. Create a directory in `./docker-images` with the name of your role
-  3. Write a `Dockerfile` in the new directory
-  4. Add your role in `role-manifest.yml`
-  5. Test: `make docker-images run`
-
-## How do I publish the HCF and bosh images
-
-Assuming that the vagrant box for CF is running simply log into it with ssh and then run
-
-```
-make tag publish
-```
-
-This tags the images into the chosen registry and then pushes them to the same.
-
-This target uses the make variables listed below to construct the image names and tags.
-
-|Variable	|Meaning|Default|
-| ---		| ---	| ---	|
-|IMAGE_REGISTRY	| Name of trusted registry to publish to. __Including trailing slash__	| _empty_|
-|IMAGE_PREFIX	| Prefix to use for image names. Must not be empty	|hcf|
-|IMAGE_ORG	| Organization in the registry for the images		|helioncf|
-|BRANCH		| Tag to use for the images | _Current git branch_ |
-
-To publish to the standard trusted registry for example run the command
-
-```
-make tag publish IMAGE_REGISTRY=docker.helion.lol/
-```
-
-## Generating UCP service definitions
-
-Assuming that the vagrant box for CF is running simply log into it with ssh and then run
-
-```
-make ucp
-```
-
-This generates the `hcf-ucp.json` file containing the UCP service
-definition for the current set of roles.
-
-__Note__, this target takes the same make variables as the __tag__ and
-__publish__ targets explained in the previous section.
-
-### Working with UCP
-
-1. You'll need a Docker registry. You can run a local one using:
-
-	```bash
-	make registry
-	```
-
-	After the registry is up and running, you can run the following to tag and
-	publish:
-
-	```bash
-	make tag IMAGE_REGISTRY=localhost:5000
-	make publish IMAGE_REGISTRY=localhost:5000
-	```
-
-1. Register the service definition on UCP
-
-	> IMPORTANT: pick an IP address on your host that you'll use as for your API endpoint
-	> use that IP address for the `PUBLIC_IP` and `DOMAIN` settings in `./bin/dev-settings.env`
-
-	From the HCF Vagrant box, run:
-
-	```bash
-	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp.json http://192.168.200.3:30000/v1/services
-	```
-
-	Create a service instance json that looks like this in `/home/vagrant/hcf/hcf-ucp-instance.json`
-
-	```json
-	{
-	    "name": "hcf",
-	    "version": "0.0.0",
-	    "vendor": "HPE",
-	    "labels": ["my-hcf-cluster"],
-	    "instance_id": "my-hcf-cluster",
-	    "description": "HCF test cluster"
-	}
-	```
-
-	Run the following:
-
-	```bash
-	curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-ucp-instance.json http://192.168.200.3:30000/v1/instances
-	```
-
-	Follow the documentation in UCP to forward ports from your hosts interface to
-	the HCF instance that will be created.
-
-1. Using `hcf-status` on UCP
-
-	In the UCP Dev Harness directory that contains the Vagrantfile, run the
-	`install-hcf-status-on-ucp.sh` script. This will install prerequisites and
-	copy the necessary scripts on the node VM.
-
-	Then, you can run the following:
-
-	```bash
-	vagrant ssh node
-	# Then, inside the VM
-	sudo ~/hcf/opt/hcf/bin/hcf-status
-	```
-
-## Generating Terraform MPC service definitions
-
-Assuming that the vagrant box for CF is running simply log into it with ssh and then run
-
-```
-make mpc
-```
-
-This generates the `hcf.tf` file containing the Terraform definitions
-for an MPC-based single-node u-cloud.
-
-__Note__, this target takes the same make variables as the __tag__ and
-__publish__ targets explained in the twice-previous section.
+  
+  2. Create a directory named after your role in `./docker-images`.
+  
+  3. Create a `Dockerfile` in the new directory.
+  
+  4. Add your role to `role-manifest.yml`
+  
+  5. Test using the `make docker-images run` command.
 
 
-## Build dependencies
+## How do I publish HCF and BOSH images?
+
+  1. Ensure that the Vagrant box is running.
+  
+  2. `ssh` into the Vagrant box.
+  
+  3. To tag the images into the selected registry and to push them, run the `make tag publish` command.
+
+  4. This target uses the `make` variables listed below to construct the image names and tags:
+
+    |Variable	|Meaning|Default|
+    | ---		| ---	| ---	|
+    |IMAGE_REGISTRY	| The name of the trusted registry to publish to (include a trailing slash)	| _empty_|
+    |IMAGE_PREFIX	| The prefix to use for image names (must not be empty) |hcf|
+    |IMAGE_ORG	| The organization in the image registry |helioncf|
+    |BRANCH		| The tag to use for the images | _Current git branch_ |
+
+  5. To publish to the standard trusted registry run the `make tag publish` command, for example:
+
+    ```
+    make tag publish IMAGE_REGISTRY=docker.helion.lol/
+    ```
+
+
+## How do I generate UCP service definitions?
+
+  1. Ensure that the Vagrant box is running.
+
+  2. `ssh` into the Vagrant box.
+  
+  3. To generate the `hcf-ucp.json` file that contains the UCP service definition for the current set of roles, run the `make ucp` command.
+
+    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
+
+
+## How do I generate Terraform MPC service definitions?
+
+  1. Ensure that the Vagrant box is running.
+  
+  2. `ssh` into the Vagrant box.
+
+  3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
+
+    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
+
+
+## Build Dependencies
 
 [![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)
