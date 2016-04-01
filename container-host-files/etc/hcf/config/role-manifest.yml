@@ -612,6 +612,11 @@ roles:
         source: 8080
         target: 8080
         public: false
+      - name: 'loggregator-ws'
+        protocol: 'TCP'
+        source: 8081
+        target: 8081
+        public: false
 - name: diego-brain
   jobs:
   - name: consul_agent
@@ -1005,6 +1010,7 @@ configuration:
     secret: true
   - name: DNS_SUFFIX
     default: ""
+    required: false
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
   - name: DOPPLER_ZONE
@@ -1037,7 +1043,7 @@ configuration:
     default: z1
   - name: TRUSTED_CERTS
     secret: true
-    default: ""
+    required: false
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
   - name: UAA_BATCH_PASSWORD
