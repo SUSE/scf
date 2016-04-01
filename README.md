@@ -5,6 +5,7 @@ This is the repository that integrates all HCF components.
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Helion Cloud Foundry](#helion-cloud-foundry)
+	- [Get the code](#get-the-code)
 	- [Using port 80 on your host without root](#using-port-80-on-your-host-without-root)
 	- [Development on Ubuntu with VirtualBox](#development-on-ubuntu-with-virtualbox)
 	- [Development on OSX with VMWare Fusion](#development-on-osx-with-vmware-fusion)
@@ -40,6 +41,14 @@ This is the repository that integrates all HCF components.
 	- [Build dependencies](#build-dependencies)
 
 <!-- /TOC -->
+
+## Get the code
+
+```
+git clone git@github.com:hpcloud/hcf.git
+cd hcf
+git submodule update --init --recursive
+```
 
 ## Using port 80 on your host without root
 
