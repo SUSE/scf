@@ -294,6 +294,8 @@ class ToUCP < Common
     vexample = (var['example'] || var['default']).to_s
     vexample = 'unknown' if vexample == ''
 
+    # secrets currently need to be lowercase and can only use dashes, not underscores
+    # This should be handled by UCP instead: https://jira.hpcloud.net/browse/CAPS-184
     vname.downcase!.gsub!('_', '-') if vsecret
 
     param = {
