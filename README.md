@@ -10,7 +10,7 @@ This repository integrates all HCF components.
 
 2. Run the following commands:
 
-  ```
+  ```bash
   sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
   sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   ```
@@ -22,7 +22,7 @@ This repository integrates all HCF components.
 
 2. Install the `vagrant-reload` plugin:
 
-  ```
+  ```bash
   vagrant plugin install vagrant-reload
   ```
 
@@ -39,7 +39,7 @@ This repository integrates all HCF components.
   
 4. Bring the VM online and `ssh` into it:
 
-  ```
+  ```bash
   vagrant up --provider virtualbox  
   vagrant ssh
   ```
@@ -59,16 +59,14 @@ This repository integrates all HCF components.
 
 2. Install the `vagrant-reload` plugin and the Vagrant Fusion provider:
 
-  ```
-  bash
+  ```bash
   vagrant plugin install vagrant-reload
   vagrant plugin install vagrant-vmware-fusion
   ```
 
 3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
   
-  ```
-  bash
+  ```bash
   vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
   ```
 
@@ -76,8 +74,7 @@ This repository integrates all HCF components.
 
   __Important:__ Ensure you do not have uncommited changes in any submodules.
 
-  ```
-  bash
+  ```bash
   vagrant up --provider vmware_fusion
   vagrant ssh
   ```
@@ -93,22 +90,19 @@ This repository integrates all HCF components.
 
 1. Install Vagrant (version `1.7.4` and higher) and the `libvirt` dependencies and allow non-`root` access to `libvirt`:
 
-  ```
-  bash
+  ```bash
   sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
   ```
 
 2. Allow non-`root` access to `libvirt`:
 
-  ```
-  bash
+  ```bash
   sudo usermod -G libvirtd -a <username>
   ```
 
 3. Log out, log in, and then install the `libvirt` and `vagrant-reload` plugins:
 
-  ```
-  bash
+  ```bash
   vagrant plugin install vagrant-libvirt
   vagrant plugin install vagrant-reload
   ```
@@ -117,8 +111,7 @@ This repository integrates all HCF components.
 
   __Important:__ The VM may not come online during your first attempt.
 
-  ```
-  bash
+  ```bash
   vagrant up --provider libvirt
   vagrant ssh
   ```
@@ -134,8 +127,7 @@ This repository integrates all HCF components.
 
 1. Install Vagrant (version `1.7.4` and higher) and enable NFS over UDP:
 
-  ```
-  bash
+  ```bash
   sudo firewall-cmd --zone FedoraWorkstation --change-interface vboxnet0
   sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service nfs
   sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service rpc-bind
@@ -148,8 +140,7 @@ This repository integrates all HCF components.
 
 2. Install `libvirt` dependencies, allow non-`root` access to `libvirt`, and create a group for the `libvirt` user:
 
-  ```
-  bash
+  ```bash
   sudo dnf install libvirt-daemon-kvm libvirt-devel
   sudo usermod -G libvirt -a <username>
   newgrp libvirt
@@ -157,8 +148,7 @@ This repository integrates all HCF components.
 
 3. Install `fog-libvirt` 0.0.3 and the `libvirt` and `vagrant-reload` plugins:
 
-  ```
-  bash
+  ```bash
   # Workaround for https://github.com/fog/fog-libvirt/issues/16
   vagrant plugin install --plugin-version 0.0.3 fog-libvirt
   vagrant plugin install vagrant-libvirt
@@ -176,8 +166,7 @@ This repository integrates all HCF components.
 
   __Important:__ The VM may not come online during your first attempt.
 
-  ```
-  bash
+  ```bash
   vagrant up --provider libvirt
   ```
 
@@ -194,8 +183,7 @@ __Important:__ Working on a Windows host is more complicated because of heavy us
 
 1. Ensure that line endings are handled correctly.
 
-  ```
-  bash
+  ```bash
   git config --global core.autocrlf input
   ```
 
@@ -205,8 +193,7 @@ __Important:__ Working on a Windows host is more complicated because of heavy us
 
 3. `ssh` into the vagrant box, configure symlinks and initialize submodules:
 
-  ```
-  bash
+  ```bash
   vagrant ssh
   cd ~/hcf
   git config --global core.symlinks true
@@ -283,8 +270,7 @@ Name		| Effect | Notes |
 
   On the Vagrant box, run the following commands:
   
-    ```
-	bash
+    ```bash
     cd ~/hcf
     
 	# (There is no need for a graceful stop.)
@@ -301,8 +287,7 @@ Name		| Effect | Notes |
 
   On the Vagrant box, run the following commands:
   
-    ```
-	bash
+    ```bash
     cd ~/hcf
   
     # Stop gracefully.
@@ -319,8 +304,7 @@ Name		| Effect | Notes |
 
   On the Vagrant box, run the following commands:
   
-    ```
-	bash
+    ```bash
     cd ~/hcf
     
 	# Stop gracefully.
@@ -421,8 +405,7 @@ Name		| Effect | Notes |
   
   5. Rebuild the role images that need this new setting:
 
-    ```
-	bash
+    ```bash
     docker stop <role>
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
@@ -430,8 +413,7 @@ Name		| Effect | Notes |
 	
 	__Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
 
-      ```
-	  bash
+      ```bash
       make stop
       docker rmi -f $(fissile dev lr)
       make images run
@@ -445,15 +427,13 @@ Name		| Effect | Notes |
 
   1. On the host machine, clone the repository that you want to bump:
 
-    ```
-	bash
+    ```bash
 	git clone src/cf-release/ ./src/cf-release-clone --recursive
     ```
 
   2. On the host, bump the clone to the desired version:
 
-    ```
-	bash
+    ```bash
     git checkout v217
     git submodule update --init --recursive --force
     ```
@@ -462,16 +442,14 @@ Name		| Effect | Notes |
 
     __Important:__ From this point on, perform all actions on the Vagrant box.
 
-    ```
-	bash
+    ```bash
     cd ~/hcf
     ./bin/create-release.sh src/cf-release-clone cf
     ```
 
   4. Run the `config-diff` command:
 
-    ```
-	bash
+    ```bash
     FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone  
     ```
 
@@ -561,7 +539,7 @@ Name		| Effect | Notes |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
 
-    ```
+    ```bash
     make tag publish IMAGE_REGISTRY=docker.helion.lol/
     ```
 
