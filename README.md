@@ -4,7 +4,7 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
-__Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox][].
+__Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
 
 ## To Use Port 80 on Your Host Without `root` Privileges
 
