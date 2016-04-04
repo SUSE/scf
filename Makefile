@@ -155,8 +155,7 @@ endif
 images: bosh-images docker-images
 
 image-base:
-	$(call print_status, Creating BOSH role base image)
-	fissile images create-base --base-image ${UBUNTU_IMAGE}
+	${GIT_ROOT}/make/image-base
 
 bosh-images:
 	$(call print_status, Building BOSH role images)
