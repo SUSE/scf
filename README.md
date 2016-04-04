@@ -4,14 +4,14 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
-__Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
+__Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
 
 ## To Use Port 80 on Your Host Without `root` Privileges
 
-  ```bash
-  sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-  sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
-  ```
+```bash
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
+```
 
 ## To Deploy HCF on Ubuntu Using VirtualBox
 
@@ -218,47 +218,47 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
 ### Vagrant VM Targets
 
-Name			| Effect |
+Name      | Effect |
 --------------- | ---- |
-`run`			| Set up HCF on the current node (`bin/run.sh`) |
-`stop`			| Stop HCF on the current node |
-`vagrant-box`	| Build the Vagrant box image using `packer` |
-`vagrant-prep`	| Shortcut for building everything needed for `make run` |
+`run`      | Set up HCF on the current node (`bin/run.sh`) |
+`stop`      | Stop HCF on the current node |
+`vagrant-box`  | Build the Vagrant box image using `packer` |
+`vagrant-prep`  | Shortcut for building everything needed for `make run` |
 
 ### BOSH Release Targets
 
-Name				| Effect |
+Name        | Effect |
 ------------------- | ----  |
-`cf-release`		| `bosh create release` for `cf-release` |
-`usb-release`		| `bosh create release` for `cf-usb-release` |
-`diego-release`		| `bosh create release` for `diego-release` |
-`etcd-release`		| `bosh create release` for `etcd-release` |
-`garden-release`	| `bosh create release` for `garden-linux-release` |
-`releases`			| Make all of the BOSH releases above |
+`cf-release`    | `bosh create release` for `cf-release` |
+`usb-release`    | `bosh create release` for `cf-usb-release` |
+`diego-release`    | `bosh create release` for `diego-release` |
+`etcd-release`    | `bosh create release` for `etcd-release` |
+`garden-release`  | `bosh create release` for `garden-linux-release` |
+`releases`      | Make all of the BOSH releases above |
 
 ### Fissile Build Targets
 
-Name			| Effect | Notes |
+Name      | Effect | Notes |
 --------------- | ---- | --- |
-`build`			| `make` + `make images` |
-`compile-base`	| `fissile compilation build-base` |
-`compile`		| `fissile dev compile` |
-`images`		| `make bosh-images` + `make docker-images` |
-`image-base`	| `fissile images create-base` |
-`bosh-images`	| `fissile dev create-images` |
-`docker-images`	| `docker build` in each dir in `./docker-images` |
-`tag`			| Tag HCF images and bosh role images |
-`publish`		| Publish HCF images and bosh role images to Docker Hub |
-`ucp`		| Generate UCP service definitions |
-`mpc`		| Generate Terraform MPC definitions for a single-node microcloud |
-`terraform`		| Make `hcf-*.tar.gz` for distribution | __outdated__ |
+`build`      | `make` + `make images` |
+`compile-base`  | `fissile compilation build-base` |
+`compile`    | `fissile dev compile` |
+`images`    | `make bosh-images` + `make docker-images` |
+`image-base`  | `fissile images create-base` |
+`bosh-images`  | `fissile dev create-images` |
+`docker-images`  | `docker build` in each dir in `./docker-images` |
+`tag`      | Tag HCF images and bosh role images |
+`publish`    | Publish HCF images and bosh role images to Docker Hub |
+`ucp`    | Generate UCP service definitions |
+`mpc`    | Generate Terraform MPC definitions for a single-node microcloud |
+`terraform`    | Make `hcf-*.tar.gz` for distribution | __outdated__ |
 
 ### Distribution Targets
 
-Name		| Effect | Notes |
+Name    | Effect | Notes |
 --------------- | ---- | --- |
-`dist`		| Generate and package various setups |
-`mpc-dist`	| Generate and package Terraform MPC definitions for a single-node microcloud |
+`dist`    | Generate and package various setups |
+`mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
 
 ## Development FAQ
 
@@ -279,10 +279,10 @@ Name		| Effect | Notes |
     
   # (There is no need for a graceful stop.)
   docker rm -f $(docker ps -a -q)
-	
+  
   # Delete all data.
   sudo rm -rf ~/.run/store
-	
+  
   # Start everything.
   make run
   ```
@@ -326,13 +326,13 @@ Name		| Effect | Notes |
   Try each of the following solutions sequentially:
   
   * Run the `~. && vagrant reload` command.
-	
+  
   * Run `vagrant halt && vagrant reload` command.
 
   * Manually stop the virtual machine and then run the `vagrant reload` command.
-	
+  
   * Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
-	
+  
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
@@ -358,25 +358,25 @@ Name		| Effect | Notes |
   3. Edit the release parameters:
   
     a. Add new roles or change existing ones in `./container-host-files/etc/hcf/config/role-manifest.yml`.
-	
+  
     b. Add exposed environment variables (`yaml path: /configuration/variables`).
-	
+  
     c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
-	
+  
     d. Add defaults for your configuration settings to `~/hcf/bin/dev-settings.env`.
-	
+  
     e. If you need any extra default certificates, add them to `~/hcf/bin/dev-settings.env`.
-	
+  
     f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
-	
+  
   4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`, respectively.
   
   5. Change the `./Makefile` so it builds the new release:
   
     a. Add a new target `<release-name>-release`.
-	
+  
     b. Add the new target as a dependency for `make releases`.
-	
+  
   6. Test the changes.
   
   7. Run the `make <release-name>-release compile images run` command.
@@ -394,13 +394,13 @@ Name		| Effect | Notes |
   1. Edit `./container-host-files/etc/hcf/config/role-manifest.yml`:
   
     a. Add the new exposed environment variables (`yaml path: /configuration/variables`).
-	
+  
     b. Add or change configuration templates:
     
-	   i. `yaml path: /configuration/templates`
-	   
-       ii. `yaml path: /roles/*/configuration/templates`
-	   
+        i. `yaml path: /configuration/templates`
+
+        ii. `yaml path: /roles/*/configuration/templates`
+     
   2. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`.
   
   3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
@@ -414,14 +414,14 @@ Name		| Effect | Notes |
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```
-	
-	__Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
+  
+    __Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
 
-      ```bash
-      make stop
-      docker rmi -f $(fissile dev lr)
-      make images run
-      ```
+    ```bash
+    make stop
+    docker rmi -f $(fissile dev lr)
+    make images run
+    ```
 
 ### How do I bump the submodules for the various releases?
 
@@ -432,7 +432,7 @@ Name		| Effect | Notes |
   1. On the host machine, clone the repository that you want to bump:
 
     ```bash
-	git clone src/cf-release/ ./src/cf-release-clone --recursive
+  git clone src/cf-release/ ./src/cf-release-clone --recursive
     ```
 
   2. On the host, bump the clone to the desired version:
@@ -464,22 +464,22 @@ Name		| Effect | Notes |
     For any configuration changes discovered in step the previous step, you can do one of the following:
 
       * Keep the defaults in the new specification.
-	  
+    
       * Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`.
-	  
+    
       * Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`.
 
     Define any secrets in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as environment variables.
 
       * If you need any extra default certificates, add them here: `~/hcf/bin/dev-certs.env`.
-	  
+    
       * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
 
   6. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
-	
-	b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
+  
+  b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
   7. Bump the real submodule:
 
@@ -534,12 +534,12 @@ Name		| Effect | Notes |
 
   4. This target uses the `make` variables listed below to construct the image names and tags:
 
-    |Variable	|Meaning|Default|
-    | ---		| ---	| ---	|
-    |IMAGE_REGISTRY	| The name of the trusted registry to publish to (include a trailing slash)	| _empty_|
-    |IMAGE_PREFIX	| The prefix to use for image names (must not be empty) |hcf|
-    |IMAGE_ORG	| The organization in the image registry |helioncf|
-    |BRANCH		| The tag to use for the images | _Current git branch_ |
+    |Variable  |Meaning|Default|
+    | ---    | ---  | ---  |
+    |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
+    |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
+    |IMAGE_ORG  | The organization in the image registry |helioncf|
+    |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
 
