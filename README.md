@@ -278,18 +278,18 @@ Name		| Effect | Notes |
 
   On the Vagrant box, run the following commands:
   
-    ```bash
-    cd ~/hcf
+  ```bash
+  cd ~/hcf
     
-    # (There is no need for a graceful stop.)
-    docker rm -f $(docker ps -a -q)
+  # (There is no need for a graceful stop.)
+  docker rm -f $(docker ps -a -q)
 	
-    # Delete all data.
-    sudo rm -rf ~/.run/store
+  # Delete all data.
+  sudo rm -rf ~/.run/store
 	
-    # Start everything.
-    make run
-    ```
+  # Start everything.
+  make run
+  ```
 
 ### How do I clear the logs?
 
