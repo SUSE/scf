@@ -4,6 +4,8 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
+__Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox].
+
 ## To Use Port 80 on Your Host Without `root` Privileges
 
 1. Change the host ports in the `Vagrantfile` from `80` to `8080` and from `443` to `8443`.
@@ -14,7 +16,6 @@ This repository integrates all HCF components.
   sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
   sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   ```
-
 
 ## To Deploy HCF on Ubuntu Using VirtualBox
 
@@ -213,6 +214,8 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 5. On the VM, start HCF using the `make run` command.
 
 6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
+
+  __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
 
 
 ## Makefile targets
