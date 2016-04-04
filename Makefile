@@ -158,8 +158,7 @@ image-base:
 	${GIT_ROOT}/make/image-base
 
 bosh-images:
-	$(call print_status, Building BOSH role images)
-	fissile dev create-images
+	${GIT_ROOT}/make/bosh-images
 
 docker-images:
 	$(call print_status, Building Docker role images)
