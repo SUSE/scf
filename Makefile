@@ -3,7 +3,6 @@
 # Default target specification
 run:
 
-CF_RELEASE ?= $(shell cat cf-release-version)
 UBUNTU_IMAGE ?= ubuntu:14.04
 
 VERSION := $(shell cat VERSION)
