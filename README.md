@@ -44,11 +44,11 @@ This repository integrates all HCF components.
   vagrant ssh
   ```
   
-5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-6. Start HCF using the `make run` command.
+6. On the VM, start HCF using the `make run` command.
 
 
 ## To Deploy HCF on OS X Using VMWare Fusion
@@ -79,11 +79,11 @@ This repository integrates all HCF components.
   vagrant ssh
   ```
 
-5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Only:__ You need to run this command only after initially creating the VM.
 
-6. Start HCF using the `make run` command.
+6. On the VM, start HCF using the `make run` command.
 
 
 ## To Deploy HCF on Ubuntu Using `libvirt`
@@ -116,11 +116,11 @@ This repository integrates all HCF components.
   vagrant ssh
   ```
 
-5. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-6. Start HCF using the `make run` command.
+6. On the VM, start HCF using the `make run` command.
 
 
 ## To Deploy HCF on Fedora using `libvirt`
@@ -168,18 +168,19 @@ This repository integrates all HCF components.
 
   ```bash
   vagrant up --provider libvirt
+  vagrant ssh
   ```
 
-6. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+6. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-7. Start HCF using the `make run` command.
+7. On the VM, start HCF using the `make run` command.
 
 
 ## To Deploy HCF on Windows Using VirtualBox
 
-__Important:__ Working on a Windows host is more complicated because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
+__Important:__ Working on a Windows host is __significantly more complicated__ because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
 
 1. Ensure that line endings are handled correctly.
 
@@ -187,25 +188,29 @@ __Important:__ Working on a Windows host is more complicated because of heavy us
   git config --global core.autocrlf input
   ```
 
-2. Clone the repository.
+2. Clone the repository, bring the VM online, and `ssh` into it:
 
   __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
 
-3. `ssh` into the vagrant box, configure symlinks and initialize submodules:
+  ```bash
+  vagrant up --provider virtualbox
+  vagrant ssh
+  ```
+
+3. Configure symlinks and initialize submodules:
 
   ```bash
-  vagrant ssh
   cd ~/hcf
   git config --global core.symlinks true
   git config core.symlinks true
   git submodule update --init --recursive
   ```
 
-4. Navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-5. Start HCF using the `make run` command.
+5. On the VM, start HCF using the `make run` command.
 
 6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
 
