@@ -88,36 +88,28 @@ registry:
 ########## BOSH RELEASE TARGETS ##########
 
 cf-release:
-	$(call print_status, Creating cf-release BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/cf-release cf
+	${GIT_ROOT}/make/bosh-release src/cf-release
 
 usb-release:
-	$(call print_status, Creating cf-usb BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/cf-usb/cf-usb-release cf-usb
+	${GIT_ROOT}/make/bosh-release src/cf-usb-release
 
 diego-release:
-	$(call print_status, Creating diego BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/diego-release diego
+	${GIT_ROOT}/make/bosh-release src/diego-release
 
 etcd-release:
-	$(call print_status, Creating etcd BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/etcd-release etcd
+	${GIT_ROOT}/make/bosh-release src/etcd-release
 
 garden-release:
-	$(call print_status, Creating garden-linux BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/garden-linux-release garden-linux
+	${GIT_ROOT}/make/bosh-release src/garden-linux-release
 
 mysql-release:
-	$(call print_status, Creating cf-mysql-release BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/cf-mysql-release cf-mysql
+	${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 
 hcf-deployment-hooks:
-	$(call print_status, Creating hcf-deployment-hooks BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/hcf-deployment-hooks hcf-deployment-hooks
+	${GIT_ROOT}/make/bosh-release src/hcf-deployment-hooks
 
 windows-runtime-release:
-	$(call print_status, Creating windows-runtime-release BOSH release ... )
-	${CURDIR}/bin/create-release.sh src/windows-runtime-release windows-runtime-release
+	${GIT_ROOT}/make/bosh-release src/windows-runtime-release
 
 releases: cf-release usb-release diego-release etcd-release garden-release mysql-release hcf-deployment-hooks windows-runtime-release
 
