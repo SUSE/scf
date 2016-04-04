@@ -82,7 +82,7 @@ __Important:__ You can run the Windows Cell Add-On on a variety of systems withi
 
 5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
-  __Only:__ You need to run this command only after initially creating the VM.
+  __Important:__ You need to run this command only after initially creating the VM.
 
 6. On the VM, start HCF using the `make run` command.
 
