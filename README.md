@@ -8,10 +8,6 @@ __Important:__ You can run the Windows Cell Add-On on a variety of systems withi
 
 ## To Use Port 80 on Your Host Without `root` Privileges
 
-1. Change the host ports in the `Vagrantfile` from `80` to `8080` and from `443` to `8443`.
-
-2. Run the following commands:
-
   ```bash
   sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
   sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
@@ -295,35 +291,35 @@ Name		| Effect | Notes |
 
   On the Vagrant box, run the following commands:
   
-    ```bash
-    cd ~/hcf
+  ```bash
+  cd ~/hcf
   
-    # Stop gracefully.
-    make stop
+  # Stop gracefully.
+  make stop
   
-    # Delete all logs.
-    sudo rm -rf ~/.run/log
+  # Delete all logs.
+  sudo rm -rf ~/.run/log
   
-    # Start everything.
-    make run
-    ```
+  # Start everything.
+  make run
+  ```
 
 ### `fissile` refuses to create images that already exist. How do I recreate images? 
 
   On the Vagrant box, run the following commands:
   
-    ```bash
-    cd ~/hcf
+  ```bash
+  cd ~/hcf
     
-	# Stop gracefully.
-    make stop
+  # Stop gracefully.
+  make stop
   
-    # Delete all fissile images.
-    docker rmi $(fissile dev lr)
+  # Delete all fissile images.
+  docker rmi $(fissile dev lr)
   
-    # Re-create the images and then run them.
-    make images run
-    ```
+  # Re-create the images and then run them.
+  make images run
+  ```
 
 ### My vagrant box is frozen. What can I do?
 
