@@ -251,6 +251,7 @@ Name      | Effect | Notes |
 `publish`    | Publish HCF images and bosh role images to Docker Hub |
 `ucp`    | Generate UCP service definitions |
 `mpc`    | Generate Terraform MPC definitions for a single-node microcloud |
+`aws`    | Generate Terraform AWS definitions for a single-node microcloud |
 `terraform`    | Make `hcf-*.tar.gz` for distribution | __outdated__ |
 
 ### Distribution Targets
@@ -259,6 +260,7 @@ Name    | Effect | Notes |
 --------------- | ---- | --- |
 `dist`    | Generate and package various setups |
 `mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
+`aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
 
 ## Development FAQ
 
