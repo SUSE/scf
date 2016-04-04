@@ -864,62 +864,62 @@ roles:
         source: 8600
         target: 53
         public: true
-- name: mongodb-manager
+- name: dev-service-mongodb
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /data/db
-        tag: mongodb-manager-data
+        tag: dev-service-mongodb-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: mysql-manager
+- name: dev-service-mysql
   dev-only: true
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /var/lib/mysql
-        tag: mysql-manager-data
+        tag: dev-service-mysql-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: postgres-manager
+- name: dev-service-postgres
   type: docker
   run:
     capabilities: []
     persistent-volumes:
       - path: /var/lib/postgresql/data
-        tag: postgres-manager-data
+        tag: dev-service-postgres-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: rabbitmq-manager
+- name: dev-service-rabbitmq
   type: docker
   run:
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/rabbitmq-data
-        tag: rabbitmq-manager-data
+        tag: dev-service-rabbitmq-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: redis-manager
+- name: dev-service-redis
   type: docker
   run:
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/redis-data
-        tag: redis-manager-data
+        tag: dev-service-redis-data
         size: 200
     shared-volumes: []
     memory: 1024
@@ -1149,6 +1149,12 @@ configuration:
     secret: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
+  - name: DEVSVC_MONGODB_ADMIN_PASSWORD
+    secret: true
+  - name: DEVSVC_MYSQL_ADMIN_PASSWORD
+    secret: true
+  - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
+    secret: true
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
@@ -1289,6 +1295,9 @@ configuration:
     properties.diego.stager.cc.internal_service_hostname: "((API_HOST))"
     properties.diego.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.diego.stager.cc_uploader_url: "http://((DIEGO_CC_BRIDGE_HOST)):9090"
+    properties.dev_services.mongodb.admin_password: "((DEVSVC_MONGODB_ADMIN_PASSWORD))"
+    properties.dev_services.postgres.admin_password: "((DEVSVC_POSTGRES_ADMIN_PASSWORD))"
+    properties.dev_services.mysql.admin_password: "((DEVSVC_MYSQL_ADMIN_PASSWORD))"
     # TODO: configure this once we have the diego docker cache deployed
     # diego.stager.docker_registry_address: "docker-registry.service.cf.internal:8080"
     properties.diego.tps.bbs.api_location: "((DIEGO_DATABASE_HOST)):8889"

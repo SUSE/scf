@@ -9,3 +9,11 @@ packages:
 
 templates:
   run.erb: bin/run
+
+properties:
+  dev_services.mongodb.admin_password:
+    description: MongoDB admin password
+  dev_services.postgres.admin_password:
+    description: Postgres admin password
+  dev_services.mysql.admin_password:
+    description: Mysql root password
