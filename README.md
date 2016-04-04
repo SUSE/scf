@@ -325,13 +325,13 @@ Name		| Effect | Notes |
 
   Try each of the following solutions sequentially:
   
-    * Run the `~. && vagrant reload` command.
+  * Run the `~. && vagrant reload` command.
 	
-	* Run `vagrant halt && vagrant reload` command.
+  * Run `vagrant halt && vagrant reload` command.
 
-	* Manually stop the virtual machine and then run the `vagrant reload` command.
+  * Manually stop the virtual machine and then run the `vagrant reload` command.
 	
-	* Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
+  * Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
 	
 
 ### Can I target the cluster from the host using the `cf` CLI?
