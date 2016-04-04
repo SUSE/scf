@@ -53,7 +53,7 @@ function status_job_bosh() {
 
   processes=( $(list_processes_for_role ${role}) )
   # We only check the first container for monit and processes
-  local monit_data=$(docker exec ${containers[0]} bash -c 'curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
+  local monit_data=$(docker exec ${containers[0]} bash -c 'if [ -f /etc/secrets/monit-password ]; then MONIT_PASSWORD=`cat /etc/secrets/monit-password`; fi; curl -s -u ${MONIT_USER}:${MONIT_PASSWORD} http://127.0.0.1:${MONIT_PORT}/_status' || true)
   if [[ -z "${monit_data}" ]]; then
     # monit is down
     if [[ -n "${SILENT}" ]]; then

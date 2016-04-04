@@ -289,23 +289,23 @@ class ToUCP < Common
 
   def convert_parameter(var)
     vname    = var['name']
-    vdefault = var['default'].to_s
-    # XXX Workaround; to be removed when https://jira.hpcloud.net/browse/CAPS-171 is fixed
-    vdefault = ' ' if vdefault == ''
     vrequired = var.has_key?("required") ? var['required'] : true
     vsecret  = var.has_key?("secret") ? var['secret'] : false
     vexample = (var['example'] || var['default']).to_s
     vexample = 'unknown' if vexample == ''
 
+    # secrets currently need to be lowercase and can only use dashes, not underscores
+    # This should be handled by UCP instead: https://jira.hpcloud.net/browse/CAPS-184
+    vname.downcase!.gsub!('_', '-') if vsecret
+
     param = {
       'name'        => vname,
       'description' => 'placeholder',
-      'default'     => vdefault,
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret
     }
-    param['default'] = vdefault unless vdefault == ''
+    param['default'] = var['default'].to_s unless var['default'].nil?
     param
   end
 
