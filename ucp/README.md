@@ -12,7 +12,7 @@ Each heading below includes the shell id (#x) at the end.
 
 ## Start up the HCF vagrant box (#1) ##
 
-You need a running HCF vagrant box with all images being compiled already:
+You need a running HCF vagrant box with all images already compiled:
 
 ```bash
 cd hcf
@@ -119,7 +119,7 @@ an instance of the newly registered service:
 Remember the `instance_id`, here `my-hcf-cluster`, which is the name to use when
 talking to UCP about it.
 
-To instanciate the service, post the instance definition to UCP:
+To instantiate the service, post the instance definition to UCP:
 
 ```bash
 curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/ucp/hcf-ucp-instance.json http://192.168.200.3:30000/v1/instances
@@ -127,7 +127,7 @@ curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/ucp/hcf-uc
 
 ### Follow the Kubernetes log (#2) ###
 
-Once the instance defition has been posted there should be plenty of actiivity
+Once the instance definition has been posted there should be plenty of activity
 on the log.
 
 Alternatively, for just a list of events for this new instance, you can run:
