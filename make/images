@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/registry
+. ${GIT_ROOT}/make/include/versioning
+
+APP_VERSION=$(echo ${APP_VERSION} | tr + _)
+
+TARGET=${1}
+ACTION=${2}
+
+case ${TARGET} in
+    docker)
+        ROLES=$(${GIT_ROOT}/container-host-files/opt/hcf/bin/list-docker-roles.sh)
+        PREFIX=''
+        ;;
+    bosh)
+        ROLES=$(fissile dev list-roles | awk -F : '{ print $1 }' | sed 's/^fissile-//')
+        PREFIX='fissile-'
+        ;;
+esac
+
+for ROLE in ${ROLES}; do
+    case ${ACTION} in
+        build)
+            cd ${GIT_ROOT}/docker-images/${ROLE}
+            docker build --tag ${ROLE} .
+            ;;
+        tag)
+            case ${TARGET} in
+                bosh)
+                    TAG=$(fissile dev list-roles | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
+                    docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
+                    docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+                ;;
+                *)
+                    docker tag ${PREFIX}${ROLE} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
+                    docker tag ${PREFIX}${ROLE} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+                ;;
+            esac
+            ;;
+        push)
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+            ;;
+    esac
+done
