@@ -223,47 +223,17 @@ show-docker-setup:
 
 generate: ucp mpc aws
 
-DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
-# Note, _not_ IMAGE_REGISTRY_MAKE. The rm-transformer script adds a trailing "/" itself, where needed
-
 ucp:
-	$(call print_status, Generate Helion UCP configuration)
-	@docker run --rm \
-	  -v ${CURDIR}:${CURDIR} \
-	  helioncf/hcf-pipeline-ruby-bosh \
-	  bash -l -c \
-	  "rbenv global 2.2.3 && ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider ucp ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-ucp.json" ; \
-	echo Generated ${CURDIR}/hcf-ucp.json
+	${GIT_ROOT}/make/generate ucp
 
 mpc:
-	$(call print_status, Generate MPC terraform configuration)
-	cp terraform/mpc.tf ${CURDIR}
-	@docker run --rm \
-	  -v ${CURDIR}:${CURDIR} \
-	  helioncf/hcf-pipeline-ruby-bosh \
-	  bash -l -c \
-	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:mpc ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf.tf.json" ; \
-	echo Generated ${CURDIR}/hcf.tf.json
+	${GIT_ROOT}/make/generate mpc
 
 aws:
-	$(call print_status, Generate AWS terraform configuration)
-	cp terraform/aws.tf ${CURDIR}
-	@docker run --rm \
-	  -v ${CURDIR}:${CURDIR} \
-	  helioncf/hcf-pipeline-ruby-bosh \
-	  bash -l -c \
-	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws.tf.json" ; \
-	echo Generated ${CURDIR}/hcf-aws.tf.json
+	${GIT_ROOT}/make/generate aws
 
 aws-proxy:
-	$(call print_status, Generate AWS terraform configuration with proxy)
-	cp terraform/aws-proxy.tf ${CURDIR}
-	@docker run --rm \
-	  -v ${CURDIR}:${CURDIR} \
-	  helioncf/hcf-pipeline-ruby-bosh \
-	  bash -l -c \
-	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws:proxy ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws-proxy.tf.json" ; \
-	echo Generated ${CURDIR}/hcf-aws-proxy.tf.json
+	${GIT_ROOT}/make/generate aws-proxy
 
 ########## DISTRIBUTION TARGETS ##########
 
