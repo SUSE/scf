@@ -560,6 +560,7 @@ Name    | Effect | Notes |
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
+  You can also read a step by step tutorial of running [HCF on UCP](ucp/README.md) using Vagrant.
 
 ## How do I generate Terraform MPC service definitions?
 
