@@ -75,6 +75,8 @@ class ToTerraform < Common
       name = config['name']
       next if special?(name)
       value = config['default']
+      # Ignore optional values without a default.
+      next if value.nil? && !config['required']
       emit_variable(name, value: value)
     end
     puts 'PUBLIC_IP is missing from input role-manifest' unless @have_public_ip
@@ -142,6 +144,8 @@ class ToTerraform < Common
   def emit_settings(manifest)
     rm_configuration = ''
     manifest['configuration']['variables'].each do |config|
+      # Ignore optional values without a default.
+      next if config['default'].nil? && !config['required']
       rm_configuration += make_assignment_for(config['name'])
     end
 
