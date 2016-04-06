@@ -132,6 +132,7 @@ roles:
   - name: proxy
     release_name: cf-mysql
   processes:
+  - name: route-registrar
   - name: switchboard
   run:
     capabilities: []
@@ -357,10 +358,13 @@ roles:
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
+  - name: cloud_controller_worker_local_2
   - name: cloud_controller_migration
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
+  - name: nginx_cc
+  - name: statsd-injector
   run:
     capabilities: []
     persistent-volumes: []
@@ -511,6 +515,7 @@ roles:
     release_name: cf
   processes:
   - name: doppler
+  - name: metron_agent
   - name: route_registrar
   - name: syslog_drain_binder
   configuration:
@@ -596,6 +601,7 @@ roles:
     release_name: cf
   processes:
   - name: loggregator_trafficcontroller
+  - name: metron_agent
   - name: route_registrar
   configuration:
     templates:
@@ -661,7 +667,9 @@ roles:
   - name: metron_agent
     release_name: cf
   processes:
+  - name: cc_uploader
   - name: stager
+  - name: tps_listener
   - name: tps_watcher
   - name: nsync_listener
   - name: nsync_bulker
