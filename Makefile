@@ -161,7 +161,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 			echo pack $${i} ; \
 			tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
 		done ; \
-		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 --ignore-existing "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
 	} >"${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 endif
 
