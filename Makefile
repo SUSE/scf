@@ -120,37 +120,10 @@ compile-base:
 
 # This is run from the Vagrantfile to copy in the existing compilation cache
 copy-compile-cache:
-	$(call print_status, Copying compilation cache)
-	mkdir -p "${FISSILE_WORK_DIR}/compilation/"
-ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
-	mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
-	# rsync takes the first match; need to explicitly include parent directories in order to include the children.
-	rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
-	for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled.tar ; do \
-		[ -e $${i} ] || continue ; \
-		i=$$(dirname $${i}) ; \
-		echo unpack $${i} ; \
-		rm -rf $${i}/compiled ; \
-		tar xf $${i}/compiled.tar -C "$${i}" ; \
-	done ; true
-endif
+	${GIT_ROOT}/make/compile restore
 
 compile:
-	$(call print_status, Compiling BOSH release packages)
-	@echo Please allow a long time for mariadb to compile
-	fissile dev compile
-ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
-	# rsync takes the first match; need to explicitly include parent directories in order to include the children.
-	{ \
-		set -e ; \
-		for i in ${FISSILE_WORK_DIR}/compilation/*/*/compiled ; do \
-			i=$$(dirname $${i}) ; \
-			echo pack $${i} ; \
-			tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
-		done ; \
-		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 --ignore-existing "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
-	} >"${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
-endif
+	${GIT_ROOT}/make/compile
 
 images: bosh-images docker-images
 
