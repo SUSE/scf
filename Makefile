@@ -182,11 +182,7 @@ docker-publish:
 	${GIT_ROOT}/make/images docker publish
 
 show-docker-setup:
-	@echo "docker registry = '${IMAGE_REGISTRY}'"
-	@echo "       for make = '${IMAGE_REGISTRY_MAKE}'"
-	@echo "docker org      = '${IMAGE_ORG}'"
-	@echo "hcf version     = '${BRANCH}'"
-	@echo "hcf prefix      = '${IMAGE_PREFIX}'"
+	${GIT_ROOT}/make/show-docker-setup
 
 ########## CONFIGURATION TARGETS ##########
 
