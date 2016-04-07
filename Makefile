@@ -7,48 +7,7 @@ run:
 
 .PHONY: docker-images mpc mpc-dist aws aws-dist
 
-UBUNTU_IMAGE ?= ubuntu:14.04
-
-VERSION := $(shell cat VERSION)
-VERSION_OFFSET := $(shell git describe --tags --long | sed -r 's/[0-9.]+-([0-9]+)-(g[a-f0-9]+)/\1.\2/')
-BRANCH := $(shell (git describe --all --exact-match HEAD 2>/dev/null || echo HEAD) | sed 's@.*/@@')
-APP_VERSION := ${VERSION}+${VERSION_OFFSET}.${BRANCH}
-APP_VERSION_TAG := $(subst +,_,${APP_VERSION})
-
-# CI configuration. Empty strings not allowed, except for the registry.
-IMAGE_PREFIX   := hcf
-IMAGE_ORG      := helioncf
-IMAGE_REGISTRY := docker.helion.lol
-
-# Where to find the secrets. By default (empty string) no secrets.
-ENV_DIR        :=
-
-# Note: When used the registry must not have a trailing "/". That is
-# added automatically, see IMAGE_REGISTRY_MAKE for the make variable.
-# Examples:
-# - localhost:5000
-# - docker.helion.lol
-
-# NOTE 2: When ENV_DIR is used we automatically add the --env
-# option. See ENV_DIR_MAKE below.
-
-# Redefine the CI configuration variables, validation
-IMAGE_ORG           := $(if ${IMAGE_ORG},${IMAGE_ORG},$(error Need a non-empty IMAGE_ORG))
-IMAGE_PREFIX        := $(if ${IMAGE_PREFIX},${IMAGE_PREFIX},$(error Need a non-empty IMAGE_PREFIX))
-IMAGE_REGISTRY_MAKE := $(if ${IMAGE_REGISTRY},"${IMAGE_REGISTRY}/",${IMAGE_REGISTRY})
-ENV_DIR_MAKE        := $(if ${ENV_DIR},--env "${ENV_DIR}",)
-
-# The variables are defaults; see bin/.fissilerc for defaults for the vagrant box
-export FISSILE_RELEASE ?= ${CURDIR}/src/cf-release,${CURDIR}/src/cf-usb/cf-usb-release,${CURDIR}/src/diego-release,${CURDIR}/src/etcd-release,${CURDIR}/src/garden-linux-release,${CURDIR}/src/cf-mysql-release,${CURDIR}/src/hcf-deployment-hooks,${CURDIR}/src/windows-runtime-release
-export FISSILE_ROLES_MANIFEST ?= ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml
-export FISSILE_LIGHT_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/opinions.yml
-export FISSILE_DARK_OPINIONS ?= ${CURDIR}/container-host-files/etc/hcf/config/dark-opinions.yml
-export FISSILE_DEV_CACHE_DIR ?= ${HOME}/.bosh/cache
-export FISSILE_WORK_DIR ?= ${CURDIR}/_work
-
 ########## UTILITY TARGETS ##########
-
-print_status = @printf "\033[32;01m==> ${1}\033[0m\n"
 
 clean:
 	${GIT_ROOT}/make/clean
