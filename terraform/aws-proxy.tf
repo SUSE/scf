@@ -15,8 +15,7 @@ output "floating_domain" {
 
 # # ## ###
 ## API into the generated declarations.
-## - Definition of PUBLIC_IP (special variable)
-## - Definition of DOMAIN (special variable)
+## - Definition of PUBLIC_IP, DOMAIN, *_PROXY, *_proxy (special variables)
 ## - Filesystem paths, local and remote
 
 resource "null_resource" "PUBLIC_IP" {
@@ -291,6 +290,7 @@ resource "aws_instance" "proxy" {
     }
 
     provisioner "local-exec" {
+        # Wait for the proxy to come up without spamming the terminal with connection attempts
         command = "for i in `seq 10`; do nc ${aws_instance.proxy.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
     }
 
@@ -310,14 +310,7 @@ resource "aws_instance" "proxy" {
     }
 
     provisioner "remote-exec" {
-        inline = [
-            "set -e",
-            "sudo apt-get update",
-            "sudo apt-get install -qy squid3",
-            "sudo service squid3 stop || true",
-            "sudo cp /tmp/proxy.conf /etc/squid3/squid.conf",
-            "sudo service squid3 start"
-        ]
+        script = "${path.module}/terraform/proxy-setup.sh"
     }
 }
 
@@ -403,6 +396,12 @@ resource "aws_instance" "core" {
     provisioner "remote-exec" {
         inline = [
             "echo 127.0.0.1 ip-$(echo ${self.private_ip} | tr . -) | sudo tee -a /etc/hosts",
+            # The fix above prevents sudo from moaning about its inability to resolve the hostname.
+            # We see it of course moaning once, in the sudo above. Afterward it should not anymore.
+            # Terraform, or the image it uses apparently sets the chosen name (based on the private ip)
+            # only into /etc/hostname. The mismatch with /etc/hosts then causes the messages.
+            # Ref: http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none
+
             # Fix sudo reading /etc/environment; see https://bugs.launchpad.net/ubuntu/+source/sudo/+bug/1301557
             "sudo perl -p -i -e 's@^auth(.*pam_env.so)@session$${1}@' /etc/pam.d/sudo"
         ]
@@ -427,12 +426,6 @@ resource "aws_instance" "core" {
     provisioner "remote-exec" {
         inline = [
             "set -e",
-            # The fix above prevents sudo from moaning about its inability to resolve the hostname.
-            # We see it of course moaning once, in the sudo above. Afterward it should not anymore.
-            # Terraform, or the image it uses apparently sets the chosen name (based on the private ip)
-            # only into /etc/hostname. The mismatch with /etc/hosts then causes the messages.
-            # Ref: http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none
-
             "sudo chmod -R ug+x ${var.fs_host_root}/opt/hcf/bin/*",
 
             # Format and mount the /data volume

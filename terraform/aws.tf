@@ -306,6 +306,12 @@ resource "aws_instance" "core" {
     provisioner "remote-exec" {
         inline = [
             "echo 127.0.0.1 ip-$(echo ${self.private_ip} | tr . -) | sudo tee -a /etc/hosts",
+            # The fix above prevents sudo from moaning about its inability to resolve the hostname.
+            # We see it of course moaning once, in the sudo above. Afterward it should not anymore.
+            # Terraform, or the image it uses apparently sets the chosen name (based on the private ip)
+            # only into /etc/hostname. The mismatch with /etc/hosts then causes the messages.
+            # Ref: http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none
+
             # Fix sudo reading /etc/environment; see https://bugs.launchpad.net/ubuntu/+source/sudo/+bug/1301557
             "sudo perl -p -i -e 's@^auth(.*pam_env.so)@session$${1}@' /etc/pam.d/sudo"
         ]
@@ -316,12 +322,6 @@ resource "aws_instance" "core" {
     provisioner "remote-exec" {
         inline = [
             "set -e",
-            # The fix above prevents sudo from moaning about its inability to resolve the hostname.
-            # We see it of course moaning once, in the sudo above. Afterward it should not anymore.
-            # Terraform, or the image it uses apparently sets the chosen name (based on the private ip)
-            # only into /etc/hostname. The mismatch with /etc/hosts then causes the messages.
-            # Ref: http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none
-
             "sudo chmod -R ug+x ${var.fs_host_root}/opt/hcf/bin/*",
 
             # Format and mount the /data volume
