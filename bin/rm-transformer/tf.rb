@@ -9,8 +9,7 @@ require 'json'
 class ToTerraform < Common
   def initialize(options)
     super(options)
-    @have_public_ip = false
-    @have_domain = false
+    @have_specials = []
     @out = {}
   end
 
@@ -73,28 +72,28 @@ class ToTerraform < Common
   def emit_configuration(manifest)
     manifest['configuration']['variables'].each do |config|
       name = config['name']
-      next if special?(name)
+      if special_variables.include?(name)
+        @have_specials << name
+        next
+      end
       value = config['default']
       # Ignore optional values without a default.
       next if value.nil? && !config['required']
       emit_variable(name, value: value)
     end
-    puts 'PUBLIC_IP is missing from input role-manifest' unless @have_public_ip
-    puts 'DOMAIN is missing from input role-manifest' unless @have_domain
+    missing = special_variables.sort - @have_specials.sort
+    missing.each do |var_name|
+      STDERR.puts "#{var_name} is missing from input role-manifest"
+    end
   end
 
-  def special?(name)
+  def special_variables
     # Special case two RM variables (null_resource). We skip them
     # and expect an external file to provide a null_resource wiring
     # them to the networking setup. Because only the external
     # context knows where the value actually comes from in terms of
     # vars, etc.
-    case name
-    when 'PUBLIC_IP' then @have_public_ip = true
-    when 'DOMAIN'    then @have_domain = true
-    else return false
-    end
-    true
+    %w(PUBLIC_IP DOMAIN)
   end
 
   def emit_dtr_variables
@@ -157,9 +156,7 @@ class ToTerraform < Common
   def make_assignment_for(name)
     # Note, no double-quotes around any values. Would become part of
     # the value when docker run read the --env-file. Bad.
-    if name == 'PUBLIC_IP'
-      %(#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n)
-    elsif name == 'DOMAIN'
+    if special_variables.include? name
       %(#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n)
     else
       %(#{name}=\$\{replace(var.#{name},"\\\\n", "\\\\\\\\n")\}\n)

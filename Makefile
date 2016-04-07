@@ -270,6 +270,16 @@ aws:
 	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws.tf.json" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf.json
 
+aws-proxy:
+	$(call print_status, Generate AWS terraform configuration with proxy)
+	cp terraform/aws-proxy.tf ${CURDIR}
+	@docker run --rm \
+	  -v ${CURDIR}:${CURDIR} \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws:proxy ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws-proxy.tf.json" ; \
+	echo Generated ${CURDIR}/hcf-aws-proxy.tf.json
+
 ########## DISTRIBUTION TARGETS ##########
 
 dist: mpc-dist aws-dist

@@ -1163,6 +1163,19 @@ configuration:
     secret: true
   - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
     secret: true
+  - name: SKIP_CERT_VERIFY
+    default: true
+  # Proxy
+  - name: HTTP_PROXY
+    default: ""
+  - name: http_proxy
+    default: ""
+  - name: HTTPS_PROXY
+    default: ""
+  - name: https_proxy
+    default: ""
+  - name: NO_PROXY
+    default: ""
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
@@ -1238,6 +1251,7 @@ configuration:
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.system_domain: '"((DOMAIN))"'
+    properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.cf-usb.broker.external_url: '"brokers.((DOMAIN))"'
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
@@ -1370,6 +1384,13 @@ configuration:
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.hcf_set_proxy.api_proxy: ((HTTPS_PROXY))
+    properties.hcf_set_proxy.staging_http_proxy: ((HTTP_PROXY))
+    properties.hcf_set_proxy.staging_https_proxy: ((HTTPS_PROXY))
+    properties.hcf_set_proxy.staging_no_proxy: ((NO_PROXY))
+    properties.hcf_set_proxy.running_http_proxy: ((HTTP_PROXY))
+    properties.hcf_set_proxy.running_https_proxy: ((HTTPS_PROXY))
+    properties.hcf_set_proxy.running_no_proxy: ((NO_PROXY))
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
     properties.cc.tweak_proc_sys: false
