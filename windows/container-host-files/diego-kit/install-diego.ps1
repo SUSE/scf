@@ -4,7 +4,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://hcfwin.azureedge.net/diego-installer-5e84b4b.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://hcfwin.azureedge.net/diego-installer-2fa1efd.exe -Verbose
 
 ## Setup diego networking
 

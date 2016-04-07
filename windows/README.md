@@ -1,20 +1,46 @@
 ## Installation
 
+For a new installation use the following steps:
 - Make sure the hcf-infrastructure vagrant box in the parent directory is up and all roles are running (use `hcf-status` to check the status).
 - Go to 'windows' directory `cd windows`
 - Run `vagrant up`
 
-## Sample .Net App
+To upgrade an existing Windows Vagrant box, without destroying the box, use the following steps:
+- Go to 'windows' directory `cd windows`
+- Make sure the box is running `vagrant up`
+- Run `vagrant provision`
+
+## How to push a Windows App
 
 To push a sample .NET application that uses the windows cell use the following snippet:
 ```
 git clone https://github.com/cloudfoundry-incubator/NET-sample-app
 cd NET-sample-app/ViewEnvironment
 
-cf push dotnet-env -s windows2012R2 -b http://buildpack.url.ignored.on.windows
+cf push dotnet-env -s win2012r2
 ```
 
-## How to install windows_app_lifecycle with buildpacks support
+To push a simple command line app with a custom buildpack use the following snippet:
+```
+mkdir ping-app
+cd ping-app
+echo ping  -t  8.8.8.8  >  run.bat
+
+cf push ping-app  -s win2012r2  -m 64M --health-check-type none  -b https://github.com/hpcloud/cf-exe-buildpack
+
+cf logs ping-app --recent
+```
+
+(Experimental) To push an app that uses the Pivotal Greenhouse staging process use the  `https://github.com/stefanschneider/windows_app_lifecycle` buidlpack from the "buildpack-extraction" branch. This should provide complete compatibility with any app that runs on upstream CloudFoundry with Greenhouse.
+Example:
+```
+git clone https://github.com/cloudfoundry-incubator/NET-sample-app
+cd NET-sample-app/ViewEnvironment
+
+cf push dotnet-env -s win2012r2 -b https://github.com/stefanschneider/windows_app_lifecycle#buildpack-extraction
+```
+
+## How to patch the Diego cluster with a custom windows_app_lifecycle
 
 Download and copy the new lifecycle in the diego-access container from the hcf vagrant VM:
 ```
@@ -33,14 +59,6 @@ docker cp windows_app_lifecycle.tgz.bak diego-access:/var/vcap/packages/windows_
 ```
 
 Restart rep from the windows box to invalidate the windows_app_lifecycle cache.
-
-Use following example to push an app that uses the git url buildpack support:
-```
-git clone https://github.com/cloudfoundry-incubator/NET-sample-app
-cd NET-sample-app/ViewEnvironment
-
-cf push dotnet-env -s windows2012R2 -b https://github.com/hpcloud/cf-iis8-buildpack
-```
 
 ## How to run Windows Acceptance Tests (WATS)
 
@@ -131,3 +149,5 @@ Get-EventLog Application | %{ $_.message} | sls 'error'
 ```
 cat C:\diego\logs\* | sls 'error'
 ```
+
+- To reinstall and configure all Windows Diego services again use: `vagrant provision`
