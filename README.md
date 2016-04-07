@@ -33,14 +33,14 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   to an empty file list: github.com/coreos/etcd/**/*`. You can run this command in parallel with the
   `vagrant up` command. However, this command must complete before you run the `make vagrant-prep` command
   on the VM.
-  
+
 4. Bring the VM online and `ssh` into it:
 
   ```bash
-  vagrant up --provider virtualbox  
+  vagrant up --provider virtualbox
   vagrant ssh
   ```
-  
+
 5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   __Note:__ You need to run this command only after initially creating the VM.
@@ -62,7 +62,7 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   ```
 
 3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
-  
+
   ```bash
   vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
   ```
@@ -275,16 +275,16 @@ Name    | Effect | Notes |
 ### How do I clear all data and begin anew without rebuilding everything?
 
   On the Vagrant box, run the following commands:
-  
+
   ```bash
   cd ~/hcf
-    
+
   # (There is no need for a graceful stop.)
   docker rm -f $(docker ps -a -q)
-  
+
   # Delete all data.
   sudo rm -rf ~/.run/store
-  
+
   # Start everything.
   make run
   ```
@@ -292,33 +292,33 @@ Name    | Effect | Notes |
 ### How do I clear the logs?
 
   On the Vagrant box, run the following commands:
-  
+
   ```bash
   cd ~/hcf
-  
+
   # Stop gracefully.
   make stop
-  
+
   # Delete all logs.
   sudo rm -rf ~/.run/log
-  
+
   # Start everything.
   make run
   ```
 
-### `fissile` refuses to create images that already exist. How do I recreate images? 
+### `fissile` refuses to create images that already exist. How do I recreate images?
 
   On the Vagrant box, run the following commands:
-  
+
   ```bash
   cd ~/hcf
-    
+
   # Stop gracefully.
   make stop
-  
+
   # Delete all fissile images.
   docker rmi $(fissile dev lr)
-  
+
   # Re-create the images and then run them.
   make images run
   ```
@@ -326,89 +326,89 @@ Name    | Effect | Notes |
 ### My vagrant box is frozen. What can I do?
 
   Try each of the following solutions sequentially:
-  
+
   * Run the `~. && vagrant reload` command.
-  
+
   * Run `vagrant halt && vagrant reload` command.
 
   * Manually stop the virtual machine and then run the `vagrant reload` command.
-  
+
   * Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
-  
+
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
   You can target the cluster on the hardcoded `192.168.77.77` address assigned to a host-only network adapter.
   You can access any URL or endpoint that references this address from your host.
-  
+
 
 ### How do I connect to the Cloud Foundry database?
 
   1. The MySQL instance is exposed at `192.168.77.77:3306`.
-  
+
   2. The default username is: `root`.
-  
+
   3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/dev-settings.env` file on the Vagrant box.
 
 
 ### How do I add a new BOSH release to HCF?
 
   1. Add a Git submodule to the BOSH release in `./src`.
-  
+
   2. Mention the new release in `./bin/.fissilerc`
-  
+
   3. Edit the release parameters:
-  
+
     a. Add new roles or change existing ones in `./container-host-files/etc/hcf/config/role-manifest.yml`.
-  
+
     b. Add exposed environment variables (`yaml path: /configuration/variables`).
-  
+
     c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
-  
+
     d. Add defaults for your configuration settings to `~/hcf/bin/dev-settings.env`.
-  
+
     e. If you need any extra default certificates, add them to `~/hcf/bin/dev-settings.env`.
-  
+
     f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
-  
+
   4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`, respectively.
-  
+
   5. Change the `./Makefile` so it builds the new release:
-  
+
     a. Add a new target `<release-name>-release`.
-  
+
     b. Add the new target as a dependency for `make releases`.
-  
+
   6. Test the changes.
-  
+
   7. Run the `make <release-name>-release compile images run` command.
 
 
 ### What does my dev cycle look like when I work on Component X?
 
   1. Make a change to component `X`, in its respective release (`X-release`).
-  
+
   2. Run `make X-release compile images run` to build your changes and run them.
 
 
 ### How do I expose new settings via environment variables?
 
   1. Edit `./container-host-files/etc/hcf/config/role-manifest.yml`:
-  
+
     a. Add the new exposed environment variables (`yaml path: /configuration/variables`).
-  
+
     b. Add or change configuration templates:
-    
+
         i. `yaml path: /configuration/templates`
 
         ii. `yaml path: /roles/*/configuration/templates`
-     
+
   2. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`.
-  
+
   3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
-  
+
   4. Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`
-  
+
   5. Rebuild the role images that need this new setting:
 
     ```bash
@@ -416,7 +416,7 @@ Name    | Effect | Notes |
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```
-  
+
     __Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
 
     ```bash
@@ -456,7 +456,7 @@ Name    | Effect | Notes |
   4. Run the `config-diff` command:
 
     ```bash
-    FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone  
+    FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone
     ```
 
   5. Act on configuration changes:
@@ -466,21 +466,21 @@ Name    | Effect | Notes |
     For any configuration changes discovered in step the previous step, you can do one of the following:
 
       * Keep the defaults in the new specification.
-    
+
       * Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`.
-    
+
       * Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`.
 
     Define any secrets in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as environment variables.
 
       * If you need any extra default certificates, add them here: `~/hcf/bin/dev-certs.env`.
-    
+
       * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
 
   6. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
-  
+
   b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
   7. Bump the real submodule:
@@ -495,7 +495,7 @@ Name    | Effect | Notes |
 ### Can I suspend or resume my vagrant VM?
 
   1. Run the `vagrant reload` command.
-  
+
   2. Run the `make run` command.
 
 
@@ -516,22 +516,22 @@ Name    | Effect | Notes |
 ### How can I add a Docker role to HCF?
 
   1. Name your new role.
-  
+
   2. Create a directory named after your role in `./docker-images`.
-  
+
   3. Create a `Dockerfile` in the new directory.
-  
+
   4. Add your role to `role-manifest.yml`
-  
+
   5. Test using the `make docker-images run` command.
 
 
 ## How do I publish HCF and BOSH images?
 
   1. Ensure that the Vagrant box is running.
-  
+
   2. `ssh` into the Vagrant box.
-  
+
   3. To tag the images into the selected registry and to push them, run the `make tag publish` command.
 
   4. This target uses the `make` variables listed below to construct the image names and tags:
@@ -555,21 +555,44 @@ Name    | Effect | Notes |
   1. Ensure that the Vagrant box is running.
 
   2. `ssh` into the Vagrant box.
-  
+
   3. To generate the `hcf-ucp.json` file that contains the UCP service definition for the current set of roles, run the `make ucp` command.
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
+  You can also read a step by step tutorial of running [HCF on UCP](ucp/README.md) using Vagrant.
 
 ## How do I generate Terraform MPC service definitions?
 
   1. Ensure that the Vagrant box is running.
-  
+
   2. `ssh` into the Vagrant box.
 
   3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
+
+
+## How do I test a new version of configgin
+
+1. Ensure that the Vagrant box is running.
+
+2. `ssh` into the Vagrant box.
+
+3. Build new configgin binary and install it into all role images
+
+    `configgin` is installed as a binary in `~/tools/configgin.tgz`. In order to test a new version you have to install a new build in that location and recreate first the base image, and then all role images.
+
+    In the `docker rmi` command below use tab-completion to also delete the image tagged with a version string:
+
+    ```bash
+    git clone git@github.com:hpcloud/hcf-configgin.git
+    cd hcf-configgin/
+    make dist
+    cp output/configgin*.tgz ~/tools/configgin.tgz
+    docker rmi -f $(fissile dev lr) fissile-role-base fissile-role-base:<TAB>
+    make image-base images
+    ```
 
 
 ## Build Dependencies
