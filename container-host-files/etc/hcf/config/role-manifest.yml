@@ -1384,13 +1384,13 @@ configuration:
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.hcf_set_proxy.api_proxy: ((HTTPS_PROXY))
-    properties.hcf_set_proxy.staging_http_proxy: ((HTTP_PROXY))
-    properties.hcf_set_proxy.staging_https_proxy: ((HTTPS_PROXY))
-    properties.hcf_set_proxy.staging_no_proxy: ((NO_PROXY))
-    properties.hcf_set_proxy.running_http_proxy: ((HTTP_PROXY))
-    properties.hcf_set_proxy.running_https_proxy: ((HTTPS_PROXY))
-    properties.hcf_set_proxy.running_no_proxy: ((NO_PROXY))
+    properties.hcf_set_proxy.api_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
     properties.cc.tweak_proc_sys: false
