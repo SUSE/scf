@@ -843,6 +843,16 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: diego-debugger
+  type: docker
+  run:
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 128
+    virtual-cpus: 1
+    exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
   dev-only: true
