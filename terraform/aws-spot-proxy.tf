@@ -30,27 +30,37 @@ resource "null_resource" "DOMAIN" {
     }
 }
 
+# Note, all four variables exist in the role manifest, forcing their definition.
+
 resource "null_resource" "HTTP_PROXY" {
     triggers = {
-        HTTP_PROXY = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
+        HTTP_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "http_proxy" {
     triggers = {
-        http_proxy = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
+        http_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "HTTPS_PROXY" {
     triggers = {
-        HTTPS_PROXY = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
+        HTTPS_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "https_proxy" {
     triggers = {
-        https_proxy = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
+        https_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
+    }
+}
+
+# Definition shared by the four above.
+
+resource "null_resource" "THE_PROXY" {
+    triggers = {
+        the_proxy = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
     }
 }
 
@@ -92,6 +102,11 @@ variable "cluster-prefix" {
 variable aws_region {
     description = "The region to operate the ucloud from"
     default     = "us-west-2"
+}
+
+variable aws_zone {
+    description = "The availability zone (within the region) to operate the ucloud from"
+    default     = "us-west-2c"
 }
 
 variable aws_instance_type {
@@ -215,7 +230,7 @@ resource "aws_subnet" "public" {
     vpc_id                  = "${aws_vpc.cluster.id}"
     cidr_block              = "10.0.1.0/24"
     map_public_ip_on_launch = true
-    availability_zone = "us-west-2c"
+    availability_zone       = "${var.aws_zone}"
     tags {
         Name = "${var.cluster-prefix}-subnet-public"
     }
@@ -261,7 +276,7 @@ resource "aws_spot_instance_request" "proxy" {
     spot_price = "0.232"
     spot_type = "one-time"
     wait_for_fulfillment = true
-    availability_zone = "us-west-2c"
+    availability_zone = "${var.aws_zone}"
 
     # Launch the instance after the internet gateway is up
     depends_on = [
@@ -297,7 +312,7 @@ resource "aws_spot_instance_request" "proxy" {
 
     provisioner "local-exec" {
         # Wait for the proxy to come up without spamming the terminal with connection attempts
-        command = "for i in `seq 10`; do nc ${aws_spot_instance_request.proxy.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
+        command = "for i in `seq 10`; do nc ${self.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
     }
 
     provisioner "remote-exec" {
@@ -332,7 +347,7 @@ resource "aws_spot_instance_request" "core" {
     spot_price = "0.232"
     spot_type = "one-time"
     wait_for_fulfillment = true
-    availability_zone = "us-west-2c"
+    availability_zone = "${var.aws_zone}"
 
     # Launch the instance after the internet gateway is up
     depends_on = [ "aws_spot_instance_request.proxy" ]

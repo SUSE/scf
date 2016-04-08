@@ -65,6 +65,11 @@ variable aws_region {
     default     = "us-west-2"
 }
 
+variable aws_zone {
+    description = "The availability zone (within the region) to operate the ucloud from"
+    default     = "us-west-2c"
+}
+
 variable aws_instance_type {
     description = "AWS EC2 instance type for each node type"
     default = {
@@ -186,7 +191,7 @@ resource "aws_subnet" "public" {
     vpc_id                  = "${aws_vpc.cluster.id}"
     cidr_block              = "10.0.1.0/24"
     map_public_ip_on_launch = true
-    availability_zone = "us-west-2c"
+    availability_zone       = "${var.aws_zone}"
     tags {
         Name = "${var.cluster-prefix}-subnet-public"
     }
@@ -237,7 +242,7 @@ resource "aws_spot_instance_request" "core" {
     spot_price = "0.232"
     spot_type = "one-time"
     wait_for_fulfillment = true
-    availability_zone = "us-west-2c"
+    availability_zone = "${var.aws_zone}"
 
     # Launch the instance after the internet gateway is up
     depends_on = [ "aws_internet_gateway.gateway", "aws_vpc.cluster", "aws_subnet.public" ]

@@ -30,27 +30,37 @@ resource "null_resource" "DOMAIN" {
     }
 }
 
+# Note, all four variables exist in the role manifest, forcing their definition.
+
 resource "null_resource" "HTTP_PROXY" {
     triggers = {
-        HTTP_PROXY = "http://${aws_instance.proxy.private_ip}:3128/"
+        HTTP_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "http_proxy" {
     triggers = {
-        http_proxy = "http://${aws_instance.proxy.private_ip}:3128/"
+        http_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "HTTPS_PROXY" {
     triggers = {
-        HTTPS_PROXY = "http://${aws_instance.proxy.private_ip}:3128/"
+        HTTPS_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
     }
 }
 
 resource "null_resource" "https_proxy" {
     triggers = {
-        https_proxy = "http://${aws_instance.proxy.private_ip}:3128/"
+        https_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
+    }
+}
+
+# Definition shared by the four above.
+
+resource "null_resource" "THE_PROXY" {
+    triggers = {
+        the_proxy = "http://${aws_instance.proxy.private_ip}:3128/"
     }
 }
 
@@ -291,7 +301,7 @@ resource "aws_instance" "proxy" {
 
     provisioner "local-exec" {
         # Wait for the proxy to come up without spamming the terminal with connection attempts
-        command = "for i in `seq 10`; do nc ${aws_instance.proxy.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
+        command = "for i in `seq 10`; do nc ${self.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
     }
 
     provisioner "remote-exec" {
