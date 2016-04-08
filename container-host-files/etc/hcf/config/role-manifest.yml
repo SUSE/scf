@@ -1175,7 +1175,7 @@ configuration:
   - name: https_proxy
     default: ""
   - name: NO_PROXY
-    default: ""
+    default: "127.0.0.1"
   templates:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
