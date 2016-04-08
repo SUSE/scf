@@ -42,8 +42,14 @@ dopts="--storage-driver=devicemapper"
 dopts="$dopts --storage-opt dm.datadev=/dev/vg-docker/data"
 dopts="$dopts --storage-opt dm.metadatadev=/dev/vg-docker/metadata"
 
+for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
+  if test -n "${!var}" ; then
+    echo "export ${var}=${!var}" >> /etc/default/docker
+  fi
+done
+
 echo ___ Insert
-echo DOCKER_OPTS=\"$dopts\" | sudo tee -a /etc/default/docker
+echo DOCKER_OPTS=\"$dopts\" | tee -a /etc/default/docker
 
 # Activate the now-configured system
 

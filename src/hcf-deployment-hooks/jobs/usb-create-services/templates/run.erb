@@ -4,11 +4,14 @@ set -e
 
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
 
-cf install-plugin /var/vcap/packages/cf-plugin-usb/bin/cf-plugin-usb
+cf plugins | grep -q cf-plugin-usb || {
+  cf install-plugin /var/vcap/packages/cf-plugin-usb/bin/cf-plugin-usb
+}
 
 #TODO: check for ssl validation property
 
-for i in {1..10}; do cf api --skip-ssl-validation api.<%= properties.domain %> && break || sleep 20; done
+<% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
+for i in {1..10}; do cf api <%= skip_ssl_validation %> api.<%= properties.domain %> && break || sleep 30; done
 <% 
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>

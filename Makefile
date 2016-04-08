@@ -161,7 +161,7 @@ ifneq (,${HCF_PACKAGE_COMPILATION_CACHE})
 			echo pack $${i} ; \
 			tar cf $${i}/compiled.tar -C "$${i}" compiled ; \
 		done ; \
-		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
+		rsync -rl --include="/*/" --include="/*/*/" --include="/*/*/compiled.tar" --exclude="*" --info=progress2 --ignore-existing "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/" ; \
 	} >"${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 endif
 
@@ -270,6 +270,16 @@ aws:
 	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws.tf.json" ; \
 	echo Generated ${CURDIR}/hcf-aws.tf.json
 
+aws-proxy:
+	$(call print_status, Generate AWS terraform configuration with proxy)
+	cp terraform/aws-proxy.tf ${CURDIR}
+	@docker run --rm \
+	  -v ${CURDIR}:${CURDIR} \
+	  helioncf/hcf-pipeline-ruby-bosh \
+	  bash -l -c \
+	  "RBENV_VERSION=2.2.3 ${CURDIR}/bin/rm-transformer.rb ${DTR} ${ENV_DIR_MAKE} --provider tf:aws:proxy ${CURDIR}/container-host-files/etc/hcf/config/role-manifest.yml" > "${CURDIR}/hcf-aws-proxy.tf.json" ; \
+	echo Generated ${CURDIR}/hcf-aws-proxy.tf.json
+
 ########## DISTRIBUTION TARGETS ##########
 
 dist: mpc-dist aws-dist
@@ -291,6 +301,16 @@ aws-dist: aws
 	( cd $$base && zip -r9 ${CURDIR}/aws-$(APP_VERSION).zip aws ) && \
 	rm -rf $$base && \
 	echo Generated aws-$(APP_VERSION).zip
+
+aws-proxy-dist: aws-proxy
+	$(call print_status, Package AWS with proxy terraform configuration for distribution)
+	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
+	mkdir -p $$base/aws-proxy/terraform && \
+	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-proxy.tf terraform/README-aws.md hcf-aws-proxy.tf.json $$base/aws-proxy/ && \
+	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-proxy/terraform/ && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-proxy-$(APP_VERSION).zip aws-proxy ) && \
+	rm -rf $$base && \
+	echo Generated aws-proxy-$(APP_VERSION).zip
 
 ENV_FILE := $(shell mktemp -q -u -t make.environ.XXXXXX)
 

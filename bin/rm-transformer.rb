@@ -104,6 +104,10 @@ def provider_constructor
       require_relative 'rm-transformer/tf-aws'
       ToTerraformAWS
     },
+    'tf:aws:proxy' => lambda {
+      require_relative 'rm-transformer/tf-aws-proxy'
+      ToTerraformAWSWithProxy
+    },
     'tf:mpc' => lambda {
       require_relative 'rm-transformer/tf-mpc'
       ToTerraformMPC
@@ -123,7 +127,8 @@ def load_role_manifest(path, env_dir)
     vars = role_manifest['configuration']['variables']
     Dir.glob(File.join(env_dir, "*.env")).sort.each do |env_file|
       File.readlines(env_file).each do |line|
-        name, value = line.chomp.split('=', 2)
+        next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
+        name, value = line.strip.split('=', 2)
         i = vars.find_index{|x| x['name'] == name }
         if i.nil?
           STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
