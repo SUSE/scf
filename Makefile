@@ -312,6 +312,25 @@ aws-proxy-dist: aws-proxy
 	rm -rf $$base && \
 	echo Generated aws-proxy-$(APP_VERSION).zip
 
+aws-spot-dist: aws
+	$(call print_status, Package AWS spot instance terraform configuration for distribution)
+	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
+	mkdir $$base/aws && \
+	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot.tf terraform/README-aws.md hcf-aws.tf.json $$base/aws/ && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-spot-$(APP_VERSION).zip aws ) && \
+	rm -rf $$base && \
+	echo Generated aws-spot-$(APP_VERSION).zip
+
+aws-spot-proxy-dist: aws-proxy
+	$(call print_status, Package AWS spot instance with proxy terraform configuration for distribution)
+	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
+	mkdir -p $$base/aws-proxy/terraform && \
+	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot-proxy.tf terraform/README-aws.md hcf-aws-proxy.tf.json $$base/aws-proxy/ && \
+	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-proxy/terraform/ && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-spot-proxy-$(APP_VERSION).zip aws-proxy ) && \
+	rm -rf $$base && \
+	echo Generated aws-spot-proxy-$(APP_VERSION).zip
+
 ENV_FILE := $(shell mktemp -q -u -t make.environ.XXXXXX)
 
 .INTERMEDIATE: ${ENV_FILE}

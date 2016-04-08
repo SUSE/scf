@@ -261,6 +261,9 @@ Name    | Effect | Notes |
 `dist`    | Generate and package various setups |
 `mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
 `aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
+`aws-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud |
+`aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
+`aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
 ## Development FAQ
 
