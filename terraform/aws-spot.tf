@@ -15,58 +15,19 @@ output "floating_domain" {
 
 # # ## ###
 ## API into the generated declarations.
-## - Definition of PUBLIC_IP, DOMAIN, *_PROXY, *_proxy (special variables)
+## - Definition of PUBLIC_IP (special variable)
+## - Definition of DOMAIN (special variable)
 ## - Filesystem paths, local and remote
 
 resource "null_resource" "PUBLIC_IP" {
     triggers = {
-        PUBLIC_IP = "${aws_instance.core.public_ip}"
+        PUBLIC_IP = "${aws_spot_instance_request.core.public_ip}"
     }
 }
 
 resource "null_resource" "DOMAIN" {
     triggers = {
         DOMAIN = "${null_resource.PUBLIC_IP.triggers.PUBLIC_IP}.nip.io"
-    }
-}
-
-# Note, all four variables exist in the role manifest, forcing their definition.
-
-resource "null_resource" "HTTP_PROXY" {
-    triggers = {
-        HTTP_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
-    }
-}
-
-resource "null_resource" "http_proxy" {
-    triggers = {
-        http_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
-    }
-}
-
-resource "null_resource" "HTTPS_PROXY" {
-    triggers = {
-        HTTPS_PROXY = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
-    }
-}
-
-resource "null_resource" "https_proxy" {
-    triggers = {
-        https_proxy = "${null_resource.THE_PROXY.triggers.THE_PROXY}"
-    }
-}
-
-# Definition shared by the four above.
-
-resource "null_resource" "THE_PROXY" {
-    triggers = {
-	THE_PROXY = "http://${aws_instance.proxy.private_ip}:3128/"
-    }
-}
-
-resource "null_resource" "NO_PROXY" {
-    triggers = {
-        NO_PROXY = "${var.NO_PROXY}"
     }
 }
 
@@ -104,10 +65,15 @@ variable aws_region {
     default     = "us-west-2"
 }
 
+variable aws_zone {
+    description = "The availability zone (within the region) to operate the ucloud from"
+    default     = "us-west-2c"
+}
+
 variable aws_instance_type {
     description = "AWS EC2 instance type for each node type"
     default = {
-        "ucloud"       = "t2.medium" # just for here, in case we have to increase
+        "ucloud"       = "c4.xlarge" # spots /just for here, in case we have to increase
         "core"         = "t2.medium"
         "dea"          = "t2.medium"
         "dataservices" = "t2.medium"
@@ -225,6 +191,7 @@ resource "aws_subnet" "public" {
     vpc_id                  = "${aws_vpc.cluster.id}"
     cidr_block              = "10.0.1.0/24"
     map_public_ip_on_launch = true
+    availability_zone       = "${var.aws_zone}"
     tags {
         Name = "${var.cluster-prefix}-subnet-public"
     }
@@ -264,67 +231,6 @@ resource "aws_network_acl" "public" {
 }
 
 # # ## ###
-## Section: Proxy
-
-resource "aws_instance" "proxy" {
-    # Launch the instance after the internet gateway is up
-    depends_on = [
-        "aws_internet_gateway.gateway",
-    ]
-
-    # Launch the instance
-    ami           = "${lookup(var.amazon_images, var.aws_region)}"
-    instance_type = "${lookup(var.aws_instance_type, "proxy")}"
-    key_name      = "${aws_key_pair.admin.key_name}"
-
-    # Give a name to the node
-    tags {
-        Name = "${var.cluster-prefix}-proxy"
-    }
-
-    # The VPC Subnet ID to launch in and security group
-    subnet_id              = "${aws_subnet.public.id}"
-    vpc_security_group_ids = [ "${aws_security_group.frontend.id}" ]
-
-    # Provision the node
-
-    connection {
-        user = "ubuntu"
-        private_key = "${file("${var.private_key_file}")}"
-        # See key_name above, and aws_key_pair.admin for the public
-        # part
-    }
-
-    provisioner "local-exec" {
-        command = "printf '\\033[0;32;1m ==> Starting proxy setup <== \\033[0m\\n'"
-    }
-
-    provisioner "local-exec" {
-        # Wait for the proxy to come up without spamming the terminal with connection attempts
-        command = "for i in `seq 10`; do nc ${self.public_ip} 22 </dev/null && exit 0; sleep 10; done ; exit 1"
-    }
-
-    provisioner "remote-exec" {
-        inline = [
-            "echo 127.0.0.1 ip-$(echo ${self.private_ip} | tr . -) | sudo tee -a /etc/hosts"
-        ]
-    }
-
-    provisioner "file" {
-        source = "${path.module}/terraform/proxy.conf"
-        destination = "/tmp/proxy.conf"
-    }
-
-    provisioner "remote-exec" {
-        inline = [ "printf '\\033[0;32m host reached \\033[0m\\n'" ]
-    }
-
-    provisioner "remote-exec" {
-        script = "${path.module}/terraform/proxy-setup.sh"
-    }
-}
-
-# # ## ###
 ## Section: ucloud compute
 
 resource "aws_key_pair" "admin" {
@@ -332,9 +238,14 @@ resource "aws_key_pair" "admin" {
   public_key = "${file("${var.public_key_file}")}"
 }
 
-resource "aws_instance" "core" {
+resource "aws_spot_instance_request" "core" {
+    spot_price = "0.232"
+    spot_type = "one-time"
+    wait_for_fulfillment = true
+    availability_zone = "${var.aws_zone}"
+
     # Launch the instance after the internet gateway is up
-    depends_on = [ "aws_instance.proxy" ]
+    depends_on = [ "aws_internet_gateway.gateway", "aws_vpc.cluster", "aws_subnet.public" ]
 
     # Launch the instance
     ami           = "${lookup(var.amazon_images, var.aws_region)}"
@@ -348,7 +259,7 @@ resource "aws_instance" "core" {
 
     # The VPC Subnet ID to launch in and security group
     subnet_id              = "${aws_subnet.public.id}"
-    vpc_security_group_ids = [ "${aws_security_group.backend.id}" ]
+    vpc_security_group_ids = [ "${aws_security_group.frontend.id}" ]
 
     # Create and attach the disks we need for data and docker device mapper.
 
@@ -414,20 +325,6 @@ resource "aws_instance" "core" {
 
             # Fix sudo reading /etc/environment; see https://bugs.launchpad.net/ubuntu/+source/sudo/+bug/1301557
             "sudo perl -p -i -e 's@^auth(.*pam_env.so)@session$${1}@' /etc/pam.d/sudo"
-        ]
-    }
-
-    provisioner "remote-exec" {
-        inline = [
-            # Set up proxies
-            "echo 'http_proxy=${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}' | sudo tee -a /etc/environment",
-            "echo 'HTTP_PROXY=${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}' | sudo tee -a /etc/environment",
-            "echo 'https_proxy=${null_resource.HTTPS_PROXY.triggers.HTTPS_PROXY}' | sudo tee -a /etc/environment",
-            "echo 'HTTPS_PROXY=${null_resource.HTTPS_PROXY.triggers.HTTPS_PROXY}' | sudo tee -a /etc/environment",
-            "echo 'Acquire::http::Proxy \"${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}\";' | sudo tee -a /etc/apt/apt.conf.d/60-proxy",
-            "echo 'Acquire::https::Proxy \"${null_resource.HTTPS_PROXY.triggers.HTTPS_PROXY}\";' | sudo tee -a /etc/apt/apt.conf.d/60-proxy",
-            "echo 'NO_PROXY=${var.NO_PROXY}' | sudo tee -a /etc/environment",
-            "echo 'no_proxy=${var.NO_PROXY}' | sudo tee -a /etc/environment",
         ]
     }
 
@@ -499,9 +396,6 @@ resource "aws_instance" "core" {
 }
 
 resource "null_resource" "core_final_setup" {
-    # Wait for the hairpin egress to be available before starting
-    depends_on = [ "aws_security_group_rule.backend_egress_hairpin" ]
-
     triggers = {
         core_ip = "${null_resource.PUBLIC_IP.triggers.PUBLIC_IP}"
     }

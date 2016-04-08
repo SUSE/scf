@@ -7,10 +7,17 @@
   An example file demonstrating the variables the user can (and in
   some cases 'has to') modify to get a proper setup.
 
-* `aws.tf`
+* `aws.tf`, `aws-spot.tf`, `aws-proxy.tf`, `aws-spot-proxy.tf`
 
   The main terraform configuration, containing the fixed parts of the
-  setup.
+  setup. Several variants are possible, distinguished by name:
+
+  Name | Meaning
+  ---|---
+  aws | single-node u-cloud using regular instances
+  aws-spot | ditto, using spot instances (less expensive)
+  aws-proxy | 2-node u-cloud, proxy and core, using regular instances
+  aws-spot-proxy | ditto, using spot instances (less expensive)
 
 * `hcf-aws.tf.json`
 

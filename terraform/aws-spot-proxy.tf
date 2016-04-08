@@ -20,7 +20,7 @@ output "floating_domain" {
 
 resource "null_resource" "PUBLIC_IP" {
     triggers = {
-        PUBLIC_IP = "${aws_instance.core.public_ip}"
+        PUBLIC_IP = "${aws_spot_instance_request.core.public_ip}"
     }
 }
 
@@ -60,7 +60,7 @@ resource "null_resource" "https_proxy" {
 
 resource "null_resource" "THE_PROXY" {
     triggers = {
-	THE_PROXY = "http://${aws_instance.proxy.private_ip}:3128/"
+	THE_PROXY = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
     }
 }
 
@@ -104,16 +104,21 @@ variable aws_region {
     default     = "us-west-2"
 }
 
+variable aws_zone {
+    description = "The availability zone (within the region) to operate the ucloud from"
+    default     = "us-west-2c"
+}
+
 variable aws_instance_type {
     description = "AWS EC2 instance type for each node type"
     default = {
-        "ucloud"       = "t2.medium" # just for here, in case we have to increase
+        "ucloud"       = "c4.xlarge" # spots /just for here, in case we have to increase
         "core"         = "t2.medium"
         "dea"          = "t2.medium"
         "dataservices" = "t2.medium"
         "controller"   = "t2.medium"
         "router"       = "t2.medium"
-        "proxy"        = "t2.micro"
+        "proxy"        = "c4.xlarge" # spots
     }
 }
 
@@ -225,6 +230,7 @@ resource "aws_subnet" "public" {
     vpc_id                  = "${aws_vpc.cluster.id}"
     cidr_block              = "10.0.1.0/24"
     map_public_ip_on_launch = true
+    availability_zone       = "${var.aws_zone}"
     tags {
         Name = "${var.cluster-prefix}-subnet-public"
     }
@@ -266,7 +272,12 @@ resource "aws_network_acl" "public" {
 # # ## ###
 ## Section: Proxy
 
-resource "aws_instance" "proxy" {
+resource "aws_spot_instance_request" "proxy" {
+    spot_price = "0.232"
+    spot_type = "one-time"
+    wait_for_fulfillment = true
+    availability_zone = "${var.aws_zone}"
+
     # Launch the instance after the internet gateway is up
     depends_on = [
         "aws_internet_gateway.gateway",
@@ -332,9 +343,14 @@ resource "aws_key_pair" "admin" {
   public_key = "${file("${var.public_key_file}")}"
 }
 
-resource "aws_instance" "core" {
+resource "aws_spot_instance_request" "core" {
+    spot_price = "0.232"
+    spot_type = "one-time"
+    wait_for_fulfillment = true
+    availability_zone = "${var.aws_zone}"
+
     # Launch the instance after the internet gateway is up
-    depends_on = [ "aws_instance.proxy" ]
+    depends_on = [ "aws_spot_instance_request.proxy" ]
 
     # Launch the instance
     ami           = "${lookup(var.amazon_images, var.aws_region)}"
