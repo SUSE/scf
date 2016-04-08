@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+${GIT_ROOT}/container-host-files/opt/hcf/bin/list-roles.sh | while read ROLE; do
+    ${GIT_ROOT}/container-host-files/opt/hcf/bin/stop-role.sh ${ROLE}
+done

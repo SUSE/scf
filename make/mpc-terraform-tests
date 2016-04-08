@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+DOCKER_RUNTIME=${DOCKER_RUNTIME:-'helioncf/terraform-tests'}
+
+ENV_FILE=$(mktemp -q -u -t make.environ.XXXXXX)
+trap "rm -rf ${ENV_FILE}" HUP INT TERM EXIT
+
+cat /proc/self/environ > ${ENV_FILE}
+
+docker run \
+       --rm \
+       --volume ${GIT_ROOT}:${GIT_ROOT} \
+       --volume ${OS_SSH_KEY_PATH}:${OS_SSH_KEY_PATH}:ro \
+       --volume ${ENV_FILE}:/environ:ro \
+       ${DOCKER_RUNTIME} \
+       ruby ${GIT_ROOT}/bin/run-terraform-tests.rb

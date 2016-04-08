@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/versioning
+
+TARGET=${1}
+
+WORKDIR=$(mktemp -d ${TARGET}_XXXXXXXXXX)
+trap "rm -rf ${WORKDIR}" HUP INT TERM EXIT
+
+ARTIFACT=${TARGET}-${APP_VERSION}.zip
+
+mkdir -p ${WORKDIR}/${TARGET}
+
+cp -rf \
+   container-host-files \
+   hcf-${TARGET}.tf \
+   terraform/${TARGET}.tf \
+   terraform/${TARGET}.tfvars.example \
+   terraform/README-${TARGET}.md \
+   ${WORKDIR}/${TARGET}/
+
+cd ${WORKDIR}
+zip -9 -r ${GIT_ROOT}/${ARTIFACT} ${TARGET}
+
+echo Generated ${ARTIFACT}
