@@ -2,6 +2,8 @@
 
 set -o errexit -o nounset
 
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
 . ${GIT_ROOT}/make/include/fissile
 
 UBUNTU_IMAGE=${UBUNTU_IMAGE:-'ubuntu:14.04'}
