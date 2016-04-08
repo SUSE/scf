@@ -213,6 +213,20 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
   __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
 
+## To Deploy HCF on Amazon AWS Using Terraform
+
+* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist ENV_DIR=$PWD/bin`
+  to generate the archive populated with development defaults and secrets.
+
+* Extract the newly created .zip file to a temporary working dir:
+```bash
+mkdir /tmp/hcf-aws
+cd /tmp/hcf-aws
+unzip $OLDPWD/aws-???.zip
+cd aws
+```
+
+* Follow the instructions in README-aws.md
 
 ## Makefile targets
 
