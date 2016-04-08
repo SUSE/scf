@@ -60,7 +60,7 @@ resource "null_resource" "https_proxy" {
 
 resource "null_resource" "THE_PROXY" {
     triggers = {
-        the_proxy = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
+	THE_PROXY = "http://${aws_spot_instance_request.proxy.private_ip}:3128/"
     }
 }
 
