@@ -317,7 +317,7 @@ aws-spot-dist: aws
 	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
 	mkdir $$base/aws-spot && \
 	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot.tf terraform/README-aws.md hcf-aws.tf.json $$base/aws-spot/ && \
-	( cd $$base && zip -r9 ${CURDIR}/aws-spot-$(APP_VERSION).zip aws ) && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-spot-$(APP_VERSION).zip aws-spot ) && \
 	rm -rf $$base && \
 	echo Generated aws-spot-$(APP_VERSION).zip
 
@@ -326,8 +326,8 @@ aws-spot-proxy-dist: aws-proxy
 	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
 	mkdir -p $$base/aws-spot-proxy/terraform && \
 	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot-proxy.tf terraform/README-aws.md hcf-aws-proxy.tf.json $$base/aws-spot-proxy/ && \
-	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-proxy/terraform/ && \
-	( cd $$base && zip -r9 ${CURDIR}/aws-spot-proxy-$(APP_VERSION).zip aws-proxy ) && \
+	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-spot-proxy/terraform/ && \
+	( cd $$base && zip -r9 ${CURDIR}/aws-spot-proxy-$(APP_VERSION).zip aws-spot-proxy ) && \
 	rm -rf $$base && \
 	echo Generated aws-spot-proxy-$(APP_VERSION).zip
 
