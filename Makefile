@@ -50,7 +50,7 @@ cf-release:
 	${GIT_ROOT}/make/bosh-release src/cf-release
 
 usb-release:
-	${GIT_ROOT}/make/bosh-release src/cf-usb-release
+	${GIT_ROOT}/make/bosh-release src/cf-usb/cf-usb-release
 
 diego-release:
 	${GIT_ROOT}/make/bosh-release src/diego-release
