@@ -46,7 +46,7 @@ restore() {
         "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
 
     find ${FISSILE_WORK_DIR}/compilation -type f -name compiled.tar | while read COMPILED; do
-        DIR=$(basename ${COMPILED})
+        DIR=$(dirname ${COMPILED})
         rm -rf ${DIR}/compiled
         tar xf ${DIR}/compiled.tar -C ${DIR}
     done
