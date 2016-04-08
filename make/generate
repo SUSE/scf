@@ -32,7 +32,7 @@ case ${TARGET} in
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
-        OPTIONS="${OPTIONS} --provider tf:${TARGET}"
+        OPTIONS="${OPTIONS} --provider tf:$(echo ${TARGET} | tr - :)"
 
         cp terraform/${TARGET}.tf ${GIT_ROOT}/
         ;;
@@ -41,11 +41,11 @@ esac
 DOCKER_RUNTIME=${DOCKER_RUNTIME:-'helioncf/hcf-pipeline-ruby-bosh'}
 ROLE_MANIFEST=${ROLE_MANIFEST:-'container-host-files/etc/hcf/config/role-manifest.yml'}
 
-echo docker run \
+docker run \
        --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT} \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "'rbenv global 2.2.3 && bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST} > ${OUTFILE}'"
+       ${DOCKER_RUNTIME} -l -c "rbenv global 2.2.3 && bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST} > ${OUTFILE}"
 
 echo Generated ${OUTFILE}
