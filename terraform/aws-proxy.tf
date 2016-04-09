@@ -419,6 +419,7 @@ resource "aws_instance" "core" {
 
     provisioner "remote-exec" {
         inline = [
+            "set -e",
             # Set up proxies
             "echo 'http_proxy=${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}' | sudo tee -a /etc/environment",
             "echo 'HTTP_PROXY=${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}' | sudo tee -a /etc/environment",
@@ -428,6 +429,12 @@ resource "aws_instance" "core" {
             "echo 'Acquire::https::Proxy \"${null_resource.HTTPS_PROXY.triggers.HTTPS_PROXY}\";' | sudo tee -a /etc/apt/apt.conf.d/60-proxy",
             "echo 'NO_PROXY=${var.NO_PROXY}' | sudo tee -a /etc/environment",
             "echo 'no_proxy=${var.NO_PROXY}' | sudo tee -a /etc/environment",
+
+            # Wait for the proxy to come up without spamming the terminal with connection attempts
+            "echo Waiting for proxy to be live at ${null_resource.HTTP_PROXY.triggers.HTTP_PROXY}",
+            "for i in `seq 10`; do curl --silent ${null_resource.HTTP_PROXY.triggers.HTTP_PROXY} >/dev/null 2>&1 && echo Proxy reached on $i && exit 0; sleep 10; done",
+            "echo Proxy not available",
+            "exit 1"
         ]
     }
 
