@@ -1,6 +1,7 @@
 ---
 properties:
-  acceptance_tests: null
+  acceptance_tests:
+    skip_ssl_validation: true
   app_domains:
   - example.com
   app_ssh: null
