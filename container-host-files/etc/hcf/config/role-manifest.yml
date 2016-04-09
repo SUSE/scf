@@ -1180,6 +1180,10 @@ configuration:
     index: 0
     networks.default.ip: '"((IP_ADDRESS))"'
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
+    properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
+    properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
