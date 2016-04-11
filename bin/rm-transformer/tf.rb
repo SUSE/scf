@@ -13,14 +13,6 @@ class ToTerraform < Common
     @out = {}
   end
 
-  def initialize_dtr_information
-    # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr] || 'docker.helion.lol'
-    @dtr_org     = @options[:dtr_org] || 'helioncf'
-    @hcf_version = @options[:hcf_version] || 'develop'
-    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
-  end
-
   # Public API
   def transform(manifest)
     to_terraform(manifest)
