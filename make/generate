@@ -46,6 +46,7 @@ docker run \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT} \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "rbenv global 2.2.3 && bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST} > ${OUTFILE}"
+       ${DOCKER_RUNTIME} -l -c "rbenv global 2.2.3 && bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
+    > ${OUTFILE}
 
 echo Generated ${OUTFILE}
