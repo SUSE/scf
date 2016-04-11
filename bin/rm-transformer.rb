@@ -50,6 +50,11 @@ def main
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
+      # The dtr location is canonicalized to have no trailing "/".
+      # If a trailing "/" should be needed by an output it is the provider's
+      # responsibility to add it.
+      v.chomp!("/")
+
       options[:dtr] = v
     end
     opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
