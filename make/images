@@ -42,7 +42,7 @@ for ROLE in ${ROLES}; do
                 ;;
             esac
             ;;
-        push)
+        publish)
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;

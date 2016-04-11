@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images mpc mpc-dist aws aws-dist
+.PHONY: docker-images mpc mpc-dist aws aws-dist ucp
 
 ########## UTILITY TARGETS ##########
 
