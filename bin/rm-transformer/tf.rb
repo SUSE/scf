@@ -9,16 +9,9 @@ require 'json'
 class ToTerraform < Common
   def initialize(options)
     super(options)
+    @dtr = "#{@dtr}/" unless @dtr.empty?
     @have_specials = []
     @out = {}
-  end
-
-  def initialize_dtr_information
-    # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr] || 'docker.helion.lol'
-    @dtr_org     = @options[:dtr_org] || 'helioncf'
-    @hcf_version = @options[:hcf_version] || 'develop'
-    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
   end
 
   # Public API
@@ -132,7 +125,7 @@ class ToTerraform < Common
 
   # Construct a docker pull command for the named image/role
   def make_pull_command(name)
-    cmd = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
+    cmd = 'docker pull ${var.docker_trusted_registry}${var.docker_org}/'
     cmd += '${var.hcf_image_prefix}' + name
     cmd += ':${var.hcf_version}'
     cmd += ' | cat'
