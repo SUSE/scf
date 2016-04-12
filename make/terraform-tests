@@ -11,10 +11,21 @@ trap "rm -rf ${ENV_FILE}" HUP INT TERM EXIT
 
 cat /proc/self/environ > ${ENV_FILE}
 
+PROVIDER="$1"
+shift
+
+EXTRA_MOUNTS=""
+
+while test -n ${1-''} ; do
+  EXTRA_MOUNTS="${EXTRA_MOUNTS} --volume ${1}:${1}:ro"
+  shift
+done
+
 docker run \
        --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
-       --volume ${OS_SSH_KEY_PATH}:${OS_SSH_KEY_PATH}:ro \
+       ${EXTRA_MOUNTS} \
        --volume ${ENV_FILE}:/environ:ro \
        ${DOCKER_RUNTIME} \
-       ruby ${GIT_ROOT}/bin/run-terraform-tests.rb
+       ruby ${GIT_ROOT}/bin/run-terraform-tests.rb \
+       --provider=${PROVIDER}

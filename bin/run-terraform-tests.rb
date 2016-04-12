@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'json'
+require 'optparse'
 require 'tempfile'
 
 class CalledProcessError < RuntimeError ; end
@@ -12,23 +13,24 @@ def run_processs(*args, silent: false)
   raise CalledProcessError, "Failed to run #{args.join(' ')}: #{status.exitstatus}"
 end
 
-def setup_environment
-  open('/environ', 'r') do |env_file|
-    env_file.each_line("\0") do |line|
-      line.chomp! "\0"
-      name, value = line.split('=', 2)
-      if ['DOCKER_USERNAME', 'DOCKER_PASSWORD', 'DOCKER_EMAIL'].include? name
-        ENV[name] = value unless value.empty?
-        next
-      end
-      ENV[name] = value if name.start_with?('OS_') || name.start_with?('HCF_')
-    end
-  end
-end
-
 class TerraformTester
   def top_src_dir
     @top_src_dir ||= File.dirname(File.dirname(File.absolute_path(__FILE__))) 
+  end
+
+  def setup_environment
+    wanted = overrides_keys.values.map { |k| k.is_a?(String) ? k : k.first }
+    open('/environ', 'r') do |env_file|
+      env_file.each_line("\0") do |line|
+        line.chomp! "\0"
+        name, value = line.split('=', 2)
+        if wanted.include? name
+          ENV[name] = value unless value.empty?
+          next
+        end
+        ENV[name] = value if name.start_with?(environment_prefix) || name.start_with?('HCF_')
+      end
+    end
   end
 
   def overrides_path
@@ -41,18 +43,7 @@ class TerraformTester
   def ensure_overrides_file
     open(overrides_path, 'w') do |file|
       # tf var name => [env name, default] ; default is optional
-      ({
-        openstack_keypair:           'OS_SSH_KEYPAIR',
-        key_file:                    'OS_SSH_KEY_PATH',
-        openstack_availability_zone: ['OS_AVAILABILITY_ZONE', 'nova'],
-        openstack_network_id:        'OS_NETWORK_ID',
-        openstack_network_name:      'OS_NETWORK_NAME',
-        openstack_region:            'OS_REGION_NAME',
-        docker_username:             'DOCKER_USERNAME',
-        docker_password:             'DOCKER_PASSWORD',
-        docker_email:                'DOCKER_EMAIL',
-        hcf_version:                 ['HCF_VERSION', 'develop']
-      }).each_pair do |var_name, env_info|
+      overrides_keys.each_pair do |var_name, env_info|
         if env_info.is_a? String
           file.puts %(#{var_name} = "#{ENV[env_info]}")
         else
@@ -69,6 +60,8 @@ class TerraformTester
 
   def setup
     return if @setup_complete
+
+    setup_environment
 
     ENV['DOCKER_EMAIL'] ||= 'nobody@example.invalid'
 
@@ -128,7 +121,7 @@ class TerraformTester
 
   def run_ssh(cmd, silent: false)
     run_processs('ssh', '-o', "UserKnownHostsFile=#{ssh_hosts_path}", '-o', 'StrictHostKeyChecking=no',
-                 '-i', ENV['OS_SSH_KEY_PATH'], '-l', 'ubuntu', '-q', '-tt', floating_ip, '--',
+                 '-i', ssh_key_path, '-l', 'ubuntu', '-q', '-tt', floating_ip, '--',
                  cmd, silent: silent)
   end
 
@@ -138,9 +131,72 @@ class TerraformTester
   end
 end
 
+class MPCTester < TerraformTester
+  def overrides_keys
+    ({
+        key_file:                    'OS_SSH_KEY_PATH',
+        openstack_keypair:           'OS_SSH_KEYPAIR',
+        openstack_availability_zone: ['OS_AVAILABILITY_ZONE', 'nova'],
+        openstack_network_id:        'OS_NETWORK_ID',
+        openstack_network_name:      'OS_NETWORK_NAME',
+        openstack_region:            'OS_REGION_NAME',
+        docker_username:             'DOCKER_USERNAME',
+        docker_password:             'DOCKER_PASSWORD',
+        docker_email:                'DOCKER_EMAIL',
+        hcf_version:                 ['HCF_VERSION', 'develop']
+    })
+  end
+
+  def ssh_key_path
+    ENV['OS_SSH_KEY_PATH']
+  end
+
+  def environment_prefix
+    'OS_'
+  end
+end
+
+class AWSTester < TerraformTester
+  def overrides_keys
+    ({
+        aws_region:                  ['AWS_DEFAULT_REGION', nil],
+        public_key_file:             'AWS_PUBLIC_KEY_PATH',
+        private_key_file:            'AWS_PRIVATE_KEY_PATH',
+        :'cluster-prefix' =>         ['CLUSTER_PREFIX', nil],
+        docker_username:             'DOCKER_USERNAME',
+        docker_email:                'DOCKER_EMAIL',
+        docker_password:             'DOCKER_PASSWORD',
+        hcf_version:                 ['HCF_VERSION', 'develop']
+    })
+  end
+
+  def ssh_key_path
+    ENV['AWS_PRIVATE_KEY_PATH']
+  end
+
+  def environment_prefix
+    'AWS_'
+  end
+end
+
+PROVIDERS = {
+  mpc: MPCTester,
+  aws: AWSTester,
+}
+
 def main
-  setup_environment
-  TerraformTester.new.smoke_test
+  options = {provider: MPCTester}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0} [options]"
+    opts.on('-pPROVIDER', '--provider=PROVIDER', 'IAAS provider to use') do |v|
+      options[:provider] = PROVIDERS[v.to_sym]
+      unless options[:provider]
+        STDERR.puts "Unknown provider #{v}; valid providers are: #{PROVIDERS.keys.sort.join(' ')}"
+        exit 1
+      end
+    end
+  end.parse!
+  options[:provider].new.smoke_test
 end
 
 main

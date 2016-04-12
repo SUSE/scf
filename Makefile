@@ -172,4 +172,7 @@ aws-spot-proxy-dist: aws-proxy
 	echo Generated aws-spot-proxy-$(APP_VERSION).zip
 
 mpc-terraform-tests:
-	${GIT_ROOT}/make/mpc-terraform-tests
+	${GIT_ROOT}/make/terraform-tests mpc ${OS_SSH_KEY_PATH}
+
+aws-terraform-tests:
+	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
