@@ -118,7 +118,7 @@ show-docker-setup:
 
 ########## CONFIGURATION TARGETS ##########
 
-generate: ucp mpc aws
+generate: ucp mpc aws aws-spot aws-proxy aws-spot-proxy
 
 ucp:
 	${GIT_ROOT}/make/generate ucp
@@ -132,44 +132,35 @@ aws:
 aws-proxy:
 	${GIT_ROOT}/make/generate aws-proxy
 
+aws-spot:
+	${GIT_ROOT}/make/generate aws-spot
+
+aws-spot-proxy:
+	${GIT_ROOT}/make/generate aws-spot-proxy
+
 ########## DISTRIBUTION TARGETS ##########
 
-dist: mpc-dist aws-dist
+dist: mpc-dist aws-dist aws-spot-dist aws-proxy-dist aws-spot-proxy-dist
 
 mpc-dist: mpc
 	${GIT_ROOT}/make/package-terraform mpc
+	rm *.tf *.tf.json
 
 aws-dist: aws
 	${GIT_ROOT}/make/package-terraform aws
+	rm *.tf *.tf.json
+
+aws-spot-dist: aws-spot
+	${GIT_ROOT}/make/package-terraform aws-spot
+	rm *.tf *.tf.json
 
 aws-proxy-dist: aws-proxy
-	$(call print_status, Package AWS with proxy terraform configuration for distribution)
-	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
-	mkdir -p $$base/aws-proxy/terraform && \
-	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-proxy.tf terraform/README-aws.md hcf-aws-proxy.tf.json $$base/aws-proxy/ && \
-	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-proxy/terraform/ && \
-	( cd $$base && zip -r9 ${CURDIR}/aws-proxy-$(APP_VERSION).zip aws-proxy ) && \
-	rm -rf $$base && \
-	echo Generated aws-proxy-$(APP_VERSION).zip
+	${GIT_ROOT}/make/package-terraform aws-proxy
+	rm *.tf *.tf.json
 
-aws-spot-dist: aws
-	$(call print_status, Package AWS spot instance terraform configuration for distribution)
-	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
-	mkdir $$base/aws-spot && \
-	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot.tf terraform/README-aws.md hcf-aws.tf.json $$base/aws-spot/ && \
-	( cd $$base && zip -r9 ${CURDIR}/aws-spot-$(APP_VERSION).zip aws-spot ) && \
-	rm -rf $$base && \
-	echo Generated aws-spot-$(APP_VERSION).zip
-
-aws-spot-proxy-dist: aws-proxy
-	$(call print_status, Package AWS spot instance with proxy terraform configuration for distribution)
-	@base=$$(mktemp -d aws_XXXXXXXXXX) && \
-	mkdir -p $$base/aws-spot-proxy/terraform && \
-	cp -rf container-host-files terraform/aws.tfvars.example terraform/aws-spot-proxy.tf terraform/README-aws.md hcf-aws-proxy.tf.json $$base/aws-spot-proxy/ && \
-	cp terraform/proxy.conf terraform/proxy-setup.sh $$base/aws-spot-proxy/terraform/ && \
-	( cd $$base && zip -r9 ${CURDIR}/aws-spot-proxy-$(APP_VERSION).zip aws-spot-proxy ) && \
-	rm -rf $$base && \
-	echo Generated aws-spot-proxy-$(APP_VERSION).zip
+aws-spot-proxy-dist: aws-spot-proxy
+	${GIT_ROOT}/make/package-terraform aws-spot-proxy
+	rm *.tf *.tf.json
 
 mpc-terraform-tests:
 	${GIT_ROOT}/make/terraform-tests mpc ${OS_SSH_KEY_PATH}

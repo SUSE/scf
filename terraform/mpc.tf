@@ -47,7 +47,7 @@ variable "skip_ssl_validation" {
     description = "Skip SSL validation when interacting with OpenStack"
 }
 
-variable "cluster-prefix" {
+variable "cluster_prefix" {
 	description = "Prefix prepended to all cluster resources (volumes, hostnames, security groups)"
 	default = "hcf"
 }
@@ -150,7 +150,7 @@ resource "openstack_networking_floatingip_v2" "hcf-core-host-fip" {
 # Disk/Volume for /data, see setup_blockstore.sh
 
 resource "openstack_blockstorage_volume_v1" "hcf-core-vol-data" {
-  name = "${var.cluster-prefix}-core-vol-data"
+  name = "${var.cluster_prefix}-core-vol-data"
   description = "Helion Cloud Foundry Core Data"
   size = "${var.core_volume_size_data}"
   availability_zone = "nova" ## "${var.openstack_availability_zone}"
@@ -159,14 +159,14 @@ resource "openstack_blockstorage_volume_v1" "hcf-core-vol-data" {
 # Disk/Volume for docker device-mapper, see configure_docker.sh
 
 resource "openstack_blockstorage_volume_v1" "hcf-core-vol-mapper" {
-  name = "${var.cluster-prefix}-core-vol-mapper"
+  name = "${var.cluster_prefix}-core-vol-mapper"
   description = "Helion Cloud Foundry Core Mapper"
   size = "${var.core_volume_size_mapper}"
   availability_zone = "nova" ## "${var.openstack_availability_zone}"
 }
 
 resource "openstack_compute_instance_v2" "hcf-core-host" {
-    name        = "${var.cluster-prefix}-core"
+    name        = "${var.cluster_prefix}-core"
     flavor_name = "${var.openstack_flavor_name.core}"
     image_name  = "${var.openstack_base_image_name}"
     key_pair    = "${var.openstack_keypair}"
@@ -212,7 +212,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 
     provisioner "remote-exec" {
         inline = [
-            "echo 127.0.0.1 ${var.cluster-prefix}-core | sudo tee -a /etc/hosts",
+            "echo 127.0.0.1 ${var.cluster_prefix}-core | sudo tee -a /etc/hosts",
             # The fix above prevents sudo from moaning about its inability to resolve the hostname.
             # We see it of course moaning once, in the sudo above. Afterward it should not anymore.
             # Terraform, or the image it uses apparently sets the name only into /etc/hostname.

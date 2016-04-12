@@ -15,7 +15,7 @@ openstack_network_id = "..."
 # setup will have this string as their prefix. Use this to distinguish
 # the setup from all other similar setups.
 
-cluster-prefix       = "..."
+cluster_prefix       = "..."
 
 ## HP's Docker Trusted Registry: Authentication
 docker_username = "legituser"

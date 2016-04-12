@@ -32,10 +32,31 @@ case ${TARGET} in
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
-        OPTIONS="${OPTIONS} --provider tf:$(echo ${TARGET} | tr - :)"
-
-        cp terraform/${TARGET}.tf ${GIT_ROOT}/
+        OPTIONS="${OPTIONS} --provider tf:$(echo ${TARGET} | sed -e 's@-spot@@' | tr - :)"
         ;;
+esac
+
+# Assemble AWS/MPC terraform from pieces, with variants overriding base definitions.
+case ${TARGET} in
+    mpc)
+	cp terraform/mpc.tf ${GIT_ROOT}/
+	;;
+    aws*)
+	cp terraform/aws/common/*.tf ${GIT_ROOT}/
+	;;
+esac
+case ${TARGET} in
+    aws-spot)
+	cp terraform/aws/spot/*.tf ${GIT_ROOT}/
+	;;
+    aws-proxy)
+	cp terraform/aws/proxy/*.tf ${GIT_ROOT}/
+	;;
+    aws-spot-proxy)
+	cp terraform/aws/spot/*.tf       ${GIT_ROOT}/
+	cp terraform/aws/proxy/*.tf      ${GIT_ROOT}/
+	cp terraform/aws/spot-proxy/*.tf ${GIT_ROOT}/
+	;;
 esac
 
 DOCKER_RUNTIME=${DOCKER_RUNTIME:-'helioncf/hcf-pipeline-ruby-bosh'}

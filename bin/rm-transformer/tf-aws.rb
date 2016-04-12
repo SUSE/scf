@@ -25,9 +25,9 @@ class ToTerraformAWS < ToTerraform
     {
       'frontend' => {
         'tags' => {
-          'Name' => '${var.cluster-prefix}-frontend'
+          'Name' => '${var.cluster_prefix}-frontend'
         },
-        'name' => '${var.cluster-prefix}-frontend',
+        'name' => '${var.cluster_prefix}-frontend',
         'description' => 'Frontend',
         'vpc_id' => '${aws_vpc.cluster.id}'
       }
