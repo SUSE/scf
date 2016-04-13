@@ -1413,3 +1413,6 @@ configuration:
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.port: 443
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.garden.http_proxy: '"((HTTP_PROXY))"'
+    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.no_proxy: '"((NO_PROXY))"'
