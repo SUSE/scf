@@ -41,6 +41,7 @@ lvs
 dopts="--storage-driver=devicemapper"
 dopts="$dopts --storage-opt dm.datadev=/dev/vg-docker/data"
 dopts="$dopts --storage-opt dm.metadatadev=/dev/vg-docker/metadata"
+dopts="$dopts --storage-opt dm.basesize=100G"
 
 for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
   if test -n "${!var}" ; then
