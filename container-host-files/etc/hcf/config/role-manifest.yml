@@ -520,7 +520,7 @@ roles:
   - name: syslog_drain_binder
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port": 8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port": 8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"doppler", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -605,7 +605,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     capabilities: []
     persistent-volumes: []
@@ -1297,7 +1297,6 @@ configuration:
     properties.diego.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.diego.tps.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.diego.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
-    properties.diego.tps.traffic_controller_url: '"wss://doppler.((DOMAIN)):443"'
     properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
     properties.diego.bbs.ad_address_suffix: '"((BBS_AD_ADDRESS_SUFFIX))"'
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
