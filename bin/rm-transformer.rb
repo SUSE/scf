@@ -147,40 +147,43 @@ def load_role_manifest(path, env_dir)
   role_manifest
 end
 
-  # Loaded structure
-  ##
-  # the_roles.roles[].name				/string
-  # the_roles.roles[].type				/string (*)
-  # the_roles.roles[].scripts[]				/string
-  # the_roles.roles[].jobs[].name			/string
-  # the_roles.roles[].jobs[].release_name		/string
-  # the_roles.roles[].processes[].name			/string
-  # the_roles.roles[].configuration.variables[].name	/string
-  # the_roles.roles[].configuration.variables[].default	/string
-  # the_roles.roles[].configuration.templates.<any>	/string
-  # the_roles.roles[].run.capabilities[]		/string
-  # the_roles.roles[].run.flight-stage			/string (**)
-  # the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
-  # the_roles.roles[].run.persistent-volumes[].size	/float [GB]
-  # the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
-  # the_roles.roles[].run.shared-volumes[].size		/float [GB]
-  # the_roles.roles[].run.shared-volumes[].tag		/string
-  # the_roles.roles[].run.memory			/float [MB]
-  # the_roles.roles[].run.virtual-cpus			/int
-  # the_roles.roles[].run.exposed-ports[].name		/string
-  # the_roles.roles[].run.exposed-ports[].protocol	/string
-  # the_roles.roles[].run.exposed-ports[].source	/int
-  # the_roles.roles[].run.exposed-ports[].target	/int
-  # the_roles.roles[].run.exposed-ports[].public	/bool
-  # the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
-  # the_roles.configuration.variables[].name		/string
-  # the_roles.configuration.variables[].default		/string
-  # the_roles.configuration.variables[].example		/string
-  # the_roles.configuration.variables[].secret		/bool
-  # the_roles.configuration.templates.<any>		/string (key -> value)
+# Loaded structure
+##
+# the_roles.roles[].name				/string
+# the_roles.roles[].type				/string (*)
+# the_roles.roles[].scripts[]				/string
+# the_roles.roles[].jobs[].name				/string
+# the_roles.roles[].jobs[].release_name			/string
+# the_roles.roles[].processes[].name			/string
+# the_roles.roles[].configuration.variables[].name	/string
+# the_roles.roles[].configuration.variables[].default	/string
+# the_roles.roles[].configuration.templates.<any>	/string
+# the_roles.roles[].run.capabilities[]			/string
+# the_roles.roles[].run.flight-stage			/string (**)
+# the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
+# the_roles.roles[].run.persistent-volumes[].size	/float [GB]
+# the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
+# the_roles.roles[].run.shared-volumes[].size		/float [GB]
+# the_roles.roles[].run.shared-volumes[].tag		/string
+# the_roles.roles[].run.memory				/float [MB]
+# the_roles.roles[].run.virtual-cpus			/int
+# the_roles.roles[].run.scaling.indexed			/int
+# the_roles.roles[].run.scaling.min			/int
+# the_roles.roles[].run.scaling.max			/int
+# the_roles.roles[].run.exposed-ports[].name		/string
+# the_roles.roles[].run.exposed-ports[].protocol	/string
+# the_roles.roles[].run.exposed-ports[].source	/int
+# the_roles.roles[].run.exposed-ports[].target	/int
+# the_roles.roles[].run.exposed-ports[].public	/bool
+# the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
+# the_roles.configuration.variables[].name		/string
+# the_roles.configuration.variables[].default		/string
+# the_roles.configuration.variables[].example		/string
+# the_roles.configuration.variables[].secret		/bool
+# the_roles.configuration.templates.<any>		/string (key -> value)
 
-  # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
-  # (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
+# (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
+# (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
 
 # Sanity check the role definitions
 def check_roles(roles)

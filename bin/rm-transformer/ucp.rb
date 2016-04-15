@@ -173,11 +173,44 @@ class ToUCP < Common
     fs.push(the_fs)
   end
 
-  def add_component(roles, fs, comps, role, retrycount = 0)
-    rname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
-
+  def add_component(roles, fs, comps, role, retrycount, index = nil, min = nil, max = nil)
     runtime = role['run']
+
+    # Main call from process_roles ?
+    if index.nil?
+      scaling = runtime['scaling']
+      indexed = scaling['indexed']
+      min     = scaling['min']
+      max     = scaling['max']
+
+      if indexed > 1
+        # Non-trivial scaling. Replicate the role as specified,
+        # with min and max computed per the HA specification.
+        # The component clone is created by a recursive call
+        # which cannot get here because of the 'index' getting set.
+        (0..(indexed-1)).each do |x|
+          mini = scale_min(x,indexed,min,max)
+          maxi = scale_max(x,indexed,min,max)
+          add_component(roles, fs, comps, role, retrycount, x+1, mini, maxi)
+          #                                  clone index is 1^^..indexed
+        end
+        return
+        # Do not run the remainder, we have made all the clones above.
+      end
+      # Trivial scaling (no replication, min & max used directly)
+    end
+
+    bname = role['name']
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
+
+    rname = bname
+    rname = rname + "#{index}" unless index.nil?
+
+    ename = "HCF Role '#{rname}'"
+    ename = ename + " \##{index}" unless index.nil?
+
+    labels = [ bname ]
+    labels << rname unless rname == bname
 
     the_comp = {
       'name'          => rname,
@@ -191,13 +224,13 @@ class ToUCP < Common
       'capabilities'  => runtime['capabilities'],
       'depends_on'    => [],	  # No dependency info in the RM
       'affinity'      => [],	  # No affinity info in the RM
-      'labels'        => [rname], # TODO: Maybe also label with the jobs ?
-      'min_instances' => 1,
-      'max_instances' => 1,
-      'service_ports' => [],	# Fill from role runtime config, see below
-      'volume_mounts' => [],	# Ditto
-      'parameters'    => [],	# Fill from role configuration, see below
-      'external_name' => "HCF Role '#{rname}'",
+      'labels'        => labels,  # TODO: Maybe also label with the jobs ?
+      'min_instances' => min,     # See above for the calculation for the
+      'max_instances' => max,     # component and its clones.
+      'service_ports' => [],	  # Fill from role runtime config, see below
+      'volume_mounts' => [],	  # Ditto
+      'parameters'    => [],	  # Fill from role configuration, see below
+      'external_name' => ename,
       'workload_type' => 'container'
     }
 
@@ -313,6 +346,26 @@ class ToUCP < Common
     {
       'name' => var['name']
     }
+  end
+
+  def scale_min(x,indexed,mini,maxi)
+    last = [mini,indexed].min-1
+    if x < last
+      1
+    elsif x = last
+      mini-x
+    else
+      0
+    end
+  end
+
+  def scale_max(x,indexed,mini,maxi)
+    last = indexed-1
+    if x < last
+      1
+    else
+      maxi-x
+    end
   end
 
   # # ## ### ##### ########
