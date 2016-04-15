@@ -22,7 +22,7 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 - **max:** maximum number of instances of a role
 - **indexed:** the number of cloned components for a role
 
-	[![HA scaling definitions](high-availability-scaling-definitions.png)](high-availability-scaling-definitions.md)
+  [![HA scaling definitions](high-availability-scaling-definitions.png)](high-availability-scaling-definitions.md)
 
 ## Role manifest capabilities
 
@@ -44,26 +44,26 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
         ...
     ```
 
-		For the UCP, this will yield a configuration similar to (details cut for brevity):
+    For the UCP, this will yield a configuration similar to (details cut for brevity):
 
-		```json
-		"components": [
-	    {
-	      "name": "nats-0",
-	      "min_instances": 1,
-	      "max_instances": 1
-			},
-			{
-	      "name": "nats-1",
-	      "min_instances": 1,
-	      "max_instances": 1
-			},
-			{
-	      "name": "nats-2",
-	      "min_instances": 1,
-	      "max_instances": 1
-			}
-		]
+    ```json
+    "components": [
+      {
+        "name": "nats-0",
+        "min_instances": 1,
+        "max_instances": 1
+      },
+      {
+        "name": "nats-1",
+        "min_instances": 1,
+        "max_instances": 1
+      },
+      {
+        "name": "nats-2",
+        "min_instances": 1,
+        "max_instances": 1
+      }
+    ]
     ```
 
   - Example for `diego-cell`
@@ -79,17 +79,17 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
           indexed: 1
         ...
     ```
-		For the UCP, this will yield a configuration similar to (details cut for brevity):
+    For the UCP, this will yield a configuration similar to (details cut for brevity):
 
-		```json
-		"components": [
-	    {
-	      "name": "diego-cell",
-	      "min_instances": 1,
-	      "max_instances": 65535
-			}
-		]
-    ```		
+    ```json
+    "components": [
+      {
+        "name": "diego-cell",
+        "min_instances": 1,
+        "max_instances": 65535
+      }
+    ]
+    ```    
 
 2. The index configuration template in the role manifest.
 

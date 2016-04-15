@@ -3,7 +3,7 @@ Edited here: https://www.codecogs.com/latex/eqneditor.php
 
 ```latex
 \\
-min_r \in \mathbb{Z}_>_0 \\
+min_r \in \mathbb{Z}_\geq_0 \\
 max_r \in \mathbb{Z}_>_0, max_r \geq min_r \\
 indexed_r \in \mathbb{Z}_>_0, indexed_r \leq max_r \\
 \\
