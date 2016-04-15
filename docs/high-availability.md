@@ -51,17 +51,20 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
       {
         "name": "nats-0",
         "min_instances": 1,
-        "max_instances": 1
+        "max_instances": 1,
+        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=0", "/opt/hcf/run.sh"]
       },
       {
         "name": "nats-1",
         "min_instances": 1,
-        "max_instances": 1
+        "max_instances": 1,
+        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=1", "/opt/hcf/run.sh"]
       },
       {
         "name": "nats-2",
         "min_instances": 1,
-        "max_instances": 1
+        "max_instances": 1,
+        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=2", "/opt/hcf/run.sh"]
       }
     ]
     ```
@@ -86,7 +89,8 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
       {
         "name": "diego-cell",
         "min_instances": 1,
-        "max_instances": 65535
+        "max_instances": 65535,
+        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=0", "/opt/hcf/run.sh"]
       }
     ]
     ```    
@@ -95,10 +99,7 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 
   The template for `index` should be `((HCF_ROLE_INDEX))`.
 
-  For roles that have `scaling/indexed > 1`, the environment variable `((HCF_ROLE_INDEX))` should be automatically set to the correct value by our transformers.
-
-  Once UCP gives us an environment variable for component instance index, we will need to update the `index` template to use it.
-  This might only be possible after Kubernetes 1.3 is released.
+  For roles that have `scaling/indexed > 1`, the environment variable `((HCF_ROLE_INDEX))` should be automatically set to the correct value by our transformers. In UCP, this variable can only be set by modifying the entrypoint of the component, as shown in the examples at point #1. 
 
 ## Load balanced roles
 
