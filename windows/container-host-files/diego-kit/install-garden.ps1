@@ -82,8 +82,7 @@ if ($gardenProduct) {
 }
 
 
-echo "msiexec /passive /norestart /i $wd\GardenWindows.msi ^
-  MACHINE_IP=$machineIp" `
+echo "msiexec /passive /norestart /i $wd\GardenWindows.msi  MACHINE_IP=$machineIp" `
  | Out-File -Encoding ascii  $wd\install-garden.bat
 
 
