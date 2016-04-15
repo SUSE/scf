@@ -189,8 +189,7 @@ class ToUCP < Common
       (0..(indexed-1)).each do |x|
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
-        add_component(roles, fs, comps, role, retrycount, x+1, mini, maxi)
-        #                                  clone index is 1^^..indexed
+        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
         end
     else
       # Trivial scaling, no index, use min/max as is.
@@ -236,6 +235,9 @@ class ToUCP < Common
     }
 
     the_comp['retry_count'] = retrycount if retrycount > 0
+    the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_ROLE_INDEX=#{index}",
+                              "/opt/hcf/run.sh"] unless index.nil?
 
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
