@@ -162,7 +162,7 @@ class AWSTester < TerraformTester
         aws_region:                  ['AWS_DEFAULT_REGION', nil],
         public_key_file:             'AWS_PUBLIC_KEY_PATH',
         private_key_file:            'AWS_PRIVATE_KEY_PATH',
-        :'cluster-prefix' =>         ['CLUSTER_PREFIX', nil],
+        cluster_prefix:             ['CLUSTER_PREFIX', nil],
         docker_username:             'DOCKER_USERNAME',
         docker_email:                'DOCKER_EMAIL',
         docker_password:             'DOCKER_PASSWORD',

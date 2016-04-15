@@ -15,9 +15,9 @@ class ToTerraformAWSWithProxy < ToTerraformAWS
     super.merge(
       'backend' => {
         'tags' => {
-          'Name' => '${var.cluster-prefix}-backend'
+          'Name' => '${var.cluster_prefix}-backend'
         },
-        'name' => '${var.cluster-prefix}-backend',
+        'name' => '${var.cluster_prefix}-backend',
         'description' => 'Backend',
         'vpc_id' => '${aws_vpc.cluster.id}'
       }

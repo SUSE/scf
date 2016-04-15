@@ -42,7 +42,7 @@ class ToTerraformMPC < ToTerraform
     @out['resource'] << {
       'openstack_compute_secgroup_v2' => {
         'hcf-container-host-secgroup' => {
-          'name' => '${var.cluster-prefix}-container-host',
+          'name' => '${var.cluster_prefix}-container-host',
           'description': 'HCF Container Hosts',
           'rule' => rules
         }
