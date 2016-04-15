@@ -909,7 +909,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     flight-stage: manual
     capabilities: []
@@ -926,7 +926,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     flight-stage: manual
     capabilities: []
@@ -940,7 +940,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     flight-stage: manual
     capabilities: []
@@ -973,7 +973,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes: []
@@ -991,7 +991,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes:
@@ -1008,7 +1008,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes:
@@ -1024,7 +1024,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes:
@@ -1040,7 +1040,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: ['ALL']
     persistent-volumes:
@@ -1056,7 +1056,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 0
       max: 1
     capabilities: ['ALL']
     persistent-volumes:
