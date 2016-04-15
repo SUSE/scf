@@ -113,7 +113,7 @@ class ToUCP < Common
 
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_component(roles, fs, dst, role, retries)
+      add_role(roles, fs, dst, role, retries)
 
       # Collect per-role parameters
       if role['configuration'] && role['configuration']['variables']
@@ -173,33 +173,32 @@ class ToUCP < Common
     fs.push(the_fs)
   end
 
-  def add_component(roles, fs, comps, role, retrycount, index = nil, min = nil, max = nil)
+  def add_role(roles, fs, comps, role, retrycount)
     runtime = role['run']
 
-    # Main call from process_roles ?
-    if index.nil?
-      scaling = runtime['scaling']
-      indexed = scaling['indexed']
-      min     = scaling['min']
-      max     = scaling['max']
+    scaling = runtime['scaling']
+    indexed = scaling['indexed']
+    min     = scaling['min']
+    max     = scaling['max']
 
-      if indexed > 1
-        # Non-trivial scaling. Replicate the role as specified,
-        # with min and max computed per the HA specification.
-        # The component clone is created by a recursive call
-        # which cannot get here because of the 'index' getting set.
-        (0..(indexed-1)).each do |x|
-          mini = scale_min(x,indexed,min,max)
-          maxi = scale_max(x,indexed,min,max)
-          add_component(roles, fs, comps, role, retrycount, x+1, mini, maxi)
-          #                                  clone index is 1^^..indexed
+    if indexed > 1
+      # Non-trivial scaling. Replicate the role as specified,
+      # with min and max computed per the HA specification.
+      # The component clone is created by a recursive call
+      # which cannot get here because of the 'index' getting set.
+      (0..(indexed-1)).each do |x|
+        mini = scale_min(x,indexed,min,max)
+        maxi = scale_max(x,indexed,min,max)
+        add_component(roles, fs, comps, role, retrycount, x+1, mini, maxi)
+        #                                  clone index is 1^^..indexed
         end
-        return
-        # Do not run the remainder, we have made all the clones above.
-      end
-      # Trivial scaling (no replication, min & max used directly)
+    else
+      # Trivial scaling, no index, use min/max as is.
+      add_component(roles, fs, comps, role, retrycount, nil, min, max)
     end
+  end
 
+  def add_component(roles, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
     iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
 
@@ -211,6 +210,8 @@ class ToUCP < Common
 
     labels = [ bname ]
     labels << rname unless rname == bname
+
+    runtime = role['run']
 
     the_comp = {
       'name'          => rname,
