@@ -13,6 +13,10 @@ roles:
   - name: nats
   - name: nats_stream_forwarder
   run:
+    scaling:
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -34,6 +38,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -90,6 +98,10 @@ roles:
   - name: galera-healthcheck
   - name: gra-log-purger-executable
   run:
+    scaling:
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -135,6 +147,10 @@ roles:
   - name: route-registrar
   - name: switchboard
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -194,6 +210,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -247,6 +267,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -283,6 +307,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -310,6 +338,10 @@ roles:
   - name: route_registrar
   - name: metron_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -366,6 +398,10 @@ roles:
   - name: nginx_cc
   - name: statsd-injector
   run:
+    scaling:
+      indexed: 2
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -402,6 +438,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -425,6 +465,10 @@ roles:
   - name: route_registrar
   - name: metron_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -460,6 +504,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -479,6 +527,10 @@ roles:
   - name: route_registrar
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -522,6 +574,10 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"doppler", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -556,6 +612,10 @@ roles:
   - name: etcd
   - name: metron_agent
   run:
+    scaling:
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -607,6 +667,10 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -639,6 +703,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -676,6 +744,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -745,6 +817,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -771,6 +847,10 @@ roles:
   - name: ssh_proxy
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -811,6 +891,10 @@ roles:
   - name: rep
   - name: garden
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: ['ALL']
     persistent-volumes: []
     shared-volumes: []
@@ -823,6 +907,10 @@ roles:
   - name: acceptance-tests
     release_name: cf
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     flight-stage: manual
     capabilities: []
     persistent-volumes: []
@@ -836,6 +924,10 @@ roles:
   - name: smoke-tests
     release_name: cf
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     flight-stage: manual
     capabilities: []
     persistent-volumes: []
@@ -846,6 +938,10 @@ roles:
 - name: diego-debugger
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     flight-stage: manual
     capabilities: []
     persistent-volumes: []
@@ -861,6 +957,10 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     flight-stage: post-flight
     capabilities: []
     persistent-volumes: []
@@ -871,6 +971,10 @@ roles:
 - name: windows-dns
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -885,6 +989,10 @@ roles:
 - name: dev-service-mongodb
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /data/db
@@ -898,6 +1006,10 @@ roles:
   dev-only: true
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/lib/mysql
@@ -910,6 +1022,10 @@ roles:
 - name: dev-service-postgres
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/lib/postgresql/data
@@ -922,6 +1038,10 @@ roles:
 - name: dev-service-rabbitmq
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/rabbitmq-data
@@ -934,6 +1054,10 @@ roles:
 - name: dev-service-redis
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/redis-data
@@ -951,6 +1075,10 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     flight-stage: post-flight
     capabilities: []
     persistent-volumes: []
