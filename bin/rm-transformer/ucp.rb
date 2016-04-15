@@ -204,7 +204,7 @@ class ToUCP < Common
     rname = bname
     rname = rname + "-#{index}" unless index.nil?
 
-    ename = "HCF Role '#{rname}'"
+    ename = "HCF Role '#{bname}'"
     ename = ename + " \##{index}" unless index.nil?
 
     labels = [ bname ]
@@ -235,9 +235,11 @@ class ToUCP < Common
     }
 
     the_comp['retry_count'] = retrycount if retrycount > 0
+
+    index = 0 if index.nil?
     the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
-                              "/opt/hcf/run.sh"] unless index.nil?
+                              "/opt/hcf/run.sh"]
 
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
