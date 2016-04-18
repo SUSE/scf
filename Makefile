@@ -54,6 +54,11 @@ clean-harder: clean
 	$(call print_status, Cleaning docker containers)
 	-docker rm --force $(shell docker ps --all --quiet --filter=name=fissile-)
 
+clean-running-roles:
+	@docker ps --all --format '{{.ID}} {{.Image}}' | \
+	  awk 'index($$2, "docker.helion.lol/helioncf/hcf-") == 0 || index($$2, "dev-service-") == 0 { print $$1 }' | \
+	  xargs --no-run-if-empty docker rm --force
+
 all: images tag terraform
 
 fetch-submodules:
