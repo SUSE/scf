@@ -1296,6 +1296,8 @@ configuration:
     secret: true
   - name: SKIP_CERT_VERIFY
     default: true
+  - name: ROUTER_ACCESS_LOG_STREAMING
+    default: false
   # Proxy
   - name: HTTP_PROXY
     default: ""
@@ -1431,6 +1433,7 @@ configuration:
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
+    properties.router.enable_access_log_streaming: '"((ROUTER_ACCESS_LOG_STREAMING))"'
     properties.cc.internal_service_hostname: '"((API_HOST))"'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
