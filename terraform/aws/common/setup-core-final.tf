@@ -32,6 +32,10 @@ resource "null_resource" "core_setup_final" {
 
             # (25) Run the jobs
             "echo ___ Start the jobs ______________________",
+	    "export    HCF_RUN_STORE=${var.runtime_store_directory}",
+	    "mkdir -p $HCF_RUN_STORE",
+	    "export    HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}",
+	    "mkdir -p $HCF_RUN_LOG_DIRECTORY",
             "bash -e ${var.fs_host_root}/opt/hcf/bin/run-all-roles.sh ${var.fs_host_root}/opt/hcf/etc"
         ]
     }
