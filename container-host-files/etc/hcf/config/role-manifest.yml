@@ -1510,6 +1510,7 @@ configuration:
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
+    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
