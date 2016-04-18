@@ -1435,6 +1435,7 @@ configuration:
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
+    properties.diego.benchmark-bbs.benchmark-bbs.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
