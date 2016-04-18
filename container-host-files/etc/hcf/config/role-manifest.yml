@@ -1353,6 +1353,7 @@ configuration:
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
+    properties.consul.agent.domain: '"((DOMAIN))"'
     properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
