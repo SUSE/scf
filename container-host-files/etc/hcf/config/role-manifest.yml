@@ -864,7 +864,6 @@ roles:
 - name: diego-cell
   scripts:
   - prevent_apparmor_disable.sh
-  - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
@@ -1546,3 +1545,4 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
