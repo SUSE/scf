@@ -257,6 +257,7 @@ properties:
       tweak_proc_sys: false
     cc_uploader:
       tweak_proc_sys: false
+      log_level: debug
     converger:
       bbs:
         require_ssl: true
@@ -308,9 +309,11 @@ properties:
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
+      log_level: debug
     tps:
       bbs:
         require_ssl: true
+      log_level: debug
   domain: example.com
   doppler:
     tweak_locked_memory: false
