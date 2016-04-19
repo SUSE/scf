@@ -11,10 +11,6 @@ done
 . $GIT_ROOT/container-host-files/opt/hcf/bin/common.sh
 load_all_roles
 list_roles_by_flight_stage post-flight | while read ROLE; do
-    cmd="docker ps -a --filter='status=exited' --filter='name=$ROLE' --format='{{.ID}}'"
-    id="$($cmd)"
-    if [[ -n "$id" ]] ; then
-	docker rm $id
-    fi
+    ${GIT_ROOT}/container-host-files/opt/hcf/bin/stop-role.sh ${ROLE}
 done
 
