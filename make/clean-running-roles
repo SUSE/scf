@@ -1,0 +1,5 @@
+#!/bin/sh
+
+docker ps --all --format '{{.ID}} {{.Image}}' |
+  perl -ne 'my @a = split; print "$a[0]\n" if $a[1] =~ m{^(?:docker.helion.lol/helioncf/|dev-service-[-_\w]+:)}' |
+  xargs --no-run-if-empty docker rm --force
