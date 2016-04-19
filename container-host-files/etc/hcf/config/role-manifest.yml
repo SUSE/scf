@@ -563,16 +563,10 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  - name: route_registrar
-    release_name: cf
   processes:
   - name: doppler
   - name: metron_agent
-  - name: route_registrar
   - name: syslog_drain_binder
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       indexed: 1
@@ -665,7 +659,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       indexed: 1
