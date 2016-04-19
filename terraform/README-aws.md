@@ -28,6 +28,20 @@
   Scripts and configuration files uploaded into the µcloud to support
   its provisioning.
 
+## Setting up docker
+
+
+# log in:
+docker login -u legituser -p trustme -e legit@us.er docker.helion.lol
+
+In the hcf dir of an hcf vagrant box:
+export GIT_BRANCH=something # like dickh-dev
+make tag
+make publish
+
+make show-docker-setup # shows how the vars in aws.tfvars should be set:
+hcf_version="dickh-dev" # or whatever GIT_BRANCH was set to
+
 ## Usage
 
 * Copy `aws.tfvars.example` to `aws.tfvars` and then edit the
