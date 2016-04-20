@@ -245,8 +245,8 @@ class ToUCP < Common
     pv = runtime['persistent-volumes']
     sv = runtime['shared-volumes']
 
-    add_volumes(fs, the_comp, pv, false) if pv
-    add_volumes(fs, the_comp, sv, true) if sv
+    add_volumes(fs, the_comp, pv, index, false) if pv
+    add_volumes(fs, the_comp, sv, nil, true) if sv
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
@@ -266,22 +266,25 @@ class ToUCP < Common
     comps.push(the_comp)
   end
 
-  def add_volumes(fs, component, volumes, shared_fs)
+  def add_volumes(fs, component, volumes, index, shared_fs)
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, shared_fs)
+      serial, the_vol = convert_volume(fs, v, serial, index, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, shared_fs)
+  def convert_volume(fs, v, serial, index, shared_fs)
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
 
+      if !index.nil? && index != 0
+        vname = vname + "-#{index}"
+      end
       add_filesystem(fs, vname, vsize, false)
     end
 
