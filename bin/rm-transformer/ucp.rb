@@ -202,7 +202,7 @@ class ToUCP < Common
     iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
 
     rname = bname
-    rname = rname + "-#{index}" unless index.nil?
+    rname = rname + "-#{index}" unless index.nil? || index == 0
 
     ename = "HCF Role '#{bname}'"
     ename = ename + " \##{index}" unless index.nil?
