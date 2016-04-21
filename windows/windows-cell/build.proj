@@ -24,8 +24,7 @@
     <!-- Directory containing this .proj file -->
 
     <ProjectRoot>$(MSBuildThisFileDirectory)</ProjectRoot>
-    <OutputDir>$(ProjectRoot)\output</OutputDir>
-    <CnapCmdletsScript>$(ProjectRoot)\cnap-cmdlets.ps1</CnapCmdletsScript>
+    <CnapCmdletsScript>$(ProjectRoot)\..\cnap-cmdlets.ps1</CnapCmdletsScript>
 
     <WindowsCellVHDPath>$(ProjectRoot)windows-cell.vhdx</WindowsCellVHDPath>
     <WindowsCellVHDSizeMB>500</WindowsCellVHDSizeMB>

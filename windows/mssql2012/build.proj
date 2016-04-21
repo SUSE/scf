@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  Available Targets:
+
+  /t:Build
+    Builds VHD containing Mssql Express 2012.
+
+  /t:Clean
+    Cleans build artifacts.
+
+  /t:CreateVHD
+    Creates a VHD.
+    
+  /t:MountVHD
+    Mounts a VHD to the specified path.
+ 	
+  /t:DismountVHD
+    Unmounts a VHD.
+    
+  -->
+
+  <PropertyGroup>
+    <!-- Directory containing this .proj file -->
+
+    <ProjectRoot>$(MSBuildThisFileDirectory)</ProjectRoot>
+    <CnapCmdletsScript>$(ProjectRoot)\..\cnap-cmdlets.ps1</CnapCmdletsScript>
+    <MssqlHelperScript>$(ProjectRoot)\mssql-helper.ps1</MssqlHelperScript>
+
+    <Mssql2012VHDPath>$(ProjectRoot)mssql2012.vhdx</Mssql2012VHDPath>
+    <Mssql2012VHDSizeMB>1800</Mssql2012VHDSizeMB>
+    <Mssql2012VHDMountPoint>$(ProjectRoot)mssql2012</Mssql2012VHDMountPoint>
+
+    <!-- Path to nuget.exe -->
+    <NuGetCommand>&quot;$(ProjectRoot)\..\.nuget\nuget.exe&quot;</NuGetCommand>
+    <!-- Path to location of msbuild tasks -->
+    <MSBuildTasksDirectory>$(ProjectRoot)\..\msbuild\</MSBuildTasksDirectory>
+    <!-- Name of msbuild community tasks nuget package -->
+    <MSBuildPackage>MSBuildTasks</MSBuildPackage>
+    <!-- Version of msbuild community tasks nuget package -->
+    <MSBuildPackageVersion>1.4.0.128</MSBuildPackageVersion>
+    <!-- MSBuild community tasks targets file -->
+    <MSBuildExtensionsTargetsFile>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\MSBuild.Community.Tasks.Targets</MSBuildExtensionsTargetsFile>
+    <!-- Path to msbuild extensions - required by the package -->
+    <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
+
+    <Mssql2012ExpressDownloadURL>http://download.microsoft.com/download/5/2/9/529FEF7B-2EFB-439E-A2D1-A1533227CD69/SQLEXPRWT_x64_ENU.exe</Mssql2012ExpressDownloadURL>
+    <Mssql2012ExpressFile>$(ProjectRoot)\SQLEXPRWT_x64_ENU.exe</Mssql2012ExpressFile>
+    <Mssql2012ExpressInstallDir>$(Mssql2012VHDMountPoint)\SQLEXPRWT_x64_ENU</Mssql2012ExpressInstallDir>
+    
+  </PropertyGroup>
+
+  <!-- Imports -->
+  <Import Condition="Exists('$(MSBuildExtensionsTargetsFile)')" Project="$(MSBuildExtensionsTargetsFile)" />
+
+  <!-- Target for setting up msbuild community tasks -->
+  <Target Name="MSBuildCommunityTasks">
+    <MakeDir Directories="$(MSBuildTasksDirectory)" />
+    <Exec Command="$(NuGetCommand) install $(MSBuildPackage) -Version $(MSBuildPackageVersion) -OutputDirectory $(MSBuildTasksDirectory)"/>
+  </Target>
+
+  <Target Name="Clean">
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Dismount-CNAPVHD -vhdPath $(Mssql2012VHDPath) -mountPath $(Mssql2012VHDMountPoint)"' />
+    <Delete Files="$(Mssql2012ExpressFile);$(Mssql2012VHDPath)"/>
+  </Target>
+
+  <Target Name="Build">
+    <CallTarget Targets="CreateVHD"/>
+    <CallTarget Targets="MountVHD"/>
+    <CallTarget Targets="PrepareInstaller"/>
+    <CallTarget Targets="DismountVHD"/>
+  </Target>
+
+  <Target Name="Rebuild">
+    <CallTarget Targets="Clean"/>
+    <CallTarget Targets="Build"/>
+  </Target>
+
+  <Target Name="CreateVHD">
+    <Message Importance="high" Text="Creating VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); New-CNAPVHD -vhdPath $(Mssql2012VHDPath) -sizeInMB $(Mssql2012VHDSizeMB)"' />
+  </Target>
+
+  <Target Name="MountVHD">
+    <Message Importance="high" Text="Mounting VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Mount-CNAPVHD -vhdPath $(Mssql2012VHDPath) -mountPath $(Mssql2012VHDMountPoint)"' />
+  </Target>
+
+  <Target Name="DismountVHD">
+    <Message Importance="high" Text="Dismounting VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Dismount-CNAPVHD -vhdPath $(Mssql2012VHDPath) -mountPath $(Mssql2012VHDMountPoint)"' />
+  </Target>
+
+  <Target Name="PrepareInstaller">
+    <Message Importance="high" Text="Downloading MSSQL Express Installer ..." />
+    <WebDownload FileUri="$(Mssql2012ExpressDownloadURL)" FileName="$(Mssql2012ExpressFile)"/>
+    <Message Importance="high" Text="Extracting MSSQL Express Installer ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(MssqlHelperScript); ExtractSQLServer $(Mssql2012ExpressFile) $(Mssql2012ExpressInstallDir)"' />
+    <Copy SourceFiles="$(ProjectRoot)\run.ps1" DestinationFolder="$(Mssql2012VHDMountPoint)"/>
+  </Target>
+</Project>
