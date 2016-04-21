@@ -113,7 +113,7 @@ class ToUCP < Common
 
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_component(roles, fs, dst, role, retries)
+      add_role(roles, fs, dst, role, retries)
 
       # Collect per-role parameters
       if role['configuration'] && role['configuration']['variables']
@@ -173,9 +173,42 @@ class ToUCP < Common
     fs.push(the_fs)
   end
 
-  def add_component(roles, fs, comps, role, retrycount = 0)
-    rname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
+  def add_role(roles, fs, comps, role, retrycount)
+    runtime = role['run']
+
+    scaling = runtime['scaling']
+    indexed = scaling['indexed']
+    min     = scaling['min']
+    max     = scaling['max']
+
+    if indexed > 1
+      # Non-trivial scaling. Replicate the role as specified,
+      # with min and max computed per the HA specification.
+      # The component clone is created by a recursive call
+      # which cannot get here because of the 'index' getting set.
+      indexed.times do |x|
+        mini = scale_min(x,indexed,min,max)
+        maxi = scale_max(x,indexed,min,max)
+        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
+        end
+    else
+      # Trivial scaling, no index, use min/max as is.
+      add_component(roles, fs, comps, role, retrycount, nil, min, max)
+    end
+  end
+
+  def add_component(roles, fs, comps, role, retrycount, index, min, max)
+    bname = role['name']
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
+
+    rname = bname
+    rname += "-#{index}" if index && index > 0
+
+    ename = "HCF Role '#{bname}'"
+    ename += " \##{index}" if index
+
+    labels = [ bname ]
+    labels << rname if rname != bname
 
     runtime = role['run']
 
@@ -191,24 +224,29 @@ class ToUCP < Common
       'capabilities'  => runtime['capabilities'],
       'depends_on'    => [],	  # No dependency info in the RM
       'affinity'      => [],	  # No affinity info in the RM
-      'labels'        => [rname], # TODO: Maybe also label with the jobs ?
-      'min_instances' => 1,
-      'max_instances' => 1,
-      'service_ports' => [],	# Fill from role runtime config, see below
-      'volume_mounts' => [],	# Ditto
-      'parameters'    => [],	# Fill from role configuration, see below
-      'external_name' => "HCF Role '#{rname}'",
+      'labels'        => labels,  # TODO: Maybe also label with the jobs ?
+      'min_instances' => min,     # See above for the calculation for the
+      'max_instances' => max,     # component and its clones.
+      'service_ports' => [],	  # Fill from role runtime config, see below
+      'volume_mounts' => [],	  # Ditto
+      'parameters'    => [],	  # Fill from role configuration, see below
+      'external_name' => ename,
       'workload_type' => 'container'
     }
 
     the_comp['retry_count'] = retrycount if retrycount > 0
 
+    index = 0 if index.nil?
+    the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_ROLE_INDEX=#{index}",
+                              "/opt/hcf/run.sh"]
+
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
     sv = runtime['shared-volumes']
 
-    add_volumes(fs, the_comp, pv, false) if pv
-    add_volumes(fs, the_comp, sv, true) if sv
+    add_volumes(fs, the_comp, pv, index, false) if pv
+    add_volumes(fs, the_comp, sv, nil, true) if sv
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
@@ -228,21 +266,22 @@ class ToUCP < Common
     comps.push(the_comp)
   end
 
-  def add_volumes(fs, component, volumes, shared_fs)
+  def add_volumes(fs, component, volumes, index, shared_fs)
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, shared_fs)
+      serial, the_vol = convert_volume(fs, v, serial, index, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, shared_fs)
+  def convert_volume(fs, v, serial, index, shared_fs)
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
+      vname += "-#{index}" if index && index > 0
 
       add_filesystem(fs, vname, vsize, false)
     end
@@ -313,6 +352,26 @@ class ToUCP < Common
     {
       'name' => var['name']
     }
+  end
+
+  def scale_min(x,indexed,mini,maxi)
+    last = [mini,indexed].min-1
+    if x < last
+      1
+    elsif x = last
+      mini-x
+    else
+      0
+    end
+  end
+
+  def scale_max(x,indexed,mini,maxi)
+    last = indexed-1
+    if x < last
+      1
+    else
+      maxi-x
+    end
   end
 
   # # ## ### ##### ########
