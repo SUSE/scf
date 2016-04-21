@@ -186,7 +186,7 @@ class ToUCP < Common
       # with min and max computed per the HA specification.
       # The component clone is created by a recursive call
       # which cannot get here because of the 'index' getting set.
-      (0..(indexed-1)).each do |x|
+      indexed.times do |x|
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
         add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
@@ -202,13 +202,13 @@ class ToUCP < Common
     iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
 
     rname = bname
-    rname = rname + "-#{index}" unless index.nil? || index == 0
+    rname += "-#{index}" if index && index > 0
 
     ename = "HCF Role '#{bname}'"
-    ename = ename + " \##{index}" unless index.nil?
+    ename += " \##{index}" if index
 
     labels = [ bname ]
-    labels << rname unless rname == bname
+    labels << rname if rname != bname
 
     runtime = role['run']
 
@@ -281,10 +281,8 @@ class ToUCP < Common
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
+      vname += "-#{index}" if index && index > 0
 
-      if !index.nil? && index != 0
-        vname = vname + "-#{index}"
-      end
       add_filesystem(fs, vname, vsize, false)
     end
 
