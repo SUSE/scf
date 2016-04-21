@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  Available Targets:
+
+  /t:Build
+    Builds VHD containing everything needed for the Windows Cell.
+
+  /t:Clean
+    Cleans build artifacts.
+
+  /t:CreateVHD
+    Creates a VHD.
+
+  /t:MountVHD
+    Mounts a VHD to the specified path.
+
+  /t:DismountVHD
+    Unmounts a VHD.
+
+  -->
+
+  <PropertyGroup>
+    <!-- Directory containing this .proj file -->
+
+    <ProjectRoot>$(MSBuildThisFileDirectory)</ProjectRoot>
+    <OutputDir>$(ProjectRoot)\output</OutputDir>
+    <CnapCmdletsScript>$(ProjectRoot)\cnap-cmdlets.ps1</CnapCmdletsScript>
+
+    <WindowsCellVHDPath>$(ProjectRoot)windows-cell.vhdx</WindowsCellVHDPath>
+    <WindowsCellVHDSizeMB>500</WindowsCellVHDSizeMB>
+    <WindowsCellVHDMountPoint>$(ProjectRoot)windows-cell-mount</WindowsCellVHDMountPoint>
+
+    <!-- Path to nuget.exe -->
+    <NuGetCommand>&quot;$(ProjectRoot)\..\.nuget\nuget.exe&quot;</NuGetCommand>
+    <!-- Path to location of msbuild tasks -->
+    <MSBuildTasksDirectory>$(ProjectRoot)\..\msbuild\</MSBuildTasksDirectory>
+    <!-- Name of msbuild community tasks nuget package -->
+    <MSBuildPackage>MSBuildTasks</MSBuildPackage>
+    <!-- Version of msbuild community tasks nuget package -->
+    <MSBuildPackageVersion>1.4.0.128</MSBuildPackageVersion>
+    <!-- MSBuild community tasks targets file -->
+    <MSBuildExtensionsTargetsFile>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\MSBuild.Community.Tasks.Targets</MSBuildExtensionsTargetsFile>
+    <!-- Path to msbuild extensions - required by the package -->
+    <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
+
+    <DiegoWindowsDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-12-2016-04-15_13-42-48/diego-installer.exe</DiegoWindowsDownloadURL>
+    <DiegoWindowsFile>$(WindowsCellVHDMountPoint)\diego-installer.exe</DiegoWindowsFile>
+
+    <GardenWindowsVersion>v0.122</GardenWindowsVersion>
+    <GardenWindowsDownloadURL>https://github.com/cloudfoundry/garden-windows-release/releases/download/$(GardenWindowsVersion)/GardenWindows.msi</GardenWindowsDownloadURL>
+    <GardenWindowsFile>$(WindowsCellVHDMountPoint)\GardenWindows.msi</GardenWindowsFile>
+
+    <VCRedist2013x86DownloadURL>http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe</VCRedist2013x86DownloadURL>
+    <VCRedist2013x86File>$(WindowsCellVHDMountPoint)\vcredist_x86.exe</VCRedist2013x86File>
+
+    <VCRedist2013x64DownloadURL>http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe</VCRedist2013x64DownloadURL>
+    <VCRedist2013x64File>$(WindowsCellVHDMountPoint)\vcredist_x64.exe</VCRedist2013x64File>
+
+    <VCRedist2015x86DownloadURL>https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x86.exe</VCRedist2015x86DownloadURL>
+    <VCRedist2015x86File>$(WindowsCellVHDMountPoint)\VC_redist.x86.exe</VCRedist2015x86File>
+
+    <VCRedist2015x64DownloadURL>https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe</VCRedist2015x64DownloadURL>
+    <VCRedist2015x64File>$(WindowsCellVHDMountPoint)\VC_redist.x64.exe</VCRedist2015x64File>
+  </PropertyGroup>
+
+  <!-- Imports -->
+  <Import Condition="Exists('$(MSBuildExtensionsTargetsFile)')" Project="$(MSBuildExtensionsTargetsFile)" />
+
+  <!-- Target for setting up msbuild community tasks -->
+  <Target Name="MSBuildCommunityTasks">
+    <MakeDir Directories="$(MSBuildTasksDirectory)" />
+    <Exec Command="$(NuGetCommand) install $(MSBuildPackage) -Version $(MSBuildPackageVersion) -OutputDirectory $(MSBuildTasksDirectory)"/>
+  </Target>
+
+  <Target Name="Clean">
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Dismount-CNAPVHD -vhdPath $(WindowsCellVHDPath) -mountPath $(WindowsCellVHDMountPoint)"' />
+    <Delete Files="$(WindowsCellVHDPath)"/>
+  </Target>
+
+  <Target Name="Build">
+    <CallTarget Targets="CreateVHD"/>
+    <CallTarget Targets="MountVHD"/>
+    <CallTarget Targets="DownloadInstallers"/>
+    <CallTarget Targets="DismountVHD"/>
+  </Target>
+
+  <Target Name="Rebuild">
+    <CallTarget Targets="Clean"/>
+    <CallTarget Targets="Build"/>
+  </Target>
+
+  <Target Name="CreateVHD">
+    <Message Importance="high" Text="Creating VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); New-CNAPVHD -vhdPath $(WindowsCellVHDPath) -sizeInMB $(WindowsCellVHDSizeMB)"' />
+  </Target>
+
+  <Target Name="MountVHD">
+    <Message Importance="high" Text="Mounting VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Mount-CNAPVHD -vhdPath $(WindowsCellVHDPath) -mountPath $(WindowsCellVHDMountPoint)"' />
+  </Target>
+
+  <Target Name="DismountVHD">
+    <Message Importance="high" Text="Dismounting VHD ..." />
+    <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(CnapCmdletsScript); Dismount-CNAPVHD -vhdPath $(WindowsCellVHDPath) -mountPath $(WindowsCellVHDMountPoint)"' />
+  </Target>
+
+  <Target Name="DownloadInstallers">
+    <WebDownload FileUri="$(DiegoWindowsDownloadURL)" FileName="$(DiegoWindowsFile)"/>
+    <WebDownload FileUri="$(GardenWindowsDownloadURL)" FileName="$(GardenWindowsFile)"/>
+    <WebDownload FileUri="$(VCRedist2013x86DownloadURL)" FileName="$(VCRedist2013x86File)"/>
+    <WebDownload FileUri="$(VCRedist2013x64DownloadURL)" FileName="$(VCRedist2013x64File)"/>
+    <WebDownload FileUri="$(VCRedist2015x86DownloadURL)" FileName="$(VCRedist2015x86File)"/>
+    <WebDownload FileUri="$(VCRedist2015x64DownloadURL)" FileName="$(VCRedist2015x64File)"/>
+    <Copy SourceFiles="$(ProjectRoot)\run.ps1" DestinationFolder="$(WindowsCellVHDMountPoint)"/>
+  </Target>
+</Project>
