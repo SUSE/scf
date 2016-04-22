@@ -73,7 +73,7 @@ function AddSystemUser()
 
 function InstallWindowsFeatures()
 {
-	Install-WindowsFeature -Name NetFx3 -IncludeAllSubFeature -Source D:\sources\sxs
+	Install-WindowsFeature -Name Net-Framework-Core -Source D:\sources\sxs
 }
 
 InstallWindowsFeatures
