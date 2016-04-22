@@ -239,6 +239,7 @@ class ToUCP < Common
     index = 0 if index.nil?
     the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
+                              "HCF_ROLE_HOST=#{rname}",
                               "/opt/hcf/run.sh"]
 
     # Record persistent and shared volumes, ports
