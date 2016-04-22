@@ -151,3 +151,31 @@ cat C:\diego\logs\* | sls 'error'
 ```
 
 - To reinstall and configure all Windows Diego services again use: `vagrant provision`
+
+## Setup and run windows with HTTP proxy for testing purposes
+
+- Run an instance of Squid as a docker container in HCF Vagrant box
+```
+docker run  --name squid  -d  --restart=always \
+--publish 3128:3128  sameersbn/squid:3.3.8-12
+```
+
+- Set HTTP proxy environment variables configs in `bin/dev-settings.env`
+```
+HTTP_PROXY=http://192.168.77.77:3128
+http_proxy=http://192.168.77.77:3128
+HTTPS_PROXY=http://192.168.77.77:3128
+https_proxy=http://192.168.77.77:3128
+NO_PROXY=.hcf,127.0.0.1
+```
+
+- Create a Cloud Foundry security group with access to the proxy server
+```
+echo '[{"protocol":"tcp","destination":"192.168.77.77","ports":"3128"}]' > /tmp/proxy-security-group.json
+cf create-security-group http_proxy /tmp/proxy-security-group.json
+cf bind-running-security-group http_proxy
+cf bind-running-security-group http_proxy
+```
+
+- Internet access can be disabled on the Windows Vagrant box with:
+`route delete 0.0.0.0`
