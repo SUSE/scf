@@ -1,0 +1,127 @@
+#+TITLE: git-notary
+#+SUBTITLE: a versioning experiment for git
+#+LATEX: \pagebreak
+
+* Overview
+
+~git-notary~ generates canonical version tags from versioning notes.
+
+** Why would I want this?
+
+~git-notary~ may be helpful if you want to use Semantic Versioning in a project
+with many contributors and some manner of branch-oriented workflow. Tracking
+versioning information with a ~VERSION~ file seems like a great idea, but has
+some quirks.
+
+** An Example Scenario
+
+Consider the following (simplified) scenario:
+
+#+BEGIN_EXAMPLE
+  ,*   e44e210 - (HEAD -> develop) Merge branch 'bar' into develop
+  |\
+  | * e1793f3 - (bar) PATCH
+  | * f231d3b - MAJOR 
+  | * 5c69653 - MAJOR
+  ,* |   67543e1 - Merge branch 'foo' into develop
+  |\ \
+  | |/
+  |/|
+  | * ea81623 - (foo) MAJOR
+  | * 8b773db - PATCH
+  | * 6613b79 - MINOR
+  |/
+  ,* 21c36f3 - (master) MINOR
+  ,* 64357c2 - MINOR
+  ,* 9ebfd7d - MINOR
+  ,* cc5d832 - PATCH
+  ,* ebc851f - MINOR
+  ,* a75790f - PATCH
+  ,* 572a9e8 - MAJOR
+  ,* a990127 - (tag: 0.0.0) INITIAL
+#+END_EXAMPLE
+
+In this example, two branches (~foo~ and ~bar~) were created from ~master~
+(~21c36f3~). Both branches know that ~1.4.0~ is the latest tag (at the time they
+branched). Let's assume these branches do not conflict with each other.
+
+With a ~VERSION~ file, a project generally chooses one of two places to update it:
+
+- Updates occur in the branch. In this case, once either branch is merged, the
+  other is in conflict with it.
+- Updates occur in the trunk. In this case, the trunk now contains code that did
+  not originate in a branch. Again, the first merged is safe, but the other is
+  in a conflicting state.
+
+If ~foo~ merges first, the expected version post-merge is ~2.0.0~.
+
+If ~bar~ merges first, the expected version is ~3.0.1~.
+
+At ~e44e210~ (~HEAD~ of ~develop~), the final version should be ~4.0.1~, but if
+the merge order were reversed, it should be ~4.0.0~. This gets worse as the
+number of active branches increases.
+
+* Assumptions
+
+- Versioning is important.
+- Versions should communicate scope of change.
+- Humans can signal the scope of their own changes.
+- Machines can figure out the rest.
+
+* Installation
+
+Download the latest release of ~git-notary~ and place it somewhere in your ~$PATH~.
+#+LATEX: \pagebreak
+
+* Usage
+
+** Add new versioning information
+
+#+BEGIN_SRC shell
+  git-notary new <version> [object] [namespace]
+#+END_SRC
+
+Where <version> is one of (major, minor, patch).
+
+** Undo a version
+
+#+BEGIN_SRC shell
+  git-notary undo [object] [namespace]
+#+END_SRC
+
+** Fetch versioning notes
+
+#+BEGIN_SRC shell
+  git-notary fetch [remote] [namespace]
+#+END_SRC
+
+** Push versioning notes
+
+#+BEGIN_SRC shell
+  git-notary push [remote] [namespace]
+#+END_SRC
+
+** Extract Notes
+
+#+BEGIN_SRC shell
+  git-notary notes [branch] [base] [namespace]
+#+END_SRC
+
+** Compute Versions from Notes
+
+#+BEGIN_SRC shell
+  git-notary notes | git-notary versions [initial]
+#+END_SRC
+
+** Generate Tags from Versions
+
+#+BEGIN_SRC shell
+  git-notary notes | git-notary versions | git-notary tags [--apply]
+#+END_SRC
+
+* License
+
+~git-notary~ is available under the [[https://tldrlegal.com/license/mit-license][MIT License]]. See ~LICENSE.txt~ for the full text.
+
+* Contributors
+- [[https://colstrom.github.io/][Chris Olstrom]] | [[mailto:chris@olstrom.com][e-mail]] | [[https://twitter.com/ChrisOlstrom][Twitter]]

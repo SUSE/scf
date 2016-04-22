@@ -1,0 +1,12 @@
+#!/bin/sh
+
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+    if git-notary notes ${LOCAL_SHA} develop > /dev/null; then
+        BRANCH_HAS_NOTES=true
+    else
+        BRANCH_HAS_NOTES=false
+        break
+    fi
+done
+
+test ${BRANCH_HAS_NOTES} = true
