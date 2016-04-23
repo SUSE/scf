@@ -7,10 +7,10 @@ if [ -f "${SENTINEL}" ]; then
   exit 0
 fi
 
-read -d '' setup_patch_mariadb_ctl_config <<PATCH || true
---- mariadb_ctl_config.yml.erb
-+++ mariadb_ctl_config.yml_patched.erb
-@@ -31,5 +31,5 @@ Manager:
+read -d '' setup_patch_mariadb_ctl_config <<"PATCH" || true
+--- mariadb_ctl_config.yml.erb	2016-03-15 22:17:31.000000000 +0000
++++ mariadb_ctl_config_patched.yml.erb	2016-04-23 02:17:12.000000000 +0000
+@@ -31,5 +31,5 @@
    <% cluster_ips.each do |ip| %>
    - <%= ip %>
    <% end %>
@@ -19,10 +19,10 @@ read -d '' setup_patch_mariadb_ctl_config <<PATCH || true
    DatabaseStartupTimeout: <%= (p('cf_mysql.mysql.database_startup_timeout') * 0.8).round %>
 PATCH
 
-read -d '' setup_patch_my_cnf <<PATCH || true
---- my.cnf.erb
-+++ my.cnf_patched.erb
-@@ -28,7 +28,7 @@ nice      = 0
+read -d '' setup_patch_my_cnf <<"PATCH" || true
+--- my.cnf.erb	2016-03-15 22:17:31.000000000 +0000
++++ my.cnf_patched.erb	2016-04-23 02:10:44.000000000 +0000
+@@ -28,7 +28,7 @@
  wsrep_provider=/var/vcap/packages/mariadb/lib/plugin/libgalera_smm.so
  wsrep_provider_options="gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE"
  wsrep_cluster_address="gcomm://<%= cluster_ips.join(",") %>"
