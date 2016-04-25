@@ -3,8 +3,11 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
 $sqlServerExtractionPath = Join-Path $wd "SQLEXPRWT_x64_ENU"
-$saPasswd = "INullPeer0000"
-$sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe'
+
+if (!$saPasswd) { $saPasswd = "INullPeer0000" }
+if (!$sqlDataDir) { $sqlDataDir = "c:\SQLDatabases" }
+
+$sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\sqlcmd.exe'
 
 function InstallSqlServer()
 {
@@ -13,7 +16,7 @@ function InstallSqlServer()
 	$argList = "/ACTION=Install", "/INDICATEPROGRESS", "/Q", "/UpdateEnabled=False", "/FEATURES=SQLEngine", "/INSTANCENAME=SQLEXPRESS",
             	    "/INSTANCEID=SQLEXPRESS","/X86=False", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=Administrator",
             	    "/ADDCURRENTUSERASSQLADMIN=False","/TCPENABLED=1","/NPENABLED=0","/SECURITYMODE=SQL","/IACCEPTSQLSERVERLICENSETERMS",
-            	    "/SAPWD=${saPasswd}"
+            	    "/SAPWD=${saPasswd}","/INSTALLSQLDATADIR=${sqlDataDir}"
 
 	$sqlServerSetup = Join-Path $sqlServerExtractionPath "SETUP.EXE"
 
