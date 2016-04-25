@@ -446,6 +446,11 @@ Name    | Effect | Notes |
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
+  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility) 
+  for `cf-release`, `diego-release`, `etcd-release`, and `garden-linux-release`. If you are bumping
+  all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
+  1 and 2 in the example:
+
   The following example is for `cf-release`. You can follow the same steps for other releases.
 
   1. On the host machine, clone the repository that you want to bump:
