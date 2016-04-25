@@ -6,12 +6,12 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 RELEASE=${1}
 
-VERSION_INFO=$("${GIT_ROOT}/bin/get-cf-versions.sh" ${RELEASE})
+VERSION_INFO=$("${GIT_ROOT}/bin/get-cf-versions.sh" "${RELEASE}")
 
-CF_RELEASE=$(echo ${VERSION_INFO} | jq -r .[\"cf-release-commit-sha\"])
-ETCD_RELEASE=v$(echo ${VERSION_INFO} | jq -r .[\"etcd-release-version\"])
-GARDEN_LINUX_RELEASE=v$(echo ${VERSION_INFO} | jq -r .[\"garden-linux-release-version\"])
-DIEGO_RELEASE=$(echo ${VERSION_INFO} | jq -r .[\"diego-release-commit-sha\"])
+CF_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"cf-release-commit-sha\"])
+ETCD_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"etcd-release-version\"])
+GARDEN_LINUX_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"garden-linux-release-version\"])
+DIEGO_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"diego-release-commit-sha\"])
 
 update_submodule () {
 	release_name=${1}
@@ -34,7 +34,7 @@ do
 	fi
 done
 
-update_submodule cf-release ${CF_RELEASE}
-update_submodule diego-release ${DIEGO_RELEASE}
-update_submodule etcd-release ${ETCD_RELEASE}
-update_submodule garden-linux-release ${GARDEN_LINUX_RELEASE}
+update_submodule cf-release "${CF_RELEASE}"
+update_submodule diego-release "${DIEGO_RELEASE}"
+update_submodule etcd-release "${ETCD_RELEASE}"
+update_submodule garden-linux-release "${GARDEN_LINUX_RELEASE}"
