@@ -15,7 +15,7 @@ read -d '' setup_patch_mariadb_ctl_config <<"PATCH" || true
    - <%= ip %>
    <% end %>
 -  MyIP: <%= spec.networks.send(p('network_name')).ip %>
-+  MyIP: <%= p('cf_mysql.advertise_host') || spec.networks.send(p('network_name')).ip %>
++  MyIP: <%= p('cf_mysql.mysql.advertise_host') || spec.networks.send(p('network_name')).ip %>
    DatabaseStartupTimeout: <%= (p('cf_mysql.mysql.database_startup_timeout') * 0.8).round %>
 PATCH
 
@@ -27,7 +27,7 @@ read -d '' setup_patch_my_cnf <<"PATCH" || true
  wsrep_provider_options="gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE"
  wsrep_cluster_address="gcomm://<%= cluster_ips.join(",") %>"
 -wsrep_node_address='<%= spec.networks.send(p('network_name')).ip %>'
-+wsrep_node_address='<%= p('cf_mysql.advertise_host') || spec.networks.send(p('network_name')).ip %>'
++wsrep_node_address='<%= p('cf_mysql.mysql.advertise_host') || spec.networks.send(p('network_name')).ip %>'
  wsrep_node_name='<%= name %>/<%= index %>'
  wsrep_cluster_name='cf-mariadb-galera-cluster'
  wsrep_sst_method=xtrabackup-v2
