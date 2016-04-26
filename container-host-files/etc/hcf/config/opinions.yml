@@ -138,6 +138,8 @@ properties:
       cdn: null
       fog_connection: null
       resource_directory_key: example.com-cc-resources
+    security_event_logging:
+      enabled: null
     security_group_definitions:
     - name: public_networks
       rules:
