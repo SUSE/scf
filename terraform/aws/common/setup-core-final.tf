@@ -30,12 +30,17 @@ resource "null_resource" "core_setup_final" {
             "mkdir -p ${var.fs_host_root}/opt/hcf/etc/",
             "echo '${null_resource.rm_configuration.triggers.rm_configuration}' > ${var.fs_host_root}/opt/hcf/etc/dev-settings.env",
 
-            # (25) Run the jobs
-            "echo ___ Start the jobs ______________________",
+            "echo ___ Redirect logs and store ______________________",    
 	    "export    HCF_RUN_STORE=${var.runtime_store_directory}",
 	    "mkdir -p $HCF_RUN_STORE",
 	    "export    HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}",
 	    "mkdir -p $HCF_RUN_LOG_DIRECTORY",
+
+	    # Save redirection into the bash setup for interactive users.
+	    "env|grep HCF_RUN_|sed -e '/^/export /' >> .bashrc",
+
+            # (25) Run the jobs
+            "echo ___ Start the jobs ______________________",
             "bash -e ${var.fs_host_root}/opt/hcf/bin/run-all-roles.sh ${var.fs_host_root}/opt/hcf/etc"
         ]
     }
