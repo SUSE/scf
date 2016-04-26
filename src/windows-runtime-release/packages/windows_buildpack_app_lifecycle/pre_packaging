@@ -3,4 +3,4 @@ set -e
 
 cd ${BUILD_DIR}
 
-curl -L -o windows_buildpack_app_lifecycle.tgz https://ci.appveyor.com/api/buildjobs/5ppowt3e22nrp8sf/artifacts/output/windows_app_lifecycle-03360d1.tgz
+curl -L -o windows_buildpack_app_lifecycle.tgz https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/windows_app_lifecycle/output/windows_app_lifecycle-378c48f.tgz

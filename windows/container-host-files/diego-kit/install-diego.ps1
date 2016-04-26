@@ -42,13 +42,15 @@ $diegoInterface | Remove-NetIPAddress -AddressFamily IPv4 -Confirm:$false
 $diegoInterface | New-NetIPAddress -AddressFamily IPv4  -IPAddress $ipaddr -PrefixLength $maskbits
 
 
-## Prepare diego configs parameters
+## Read HCF Settings
 
-$hcfSettings = @{}
-$hcfCertsConfig = @{}
+$hcfSettings = New-Object System.Collections.Hashtable
+$hcfCertsConfig = New-Object System.Collections.Hashtable
 (cat "C:\hcf\bin\dev-settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
 (cat "C:\hcf\bin\dev-certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfCertsConfig.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
 
+
+## Prepare diego configs parameters
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
 $env:DIEGO_USER_PASSWORD = "changeme1234!"
