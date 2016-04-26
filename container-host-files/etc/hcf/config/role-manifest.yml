@@ -864,7 +864,6 @@ roles:
 - name: diego-cell
   scripts:
   - prevent_apparmor_disable.sh
-  - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
@@ -1297,6 +1296,8 @@ configuration:
     secret: true
   - name: SKIP_CERT_VERIFY
     default: true
+  - name: ROUTER_ACCESS_LOG_STREAMING
+    default: false
   # Proxy
   - name: HTTP_PROXY
     default: ""
@@ -1350,9 +1351,17 @@ configuration:
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
+    properties.cc.core_file_pattern: ""
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
+    properties.consul.agent.domain: '"((DOMAIN))"'
+    properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
+    properties.consul.ca_cert: '"((CONSUL_CA_CERT))"'
+    properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
+    properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
+    properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
+    properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
     properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
@@ -1430,12 +1439,14 @@ configuration:
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
+    properties.router.enable_access_log_streaming: '"((ROUTER_ACCESS_LOG_STREAMING))"'
     properties.cc.internal_service_hostname: '"((API_HOST))"'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
+    properties.diego.benchmark-bbs.benchmark-bbs.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
@@ -1509,6 +1520,7 @@ configuration:
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
+    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
@@ -1546,3 +1558,4 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'

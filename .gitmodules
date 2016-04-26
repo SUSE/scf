@@ -1,21 +1,21 @@
 [submodule "src/cf-release"]
 	path = src/cf-release
-	url = https://github.com/hpcloud/cf-release.git
+	url = https://github.com/cloudfoundry/cf-release.git
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = git@github.com:hpcloud/cf-usb.git
 [submodule "src/garden-linux-release"]
 	path = src/garden-linux-release
-	url = https://github.com/hpcloud/garden-linux-release.git
+	url = https://github.com/cloudfoundry-incubator/garden-linux-release.git
 [submodule "src/diego-release"]
 	path = src/diego-release
-	url = https://github.com/hpcloud/diego-release.git
+	url = https://github.com/cloudfoundry-incubator/diego-release.git
 [submodule "src/etcd-release"]
 	path = src/etcd-release
-	url = https://github.com/hpcloud/etcd-release
+	url = https://github.com/cloudfoundry-incubator/etcd-release
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
-	url = https://github.com/hpcloud/cf-mysql-release.git
+	url = https://github.com/cloudfoundry/cf-mysql-release.git
 [submodule "src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb"]
 	path = src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb
 	url = git@github.com:hpcloud/cf-plugin-usb.git

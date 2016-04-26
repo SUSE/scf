@@ -37,6 +37,7 @@ certs_path="/tmp/hcf/certs"
 hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
+consul_path="${certs_path}/consul"
 domain="192.168.77.77.nip.io"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
@@ -81,6 +82,27 @@ certstrap --depot-path "${etcd_certs_dir}"  sign etcdClient  --CA etcdCA  --pass
 certstrap --depot-path "${etcd_certs_dir}"  init  --common-name "etcdPeerCA"  --passphrase $signing_key_passphrase
 certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
 certstrap --depot-path "${etcd_certs_dir}"  sign etcdPeer  --CA etcdPeerCA  --passphrase $signing_key_passphrase
+
+# generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
+# CA to distribute to consul agent and servers
+certstrap --depot-path ${consul_path} init --passphrase '' --common-name consulCA
+mv -f ${consul_path}/consulCA.crt ${consul_path}/server-ca.crt
+mv -f ${consul_path}/consulCA.key ${consul_path}/server-ca.key
+
+# Server certificate to share across the consul cluster
+server_cn=server.dc1.${domain}
+certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name $server_cn
+certstrap --depot-path ${consul_path} sign $server_cn --CA server-ca
+mv -f ${consul_path}/$server_cn.key ${consul_path}/server.key
+mv -f ${consul_path}/$server_cn.csr ${consul_path}/server.csr
+mv -f ${consul_path}/$server_cn.crt ${consul_path}/server.crt
+
+# Agent certificate to distribute to jobs that access consul
+certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name 'consul agent'
+certstrap --depot-path ${consul_path} sign consul_agent --CA server-ca
+mv -f ${consul_path}/consul_agent.key ${consul_path}/agent.key
+mv -f ${consul_path}/consul_agent.csr ${consul_path}/agent.csr
+mv -f ${consul_path}/consul_agent.crt ${consul_path}/agent.crt
 
 # generate SSH Host certs
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
@@ -133,6 +155,11 @@ ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
 BLOBSTORE_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.cert")
 BLOBSTORE_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.key")
+CONSUL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server-ca.crt")
+CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.crt")
+CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.key")
+CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.crt")
+CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.key")
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
@@ -161,6 +188,11 @@ BLOBSTORE_TLS_CERT=${BLOBSTORE_TLS_CERT}
 BLOBSTORE_TLS_KEY=${BLOBSTORE_TLS_KEY}
 UAA_PRIVATE_KEY=${UAA_PRIVATE_KEY}
 UAA_CERTIFICATE=${UAA_CERTIFICATE}
+CONSUL_CA_CERT=${CONSUL_CA_CERT}
+CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
+CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
+CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
+CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
 ENVS
 
 echo "Keys wrote to ${output_path}"
