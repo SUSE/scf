@@ -44,9 +44,9 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 3
-      min: 3
-      max: 3
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -222,9 +222,9 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 3
-      min: 3
-      max: 3
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -320,7 +320,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -351,7 +351,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -411,7 +411,7 @@ roles:
   run:
     scaling:
       indexed: 2
-      min: 1
+      min: 4
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -451,7 +451,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -478,7 +478,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes:
@@ -581,7 +581,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -618,9 +618,9 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 3
-      min: 3
-      max: 3
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -674,7 +674,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -710,7 +710,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -751,7 +751,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -824,7 +824,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 3
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -876,6 +876,7 @@ roles:
   scripts:
   - prevent_apparmor_disable.sh
   - make_sys_proc_tweaks_optional.sh
+  - fix_diego_cell_id.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
   jobs:
@@ -897,7 +898,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 1
+      min: 5
       max: 65535
     capabilities: ['ALL']
     persistent-volumes: []
@@ -944,9 +945,8 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 0
+      min: 1
       max: 1
-    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -993,6 +993,7 @@ roles:
 - name: dev-service-mongodb
   type: docker
   run:
+    flight-stage: manual
     scaling:
       indexed: 1
       min: 0
@@ -1010,6 +1011,7 @@ roles:
   dev-only: true
   type: docker
   run:
+    flight-stage: manual
     scaling:
       indexed: 1
       min: 0
@@ -1026,6 +1028,7 @@ roles:
 - name: dev-service-postgres
   type: docker
   run:
+    flight-stage: manual
     scaling:
       indexed: 1
       min: 0
@@ -1042,6 +1045,7 @@ roles:
 - name: dev-service-rabbitmq
   type: docker
   run:
+    flight-stage: manual
     scaling:
       indexed: 1
       min: 0
@@ -1058,6 +1062,7 @@ roles:
 - name: dev-service-redis
   type: docker
   run:
+    flight-stage: manual
     scaling:
       indexed: 1
       min: 0
@@ -1095,6 +1100,7 @@ configuration:
   - name: API_HOST
     default: "api"
   - name: API_HA_HOST
+    required: false
   - name: BLOBSTORE_HOST
     default: "blobstore"
   - name: BLOBSTORE_USERNAME
@@ -1105,8 +1111,10 @@ configuration:
     secret: true
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
-  - name: DIEGO_DATABASE_HA_HOST_1
-  - name: DIEGO_DATABASE_HA_HOST_2
+#  - name: DIEGO_DATABASE_HA_HOST_1
+#    required: false
+#  - name: DIEGO_DATABASE_HA_HOST_2
+#    required: false
   - name: DIEGO_ACCESS_HOST
     default: "diego-access"
   - name: DIEGO_CC_BRIDGE_HOST
@@ -1116,21 +1124,29 @@ configuration:
   - name: NATS_HOST
     default: "nats"
   - name: NATS_HA_HOST_1
+    required: false
   - name: NATS_HA_HOST_2
+    required: false
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy"
   - name: MYSQL_HOST
     default: "mysql"
   - name: MYSQL_HA_HOST_1
+    required: false
   - name: MYSQL_HA_HOST_2
+    required: false
   - name: ETCD_HOST
     default: "etcd"
   - name: ETCD_HA_HOST_1
+    required: false
   - name: ETCD_HA_HOST_2
+    required: false
   - name: CONSUL_HOST
     default: "consul"
-  - name: CONSUL_HA_HOST_1
-  - name: CONSUL_HA_HOST_2
+#  - name: CONSUL_HA_HOST_1
+#    required: false
+#  - name: CONSUL_HA_HOST_2
+#    required: false
   - name: ROUTER_HOST
     default: "router"
   - name: LOGGREGATOR_HOST
@@ -1572,5 +1588,5 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.cf_mysql.advertise_host: '"((HCF_ROLE_HOST))"'
+    properties.cf_mysql.mysql.advertise_host: '"((HCF_ROLE_HOST))"'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
