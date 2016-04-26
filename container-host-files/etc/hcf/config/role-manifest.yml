@@ -1538,16 +1538,9 @@ configuration:
     properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
-    properties.cc.tweak_proc_sys: false
-    properties.router.tweak_proc_sys: false
     properties.doppler.tweak_locked_memory: false
     properties.traffic_controller.tweak_locked_memory: false
     properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.diego.bbs.tweak_proc_sys: false
-    properties.diego.cc_uploader.tweak_proc_sys: false
-    properties.diego.file_server.tweak_proc_sys: false
-    properties.diego.rep.tweak_proc_sys: false
-    properties.diego.stager.tweak_proc_sys: false
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'

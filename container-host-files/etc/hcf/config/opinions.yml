@@ -6,7 +6,6 @@ properties:
   - example.com
   app_ssh: null
   cc:
-    tweak_proc_sys: false
     allow_app_ssh_access: true
     allowed_cors_domains: []
     app_events:
@@ -241,7 +240,6 @@ properties:
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
-    kernel_network_tuning_enabled: false
     # Used in cc_ng and cc_worker
     staging_disk_limit_mb: 6144
     # Used in cc_ng and cc_worker
@@ -256,9 +254,7 @@ properties:
         # Until we figure out DNS names
         require_ssl: false
       require_ssl: true
-      tweak_proc_sys: false
     cc_uploader:
-      tweak_proc_sys: false
       log_level: debug
     converger:
       bbs:
@@ -272,7 +268,6 @@ properties:
       log_level: debug
     file_server:
       static_directory: /var/vcap/packages/
-      tweak_proc_sys: false
     nsync:
       bbs:
         require_ssl: true
@@ -287,7 +282,6 @@ properties:
         require_ssl: true
       evacuation_timeout_in_seconds: 60
       log_level: debug
-      tweak_proc_sys: false
       zone: z1
     route_emitter:
       bbs:
@@ -305,7 +299,6 @@ properties:
     stager:
       bbs:
         require_ssl: true
-      tweak_proc_sys: false
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
@@ -359,17 +352,11 @@ properties:
     url: https://hm9000.example.com
   logger_endpoint:
     port: 4443
-  loggregator:
-    blacklisted_syslog_ranges: null
-    debug: false
-    maxRetainedLogMessages: 100
   login:
     analytics:
       code: null
       domain: null
     asset_base_url: null
-    brand: oss
-    catalina_opts: null
     enabled: true
     invitations_enabled: null
     links:
@@ -385,22 +372,18 @@ properties:
     notifications:
       url: null
     protocol: https
-    restricted_ips_regex: 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.1[6-9]{1}\.\d{1,3}\.\d{1,3}|172\.2[0-9]{1}\.\d{1,3}\.\d{1,3}|172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}
     saml: null
     self_service_links_enabled: null
     signups_enabled: null
     smtp: null
-    spring_profiles: null
     tiles: null
     uaa_base: null
-    uaa_certificate: null
     url: null
   metron_agent:
     deployment: hcf-deployment
   metron_endpoint:
     shared_secret: loggregator_endpoint_secret
   nats:
-    address: 0.0.0.2
     debug: false
     monitor_port: 0
     password: &nats_password nats_password
@@ -417,7 +400,6 @@ properties:
     share_path: /var/vcap/nfs
   request_timeout_in_seconds: 900
   router:
-    tweak_proc_sys: false
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
     extra_headers_to_log: null
@@ -426,8 +408,8 @@ properties:
       rotate: 5
       size: 3M
     requested_route_registration_interval_in_seconds: null
-    route_service_secret: null
     route_service_timeout: null
+    route_services_secret: null
     secure_cookies: null
     ssl_skip_validation: null
     skip_oauth_tls_verification: null
