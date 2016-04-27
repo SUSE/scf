@@ -194,7 +194,6 @@ roles:
 - name: diego-database
   scripts:
   - make_sys_proc_tweaks_optional.sh
-  - remove-hardcoded-bbs-advertise-url.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -1270,7 +1269,7 @@ configuration:
     secret: true
   - name: BBS_CA_CRT
     secret: true
-  - name: BBS_AD_ADDRESS_SUFFIX
+  - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
     default: bbs.service.cf.internal
   - name: SSH_KEY
     secret: true
@@ -1429,7 +1428,7 @@ configuration:
     properties.diego.tps.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.diego.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
-    properties.diego.bbs.ad_address_suffix: '"((BBS_AD_ADDRESS_SUFFIX))"'
+    properties.diego.bbs.advertisement_base_hostname: '"((BBS_ADVERTISEMENT_BASE_HOSTNAME))"'
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.nats.machines: '["((NATS_HOST))"]'
@@ -1539,16 +1538,9 @@ configuration:
     properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
-    properties.cc.tweak_proc_sys: false
-    properties.router.tweak_proc_sys: false
     properties.doppler.tweak_locked_memory: false
     properties.traffic_controller.tweak_locked_memory: false
     properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.diego.bbs.tweak_proc_sys: false
-    properties.diego.cc_uploader.tweak_proc_sys: false
-    properties.diego.file_server.tweak_proc_sys: false
-    properties.diego.rep.tweak_proc_sys: false
-    properties.diego.stager.tweak_proc_sys: false
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
