@@ -30,3 +30,7 @@ docker run \
     --volume $ROOT/:$ROOT/ \
     helioncf/hcf-pipeline-ruby-bosh \
     bash -l -c "rbenv global 2.2.3 && rm -rf ${ROOT}/${release_path}/dev_releases && bosh create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
+
+# Convert YAML to JSON to escape strings nicely so the commit hashes don't get confused as floats
+# The resulting JSON files are able to be loaded as YAML files by the go-yaml library
+find "${ROOT}/${release_path}/dev_releases/${release_name}" -name \*.yml -exec mv {} /tmp/tmp-yaml-to-json \; -exec sh -c "y2j < /tmp/tmp-yaml-to-json > {}" \; -exec rm /tmp/tmp-yaml-to-json \;
