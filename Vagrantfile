@@ -33,6 +33,7 @@ Vagrant.configure(2) do |config|
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
+    vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
     override.vm.synced_folder ".", "/home/vagrant/hcf"
