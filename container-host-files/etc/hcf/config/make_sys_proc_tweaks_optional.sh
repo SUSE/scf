@@ -13,7 +13,7 @@ job_dir="/var/vcap/jobs-src/doppler/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t <<'PATCH'
 --- doppler_ctl.erb
 +++ doppler_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -37,7 +37,7 @@ job_dir="/var/vcap/jobs-src/loggregator_trafficcontroller/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t <<'PATCH'
 --- loggregator_trafficcontroller_ctl.erb
 +++ loggregator_trafficcontroller_ctl.erb
 @@ -18,7 +18,10 @@ case $1 in
@@ -61,7 +61,7 @@ job_dir="/var/vcap/jobs-src/syslog_drain_binder/templates/"
 if [ -d "$job_dir" ]; then
   cd $job_dir
 
-  patch -t <<"PATCH"
+  patch -t <<'PATCH'
 --- syslog_drain_binder_ctl.erb
 +++ syslog_drain_binder_ctl.erb
 @@ -16,7 +16,10 @@ case $1 in

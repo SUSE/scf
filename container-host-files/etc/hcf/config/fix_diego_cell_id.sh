@@ -7,7 +7,7 @@ if [ -f "${SENTINEL}" ]; then
   exit 0
 fi
 
-read -d '' cell_patch <<"PATCH" || true
+read -r -d '' cell_patch <<'PATCH' || true
 --- rep_ctl.erb
 +++ rep_ctl_patched.erb
 @@ -108,7 +108,7 @@ case $1 in
