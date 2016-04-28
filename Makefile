@@ -17,6 +17,9 @@ reap:
 
 clean-harder: clean reap
 
+clean-running-roles:
+	${GIT_ROOT}/make/clean-running-roles
+
 all: images tag terraform
 
 print-version:
