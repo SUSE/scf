@@ -60,9 +60,13 @@ $env:DIEGO_CELL_IP = $ipaddr
 $env:DIEGO_NETADAPTER = $diegoInterface.InterfaceAlias
 $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
-$env:REP_MEMORY_MB = "auto"
+$env:REP_MEMORY_MB = "8192" # "auto"
 
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
+$env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
+$env:CONSUL_CA_CRT = $hcfCertsConfig.'CONSUL_CA_CERT'
+$env:CONSUL_AGENT_CRT = $hcfCertsConfig.'CONSUL_AGENT_CERT'
+$env:CONSUL_AGENT_KEY = $hcfCertsConfig.'CONSUL_AGENT_KEY'
 
 $env:BBS_CA_CRT = $hcfCertsConfig.'BBS_CA_CRT'
 $env:BBS_CLIENT_CRT = $hcfCertsConfig.'BBS_CLIENT_CRT'
