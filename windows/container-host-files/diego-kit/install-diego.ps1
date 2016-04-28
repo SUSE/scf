@@ -4,7 +4,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://hcfwin.azureedge.net/diego-installer-2fa1efd.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-12-2016-04-15_13-42-48/diego-installer.exe -Verbose
 
 ## Setup diego networking
 
@@ -58,7 +58,7 @@ $env:DIEGO_USER_PASSWORD = "changeme1234!"
 $env:REP_CELL_ID = $env:COMPUTERNAME
 $env:DIEGO_CELL_IP = $ipaddr
 $env:DIEGO_NETADAPTER = $diegoInterface.InterfaceAlias
-$env:STACK = "win2012r2"
+$env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "auto"
 
