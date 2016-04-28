@@ -1588,5 +1588,5 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.cf_mysql.mysql.advertise_host: '"((HCF_ROLE_HOST))"'
+    properties.cf_mysql.mysql.advertise_host: '((#HCF_ROLE_HOST))"((HCF_ROLE_HOST))"((/HCF_ROLE_HOST))((^HCF_ROLE_HOST))nil((/HCF_ROLE_HOST))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
