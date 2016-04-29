@@ -1454,7 +1454,6 @@ configuration:
     properties.diego.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.route_emitter.nats.user: '"((NATS_USER))"'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.servers: '["((DIEGO_ACCESS_HOST))"]'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.stager.cc.base_url: '"https://api.((DOMAIN))"'
