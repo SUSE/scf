@@ -6,7 +6,7 @@ $ProgressPreference = "SilentlyContinue"
 
 if ([string]::IsNullOrWhiteSpace($env:MSSQL_SA_PASSWORD))
     {
-        $env:MSSQL_SA_PASSWORD = "INullPeer0000"
+        throw "No password for MSSQL 2012 provided."
     }
 $saPasswd = $env:MSSQL_SA_PASSWORD
 
@@ -56,7 +56,7 @@ function EnableStaticPort()
 {
     Write-Output "Enabling TCP access to SQL Server"
 
-    $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll"
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll"
     
     if (!(Get-ItemProperty "$regPath").'TcpPort')  {
     New-ItemProperty -Path "$regPath" -Name 'TcpPort' -Value "$sqlTcpPort" -Force } else {

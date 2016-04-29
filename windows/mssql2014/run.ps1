@@ -6,7 +6,7 @@ $ProgressPreference = "SilentlyContinue"
 
 if ([string]::IsNullOrWhiteSpace($env:MSSQL_SA_PASSWORD))
     {
-        $env:MSSQL_SA_PASSWORD = "INullPeer0000"
+        throw "No password for MSSQL 2014 provided."
     }
 $saPasswd = $env:MSSQL_SA_PASSWORD
 
