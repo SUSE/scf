@@ -1,10 +1,31 @@
 $wd=$PSScriptRoot
+
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-$sqlServerExtractionPath = Join-Path $wd "SQLEXPRWT_x64_ENU"
-$saPasswd = "INullPeer0000"
-$sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe'
+
+if ([string]::IsNullOrWhiteSpace($env:MSSQL_SA_PASSWORD))
+    {
+        throw "No password for MSSQL 2014 provided."
+    }
+$saPasswd = $env:MSSQL_SA_PASSWORD
+
+if ([string]::IsNullOrWhiteSpace($env:MSSQL_DATADIR))
+    {
+        $env:MSSQL_DATADIR = "c:\SQLDatabases"
+    }
+$sqlDataDir = $env:MSSQL_DATADIR
+
+if ([string]::IsNullOrWhiteSpace($env:MSSQL_TCPPORT))
+    {
+        $env:MSSQL_TCPPORT = "1433"
+    }
+$sqlTcpPort = $env:MSSQL_TCPPORT
+
+
+$sqlServerExtractionPath = (Join-Path $wd "SQLEXPRWT_x64_ENU")
+
+$sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\sqlcmd.exe'
 
 function InstallSqlServer()
 {
@@ -13,7 +34,7 @@ function InstallSqlServer()
 	$argList = "/ACTION=Install", "/INDICATEPROGRESS", "/Q", "/UpdateEnabled=False", "/FEATURES=SQLEngine", "/INSTANCENAME=SQLEXPRESS",
             	    "/INSTANCEID=SQLEXPRESS","/X86=False", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=Administrator",
             	    "/ADDCURRENTUSERASSQLADMIN=False","/TCPENABLED=1","/NPENABLED=0","/SECURITYMODE=SQL","/IACCEPTSQLSERVERLICENSETERMS",
-            	    "/SAPWD=${saPasswd}"
+            	    "/SAPWD=${saPasswd}","/INSTALLSQLDATADIR=${sqlDataDir}"
 
 	$sqlServerSetup = Join-Path $sqlServerExtractionPath "SETUP.EXE"
 
@@ -34,11 +55,37 @@ function InstallSqlServer()
 function EnableStaticPort()
 {
     Write-Output "Enabling TCP access to SQL Server"
-    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll' -Name TcpDynamicPorts -Value ""
-    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll' -Name TcpPort -Value 1433
+
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll"
+    
+    if (!(Get-ItemProperty "$regPath").'TcpPort')  {
+    New-ItemProperty -Path "$regPath" -Name 'TcpPort' -Value "$sqlTcpPort" -Force } else {
+    Set-ItemProperty -Path "$regPath" -Name TcpPort -Value "$sqlTcpPort"
+    }
+     
+    if (!(Get-ItemProperty "$regPath").'TcpDynamicPorts') {
+    New-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value '' -Force } else {
+    Set-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value ''
+    }
 
     Write-Output "Restarting SQL Server"
     Restart-Service 'MSSQL$SQLEXPRESS'
+    
+    Write-Output "Opening port $sqlTcpPort in firewall"
+
+    $fwPolicy = New-Object -ComObject HNetCfg.FwPolicy2
+    $rule = New-Object -ComObject HNetCfg.FWRule
+    $rule.Name = 'MyPort'
+    $rule.Profiles = 2147483647
+    $rule.Enabled = $true
+    $rule.Action = 1
+    $rule.Direction = 1
+    $rule.Protocol = 6
+    $rule.LocalPorts = $sqlTcpPort
+
+    $fwPolicy.Rules.Add($rule)
+
+    Write-Output "Firewall updated"
 }
 
 function EnableContainedDatabaseAuthentication()
