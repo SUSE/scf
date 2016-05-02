@@ -4,22 +4,31 @@ set -e
 
 if [[ "$1" == "--help" ]]; then
 cat <<EOL
-Usage: generate_dev_certs.sh <SIGNING_KEY_PASSPHRASE> <OUTPUT_PATH>
+Usage: generate_dev_certs.sh <OUTPUT_PATH> [DOMAIN]
 EOL
 exit 0
 fi
 
-signing_key_passphrase="$1"
-output_path="$2"
+output_path="$1"
+domain="$2"
 
 set -u
 
-if [ -z "$signing_key_passphrase" ] || [ -z "$output_path" ] ; then
+if test -z "$output_path" ; then
   cat <<EOL
-  Usage: generate_dev_certs.sh <SIGNING_KEY_PASSPHRASE> <OUTPUT_PATH>
+  Usage: generate_dev_certs.sh <OUTPUT_PATH> [DOMAIN]
 EOL
   exit 1
 fi
+
+if test -z "$domain" ; then
+  domain="192.168.77.77.nip.io"
+fi
+
+echo "Generating certificates for ${domain}"
+
+# Generate a random signing key passphrase
+signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
@@ -39,7 +48,6 @@ hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
 consul_path="${certs_path}/consul"
-domain="192.168.77.77.nip.io"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
 # prepare directories
