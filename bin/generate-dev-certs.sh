@@ -4,28 +4,21 @@ set -e
 
 if [[ "$1" == "--help" ]]; then
 cat <<EOL
-Usage: generate_dev_certs.sh <OUTPUT_PATH> [DOMAIN]
+Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
 exit 0
 fi
 
 output_path="$1"
-domain="$2"
 
 set -u
 
 if test -z "$output_path" ; then
   cat <<EOL
-  Usage: generate_dev_certs.sh <OUTPUT_PATH> [DOMAIN]
+  Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
   exit 1
 fi
-
-if test -z "$domain" ; then
-  domain="192.168.77.77.nip.io"
-fi
-
-echo "Generating certificates for ${domain}"
 
 # Generate a random signing key passphrase
 signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
@@ -61,7 +54,7 @@ mkdir -p $hcf_certs_path
 cd $hcf_certs_path
 
 openssl genrsa -out hcf.key 4096
-openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${domain}/C=US"
+openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -in hcf.csr -signkey hcf.key -out hcf.crt
 cat hcf.crt hcf.key > hcf.pem
 
@@ -99,7 +92,7 @@ mv -f ${consul_path}/consulCA.crt ${consul_path}/server-ca.crt
 mv -f ${consul_path}/consulCA.key ${consul_path}/server-ca.key
 
 # Server certificate to share across the consul cluster
-server_cn=server.dc1.${domain}
+server_cn=server.dc1.${DOMAIN}
 certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name $server_cn
 certstrap --depot-path ${consul_path} sign $server_cn --CA server-ca
 mv -f ${consul_path}/$server_cn.key ${consul_path}/server.key
@@ -204,4 +197,4 @@ CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
 ENVS
 
-echo "Keys wrote to ${output_path}"
+echo "Keys for ${DOMAIN} wrote to ${output_path}"
