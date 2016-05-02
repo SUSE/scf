@@ -1,11 +1,11 @@
 {
     "variables": {
-        "version": "1.0.2",
+        "version": "1.0.5",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
-        "iso_url": "http://releases.ubuntu.com/trusty/ubuntu-14.04.3-server-amd64.iso",
-        "iso_checksum": "9e5fecc94b3925bededed0fdca1bd417",
+        "iso_url": "http://releases.ubuntu.com/trusty/ubuntu-14.04.4-server-amd64.iso",
+        "iso_checksum": "2ac1f3e0de626e54d05065d6f549fa3a",
         "iso_checksum_type": "md5",
         "http_directory": "http",
         "ssh_wait_timeout": "20m",
@@ -17,8 +17,8 @@
           "headless": true,
           "vm_name": "{{user `vm_name`}}",
           "guest_os_type": "ubuntu-64",
-          "disk_size": 70000,
-          "disk_additional_size": [70000],
+          "disk_size": 100000,
+          "disk_additional_size": [100000],
           "ssh_username": "{{user `ssh_username`}}",
           "ssh_password": "{{user `ssh_password`}}",
           "iso_url": "{{user `iso_url`}}",
@@ -48,7 +48,7 @@
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
             "guest_os_type": "Ubuntu_64",
-            "disk_size": 70000,
+            "disk_size": 100000,
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
@@ -59,7 +59,7 @@
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
             "vboxmanage_post": [
-              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "70000"],
+              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
               [ "storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"],
               [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vmdk" ]
             ],

@@ -237,9 +237,13 @@ class ToUCP < Common
     the_comp['retry_count'] = retrycount if retrycount > 0
 
     index = 0 if index.nil?
-    the_comp['entrypoint'] = ["/usr/bin/env",
+
+    if role["type"] != 'docker'
+      the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
+                              "HCF_ROLE_HOST=#{rname}",
                               "/opt/hcf/run.sh"]
+    end
 
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
@@ -342,7 +346,8 @@ class ToUCP < Common
       'description' => 'placeholder',
       'example'     => vexample,
       'required'    => vrequired,
-      'secret'      => vsecret
+      'secret'      => vsecret,
+      'default'     => nil
     }
     param['default'] = var['default'].to_s unless var['default'].nil?
     param

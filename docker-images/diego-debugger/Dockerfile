@@ -17,3 +17,5 @@ RUN echo 'echo -e $BBS_CLIENT_KEY > /root/bbs.key' >> /root/.bashrc
 RUN echo 'export BBS_ENDPOINT=https://${DIEGO_DATABASE_HOST}:8889' >> /root/.bashrc
 RUN echo 'export BBS_CERT_FILE=/root/bbs.crt' >> /root/.bashrc
 RUN echo 'export BBS_KEY_FILE=/root/bbs.key' >> /root/.bashrc
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
