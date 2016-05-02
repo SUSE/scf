@@ -1287,6 +1287,16 @@ configuration:
     secret: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
+  - name: CONSUL_CA_CERT
+    secret: true
+  - name: CONSUL_AGENT_CERT
+    secret: true
+  - name: CONSUL_AGENT_KEY
+    secret: true
+  - name: CONSUL_SERVER_CERT
+    secret: true
+  - name: CONSUL_SERVER_KEY
+    secret: true
   - name: DEVSVC_MONGODB_ADMIN_PASSWORD
     secret: true
   - name: DEVSVC_MYSQL_ADMIN_PASSWORD
