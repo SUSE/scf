@@ -160,7 +160,10 @@ docker exec -it $(docker ps -a -q --filter label=role=api) bash
 Here is a bash function to display the full Monit status for a container:
 
 ```bash
-m() { docker exec -t $(docker ps -a -q --filter label=role=$1) curl -u monit_user:monit_password http://localhost:2822/_status ; }
+get-container-id() { docker ps -a -q --filter=name="k8s_${1}\\..*my-hcf-cluster" ; }
+enter() { docker exec -t -i $(get-container-id "$1") /bin/bash ; }
+m() { docker exec -t $(get-container-id "$1") curl -u monit_user:monit_password http://localhost:2822/_status ; }
+
 m api
 ```
 
