@@ -1187,8 +1187,6 @@ configuration:
     secret: true
   - name: DNS_SUFFIX
     default: ""
-  - name: GARDEN_LINUX_DNS_SERVER
-    default: ""
     required: false
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
