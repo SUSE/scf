@@ -174,7 +174,7 @@ NO_PROXY=.hcf,127.0.0.1
 echo '[{"protocol":"tcp","destination":"192.168.77.77","ports":"3128"}]' > /tmp/proxy-security-group.json
 cf create-security-group http_proxy /tmp/proxy-security-group.json
 cf bind-running-security-group http_proxy
-cf bind-running-security-group http_proxy
+cf bind-staging-security-group http_proxy
 ```
 
 - Internet access can be disabled on the Windows Vagrant box with:
