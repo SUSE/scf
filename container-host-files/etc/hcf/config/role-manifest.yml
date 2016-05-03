@@ -44,9 +44,9 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
-      min: 1
-      max: 1
+      indexed: 3
+      min: 3
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -1143,10 +1143,10 @@ configuration:
     required: false
   - name: CONSUL_HOST
     default: "consul"
-#  - name: CONSUL_HA_HOST_1
-#    required: false
-#  - name: CONSUL_HA_HOST_2
-#    required: false
+  - name: CONSUL_HA_HOST_1
+    required: false
+  - name: CONSUL_HA_HOST_2
+    required: false
   - name: ROUTER_HOST
     default: "router"
   - name: LOGGREGATOR_HOST
