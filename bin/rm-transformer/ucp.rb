@@ -241,7 +241,6 @@ class ToUCP < Common
     if role["type"] != 'docker'
       the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
-                              "HCF_ROLE_HOST=#{rname}",
                               "/opt/hcf/run.sh"]
     end
 
