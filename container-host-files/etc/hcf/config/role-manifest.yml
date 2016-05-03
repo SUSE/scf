@@ -162,7 +162,7 @@ roles:
     scaling:
       indexed: 1
       min: 1
-      max: 65535
+      max: 1
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1275,6 +1275,8 @@ configuration:
     default: uaaadmin
   - name: ALLOWED_SERVICES_SUBNET
     default: 172.20.10.0/24
+  - name: GARDEN_LINUX_DNS_SERVER
+    default: 8.8.8.8
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -1346,8 +1348,16 @@ configuration:
     default: true
   - name: ROUTER_ACCESS_LOG_STREAMING
     default: false
-  - name: GARDEN_LINUX_DNS_SERVER
-    default: 8.8.8.8
+  - name: CONSUL_CA_CERT
+    secret: true
+  - name: CONSUL_AGENT_CERT
+    secret: true
+  - name: CONSUL_AGENT_KEY
+    secret: true
+  - name: CONSUL_SERVER_CERT
+    secret: true
+  - name: CONSUL_SERVER_KEY
+    secret: true
   # Proxy
   - name: HTTP_PROXY
     default: ""
@@ -1464,7 +1474,6 @@ configuration:
     properties.diego.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.route_emitter.nats.user: '"((NATS_USER))"'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.servers: '["((DIEGO_ACCESS_HOST))"]'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.stager.cc.base_url: '"https://api.((DOMAIN))"'
