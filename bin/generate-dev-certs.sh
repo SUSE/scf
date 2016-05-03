@@ -4,22 +4,24 @@ set -e
 
 if [[ "$1" == "--help" ]]; then
 cat <<EOL
-Usage: generate_dev_certs.sh <SIGNING_KEY_PASSPHRASE> <OUTPUT_PATH>
+Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
 exit 0
 fi
 
-signing_key_passphrase="$1"
-output_path="$2"
+output_path="$1"
 
 set -u
 
-if [ -z "$signing_key_passphrase" ] || [ -z "$output_path" ] ; then
+if test -z "$output_path" ; then
   cat <<EOL
-  Usage: generate_dev_certs.sh <SIGNING_KEY_PASSPHRASE> <OUTPUT_PATH>
+  Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
   exit 1
 fi
+
+# Generate a random signing key passphrase
+signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
@@ -39,7 +41,6 @@ hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
 consul_path="${certs_path}/consul"
-domain="192.168.77.77.nip.io"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
 # prepare directories
@@ -53,7 +54,7 @@ mkdir -p $hcf_certs_path
 cd $hcf_certs_path
 
 openssl genrsa -out hcf.key 4096
-openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${domain}/C=US"
+openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -in hcf.csr -signkey hcf.key -out hcf.crt
 cat hcf.crt hcf.key > hcf.pem
 
@@ -91,7 +92,7 @@ mv -f ${consul_path}/consulCA.crt ${consul_path}/server-ca.crt
 mv -f ${consul_path}/consulCA.key ${consul_path}/server-ca.key
 
 # Server certificate to share across the consul cluster
-server_cn=server.dc1.${domain}
+server_cn=server.dc1.${DOMAIN}
 certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name $server_cn
 certstrap --depot-path ${consul_path} sign $server_cn --CA server-ca
 mv -f ${consul_path}/$server_cn.key ${consul_path}/server.key
@@ -196,4 +197,4 @@ CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
 ENVS
 
-echo "Keys wrote to ${output_path}"
+echo "Keys for ${DOMAIN} wrote to ${output_path}"
