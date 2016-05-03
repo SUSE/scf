@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -u
 
 if [[ "$1" == "--help" ]]; then
 cat <<EOL
@@ -12,6 +11,8 @@ fi
 
 signing_key_passphrase="$1"
 output_path="$2"
+
+set -u
 
 if [ -z "$signing_key_passphrase" ] || [ -z "$output_path" ] ; then
   cat <<EOL
