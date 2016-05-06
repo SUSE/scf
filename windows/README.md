@@ -160,7 +160,7 @@ docker run  --name squid  -d  --restart=always \
 --publish 3128:3128  sameersbn/squid:3.3.8-12
 ```
 
-- Set HTTP proxy environment variables configs in `bin/dev-settings.env`
+- Set HTTP proxy environment variables configs in `bin/settings-dev/settings.env`
 ```
 HTTP_PROXY=http://192.168.77.77:3128
 http_proxy=http://192.168.77.77:3128

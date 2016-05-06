@@ -15,7 +15,7 @@ roles:
   run:
     scaling:
       indexed: 3
-      min: 3
+      min: 1
       max: 3
     capabilities: []
     persistent-volumes: []
@@ -45,7 +45,7 @@ roles:
   run:
     scaling:
       indexed: 3
-      min: 3
+      min: 1
       max: 3
     capabilities: []
     persistent-volumes:
@@ -107,7 +107,7 @@ roles:
   run:
     scaling:
       indexed: 3
-      min: 3
+      min: 1
       max: 3
     capabilities: []
     persistent-volumes:
@@ -162,7 +162,7 @@ roles:
     scaling:
       indexed: 1
       min: 1
-      max: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -320,7 +320,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -351,7 +351,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -411,7 +411,7 @@ roles:
   run:
     scaling:
       indexed: 2
-      min: 4
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -451,7 +451,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -478,7 +478,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes:
@@ -581,7 +581,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -670,11 +670,11 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -710,7 +710,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -751,7 +751,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -824,7 +824,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -898,7 +898,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 5
+      min: 1
       max: 65535
     capabilities: ['ALL']
     persistent-volumes: []
@@ -965,7 +965,7 @@ roles:
       indexed: 1
       min: 1
       max: 1
-    flight-stage: post-flight
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1099,270 +1099,394 @@ configuration:
   variables:
   - name: API_HOST
     default: "api"
+    type-hint: "string,hostname"
   - name: API_HA_HOST
     required: false
+    type-hint: "string,hostname"
   - name: BLOBSTORE_HOST
     default: "blobstore"
+    type-hint: "string,hostname"
   - name: BLOBSTORE_USERNAME
     default: "blobstore_user"
+    type-hint: "string"
   - name: BLOBSTORE_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: BLOBSTORE_SECURE_LINK
     secret: true
+    type-hint: "password,random"
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
+    type-hint: "string,hostname"
 #  - name: DIEGO_DATABASE_HA_HOST_1
 #    required: false
 #  - name: DIEGO_DATABASE_HA_HOST_2
 #    required: false
   - name: DIEGO_ACCESS_HOST
     default: "diego-access"
+    type-hint: "string,hostname"
   - name: DIEGO_CC_BRIDGE_HOST
     default: "diego-cc-bridge"
+    type-hint: "string,hostname"
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain"
+    type-hint: "string,hostname"
   - name: NATS_HOST
     default: "nats"
+    type-hint: "string,hostname"
   - name: NATS_HA_HOST_1
     required: false
+    type-hint: "string,hostname"
   - name: NATS_HA_HOST_2
     required: false
+    type-hint: "string,hostname"
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy"
+    type-hint: "string,hostname"
   - name: MYSQL_HOST
     default: "mysql"
+    type-hint: "string,hostname"
   - name: MYSQL_HA_HOST_1
     required: false
+    type-hint: "string,hostname"
   - name: MYSQL_HA_HOST_2
     required: false
+    type-hint: "string,hostname"
   - name: ETCD_HOST
     default: "etcd"
+    type-hint: "string,hostname"
   - name: ETCD_HA_HOST_1
     required: false
+    type-hint: "string,hostname"
   - name: ETCD_HA_HOST_2
     required: false
+    type-hint: "string,hostname"
   - name: CONSUL_HOST
     default: "consul"
+    type-hint: "string,hostname"
   - name: CONSUL_HA_HOST_1
     required: false
+    type-hint: "string,hostname"
   - name: CONSUL_HA_HOST_2
     required: false
+    type-hint: "string,hostname"
   - name: ROUTER_HOST
     default: "router"
+    type-hint: "string,hostname"
   - name: LOGGREGATOR_HOST
     default: "loggregator"
-  - name: PUBLIC_IP
-    example: "192.168.77.77"
+    type-hint: "string,hostname"
   - name: BULK_API_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CCDB_ROLE_NAME
     default: ccadmin
+    type-hint: "string"
   - name: CCDB_ROLE_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CCDB_ROLE_TAG
     default: admin
+    type-hint: "string"
   - name: CERTS_PREFIX
     default: hcf
+    type-hint: "string"
   - name: DROPLET_DIRECTORY_KEY
     default: "cc-droplets"
+    type-hint: "string"
   - name: BUILDPACK_DIRECTORY_KEY
     default: "cc-buildpacks"
+    type-hint: "string"
   - name: APP_PACKAGE_DIRECTORY_KEY
     default: "cc-packages"
+    type-hint: "string"
   - name: RESOURCE_DIRECTORY_KEY
     default: "cc-resources"
+    type-hint: "string"
   - name: CF_USB_USERNAME
     default: broker-admin
+    type-hint: "string"
   - name: CF_USB_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
+    type-hint: "string"
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,human"
   - name: CLUSTER_ADMIN_USERNAME
     default: admin
+    type-hint: "string"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
+    type-hint: "password,random"
   - name: DB_ENCRYPTION_KEY
     secret: true
+    type-hint: "password,random"
   - name: DNS_SUFFIX
     default: ""
     required: false
+    type-hint: "string,domain"
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
+    type-hint: "string,domain"
   - name: DOPPLER_ZONE
     default: z1
+    type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
+    type-hint: "password,random"
   - name: METRON_AGENT_ZONE
     default: z1
+    type-hint: "string"
   - name: MONIT_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MONIT_PORT
     default: '2822'
+    type-hint: "integer,port"
   - name: MONIT_USER
     default: monit_user
+    type-hint: "string"
   - name: NATS_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: NATS_USER
     default: nats_user
+    type-hint: "string"
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
     secret: true
+    type-hint: "password,random"
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: STAGING_UPLOAD_USER
     default: username
+    type-hint: "string"
   - name: INTERNAL_API_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: INTERNAL_API_USER
     default: internal_user
+    type-hint: "string"
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
+    type-hint: "string"
   - name: TRUSTED_CERTS
     secret: true
     required: false
+    type-hint: "certificate"
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_BATCH_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAA_BATCH_USERNAME
     default: batch_username
+    type-hint: "string"
   - name: UAA_CC_CLIENT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CC_ROUTING_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
+    type-hint: "string"
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAADB_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAADB_TAG
     default: admin
+    type-hint: "string"
   - name: UAADB_USERNAME
     default: uaaadmin
+    type-hint: "string"
   - name: ALLOWED_SERVICES_SUBNET
-    default: 172.20.10.0/24
-  - name: GARDEN_LINUX_DNS_SERVER
-    default: 8.8.8.8
+    default: 10.254.0.0/16
+    type-hint: "subnet"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
+    type-hint: "string,certificate"
   - name: JWT_SIGNING_PEM
     secret: true
+    type-hint: "string,certificate"
   - name: JWT_SIGNING_PUB
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_CA_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_SERVER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CLIENT_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_SERVER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CLIENT_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CA_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_SERVER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CLIENT_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_SERVER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CLIENT_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CA_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
     default: bbs.service.cf.internal
+    type-hint: "string,hostname"
   - name: SSH_KEY
     secret: true
+    type-hint: "string,ssh-key"
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
+    type-hint: "string"
   - name: ROUTER_SSL_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: ROUTER_SSL_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: UAA_PRIVATE_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: UAA_CERTIFICATE
     secret: true
+    type-hint: "string,certificate"
   - name: BLOBSTORE_TLS_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: BLOBSTORE_TLS_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: CONSUL_CA_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: CONSUL_AGENT_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: CONSUL_AGENT_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: CONSUL_SERVER_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: CONSUL_SERVER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: DEVSVC_MONGODB_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: DEVSVC_MYSQL_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: SKIP_CERT_VERIFY
     default: true
+    type-hint: "boolean"
   - name: ROUTER_ACCESS_LOG_STREAMING
     default: false
+    type-hint: "boolean"
+  - name: GARDEN_LINUX_DNS_SERVER
+    default: ""
+    type-hint: "string,ipaddress"
   # Proxy
   - name: HTTP_PROXY
     default: ""
+    type-hint: "string,hostname"
   - name: http_proxy
     default: ""
+    type-hint: "string,hostname"
   - name: HTTPS_PROXY
     default: ""
+    type-hint: "string,hostname"
   - name: https_proxy
     default: ""
+    type-hint: "string,hostname"
   - name: NO_PROXY
     default: "127.0.0.1"
+    type-hint: "string"
   templates:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((HCF_ROLE_HOST))((^HCF_ROLE_HOST))((DNS_RECORD_NAME))((/HCF_ROLE_HOST))"'
+    networks.default.dns_record_name: '"((UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
@@ -1404,7 +1528,7 @@ configuration:
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
-    properties.consul.agent.domain: '"((DOMAIN))"'
+    properties.consul.agent.domain: '"hcf"'
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.ca_cert: '"((CONSUL_CA_CERT))"'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
@@ -1597,5 +1721,5 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.cf_mysql.mysql.advertise_host: '((#HCF_ROLE_HOST))"((HCF_ROLE_HOST))"((/HCF_ROLE_HOST))((^HCF_ROLE_HOST))nil((/HCF_ROLE_HOST))'
+    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'

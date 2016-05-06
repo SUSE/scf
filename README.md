@@ -365,7 +365,7 @@ Name    | Effect | Notes |
 
   2. The default username is: `root`.
 
-  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/dev-settings.env` file on the Vagrant box.
+  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings-dev/settings.env` file on the Vagrant box.
 
 
 ### How do I add a new BOSH release to HCF?
@@ -382,9 +382,9 @@ Name    | Effect | Notes |
 
     c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
 
-    d. Add defaults for your configuration settings to `~/hcf/bin/dev-settings.env`.
+    d. Add defaults for your configuration settings to `~/hcf/bin/settings-dev/settings.env`.
 
-    e. If you need any extra default certificates, add them to `~/hcf/bin/dev-settings.env`.
+    e. If you need any extra default certificates, add them to `~/hcf/bin/settings-dev/certs.env`.
 
     f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
 
@@ -420,7 +420,7 @@ Name    | Effect | Notes |
 
         ii. `yaml path: /roles/*/configuration/templates`
 
-  2. Add defaults for your new settings in `~/hcf/bin/dev-settings.env`.
+  2. Add defaults for your new settings in `~/hcf/bin/settings-dev/settings.env`.
 
   3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
 
@@ -446,7 +446,7 @@ Name    | Effect | Notes |
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
-  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility) 
+  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility)
   for `cf-release`, `diego-release`, `etcd-release`, and `garden-linux-release`. If you are bumping
   all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
   1 and 2 in the example:
