@@ -7,10 +7,6 @@
     "description": "HCF test cluster",
     "parameters": [
       {
-        "name": "PUBLIC_IP",
-        "value": "1.2.3.4"
-      },
-      {
         "name": "DOMAIN",
         "value": "1.2.3.4.nip.io"
       }

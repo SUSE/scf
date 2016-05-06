@@ -670,7 +670,7 @@ roles:
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["((LOGGREGATOR_HOST)).((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       indexed: 1
@@ -1164,19 +1164,18 @@ configuration:
   - name: CONSUL_HOST
     default: "consul"
     type-hint: "string,hostname"
-#  - name: CONSUL_HA_HOST_1
-#    required: false
-#  - name: CONSUL_HA_HOST_2
-#    required: false
+  - name: CONSUL_HA_HOST_1
+    required: false
+    type-hint: "string,hostname"
+  - name: CONSUL_HA_HOST_2
+    required: false
+    type-hint: "string,hostname"
   - name: ROUTER_HOST
     default: "router"
     type-hint: "string,hostname"
   - name: LOGGREGATOR_HOST
     default: "loggregator"
     type-hint: "string,hostname"
-  - name: PUBLIC_IP
-    example: "192.168.77.77"
-    type-hint: "string,ipaddress"
   - name: BULK_API_PASSWORD
     secret: true
     type-hint: "password,random"
@@ -1357,7 +1356,7 @@ configuration:
     default: uaaadmin
     type-hint: "string"
   - name: ALLOWED_SERVICES_SUBNET
-    default: 172.20.10.0/24
+    default: 10.254.0.0/16
     type-hint: "subnet"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
@@ -1466,7 +1465,7 @@ configuration:
     default: false
     type-hint: "boolean"
   - name: GARDEN_LINUX_DNS_SERVER
-    default: 8.8.8.8
+    default: ""
     type-hint: "string,ipaddress"
   # Proxy
   - name: HTTP_PROXY
