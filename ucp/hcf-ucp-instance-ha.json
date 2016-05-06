@@ -5,6 +5,16 @@
     "labels": ["my-hcf-cluster"],
     "instance_id": "my-hcf-cluster",
     "description": "HCF test cluster",
+    "parameters": [
+      {
+        "name": "PUBLIC_IP",
+        "value": "1.2.3.4"
+      },
+      {
+        "name": "DOMAIN",
+        "value": "1.2.3.4.nip.io"
+      }
+    ],
     "scaling": [
       {
         "component": "diego-cell",
@@ -55,6 +65,30 @@
         "component": "diego-route-emitter",
         "min_instances": 3,
         "max_instances": 3
-      }
+      },
+      {
+        "component": "nats-1",
+        "min_instances": 1,
+      },
+      {
+        "component": "nats-2",
+        "min_instances": 1,
+      },
+      {
+        "component": "consul-1",
+        "min_instances": 1,
+      },
+      {
+        "component": "consul-2",
+        "min_instances": 1,
+      },
+      {
+        "component": "mysql-1",
+        "min_instances": 1,
+      },
+      {
+        "component": "mysql-2",
+        "min_instances": 1,
+      },
     ]
 }

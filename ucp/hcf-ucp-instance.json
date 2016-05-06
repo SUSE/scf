@@ -4,5 +4,15 @@
     "vendor": "HPE",
     "labels": ["my-hcf-cluster"],
     "instance_id": "my-hcf-cluster",
-    "description": "HCF test cluster"
+    "description": "HCF test cluster",
+    "parameters": [
+      {
+        "name": "PUBLIC_IP",
+        "value": "1.2.3.4"
+      },
+      {
+        "name": "DOMAIN",
+        "value": "1.2.3.4.nip.io"
+      }
+    ]
 }

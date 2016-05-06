@@ -3,7 +3,7 @@ set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
-"${ROOT}/container-host-files/opt/hcf/bin/run-all-roles.sh" "${ROOT}/bin/"
+"${ROOT}/container-host-files/opt/hcf/bin/run-all-roles.sh" "${ROOT}/bin/settings-dev"
 
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
