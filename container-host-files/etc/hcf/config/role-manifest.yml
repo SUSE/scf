@@ -2,7 +2,7 @@
 roles:
 - name: nats
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: nats
     release_name: cf
@@ -37,7 +37,7 @@ roles:
         public: false
 - name: consul
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -100,7 +100,7 @@ roles:
       properties.consul.agent.mode: '"server"'
 - name: mysql
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - fix_mysql_advertise_ip.sh
   jobs:
   - name: mysql
@@ -158,7 +158,7 @@ roles:
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: proxy
     release_name: cf-mysql
@@ -212,7 +212,7 @@ roles:
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: etcd
@@ -274,7 +274,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -315,7 +315,7 @@ roles:
         public: true
 - name: router
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: gorouter
@@ -346,7 +346,7 @@ roles:
         public: false
 - name: uaa
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -382,7 +382,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  #- fake_spec_index.sh
+  #- fake_spec_index_on_ucp.sh
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
@@ -452,7 +452,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -480,7 +480,7 @@ roles:
     exposed-ports: []
 - name: blobstore
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: blobstore
     release_name: cf
@@ -522,7 +522,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -547,7 +547,7 @@ roles:
     exposed-ports: []
 - name: cf-usb
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -588,7 +588,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: doppler
@@ -629,7 +629,7 @@ roles:
         public: false
 - name: etcd
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -681,7 +681,7 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
 - name: loggregator
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: loggregator_trafficcontroller
@@ -720,7 +720,7 @@ roles:
         public: false
 - name: diego-brain
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -753,7 +753,7 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: stager
@@ -840,7 +840,7 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -865,7 +865,7 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: ssh_proxy
@@ -906,7 +906,7 @@ roles:
         public: false
 - name: diego-cell
   scripts:
-  - fake_spec_index.sh
+  - fake_spec_index_on_ucp.sh
   - prevent_apparmor_disable.sh
   - make_sys_proc_tweaks_optional.sh
   post_config_scripts:
