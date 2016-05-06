@@ -106,13 +106,12 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 ### By UCP
 
 - ha-proxy/router
-- diego-access
 - mysql-proxy
 
 Based on the upstream documentation, the HA Proxy role should not be required.
 We should keep it for dev/test environments, but we should remove it from UCP.
 
-To properly support HA for `diego-access` and `mysql-proxy`, we need to simulate what UCP does.
+To properly support HA for `mysql-proxy`, we need to simulate what UCP does.
 For testing, the solution is to use AWS [ELB](https://aws.amazon.com/elasticloadbalancing/).
 Terraform has an [`ELB` resource](https://www.terraform.io/docs/providers/aws/r/elb.html).  
 An HA configuration for these components in Vagrant/MPC is not be available.
