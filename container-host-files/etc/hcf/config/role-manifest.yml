@@ -1110,7 +1110,6 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-
 - name: mysql-lb
   type: docker
   run:
@@ -1133,7 +1132,6 @@ roles:
   configuration:
     templates:
       properties.mysql_lb.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"((#MYSQL_PROXY_HA_HOST_1)), "((MYSQL_PROXY_HA_HOST_1))"((/MYSQL_PROXY_HA_HOST_1))((#MYSQL_PROXY_HA_HOST_2)), "((MYSQL_PROXY_HA_HOST_2))"((/MYSQL_PROXY_HA_HOST_2))]'
-
 - name: usb-create-services
   type: bosh-task
   dev-only: true
