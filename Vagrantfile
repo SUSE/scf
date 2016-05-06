@@ -66,7 +66,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-libvirt-v1.0.2.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.6.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true

@@ -79,7 +79,7 @@
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
-            "disk_size": 50000,
+            "disk_size": 100000,
             "disk_interface": "scsi",
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
