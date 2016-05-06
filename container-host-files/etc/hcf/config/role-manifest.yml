@@ -15,7 +15,7 @@ roles:
   run:
     scaling:
       indexed: 3
-      min: 3
+      min: 1
       max: 3
     capabilities: []
     persistent-volumes: []
@@ -107,7 +107,7 @@ roles:
   run:
     scaling:
       indexed: 3
-      min: 3
+      min: 1
       max: 3
     capabilities: []
     persistent-volumes:
@@ -320,7 +320,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -351,7 +351,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -411,7 +411,7 @@ roles:
   run:
     scaling:
       indexed: 2
-      min: 4
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -451,7 +451,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -478,7 +478,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes:
@@ -581,7 +581,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -674,7 +674,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -710,7 +710,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -751,7 +751,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -824,7 +824,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 3
+      min: 1
       max: 65535
     capabilities: []
     persistent-volumes: []
@@ -898,7 +898,7 @@ roles:
   run:
     scaling:
       indexed: 1
-      min: 5
+      min: 1
       max: 65535
     capabilities: ['ALL']
     persistent-volumes: []
@@ -965,7 +965,7 @@ roles:
       indexed: 1
       min: 1
       max: 1
-    flight-stage: post-flight
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1529,7 +1529,7 @@ configuration:
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
-    properties.consul.agent.domain: '"((DOMAIN))"'
+    properties.consul.agent.domain: '"hcf"'
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.ca_cert: '"((CONSUL_CA_CERT))"'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'

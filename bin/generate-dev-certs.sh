@@ -33,7 +33,8 @@ command -v certstrap > /dev/null 2>&1 || {
 
 BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-files/opt/hcf/bin" && pwd )/"`
 
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/dev-settings.env"
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/settings.env"
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/hosts.env"
 
 # Certificate generation
 certs_path="/tmp/hcf/certs"
@@ -65,7 +66,7 @@ openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${sig
 # generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${bbs_certs_dir}"   init --common-name "bbsCA" --passphrase $signing_key_passphrase
 
-certstrap --depot-path "${bbs_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${bbs_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${bbs_certs_dir}"  sign bbsServer  --CA bbsCA  --passphrase $signing_key_passphrase
 
 certstrap --depot-path "${bbs_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
@@ -75,14 +76,14 @@ certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA bbsCA  --passphr
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${etcd_certs_dir}"  init --common-name "etcdCA" --passphrase $signing_key_passphrase
 
-certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${etcd_certs_dir}"  sign etcdServer  --CA etcdCA  --passphrase $signing_key_passphrase
 
 certstrap --depot-path "${etcd_certs_dir}"  request-cert  --common-name "etcdClient"  --passphrase ""
 certstrap --depot-path "${etcd_certs_dir}"  sign etcdClient  --CA etcdCA  --passphrase $signing_key_passphrase
 
 certstrap --depot-path "${etcd_certs_dir}"  init  --common-name "etcdPeerCA"  --passphrase $signing_key_passphrase
-certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database"  --passphrase ""
+certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${etcd_certs_dir}"  sign etcdPeer  --CA etcdPeerCA  --passphrase $signing_key_passphrase
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
@@ -92,7 +93,7 @@ mv -f ${consul_path}/consulCA.crt ${consul_path}/server-ca.crt
 mv -f ${consul_path}/consulCA.key ${consul_path}/server-ca.key
 
 # Server certificate to share across the consul cluster
-server_cn=server.dc1.${DOMAIN}
+server_cn=server.dc1.hcf
 certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name $server_cn
 certstrap --depot-path ${consul_path} sign $server_cn --CA server-ca
 mv -f ${consul_path}/$server_cn.key ${consul_path}/server.key

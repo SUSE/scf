@@ -190,7 +190,7 @@ class ToUCP < Common
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
         add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
-        end
+      end
     else
       # Trivial scaling, no index, use min/max as is.
       add_component(roles, fs, comps, role, retrycount, nil, min, max)
@@ -203,9 +203,6 @@ class ToUCP < Common
 
     rname = bname
     rname += "-#{index}" if index && index > 0
-
-    ename = "HCF Role '#{bname}'"
-    ename += " \##{index}" if index
 
     labels = [ bname ]
     labels << rname if rname != bname
@@ -230,7 +227,7 @@ class ToUCP < Common
       'service_ports' => [],	  # Fill from role runtime config, see below
       'volume_mounts' => [],	  # Ditto
       'parameters'    => [],	  # Fill from role configuration, see below
-      'external_name' => ename,
+      'external_name' => rname,
       'workload_type' => 'container'
     }
 
@@ -362,7 +359,7 @@ class ToUCP < Common
     last = [mini,indexed].min-1
     if x < last
       1
-    elsif x = last
+    elsif x == last
       mini-x
     else
       0
