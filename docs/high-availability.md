@@ -120,7 +120,8 @@ The way to programmatically identify these components is by looking for roles th
 
 These roles should have `scaling/indexed == 1`.
 
-> Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking.
+> Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking. See more details on active/passive [here](https://github.com/cloudfoundry/cf-mysql-release/blob/develop/docs/proxy.md#consistent-routing).
+
 > It also mentions that health checking should be done on a specific port. Some of these requirements may not be supported by UCP.
 
 ### Internally, by the gorouter and haproxy
