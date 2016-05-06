@@ -11,7 +11,7 @@ set_colors
 
 # Show targeting and other information.
 
-. "${ROOT}/bin/dev-settings.env"
+. "${ROOT}/bin/settings-dev/settings.env"
 
 echo -e "
 Your Helion Cloud Foundry endpoint is: ${bldcyn}https://api.${DOMAIN}${txtrst}

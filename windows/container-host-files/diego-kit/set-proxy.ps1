@@ -2,9 +2,8 @@
 
 $hcfSettings = New-Object System.Collections.Hashtable
 $hcfCertsConfig = New-Object System.Collections.Hashtable
-(cat "C:\hcf\bin\dev-settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\dev-certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfCertsConfig.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
-
+(cat "C:\hcf\bin\settings-dev\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
+(cat "C:\hcf\bin\settings-dev\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfCertsConfig.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
 
 ## Setup HTTP proxy
 

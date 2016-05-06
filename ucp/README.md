@@ -74,16 +74,9 @@ kubectl logs -f ipmgr-ivexp --namespace=ucp
 
 ### Configure HCF with the host IP address (#5) ###
 
-Use your host IP address for `PUBLIC_IP` and `DOMAIN` settings in
-`./bin/dev-settings.env`.
-
-__Note:__ this command must be run on the host in the `~/hcf` directory, and not
-on the vagrant box; otherwise you need to manually insert the host IP address:
-
-```bash
-cd hcf
-perl -i -pe "s/192.168.77.77/`ipconfig getifaddr en0`/" bin/dev-settings.env
-```
+Use your host IP address for `PUBLIC_IP` and `DOMAIN` settings in the instance
+definition file you're using. The examples have a "parameters" section that
+sets these values.
 
 ### Generate UCP service definitions (#1) ###
 
