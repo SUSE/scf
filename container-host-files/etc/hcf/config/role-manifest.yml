@@ -1215,7 +1215,7 @@ configuration:
     required: false
     type-hint: "string,hostname"
   - name: MYSQL_PROXY_LB_HOST
-    default: "mysql-lb"
+    default: ""
     type-hint: "string,hostname"
   - name: ETCD_HOST
     default: "etcd"
