@@ -80,12 +80,12 @@ class ToTerraform < Common
   end
 
   def special_variables
-    # Special case two RM variables (null_resource). We skip them
+    # Special case various RM variables (null_resource). We skip them
     # and expect an external file to provide a null_resource wiring
     # them to the networking setup. Because only the external
     # context knows where the value actually comes from in terms of
     # vars, etc.
-    %w(PUBLIC_IP DOMAIN)
+    %w(DOMAIN)
   end
 
   def emit_dtr_variables

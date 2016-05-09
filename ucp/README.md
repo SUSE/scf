@@ -74,9 +74,9 @@ kubectl logs -f ipmgr-ivexp --namespace=ucp
 
 ### Configure HCF with the host IP address (#5) ###
 
-Use your host IP address for `PUBLIC_IP` and `DOMAIN` settings in the instance
-definition file you're using. The examples have a "parameters" section that
-sets these values.
+Use your host IP address for `DOMAIN` settings in the instance
+definition file you're using. The examples have a "parameters" section
+that sets this value.
 
 ### Generate UCP service definitions (#1) ###
 
