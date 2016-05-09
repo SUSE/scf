@@ -64,27 +64,27 @@
       },
       {
         "component": "nats-1",
-        "min_instances": 1,
+        "min_instances": 1
       },
       {
         "component": "nats-2",
-        "min_instances": 1,
+        "min_instances": 1
       },
       {
         "component": "consul-1",
-        "min_instances": 1,
+        "min_instances": 1
       },
       {
         "component": "consul-2",
-        "min_instances": 1,
+        "min_instances": 1
       },
       {
         "component": "mysql-1",
-        "min_instances": 1,
+        "min_instances": 1
       },
       {
         "component": "mysql-2",
-        "min_instances": 1,
-      },
+        "min_instances": 1
+      }
     ]
 }
