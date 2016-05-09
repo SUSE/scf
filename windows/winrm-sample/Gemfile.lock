@@ -12,10 +12,10 @@ GEM
     logging (2.1.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
-    multi_json (1.11.3)
+    multi_json (1.12.0)
     nori (2.6.0)
     rubyntlm (0.6.0)
-    winrm (1.7.3)
+    winrm (1.8.1)
       builder (>= 2.1.2)
       gssapi (~> 1.2)
       gyoku (~> 1.0)
@@ -31,4 +31,4 @@ DEPENDENCIES
   winrm
 
 BUNDLED WITH
-   1.11.2
+   1.12.3

@@ -1,41 +1,43 @@
+#!/usr/bin/env ruby
+
 require 'winrm'
 require 'tempfile'
 
 current_dir = File.expand_path(File.dirname(__FILE__))
-endpoint = "" # 'http://52.58.146.151:5985/wsman'
-user = "" # 'Administrator'
-password = "" # 'password'
+endpoint = ENV['WINRM_ENDPOINT']
+user = ENV['WINRM_USER']
+password = ENV['WINRM_PASSWORD']
 
 if endpoint.nil? || endpoint.empty?
-  endpoint = ENV['WINRM_ENDPOINT']
+  endpoint = 'http://192.168.77.78:5985/wsman'
 end
 if user.nil? || user.empty?
-  user = ENV['WINRM_USER']
+  user = 'vagrant'
 end
 if password.nil? || password.empty?
-  password = ENV['WINRM_PASSWORD']
+  password = 'vagrant'
 end
 
 winrm = WinRM::WinRMWebService.new(endpoint, :negotiate, :user => user, :pass => password, :basic_auth_only => true)
 ps_script = File.join(current_dir, 'deploy_cnap_vhd.ps1')
 
-tmpfile = Tempfile.new("tempfile").path
+tmpfile = Tempfile.new("tempfile")
 
-File.open(tmpfile, 'w') do |fo|
-  ARGV.each do|a|
-    vars = a.split("=")
-    next if vars.length != 2
-    key = vars[0]
-    val = vars[1]
-    fo.puts "$env:#{key} = \"#{val}\""
-  end
-  
-  File.foreach(ps_script) do |li|
-    fo.puts li
-  end
+ARGV.each do|a|
+  vars = a.split("=")
+  next if vars.length != 2
+  key = vars[0]
+  val = vars[1]
+  tmpfile.puts "$env:#{key} = \"#{val}\""
 end
 
-script = File.open(tmpfile, 'r')
+File.foreach(ps_script) do |li|
+  tmpfile.puts li
+end
+
+tmpfile.flush
+
+script = File.open(tmpfile.path, 'r')
 
 winrm.create_executor do |executor|
   executor.run_powershell_script(script) do |stdout, stderr|
@@ -43,3 +45,5 @@ winrm.create_executor do |executor|
     STDERR.print stderr
   end
 end
+
+tmpfile.close(true)
