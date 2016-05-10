@@ -90,8 +90,8 @@ class ToUCP < Common
   def empty_ucp
     {
       'name'       => 'hcf',    # TODO: Specify via option?
-      'version'    =>  @service_version, # Via --version
-      'vendor'     => 'HPE',    # s.a.
+      'version'    =>  @hcf_version,
+      'vendor'     => 'HPE',    # TODO: Specify via option?
       'volumes'    => [],	# We do not generate volumes, leave empty
       'components' => [],	# Fill from the roles, see below
       'parameters' => [],	# Fill from the roles, see below
@@ -199,7 +199,7 @@ class ToUCP < Common
 
   def add_component(roles, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_label}"
 
     rname = bname
     rname += "-#{index}" if index && index > 0

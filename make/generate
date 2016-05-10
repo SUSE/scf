@@ -16,8 +16,8 @@ OPTIONS=$(echo \
     --dtr \"${IMAGE_REGISTRY}\" \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
-    --hcf-version \"${GIT_BRANCH}\" \
-    --version \"${ARTIFACT_VERSION}\"
+    --hcf-label \"${GIT_BRANCH}\" \
+    --hcf-version \"${ARTIFACT_VERSION}\"
 )
 
 if test -n ${ENV_DIR:-''}; then

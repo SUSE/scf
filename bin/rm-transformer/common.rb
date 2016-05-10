@@ -10,15 +10,15 @@ class Common
   def initialize(options)
     @options = options
     initialize_dtr_information
-    @service_version = @options[:version] ? @options[:version] : '0.0.0'
   end
 
   def initialize_dtr_information
     # Get options, set defaults for missing parts
     @dtr         = @options[:dtr]
     @dtr_org     = @options[:dtr_org]
-    @hcf_version = @options[:hcf_version]
+    @hcf_label   = @options[:hcf_label]
     @hcf_prefix  = @options[:hcf_prefix]
+    @hcf_version = @options[:hcf_version]
   end
 
   # # ## ### ##### ########
