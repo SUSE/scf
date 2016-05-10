@@ -951,7 +951,7 @@ roles:
       max: 1
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store/couchdb
+      - path: /usr/local/var/lib/couchdb
         tag: couchdb-data
         size: 100
     shared-volumes: []
@@ -1510,7 +1510,7 @@ configuration:
     secret: true
     type-hint: "string,certificate"
   - name: COUCHDB_USER
-    default: admin``
+    default: admin
     type-hint: "string"
   - name: COUCHDB_PASSWORD
     secret: true
