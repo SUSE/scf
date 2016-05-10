@@ -1,130 +1,116 @@
-$wd=$PSScriptRoot
+$installScript = "$PSScriptRoot\install.ps1"
 
-$ErrorActionPreference = "Stop"
-$ProgressPreference = "SilentlyContinue"
-
-
-if ([string]::IsNullOrWhiteSpace($env:MSSQL_SA_PASSWORD))
-    {
-        throw "No password for MSSQL 2012 provided."
-    }
-$saPasswd = $env:MSSQL_SA_PASSWORD
-
-if ([string]::IsNullOrWhiteSpace($env:MSSQL_DATADIR))
-    {
-        $env:MSSQL_DATADIR = "c:\SQLDatabases"
-    }
-$sqlDataDir = $env:MSSQL_DATADIR
-
-if ([string]::IsNullOrWhiteSpace($env:MSSQL_TCPPORT))
-    {
-        $env:MSSQL_TCPPORT = "1433"
-    }
-$sqlTcpPort = $env:MSSQL_TCPPORT
-
-
-$sqlServerExtractionPath = (Join-Path $wd "SQLEXPRWT_x64_ENU")
-
-$sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe'
-
-function InstallSqlServer()
-{
-	Write-Output "Installing SQL Server Express 2012"
-
-	$argList = "/ACTION=Install", "/INDICATEPROGRESS", "/Q", "/UpdateEnabled=False", "/FEATURES=SQLEngine", "/INSTANCENAME=SQLEXPRESS",
-            	    "/INSTANCEID=SQLEXPRESS","/X86=False", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=Administrator",
-            	    "/ADDCURRENTUSERASSQLADMIN=False","/TCPENABLED=1","/NPENABLED=0","/SECURITYMODE=SQL","/IACCEPTSQLSERVERLICENSETERMS",
-            	    "/SAPWD=${saPasswd}","/INSTALLSQLDATADIR=${sqlDataDir}"
-
-	$sqlServerSetup = Join-Path $sqlServerExtractionPath "SETUP.EXE"
-
-	$installSQLServerProcess = Start-Process -Wait -PassThru -NoNewWindow $sqlServerSetup -ArgumentList $argList
-
-
-	if ($installSQLServerProcess.ExitCode -lt 0)
-	{
-        $exitCode = $installSQLServerProcess.ExitCode
-		throw "Failed to install Sql Server Express 2012 exit code ${exitCode}"
-	}
-	else
-	{
-		Write-Output "[OK] SQL Server Express installation was successful."
-	}
+function GeneratePassword { param($BytesOfEntropy = 32)
+    $randomBytes = New-Object Byte[]($BytesOfEntropy)
+    ([Security.Cryptography.RNGCryptoServiceProvider]::Create()).GetBytes($randomBytes)
+    return "a" + [System.Convert]::ToBase64String($randomBytes) + "aA1!"
 }
 
-function EnableStaticPort()
-{
-    Write-Output "Enabling TCP access to SQL Server"
+$invokeTask = { param([string]$id, [string]$startFilename, [string]$startArgs, [Hashtable]$envVars)
+    $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $envVars.GetEnumerator() | %{ if ( -not (Test-Path env:"$($_.Key)")) { $StartInfo.EnvironmentVariables.Add($_.Key, $_.Value) } }
+    $StartInfo.FileName = $startFilename
+    $StartInfo.Arguments = $startArgs
+    $StartInfo.UseShellExecute = $false
+    $StartInfo.RedirectStandardOutput = $true
+    $StartInfo.RedirectStandardError = $true
+    $StartInfo.RedirectStandardInput = $true
 
-    $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll"
-    
-    if (!(Get-ItemProperty "$regPath").'TcpPort')  {
-    New-ItemProperty -Path "$regPath" -Name 'TcpPort' -Value "$sqlTcpPort" -Force } else {
-    Set-ItemProperty -Path "$regPath" -Name TcpPort -Value "$sqlTcpPort"
-    }
-     
-    if (!(Get-ItemProperty "$regPath").'TcpDynamicPorts') {
-    New-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value '' -Force } else {
-    Set-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value ''
-    }
+    $Process = New-Object System.Diagnostics.Process
+    $Process.StartInfo = $StartInfo
+    $pipe = New-Object System.IO.Pipes.NamedPipeClientStream("\\.\pipe\$id");
+    $pipe.Connect(20000);
 
-    Write-Output "Restarting SQL Server"
-    Restart-Service 'MSSQL$SQLEXPRESS'
-    
-    Write-Output "Opening port $sqlTcpPort in firewall"
+    $sw = New-Object System.IO.StreamWriter($pipe);
+    $sw.AutoFlush = $true
 
-    $fwPolicy = New-Object -ComObject HNetCfg.FwPolicy2
-    $rule = New-Object -ComObject HNetCfg.FWRule
-    $rule.Name = 'MyPort'
-    $rule.Profiles = 2147483647
-    $rule.Enabled = $true
-    $rule.Action = 1
-    $rule.Direction = 1
-    $rule.Protocol = 6
-    $rule.LocalPorts = $sqlTcpPort
-
-    $fwPolicy.Rules.Add($rule)
-
-    Write-Output "Firewall updated"
-}
-
-function EnableContainedDatabaseAuthentication()
-{
-    Write-Output "Enable contained database authentication"
-
-    $argList = "-S .\sqlexpress","-U sa", "-P ${saPasswd}", "-Q `"EXEC sp_configure `'contained database authentication`', 1; reconfigure;`""
-    $sqlCmdProcess = Start-Process -Wait -PassThru -NoNewWindow $sqlCmdBin -ArgumentList $argList
-
-    if ($sqlCmdProcess.ExitCode -ne 0)
-    {
-        $exitCode = $installSQLServerProcess.ExitCode
-		throw "Failed to enable contained database authentication, exit code ${exitCode}"
+    # Register Object Events for stdin\stdout reading
+    $OutEvent = Register-ObjectEvent -InputObject $Process -EventName OutputDataReceived -Action {
+        $mes = @{'type'= 'stdout'; 'value'= $Event.SourceEventArgs.Data}
+        $sw.WriteLine(($mes | ConvertTo-Json -Compress))
     }
 
-}
-
-function AddSystemUser()
-{
-    Write-Output "Adding system user"
-
-    $argList = "-S .\sqlexpress","-U sa", "-P ${saPasswd}", "-Q `"ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT AUTHORITY\SYSTEM];`""
-
-    $sqlCmdProcess = Start-Process -Wait -PassThru -NoNewWindow $sqlCmdBin -ArgumentList $argList
-
-    if ($sqlCmdProcess.ExitCode -ne 0)
-    {
-        $exitCode = $installSQLServerProcess.ExitCode
-		throw "Failed to enable contained database authentication, exit code ${exitCode}"
+    $ErrEvent = Register-ObjectEvent -InputObject $Process -EventName ErrorDataReceived -Action {
+        $mes = @{'type'= 'stderr'; 'value'= $Event.SourceEventArgs.Data}
+        $sw.WriteLine(($mes | ConvertTo-Json -Compress))
     }
+
+    $ExitEvent = Register-ObjectEvent -SourceIdentifier "$id-exitEvent" -InputObject $Process -EventName Exited
+
+    # Start process
+    $Process.Start()
+
+    $pidMes = @{'type'= 'pid'; 'value'= $Process.Id}
+    $sw.WriteLine(($pidMes | ConvertTo-Json -Compress))
+
+    $Process.BeginOutputReadLine()
+    $Process.BeginErrorReadLine()
+
+    # Wait for exit
+    Wait-Event "$id-exitEvent" | Out-Null
+
+    # Cleanup
+    Unregister-Event -SourceIdentifier $OutEvent.Name
+    Unregister-Event -SourceIdentifier $ErrEvent.Name
+    Unregister-Event -SourceIdentifier "$id-exitEvent"
+
+    $exitMes = @{'type'= 'exit'; 'value'= $Process.ExitCode}
+    $sw.WriteLine(($exitMes | ConvertTo-Json -Compress))
+
+    $sw.Dispose()
+    $pipe.Dispose()
 }
 
-function InstallWindowsFeatures()
+
+$id = ("InvokeTask" + [guid]::NewGuid().ToString("N")).Substring(0, 20)
+$idPassword = GeneratePassword
+$idCredentials = New-Object System.Management.Automation.PSCredential $id,(ConvertTo-SecureString -AsPlainText -Force $idPassword)
+
+Write-Output "Creating install helper user $id"
+net user "$id" "$idPassword" /add /yes | Out-Null
+net localgroup Administrators "$id" /add /yes | Out-Null
+
+$envVars = @{}
+gci env: | %{$envVars.Add($_.Name, $_.Value)}
+
+$regs = Register-ScheduledJob -Name $id -ScriptBlock $invokeTask -ArgumentList $id, "powershell", "-ExecutionPolicy Bypass  -File $installScript", $envVars -ScheduledJobOption (New-ScheduledJobOption -RunElevated) -Credential $idCredentials
+
+$pipe = New-Object System.IO.Pipes.NamedPipeServerStream("\\.\pipe\$id");
+
+# Run the Schduled Task
+$regs.RunAsTask()
+
+$pipe.WaitForConnection();
+$sr = New-Object System.IO.StreamReader($pipe);
+
+$exitCode = 1
+
+# Wait for exit message to break the loop and redirect the output form the pipe to stdout
+while (($line = $sr.ReadLine()) -ne $null)
 {
-	Install-WindowsFeature -Name Net-Framework-Core -Source D:\sources\sxs
+  $mes = ($line | ConvertFrom-Json)
+  if ($mes.'type' -eq 'exit') {
+    echo ( "Exit code from `"$installScript`": " + $mes.'value' )
+    $exitCode = $mes.'value'
+    break
+  } elseif ($mes.'type' -eq 'stdout') {
+    Write-Output $mes.'value'
+  } elseif ($mes.'type' -eq 'stderr') {
+    Write-Output $mes.'value'
+  }
 }
 
-InstallWindowsFeatures
-InstallSqlServer
-EnableStaticPort
-EnableContainedDatabaseAuthentication
-AddSystemUser
+$sr.Dispose();
+$pipe.Dispose();
+
+# Wait for job name to be available, then wait for the job to stop, and then retreive the output of the job
+foreach($i in 1..15) { if (Get-Job $id -ErrorAction SilentlyContinue) { break } sleep 1 }
+Wait-Job $id -Timeout 5 | Out-Null
+Receive-Job $id
+
+# Cleanup
+Unregister-ScheduledJob $id -Force
+Write-Output "Cleaning up install helper user $id"
+net user "$id" /delete /yes | Out-Null
+
+exit $exitCode

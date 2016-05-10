@@ -21,6 +21,7 @@ if ([string]::IsNullOrWhiteSpace($env:VHD_URL))
 }
 $vhdUrl = $env:VHD_URL
 
+$cnapComponentName = "cnap"
 $mountPath = "C:\cnap-image"
 $vhdPath = "c:\cnap-image.vhdx"
 $runScript = Join-Path $mountPath "run.ps1"
@@ -47,6 +48,22 @@ $fileOutput.Close()
 $fileInput.Close()
 
 Mount-CNAPVHD -vhdPath $vhdPath -mountPath $mountPath
-powershell.exe -ExecutionPolicy Bypass -NoLogo -File $runScript
+
+#  Alternate way to run run.ps1:
+# powershell.exe -ExecutionPolicy Bypass -NonInteractive -File $runScript
+
+$session = New-PSSession -Name $cnapComponentName -EnableNetworkAccess
+Invoke-Command -Session $session -ScriptBlock {param($cnapComponentName, $mountPath)
+  Start-Job -Name "$cnapComponentName" -ScriptBlock {param($mountPath)
+    & (Join-Path "$mountPath" 'run.ps1')
+  } -ArgumentList (, $mountPath)
+} -ArgumentList (,$cnapComponentName, $mountPath)
+
+Invoke-Command -Session $session -ScriptBlock {param($cnapComponentName)
+  Receive-Job -Name $cnapComponentName -Wait
+} -ArgumentList (,$cnapComponentName)
+Remove-PSSession -name $cnapComponentName
+
+# Cleanup
 Dismount-CNAPVHD -vhdPath $vhdPath -mountPath $mountPath
 Remove-Item $vhdPath

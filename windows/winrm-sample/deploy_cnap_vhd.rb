@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'winrm'
+require 'winrm-fs'
 require 'tempfile'
 
 current_dir = File.expand_path(File.dirname(__FILE__))
@@ -21,7 +22,7 @@ end
 winrm = WinRM::WinRMWebService.new(endpoint, :negotiate, :user => user, :pass => password, :basic_auth_only => true)
 ps_script = File.join(current_dir, 'deploy_cnap_vhd.ps1')
 
-tmpfile = Tempfile.new("tempfile")
+tmpfile = Tempfile.new("deploy_cnap_vhd_env")
 
 ARGV.each do|a|
   vars = a.split("=")
@@ -31,13 +32,17 @@ ARGV.each do|a|
   tmpfile.puts "$env:#{key} = \"#{val}\""
 end
 
-File.foreach(ps_script) do |li|
-  tmpfile.puts li
-end
-
 tmpfile.flush
 
-script = File.open(tmpfile.path, 'r')
+winrm_file_manager = WinRM::FS::FileManager.new(winrm)
+winrm_file_manager.upload(tmpfile.path, 'c:/deploy_cnap_vhd_env.ps1')
+winrm_file_manager.upload(ps_script, 'c:/deploy_cnap_vhd.ps1')
+
+tmpfile.close(true)
+
+script = <<-EOS
+  powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -Command ". c:\\deploy_cnap_vhd_env.ps1; . c:\\deploy_cnap_vhd.ps1"
+EOS
 
 winrm.create_executor do |executor|
   executor.run_powershell_script(script) do |stdout, stderr|
@@ -45,5 +50,3 @@ winrm.create_executor do |executor|
     STDERR.print stderr
   end
 end
-
-tmpfile.close(true)
