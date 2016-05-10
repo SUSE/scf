@@ -27,6 +27,8 @@ def main
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
+  # --version         ~ Version of the service.
+  #                     (Default: 0.0.0)
   ##
   # The generated definitions are written to stdout
 
@@ -41,7 +43,7 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -65,6 +67,9 @@ def main
     end
     opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
       options[:hcf_prefix] = v
+    end
+    opts.on('-V', '--version text', 'Version of the service') do |v|
+      options[:version] = v
     end
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v

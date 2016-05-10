@@ -10,6 +10,7 @@ class Common
   def initialize(options)
     @options = options
     initialize_dtr_information
+    @service_version = @options[:version] ? @options[:version] : '0.0.0'
   end
 
   def initialize_dtr_information

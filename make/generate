@@ -13,10 +13,11 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 # inside quotes... shell really needs a %Q operator or something.
 
 OPTIONS=$(echo \
-              --dtr \"${IMAGE_REGISTRY}\" \
-              --dtr-org \"${IMAGE_ORG}\" \
-              --hcf-prefix \"${IMAGE_PREFIX}\" \
-              --hcf-version \"${GIT_BRANCH}\"
+    --dtr \"${IMAGE_REGISTRY}\" \
+    --dtr-org \"${IMAGE_ORG}\" \
+    --hcf-prefix \"${IMAGE_PREFIX}\" \
+    --hcf-version \"${GIT_BRANCH}\" \
+    --version \"${ARTIFACT_VERSION}\"
 )
 
 if test -n ${ENV_DIR:-''}; then

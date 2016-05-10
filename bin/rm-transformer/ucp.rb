@@ -90,7 +90,7 @@ class ToUCP < Common
   def empty_ucp
     {
       'name'       => 'hcf',    # TODO: Specify via option?
-      'version'    => '0.0.0',  # s.a.
+      'version'    =>  @service_version, # Via --version
       'vendor'     => 'HPE',    # s.a.
       'volumes'    => [],	# We do not generate volumes, leave empty
       'components' => [],	# Fill from the roles, see below
