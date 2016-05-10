@@ -16,7 +16,7 @@ OPTIONS=$(echo \
     --dtr \"${IMAGE_REGISTRY}\" \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
-    --hcf-label \"${GIT_BRANCH}\" \
+    --hcf-tag \"${GIT_BRANCH}\" \
     --hcf-version \"${ARTIFACT_VERSION}\"
 )
 

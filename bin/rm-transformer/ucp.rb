@@ -199,7 +199,7 @@ class ToUCP < Common
 
   def add_component(roles, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_label}"
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
     rname = bname
     rname += "-#{index}" if index && index > 0

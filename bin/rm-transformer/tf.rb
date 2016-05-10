@@ -94,8 +94,8 @@ class ToTerraform < Common
                   desc: 'The prefix to use before the role name to construct the full image name')
 
     emit_variable('hcf_version',
-                  value: @hcf_label.to_s,
-                  desc: 'The image label of interest')
+                  value: @hcf_tag.to_s,
+                  desc: 'The image tag of interest')
 
     emit_variable('docker_trusted_registry',
                   value: @dtr.to_s,
