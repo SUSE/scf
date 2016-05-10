@@ -1026,6 +1026,31 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
+- name: couchdb
+  type: docker
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes:
+      - path: /var/vcap/store/couchdb
+        tag: couchdb-data
+        size: 100
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'couchdb'
+        protocol: 'TCP'
+        source: 5984
+        target: 5984
+        public: true
+  configuration:
+    templates:
+      properties.couchdb.couchdb_ip: '"((COUCHDB_HOST))"'
 - name: acceptance-tests
   type: bosh-task
   jobs:
@@ -1573,6 +1598,21 @@ configuration:
   - name: CONSUL_SERVER_KEY
     secret: true
     type-hint: "string,certificate"
+  - name: COUCHDB_USER
+    default: admin``
+    type-hint: "string"
+  - name: COUCHDB_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: DEVSVC_MONGODB_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: DEVSVC_MYSQL_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: SKIP_CERT_VERIFY
     default: true
     type-hint: "boolean"
