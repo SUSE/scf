@@ -79,6 +79,14 @@
         "min_instances": 1
       },
       {
+        "component": "etcd-1",
+        "min_instances": 1
+      },
+      {
+        "component": "etcd-2",
+        "min_instances": 1
+      },
+      {
         "component": "mysql-1",
         "min_instances": 1
       },

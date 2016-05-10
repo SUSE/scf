@@ -644,9 +644,9 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 1
+      indexed: 3
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
