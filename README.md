@@ -33,7 +33,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
   git submodule update --init --recursive
   ```
 
-  __Important:__ Ensure you do not have uncommited changes in any submodules.
+  __Important:__ Ensure you do not have uncommitted changes in any submodules.
 
 4. Bring the VM online and `ssh` into it:
 
