@@ -16,8 +16,9 @@ class Common
     # Get options, set defaults for missing parts
     @dtr         = @options[:dtr]
     @dtr_org     = @options[:dtr_org]
-    @hcf_version = @options[:hcf_version]
+    @hcf_tag     = @options[:hcf_tag]
     @hcf_prefix  = @options[:hcf_prefix]
+    @hcf_version = @options[:hcf_version]
   end
 
   # # ## ### ##### ########

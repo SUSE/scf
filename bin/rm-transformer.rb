@@ -27,6 +27,8 @@ def main
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
+  # --version         ~ Version of the service.
+  #                     (Default: 0.0.0)
   ##
   # The generated definitions are written to stdout
 
@@ -34,14 +36,15 @@ def main
   options = {
     dtr:         'docker.helion.lol',
     dtr_org:     'helioncf',
-    hcf_version: 'develop',
+    hcf_tag:     'develop',
     hcf_prefix:  'hcf',
+    hcf_version: '0.0.0',
     manual:      false
   }
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -60,11 +63,14 @@ def main
     opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
       options[:dtr_org] = v
     end
-    opts.on('-H', '--hcf-version text', 'Label to use in docker images') do |v|
-      options[:hcf_version] = v
+    opts.on('-H', '--hcf-tag text', 'Tag to use for docker images') do |v|
+      options[:hcf_tag] = v
     end
     opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
       options[:hcf_prefix] = v
+    end
+    opts.on('-V', '--hcf-version text', 'Version to use for the service') do |v|
+      options[:hcf_version] = v
     end
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v

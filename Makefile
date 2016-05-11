@@ -116,6 +116,9 @@ docker-publish:
 show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
 
+show-versions:
+	${GIT_ROOT}/make/show-versions
+
 ########## CONFIGURATION TARGETS ##########
 
 generate: ucp mpc aws aws-spot aws-proxy aws-spot-proxy
