@@ -7,15 +7,18 @@
   An example file demonstrating the variables the user can (and in
   some cases 'has to') modify to get a proper setup.
 
-* `hcf.tf`
+* `mpc.tf`
 
   The main terraform configuration, containing the fixed parts of the
-  setup at the beginning, followed by a series of variables whose
-  values are provided by HCF's `roles-manifest.yml`.
+  setup.
+
+* `hcf.tf.json`
+
+  The cluster definition, generated from HCF's `roles-manifest.yml`.
 
 * `container-host-files`
 
-  Scripts and configuration files uploaded into the u-cloud to support
+  Scripts and configuration files uploaded into the µcloud to support
   its provisioning.
 
 ## Usage

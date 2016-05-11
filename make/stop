@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+${GIT_ROOT}/container-host-files/opt/hcf/bin/list-roles.sh | while read ROLE; do
+    ${GIT_ROOT}/container-host-files/opt/hcf/bin/stop-role.sh ${ROLE}
+done
+
+. $GIT_ROOT/container-host-files/opt/hcf/bin/common.sh
+load_all_roles
+list_roles_by_flight_stage post-flight | while read ROLE; do
+    ${GIT_ROOT}/container-host-files/opt/hcf/bin/stop-role.sh ${ROLE}
+done
+

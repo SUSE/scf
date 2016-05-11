@@ -11,7 +11,7 @@ require 'yaml'
 require 'json'
 
 def main
-  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|- ?...?
+  # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
   ##
   # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
@@ -27,8 +27,6 @@ def main
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
-  #
-  # ?...?               Additional files, format-dependent
   ##
   # The generated definitions are written to stdout
 
@@ -43,7 +41,7 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--dev] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|- ?...?
+    opts.banner = 'Usage: rm-transform [--manual] [--dtr NAME] [--dtr-org TEXT] [--hcf-version TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: ucp)
@@ -52,6 +50,11 @@ def main
 '
 
     opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
+      # The dtr location is canonicalized to have no trailing "/".
+      # If a trailing "/" should be needed by an output it is the provider's
+      # responsibility to add it.
+      v.chomp!("/")
+
       options[:dtr] = v
     end
     opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
@@ -70,15 +73,13 @@ def main
       env_dir = v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
-      provider = case v
-                 when 'ucp', 'tf', 'tf:aws', 'tf:mpc' then v
-                 else abort "Unknown provider: #{v}"
-                 end
+      abort "Unknown provider: #{v}" if provider_constructor[v].nil?
+      provider = v
     end
   end
   op.parse!
 
-  if ARGV.empty? || provider.nil?
+  if ARGV.length != 1 || provider.nil?
     op.parse!(['--help'])
     exit 1
   end
@@ -88,27 +89,35 @@ def main
   role_manifest = load_role_manifest(origin, env_dir)
   check_roles role_manifest['roles']
 
-  provider = get_provider(provider).new(options, ARGV[1, ARGV.size])
+  provider = provider_constructor[provider].call.new(options)
   the_result = provider.transform(role_manifest)
 
   puts(the_result)
 end
 
-def get_provider(name)
-  # Convert provider name to package and class
-  if name == 'ucp'
-    require_relative 'rm-transformer/ucp'
-    ToUCP
-  elsif name == 'tf'
-    require_relative 'rm-transformer/tf'
-    ToTerraform
-  elsif name == 'tf:aws'
-    require_relative 'rm-transformer/tf-aws'
-    ToTerraformAWS
-  elsif name == 'tf:mpc'
-    require_relative 'rm-transformer/tf-mpc'
-    ToTerraformMPC
-  end
+def provider_constructor
+  ({
+    'ucp' => lambda {
+      require_relative 'rm-transformer/ucp'
+      ToUCP
+    },
+    'tf' => lambda {
+      require_relative 'rm-transformer/tf'
+      ToTerraform
+    },
+    'tf:aws' => lambda {
+      require_relative 'rm-transformer/tf-aws'
+      ToTerraformAWS
+    },
+    'tf:aws:proxy' => lambda {
+      require_relative 'rm-transformer/tf-aws-proxy'
+      ToTerraformAWSWithProxy
+    },
+    'tf:mpc' => lambda {
+      require_relative 'rm-transformer/tf-mpc'
+      ToTerraformMPC
+    },
+  })
 end
 
 def load_role_manifest(path, env_dir)
@@ -121,9 +130,10 @@ def load_role_manifest(path, env_dir)
 
   unless env_dir.nil?
     vars = role_manifest['configuration']['variables']
-    Dir.glob(File.join(env_dir, "*.env")).each do |env_file|
+    Dir.glob(File.join(env_dir, "*.env")).sort.each do |env_file|
       File.readlines(env_file).each do |line|
-        name, value = line.chomp.split('=', 2)
+        next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
+        name, value = line.strip.split('=', 2)
         i = vars.find_index{|x| x['name'] == name }
         if i.nil?
           STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
@@ -137,40 +147,43 @@ def load_role_manifest(path, env_dir)
   role_manifest
 end
 
-  # Loaded structure
-  ##
-  # the_roles.roles[].name				/string
-  # the_roles.roles[].type				/string (*)
-  # the_roles.roles[].scripts[]				/string
-  # the_roles.roles[].jobs[].name			/string
-  # the_roles.roles[].jobs[].release_name		/string
-  # the_roles.roles[].processes[].name			/string
-  # the_roles.roles[].configuration.variables[].name	/string
-  # the_roles.roles[].configuration.variables[].default	/string
-  # the_roles.roles[].configuration.templates.<any>	/string
-  # the_roles.roles[].run.capabilities[]		/string
-  # the_roles.roles[].run.flight-stage			/string (**)
-  # the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
-  # the_roles.roles[].run.persistent-volumes[].size	/float [GB]
-  # the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
-  # the_roles.roles[].run.shared-volumes[].size		/float [GB]
-  # the_roles.roles[].run.shared-volumes[].tag		/string
-  # the_roles.roles[].run.memory			/float [MB]
-  # the_roles.roles[].run.virtual-cpus			/int
-  # the_roles.roles[].run.exposed-ports[].name		/string
-  # the_roles.roles[].run.exposed-ports[].protocol	/string
-  # the_roles.roles[].run.exposed-ports[].source	/int
-  # the_roles.roles[].run.exposed-ports[].target	/int
-  # the_roles.roles[].run.exposed-ports[].public	/bool
-  # the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
-  # the_roles.configuration.variables[].name		/string
-  # the_roles.configuration.variables[].default		/string
-  # the_roles.configuration.variables[].example		/string
-  # the_roles.configuration.variables[].secret		/bool
-  # the_roles.configuration.templates.<any>		/string (key -> value)
+# Loaded structure
+##
+# the_roles.roles[].name				/string
+# the_roles.roles[].type				/string (*)
+# the_roles.roles[].scripts[]				/string
+# the_roles.roles[].jobs[].name				/string
+# the_roles.roles[].jobs[].release_name			/string
+# the_roles.roles[].processes[].name			/string
+# the_roles.roles[].configuration.variables[].name	/string
+# the_roles.roles[].configuration.variables[].default	/string
+# the_roles.roles[].configuration.templates.<any>	/string
+# the_roles.roles[].run.capabilities[]			/string
+# the_roles.roles[].run.flight-stage			/string (**)
+# the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
+# the_roles.roles[].run.persistent-volumes[].size	/float [GB]
+# the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
+# the_roles.roles[].run.shared-volumes[].size		/float [GB]
+# the_roles.roles[].run.shared-volumes[].tag		/string
+# the_roles.roles[].run.memory				/float [MB]
+# the_roles.roles[].run.virtual-cpus			/int
+# the_roles.roles[].run.scaling.indexed			/int
+# the_roles.roles[].run.scaling.min			/int
+# the_roles.roles[].run.scaling.max			/int
+# the_roles.roles[].run.exposed-ports[].name		/string
+# the_roles.roles[].run.exposed-ports[].protocol	/string
+# the_roles.roles[].run.exposed-ports[].source	/int
+# the_roles.roles[].run.exposed-ports[].target	/int
+# the_roles.roles[].run.exposed-ports[].public	/bool
+# the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
+# the_roles.configuration.variables[].name		/string
+# the_roles.configuration.variables[].default		/string
+# the_roles.configuration.variables[].example		/string
+# the_roles.configuration.variables[].secret		/bool
+# the_roles.configuration.templates.<any>		/string (key -> value)
 
-  # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
-  # (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
+# (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
+# (Ad **) Allowed: 'flight' (default), 'pre-flight', 'post-flight', and 'manual'
 
 # Sanity check the role definitions
 def check_roles(roles)

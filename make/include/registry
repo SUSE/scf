@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+IMAGE_ORG=${IMAGE_ORG:-'helioncf'}
+IMAGE_PREFIX=${IMAGE_PREFIX:-'hcf'}
+
+registry_state() {
+    if test -z ${IMAGE_REGISTRY+nil}; then
+        echo unset
+    else
+        if test -z ${IMAGE_REGISTRY:-''}; then
+            echo empty
+        else
+            echo set
+        fi
+    fi
+}
+
+case $(registry_state) in
+    set|unset)
+        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker.helion.lol'}
+        IMAGE_REGISTRY=${IMAGE_REGISTRY%/}/
+        ;;
+    empty)
+        IMAGE_REGISTRY=''
+        ;;
+esac

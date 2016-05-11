@@ -1,6 +1,8 @@
 ---
 roles:
 - name: nats
+  scripts:
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: nats
     release_name: cf
@@ -13,6 +15,10 @@ roles:
   - name: nats
   - name: nats_stream_forwarder
   run:
+    scaling:
+      indexed: 3
+      min: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -24,9 +30,14 @@ roles:
         source: 4222
         target: 4222
         public: false
+      - name: 'nats-routes'
+        protocol: 'TCP'
+        source: 4223
+        target: 4223
+        public: false
 - name: consul
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -36,6 +47,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 3
+      min: 1
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -84,6 +99,9 @@ roles:
     templates:
       properties.consul.agent.mode: '"server"'
 - name: mysql
+  scripts:
+  - fake_spec_index_on_ucp.sh
+  - fix_mysql_advertise_ip.sh
   jobs:
   - name: mysql
     release_name: cf-mysql
@@ -92,6 +110,10 @@ roles:
   - name: galera-healthcheck
   - name: gra-log-purger-executable
   run:
+    scaling:
+      indexed: 3
+      min: 1
+      max: 3
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -116,9 +138,14 @@ roles:
         source: 9200
         target: 9200
         public: false
+      - name: 'xtrabackup'
+        protocol: 'tcp'
+        source: 4444
+        target: 4444
+        public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"((#MYSQL_HA_HOST_1)), "((MYSQL_HA_HOST_1))"((/MYSQL_HA_HOST_1))((#MYSQL_HA_HOST_2)), "((MYSQL_HA_HOST_2))"((/MYSQL_HA_HOST_2))]'
       properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
@@ -130,12 +157,19 @@ roles:
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
+  scripts:
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: proxy
     release_name: cf-mysql
   processes:
+  - name: route-registrar
   - name: switchboard
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -159,7 +193,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"]'
+      properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"((#MYSQL_HA_HOST_1)), "((MYSQL_HA_HOST_1))"((/MYSQL_HA_HOST_1))((#MYSQL_HA_HOST_2)), "((MYSQL_HA_HOST_2))"((/MYSQL_HA_HOST_2))]'
       properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
@@ -178,12 +212,8 @@ roles:
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
-  # etcd_custom_dns_suffix.sh merged in https://github.com/cloudfoundry-incubator/etcd-release/pull/9/files?diff=unified
-  #- etcd_custom_dns_suffix.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -199,6 +229,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -237,10 +271,10 @@ roles:
       - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -254,6 +288,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -277,8 +315,8 @@ roles:
         public: true
 - name: router
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -291,6 +329,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -304,7 +346,7 @@ roles:
         public: false
 - name: uaa
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -320,6 +362,10 @@ roles:
   - name: route_registrar
   - name: metron_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -333,14 +379,13 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port":"8080", "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
+  # Do not apply fake_spec_index_on_ucp.sh here because we need an index 0
+  # to run migrations from
   - perform_nfs_test.sh
   - make_sys_proc_tweaks_optional.sh
-  # cc_internal_hostname fixed in cloud_controller_ng.git#8f9f27ae
-  - fix_cc_internal_service_hostname.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -366,14 +411,25 @@ roles:
     release_name: cf
   - name: staticfile-buildpack
     release_name: cf
+  - name: java-buildpack
+    release_name: cf
+  - name: cf_iis_buildpack
+    release_name: windows-runtime-release
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
+  - name: cloud_controller_worker_local_2
   - name: cloud_controller_migration
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
+  - name: nginx_cc
+  - name: statsd-injector
   run:
+    scaling:
+      indexed: 2
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -395,11 +451,11 @@ roles:
         public: false
   configuration:
     templates:
-      properties.etcd.machines: '["((ETCD_HOST))"]'
+      properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -412,6 +468,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -421,9 +481,51 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: blobstore
+  scripts:
+  - fake_spec_index_on_ucp.sh
+  jobs:
+  - name: blobstore
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: blobstore_nginx
+  - name: blobstore_url_signer
+  - name: route_registrar
+  - name: metron_agent
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag: blobstore-data
+      size: 100
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+    - name: 'blobstore-ext'
+      protocol: 'TCP'
+      source: 80
+      target: 80
+      public: false
+    - name: 'blobstore-int'
+      protocol: 'TCP'
+      source: 443
+      target: 443
+      public: false
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -436,6 +538,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -444,7 +550,7 @@ roles:
     exposed-ports: []
 - name: cf-usb
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -457,6 +563,10 @@ roles:
   - name: route_registrar
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -478,9 +588,10 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port":"54053", "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port":"54054", "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: doppler
@@ -489,16 +600,15 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  - name: route_registrar
-    release_name: cf
   processes:
   - name: doppler
-  - name: route_registrar
+  - name: metron_agent
   - name: syslog_drain_binder
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -522,8 +632,7 @@ roles:
         public: false
 - name: etcd
   scripts:
-  # etcd_health_check_ipv4_only.sh merged in etcd-release v37
-  - etcd_health_check_ipv4_only.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -536,6 +645,10 @@ roles:
   - name: etcd
   - name: metron_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -568,9 +681,10 @@ roles:
       properties.etcd.server_cert: 'null'
       properties.etcd.client_cert: 'null'
       properties.etcd.ca_cert: 'null'
-      properties.etcd.machines: '["((ETCD_HOST))"]'
+      properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
 - name: loggregator
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: loggregator_trafficcontroller
@@ -581,11 +695,16 @@ roles:
     release_name: cf
   processes:
   - name: loggregator_trafficcontroller
+  - name: metron_agent
   - name: route_registrar
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"doppler", "port":"8081", "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":"8080", "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -597,9 +716,14 @@ roles:
         source: 8080
         target: 8080
         public: false
+      - name: 'loggregator-ws'
+        protocol: 'TCP'
+        source: 8081
+        target: 8081
+        public: false
 - name: diego-brain
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -615,6 +739,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -628,8 +756,8 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: stager
     release_name: diego
@@ -644,13 +772,19 @@ roles:
   - name: metron_agent
     release_name: cf
   processes:
+  - name: cc_uploader
   - name: stager
+  - name: tps_listener
   - name: tps_watcher
   - name: nsync_listener
   - name: nsync_bulker
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -709,7 +843,7 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
-  - consul_agent_loopback_ip.sh
+  - fake_spec_index_on_ucp.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -722,6 +856,10 @@ roles:
   - name: metron_agent
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -730,8 +868,8 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
+  - fake_spec_index_on_ucp.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -741,12 +879,18 @@ roles:
     release_name: cf
   - name: file_server
     release_name: diego
+  - name: windows_buildpack_app_lifecycle
+    release_name: windows-runtime-release
   processes:
   - name: file_server
   - name: metron_agent
   - name: ssh_proxy
   - name: consul_agent
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -765,10 +909,9 @@ roles:
         public: false
 - name: diego-cell
   scripts:
+  - fake_spec_index_on_ucp.sh
   - prevent_apparmor_disable.sh
-  - fix_linux_garden_dns.sh
   - make_sys_proc_tweaks_optional.sh
-  - consul_agent_loopback_ip.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
   jobs:
@@ -788,6 +931,10 @@ roles:
   - name: rep
   - name: garden
   run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
     capabilities: ['ALL']
     persistent-volumes: []
     shared-volumes: []
@@ -800,6 +947,10 @@ roles:
   - name: acceptance-tests
     release_name: cf
   run:
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     flight-stage: manual
     capabilities: []
     persistent-volumes: []
@@ -813,12 +964,29 @@ roles:
   - name: smoke-tests
     release_name: cf
   run:
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
+    exposed-ports: []
+- name: diego-debugger
+  type: docker
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 128
+    virtual-cpus: 1
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
@@ -828,7 +996,11 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
-    flight-stage: post-flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -838,6 +1010,10 @@ roles:
 - name: windows-dns
   type: docker
   run:
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -849,62 +1025,87 @@ roles:
         source: 8600
         target: 53
         public: true
-- name: mongodb-manager
+- name: dev-service-mongodb
   type: docker
   run:
+    flight-stage: manual
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /data/db
-        tag: mongodb-manager-data
+        tag: dev-service-mongodb-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: mysql-manager
+- name: dev-service-mysql
   dev-only: true
   type: docker
   run:
+    flight-stage: manual
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/lib/mysql
-        tag: mysql-manager-data
+        tag: dev-service-mysql-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: postgres-manager
+- name: dev-service-postgres
   type: docker
   run:
+    flight-stage: manual
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: []
     persistent-volumes:
       - path: /var/lib/postgresql/data
-        tag: postgres-manager-data
+        tag: dev-service-postgres-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: rabbitmq-manager
+- name: dev-service-rabbitmq
   type: docker
   run:
+    flight-stage: manual
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/rabbitmq-data
-        tag: rabbitmq-manager-data
+        tag: dev-service-rabbitmq-data
         size: 200
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
-- name: redis-manager
+- name: dev-service-redis
   type: docker
   run:
+    flight-stage: manual
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
     capabilities: ['ALL']
     persistent-volumes:
       - path: /var/redis-data
-        tag: redis-manager-data
+        tag: dev-service-redis-data
         size: 200
     shared-volumes: []
     memory: 1024
@@ -918,7 +1119,11 @@ roles:
     release_name: hcf-deployment-hooks
   processes: []
   run:
-    flight-stage: post-flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -929,206 +1134,442 @@ configuration:
   variables:
   - name: API_HOST
     default: "api"
+    type-hint: "string,hostname"
+  - name: API_HA_HOST
+    required: false
+    type-hint: "string,hostname"
+  - name: BLOBSTORE_HOST
+    default: "blobstore"
+    type-hint: "string,hostname"
+  - name: BLOBSTORE_USERNAME
+    default: "blobstore_user"
+    type-hint: "string"
+  - name: BLOBSTORE_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: BLOBSTORE_SECURE_LINK
+    secret: true
+    type-hint: "password,random"
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
+    type-hint: "string,hostname"
+#  - name: DIEGO_DATABASE_HA_HOST_1
+#    required: false
+#  - name: DIEGO_DATABASE_HA_HOST_2
+#    required: false
   - name: DIEGO_ACCESS_HOST
     default: "diego-access"
+    type-hint: "string,hostname"
   - name: DIEGO_CC_BRIDGE_HOST
     default: "diego-cc-bridge"
+    type-hint: "string,hostname"
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain"
+    type-hint: "string,hostname"
   - name: NATS_HOST
     default: "nats"
+    type-hint: "string,hostname"
+  - name: NATS_HA_HOST_1
+    required: false
+    type-hint: "string,hostname"
+  - name: NATS_HA_HOST_2
+    required: false
+    type-hint: "string,hostname"
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy"
+    type-hint: "string,hostname"
   - name: MYSQL_HOST
     default: "mysql"
+    type-hint: "string,hostname"
+  - name: MYSQL_HA_HOST_1
+    required: false
+    type-hint: "string,hostname"
+  - name: MYSQL_HA_HOST_2
+    required: false
+    type-hint: "string,hostname"
   - name: ETCD_HOST
     default: "etcd"
+    type-hint: "string,hostname"
+  - name: ETCD_HA_HOST_1
+    required: false
+    type-hint: "string,hostname"
+  - name: ETCD_HA_HOST_2
+    required: false
+    type-hint: "string,hostname"
   - name: CONSUL_HOST
     default: "consul"
+    type-hint: "string,hostname"
+  - name: CONSUL_HA_HOST_1
+    required: false
+    type-hint: "string,hostname"
+  - name: CONSUL_HA_HOST_2
+    required: false
+    type-hint: "string,hostname"
   - name: ROUTER_HOST
     default: "router"
+    type-hint: "string,hostname"
   - name: LOGGREGATOR_HOST
     default: "loggregator"
-  - name: PUBLIC_IP
-    default: "192.168.77.77"
+    type-hint: "string,hostname"
   - name: BULK_API_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CCDB_ROLE_NAME
     default: ccadmin
+    type-hint: "string"
   - name: CCDB_ROLE_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CCDB_ROLE_TAG
     default: admin
+    type-hint: "string"
   - name: CERTS_PREFIX
     default: hcf
+    type-hint: "string"
   - name: DROPLET_DIRECTORY_KEY
-    default: droplet_directory_key
+    default: "cc-droplets"
+    type-hint: "string"
   - name: BUILDPACK_DIRECTORY_KEY
-    default: buildpack_directory_key
+    default: "cc-buildpacks"
+    type-hint: "string"
+  - name: APP_PACKAGE_DIRECTORY_KEY
+    default: "cc-packages"
+    type-hint: "string"
+  - name: RESOURCE_DIRECTORY_KEY
+    default: "cc-resources"
+    type-hint: "string"
   - name: CF_USB_USERNAME
     default: broker-admin
+    type-hint: "string"
   - name: CF_USB_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
+    type-hint: "string"
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,human"
   - name: CLUSTER_ADMIN_USERNAME
     default: admin
+    type-hint: "string"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
+    type-hint: "password,random"
   - name: DB_ENCRYPTION_KEY
     secret: true
+    type-hint: "password,random"
+  - name: DNS_SUFFIX
+    default: ""
+    required: false
+    type-hint: "string,domain"
   - name: DOMAIN
-    default: "192.168.77.77.nip.io"
+    example: "192.168.77.77.nip.io"
+    type-hint: "string,domain"
   - name: DOPPLER_ZONE
     default: z1
+    type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
+    type-hint: "password,random"
   - name: METRON_AGENT_ZONE
     default: z1
+    type-hint: "string"
   - name: MONIT_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MONIT_PORT
     default: '2822'
+    type-hint: "integer,port"
   - name: MONIT_USER
     default: monit_user
+    type-hint: "string"
   - name: NATS_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: NATS_USER
     default: nats_user
+    type-hint: "string"
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
     secret: true
+    type-hint: "password,random"
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: STAGING_UPLOAD_USER
     default: username
+    type-hint: "string"
   - name: INTERNAL_API_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: INTERNAL_API_USER
     default: internal_user
+    type-hint: "string"
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
+    type-hint: "string"
+  - name: TRUSTED_CERTS
+    secret: true
+    required: false
+    type-hint: "certificate"
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_BATCH_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAA_BATCH_USERNAME
     default: batch_username
+    type-hint: "string"
   - name: UAA_CC_CLIENT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CC_ROUTING_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
+    type-hint: "password,random"
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
+    type-hint: "string"
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
+    type-hint: "password,random"
   - name: UAADB_PASSWORD
     secret: true
+    type-hint: "password,random"
   - name: UAADB_TAG
     default: admin
+    type-hint: "string"
   - name: UAADB_USERNAME
     default: uaaadmin
+    type-hint: "string"
   - name: ALLOWED_SERVICES_SUBNET
-    default: 172.20.10.0/24
+    default: 10.254.0.0/16
+    type-hint: "subnet"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
+    type-hint: "string,certificate"
   - name: JWT_SIGNING_PEM
     secret: true
+    type-hint: "string,certificate"
   - name: JWT_SIGNING_PUB
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_PEER_CA_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_SERVER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CLIENT_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_SERVER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CLIENT_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: ETCD_CA_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_SERVER_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CLIENT_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_SERVER_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CLIENT_CRT
     secret: true
+    type-hint: "string,certificate"
   - name: BBS_CA_CRT
     secret: true
+    type-hint: "string,certificate"
+  - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
+    default: bbs.service.cf.internal
+    type-hint: "string,hostname"
   - name: SSH_KEY
     secret: true
+    type-hint: "string,ssh-key"
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
+    type-hint: "string"
   - name: ROUTER_SSL_CERT
     secret: true
+    type-hint: "string,certificate"
   - name: ROUTER_SSL_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: UAA_PRIVATE_KEY
     secret: true
+    type-hint: "string,certificate"
   - name: UAA_CERTIFICATE
     secret: true
+    type-hint: "string,certificate"
+  - name: BLOBSTORE_TLS_CERT
+    secret: true
+    type-hint: "string,certificate"
+  - name: BLOBSTORE_TLS_KEY
+    secret: true
+    type-hint: "string,certificate"
+  - name: CONSUL_CA_CERT
+    secret: true
+    type-hint: "string,certificate"
+  - name: CONSUL_AGENT_CERT
+    secret: true
+    type-hint: "string,certificate"
+  - name: CONSUL_AGENT_KEY
+    secret: true
+    type-hint: "string,certificate"
+  - name: CONSUL_SERVER_CERT
+    secret: true
+    type-hint: "string,certificate"
+  - name: CONSUL_SERVER_KEY
+    secret: true
+    type-hint: "string,certificate"
+  - name: DEVSVC_MONGODB_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: DEVSVC_MYSQL_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
+    secret: true
+    type-hint: "password,random"
+  - name: SKIP_CERT_VERIFY
+    default: true
+    type-hint: "boolean"
+  - name: ROUTER_ACCESS_LOG_STREAMING
+    default: false
+    type-hint: "boolean"
+  - name: GARDEN_LINUX_DNS_SERVER
+    default: ""
+    type-hint: "string,ipaddress"
+  # Proxy
+  - name: HTTP_PROXY
+    default: ""
+    type-hint: "string,hostname"
+  - name: http_proxy
+    default: ""
+    type-hint: "string,hostname"
+  - name: HTTPS_PROXY
+    default: ""
+    type-hint: "string,hostname"
+  - name: https_proxy
+    default: ""
+    type-hint: "string,hostname"
+  - name: NO_PROXY
+    default: "127.0.0.1"
+    type-hint: "string"
   templates:
-    index: 0
+    index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
+    networks.default.dns_record_name: '"((UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
+    properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
+    properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
-    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
     properties.cc.srv_api_uri: '"https://api.((DOMAIN))"'
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.internal_api_user: '"((INTERNAL_API_USER))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.cc.buildpacks.blobstore_type: webdav
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
-    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]' 
+    properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.buildpacks.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.droplets.blobstore_type: webdav
+    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
+    properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.droplets.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.packages.blobstore_type: webdav
+    properties.cc.packages.app_package_directory_key: '"((APP_PACKAGE_DIRECTORY_KEY))"'
+    properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.packages.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.resource_pool.blobstore_type: webdav
+    properties.cc.resource_pool.resource_directory_key: '"((RESOURCE_DIRECTORY_KEY))"'
+    properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
+    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "dev_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    properties.consul.agent.servers.lan: '["((CONSUL_HOST))"]'
+    properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
+    properties.consul.agent.domain: '"hcf"'
+    properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
+    properties.consul.ca_cert: '"((CONSUL_CA_CERT))"'
+    properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
+    properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
+    properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
+    properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
     properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
@@ -1163,6 +1604,7 @@ configuration:
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.system_domain: '"((DOMAIN))"'
+    properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.cf-usb.broker.external_url: '"brokers.((DOMAIN))"'
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
@@ -1181,7 +1623,6 @@ configuration:
     properties.diego.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.route_emitter.nats.user: '"((NATS_USER))"'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.servers: '["((DIEGO_ACCESS_HOST))"]'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.stager.cc.base_url: '"https://api.((DOMAIN))"'
@@ -1194,44 +1635,47 @@ configuration:
     properties.diego.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.diego.tps.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.diego.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
-    properties.diego.tps.traffic_controller_url: '"wss://doppler.((DOMAIN)):443"'
     properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
+    properties.diego.bbs.advertisement_base_hostname: '"((BBS_ADVERTISEMENT_BASE_HOSTNAME))"'
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
-    properties.nats.machines: '["((NATS_HOST))"]'
-    properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"]'
-    properties.etcd_metrics_server.machines: '["((NATS_HOST))"]'
-    properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
-    properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'
+    properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
+    properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
+    properties.etcd_metrics_server.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
+    properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
+    properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
+    properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
-    properties.cc.internal_service_hostname: '"((API_HOST))"'
+    properties.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
-    properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"]'
+    properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.route_emitter.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.ssh_proxy.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.tps.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.route_emitter.nats.machines: '["((NATS_HOST))"]'
+    properties.diego.tps.bbs.api_location: '"((DIEGO_DATABASE_HOST)):8889"'
+    properties.diego.route_emitter.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.cc.diego.nsync_url: "http://((DIEGO_CC_BRIDGE_HOST)):8787"
     properties.cc.diego.stager_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
     properties.cc.diego.tps_url: "http://((DIEGO_CC_BRIDGE_HOST)):1518"
     properties.diego.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.diego.stager.staging_task_callback_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
-    properties.diego.stager.cc.internal_service_hostname: "((API_HOST))"
+    properties.diego.stager.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     properties.diego.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.diego.stager.cc_uploader_url: "http://((DIEGO_CC_BRIDGE_HOST)):9090"
+    properties.dev_services.mongodb.admin_password: "((DEVSVC_MONGODB_ADMIN_PASSWORD))"
+    properties.dev_services.postgres.admin_password: "((DEVSVC_POSTGRES_ADMIN_PASSWORD))"
+    properties.dev_services.mysql.admin_password: "((DEVSVC_MYSQL_ADMIN_PASSWORD))"
     # TODO: configure this once we have the diego docker cache deployed
     # diego.stager.docker_registry_address: "docker-registry.service.cf.internal:8080"
-    properties.diego.tps.bbs.api_location: "((DIEGO_DATABASE_HOST)):8889"
-    properties.diego.tps.cc.internal_service_hostname: "((API_HOST))"
+    properties.diego.tps.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     properties.diego.tps.traffic_controller_url: "ws://((LOGGREGATOR_HOST)):8081"
-    properties.diego.ssh_proxy.cc.internal_service_hostname: "((API_HOST))"
+    properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     # Setting certificate values
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
@@ -1280,22 +1724,37 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
+    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
+    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
+    properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.hcf_set_proxy.api_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
+    properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
-    properties.cc.tweak_proc_sys: false
-    properties.router.tweak_proc_sys: false
     properties.doppler.tweak_locked_memory: false
     properties.traffic_controller.tweak_locked_memory: false
     properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.diego.bbs.tweak_proc_sys: false
-    properties.diego.cc_uploader.tweak_proc_sys: false
-    properties.diego.file_server.tweak_proc_sys: false
-    properties.diego.rep.tweak_proc_sys: false
-    properties.diego.stager.tweak_proc_sys: false
+    properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
+    properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
+    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
+    properties.blobstore.tls.port: 443
+    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.garden.http_proxy: '"((HTTP_PROXY))"'
+    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
+    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'

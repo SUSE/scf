@@ -26,19 +26,21 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-virtualbox-v1.0.2.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.5.box"
+
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
+    vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
     override.vm.synced_folder ".", "/home/vagrant/hcf"
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.2.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.6.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
@@ -51,7 +53,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_workstation" do |vb, override|
-    override.vm.box="https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-vmware-v1.0.2.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.6.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "6144"
@@ -64,7 +66,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://api.mpce.hpelabs.net:8080/v1/AUTH_7b52c1fb73ad4568bbf5e90bead84e21/hcf-vagrant-box-images/hcf-libvirt-v1.0.2.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.6.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
@@ -103,6 +105,38 @@ Vagrant.configure(2) do |config|
     chown vagrant /home/vagrant/tools
     chown vagrant /home/vagrant/tools/*
     chown vagrant /home/vagrant/tmp
+  SHELL
+
+  config.vm.provision "shell", privileged: true, inline: <<-SHELL
+    ulimit -l unlimited
+
+    # Allowed number of open file descriptors
+    ulimit -n 100000
+
+    # Ephemeral port range
+    echo "1024 65535" > /proc/sys/net/ipv4/ip_local_port_range
+
+    # TCP_FIN_TIMEOUT
+    # This setting determines the time that must elapse before TCP/IP can release a closed connection and reuse
+    # its resources. During this TIME_WAIT state, reopening the connection to the client costs less than establishing
+    # a new connection. By reducing the value of this entry, TCP/IP can release closed connections faster, making more
+    # resources available for new connections. Addjust this in the presense of many connections sitting in the
+    # TIME_WAIT state:
+    echo 5 > /proc/sys/net/ipv4/tcp_fin_timeout
+
+    # TCP_TW_RECYCLE
+    # It enables fast recycling of TIME_WAIT sockets. The default value is 0 (disabled). The sysctl documentation
+    # incorrectly states the default as enabled. It can be changed to 1 (enabled) in many cases. Known to cause some
+    # issues with hoststated (load balancing and fail over) if enabled, should be used with caution.
+    echo 0 > /proc/sys/net/ipv4/tcp_tw_recycle
+
+    # TCP_TW_REUSE
+    # This allows reusing sockets in TIME_WAIT state for new connections when it is safe from protocol viewpoint.
+    # Default value is 0 (disabled). It is generally a safer alternative to tcp_tw_recycle
+    echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+
+    # Allow a few more queued connections than are allowed by default
+    echo 1024 > /proc/sys/net/core/somaxconn
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL

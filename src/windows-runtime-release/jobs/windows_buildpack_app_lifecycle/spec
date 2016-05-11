@@ -1,0 +1,6 @@
+---
+name: windows_buildpack_app_lifecycle
+templates:
+
+packages:
+  - windows_buildpack_app_lifecycle

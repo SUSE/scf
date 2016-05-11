@@ -1,0 +1,70 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/fissile
+
+HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
+
+cache() {
+    test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
+
+    for COMPILED in ${FISSILE_WORK_DIR}/compilation/*/*/compiled; do
+        DIR=$(dirname ${COMPILED})
+        tar cf ${DIR}/compiled.tar -C "${DIR}" compiled
+    done
+
+    rsync \
+        --info=progress2 \
+        --recursive \
+        --links \
+        --include="/*/" \
+        --include="/*/*/" \
+        --include="/*/*/compiled.tar" \
+        --exclude="*" \
+        --ignore-existing \
+        "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
+}
+
+restore() {
+    test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
+    test -d "${FISSILE_WORK_DIR}/compilation/" && return
+
+    mkdir -p "${FISSILE_WORK_DIR}/compilation/"
+    mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
+
+    rsync \
+        --recursive \
+        --links \
+        --include="/*/" \
+        --include="/*/*/" \
+        --include="/*/*/compiled.tar" \
+        --exclude="*" \
+        --info=progress2 \
+        "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
+
+    find ${FISSILE_WORK_DIR}/compilation -type f -name compiled.tar | while read COMPILED; do
+        DIR=$(dirname ${COMPILED})
+        rm -rf ${DIR}/compiled
+        tar xf ${DIR}/compiled.tar -C ${DIR}
+    done
+}
+
+COMMAND=${1:-''}
+
+case ${COMMAND} in
+    restore)
+        restore;;
+    cache)
+        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &;;
+    *)
+        restore
+
+        echo Please allow a long time for mariadb to compile
+        fissile dev compile
+
+        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
+        ;;
+esac

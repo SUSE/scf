@@ -1,0 +1,6 @@
+# abort script on any command that exits with a non zero value
+set -e
+
+cd ${BUILD_DIR}
+
+curl -L -o cf-iis8-buildpack.zip https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-cf-iis8-buildpack-artifacts/babysitter-24-2016-04-25_16-17-16/cf-iis8-buildpack-babysitter.zip

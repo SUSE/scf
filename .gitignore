@@ -13,7 +13,8 @@ password
 .vagrant
 *.box
 *.vmdk
-hcf-ucp.json
+/hcf-ucp.json
 .demos
-hcf.tf
 src/*-clone
+/*.tf
+/*.tf.json

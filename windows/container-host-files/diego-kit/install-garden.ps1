@@ -1,19 +1,3 @@
-## Utilities
-
-# Source: https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/03/generating-a-new-password-with-windows-powershell/
-Function Get-TempPassword() {
-    Param([int]$length=40)
-
-    $charSet=$NULL;
-    For ($a=48;$a -le 90;$a++) {$charSet+=,[char][byte]$a }
-
-    For ($loop=1; $loop -le $length; $loop++) {
-        $TempPassword+=($charSet | Get-Random)
-    }
-    return $TempPassword
-}
-
-
 ## Create working directory
 
 $wd="C:\garden-kit"
@@ -80,7 +64,7 @@ Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction B
 
 ## Download installers
 
-$gardenVersion = "v0.116"
+$gardenVersion = "v0.129"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 
@@ -97,18 +81,8 @@ if ($gardenProduct) {
   $gardenProduct.Uninstall()
 }
 
-$gardenUsername = "GardenAdmin"
-$gardenUserPassword = "Aa1!" + (Get-TempPassword)
-echo "Creating local user $gardenUsername"
-net user "$gardenUsername" /delete /yes
-net user "$gardenUsername" "$gardenUserPassword" /add /yes
-net localgroup "Administrators" "$gardenUsername" /add /yes
 
-
-echo "msiexec /passive /norestart /i $wd\GardenWindows.msi ^
-  ADMIN_USERNAME=`"$gardenUsername`" ^
-  ADMIN_PASSWORD=`"$gardenUserPassword`" ^
-  MACHINE_IP=$machineIp" `
+echo "msiexec /passive /norestart /i $wd\GardenWindows.msi  MACHINE_IP=$machineIp" `
  | Out-File -Encoding ascii  $wd\install-garden.bat
 
 

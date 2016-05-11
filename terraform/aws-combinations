@@ -1,0 +1,60 @@
+                        Common
+                        |  Proxy
+                        |  |  Spot
+File                    |  |  |  Spot&Proxy
+----                    -- -- -- --
+access.tf               @
+ami.tf                  @
+disks.tf                @
+filesystem.tf           @
+net.tf                  @
+output.tf               @
+provider.tf             @
+------                  -- -- -- -- 
+instance.tf             @     @
+subnet.tf               @     @
+------                  -- -- -- -- 
+core-ip.tf              @     @
+proxy-ip.tf                @     @
+------                  -- -- -- -- 
+config-proxy.tf            @
+config.tf               @
+------                  -- -- -- -- 
+core-prequisites.tf	@  @
+host-core.tf            @     @
+host-proxy.tf              @     @
+------                  -- -- -- -- 
+setup-core-prep.tf      @
+setup-core-proxy.tf     @  @
+setup-core-mangle.tf    @
+setup-core-final.tf     @
+------                  -- -- -- -- 
+setup-proxy.tf             @
+------                  -- -- -- -- 
+
+Config X = Common + X
+
+Common          = Common
+Spot            = Common + Spot
+Proxy           = Common + Proxy
+Spot+Proxy      = Common + Spot + Proxy + Spot&Proxy
+
+# Notes
+
+To understand the AWS setup it is necessary to realize that lots of
+intermediary null_resources (NR) are created and used to shield other
+parts from changes to dependencies, or the type of resources,
+etc. When assembling a configuration most parts are unchanged, and
+(mostly) only these switch-box NRs get different specifications
+according to the chosen variant.
+
+Examples:
+
+*	The NRs holding ip address information shield all
+	their users from the difference
+
+		aws_instance vs aws_spot_instance_request
+
+*	The NR "core_requirements" shields the core instance from the
+	differences in its dependencies and network security between
+	plain and proxied setups.

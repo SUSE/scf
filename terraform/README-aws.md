@@ -7,11 +7,40 @@
   An example file demonstrating the variables the user can (and in
   some cases 'has to') modify to get a proper setup.
 
-* `hcf-aws.tf`
+* `aws.tf`, `aws-spot.tf`, `aws-proxy.tf`, `aws-spot-proxy.tf`
 
   The main terraform configuration, containing the fixed parts of the
-  setup at the beginning, followed by a series of variables whose
-  values are provided by HCF's `roles-manifest.yml`.
+  setup. Several variants are possible, distinguished by name:
+
+  Name | Meaning
+  ---|---
+  aws | single-node u-cloud using regular instances
+  aws-spot | ditto, using spot instances (less expensive)
+  aws-proxy | 2-node u-cloud, proxy and core, using regular instances
+  aws-spot-proxy | ditto, using spot instances (less expensive)
+
+* `hcf-aws.tf.json`
+
+  The cluster definition, generated from HCF's `roles-manifest.yml`.
+
+* `container-host-files`
+
+  Scripts and configuration files uploaded into the µcloud to support
+  its provisioning.
+
+## Setting up docker
+
+
+# log in:
+docker login -u legituser -p trustme -e legit@us.er docker.helion.lol
+
+In the hcf dir of an hcf vagrant box:
+export GIT_BRANCH=something # like dickh-dev
+make tag
+make publish
+
+make show-docker-setup # shows how the vars in aws.tfvars should be set:
+hcf_version="dickh-dev" # or whatever GIT_BRANCH was set to
 
 ## Usage
 
@@ -58,15 +87,12 @@ export AWS_DEFAULT_REGION="us-west-2"
 
 ## Certificates and other secrets
 
-Until ENV_DIR support lands in the Makefile my workaround is to
+To use the development secrets (instead of supplying your own in
+`aws.tfvars`), regenerate `hcf-aws.tf.json` with them built in:
 
+```bash
+  make aws ENV_DIR=$PWD/bin
 ```
-  -DTR := --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
-  +DTR := --env-dir=${CURDIR}/bin --dtr=${IMAGE_REGISTRY} --dtr-org=${IMAGE_ORG} --hcf-version=${BRANCH} --hcf-prefix=${IMAGE_PREFIX}
-```
-
-in the Makefile to ensure that the generated `.tf` files contain the
-certs data.
 
 ## Terraform
 

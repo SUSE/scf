@@ -1,0 +1,7 @@
+---
+name: windows_buildpack_app_lifecycle
+
+dependencies: []
+
+files: 
+  - windows_buildpack_app_lifecycle/**/*

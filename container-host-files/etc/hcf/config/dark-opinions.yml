@@ -31,6 +31,7 @@ properties:
     status:
       user: router_user
       password: router_password
+    route_services_secret: null
   smoke_tests:
     api: api.((DOMAIN))
     apps_domain: [ ((DOMAIN)) ]

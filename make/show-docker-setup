@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/registry
+. ${GIT_ROOT}/make/include/versioning
+
+echo "docker registry = '${IMAGE_REGISTRY}'"
+echo "docker org      = '${IMAGE_ORG}'"
+echo "hcf version     = '${GIT_BRANCH}'"
+echo "hcf prefix      = '${IMAGE_PREFIX}'"

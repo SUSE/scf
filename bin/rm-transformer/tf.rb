@@ -3,46 +3,20 @@
 # # ## ### ##### ########
 
 require_relative 'common'
+require 'json'
 
 # Provider for terraform declarations derived from a role-manifest.
-# Takes additional files containing the execution context.
 class ToTerraform < Common
-  def initialize(options, remainder)
+  def initialize(options)
     super(options)
-    @have_public_ip = false
-    @have_domain = false
-    initialize_emitter_state
-    copy_addons(remainder)
-  end
-
-  def initialize_dtr_information
-    # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr] || 'docker.helion.lol'
-    @dtr_org     = @options[:dtr_org] || 'helioncf'
-    @hcf_version = @options[:hcf_version] || 'develop'
-    @hcf_prefix  = @options[:hcf_prefix] || 'hcf'
-  end
-
-  def initialize_emitter_state
-    @out = ['# © Copyright 2015 Hewlett Packard Enterprise Development LP', '']
-    @secnumber = 1
-    @level     = 0
-  end
-
-  def copy_addons(paths)
-    # Process the add-on files first. Pass them into the output, unchanged.
-    paths.each do |path|
-      emit_header(path)
-      emit(open(path).read)
-    end
+    @have_specials = []
+    @out = {}
   end
 
   # Public API
   def transform(manifest)
-    hdr = '# # ## ### ##### Generated parts starting here ##### ### ## # #'
-    emit_header(hdr)
     to_terraform(manifest)
-    @out.join("\n")
+    @out.to_json
   end
 
   # Internal definitions
@@ -53,104 +27,65 @@ class ToTerraform < Common
     emit_settings(manifest)
     emit_list_of_roles(manifest)
     emit_configuration(manifest)
-    emit_header 'Done'
   end
 
-  # Low level emitter management, individual lines, indentation control
-
-  def emit(text)
-    @out.push('    ' * @level + text)
-  end
-
-  def indent
-    @level += 1
-    yield
-    @level -= 1
-  end
-
-  def block(text)
-    emit("#{text} {")
-    indent do
-      yield
-    end
-    emit('}')
-    emit('') if @level == 0
-  end
-
-  # Mid level emitters. Basic TF structures.
-
-  def emit_header(text)
-    emit('# # ## ###')
-    emit("## Section #{@secnumber}: #{text}")
-    emit('')
-    @secnumber += 1
-  end
-
-  def tf_quote(text)
-    text.gsub('"', '\\"')
-  end
-
+  # Emit a variable definition
   def emit_variable(name, value:nil, desc:nil)
-    # Quote the double-quotes in the value to satisfy tf syntax.
-    block %(variable "#{name}") do
-      emit(%(description = "#{desc}")) unless desc.nil?
-      emit(%(default = "#{tf_quote(value)}")) unless value.nil?
-    end
+    @out['variable'] ||= {}
+    @out['variable'][name] ||= {}
+    @out['variable'][name]['description'] = desc unless desc.nil?
+    @out['variable'][name]['default'] = value unless value.nil?
   end
 
   def emit_output(name, value)
-    block %(output "#{name}") do
-      emit(%(value = "#{tf_quote(value)}"))
-    end
+    @out['output'] ||= {}
+    @out['output'][name] ||= {
+      'value' => value
+    }
   end
 
   def emit_null(name, value)
-    marker = '<' + '<' + 'EOF'
-    # Written as above to avoid emacs miscoloring of all
-    # following lines, it does not like << in the string.
-    # Likely thinks that a ruby here document begins.
-    # Reuse name for both resource and trigger variable.
-    block %(resource "null_resource" "#{name}") do
-      block 'triggers =' do
-        emit("#{name} = #{marker}\n#{value}EOF")
-      end
-    end
-  end
-
-  def emit_null_simple(name, value)
-    block %(resource "null_resource" "#{name}") do
-      block 'triggers =' do
-        emit(%(#{name} = "#{tf_quote(value)}"))
-      end
-    end
+    @out['resource'] ||= []
+    @out['resource'] << {
+      "null_resource" => {
+        name => {
+          'triggers' => [
+            {
+              name => value
+            }
+          ]
+        }
+      }
+    }
   end
 
   # High level emitters, HCF specific structures ...
 
   def emit_configuration(manifest)
-    emit_header 'Role manifest configuration variables'
     manifest['configuration']['variables'].each do |config|
       name = config['name']
-      next if special?(name)
+      if special_variables.include?(name)
+        @have_specials << name
+        next
+      end
       value = config['default']
+      # Ignore optional values without a default.
+      next if value.nil? && !config['required']
       emit_variable(name, value: value)
     end
-    puts 'PUBLIC_IP is missing from input role-manifest' unless @have_public_ip
-    puts 'DOMAIN is missing from input role-manifest' unless @have_domain
+    missing = special_variables.sort - @have_specials.sort
+    missing.each do |var_name|
+      STDERR.puts "#{var_name} is missing from input role-manifest"
+    end
   end
 
-  def special?(name)
-    # Special case two RM variables (null_resource). We skip them
+  def special_variables
+    # Special case various RM variables (null_resource). We skip them
     # and expect an external file to provide a null_resource wiring
     # them to the networking setup. Because only the external
     # context knows where the value actually comes from in terms of
     # vars, etc.
-    case name
-    when 'PUBLIC_IP' then @have_public_ip = true
-    when 'DOMAIN'    then @have_domain = true
-    else return false
-    end
-    true
+    %w(DOMAIN)
   end
 
   def emit_dtr_variables
@@ -184,7 +119,6 @@ class ToTerraform < Common
     loader = to_names(manifest['roles']).map do |name|
       make_pull_command(name)
     end.reduce(:+)
-    emit_header 'Retrieving docker images for roles'
     emit_null('docker_loader', loader)
   end
 
@@ -193,6 +127,7 @@ class ToTerraform < Common
     cmd = 'docker pull ${var.docker_trusted_registry}/${var.docker_org}/'
     cmd += '${var.hcf_image_prefix}' + name
     cmd += ':${var.hcf_version}'
+    cmd += ' | cat'
     cmd += "\n"
     cmd
   end
@@ -200,10 +135,11 @@ class ToTerraform < Common
   def emit_settings(manifest)
     rm_configuration = ''
     manifest['configuration']['variables'].each do |config|
+      # Ignore optional values without a default.
+      next if config['default'].nil? && !config['required']
       rm_configuration += make_assignment_for(config['name'])
     end
 
-    emit_header 'Role configuration'
     emit_null('rm_configuration', rm_configuration)
   end
 
@@ -212,12 +148,10 @@ class ToTerraform < Common
   def make_assignment_for(name)
     # Note, no double-quotes around any values. Would become part of
     # the value when docker run read the --env-file. Bad.
-    if name == 'PUBLIC_IP'
-      %(#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n)
-    elsif name == 'DOMAIN'
+    if special_variables.include? name
       %(#{name}=\$\{null_resource.#{name}.triggers.#{name}\}\n)
     else
-      %(#{name}=\$\{replace(var.#{name},"\\n", "\\\\\\\\n")\}\n)
+      %(#{name}=\$\{replace(var.#{name},"\\\\n", "\\\\\\\\n")\}\n)
       # In the hcf.tf this becomes replace(XXX,"\n", "\\\\n")
       # The replacement string looks like "....\\n....".
       # The echo saving this into the final .env file makes this
@@ -231,7 +165,6 @@ class ToTerraform < Common
   end
 
   def emit_list_of_roles(manifest)
-    emit_header 'List of all roles'
     emit_variable('all_the_roles',
                   value: to_names(get_job_roles(manifest) +
                                   get_task_roles(manifest)).join(' '))

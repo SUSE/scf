@@ -5,8 +5,7 @@ require_relative 'common'
 
 # Provider for UCP specifications derived from a role-manifest.
 class ToUCP < Common
-  def initialize(options, remainder)
-    raise 'UCP conversion does not accept add-on files' unless remainder.empty?
+  def initialize(options)
     super(options)
     @dtr = "#{@dtr}/" unless @dtr.empty?
   end
@@ -23,6 +22,7 @@ class ToUCP < Common
 
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
+    collect_global_parameters(roles, definition)
     process_roles(roles, definition, fs)
 
     definition
@@ -64,11 +64,12 @@ class ToUCP < Common
     # DEF.components[].volume_mounts[].volume_name	/string
     # DEF.components[].volume_mounts[].mountpoint	/string
     # DEF.components[].parameters[].name		/string
-    # DEF.components[].parameters[].description		/string, !empty
-    # DEF.components[].parameters[].default		/string
-    # DEF.components[].parameters[].example		/string, !empty
-    # DEF.components[].parameters[].required		/bool
-    # DEF.components[].parameters[].secret		/bool
+    # DEF.parameters[].name				/string
+    # DEF.parameters[].description			/string, !empty
+    # DEF.parameters[].default				/string
+    # DEF.parameters[].example				/string, !empty
+    # DEF.parameters[].required				/bool
+    # DEF.parameters[].secret				/bool
     #
     # (*1) Too many to list here. See ucp-developer/service_models.md
     #      for the full list. Notables:
@@ -93,6 +94,7 @@ class ToUCP < Common
       'vendor'     => 'HPE',    # s.a.
       'volumes'    => [],	# We do not generate volumes, leave empty
       'components' => [],	# Fill from the roles, see below
+      'parameters' => [],	# Fill from the roles, see below
       'preflight'  => [],	# Fill from the roles, see below
       'postflight' => []	# Fill from the roles, see below
     }
@@ -100,17 +102,30 @@ class ToUCP < Common
 
   def process_roles(roles, definition, fs)
     section_map = {
-        'pre-flight'  => 'preflight',
-        'flight'      => 'components',
-        'post-flight' => 'postflight'
+      'pre-flight'  => 'preflight',
+      'flight'      => 'components',
+      'post-flight' => 'postflight'
     }
+    gparam = definition['parameters']
     roles['roles'].each do |role|
       # UCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
 
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_component(roles, fs, dst, role, retries)
+      add_role(roles, fs, dst, role, retries)
+
+      # Collect per-role parameters
+      if role['configuration'] && role['configuration']['variables']
+        collect_parameters(gparam, role['configuration']['variables'])
+      end
+    end
+  end
+
+  def collect_global_parameters(roles, definition)
+    p = definition['parameters']
+    if roles['configuration'] && roles['configuration']['variables']
+      collect_parameters(p, roles['configuration']['variables'])
     end
   end
 
@@ -158,9 +173,39 @@ class ToUCP < Common
     fs.push(the_fs)
   end
 
-  def add_component(roles, fs, comps, role, retrycount = 0)
-    rname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{rname}:#{@hcf_version}"
+  def add_role(roles, fs, comps, role, retrycount)
+    runtime = role['run']
+
+    scaling = runtime['scaling']
+    indexed = scaling['indexed']
+    min     = scaling['min']
+    max     = scaling['max']
+
+    if indexed > 1
+      # Non-trivial scaling. Replicate the role as specified,
+      # with min and max computed per the HA specification.
+      # The component clone is created by a recursive call
+      # which cannot get here because of the 'index' getting set.
+      indexed.times do |x|
+        mini = scale_min(x,indexed,min,max)
+        maxi = scale_max(x,indexed,min,max)
+        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
+      end
+    else
+      # Trivial scaling, no index, use min/max as is.
+      add_component(roles, fs, comps, role, retrycount, nil, min, max)
+    end
+  end
+
+  def add_component(roles, fs, comps, role, retrycount, index, min, max)
+    bname = role['name']
+    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_version}"
+
+    rname = bname
+    rname += "-#{index}" if index && index > 0
+
+    labels = [ bname ]
+    labels << rname if rname != bname
 
     runtime = role['run']
 
@@ -176,33 +221,41 @@ class ToUCP < Common
       'capabilities'  => runtime['capabilities'],
       'depends_on'    => [],	  # No dependency info in the RM
       'affinity'      => [],	  # No affinity info in the RM
-      'labels'        => [rname], # TODO: Maybe also label with the jobs ?
-      'min_instances' => 1,
-      'max_instances' => 1,
-      'service_ports' => [],	# Fill from role runtime config, see below
-      'volume_mounts' => [],	# Ditto
-      'parameters'    => [],	# Fill from role configuration, see below
-      'external_name' => "HCF Role '#{rname}'",
+      'labels'        => labels,  # TODO: Maybe also label with the jobs ?
+      'min_instances' => min,     # See above for the calculation for the
+      'max_instances' => max,     # component and its clones.
+      'service_ports' => [],	  # Fill from role runtime config, see below
+      'volume_mounts' => [],	  # Ditto
+      'parameters'    => [],	  # Fill from role configuration, see below
+      'external_name' => rname,
       'workload_type' => 'container'
     }
 
     the_comp['retry_count'] = retrycount if retrycount > 0
 
+    index = 0 if index.nil?
+
+    if role["type"] != 'docker'
+      the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_ROLE_INDEX=#{index}",
+                              "/opt/hcf/run.sh"]
+    end
+
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
     sv = runtime['shared-volumes']
 
-    add_volumes(fs, the_comp, pv, false) if pv
-    add_volumes(fs, the_comp, sv, true) if sv
+    add_volumes(fs, the_comp, pv, index, false) if pv
+    add_volumes(fs, the_comp, sv, nil, true) if sv
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
-    # Global parameters
+    # Reference global parameters
     if roles['configuration'] && roles['configuration']['variables']
       add_parameters(the_comp, roles['configuration']['variables'])
     end
 
-    # Per role parameters
+    # Reference per-role parameters
     if role['configuration'] && role['configuration']['variables']
       add_parameters(the_comp, role['configuration']['variables'])
     end
@@ -213,21 +266,22 @@ class ToUCP < Common
     comps.push(the_comp)
   end
 
-  def add_volumes(fs, component, volumes, shared_fs)
+  def add_volumes(fs, component, volumes, index, shared_fs)
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, shared_fs)
+      serial, the_vol = convert_volume(fs, v, serial, index, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, shared_fs)
+  def convert_volume(fs, v, serial, index, shared_fs)
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by UCP, no conversion required
       serial += 1
+      vname += "-#{index}" if index && index > 0
 
       add_filesystem(fs, vname, vsize, false)
     end
@@ -259,28 +313,66 @@ class ToUCP < Common
     }
   end
 
-  def add_parameters(component, variables)
-    para = component['parameters']
+  def collect_parameters(para, variables)
     variables.each do |var|
       para.push(convert_parameter(var))
     end
   end
 
+  def add_parameters(component, variables)
+    para = component['parameters']
+    variables.each do |var|
+      para.push(convert_parameter_ref(var))
+    end
+  end
+
   def convert_parameter(var)
     vname    = var['name']
-    vdefault = var['default'].to_s
-    vsecret  = var['secret'] || false
+    vrequired = var.has_key?("required") ? var['required'] : true
+    vsecret  = var.has_key?("secret") ? var['secret'] : false
     vexample = (var['example'] || var['default']).to_s
     vexample = 'unknown' if vexample == ''
+
+    # secrets currently need to be lowercase and can only use dashes, not underscores
+    # This should be handled by UCP instead: https://jira.hpcloud.net/browse/CAPS-184
+    vname.downcase!.gsub!('_', '-') if vsecret
+
     param = {
       'name'        => vname,
       'description' => 'placeholder',
       'example'     => vexample,
-      'required'    => true,
+      'required'    => vrequired,
       'secret'      => vsecret,
+      'default'     => nil
     }
-    param['default'] = vdefault unless vdefault == ''
-    return param
+    param['default'] = var['default'].to_s unless var['default'].nil?
+    param
+  end
+
+  def convert_parameter_ref(var)
+    {
+      'name' => var['name']
+    }
+  end
+
+  def scale_min(x,indexed,mini,maxi)
+    last = [mini,indexed].min-1
+    if x < last
+      1
+    elsif x == last
+      mini-x
+    else
+      0
+    end
+  end
+
+  def scale_max(x,indexed,mini,maxi)
+    last = indexed-1
+    if x < last
+      1
+    else
+      maxi-x
+    end
   end
 
   # # ## ### ##### ########
