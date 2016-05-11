@@ -990,7 +990,6 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
-  dev-only: true
   jobs:
   - name: cf-set-proxy
     release_name: hcf-deployment-hooks
@@ -1000,7 +999,7 @@ roles:
       indexed: 1
       min: 1
       max: 1
-    flight-stage: manual
+    flight-stage: post-flight
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
