@@ -13,9 +13,11 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
 sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
 ```
 
-## To Deploy HCF on Ubuntu Using VirtualBox
+## To Deploy HCF with Vagrant
 
-1. Install VirtualBox and Vagrant (version 1.7.4 and higher).
+_NOTE:_ This is the common instructions that are shared between all providers, some providers have different requirements, make sure that you read the appropriate section for your provider.
+
+1. Install Vagrant (version 1.7.4 and higher).
 
 2. Install the `vagrant-reload` plugin:
 
@@ -25,28 +27,38 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
 
 3. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
 
-  ```
-  /bin/init-host-for-vagrant.sh
+  ```bash
+  git clone git@github.com:hpcloud/hcf
+  cd hcf
+  git submodule update --init --recursive
   ```
 
-  __Note:__ Running this command prevents error messages such as `Package 'etcd' has a glob that resolves
-  to an empty file list: github.com/coreos/etcd/**/*`. You can run this command in parallel with the
-  `vagrant up` command. However, this command must complete before you run the `make vagrant-prep` command
-  on the VM.
+  __Important:__ Ensure you do not have uncommited changes in any submodules.
 
 4. Bring the VM online and `ssh` into it:
 
   ```bash
-  vagrant up --provider virtualbox
+  # Replace X with one of: vmware_fusion, vmware_workstation, virtualbox
+  vagrant up --provider X
   vagrant ssh
   ```
 
+  __Note:__ The virtualbox provider is unstable and we've had many problems with HCF on it, try to use vmware when possible.
+
 5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  ```bash
+  cd hcf
+  make vagrant-prep
+  ```
 
   __Note:__ You need to run this command only after initially creating the VM.
 
 6. On the VM, start HCF using the `make run` command.
 
+  ```bash
+  make run
+  ```
 
 ## To Deploy HCF on OS X Using VMWare Fusion
 
@@ -67,21 +79,7 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
   ```
 
-4. Clone the repository, bring the VM online, and `ssh` into it:
-
-  __Important:__ Ensure you do not have uncommited changes in any submodules.
-
-  ```bash
-  vagrant up --provider vmware_fusion
-  vagrant ssh
-  ```
-
-5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-6. On the VM, start HCF using the `make run` command.
-
+4. Follow the common instructions in the section above
 
 ## To Deploy HCF on Ubuntu Using `libvirt`
 
@@ -101,24 +99,11 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
 
   ```bash
   vagrant plugin install vagrant-libvirt
-  vagrant plugin install vagrant-reload
   ```
 
-4. Clone the repository, bring the VM online, and `ssh` into it:
+4. Follow the common instructions above
 
   __Important:__ The VM may not come online during your first attempt.
-
-  ```bash
-  vagrant up --provider libvirt
-  vagrant ssh
-  ```
-
-5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-6. On the VM, start HCF using the `make run` command.
-
 
 ## To Deploy HCF on Fedora using `libvirt`
 
@@ -159,21 +144,9 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
   group = "<username>"
   ```
 
-5. Clone the repository, bring the VM online, and `ssh` into it:
+5. Follow the common instructions above
 
   __Important:__ The VM may not come online during your first attempt.
-
-  ```bash
-  vagrant up --provider libvirt
-  vagrant ssh
-  ```
-
-6. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-7. On the VM, start HCF using the `make run` command.
-
 
 ## To Deploy HCF on Windows Using VirtualBox
 
@@ -205,9 +178,18 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
 4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
+  ```bash
+  cd hcf
+  make vagrant-prep
+  ```
+
   __Note:__ You need to run this command only after initially creating the VM.
 
-5. On the VM, start HCF using the `make run` command.
+5. On the VM, start HCF
+
+  ```bash
+  make run
+  ```
 
 6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
 
