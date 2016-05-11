@@ -16,9 +16,9 @@ private_key_file     = ""
 cluster_prefix       = "..."
 
 ## HP's Docker Trusted Registry: Authentication
-docker_username = "legituser"
-docker_email    = "legit@us.er"
-docker_password = "trustme"
+docker_username = ""
+docker_email    = ""
+docker_password = ""
 
 ## DTR location and images inside
 ## The defaults are in hcf.tf

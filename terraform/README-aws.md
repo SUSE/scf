@@ -32,7 +32,8 @@
 
 
 # log in:
-docker login -u legituser -p trustme -e legit@us.er docker.helion.lol
+Replace USER, PASSWORD and REGISTRY with information given to you by the HCF team.
+docker login -u USER -p PASSWORD REGISTRY
 
 In the hcf dir of an hcf vagrant box:
 export GIT_BRANCH=something # like dickh-dev
@@ -132,8 +133,3 @@ The important sections are EC2 and VPC.
       *	Instances
       *	Security Groups
       *	Key Pairs
-
-## Docker Trusted Registry
-
-The account information (name, password) in the provided example
-.tfvars file is __fixed__. Do __not change__ that part.
