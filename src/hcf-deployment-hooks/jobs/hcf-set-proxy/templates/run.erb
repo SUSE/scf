@@ -52,7 +52,7 @@ cf api <%= skip_ssl_validation %> api.<%= properties.domain %>
 <% 
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
-cf login -u <%= username.shellescape %> -p <%= password.shellescape %>
+cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 <% 
 %W{staging running}.each do |runtime| 
