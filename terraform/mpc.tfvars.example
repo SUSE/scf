@@ -18,9 +18,9 @@ openstack_network_id = "..."
 cluster_prefix       = "..."
 
 ## HP's Docker Trusted Registry: Authentication
-docker_username = "legituser"
-docker_email    = "legit@user"
-docker_password = "trustme"
+docker_username = ""
+docker_email    = ""
+docker_password = ""
 
 ## DTR location and images inside
 ## The defaults are in hcf.tf
