@@ -56,11 +56,32 @@ restore() {
     echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
 }
 
+# Removes any compilation pieces that we don't need
+clean() {
+    test -d "${FISSILE_WORK_DIR}/compilation/" || return
+    existing_packages=""
+    for directory in "${FISSILE_WORK_DIR}/compilation/"*/* ; do
+        test -d "${directory}" || continue  # in case expansion failed
+        hash=$(basename ${directory})
+        package=$(basename "$(dirname "${directory}")")
+        existing_packages="${existing_packages} ${package}/${hash}"
+    done
+    for wanted_package in $(get_package_version_list) ; do
+        existing_packages=$(echo ${existing_packages} | tr ' ' '\n' | grep -vF ${wanted_package})
+    done
+    for unneeded_package in ${existing_packages} ; do
+        echo "Removing ${unneeded_package}"
+        rm -rf "${FISSILE_WORK_DIR}/compilation/${unneeded_package}"
+    done
+}
+
 COMMAND=${1:-''}
 
 case ${COMMAND} in
     restore)
         restore;;
+    clean)
+        clean;;
     cache)
         cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &;;
     *)
