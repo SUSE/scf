@@ -630,7 +630,7 @@ roles:
         public: false
 - name: etcd
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fix_etcd_bootstrap.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -680,6 +680,7 @@ roles:
       properties.etcd.client_cert: 'null'
       properties.etcd.ca_cert: 'null'
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
+      properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
   - fake_spec_index_on_ucp.sh
