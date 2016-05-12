@@ -409,7 +409,7 @@ properties:
       rotate: 5
       size: 3M
     requested_route_registration_interval_in_seconds: null
-    route_service_timeout: null
+    route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
     ssl_skip_validation: null
