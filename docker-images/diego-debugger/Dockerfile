@@ -11,8 +11,17 @@ RUN chmod +x /usr/bin/veritas
 
 RUN veritas completions >> /root/.bashrc
 
-RUN echo 'echo -e $BBS_CLIENT_CRT > /root/bbs.crt' >> /root/.bashrc
-RUN echo 'echo -e $BBS_CLIENT_KEY > /root/bbs.key' >> /root/.bashrc
+# Use UCP secrets if they exist
+RUN echo 'if [ -r /etc/secrets/bbs-client-crt ]; then \
+            cat /etc/secrets/bbs-client-crt > /root/bbs.crt; \
+          else \
+            echo -e $BBS_CLIENT_CRT > /root/bbs.crt; \
+          fi' >> /root/.bashrc
+RUN echo 'if [ -r /etc/secrets/bbs-client-key ]; then \
+            cat /etc/secrets/bbs-client-key > /root/bbs.key; \
+          else \
+            echo -e $BBS_CLIENT_KEY > /root/bbs.key; \
+          fi' >> /root/.bashrc
 
 RUN echo 'export BBS_ENDPOINT=https://${DIEGO_DATABASE_HOST}:8889' >> /root/.bashrc
 RUN echo 'export BBS_CERT_FILE=/root/bbs.crt' >> /root/.bashrc
