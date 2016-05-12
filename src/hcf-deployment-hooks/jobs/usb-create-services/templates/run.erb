@@ -15,7 +15,7 @@ for i in {1..10}; do cf api <%= skip_ssl_validation %> api.<%= properties.domain
 <% 
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
-cf login -u <%= username.shellescape %> -p <%= password.shellescape %>
+cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 for i in {1..10}; do cf usb target http://usb.<%= properties.domain %> && break || sleep 20; done
 for i in {1..10}; do cf usb create-instance mongo mongodb -c "{\"server\":\"dev-service-mongodb.hcf\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"<%= properties.dev_services.mongodb.admin_password %>\"}" && break || sleep 20; done
