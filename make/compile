@@ -8,24 +8,30 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
+# Return a list of desired packages with their versions, as in package/00000000
+get_package_version_list() {
+    fissile dev packages-report | grep -v 'Dev release' | grep -F '(' | while read package hash ; do
+        hash=$(echo ${hash} | tr -c -d 0-9a-f)
+        echo ${package}/${hash}
+    done
+}
+
 cache() {
     test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
 
-    for COMPILED in ${FISSILE_WORK_DIR}/compilation/*/*/compiled; do
-        DIR=$(dirname ${COMPILED})
-        tar cf ${DIR}/compiled.tar -C "${DIR}" compiled
+    for package_version in $(get_package_version_list) ; do
+        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
+        test -e "${archive}" && {
+            # Don't recreate an archive that already exists
+            echo "Found:   ${archive}"
+            continue
+        }
+        mkdir -p "$(dirname "${archive}")"
+        echo "Creating ${archive}"
+        tar cf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_version}/" compiled
     done
 
-    rsync \
-        --info=progress2 \
-        --recursive \
-        --links \
-        --include="/*/" \
-        --include="/*/*/" \
-        --include="/*/*/compiled.tar" \
-        --exclude="*" \
-        --ignore-existing \
-        "${FISSILE_WORK_DIR}/compilation/" "${HCF_PACKAGE_COMPILATION_CACHE}/"
+    echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
 }
 
 restore() {
@@ -35,21 +41,19 @@ restore() {
     mkdir -p "${FISSILE_WORK_DIR}/compilation/"
     mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
 
-    rsync \
-        --recursive \
-        --links \
-        --include="/*/" \
-        --include="/*/*/" \
-        --include="/*/*/compiled.tar" \
-        --exclude="*" \
-        --info=progress2 \
-        "${HCF_PACKAGE_COMPILATION_CACHE}/" "${FISSILE_WORK_DIR}/compilation/"
-
-    find ${FISSILE_WORK_DIR}/compilation -type f -name compiled.tar | while read COMPILED; do
-        DIR=$(dirname ${COMPILED})
-        rm -rf ${DIR}/compiled
-        tar xf ${DIR}/compiled.tar -C ${DIR}
+    for package_version in $(get_package_version_list) ; do
+        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
+        test -r "${archive}" || {
+            echo "Missing:   ${archive}"
+            continue
+        }
+        echo "Extracting ${archive}"
+        mkdir -p "${FISSILE_WORK_DIR}/compilation/${package_version}"
+        rm -rf "${FISSILE_WORK_DIR}/compilation/${package_version}/compiled"
+        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_version}"
     done
+
+    echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
 }
 
 COMMAND=${1:-''}
