@@ -19,7 +19,6 @@ if password.nil? || password.empty?
   password = 'vagrant'
 end
 
-winrm = WinRM::WinRMWebService.new(endpoint, :negotiate, :user => user, :pass => password, :basic_auth_only => true)
 ps_script = File.join(current_dir, 'deploy_cnap_vhd.ps1')
 
 tmpfile = Tempfile.new("deploy_cnap_vhd_env")
@@ -34,6 +33,7 @@ end
 
 tmpfile.flush
 
+winrm = WinRM::WinRMWebService.new(endpoint, :negotiate, :user => user, :pass => password, :basic_auth_only => true)
 winrm_file_manager = WinRM::FS::FileManager.new(winrm)
 winrm_file_manager.upload(tmpfile.path, 'c:/deploy_cnap_vhd_env.ps1')
 winrm_file_manager.upload(ps_script, 'c:/deploy_cnap_vhd.ps1')
