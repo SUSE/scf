@@ -51,6 +51,10 @@
 
   </PropertyGroup>
 
+  <ItemGroup>
+      <UtilsFiles Include="$(ProjectRoot)\..\utils\**\*.*" />
+  </ItemGroup>
+
   <!-- Imports -->
   <Import Condition="Exists('$(MSBuildExtensionsTargetsFile)')" Project="$(MSBuildExtensionsTargetsFile)" />
 
@@ -95,5 +99,7 @@
     <Message Importance="high" Text="Extracting MSSQL Express Installer ..." />
     <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(MssqlHelperScript); ExtractSQLServer $(Mssql2014ExpressFile) $(Mssql2014ExpressInstallDir)"' />
     <Copy SourceFiles="$(ProjectRoot)\run.ps1" DestinationFolder="$(Mssql2014VHDMountPoint)"/>
+    <Copy SourceFiles="$(ProjectRoot)\install.ps1" DestinationFolder="$(Mssql2014VHDMountPoint)"/>
+    <Copy SourceFiles="@(UtilsFiles)" DestinationFolder="$(Mssql2014VHDMountPoint)\utils\%(RecursiveDir)" />
   </Target>
 </Project>
