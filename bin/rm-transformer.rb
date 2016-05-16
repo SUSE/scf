@@ -21,13 +21,13 @@ def main
   #                     (Default: empty)
   # --dtr-org         ~ Org to use for images stored to the DTR
   #                     (Default: helioncf)
-  # --hcf-version     ~ And tag to use for the same
+  # --hcf-tag         ~ And tag to use for the same
   #                     (Default: develop)
   # --hcf-prefix      ~ The prefix used during image generation
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
   # --env <dir>       ~ Read all *.env files from this directory.
-  # --version         ~ Version of the service.
+  # --hcf-version     ~ Version of the service.
   #                     (Default: 0.0.0)
   ##
   # The generated definitions are written to stdout
