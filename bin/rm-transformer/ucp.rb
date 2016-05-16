@@ -8,6 +8,10 @@ class ToUCP < Common
   def initialize(options)
     super(options)
     @dtr = "#{@dtr}/" unless @dtr.empty?
+
+    # In UCP the version number becomes a kubernetes label, which puts
+    # some restrictions on the set of allowed characters.
+    @hcf_version.gsub!('+', '_')
   end
 
   # Public API
