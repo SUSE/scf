@@ -23,7 +23,7 @@ if ([string]::IsNullOrWhiteSpace($env:MSSQL_TCPPORT))
 $sqlTcpPort = $env:MSSQL_TCPPORT
 
 
-$sqlServerExtractionPath = (Join-Path $wd "SQLEXPRWT_x64_ENU")
+$sqlServerExtractionPath = (Join-Path $wd "SQLEXPR_x64_ENU")
 
 $sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe'
 
@@ -57,12 +57,12 @@ function EnableStaticPort()
     Write-Output "Enabling TCP access to SQL Server"
 
     $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp\IPAll"
-    
+
     if (!(Get-ItemProperty "$regPath").'TcpPort')  {
     New-ItemProperty -Path "$regPath" -Name 'TcpPort' -Value "$sqlTcpPort" -Force } else {
     Set-ItemProperty -Path "$regPath" -Name TcpPort -Value "$sqlTcpPort"
     }
-     
+
     if (!(Get-ItemProperty "$regPath").'TcpDynamicPorts') {
     New-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value '' -Force } else {
     Set-ItemProperty -Path "$regPath" -Name 'TcpDynamicPorts' -Value ''
@@ -70,7 +70,7 @@ function EnableStaticPort()
 
     Write-Output "Restarting SQL Server"
     Restart-Service 'MSSQL$SQLEXPRESS'
-    
+
     Write-Output "Opening port $sqlTcpPort in firewall"
 
     $fwPolicy = New-Object -ComObject HNetCfg.FwPolicy2

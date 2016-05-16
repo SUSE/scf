@@ -11,13 +11,13 @@
 
   /t:CreateVHD
     Creates a VHD.
-    
+
   /t:MountVHD
     Mounts a VHD to the specified path.
- 	
+
   /t:DismountVHD
     Unmounts a VHD.
-    
+
   -->
 
   <PropertyGroup>
@@ -44,9 +44,10 @@
     <!-- Path to msbuild extensions - required by the package -->
     <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
 
-    <Mssql2014ExpressDownloadURL>http://download.microsoft.com/download/E/A/E/EAE6F7FC-767A-4038-A954-49B8B05D04EB/Express%2064BIT/SQLEXPR_x64_ENU.exe</Mssql2014ExpressDownloadURL>
-    <Mssql2014ExpressFile>$(ProjectRoot)\SQLEXPRWT_x64_ENU.exe</Mssql2014ExpressFile>
-    <Mssql2014ExpressInstallDir>$(Mssql2014VHDMountPoint)\SQLEXPRWT_x64_ENU</Mssql2014ExpressInstallDir>
+    <!-- Source: https://www.microsoft.com/en-us/download/details.aspx?id=46697 FileName: ENU\x64\SQLEXPR_x64_ENU.exe -->
+    <Mssql2014ExpressDownloadURL>https://download.microsoft.com/download/1/5/6/156992E6-F7C7-4E55-833D-249BD2348138/ENU/x64/SQLEXPR_x64_ENU.exe</Mssql2014ExpressDownloadURL>
+    <Mssql2014ExpressFile>$(ProjectRoot)\SQLEXPR_x64_ENU.exe</Mssql2014ExpressFile>
+    <Mssql2014ExpressInstallDir>$(Mssql2014VHDMountPoint)\SQLEXPR_x64_ENU</Mssql2014ExpressInstallDir>
 
   </PropertyGroup>
 

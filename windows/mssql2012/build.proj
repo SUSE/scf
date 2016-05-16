@@ -11,13 +11,13 @@
 
   /t:CreateVHD
     Creates a VHD.
-    
+
   /t:MountVHD
     Mounts a VHD to the specified path.
- 	
+
   /t:DismountVHD
     Unmounts a VHD.
-    
+
   -->
 
   <PropertyGroup>
@@ -44,10 +44,11 @@
     <!-- Path to msbuild extensions - required by the package -->
     <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
 
-    <Mssql2012ExpressDownloadURL>http://download.microsoft.com/download/5/2/9/529FEF7B-2EFB-439E-A2D1-A1533227CD69/SQLEXPRWT_x64_ENU.exe</Mssql2012ExpressDownloadURL>
-    <Mssql2012ExpressFile>$(ProjectRoot)\SQLEXPRWT_x64_ENU.exe</Mssql2012ExpressFile>
-    <Mssql2012ExpressInstallDir>$(Mssql2012VHDMountPoint)\SQLEXPRWT_x64_ENU</Mssql2012ExpressInstallDir>
-    
+    <!-- Source: https://www.microsoft.com/en-us/download/details.aspx?id=50003 FileName: ENU\x64\SQLEXPR_x64_ENU.exe-->
+    <Mssql2012ExpressDownloadURL>https://download.microsoft.com/download/F/6/7/F673709C-D371-4A64-8BF9-C1DD73F60990/ENU/x64/SQLEXPR_x64_ENU.exe</Mssql2012ExpressDownloadURL>
+    <Mssql2012ExpressFile>$(ProjectRoot)\SQLEXPR_x64_ENU.exe</Mssql2012ExpressFile>
+    <Mssql2012ExpressInstallDir>$(Mssql2012VHDMountPoint)\SQLEXPR_x64_ENU</Mssql2012ExpressInstallDir>
+
   </PropertyGroup>
 
   <!-- Imports -->
