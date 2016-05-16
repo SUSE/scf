@@ -1,7 +1,10 @@
+Import-Module $PSScriptRoot\utils\utils.psm1
+
 $serviceName = 'MSSQL$SQLEXPRESS'
 
 if (-not (Get-Service "$serviceName" -ErrorAction SilentlyContinue)) {
-  & "$PSScriptRoot\runtask.ps1" "powershell" "-ExecutionPolicy Bypass  -File $PSScriptRoot\install.ps1"
+  # Run the installer if the servie was not found
+  RunProcessAsTask -FilePath "powershell" -Arguments " -ExecutionPolicy Bypass  -File $PSScriptRoot\install.ps1"
 }
 
 if (-not (Get-Service "$serviceName" -ErrorAction SilentlyContinue)) {
@@ -11,17 +14,16 @@ if (-not (Get-Service "$serviceName" -ErrorAction SilentlyContinue)) {
 }
 
 Start-Service $serviceName
+echo "Service $serviceName started"
 
 try {
   do {
-    # WaitForStatus method does not break when Stop-Job is invoked
-    # (Get-Service 'MSSQL$SQLEXPRESS').WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Stopped)
     $serviceStatus = (Get-Service "$serviceName").Status
     if ($serviceStatus -eq "Stopped") {
         echo "Service $serviceName stopped"
         break;
     }
-    echo "Service $serviceName is $serviceStatus"
+
     sleep 5
   } while($true)
 }

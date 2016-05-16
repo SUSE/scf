@@ -66,7 +66,7 @@ if (-not (Get-PSSession -ComputerName localhost -Name $cnapComponentName -ErrorA
   echo "PSSession $cnapComponentName exists"
 }
 
-echo "Tailing logs..."
+echo "Waiting for run.ps1 job to complete"
 do {
   sleep 2
 
@@ -76,13 +76,13 @@ do {
     (Get-Job -Name $cnapComponentName).State
   } -ArgumentList (,$cnapComponentName)
 
-  if ($jobState -ne "Running") {
-    echo "Job state changed from Running to: $jobState"
-  }
-
   Invoke-Command -WarningAction silentlyContinue -Session $session -ScriptBlock {param($cnapComponentName)
     Receive-Job -Name $cnapComponentName
   } -ArgumentList (,$cnapComponentName)
+
+  if ($jobState -ne "Running") {
+    echo "run.ps1 job state changed from Running to: $jobState"
+  }
 
   Disconnect-PSSession -Session $session -WarningAction Ignore | Out-Null
 
