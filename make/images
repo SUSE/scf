@@ -33,18 +33,39 @@ for ROLE in ${ROLES}; do
             case ${TARGET} in
                 bosh)
                     TAG=$(fissile dev list-roles | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
-                    docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
-                    docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
                 ;;
                 *)
-                    docker tag ${PREFIX}${ROLE} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
-                    docker tag ${PREFIX}${ROLE} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+                    TAG=latest
                 ;;
             esac
+            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
+            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         publish)
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${APP_VERSION}
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+            ;;
+        clean)
+            case ${TARGET} in
+                bosh)
+                    # For bosh images, there may be images with stale tags we want to delete
+                    WANTED_TAG=$(fissile dev list-roles | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
+                    docker images ${PREFIX}${ROLE} | tail -n +2 | while read REPOSITORY TAG _ ; do
+                        if test "${TAG}" != "${WANTED_TAG}" ; then
+                            docker rmi "${REPOSITORY}:${TAG}"
+                        fi
+                    done
+                ;;
+                *)
+                    # For non-bosh images, everything is :latest, no other tags to delete
+                ;;
+            esac
+            # For all images, there may be things tagged for the registry for the wrong branch
+            docker images ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE} | tail -n +2 | while read REPOSITORY TAG _; do
+                if test "${TAG}" != "${APP_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
+                    docker rmi "${REPOSITORY}:${TAG}"
+                fi
+            done
             ;;
     esac
 done
