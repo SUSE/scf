@@ -25,7 +25,7 @@
 
     <ProjectRoot>$(MSBuildThisFileDirectory)</ProjectRoot>
     <CnapCmdletsScript>$(ProjectRoot)\..\cnap-cmdlets.ps1</CnapCmdletsScript>
-    <MssqlHelperScript>$(ProjectRoot)\mssql-helper.ps1</MssqlHelperScript>
+    <MssqlHelperScript>$(ProjectRoot)\..\utils\mssql-build-helper.ps1</MssqlHelperScript>
 
     <Mssql2014VHDPath>$(ProjectRoot)mssql2014.vhdx</Mssql2014VHDPath>
     <Mssql2014VHDSizeMB>900</Mssql2014VHDSizeMB>
