@@ -16,7 +16,7 @@ read -r -d '' setup_patch_etcd_ctl <<'PATCH' || true
  
 +    <% if_p("etcd.bootstrap_node") do |bootstrap_node| %>
 +      prior_member_list=""
-+      <% if bootstrap_node != [name.gsub('_', '-'),spec.index].join('-') %>
++      <% if bootstrap_node != "#{name.gsub('_', '-')}-#{spec.index}" %>
 +      # If this node is not the bootstrap node, wait until at least the
 +      # bootstrap node comes up.
 +      while [ -z "${prior_member_list}" ]; do
