@@ -38,7 +38,7 @@ read -r -d '' setup_patch_etcd_ctl <<'PATCH' || true
 +
 +      # If the node was just added, or the node has been added but isn't started,
 +      # ensure it's in the cluster list
-+      if [[ "$cluster" != *"$advertise_peer_url"* ]]; then
++      if [[ "${cluster}" != *"${this_node}"* ]]; then
          cluster="${cluster},${this_node}"
        fi
      fi
