@@ -15,6 +15,13 @@ function RunProcessAsTask {
   )
 
   $invokeTask = { param([string]$id, [string]$startFilename, [string]$startArgs, [Hashtable]$envVars)
+      # Workaround for scheduled task profile loading bug
+      # http://serverfault.com/questions/540427/windows-server-2012-scheduled-tasks-run-using-default-profile-when-ran-session
+      # https://support.microsoft.com/en-us/kb/2968540
+      $env:USERPROFILE=(Resolve-Path "$env:USERPROFILE\..\$env:USERNAME")
+      $env:APPDATA="$env:USERPROFILE\AppData\Roaming"
+      $env:LOCALAPPDATA="$env:USERPROFILE\AppData\Local"
+
       $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
       $envVars.GetEnumerator() | %{ if ( -not (Test-Path env:"$($_.Key)")) { $StartInfo.EnvironmentVariables.Add($_.Key, $_.Value) } }
       $StartInfo.FileName = $startFilename
@@ -118,8 +125,11 @@ function RunProcessAsTask {
 
   # Cleanup
   Unregister-ScheduledJob $id -Force
+
   Write-Output "Cleaning up install helper user $id"
+  ((Get-WmiObject Win32_UserProfile) | ? {$_.LocalPath -like "*\$id"}).Delete()
   net user "$id" /delete /yes | Out-Null
+
   return $exitCode
 }
 

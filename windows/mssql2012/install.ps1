@@ -31,8 +31,10 @@ function InstallSqlServer()
 {
 	Write-Output "Installing SQL Server Express 2012"
 
+  # Ref: Install SQL Server 2012 from the Command Prompt
+  # https://technet.microsoft.com/en-us/library/ms144259(v=sql.110).aspx
 	$argList = "/ACTION=Install", "/INDICATEPROGRESS", "/Q", "/UpdateEnabled=False", "/FEATURES=SQLEngine", "/INSTANCENAME=SQLEXPRESS",
-            	    "/INSTANCEID=SQLEXPRESS","/X86=False", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=`"BUILTIN\ADMINISTRATORS`"",
+            	    "/INSTANCEID=SQLEXPRESS", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=`"BUILTIN\ADMINISTRATORS`"",
             	    "/ADDCURRENTUSERASSQLADMIN=False","/TCPENABLED=1","/NPENABLED=0","/SECURITYMODE=SQL","/IACCEPTSQLSERVERLICENSETERMS",
             	    "/SAPWD=${saPasswd}","/INSTALLSQLDATADIR=${sqlDataDir}"
 

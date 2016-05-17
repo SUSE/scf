@@ -30,9 +30,11 @@ $sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Bi
 function InstallSqlServer()
 {
 	Write-Output "Installing SQL Server Express 2014"
-
+  
+  # Ref: Install SQL Server 2014 from the Command Prompt
+  # https://msdn.microsoft.com/en-us/library/ms144259(v=sql.120).aspx
 	$argList = "/ACTION=Install", "/INDICATEPROGRESS", "/Q", "/UpdateEnabled=False", "/FEATURES=SQLEngine", "/INSTANCENAME=SQLEXPRESS",
-            	    "/INSTANCEID=SQLEXPRESS","/X86=False", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=`"BUILTIN\ADMINISTRATORS`"",
+            	    "/INSTANCEID=SQLEXPRESS", "/SQLSVCSTARTUPTYPE=Automatic","/SQLSYSADMINACCOUNTS=`"BUILTIN\ADMINISTRATORS`"",
             	    "/ADDCURRENTUSERASSQLADMIN=False","/TCPENABLED=1","/NPENABLED=0","/SECURITYMODE=SQL","/IACCEPTSQLSERVERLICENSETERMS",
             	    "/SAPWD=${saPasswd}","/INSTALLSQLDATADIR=${sqlDataDir}"
 
