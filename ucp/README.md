@@ -1,4 +1,4 @@
-# Running HFC on UCP via Vagrant #
+# Running HCF on UCP via Vagrant #
 
 This tutorial assumes you are going to run commands in 5 shell sessions:
 
