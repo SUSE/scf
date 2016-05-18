@@ -149,7 +149,7 @@ roles:
       properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
-      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"((#MYSQL_PROXY_HA_HOST_1)), "((MYSQL_PROXY_HA_HOST_1))"((/MYSQL_PROXY_HA_HOST_1))((#MYSQL_PROXY_HA_HOST_2)), "((MYSQL_PROXY_HA_HOST_2))"((/MYSQL_PROXY_HA_HOST_2))]'
       properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
@@ -197,7 +197,7 @@ roles:
       properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
-      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
+      properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"((#MYSQL_PROXY_HA_HOST_1)), "((MYSQL_PROXY_HA_HOST_1))"((/MYSQL_PROXY_HA_HOST_1))((#MYSQL_PROXY_HA_HOST_2)), "((MYSQL_PROXY_HA_HOST_2))"((/MYSQL_PROXY_HA_HOST_2))]'
       properties.cf_mysql.mysql.bootstrap_endpoint.username: 'bootstrap_user'
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
@@ -1111,6 +1111,28 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
+- name: mysql-lb
+  type: docker
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'mysql-lb'
+        protocol: 'TCP'
+        source: 3306
+        target: 3306
+        public: true
+  configuration:
+    templates:
+      properties.mysql_lb.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"((#MYSQL_PROXY_HA_HOST_1)), "((MYSQL_PROXY_HA_HOST_1))"((/MYSQL_PROXY_HA_HOST_1))((#MYSQL_PROXY_HA_HOST_2)), "((MYSQL_PROXY_HA_HOST_2))"((/MYSQL_PROXY_HA_HOST_2))]'
 - name: usb-create-services
   type: bosh-task
   dev-only: true
@@ -1178,6 +1200,12 @@ configuration:
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy"
     type-hint: "string,hostname"
+  - name: MYSQL_PROXY_HA_HOST_1
+    default: false
+    type-hint: "string,hostname"
+  - name: MYSQL_PROXY_HA_HOST_2
+    default: false
+    type-hint: "string,hostname"
   - name: MYSQL_HOST
     default: "mysql"
     type-hint: "string,hostname"
@@ -1186,6 +1214,9 @@ configuration:
     type-hint: "string,hostname"
   - name: MYSQL_HA_HOST_2
     required: false
+    type-hint: "string,hostname"
+  - name: MYSQL_PROXY_LB_HOST
+    default: ""
     type-hint: "string,hostname"
   - name: ETCD_HOST
     default: "etcd"
@@ -1647,8 +1678,8 @@ configuration:
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.router.servers.z1: '["((ROUTER_HOST))"]'
     properties.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
-    properties.ccdb.address: '((MYSQL_PROXY_HOST))'
-    properties.uaadb.address: '((MYSQL_PROXY_HOST))'
+    properties.ccdb.address: '((MYSQL_PROXY_LB_HOST))((^MYSQL_PROXY_LB_HOST))((MYSQL_PROXY_HOST))((/MYSQL_PROXY_LB_HOST))'
+    properties.uaadb.address: '((MYSQL_PROXY_LB_HOST))((^MYSQL_PROXY_LB_HOST))((MYSQL_PROXY_HOST))((/MYSQL_PROXY_LB_HOST))'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'

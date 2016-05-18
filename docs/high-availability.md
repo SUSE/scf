@@ -106,13 +106,12 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 ### By UCP
 
 - ha-proxy/router
-- diego-access
 - mysql-proxy
 
 Based on the upstream documentation, the HA Proxy role should not be required.
 We should keep it for dev/test environments, but we should remove it from UCP.
 
-To properly support HA for `diego-access` and `mysql-proxy`, we need to simulate what UCP does.
+To properly support HA for `mysql-proxy`, we need to simulate what UCP does.
 For testing, the solution is to use AWS [ELB](https://aws.amazon.com/elasticloadbalancing/).
 Terraform has an [`ELB` resource](https://www.terraform.io/docs/providers/aws/r/elb.html).  
 An HA configuration for these components in Vagrant/MPC is not be available.
@@ -121,7 +120,8 @@ The way to programmatically identify these components is by looking for roles th
 
 These roles should have `scaling/indexed == 1`.
 
-> Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking.
+> Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking. See more details on active/passive [here](https://github.com/cloudfoundry/cf-mysql-release/blob/develop/docs/proxy.md#consistent-routing).
+
 > It also mentions that health checking should be done on a specific port. Some of these requirements may not be supported by UCP.
 
 ### Internally, by the gorouter and haproxy
