@@ -11,13 +11,13 @@
 
   /t:CreateVHD
     Creates a VHD.
-    
+
   /t:MountVHD
     Mounts a VHD to the specified path.
- 	
+
   /t:DismountVHD
     Unmounts a VHD.
-    
+
   -->
 
   <PropertyGroup>
@@ -25,7 +25,7 @@
 
     <ProjectRoot>$(MSBuildThisFileDirectory)</ProjectRoot>
     <CnapCmdletsScript>$(ProjectRoot)\..\cnap-cmdlets.ps1</CnapCmdletsScript>
-    <MssqlHelperScript>$(ProjectRoot)\mssql-helper.ps1</MssqlHelperScript>
+    <MssqlHelperScript>$(ProjectRoot)\..\utils\mssql-build-helper.ps1</MssqlHelperScript>
 
     <Mssql2014VHDPath>$(ProjectRoot)mssql2014.vhdx</Mssql2014VHDPath>
     <Mssql2014VHDSizeMB>900</Mssql2014VHDSizeMB>
@@ -44,11 +44,16 @@
     <!-- Path to msbuild extensions - required by the package -->
     <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
 
-    <Mssql2014ExpressDownloadURL>http://download.microsoft.com/download/E/A/E/EAE6F7FC-767A-4038-A954-49B8B05D04EB/Express%2064BIT/SQLEXPR_x64_ENU.exe</Mssql2014ExpressDownloadURL>
-    <Mssql2014ExpressFile>$(ProjectRoot)\SQLEXPRWT_x64_ENU.exe</Mssql2014ExpressFile>
-    <Mssql2014ExpressInstallDir>$(Mssql2014VHDMountPoint)\SQLEXPRWT_x64_ENU</Mssql2014ExpressInstallDir>
+    <!-- Source: https://www.microsoft.com/en-us/download/details.aspx?id=46697 FileName: ENU\x64\SQLEXPR_x64_ENU.exe -->
+    <Mssql2014ExpressDownloadURL>https://download.microsoft.com/download/1/5/6/156992E6-F7C7-4E55-833D-249BD2348138/ENU/x64/SQLEXPR_x64_ENU.exe</Mssql2014ExpressDownloadURL>
+    <Mssql2014ExpressFile>$(ProjectRoot)\SQLEXPR_x64_ENU.exe</Mssql2014ExpressFile>
+    <Mssql2014ExpressInstallDir>$(Mssql2014VHDMountPoint)\SQLEXPR_x64_ENU</Mssql2014ExpressInstallDir>
 
   </PropertyGroup>
+
+  <ItemGroup>
+      <UtilsFiles Include="$(ProjectRoot)\..\utils\**\*.*" />
+  </ItemGroup>
 
   <!-- Imports -->
   <Import Condition="Exists('$(MSBuildExtensionsTargetsFile)')" Project="$(MSBuildExtensionsTargetsFile)" />
@@ -94,5 +99,7 @@
     <Message Importance="high" Text="Extracting MSSQL Express Installer ..." />
     <Exec WorkingDirectory="$(ProjectRoot)" Command='powershell.exe -ExecutionPolicy Bypass -NoLogo -Command ". $(MssqlHelperScript); ExtractSQLServer $(Mssql2014ExpressFile) $(Mssql2014ExpressInstallDir)"' />
     <Copy SourceFiles="$(ProjectRoot)\run.ps1" DestinationFolder="$(Mssql2014VHDMountPoint)"/>
+    <Copy SourceFiles="$(ProjectRoot)\install.ps1" DestinationFolder="$(Mssql2014VHDMountPoint)"/>
+    <Copy SourceFiles="@(UtilsFiles)" DestinationFolder="$(Mssql2014VHDMountPoint)\utils\%(RecursiveDir)" />
   </Target>
 </Project>
