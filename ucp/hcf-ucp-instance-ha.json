@@ -85,6 +85,14 @@
       {
         "component": "mysql-2",
         "min_instances": 1
+      },
+      {
+        "component": "mysql-proxy-1",
+        "min_instances": 1
+      },
+      {
+        "component": "mysql-proxy-2",
+        "min_instances": 1
       }
     ]
 }
