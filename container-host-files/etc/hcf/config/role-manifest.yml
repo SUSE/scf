@@ -1521,7 +1521,7 @@ configuration:
   templates:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#UCP_COMPONENT_NAME))((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
@@ -1756,5 +1756,5 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'

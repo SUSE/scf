@@ -241,9 +241,16 @@ class ToUCP < Common
     index = 0 if index.nil?
 
     if role["type"] != 'docker'
-      the_comp['entrypoint'] = ["/usr/bin/env",
+      if runtime['exposed-ports'].any? {|port| port['public']}
+        the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
                               "/opt/hcf/run.sh"]
+      else
+        the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_ROLE_INDEX=#{index}",
+                              'UCP_HOSTNAME_SUFFIX=-int',
+                              "/opt/hcf/run.sh"]
+      end
     end
 
     # Record persistent and shared volumes, ports
