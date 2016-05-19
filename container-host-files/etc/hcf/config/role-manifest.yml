@@ -936,8 +936,14 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
-- name: couchdb
-  type: docker
+
+- name: autoscaler-api
+  type: bosh
+  jobs:
+  - name: autoscaler_api
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
   run:
     flight-stage: flight
     scaling:
@@ -945,10 +951,100 @@ roles:
       min: 1
       max: 1
     capabilities: []
-    persistent-volumes:
-      - path: /usr/local/var/lib/couchdb
-        tag: couchdb-data
-        size: 100
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_api'
+        protocol: 'TCP'
+        source: 28861
+        target: 28861
+        public: true
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.tomcat.http.autoscaler_api.port: 28861
+
+- name: autoscaler-server
+  type: bosh
+  jobs:
+  - name: autoscaler_server
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_server'
+        protocol: 'TCP'
+        source: 28862
+        target: 28862
+        public: true
+  configuration:
+    templates:
+      properties.tomcat.http.autoscaler_server.port: 28862
+      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
+      properties.route_registrar.routes: '[{"name":"autoscaler-server", "port":28862, "uris":["autoscaler-server.((DOMAIN))"], "registration_interval":"10s"}]'
+
+- name: autoscaler-servicebroker
+  type: bosh
+  jobs:
+  - name: autoscaler_servicebroker
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_servicebroker'
+        protocol: 'TCP'
+        source: 28863
+        target: 28863
+        public: true
+  configuration:
+    templates:
+      properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
+      properties.tomcat.http.autoscaler_api.port: 28861
+      properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
+      properties.tomcat.http.autoscaler_server.port: 28862
+      properties.tomcat.http.autoscaler_servicebroker.port: 28863
+      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
+      properties.route_registrar.routes: '[{"name":"autoscaler-servicebroker", "port":28863, "uris":["autoscaler-servicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
+
+- name: couchdb
+  type: bosh
+  jobs:
+  - name: couchdb
+    release_name: cf-open-autoscaler
+  processes:
+  - name: couchdb
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
@@ -960,7 +1056,9 @@ roles:
         public: true
   configuration:
     templates:
-      properties.couchdb.couchdb_ip: '"((COUCHDB_HOST))"'
+      properties.couchdb.username: '"((COUCHDB_USER))"'
+      properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+
 - name: acceptance-tests
   type: bosh-task
   jobs:
@@ -1169,6 +1267,18 @@ configuration:
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     type-hint: "password,random"
+  - name: COUCHDB_HOST
+    default: "couchdb"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_API_HOST
+    default: "autoscaler-api"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVER_HOST
+    default: "autoscaler-server"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVICE_BROKER_HOST
+    default: "autoscaler-servicebroker"
+    type-hint: "string,hostname"
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
     type-hint: "string,hostname"
@@ -1412,6 +1522,9 @@ configuration:
   - name: ALLOWED_SERVICES_SUBNET
     default: 10.254.0.0/16
     type-hint: "subnet"
+  - name: OPEN_AUTOSCALER_HOST
+    default: "open-autoscaler"
+    type-hint: "string,hostname"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true

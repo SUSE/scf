@@ -22,3 +22,7 @@
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
+[submodule "src/open-Autoscaler"]
+	path = src/open-Autoscaler
+	url = git@github.com:ericpromislow/open-Autoscaler.git
+	branch = 3-fix-network-addresses

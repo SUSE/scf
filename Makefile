@@ -73,7 +73,10 @@ hcf-deployment-hooks:
 windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-deployment-hooks windows-runtime-release
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-deployment-hooks windows-runtime-release open-autoscaler-release
+open-autoscaler-release:
+	${GIT_ROOT}/make/generate-autoscaler-blobs --profile hcf src/open-Autoscaler 
+	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 
 ########## FISSILE BUILD TARGETS ##########
 
