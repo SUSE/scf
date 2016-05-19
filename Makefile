@@ -91,7 +91,12 @@ releases: \
 	hcf-release \
 	windows-runtime-release \
 	hcf-sso-release \
+	open-autoscaler-release \
 	${NULL}
+
+open-autoscaler-release:
+	${GIT_ROOT}/make/generate-autoscaler-blobs --profile hcf src/open-Autoscaler 
+	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 
 ########## FISSILE BUILD TARGETS ##########
 

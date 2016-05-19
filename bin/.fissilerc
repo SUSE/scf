@@ -16,6 +16,7 @@ FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/routing-release"
 FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-release"
 FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/windows-runtime-release"
 FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-sso/hcf-sso-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/open-Autoscaler/bosh-release"
 export FISSILE_RELEASE
 
 # This is a comma separated list of dev release names
