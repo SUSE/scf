@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+if [[ "$1" == "--profile" ]] ; then
+  AUTOSCALER_PROFILE=$2
+  shift 2
+else
+  AUTOSCALER_PROFILE=sample
+fi  
+
+DOCKER_RUNTIME=${DOCKER_RUNTIME:-'maven:3-jdk-7'}
+
+cd $GIT_ROOT/src/open-Autoscaler
+for x in api server servicebroker ; do 
+  echo $x
+  if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
+    echo Already have $x/target/$x-*.war
+  else
+    docker run -t --rm \
+       --volume ${GIT_ROOT}:${GIT_ROOT} \
+       --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
+       --entrypoint bash \
+       ${DOCKER_RUNTIME} -l -c "mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
+    sudo chown -R $USER:$USER $x/target
+  fi
+done
+
+BOSH_RELEASE_PATH=${BOSH_RELEASE_PATH:-${1}}
+BOSH_RELEASE_NAME=${BOSH_RELEASE_NAME:-${2:-$(basename ${BOSH_RELEASE_PATH} -release)}}
+
+${GIT_ROOT}/bin/generate-autoscaler-blobs.sh ${BOSH_RELEASE_PATH} ${BOSH_RELEASE_NAME}

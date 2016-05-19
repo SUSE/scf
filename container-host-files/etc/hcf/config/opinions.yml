@@ -494,7 +494,7 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
-      add cf-autoscaler-client:
+      cf-autoscaler-client:
         authorities: cloud_controller.read,cloud_controller.admin
         authorized_grant_types: client_credentials
         secret: cf-autoscaler-client-secret
