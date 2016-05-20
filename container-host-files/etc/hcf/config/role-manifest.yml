@@ -159,6 +159,7 @@ roles:
 - name: mysql-proxy
   scripts:
   - fake_spec_index_on_ucp.sh
+  - fix_mysql_proxy_host_list.sh
   jobs:
   - name: proxy
     release_name: cf-mysql
