@@ -21,8 +21,8 @@ if test -z ${FISSILE_RELEASE:-''}; then
 fi
 
 export FISSILE_RELEASE=$(echo ${FISSILE_RELEASE} | sed 's/^,//')
-export FISSILE_ROLES_MANIFEST=${FISSILE_ROLES_MANIFEST:-${GIT_ROOT}/container-host-files/etc/hcf/config/role-manifest.yml}
+export FISSILE_ROLE_MANIFEST=${FISSILE_ROLES_MANIFEST:-${GIT_ROOT}/container-host-files/etc/hcf/config/role-manifest.yml}
 export FISSILE_LIGHT_OPINIONS=${FISSILE_LIGHT_OPINIONS:-${GIT_ROOT}/container-host-files/etc/hcf/config/opinions.yml}
 export FISSILE_DARK_OPINIONS=${FISSILE_DARK_OPINIONS:-${GIT_ROOT}/container-host-files/etc/hcf/config/dark-opinions.yml}
-export FISSILE_DEV_CACHE_DIR=${FISSILE_DEV_CACHE_DIR:-${HOME}/.bosh/cache}
+export FISSILE_CACHE_DIR=${FISSILE_DEV_CACHE_DIR:-${HOME}/.bosh/cache}
 export FISSILE_WORK_DIR=${FISSILE_WORK_DIR:-${GIT_ROOT}/_work}
