@@ -9,17 +9,17 @@ cd $wd
 
 # VC redist are used by cf-iis8-buildpack
 echo "Downloading VC 2013 and 2015 Update 1 redistributable"
-mkdir -Force "$wd\vc2013", "$wd\vc2015u1"
-curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x86.exe"  http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
-curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
-curl -Verbose -UseBasicParsing  -OutFile "vc2015u1\VC_redist.x86.exe"  https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x86.exe
-curl -Verbose -UseBasicParsing  -OutFile "vc2015u1\VC_redist.x64.exe"  https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe
+mkdir -Force "$wd\vc2013", "$wd\vc2015u2"
+curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x86.exe"  https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
+curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
+curl -Verbose -UseBasicParsing  -OutFile "vc2015u2\VC_redist.x86.exe"  https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x86.exe
+curl -Verbose -UseBasicParsing  -OutFile "vc2015u2\VC_redist.x64.exe"  https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x64.exe
 
 echo "Installing VC 2013 and 2015 Update 1 redistributable"
 start -Wait "vc2013\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "vc2013\vcredist_x64.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "vc2015u1\VC_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "vc2015u1\VC_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "vc2015u2\VC_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "vc2015u2\VC_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
 
 echo "Installing Windows Features"
 Install-WindowsFeature  Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Framework, Web-WHC, Web-ASP
@@ -28,7 +28,7 @@ Install-WindowsFeature  Web-Net-Ext, Web-AppInit # Extra features for the cf-iis
 
 ## Enable disk quota
 
-echo "Enableing disk quota"
+echo "Enabling disk quota"
 fsutil quota enforce C:
 
 
