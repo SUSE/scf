@@ -16,6 +16,8 @@ DIEGO_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"diego-release-commit-sha\"])
 update_submodule () {
 	release_name=${1}
 	commit_id=${2}
+	cd "${GIT_ROOT}/src/${release_name}"
+	git fetch --all
 	cd "${GIT_ROOT}"
 	git clone "src/${release_name}" "src/${release_name}-clone" --recursive
 	cd "src/${release_name}-clone"
