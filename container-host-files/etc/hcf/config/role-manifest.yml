@@ -1527,6 +1527,17 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.acceptance_tests.backend: diego
+    properties.acceptance_tests.include_diego_ssh: true
+    properties.acceptance_tests.include_diego_docker: true
+    properties.acceptance_tests.include_backend_compatibility: false
+    properties.acceptance_tests.include_v3: false
+    properties.acceptance_tests.include_security_groups: true
+    properties.acceptance_tests.include_logging: true
+    properties.acceptance_tests.include_operator: true
+    properties.acceptance_tests.include_internet_dependent: true
+    properties.acceptance_tests.include_services: true
+    properties.acceptance_tests.include_route_services: false
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
