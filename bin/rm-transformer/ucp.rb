@@ -357,7 +357,16 @@ class ToUCP < Common
       'secret'      => vsecret,
       'default'     => nil
     }
-    param['default'] = var['default'].to_s unless var['default'].nil?
+
+    param['default'] = var['default'].to_s unless var['default'].nil? || var['secret']
+
+    if var['secret'] && !var['default'].nil?
+      secret_param = {}
+      secret_param["name"] = vname
+      secret_param["value"] = var['default']
+      STDERR.puts "#{secret_param.to_json},"
+    end
+
     param
   end
 
