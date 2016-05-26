@@ -368,7 +368,6 @@ properties:
     graph_cleanup_threshold_in_mb: 0
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    network_pool: 10.38.0.0/22
     log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
