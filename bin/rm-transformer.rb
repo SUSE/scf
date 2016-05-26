@@ -95,7 +95,7 @@ def main
     op.parse!(['--help'])
     exit 1
   end
-  if options[:instance_definition_template] != nil && provider != 'ucp-instance'
+  if options[:instance_definition_template] != nil && provider != 'hcp-instance'
     STDERR.puts "Instance definition templates are not supported for provider #{provider}"
     exit 1
   end
@@ -121,9 +121,9 @@ def provider_constructor
       require_relative 'rm-transformer/hcp'
       ToHCP
     },
-    'ucp-instance' => lambda {
-      require_relative 'rm-transformer/ucp-instance'
-      ToUCPInstance
+    'hcp-instance' => lambda {
+      require_relative 'rm-transformer/hcp-instance'
+      ToHCPInstance
     },
     'tf' => lambda {
       require_relative 'rm-transformer/tf'

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# This is a temporary workaround for UCP not giving us useful indexes between
+# This is a temporary workaround for HCP not giving us useful indexes between
 # instances in the bosh spec.index style.
 
-if test -z "${UCP_INSTANCE_ID}" ; then
-    # This is not running on UCP; this is not needed
+if test -z "${HCP_INSTANCE_ID}" ; then
+    # This is not running on HCP; this is not needed
     exit 0
 fi
 

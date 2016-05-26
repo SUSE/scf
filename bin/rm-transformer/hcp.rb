@@ -349,18 +349,14 @@ class ToHCP < Common
     # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
     vname.downcase!.gsub!('_', '-') if vsecret
 
-    param = {
+    {
       'name'        => vname,
       'description' => 'placeholder',
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret,
-      'default'     => nil
+      'default'     => (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     }
-
-    param['default'] = var['default'].to_s unless var['default'].nil? || var['secret']
-
-    param
   end
 
   def convert_parameter_ref(var)
