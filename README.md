@@ -230,6 +230,8 @@ Name        | Effect |
 `diego-release`    | `bosh create release` for `diego-release` |
 `etcd-release`    | `bosh create release` for `etcd-release` |
 `garden-release`  | `bosh create release` for `garden-linux-release` |
+`cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
+`cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
 `releases`      | Make all of the BOSH releases above |
 
 ### Fissile Build Targets

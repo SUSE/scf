@@ -923,8 +923,8 @@ roles:
     release_name: cf
   - name: garden
     release_name: garden-linux
-  - name: rootfses
-    release_name: diego
+  - name: cflinuxfs2-rootfs-setup
+    release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: cf
   processes:

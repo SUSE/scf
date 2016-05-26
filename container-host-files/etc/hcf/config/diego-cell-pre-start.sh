@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /var/vcap/jobs/rootfses/bin/pre-start
+exec /var/vcap/jobs/cflinuxfs2-rootfs-setup/bin/pre-start

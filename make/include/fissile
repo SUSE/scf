@@ -13,6 +13,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       etcd-release
       garden-release
       cf-mysql-release
+      cflinuxfs2-rootfs-release
       hcf-deployment-hooks
       windows-runtime-release
     '); do
