@@ -24,11 +24,9 @@ ps_script = File.join(current_dir, 'deploy_cnap_vhd.ps1')
 tmpfile = Tempfile.new("deploy_cnap_vhd_env")
 
 ARGV.each do|a|
-  vars = a.split("=")
+  vars = a.split("=", 2)
   next if vars.length != 2
-  key = vars[0]
-  val = vars[1]
-  tmpfile.puts "$env:#{key} = \"#{val}\""
+  tmpfile.puts "${env:'#{vars[0]}'} = \"#{vars[1]}\""
 end
 
 tmpfile.flush
