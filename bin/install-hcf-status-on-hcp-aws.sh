@@ -6,9 +6,9 @@ CURDIR=$(cd "$(dirname "$0")"; pwd)/
 # Usage
 read -d '' usage <<USAGE || true
 Usage:
-  install-hcf-status-on-ucp-aws.sh <UCP_NODE_IP>
+  install-hcf-status-on-hcp-aws.sh <HCP_NODE_IP>
 
-  Installs HCF dev scripts and prerequisites on a UCP node.
+  Installs HCF dev scripts and prerequisites on a HCP node.
   Assumes it can create an SSH connection using the user 'ubuntu'.
 USAGE
 
@@ -20,7 +20,7 @@ if [ -z ${1} ]; then echo "${usage}"; exit 1; else node_ip=$1; fi
 # Copy hcf-status over to the node
 echo "Seting up an hcf dir ..."
 ssh ubuntu@${node_ip} 'bash -c "mkdir -p ~/hcf/"'
-echo "Copying hcf tools to UCP dev harness node ..."
+echo "Copying hcf tools to HCP dev harness node ..."
 scp -prq ${CURDIR}/../container-host-files/* ubuntu@${node_ip}:~/hcf/
 
 # Install prerequisites
@@ -34,7 +34,7 @@ SCRIPT
 # Done - print message on how to use it
 cat <<HOWTO
 
-Done. HCF tools are installed on UCP.
-To check status in UCP, ssh to the UCP node and run:
+Done. HCF tools are installed on HCP.
+To check status in HCP, ssh to the HCP node and run:
   sudo ~/hcf/opt/hcf/bin/hcf-status
 HOWTO

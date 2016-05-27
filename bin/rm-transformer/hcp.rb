@@ -1,14 +1,14 @@
-## UCP output provider
+## HCP output provider
 # # ## ### ##### ########
 
 require_relative 'common'
 
-# Provider for UCP specifications derived from a role-manifest.
-class ToUCP < Common
+# Provider for HCP specifications derived from a role-manifest.
+class ToHCP < Common
   def initialize(options)
     super(options)
     @dtr = "#{@dtr}/" unless @dtr.empty?
-    # In UCP the version number becomes a kubernetes label, which puts
+    # In HCP the version number becomes a kubernetes label, which puts
     # some restrictions on the set of allowed characters and its
     # length.
     @hcf_version.gsub!(/[^a-zA-Z0-9._-]/, '_')
@@ -17,13 +17,13 @@ class ToUCP < Common
 
   # Public API
   def transform(roles)
-    JSON.pretty_generate(to_ucp(roles))
+    JSON.pretty_generate(to_hcp(roles))
   end
 
   # Internal definitions
 
-  def to_ucp(roles)
-    definition = empty_ucp
+  def to_hcp(roles)
+    definition = empty_hcp
 
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
@@ -76,7 +76,7 @@ class ToUCP < Common
     # DEF.parameters[].required				/bool
     # DEF.parameters[].secret				/bool
     #
-    # (*1) Too many to list here. See ucp-developer/service_models.md
+    # (*1) Too many to list here. See hcp-developer/service_models.md
     #      for the full list. Notables:
     #      - ALL
     #      - NET_ADMIN
@@ -92,7 +92,7 @@ class ToUCP < Common
     # (*9) Subset of comp below (- external_name + retry_count /int32)
   end
 
-  def empty_ucp
+  def empty_hcp
     {
       'name'       => 'hcf',    # TODO: Specify via option?
       'version'    =>  @hcf_version,
@@ -113,7 +113,7 @@ class ToUCP < Common
     }
     gparam = definition['parameters']
     roles['roles'].each do |role|
-      # UCP doesn't have manual jobs
+      # HCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
 
       retries = task?(role) ? 5 : 0
@@ -248,7 +248,7 @@ class ToUCP < Common
       else
         the_comp['entrypoint'] = ["/usr/bin/env",
                               "HCF_ROLE_INDEX=#{index}",
-                              'UCP_HOSTNAME_SUFFIX=-int',
+                              'HCP_HOSTNAME_SUFFIX=-int',
                               "/opt/hcf/run.sh"]
       end
     end
@@ -291,7 +291,7 @@ class ToUCP < Common
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
-      vsize = v['size'] # [GB], same as used by UCP, no conversion required
+      vsize = v['size'] # [GB], same as used by HCP, no conversion required
       serial += 1
       vname += "-#{index}" if index && index > 0
 
@@ -346,7 +346,7 @@ class ToUCP < Common
     vexample = 'unknown' if vexample == ''
 
     # secrets currently need to be lowercase and can only use dashes, not underscores
-    # This should be handled by UCP instead: https://jira.hpcloud.net/browse/CAPS-184
+    # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
     vname.downcase!.gsub!('_', '-') if vsecret
 
     param = {

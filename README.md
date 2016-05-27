@@ -247,7 +247,7 @@ Name            | Effect
 `docker-images` | `docker build` in each dir in `./docker-images`
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
-`ucp`           | Generate UCP service definitions
+`hcp`           | Generate HCP service definitions
 `mpc`           | Generate Terraform MPC definitions for a single-node microcloud
 `aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
@@ -564,17 +564,17 @@ Name    | Effect | Notes |
     ```
 
 
-## How do I generate UCP service definitions?
+## How do I generate HCP service definitions?
 
   1. Ensure that the Vagrant box is running.
 
   2. `ssh` into the Vagrant box.
 
-  3. To generate the `hcf-ucp.json` file that contains the UCP service definition for the current set of roles, run the `make ucp` command.
+  3. To generate the `hcf-hcp.json` file that contains the HCP service definition for the current set of roles, run the `make hcp` command.
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
-  You can also read a step by step tutorial of running [HCF on UCP](ucp/README.md) using Vagrant.
+  You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
 
 ## How do I generate Terraform MPC service definitions?
 

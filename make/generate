@@ -24,7 +24,7 @@ OPTIONS=$(echo \
 TARGET=${1}
 
 case ${TARGET} in
-    ucp)
+    hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
         ;;

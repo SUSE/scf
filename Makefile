@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images mpc mpc-dist aws aws-dist ucp
+.PHONY: docker-images mpc mpc-dist aws aws-dist hcp
 
 ########## UTILITY TARGETS ##########
 
@@ -124,10 +124,10 @@ show-versions:
 
 ########## CONFIGURATION TARGETS ##########
 
-generate: ucp mpc aws aws-spot aws-proxy aws-spot-proxy
+generate: hcp mpc aws aws-spot aws-proxy aws-spot-proxy
 
-ucp:
-	${GIT_ROOT}/make/generate ucp
+hcp:
+	${GIT_ROOT}/make/generate hcp
 
 ucp-instance:
 	${GIT_ROOT}/make/generate ucp-instance

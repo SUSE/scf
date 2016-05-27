@@ -6,7 +6,7 @@
 	- [Definitions](#definitions)
 	- [Role manifest capabilities](#role-manifest-capabilities)
 	- [Load balanced roles](#load-balanced-roles)
-		- [By UCP](#by-ucp)
+		- [By HCP](#by-hcp)
 		- [Internally, by the gorouter and haproxy](#internally-by-the-gorouter-and-haproxy)
 	- [Active/active & Active/passive roles](#activeactive-activepassive-roles)
 	- [Self clustering roles](#self-clustering-roles)
@@ -44,7 +44,7 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
         ...
     ```
 
-    For the UCP, this will yield a configuration similar to (details cut for brevity):
+    For the HCP, this will yield a configuration similar to (details cut for brevity):
 
     ```json
     "components": [
@@ -82,7 +82,7 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
           indexed: 1
         ...
     ```
-    For the UCP, this will yield a configuration similar to (details cut for brevity):
+    For the HCP, this will yield a configuration similar to (details cut for brevity):
 
     ```json
     "components": [
@@ -99,20 +99,20 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 
   The template for `index` should be `((HCF_ROLE_INDEX))`.
 
-  For roles that have `scaling/indexed > 1`, the environment variable `((HCF_ROLE_INDEX))` should be automatically set to the correct value by our transformers. In UCP, this variable can only be set by modifying the entrypoint of the component, as shown in the examples at point #1. 
+  For roles that have `scaling/indexed > 1`, the environment variable `((HCF_ROLE_INDEX))` should be automatically set to the correct value by our transformers. In HCP, this variable can only be set by modifying the entrypoint of the component, as shown in the examples at point #1. 
 
 ## Load balanced roles
 
-### By UCP
+### By HCP
 
 - ha-proxy/router
 - diego-access
 - mysql-proxy
 
 Based on the upstream documentation, the HA Proxy role should not be required.
-We should keep it for dev/test environments, but we should remove it from UCP.
+We should keep it for dev/test environments, but we should remove it from HCP.
 
-To properly support HA for `diego-access` and `mysql-proxy`, we need to simulate what UCP does.
+To properly support HA for `diego-access` and `mysql-proxy`, we need to simulate what HCP does.
 For testing, the solution is to use AWS [ELB](https://aws.amazon.com/elasticloadbalancing/).
 Terraform has an [`ELB` resource](https://www.terraform.io/docs/providers/aws/r/elb.html).  
 An HA configuration for these components in Vagrant/MPC is not be available.
@@ -122,7 +122,7 @@ The way to programmatically identify these components is by looking for roles th
 These roles should have `scaling/indexed == 1`.
 
 > Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking.
-> It also mentions that health checking should be done on a specific port. Some of these requirements may not be supported by UCP.
+> It also mentions that health checking should be done on a specific port. Some of these requirements may not be supported by HCP.
 
 ### Internally, by the gorouter and haproxy
 
