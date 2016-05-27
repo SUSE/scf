@@ -756,13 +756,13 @@ roles:
   - fake_spec_index_on_ucp.sh
   jobs:
   - name: stager
-    release_name: diego
+    release_name: cf
   - name: nsync
-    release_name: diego
+    release_name: cf
   - name: tps
-    release_name: diego
+    release_name: cf
   - name: cc_uploader
-    release_name: diego
+    release_name: cf
   - name: consul_agent
     release_name: cf
   - name: metron_agent
@@ -1528,6 +1528,45 @@ configuration:
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.capi.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
+    properties.capi.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.cc_uploader.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
+    properties.capi.cc_uploader.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
+    properties.capi.cc_uploader.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
+    properties.capi.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.capi.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.nsync.cc.base_url: '"https://api.((DOMAIN))"'
+    properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.nsync.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
+    properties.capi.nsync.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
+    properties.capi.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
+    properties.capi.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
+    properties.capi.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.capi.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.stager.cc.base_url: '"https://api.((DOMAIN))"'
+    properties.capi.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.stager.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
+    properties.capi.stager.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
+    properties.capi.stager.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
+    properties.capi.stager.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
+    properties.capi.stager.cc_uploader_url: "http://((DIEGO_CC_BRIDGE_HOST)):9090"
+    properties.capi.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
+    properties.capi.stager.staging_task_callback_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
+    properties.capi.tps.bbs.api_location: '"((DIEGO_DATABASE_HOST)):8889"'
+    properties.capi.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.tps.cc.base_url: '"https://api.((DOMAIN))"'
+    properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.tps.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
+    properties.capi.tps.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
+    properties.capi.tps.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
+    properties.capi.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
+    properties.capi.tps.traffic_controller_url: "ws://((LOGGREGATOR_HOST)):8081"
     properties.cc.buildpacks.blobstore_type: webdav
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -1599,25 +1638,10 @@ configuration:
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
-    properties.diego.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.diego.cc_uploader.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
-    properties.diego.cc_uploader.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.diego.cc_uploader.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.converger.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.nsync.cc.base_url: '"https://api.((DOMAIN))"'
-    properties.diego.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.diego.nsync.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
-    properties.diego.nsync.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.diego.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
-    properties.diego.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -1639,30 +1663,6 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
-    properties.diego.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.stager.cc.base_url: '"https://api.((DOMAIN))"'
-    properties.diego.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.diego.stager.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
-    properties.diego.stager.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
-    properties.diego.stager.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.diego.stager.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
-    properties.diego.stager.cc_uploader_url: "http://((DIEGO_CC_BRIDGE_HOST)):9090"
-    properties.diego.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
-    properties.diego.stager.staging_task_callback_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
-    properties.diego.tps.bbs.api_location: '"((DIEGO_DATABASE_HOST)):8889"'
-    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.tps.cc.base_url: '"https://api.((DOMAIN))"'
-    properties.diego.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.diego.tps.cc.basic_auth_username: '"((INTERNAL_API_USER))"'
-    properties.diego.tps.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
-    properties.diego.tps.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.diego.tps.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
-    properties.diego.tps.traffic_controller_url: "ws://((LOGGREGATOR_HOST)):8081"
     properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
