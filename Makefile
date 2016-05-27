@@ -95,7 +95,7 @@ bosh-images:
 docker-images:
 	${GIT_ROOT}/make/images docker build
 
-build: images
+build: compile images
 
 tag: bosh-tag docker-tag
 

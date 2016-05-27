@@ -10,7 +10,7 @@ HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
 get_package_version_list() {
-    fissile dev packages-report | grep -v 'Dev release' | grep -F '(' | while read package hash ; do
+    fissile show release | grep -v 'Dev release' | grep -F '(' | cut -d: -f1 | while read package hash ; do
         hash=$(echo ${hash} | tr -c -d 0-9a-f)
         echo ${package}/${hash}
     done
@@ -88,7 +88,7 @@ case ${COMMAND} in
         restore
 
         echo Please allow a long time for mariadb to compile
-        fissile dev compile
+        fissile build packages
 
         cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
         ;;

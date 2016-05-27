@@ -10,15 +10,15 @@ export FISSILE_RELEASE="${ROOT}/src/cf-release,${ROOT}/src/cf-usb/cf-usb-release
 # This is a comma separated list of dev release names
 # Ordering of the names needs to match the list in FISSILE_DEV_RELEASE
 # Set this only if you're using custom dev release names
-export FISSILE_DEV_RELEASE_NAME=
+export FISSILE_RELEASE_NAME=
 
 # This is a comma separated list of dev release versions
 # Ordering of the versions needs to match the list in FISSILE_DEV_RELEASE
 # Set this only if you need to use specific versions (as opposed to latest)
-export FISSILE_DEV_RELEASE_VERSION=
+export FISSILE_RELEASE_VERSION=
 
 # Path to an HCF role manifest
-export FISSILE_ROLES_MANIFEST="${ROOT}/container-host-files/etc/hcf/config/role-manifest.yml"
+export FISSILE_ROLE_MANIFEST="${ROOT}/container-host-files/etc/hcf/config/role-manifest.yml"
 
 # Path to a BOSH deployment manifest that contains light opinions
 export FISSILE_LIGHT_OPINIONS="${ROOT}/container-host-files/etc/hcf/config/opinions.yml"
@@ -31,10 +31,10 @@ export FISSILE_WORK_DIR="${HOME}/.fissile/"
 
 # This is the location of the local BOSH cache
 # You shouldn't need to override this
-export FISSILE_DEV_CACHE_DIR="${HOME}/.bosh/cache"
+export FISSILE_CACHE_DIR="${HOME}/.bosh/cache"
 
 # Path to a configgin release tarball
-export FISSILE_CONFIGGIN_PATH="${HOME}/tools/configgin.tgz"
+export FISSILE_CONFIGGIN="${HOME}/tools/configgin.tgz"
 
 # This is the configuration base prefix
 export FISSILE_CONFIG_PREFIX=hcf

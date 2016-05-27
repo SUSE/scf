@@ -234,21 +234,20 @@ Name        | Effect |
 
 ### Fissile Build Targets
 
-Name      | Effect | Notes |
---------------- | ---- | --- |
-`build`      | `make` + `make images` |
-`compile-base`  | `fissile compilation build-base` |
-`compile`    | `fissile dev compile` |
-`images`    | `make bosh-images` + `make docker-images` |
-`image-base`  | `fissile images create-base` |
-`bosh-images`  | `fissile dev create-images` |
-`docker-images`  | `docker build` in each dir in `./docker-images` |
-`tag`      | Tag HCF images and bosh role images |
-`publish`    | Publish HCF images and bosh role images to Docker Hub |
-`ucp`    | Generate UCP service definitions |
-`mpc`    | Generate Terraform MPC definitions for a single-node microcloud |
-`aws`    | Generate Terraform AWS definitions for a single-node microcloud |
-`terraform`    | Make `hcf-*.tar.gz` for distribution | __outdated__ |
+Name            | Effect
+--------------- | ----
+`build`         | `make compile` + `make images`
+`compile-base`  | `fissile build layer compilation`
+`compile`       | `fissile build packages`
+`images`        | `make bosh-images` + `make docker-images`
+`image-base`    | `fissile build layer stemcell`
+`bosh-images`   | `fissile build images`
+`docker-images` | `docker build` in each dir in `./docker-images`
+`tag`           | Tag HCF images and bosh role images
+`publish`       | Publish HCF images and bosh role images to Docker Hub
+`ucp`           | Generate UCP service definitions
+`mpc`           | Generate Terraform MPC definitions for a single-node microcloud
+`aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
 ### Distribution Targets
 

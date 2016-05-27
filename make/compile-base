@@ -8,4 +8,4 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 UBUNTU_IMAGE=${UBUNTU_IMAGE:-'ubuntu:14.04'}
 
-fissile compilation build-base --base-image ${UBUNTU_IMAGE}
+fissile build layer compilation --from ${UBUNTU_IMAGE}
