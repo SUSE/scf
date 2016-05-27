@@ -43,7 +43,7 @@ restore() {
 
     for package_version in $(get_package_version_list) ; do
         archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
-        test -r "${archive}" || {
+        test -r "${archive}" -a -s "${archive}" || {
             echo "Missing:   ${archive}"
             continue
         }
