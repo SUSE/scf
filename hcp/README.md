@@ -90,7 +90,8 @@ This generates the `hcf-hcp.json` file containing the HCP service definition for
 the current set of roles. Register the service with HCP:
 
 ```bash
-curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.json http://192.168.200.3:30000/v1/services
+PORT=$(curl -Ss http://192.168.200.2:8080/api/v1/namespaces/hcp/services/ipmgr | jq --raw-output '.spec.ports[0].nodePort')
+curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.json http://192.168.200.3:$PORT/v1/services
 ```
 
 ### Generate an instance definition (#1) ###
@@ -115,8 +116,10 @@ talking to HCP about it.
 To instantiate the service, post the instance definition to HCP:
 
 ```bash
-curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcp/hcf-hcp-instance.json http://192.168.200.3:30000/v1/instances
+curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcp/hcf-hcp-instance.json http://192.168.200.3:$PORT/v1/instances
 ```
+
+where `$PORT` is set above.
 
 ### Follow the Kubernetes log (#2) ###
 
