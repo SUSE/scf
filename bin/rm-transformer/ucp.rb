@@ -364,7 +364,6 @@ class ToUCP < Common
       secret_param = {}
       secret_param["name"] = vname
       secret_param["value"] = var['default']
-      STDERR.puts "#{secret_param.to_json},"
     end
 
     param

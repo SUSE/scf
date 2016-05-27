@@ -105,8 +105,7 @@
       },
       {
         "component": "loggregator",
-        "min_instances": 3,{"name":"blobstore-password","value":"blobstore_password"},
-
+        "min_instances": 3,
         "max_instances": 3
       },
       {
