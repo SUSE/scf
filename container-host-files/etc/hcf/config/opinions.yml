@@ -2,6 +2,17 @@
 properties:
   acceptance_tests:
     skip_ssl_validation: true
+    backend: diego
+    include_diego_ssh: true
+    include_diego_docker: true
+    include_backend_compatibility: false
+    include_v3: false
+    include_security_groups: true
+    include_logging: true
+    include_operator: true
+    include_internet_dependent: true
+    include_services: true
+    include_route_services: false
   app_domains:
   - example.com
   app_ssh: null
