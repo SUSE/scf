@@ -1564,6 +1564,7 @@ configuration:
     properties.cc.srv_api_uri: '"https://api.((DOMAIN))"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
+    properties.cc.system_hostnames: '["api","uaa","login","doppler","loggregator","hm9000","blobstore","usb"]'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.cf-usb.broker.external_url: '"brokers.((DOMAIN))"'
