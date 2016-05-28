@@ -214,7 +214,6 @@ roles:
 - name: diego-database
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -317,7 +316,6 @@ roles:
 - name: router
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -386,7 +384,6 @@ roles:
   # Do not apply fake_spec_index_on_ucp.sh here because we need an index 0
   # to run migrations from
   - perform_nfs_test.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -593,7 +590,6 @@ roles:
 - name: doppler
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -687,7 +683,6 @@ roles:
 - name: loggregator
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -759,7 +754,6 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: stager
     release_name: diego
@@ -871,7 +865,6 @@ roles:
 - name: diego-access
   scripts:
   - fake_spec_index_on_ucp.sh
-  - make_sys_proc_tweaks_optional.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -913,7 +906,6 @@ roles:
   scripts:
   - fake_spec_index_on_ucp.sh
   - prevent_apparmor_disable.sh
-  - make_sys_proc_tweaks_optional.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
   jobs:
@@ -1747,8 +1739,3 @@ configuration:
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    # These settings must remain in the role manifest until they're available
-    # in the upstream specs; even though they're also defined in the opinions file
-    properties.doppler.tweak_locked_memory: false
-    properties.traffic_controller.tweak_locked_memory: false
-    properties.syslog_drain_binder.tweak_locked_memory: false
