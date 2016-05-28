@@ -1702,7 +1702,7 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
-    properties.router.servers.z1: '["((ROUTER_HOST))"]'
+    properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
