@@ -21,7 +21,6 @@
       {"name":"service-provider-key-passphrase","value":"foobar"},
       {"name":"staging-upload-password","value":"password"},
       {"name":"internal-api-password","value":"internal_password"},
-      {"name":"trusted-certs","value":""},
       {"name":"uaa-admin-client-secret","value":"admin_secret"},
       {"name":"uaa-batch-password","value":"batch_password"},
       {"name":"uaa-cc-client-secret","value":"cc_client_secret"},
