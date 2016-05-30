@@ -64,13 +64,16 @@ garden-release:
 mysql-release:
 	${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 
+cflinuxfs2-rootfs-release:
+	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
+
 hcf-deployment-hooks:
 	${GIT_ROOT}/make/bosh-release src/hcf-deployment-hooks
 
 windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release hcf-deployment-hooks windows-runtime-release
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-deployment-hooks windows-runtime-release
 
 ########## FISSILE BUILD TARGETS ##########
 

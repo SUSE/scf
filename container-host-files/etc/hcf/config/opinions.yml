@@ -294,6 +294,8 @@ properties:
         require_ssl: true
       evacuation_timeout_in_seconds: 60
       log_level: debug
+      preloaded_rootfses:
+        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
       zone: z1
     route_emitter:
       bbs:
@@ -323,9 +325,9 @@ properties:
       log_level: debug
   domain: example.com
   doppler:
-    tweak_locked_memory: false
     blacklisted_syslog_ranges: null
     debug: false
+    locked_memory_limit: kernel
     maxRetainedLogMessages: 100
     port: 4443
     unmarshaller_count: 5
@@ -449,11 +451,11 @@ properties:
   support_address: http://support.cloudfoundry.com
   syslog_daemon_config: null
   syslog_drain_binder:
-    tweak_locked_memory: false
+    locked_memory_limit: kernel
   system_domain: example.com
   system_domain_organization: null
   traffic_controller:
-    tweak_locked_memory: false
+    locked_memory_limit: kernel
   uaa:
     admin:
       client_secret: admin_secret

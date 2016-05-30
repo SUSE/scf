@@ -19,3 +19,6 @@
 [submodule "src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb"]
 	path = src/hcf-deployment-hooks/src/github.com/hpcloud/cf-plugin-usb
 	url = git@github.com:hpcloud/cf-plugin-usb.git
+[submodule "src/cflinuxfs2-rootfs-release"]
+	path = src/cflinuxfs2-rootfs-release
+	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
