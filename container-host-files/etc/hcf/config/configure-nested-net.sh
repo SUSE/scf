@@ -56,17 +56,12 @@ IFS='/' read -a subnet_parts <<< "$target_subnet"
 target_ip_part="${subnet_parts[0]}"
 target_subnet_part="${subnet_parts[1]}"
 
-# convert the cidr subnet number to a netmask
-target_subnet_netmask=$(cdr2mask target_subnet_part)
-
 # get the pieces of the netmask for eth0
 IFS=. read -r m1 m2 m3 m4 <<< `ifconfig eth0 | awk '/Mask:/{ print $4;} ' | awk -F':' '{print $2}'`
 # get the pieces of the IP address for eth0
 IFS=. read -r i1 i2 i3 i4 <<< `ifconfig eth0 | awk '/inet addr:/{ print $2;} ' | awk -F':' '{print $2}'`
 # get the network address pieces of the target network
 IFS=. read -r ti1 ti2 ti3 ti4 <<< $target_ip_part
-# get the netmask pieces of the target network
-IFS=. read -r tm1 tm2 tm3 tm4 <<< $target_subnet_netmask
 
 # convert the netmask to a number so we can validate sizes
 container_netmask_cidr=$(mask2cdr "${m1}.${m2}.${m3}.${m4}")
