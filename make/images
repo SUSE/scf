@@ -18,7 +18,7 @@ case ${TARGET} in
         PREFIX=''
         ;;
     bosh)
-        ROLES=$(fissile dev list-roles | awk -F : '{ print $1 }' | sed 's/^fissile-//')
+        ROLES=$(fissile show image| awk -F : '{ print $1 }' | sed 's/^fissile-//')
         PREFIX='fissile-'
         ;;
 esac
@@ -32,7 +32,7 @@ for ROLE in ${ROLES}; do
         tag)
             case ${TARGET} in
                 bosh)
-                    TAG=$(fissile dev list-roles | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
+                    TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
                 ;;
                 *)
                     TAG=latest
@@ -49,7 +49,7 @@ for ROLE in ${ROLES}; do
             case ${TARGET} in
                 bosh)
                     # For bosh images, there may be images with stale tags we want to delete
-                    WANTED_TAG=$(fissile dev list-roles | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
+                    WANTED_TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
                     docker images ${PREFIX}${ROLE} | tail -n +2 | while read REPOSITORY TAG _ ; do
                         if test "${TAG}" != "${WANTED_TAG}" ; then
                             docker rmi "${REPOSITORY}:${TAG}"
