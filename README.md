@@ -324,7 +324,7 @@ Name    | Effect | Notes |
   make stop
 
   # Delete all fissile images.
-  docker rmi $(fissile dev lr)
+  docker rmi $(fissile show image)
 
   # Re-create the images and then run them.
   make images run
@@ -428,7 +428,7 @@ Name    | Effect | Notes |
 
     ```bash
     make stop
-    docker rmi -f $(fissile dev lr)
+    docker rmi -f $(fissile show image)
     make images run
     ```
 
@@ -468,7 +468,7 @@ Name    | Effect | Notes |
   4. Run the `config-diff` command:
 
     ```bash
-    FISSILE_RELEASE='' fissile dev config-diff --release ~/hcf/src/cf-release --release ~/hcf/src/cf-release-clone
+    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/cf-release,${HOME}/hcf/src/cf-release-clone
     ```
 
   5. Act on configuration changes:
@@ -602,7 +602,7 @@ Name    | Effect | Notes |
     cd hcf-configgin/
     make dist
     cp output/configgin*.tgz ~/tools/configgin.tgz
-    docker rmi -f $(fissile dev lr) fissile-role-base fissile-role-base:<TAB>
+    docker rmi -f $(fissile show image) fissile-role-base fissile-role-base:<TAB>
     make image-base images
     ```
 
