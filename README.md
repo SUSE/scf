@@ -304,6 +304,15 @@ Name    | Effect | Notes |
   make run
   ```
 
+### How do I run smoke and acceptance tests?
+
+  On the Vagrant box, when `hcf-status` reports all roles are running, execute the following commands:
+
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings-dev/ smoke-tests
+  run-role.sh /home/vagrant/hcf/bin/settings-dev/ acceptance-tests
+  ```
+
 ### `fissile` refuses to create images that already exist. How do I recreate images?
 
   On the Vagrant box, run the following commands:
