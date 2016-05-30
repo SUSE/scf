@@ -20,7 +20,7 @@ mask2cdr ()
    echo $(( $2 + (${#x}/4) ))
 }
 
-# converts from /24 to 255.255.0.0
+# converts from /16 to 255.255.0.0
 cdr2mask ()
 {
    # Number of args to shift, 255..255, first non-255 byte, zeroes
