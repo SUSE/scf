@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -o errexit -o nounset
 
@@ -16,8 +16,8 @@ DOCKER_RUNTIME=${DOCKER_RUNTIME:-'maven:3-jdk-7'}
 cd $GIT_ROOT/src/open-Autoscaler
 for x in api server servicebroker ; do 
   echo $x
-  if [[ $x != servicebroker ]] && ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
-    echo Already have $x/target/$x-*.war
+  if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
+    echo Not rebuilding $x
   else
     docker run -t --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
@@ -28,7 +28,7 @@ for x in api server servicebroker ; do
   fi
 done
 
-BOSH_RELEASE_PATH=${BOSH_RELEASE_PATH:-${1}}
-BOSH_RELEASE_NAME=${BOSH_RELEASE_NAME:-${2:-$(basename ${BOSH_RELEASE_PATH} -release)}}
+BOSH_RELEASE_PATH=${1:-${BOSH_RELEASE_PATH}}
+BOSH_RELEASE_NAME=${2:-${BOSH_RELEASE_NAME:-$(basename ${BOSH_RELEASE_PATH} -release)}}
 
 ${GIT_ROOT}/bin/generate-autoscaler-blobs.sh ${BOSH_RELEASE_PATH} ${BOSH_RELEASE_NAME}
