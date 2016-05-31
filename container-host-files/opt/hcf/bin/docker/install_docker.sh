@@ -14,9 +14,10 @@ fi
 apt-get update
 apt-get install apt-transport-https ca-certificates -y
 apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list--
+echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list
+
 apt-get update
-apt-get install docker-engine=1.10.0-0~trusty lvm2 -y
+apt-get install docker-engine=1.10.3-0~trusty lvm2 -y
 usermod -aG docker $user
 
 # Note: lvm2 is needed by configure_docker.sh (pvcreate, etc.)
