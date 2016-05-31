@@ -48,7 +48,7 @@ end
 %>
 
 <% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
-cf api <%= skip_ssl_validation %> api.<%= properties.domain %>
+cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
 <% 
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>

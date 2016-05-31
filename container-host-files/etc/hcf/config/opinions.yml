@@ -204,6 +204,14 @@ properties:
       package: buildpack_binary
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
+    system_hostnames:
+    - api
+    - blobstore
+    - doppler
+    - loggregator
+    - login
+    - uaa
+    - usb
     thresholds:
       api:
         alert_if_above_mb: null
