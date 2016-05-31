@@ -22,3 +22,6 @@
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
+[submodule "src/hcf-sso"]
+	path = src/hcf-sso
+	url = git@github.com:hpcloud/hcf-sso
