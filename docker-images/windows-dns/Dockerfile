@@ -1,4 +1,4 @@
-FROM voxxit/consul
+FROM alexjh/consul
 
 LABEL role=windows-dns
 
