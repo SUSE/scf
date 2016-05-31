@@ -19,7 +19,7 @@ for x in api server servicebroker ; do
   if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
     echo Not rebuilding $x
   else
-    docker run -t --rm \
+    docker run -tty --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
        --entrypoint bash \
@@ -28,7 +28,24 @@ for x in api server servicebroker ; do
   fi
 done
 
-BOSH_RELEASE_PATH=${1:-${BOSH_RELEASE_PATH}}
-BOSH_RELEASE_NAME=${2:-${BOSH_RELEASE_NAME:-$(basename ${BOSH_RELEASE_PATH} -release)}}
+release_path=${1:-${BOSH_RELEASE_PATH}}
+release_name=${2:-${BOSH_RELEASE_NAME:-$(basename ${release_path} -release)}}
 
-${GIT_ROOT}/bin/generate-autoscaler-blobs.sh ${BOSH_RELEASE_PATH} ${BOSH_RELEASE_NAME}
+if [ -z $release_path -o -z $release_name ] ; then
+  cat <<HELP
+  Usage: generate-autoscaler-blobs [--profile PROFILE_NAME=sample] <RELEASE_PATH> <RELEASE_NAME>"
+  \release_path must be relative to the root of hcf
+  \$release_path=$release_path
+  \$release_name=$release_name
+HELP
+  exit 1
+fi
+
+docker run \
+    --interactive \
+    --tty \
+    --rm \
+    --volume ${HOME}/.bosh:/root/.bosh \
+    --volume $GIT_ROOT/:$GIT_ROOT/ \
+    helioncf/hcf-pipeline-ruby-bosh \
+    bash -l -c "rbenv global 2.2.3 && cd $GIT_ROOT/src/open-Autoscaler/bosh-release && scripts/generate_blobs.sh"
