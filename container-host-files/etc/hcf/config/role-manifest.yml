@@ -1663,7 +1663,6 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
-    properties.domain: '"((DOMAIN))"'
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
