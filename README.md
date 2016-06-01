@@ -231,6 +231,7 @@ Name        | Effect |
 `etcd-release`    | `bosh create release` for `etcd-release` |
 `garden-release`  | `bosh create release` for `garden-linux-release` |
 `cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
+`hcf-sso-release` | `bosh create release` for `hcf-sso-release` |
 `cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
 `releases`      | Make all of the BOSH releases above |
 
