@@ -48,6 +48,9 @@ Vagrant.configure(2) do |config|
     # If you need to debug stuff
     # vb.gui = true
 
+    # `vmrun getGuestIPAddress` often returns the address of the docker0 bridge instead of eth0 :(
+    vb.enable_vmrun_ip_lookup = false
+
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
     override.vm.synced_folder ".", "/home/vagrant/hcf"
   end
