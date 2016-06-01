@@ -83,11 +83,21 @@ that sets this value.
 Back inside the HCF vagrant box run:
 
 ```bash
-make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=`pwd`/bin
+make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=`pwd`/bin/settings-hcp
 ```
 
 This generates the `hcf-hcp.json` file containing the HCP service definition for
-the current set of roles. Register the service with HCP:
+the current set of roles. 
+
+#### Interim notes until the role-manifest transformer catches up:
+
+When targetting versions of HCP >= 1.1.22 ensure that the secret parameters do not have a default value.  If you're running an older version of rmtransformer this line will fix that:
+
+```bash
+perl -00 -ibak -pe 's/("secret":\s*true)(?:,\s*"default":\s*".*?")/\1/g' hcf-hcp.json
+```
+
+### Register the service with HCP:
 
 ```bash
 PORT=$(curl -Ss http://192.168.200.2:8080/api/v1/namespaces/hcp/services/ipmgr | jq --raw-output '.spec.ports[0].nodePort')
@@ -109,6 +119,8 @@ an instance of the newly registered service:
     "description": "HCF test cluster"
 }
 ```
+
+*NOTE*: Ensure that the `name`, `version`, and `vendor` fields in the instance definition match the same fields in the service definition.
 
 Remember the `instance_id`, here `my-hcf-cluster`, which is the name to use when
 talking to HCP about it.
