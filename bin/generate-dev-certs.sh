@@ -133,7 +133,7 @@ openssl genrsa -aes256 -out ${uaa_server_key} -passout pass:"${signing_key_passp
 # 2. Remove passphrase from key
 openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}"
 # 3. Generate certificate signing request for CA
-openssl req -x509 -sha256 -new -key ${uaa_server_key} -out ${uaa_server_csr} -subj "/CN=${DIEGO_DATABASE_HOST}/"
+openssl req -x509 -sha256 -new -key ${uaa_server_key} -out ${uaa_server_csr} -subj "/CN=${UAA_HOST}/"
 # 4. Generate self-signed certificate with 365 days expiry-time
 openssl x509 -sha256 -days 365 -in ${uaa_server_csr} -signkey ${uaa_server_key} -out ${uaa_server_crt}
 
