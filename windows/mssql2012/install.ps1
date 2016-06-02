@@ -27,6 +27,9 @@ $sqlServerExtractionPath = (Join-Path $wd "SQLEXPR_x64_ENU")
 
 $sqlCmdBin = 'c:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe'
 
+$dbPath = Join-Path $env:MSSQL_DATADIR 'MSSQL11.SQLEXPRESS'
+$tmpDbPath = Join-Path $env:MSSQL_DATADIR 'MSSQL11.SQLEXPRESS.tmp'
+
 function InstallSqlServer()
 {
 	Write-Output "Installing SQL Server Express 2012"
@@ -125,8 +128,35 @@ function InstallWindowsFeatures()
 	Install-WindowsFeature -Name Net-Framework-Core -Source D:\sources\sxs
 }
 
+function MoveDatabase()
+{
+  if (Test-Path $dbPath)
+  {
+    Move-Item $dbPath $tmpDbPath
+  }
+}
+
+function RestoreDatabase()
+{
+  if (Test-Path $tmpDbPath)
+  {
+    Stop-Service 'MSSQL$SQLEXPRESS'
+
+    $emptyDbPath = Join-Path $env:MSSQL_DATADIR "MSSQL11.SQLEXPRESS.empty.$((Get-Date).Ticks)"
+
+    Move-Item $dbPath $emptyDbPath
+    Move-Item $tmpDbPath $dbPath
+
+    Remove-Item $emptyDbPath -Force -Recurse
+
+    Start-Service 'MSSQL$SQLEXPRESS'
+  }
+}
+
 InstallWindowsFeatures
+MoveDatabase
 InstallSqlServer
+RestoreDatabase
 EnableStaticPort
 EnableContainedDatabaseAuthentication
 AddSystemUser

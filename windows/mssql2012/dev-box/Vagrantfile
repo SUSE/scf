@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.network "private_network", ip: "192.168.77.81"
+
+  config.vm.synced_folder "../../../", "/hcf"
+
+  config.vm.provider "virtualbox" do |vb, override|
+     override.vm.box = "https://hcfwin.azureedge.net/windows_2012_r2_sysprepvm_gvlk_virtualbox_v2.box"
+     vb.memory = "2048"
+  end
+
+  config.vm.provision "file", source: "build-cnap-image.ps1", destination: "C:\\hcf-mssql2012-scripts\\build-cnap-image.ps1"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    & C:\\hcf-mssql2012-scripts\\build-cnap-image.ps1
+    echo "Execute run-cnap-image.rb to start mssql2014"
+  SHELL
+end
