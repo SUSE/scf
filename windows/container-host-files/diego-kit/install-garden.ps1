@@ -64,7 +64,7 @@ Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction B
 
 ## Download installers
 
-$gardenVersion = "v0.129"
+$gardenVersion = "v0.141"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 

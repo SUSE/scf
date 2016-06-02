@@ -4,7 +4,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-13-2016-04-28_12-19-17/diego-installer.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-15-2016-05-31_10-22-41/diego-installer.exe -Verbose
 
 ## Setup Vagrant HCF networking
 

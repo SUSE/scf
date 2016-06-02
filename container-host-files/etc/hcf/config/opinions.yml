@@ -292,11 +292,6 @@ properties:
       bbs:
         require_ssl: true
       log_level: debug
-      lifecycle_bundles:
-        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     rep:
       bbs:
         require_ssl: true
@@ -321,16 +316,24 @@ properties:
     stager:
       bbs:
         require_ssl: true
-      lifecycle_bundles:
-        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
       log_level: debug
     tps:
       bbs:
         require_ssl: true
       log_level: debug
+  capi:
+    nsync:
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
+    stager:
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
   domain: example.com
   doppler:
     blacklisted_syslog_ranges: null
