@@ -379,8 +379,8 @@ roles:
     exposed-ports:
     - name: 'tcp-routing'
       protocol: TCP
-      source: "6500-7000"
-      target: "6500-7000"
+      source: "1025-65535"
+      target: "1025-65535"
       public: true
   configuration:
     templates:
