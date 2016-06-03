@@ -31,6 +31,11 @@ case ${TARGET} in
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
         ;;
+    ucp-instance|ucp-instance-ha)
+        OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
+        TEMPLATE="ucp/hcf-${TARGET}.json"
+        OPTIONS="${OPTIONS} --provider ucp-instance --instance-definition-template ${TEMPLATE}"
+        ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
         OPTIONS="${OPTIONS} --provider tf:$(echo ${TARGET} | sed -e 's@-spot@@' | tr - :)"

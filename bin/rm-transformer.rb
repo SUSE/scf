@@ -82,11 +82,18 @@ def main
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
       provider = v
     end
+    opts.on('-I', '--instance-definition-template file', 'Template for HCP instance definition') do |v|
+      options[:instance_definition_template] = v
+    end
   end
   op.parse!
 
   if ARGV.length != 1 || provider.nil?
     op.parse!(['--help'])
+    exit 1
+  end
+  if options[:instance_definition_template] != nil && provider != 'ucp-instance'
+    STDERR.puts "Instance definition templates are not supported for provider #{provider}"
     exit 1
   end
 
@@ -106,6 +113,10 @@ def provider_constructor
     'ucp' => lambda {
       require_relative 'rm-transformer/ucp'
       ToUCP
+    },
+    'ucp-instance' => lambda {
+      require_relative 'rm-transformer/ucp-instance'
+      ToUCPInstance
     },
     'tf' => lambda {
       require_relative 'rm-transformer/tf'
