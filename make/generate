@@ -17,12 +17,9 @@ OPTIONS=$(echo \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${GIT_BRANCH}\" \
-    --hcf-version \"${ARTIFACT_VERSION}\"
+    --hcf-version \"${ARTIFACT_VERSION}\" \
+    --env-dir \"${ENV_DIR}\"
 )
-
-if test -n ${ENV_DIR:-''}; then
-    OPTIONS="${OPTIONS} --env \"${ENV_DIR}\""
-fi
 
 TARGET=${1}
 

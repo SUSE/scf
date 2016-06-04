@@ -1,7 +1,7 @@
 ## UCP instance definition output provider
 # # ## ### ##### ########
 
-require_relative 'ucp'
+require_relative 'common'
 
 # Provider to generate UCP instance definitions
 class ToUCPInstance < Common
