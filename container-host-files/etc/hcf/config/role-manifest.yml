@@ -389,17 +389,21 @@ roles:
   jobs:
   - name: consul_agent
     release_name: cf
-  - name: routing-api
-    release_name: routing
   - name: metron_agent
     release_name: cf
+  - name: routing-api
+    release_name: routing
+  - name: tcp_emitter
+    # TCP-emitter can be on a different role, it's just convenient here
+    release_name: routing
   processes:
   - name: consul_agent
-  - name: routing-api
   - name: metron_agent
+  - name: routing-api
+  - name: tcp_emitter
   run:
     scaling:
-      indexed: 1
+      indexed: 0
       min: 1
       max: 65535
     capabilities: []
@@ -413,34 +417,6 @@ roles:
         source: 3000
         target: 3000
         public: false
-  configuration:
-    templates:
-      properties.dns_health_check_host: example.com
-- name: tcp-emitter
-  scripts:
-  - router_internal_host_names.sh
-  jobs:
-  - name: consul_agent
-    release_name: cf
-  - name: tcp_emitter
-    release_name: routing
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: consul_agent
-  - name: tcp_emitter
-  - name: metron_agent
-  run:
-    scaling:
-      indexed: 1
-      min: 1
-      max: 65535
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 2048
-    virtual-cpus: 4
-    exposed-ports: []
   configuration:
     templates:
       properties.dns_health_check_host: example.com
