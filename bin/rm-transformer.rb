@@ -78,15 +78,29 @@ def main
     opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
       env_dir = v
     end
+    opts.on('--no-env-dir', 'Opt out of using *.env files') do
+      env_dir = ''
+    end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
       provider = v
+    end
+    opts.on('-I', '--instance-definition-template file', 'Template for HCP instance definition') do |v|
+      options[:instance_definition_template] = v
     end
   end
   op.parse!
 
   if ARGV.length != 1 || provider.nil?
     op.parse!(['--help'])
+    exit 1
+  end
+  if options[:instance_definition_template] != nil && provider != 'ucp-instance'
+    STDERR.puts "Instance definition templates are not supported for provider #{provider}"
+    exit 1
+  end
+  if env_dir.nil?
+    STDERR.puts "--env-dir not specified; use --no-env-dir if necessary."
     exit 1
   end
 
@@ -106,6 +120,10 @@ def provider_constructor
     'ucp' => lambda {
       require_relative 'rm-transformer/ucp'
       ToUCP
+    },
+    'ucp-instance' => lambda {
+      require_relative 'rm-transformer/ucp-instance'
+      ToUCPInstance
     },
     'tf' => lambda {
       require_relative 'rm-transformer/tf'
@@ -134,9 +152,14 @@ def load_role_manifest(path, env_dir)
     role_manifest = YAML.load_file(path)
   end
 
-  unless env_dir.nil?
+  unless env_dir.empty?
     vars = role_manifest['configuration']['variables']
-    Dir.glob(File.join(env_dir, "*.env")).sort.each do |env_file|
+    env_files = Dir.glob(File.join(env_dir, "*.env")).sort
+    if env_files.empty?
+      STDERR.puts "--env-dir #{env_dir} does not contain any *.env files"
+      exit 1
+    end
+    env_files.each do |env_file|
       File.readlines(env_file).each do |line|
         next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
         name, value = line.strip.split('=', 2)
