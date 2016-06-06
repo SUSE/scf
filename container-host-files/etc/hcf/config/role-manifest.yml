@@ -348,8 +348,6 @@ roles:
   # XXX This might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
   scripts:
-  # XXX check if we need this
-  - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
   jobs:
   - name: haproxy
@@ -387,8 +385,6 @@ roles:
       properties.dns_health_check_host: example.com
 - name: routing-api
   scripts:
-  # XXX check if we need this
-  - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
   jobs:
   - name: consul_agent
@@ -422,8 +418,6 @@ roles:
       properties.dns_health_check_host: example.com
 - name: tcp-emitter
   scripts:
-  # XXX check if we need this
-  - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
   jobs:
   - name: consul_agent
