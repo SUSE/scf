@@ -288,6 +288,18 @@ function get_role_type() {
   echo ${role_manifest_types[${role_name}]}
 }
 
+# Get the docker run arguments of the given role
+# get_role_docker_args <ROLE_NAME>
+function get_role_docker_args() {
+  if [ "${#role_manifest[@]}" == "0" ]; then
+    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
+    exit 1
+  fi
+
+  local role_name="$1"
+  echo "${role_manifest_data}" | jq --raw-output --compact-output ' .roles | map(select(.name=="'${role_name}'")) | .[0].run."docker-args" // "" '
+}
+
 # Return all roles that are of the given type
 # list_roles_by_type <ROLE_TYPE>
 function list_roles_by_type() {
