@@ -906,6 +906,7 @@ roles:
   scripts:
   - fake_spec_index_on_ucp.sh
   - prevent_apparmor_disable.sh
+  - configure-nested-net.sh
   post_config_scripts:
   - diego-cell-pre-start.sh
   jobs:

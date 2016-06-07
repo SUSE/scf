@@ -357,7 +357,9 @@ class ToUCP < Common
       'secret'      => vsecret,
       'default'     => nil
     }
-    param['default'] = var['default'].to_s unless var['default'].nil?
+
+    param['default'] = var['default'].to_s unless var['default'].nil? || var['secret']
+
     param
   end
 
