@@ -360,10 +360,6 @@ class ToUCP < Common
 
     param['default'] = var['default'].to_s unless var['default'].nil? || var['secret']
 
-    if var['secret'] && !var['default'].nil?
-      secret_param = { 'name' => vname, 'value' => var['default'] }
-    end
-
     param
   end
 
