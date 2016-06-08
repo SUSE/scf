@@ -7,7 +7,7 @@ tools_dir="${tools_dir:-/home/vagrant/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
 configgin_url="${configgin_url:-https://github.com/hpcloud/configgin/releases/download/1.0.0/configgin-1.0.0.0.g9194c65.develop-linux-amd64.tgz}"
 fissile_url="${fissile_url:-https://s3.amazonaws.com/helion-developers/marky/hcf/fissile-1.0.0.3.gd82ce13.master-linux.amd64.tgz}"
-cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.14.0&source=github-rel}"
+cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.18.1&source=github-rel}"
 
 mkdir -p $bin_dir
 mkdir -p $tools_dir
