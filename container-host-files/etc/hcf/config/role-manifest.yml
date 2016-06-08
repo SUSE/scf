@@ -1126,11 +1126,16 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
+  scripts:
+  - fake_spec_index_on_ucp.sh
   jobs:
-  - name: sso-routing
+  - name: hcf-sso
     release_name: hcf-sso
+  - name: metron_agent
+    release_name: cf
   processes:
   - name: hcf-sso
+  - name: metron_agent
   run:
     scaling:
       indexed: 1
@@ -1286,15 +1291,9 @@ configuration:
   - name: DOPPLER_ZONE
     default: z1
     type-hint: "string"
-  - name: HCF_SSO_PASSWORD
-    secret: true
-    type-hint: "password,random"
   - name: HCF_SSO_PORT
     default: '3000'
     type-hint: "integer,port"
-  - name: HCF_SSO_USER
-    default: hcf_sso_user
-    type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     type-hint: "password,random"
@@ -1480,6 +1479,9 @@ configuration:
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
     type-hint: "string"
+  - name: ROUTER_SERVICES_SECRET
+    secret: true
+    type-hint: "password,random"
   - name: ROUTER_SSL_CERT
     secret: true
     type-hint: "string,certificate"
@@ -1741,13 +1743,14 @@ configuration:
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.hcf_sso.port: '"((HCF_SSO_PORT))"'
-    properties.hcf_sso.management.admin.user: '"((HCF_SSO_USER))"'
-    properties.hcf_sso.management.admin.password: '"((HCF_SSO_PASSWORD))"'
+    properties.hcf_sso.management.admin.user: '"((CLUSTER_ADMIN_USERNAME))"'
+    properties.hcf_sso.management.admin.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
+    properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
