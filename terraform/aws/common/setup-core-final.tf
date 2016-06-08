@@ -31,13 +31,14 @@ resource "null_resource" "core_setup_final" {
             "echo '${null_resource.rm_configuration.triggers.rm_configuration}' > ${var.fs_host_root}/opt/hcf/etc/dev-settings.env",
 
             "echo ___ Redirect logs and store ______________________",    
-	    "export    HCF_RUN_STORE=${var.runtime_store_directory}",
-	    "mkdir -p $HCF_RUN_STORE",
-	    "export    HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}",
-	    "mkdir -p $HCF_RUN_LOG_DIRECTORY",
+            "export    HCF_RUN_STORE=${var.runtime_store_directory}",
+            "mkdir -p $HCF_RUN_STORE",
+            "export    HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}",
+            "mkdir -p $HCF_RUN_LOG_DIRECTORY",
 
-	    # Save redirection into the bash setup for interactive users.
-	    "env|grep HCF_RUN_|sed -e '/^/export /' >> .bashrc",
+            # Save redirection into the bash setup for interactive users.
+            "echo \"export HCF_RUN_STORE=${var.runtime_store_directory}\" >> $HOME/.bashrc",
+            "echo \"export HCF_RUN_LOG_DIRECTORY=${var.runtime_log_directory}\" >> $HOME/.bashrc",
 
             # (25) Run the jobs
             "echo ___ Start the jobs ______________________",
