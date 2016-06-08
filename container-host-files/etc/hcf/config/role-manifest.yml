@@ -213,7 +213,7 @@ roles:
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -315,7 +315,7 @@ roles:
         public: true
 - name: router
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -589,7 +589,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -682,7 +682,7 @@ roles:
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -753,7 +753,7 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: stager
     release_name: cf
@@ -864,7 +864,7 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -1514,25 +1514,20 @@ configuration:
     type-hint: "string"
   templates:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
-<<<<<<< HEAD
-    networks.default.dns_record_name: '"((#UCP_COMPONENT_NAME))((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
-=======
-    networks.default.ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
->>>>>>> HCF-670 - change all instances of "ucp" to "hcp", preserving case.
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
-    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
-    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.blobstore.tls.port: 443
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.capi.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
     properties.capi.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
@@ -1616,7 +1611,7 @@ configuration:
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.consul.agent.domain: '"hcf"'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
@@ -1647,6 +1642,9 @@ configuration:
     properties.diego.converger.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -1668,6 +1666,13 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
+    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.doppler.tweak_locked_memory: false
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
@@ -1713,7 +1718,9 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
+    properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
+    properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.batch.password: '"((UAA_BATCH_PASSWORD))"'
@@ -1721,7 +1728,6 @@ configuration:
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
-    properties.uaa.clients.cc_routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
@@ -1740,85 +1746,6 @@ configuration:
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
-<<<<<<< HEAD
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-=======
-    properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
-    # Diego certificates
-    properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
-    properties.etcd.peer_ca_cert: '"((ETCD_PEER_CA_CRT))"'
-    properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
-    properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
-    properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.etcd.ca_cert: '"((ETCD_CA_CRT))"'
-    properties.diego.bbs.etcd.ca_cert: '"((ETCD_CA_CRT))"'
-    properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
-    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.ssh_proxy.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.route_emitter.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.rep.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.converger.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    # The "host key" mentioned here is actually an RSA private key file, with no passphrase
-    properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
-    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
-    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
-    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
-    properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
-    properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
-    properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
-    properties.smoke_tests.api: '"api.((DOMAIN))"'
-    properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
-    properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
-    properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.hcf_set_proxy.api_proxy: '"((HTTPS_PROXY))"'
-    properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
-    properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
-    properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
-    properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
-    properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
-    # These settings must remain in the role manifest until they're available
-    # in the upstream specs; even though they're also defined in the opinions file
-    properties.doppler.tweak_locked_memory: false
-    properties.traffic_controller.tweak_locked_memory: false
-    properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
-    properties.blobstore.port: 80
-    properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
-    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
-    properties.blobstore.tls.port: 443
-    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
-    properties.garden.http_proxy: '"((HTTP_PROXY))"'
-    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
-    properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
-    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
->>>>>>> HCF-670 - change all instances of "ucp" to "hcp", preserving case.
