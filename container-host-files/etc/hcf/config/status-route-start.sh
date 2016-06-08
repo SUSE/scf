@@ -6,5 +6,11 @@
 
 wget https://github.com/yudai/gotty/releases/download/v0.0.13/gotty_linux_amd64.tar.gz -O - | tar -xzC /usr/bin
 
-# This script has to exit to let the container proceed, so gotty must be run in the background
-nohup gotty --port 9050 watch --color /container-host-files/opt/hcf/bin/hcf-status &
+# Monitor the gotty process (It won't show up in hcf-status, but it'll still restart on crash)
+cat <<EOF > /var/vcap/monit/gotty.monitrc
+check process gotty
+  matching "/usr/bin/gotty"
+  start program "/usr/bin/nohup /usr/bin/gotty --port 9050 watch --color /container-host-files/opt/hcf/bin/hcf-status"
+  stop program "/usr/bin/killall /usr/bin/gotty"
+  group vcap/var/run
+EOF
