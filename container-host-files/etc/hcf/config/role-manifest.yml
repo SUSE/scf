@@ -2,7 +2,7 @@
 roles:
 - name: nats
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: nats
     release_name: cf
@@ -37,7 +37,7 @@ roles:
         public: false
 - name: consul
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -100,7 +100,7 @@ roles:
       properties.consul.agent.mode: '"server"'
 - name: mysql
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   - fix_mysql_advertise_ip.sh
   jobs:
   - name: mysql
@@ -158,7 +158,7 @@ roles:
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   - fix_mysql_proxy_host_list.sh
   jobs:
   - name: proxy
@@ -213,7 +213,7 @@ roles:
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: etcd
     release_name: etcd
@@ -274,7 +274,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -315,7 +315,7 @@ roles:
         public: true
 - name: router
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: gorouter
     release_name: cf
@@ -345,7 +345,7 @@ roles:
         public: false
 - name: uaa
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -381,7 +381,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  # Do not apply fake_spec_index_on_ucp.sh here because we need an index 0
+  # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
   # to run migrations from
   - perform_nfs_test.sh
   jobs:
@@ -453,7 +453,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -481,7 +481,7 @@ roles:
     exposed-ports: []
 - name: blobstore
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: blobstore
     release_name: cf
@@ -523,7 +523,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -548,7 +548,7 @@ roles:
     exposed-ports: []
 - name: cf-usb
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -589,7 +589,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -682,7 +682,7 @@ roles:
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -720,7 +720,7 @@ roles:
         public: false
 - name: diego-brain
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -753,7 +753,7 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: stager
     release_name: cf
@@ -839,7 +839,7 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -864,7 +864,7 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -904,7 +904,7 @@ roles:
         public: false
 - name: diego-cell
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   - prevent_apparmor_disable.sh
   - configure-nested-net.sh
   post_config_scripts:
@@ -1008,6 +1008,7 @@ roles:
       indexed: 1
       min: 0
       max: 1
+    flight-stage: manual
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1514,7 +1515,7 @@ configuration:
     type-hint: "string"
   templates:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
-    networks.default.dns_record_name: '"((#UCP_COMPONENT_NAME))((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
@@ -1522,12 +1523,12 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
-    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
-    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.blobstore.tls.port: 443
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.capi.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
     properties.capi.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
@@ -1611,7 +1612,7 @@ configuration:
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf_mysql.mysql.advertise_host: '((#UCP_COMPONENT_NAME))"((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))"((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))nil((/UCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.consul.agent.domain: '"hcf"'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
@@ -1642,6 +1643,9 @@ configuration:
     properties.diego.converger.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.rep.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -1663,6 +1667,13 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
+    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.doppler.tweak_locked_memory: false
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
@@ -1708,7 +1719,9 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
+    properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
+    properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.batch.password: '"((UAA_BATCH_PASSWORD))"'
@@ -1716,7 +1729,6 @@ configuration:
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
-    properties.uaa.clients.cc_routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"

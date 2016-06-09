@@ -11,7 +11,7 @@ RUN chmod +x /usr/bin/veritas
 
 RUN veritas completions >> /root/.bashrc
 
-# Use UCP secrets if they exist
+# Use HCP secrets if they exist
 RUN echo 'if [ -r /etc/secrets/bbs-client-crt ]; then \
             cat /etc/secrets/bbs-client-crt > /root/bbs.crt; \
           else \

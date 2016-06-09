@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ## ### ##### ########
 # Tool to convert role-manifest.yml into various other forms
-# - UCP definitions
+# - HCP definitions
 # - (MPC) Terraform definitions
 # ... more
 
@@ -15,8 +15,8 @@ def main
   ##
   # --manual          ~ Include manually started roles in the output
   # --provider <name> ~ Choose the output format.
-  #                     Known: ucp, tf
-  #                     Default: ucp
+  #                     Known: hcp, tf
+  #                     Default: hcp
   # --dtr             ~ Location of trusted docker registry
   #                     (Default: empty)
   # --dtr-org         ~ Org to use for images stored to the DTR
@@ -32,7 +32,7 @@ def main
   ##
   # The generated definitions are written to stdout
 
-  provider = 'ucp'
+  provider = 'hcp'
   options = {
     dtr:         'docker.helion.lol',
     dtr_org:     'helioncf',
@@ -44,10 +44,10 @@ def main
   env_dir = nil
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider ucp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
-    then transform according to the chosen provider (Default: ucp)
+    then transform according to the chosen provider (Default: hcp)
     The result is written to stdout.
 
 '
@@ -117,9 +117,9 @@ end
 
 def provider_constructor
   ({
-    'ucp' => lambda {
-      require_relative 'rm-transformer/ucp'
-      ToUCP
+    'hcp' => lambda {
+      require_relative 'rm-transformer/hcp'
+      ToHCP
     },
     'ucp-instance' => lambda {
       require_relative 'rm-transformer/ucp-instance'

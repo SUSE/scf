@@ -5,7 +5,7 @@ set -e
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
 # 1. Copy hcf-status over to the node
-echo "Copying hcf tools to UCP dev harness node ..."
+echo "Copying hcf tools to HCP dev harness node ..."
 sshpass -p "vagrant" ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@192.168.200.3 'bash -c "mkdir -p ~/hcf/"'
 sshpass -p "vagrant" scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -prq ${ROOT}/container-host-files/* vagrant@192.168.200.3:~/hcf/
 
