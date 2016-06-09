@@ -1125,6 +1125,24 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
+- name: sso-create-service
+  type: bosh-task
+  jobs:
+  - name: sso-create-service
+    release_name: hcf-deployment-hooks
+  processes: []
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    flight-stage: post-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
 - name: hcf-sso
   scripts:
   - fake_spec_index_on_ucp.sh
@@ -1291,9 +1309,15 @@ configuration:
   - name: DOPPLER_ZONE
     default: z1
     type-hint: "string"
+  - name: HCF_SSO_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: HCF_SSO_PORT
     default: '3000'
     type-hint: "integer,port"
+  - name: HCF_SSO_USERNAME
+    default: username
+    type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     type-hint: "password,random"
@@ -1549,6 +1573,12 @@ configuration:
   - name: NO_PROXY
     default: "127.0.0.1"
     type-hint: "string"
+  - name: SSO_ROUTE_CERT
+    secret: true
+    type-hint: "string,certificate"
+  - name: SSO_ROUTE_KEY
+    secret: true
+    type-hint: "string,certificate"
   templates:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
@@ -1742,9 +1772,13 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.port: '"((HCF_SSO_PORT))"'
-    properties.hcf_sso.management.admin.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.hcf_sso.management.admin.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.hcf_sso.management.admin.user: '"((CLUSTER_ADMIN_USERNAME))"'
+    properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
+    properties.hcf_sso.port: '"((HCF_SSO_PORT))"'
+    properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
+    properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
+    properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'

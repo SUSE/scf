@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+
+#TODO: check for ssl validation property
+
+<% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
+for i in {1..10}; do cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %> && break || sleep 30; done
+<% 
+username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
+%>
+cf auth <%= username.shellescape %> <%= password.shellescape %>
+
+echo "Waiting for SSO Routing service broker..."
+while ! curl --fail --silent --insecure https://hcf-sso.hcf:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1; do
+    sleep 10
+done
+
+echo "Registering SSO Routing service broker..."
+
+# Check if the broker is known already or not. Depending on the
+# result simply update the existing broker, or create a new one.
+action=create
+if cf service-brokers 2>/dev/null | grep --quiet sso-routing ; then
+    action=update
+fi
+cf ${action}-service-broker sso-routing \
+    <%= p("hcf_sso.username") %> \
+    <%= p("hcf_sso.password") %> \
+    https://hcf-sso.hcf:<%= p("hcf_sso.port") %>
+
+# Make the broker available to all orgs and their spaces
+cf enable-service-access sso-routing
+
+echo "Registration of SSO Routing complete."

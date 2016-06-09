@@ -1,0 +1,10 @@
+---
+name: sso-create-service
+
+description: sso-create-service will create a route service instance
+
+packages:
+  - cli
+
+templates:
+  run.erb: bin/run
