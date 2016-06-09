@@ -243,7 +243,7 @@ resource "openstack_compute_instance_v2" "hcf-core-host" {
 	    "bash -e ${var.fs_host_root}/opt/hcf/bin/docker/install_docker.sh ubuntu",
 
 	    "echo ___ Configuring docker __________________",
-	    "sudo bash -e ${var.fs_host_root}/opt/hcf/bin/docker/configure_docker.sh ${var.core_volume_device_mapper} 64 4",
+	    "sudo bash -e ${var.fs_host_root}/opt/hcf/bin/docker/configure_docker.sh ${var.core_volume_device_mapper} ${var.core_volume_size_mapper}",
         ]
     }
 
