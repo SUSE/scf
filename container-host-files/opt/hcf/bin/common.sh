@@ -140,14 +140,20 @@ function setup_role() {
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
-  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
+  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag:/container/path/2
   local persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add shared volumes
   # If there are any shared volumes defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
-  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
+  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag:/container/path/2
   local shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
+
+  # Add docker volumes
+  # If there are any docker volumes defined, this creates a string that resembles the
+  # line below. It returns an empty string otherwise.
+  # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
+  local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."docker-volumes"[]? | if length > 0 then "-v " + ([.host + ":" + .container] | join(" -v ")) else "" end')
 
   # Add anything not found in roles-manifest.yml
   local extra=""
@@ -158,7 +164,7 @@ function setup_role() {
 	  ;;
   esac
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${extra}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${extra}"
 }
 
 # gets the role name from a docker image name
@@ -286,18 +292,6 @@ function get_role_type() {
 
   local role_name="$1"
   echo ${role_manifest_types[${role_name}]}
-}
-
-# Get the docker run arguments of the given role
-# get_role_docker_args <ROLE_NAME>
-function get_role_docker_args() {
-  if [ "${#role_manifest[@]}" == "0" ]; then
-    printf "%s" "No role manifest loaded. Forgot to call load_all_roles?" 1>&2
-    exit 1
-  fi
-
-  local role_name="$1"
-  echo "${role_manifest_data}" | jq --raw-output --compact-output ' .roles | map(select(.name=="'${role_name}'")) | .[0].run."docker-args" // "" '
 }
 
 # Return all roles that are of the given type

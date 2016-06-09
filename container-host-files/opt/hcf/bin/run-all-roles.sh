@@ -23,8 +23,7 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
     fi
-    dockerargs=$(get_role_docker_args $role)
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role" "$dockerargs"
+    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
 
 # Start flight roles
@@ -35,8 +34,7 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
     fi
-    dockerargs=$(get_role_docker_args $role)
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role" "$dockerargs"
+    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
 
 # Start post-flight roles
@@ -47,6 +45,5 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
     fi
-    dockerargs=$(get_role_docker_args $role)
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role" "$dockerargs"
+    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
