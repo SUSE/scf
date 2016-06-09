@@ -5,7 +5,16 @@ export FISSILE_REPOSITORY=fissile
 
 # This is a comma separated list of paths to the local repositories
 # of all the releases that make up HCF
-export FISSILE_RELEASE="${ROOT}/src/cf-release,${ROOT}/src/cf-usb/cf-usb-release,${ROOT}/src/diego-release,${ROOT}/src/etcd-release,${ROOT}/src/garden-linux-release,${ROOT}/src/cf-mysql-release,${ROOT}/src/cflinuxfs2-rootfs-release,${ROOT}/src/hcf-release,${ROOT}/src/windows-runtime-release"
+FISSILE_RELEASE="${ROOT}/src/cf-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cf-usb/cf-usb-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/diego-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/etcd-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/garden-linux-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cf-mysql-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cflinuxfs2-rootfs-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-release"
+FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/windows-runtime-release"
+export FISSILE_RELEASE
 
 # This is a comma separated list of dev release names
 # Ordering of the names needs to match the list in FISSILE_DEV_RELEASE
