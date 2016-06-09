@@ -936,6 +936,130 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
+
+- name: autoscaler-api
+  type: bosh
+  jobs:
+  - name: autoscaler_api
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_api'
+        protocol: 'TCP'
+        source: 28861
+        target: 28861
+        public: true
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.tomcat.http.autoscaler_api.port: ((AUTOSCALER_API_PORT))
+
+- name: autoscaler-server
+  type: bosh
+  jobs:
+  - name: autoscaler_server
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_server'
+        protocol: 'TCP'
+        source: 28862
+        target: 28862
+        public: true
+  configuration:
+    templates:
+      properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
+      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
+      # properties.route_registrar.routes: '[{"name":"autoscaler-server", "port":28862, "uris":["autoscaler-server.((DOMAIN))"], "registration_interval":"10s"}]'
+
+- name: autoscaler-servicebroker
+  type: bosh
+  jobs:
+  - name: autoscaler_servicebroker
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_servicebroker'
+        protocol: 'TCP'
+        source: 28863
+        target: 28863
+        public: true
+  configuration:
+    templates:
+      properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
+      properties.tomcat.http.autoscaler_api.port: ((AUTOSCALER_API_PORT))
+      properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
+      properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
+      properties.tomcat.http.autoscaler_servicebroker.port: ((AUTOSCALER_SERVICEBROKER_PORT))
+      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
+      properties.couchdb.dbname: '"couchdb-scalingbroker"'
+      properties.route_registrar.routes: '[{"name":"autoscaler-servicebroker", "port":28863, "uris":["autoscaler-servicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
+
+- name: couchdb
+  type: bosh
+  jobs:
+  - name: couchdb
+    release_name: cf-open-autoscaler
+  processes:
+  - name: couchdb
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'couchdb'
+        protocol: 'TCP'
+        source: 5984
+        target: 5984
+        public: true
+  configuration:
+    templates:
+      properties.couchdb.username: '"((COUCHDB_USER))"'
+      properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+
 - name: acceptance-tests
   type: bosh-task
   jobs:
@@ -1144,6 +1268,18 @@ configuration:
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     type-hint: "password,random"
+  - name: COUCHDB_HOST
+    default: "couchdb"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_API_HOST
+    default: "autoscaler-api"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVER_HOST
+    default: "autoscaler-server"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVICE_BROKER_HOST
+    default: "autoscaler-servicebroker"
+    type-hint: "string,hostname"
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
     type-hint: "string,hostname"
@@ -1339,9 +1475,6 @@ configuration:
   - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
     secret: true
     type-hint: "password,random"
-  - name: UAA_CLIENTS_CC_ROUTING_SECRET
-    secret: true
-    type-hint: "password,random"
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
     type-hint: "password,random"
@@ -1387,6 +1520,9 @@ configuration:
   - name: ALLOWED_SERVICES_SUBNET
     default: 10.254.0.0/16
     type-hint: "subnet"
+  - name: OPEN_AUTOSCALER_HOST
+    default: "open-autoscaler"
+    type-hint: "string,hostname"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -1478,6 +1614,12 @@ configuration:
   - name: CONSUL_SERVER_KEY
     secret: true
     type-hint: "string,certificate"
+  - name: COUCHDB_USER
+    default: admin
+    type-hint: "string"
+  - name: COUCHDB_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: DEVSVC_MONGODB_ADMIN_PASSWORD
     secret: true
     type-hint: "password,random"
@@ -1516,6 +1658,7 @@ configuration:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#UCP_COMPONENT_NAME))((UCP_COMPONENT_NAME))((UCP_HOSTNAME_SUFFIX))((/UCP_COMPONENT_NAME))((^UCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/UCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
@@ -1525,7 +1668,6 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
-    properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
@@ -1659,6 +1801,7 @@ configuration:
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
+    # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
@@ -1674,7 +1817,6 @@ configuration:
     properties.etcd.peer_ca_cert: '"((ETCD_PEER_CA_CRT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
@@ -1715,9 +1857,9 @@ configuration:
     properties.uaa.batch.username: '"((UAA_BATCH_USERNAME))"'
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
+    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
@@ -1738,3 +1880,20 @@ configuration:
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
+    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.traffic_controller.tweak_locked_memory: false
+    properties.syslog_drain_binder.tweak_locked_memory: false
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.couchdb.username: '"((COUCH_USER))"'
+    properties.couchdb.password: '"((COUCH_PASSWORD))"'
+    properties.couchdb.host: '"((COUCH_HOST))"'
+    properties.couchdb.port: 5984
+    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
+    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
