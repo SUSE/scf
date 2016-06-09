@@ -42,6 +42,7 @@ hcf_certs_path="$certs_path/hcf"
 bbs_certs_dir="${certs_path}/diego/bbs"
 etcd_certs_dir="${certs_path}/diego/etcd"
 consul_path="${certs_path}/consul"
+sso_routing_path="${certs_path}/sso_routing"
 output_path="$(readlink --canonicalize-missing "${output_path}")"
 
 # prepare directories
@@ -72,6 +73,13 @@ certstrap --depot-path "${bbs_certs_dir}"  sign bbsServer  --CA bbsCA  --passphr
 certstrap --depot-path "${bbs_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
 certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA bbsCA  --passphrase $signing_key_passphrase
 
+
+# generate SSO routing certs
+mkdir -p ${sso_routing_path}
+openssl genrsa -out ${sso_routing_path}/sso_routing.rsa 4096
+openssl req -new -key ${sso_routing_path}/sso_routing.rsa -out ${sso_routing_path}/sso_routing.csr -sha512 -subj "/CN=hcf-sso.hcf/C=US"
+openssl x509 -req -in ${sso_routing_path}/sso_routing.csr -signkey ${sso_routing_path}/sso_routing.rsa -out ${sso_routing_path}/sso_routing.crt
+cat ${sso_routing_path}/sso_routing.crt ${sso_routing_path}/sso_routing.rsa > ${sso_routing_path}/sso_routing.key
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${etcd_certs_dir}"  init --common-name "etcdCA" --passphrase $signing_key_passphrase
@@ -163,6 +171,8 @@ CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.crt")
 CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.key")
 CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.crt")
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.key")
+SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/sso_routing.crt")
+SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/sso_routing.key")
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
@@ -196,6 +206,8 @@ CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
 CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
 CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
+SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
+SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 ENVS
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"
