@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-if [[ "$1" == "--profile" ]] ; then
+if [ "$1" = "--profile" ] ; then
   AUTOSCALER_PROFILE=$2
   shift 2
 else
@@ -19,7 +19,7 @@ for x in api server servicebroker ; do
   if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
     echo Not rebuilding $x
   else
-    docker run -tty --rm \
+    docker run --tty --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
        --entrypoint bash \
