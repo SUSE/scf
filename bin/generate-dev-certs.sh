@@ -56,7 +56,7 @@ cd $hcf_certs_path
 
 openssl genrsa -out hcf.key 4096
 openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
-openssl x509 -req -in hcf.csr -signkey hcf.key -out hcf.crt
+openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 cat hcf.crt hcf.key > hcf.pem
 
 # generate JWT certs
