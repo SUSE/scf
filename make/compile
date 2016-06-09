@@ -26,6 +26,10 @@ cache() {
             echo "Found:   ${archive}"
             continue
         }
+        test -d "${FISSILE_WORK_DIR}/compilation/${package_version}/compiled" || {
+            echo "Missing: ${package_version}/compiled"
+            continue
+        }
         mkdir -p "$(dirname "${archive}")"
         echo "Creating ${archive}"
         tar cf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_version}/" compiled
