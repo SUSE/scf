@@ -1,7 +1,7 @@
 ---
 name: sso-create-service
 
-description: sso-create-service will create a route service instance
+description: This job will create an instance of route service hcf-sso.
 
 packages:
   - cli
