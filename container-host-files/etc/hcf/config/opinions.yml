@@ -441,7 +441,7 @@ properties:
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
-    ssl_skip_validation: null
+    ssl_skip_validation: true
     skip_oauth_tls_verification: null
     status:
       password: router_password
