@@ -1677,7 +1677,8 @@ configuration:
     properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    
+    properties.domain: '"((DOMAIN))"'    
+
     # These settings must remain in the role manifest until they're available
     # in the upstream specs; even though they're also defined in the opinions file
     properties.doppler.tweak_locked_memory: false
@@ -1759,4 +1760,3 @@ configuration:
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    properties.domain: '"((DOMAIN))"'
