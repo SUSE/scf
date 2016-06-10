@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -o errexit
+
+git-notary pull
+git-notary push

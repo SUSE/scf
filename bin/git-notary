@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GIT_NOTARY_VERSION=2.1.3
+GIT_NOTARY_VERSION=2.3.1
 GIT_NOTARY_NAMESPACE=${GIT_NOTARY_NAMESPACE:-'versioning'}
 
 # notes [branch] [base] [namespace]
@@ -119,10 +119,25 @@ tags() {
 
 # fetch [remote] [namespace]
 fetch() {
+    FORCE=""
+    if test "${1:-}" = "--force"; then
+        shift
+        FORCE="+"
+    fi
     REMOTE=${1:-'origin'}
     NAMESPACE=${2:-${GIT_NOTARY_NAMESPACE}}
 
-    git fetch ${REMOTE} refs/notes/${NAMESPACE}:refs/notes/${NAMESPACE}
+    git fetch ${REMOTE} ${FORCE}refs/notes/${NAMESPACE}:refs/notes/${NAMESPACE}
+}
+
+# pull [remote] [namespace] [strategy]
+pull() {
+    REMOTE=${1:-'origin'}
+    NAMESPACE=${2:-${GIT_NOTARY_NAMESPACE}}
+    STRATEGY=${3:-'theirs'}
+
+    git fetch ${REMOTE} refs/notes/${NAMESPACE}
+    env GIT_NOTES_REF=refs/notes/${NAMESPACE} git notes merge -s ${STRATEGY} FETCH_HEAD
 }
 
 # push [remote] [namespace]
@@ -225,6 +240,8 @@ notary() {
             push ${@};;
         f|fetch)
             fetch ${@};;
+        fm|fetch-merge|pull)
+            pull ${@};;
         M|major)
             new MAJOR ${@};;
         m|minor)
@@ -242,4 +259,4 @@ notary() {
     esac
 }
 
-notary ${@}
+notary "${@:-}"

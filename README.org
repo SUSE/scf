@@ -70,7 +70,14 @@ number of active branches increases.
 
 * Installation
 
+** Install via RubyGems
+
+~gem install --no-wrapper git-notary~
+
+** Manual Installation
+
 Download the latest release of ~git-notary~ and place it somewhere in your ~$PATH~.
+
 #+LATEX: \pagebreak
 
 * Usage
@@ -93,6 +100,12 @@ Where <version> is one of (major, minor, patch).
 
 #+BEGIN_SRC shell
   git-notary fetch [remote] [namespace]
+#+END_SRC
+
+** Fetch and merge versioning notes
+
+#+BEGIN_SRC shell
+  git-notary pull [remote] [namespace] [merge-strategy]
 #+END_SRC
 
 ** Push versioning notes
