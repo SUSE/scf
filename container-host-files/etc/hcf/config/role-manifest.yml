@@ -1145,7 +1145,7 @@ roles:
     exposed-ports: []
 - name: hcf-sso
   scripts:
-  - fake_spec_index_on_ucp.sh
+  - fake_spec_index_on_hcp.sh
   jobs:
   - name: hcf-sso
     release_name: hcf-sso
