@@ -1388,6 +1388,9 @@ configuration:
   - name: ALLOWED_SERVICES_SUBNET
     default: 10.254.0.0/16
     type-hint: "subnet"
+  - name: DIEGO_CELL_SUBNET
+    default: 10.38.0.0/16
+    type-hint: "subnet"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -1663,6 +1666,7 @@ configuration:
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
+    # The "host key" mentioned here is actually an RSA private key file, with no passphrase
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
@@ -1673,9 +1677,14 @@ configuration:
     properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.domain: '"((DOMAIN))"'    
+
+    # These settings must remain in the role manifest until they're available
+    # in the upstream specs; even though they're also defined in the opinions file
     properties.doppler.tweak_locked_memory: false
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
+    
     properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
     properties.etcd.ca_cert: '"((ETCD_CA_CRT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
@@ -1694,6 +1703,7 @@ configuration:
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'

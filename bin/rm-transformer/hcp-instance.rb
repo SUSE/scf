@@ -1,13 +1,13 @@
-## UCP instance definition output provider
+## HCP instance definition output provider
 # # ## ### ##### ########
 
 require_relative 'common'
 
-# Provider to generate UCP instance definitions
-class ToUCPInstance < Common
+# Provider to generate HCP instance definitions
+class ToHCPInstance < Common
   def initialize(options)
     super(options)
-    # In UCP the version number becomes a kubernetes label, which puts
+    # In HCP the version number becomes a kubernetes label, which puts
     # some restrictions on the set of allowed characters and its
     # length.
     @hcf_version.gsub!(/[^a-zA-Z0-9._-]/, '_')
@@ -16,10 +16,10 @@ class ToUCPInstance < Common
 
   # Public API
   def transform(manifest)
-    JSON.pretty_generate(to_ucp_instance(manifest))
+    JSON.pretty_generate(to_hcp_instance(manifest))
   end
 
-  def to_ucp_instance(manifest)
+  def to_hcp_instance(manifest)
     definition = load_template
     variables = (manifest['configuration'] || {})['variables']
     definition['parameters'] = collect_parameters(variables)

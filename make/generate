@@ -28,10 +28,10 @@ case ${TARGET} in
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
         ;;
-    ucp-instance|ucp-instance-ha)
+    hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
-        TEMPLATE="ucp/hcf-${TARGET}.json"
-        OPTIONS="${OPTIONS} --provider ucp-instance --instance-definition-template ${TEMPLATE}"
+        TEMPLATE="hcp/hcf-${TARGET}.json"
+        OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}

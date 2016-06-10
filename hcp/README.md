@@ -83,19 +83,15 @@ that sets this value.
 Back inside the HCF vagrant box run:
 
 ```bash
-make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=`pwd`/bin/settings-hcp
+make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
 ```
 
 This generates the `hcf-hcp.json` file containing the HCP service definition for
-the current set of roles. 
+the current set of roles.
 
 #### Interim notes until the role-manifest transformer catches up:
 
 When targetting versions of HCP >= 1.1.22 ensure that the secret parameters do not have a default value.  If you're running an older version of rmtransformer this line will fix that:
-
-```bash
-perl -00 -ibak -pe 's/("secret":\s*true)(?:,\s*"default":\s*".*?")/\1/g' hcf-hcp.json
-```
 
 ### Register the service with HCP:
 
@@ -106,8 +102,13 @@ curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.js
 
 ### Generate an instance definition (#1) ###
 
-You can use the `~/hcf/hcp/hcf-hcp-instance.json` sample configuration to create
-an instance of the newly registered service:
+```bash
+make hcp-instance IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
+# or
+make hcp-instance-ha IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp/ha
+```
+
+Or instead of running `make hcp-instance`, you can use the `~/hcf/hcp/hcf-hcp-instance.json` sample configuration to create an instance of the newly registered service:
 
 ```json
 {
@@ -128,7 +129,7 @@ talking to HCP about it.
 To instantiate the service, post the instance definition to HCP:
 
 ```bash
-curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcp/hcf-hcp-instance.json http://192.168.200.3:$PORT/v1/instances
+curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp-instance.json http://192.168.200.3:$PORT/v1/instances
 ```
 
 where `$PORT` is set above.
@@ -199,5 +200,5 @@ cf create-org hpe
 cf target -o hpe
 cf create-space myspace
 cf target -o hpe -s myspace
-cf push
+cf push node-env
 ```
