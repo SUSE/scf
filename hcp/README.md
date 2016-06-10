@@ -105,7 +105,7 @@ curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.js
 ```bash
 make hcp-instance IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
 # or
-make hcp-instance-ha IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
+make hcp-instance-ha IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp/ha
 ```
 
 Or instead of running `make hcp-instance`, you can use the `~/hcf/hcp/hcf-hcp-instance.json` sample configuration to create an instance of the newly registered service:
