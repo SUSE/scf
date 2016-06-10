@@ -26,6 +26,11 @@ DEVICE_MAPPER_PADDING=$(python3 -c "print(int(min(4, ${DEVICE_MAPPER_SIZE} * 0.0
 DEVICE_MAPPER_METADATA_SIZE=$(python3 -c "print(int(min(8, ${DEVICE_MAPPER_SIZE} * 0.06)))")
 DEVICE_MAPPER_DATA_SIZE=$(python3 -c "print(${DEVICE_MAPPER_SIZE}-${DEVICE_MAPPER_PADDING}-${DEVICE_MAPPER_METADATA_SIZE})")
 
+echo "Device Mapper Sizes"
+echo "Padding:  ${DEVICE_MAPPER_PADDING}"
+echo "Metadata: ${DEVICE_MAPPER_METADATA_SIZE}"
+echo "Data:     ${DEVICE_MAPPER_DATA_SIZE}"
+
 # Setup devicemapper via logical volume management
 
 service docker stop
