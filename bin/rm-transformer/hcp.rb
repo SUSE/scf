@@ -323,7 +323,11 @@ class ToHCP < Common
           STDERR.puts "Warning: too many ports to forward in #{port['name']}, limiting to #{MAX_PORT_RANGE}"
         end
         (first..last).each do |port_number|
-          cports.push(convert_port(port.merge('source' => port_number, 'target' => port_number)))
+          cports.push(convert_port(port.merge(
+            'source' => port_number,
+            'target' => port_number,
+            'name'   => "#{port['name']}-#{port_number}"
+          )))
         end
       else
         cports.push(convert_port(port))

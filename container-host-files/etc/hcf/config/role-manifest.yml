@@ -1358,6 +1358,9 @@ configuration:
   - name: ROUTER_HOST
     default: "router"
     type-hint: "string,hostname"
+  - name: ROUTING_API_HOST
+    default: routing-api
+    type-hint: string,hostname
   - name: LOGGREGATOR_HOST
     default: "loggregator"
     type-hint: "string,hostname"
