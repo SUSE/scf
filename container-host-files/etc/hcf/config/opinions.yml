@@ -536,6 +536,9 @@ properties:
         scope: openid,cloud_controller_service_permissions.read
         secret: gorouter_secret
       hcf-sso:
+        access_token_validity: 3600
+        authorized-grant-types: authorization_code
+        scope: scim.me
         secret: hcf_sso_secret
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
