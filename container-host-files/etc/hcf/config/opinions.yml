@@ -371,6 +371,8 @@ properties:
     log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
+  hcf_sso:
+    port: 3000
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://hm9000.example.com
@@ -435,7 +437,9 @@ properties:
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
-    ssl_skip_validation: null
+    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh
+    # force the setting below.
+    ssl_skip_validation: true
     skip_oauth_tls_verification: null
     status:
       password: router_password
@@ -529,6 +533,11 @@ properties:
         authorized-grant-types: client_credentials,refresh_token
         scope: openid,cloud_controller_service_permissions.read
         secret: gorouter_secret
+      hcf-sso:
+        access_token_validity: 3600
+        authorized-grant-types: authorization_code
+        scope: scim.me
+        secret: hcf_sso_secret
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
         authorized-grant-types: authorization_code,client_credentials,refresh_token
