@@ -441,6 +441,8 @@ properties:
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
+    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh
+    # force the setting below.
     ssl_skip_validation: true
     skip_oauth_tls_verification: null
     status:

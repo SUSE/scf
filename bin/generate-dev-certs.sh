@@ -75,6 +75,8 @@ certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA bbsCA  --passphr
 
 
 # generate SSO routing certs
+# ATTENTION! These are self-signed.
+# This forces "router.ssl_skip_validation: true" in opinions.yml
 mkdir -p ${sso_routing_path}
 openssl genrsa -out ${sso_routing_path}/sso_routing.rsa 4096
 openssl req -new -key ${sso_routing_path}/sso_routing.rsa -out ${sso_routing_path}/sso_routing.csr -sha512 -subj "/CN=hcf-sso.hcf/C=US"
