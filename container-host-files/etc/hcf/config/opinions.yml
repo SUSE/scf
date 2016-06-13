@@ -373,10 +373,6 @@ properties:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
   hcf_sso:
     port: 3000
-    management:
-      admin:
-        user: hcf_sso_user
-        password: hcf_sso_secret
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://hm9000.example.com

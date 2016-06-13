@@ -1312,9 +1312,6 @@ configuration:
   - name: HCF_SSO_PASSWORD
     secret: true
     type-hint: "password,random"
-  - name: HCF_SSO_PORT
-    default: '3000'
-    type-hint: "integer,port"
   - name: HCF_SSO_USERNAME
     default: username
     type-hint: "string"
@@ -1773,7 +1770,6 @@ configuration:
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
-    properties.hcf_sso.port: '"((HCF_SSO_PORT))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
