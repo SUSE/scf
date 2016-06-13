@@ -1772,8 +1772,6 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.management.admin.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.hcf_sso.management.admin.user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.port: '"((HCF_SSO_PORT))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
