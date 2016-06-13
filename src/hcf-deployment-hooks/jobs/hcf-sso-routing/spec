@@ -8,3 +8,12 @@ packages:
 
 templates:
   run.erb: bin/run
+
+properties:
+  hcf_sso.port:
+    description: Port the route service listens on
+    default: 3000
+  hcf_sso.username:
+    description: Username for the service broker
+  hcf_sso.password:
+    description: Password for the service broker
