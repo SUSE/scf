@@ -153,7 +153,7 @@ function setup_role() {
   # If there are any docker volumes defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
-  local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."docker-volumes"[]? | if length > 0 then "-v " + ([.host + ":" + .container] | join(" -v ")) else "" end')
+  local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
   # Add anything not found in roles-manifest.yml
   local extra=""
