@@ -1169,7 +1169,7 @@ roles:
       protocol: TCP
       source: 3000
       target: 3000
-      public: true
+      public: false
 configuration:
   variables:
   - name: API_HOST

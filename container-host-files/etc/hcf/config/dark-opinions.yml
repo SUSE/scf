@@ -25,6 +25,10 @@ properties:
   nats:
     user: nats_user
     password: nats_password
+  hcf_sso:
+    management:
+      admin:
+        password: hcf_sso_secret
   router:
     ssl_cert: ''
     ssl_key: ''
@@ -56,6 +60,8 @@ properties:
         secret: cc-broker-secret
       developer_console:
         secret: developer_console_secret
+      hcf-sso:
+        secret: hcf_sso_secret
       notifications:
         secret: notification_secret
       tcp_emitter:
