@@ -16,6 +16,8 @@ properties:
   app_domains:
   - example.com
   app_ssh: null
+  bbs:
+    require_ssl: true
   cc:
     allow_app_ssh_access: true
     allowed_cors_domains: []
@@ -425,6 +427,8 @@ properties:
   request_timeout_in_seconds: 900
   router:
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
+    # dns_health_check_host needs proper (positive or negative) response to A, AAAA, and MX
+    dns_health_check_host: localhost
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
@@ -432,38 +436,22 @@ properties:
       rotate: 5
       size: 3M
     requested_route_registration_interval_in_seconds: null
-    router_configurer:
-      routing_api_uri: http://routing-api
-      uaa_ssl_port: 8443  # See uaa.ssl.port
-      uaa_token_endpoint: uaa
-      skip_oauth_tls_verification: true
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
-    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh
-    # force the setting below.
-    ssl_skip_validation: true
+    ssl_skip_validation: null
     # skip_oauth_tls_verification will be folded into ssl_skip_validation soon
     skip_oauth_tls_verification: null
     status:
       password: router_password
       user: router_user
-    tcp_emitter:
-      routing_api_uri: http://routing-api
-      uaa_ssl_port: 8443  # See uaa.ssl.port
-      uaa_token_endpoint: uaa
-      skip_oauth_tls_verification: true
-  routing-api:
+  routing_api:
+    enabled: true
     router_groups:
     - name: default-tcp
       type: tcp
       reservable_ports: 1024-65535
-    skip_oauth_tls_verification: true
-    uaa_ssl_port: 8443  # See uaa.ssl.port
-    uaa_token_endpoint: uaa
     uri: http://routing-api
-  routing_api:
-    enabled: true
   smoke_tests:
     suite_name: CF_SMOKE_TESTS
     api: api.((DOMAIN))
@@ -596,7 +584,6 @@ properties:
     ldap: null
     login: null
     newrelic: null
-    no_ssl: false
     require_https: null
     ssl:
       port: 8443
@@ -610,6 +597,7 @@ properties:
     spring_profiles: null
     # For routing-release/jobs/gorouter
     token_endpoint: uaa
+    tls_port: 8443
     url: https://uaa.example.com
     user:
       authorities:

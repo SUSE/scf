@@ -359,7 +359,6 @@ roles:
   - name: router_configurer
     release_name: routing
   processes:
-  - name: consul_template
   - name: haproxy
   - name: metron_agent
   - name: consul_agent
@@ -382,7 +381,8 @@ roles:
       public: true
   configuration:
     templates:
-      properties.dns_health_check_host: example.com
+      properties.dns_health_check_host: localhost
+      properties.skip_ssl_validation: true
 - name: routing-api
   scripts:
   - router_internal_host_names.sh
@@ -403,7 +403,7 @@ roles:
   - name: tcp_emitter
   run:
     scaling:
-      indexed: 0
+      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -419,7 +419,8 @@ roles:
         public: false
   configuration:
     templates:
-      properties.dns_health_check_host: example.com
+      properties.dns_health_check_host: localhost
+      properties.skip_ssl_validation: true
 - name: uaa
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -1701,6 +1702,8 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
@@ -1901,25 +1904,16 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
-    properties.router.dns_health_check_host: '"example.com"' # Needs something with proper A, AAAA, and MX responsees
+    properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
-    properties.router.router_configurer.routing_api_uri: http://((ROUTING_API_HOST))
-    properties.router.router_configurer.tcp_router_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.router.router_configurer.uaa_token_endpoint: '"((UAA_HOST))"'
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    properties.router.tcp_emitter.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.router.tcp_emitter.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.router.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.router.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.router.tcp_emitter.routing_api_uri: http://((ROUTING_API_HOST))
-    properties.router.tcp_emitter.tcp_emitter_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
-    properties.router.tcp_emitter.uaa_token_endpoint: '"((UAA_HOST))"'
-    properties.routing-api.etcd_machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
-    properties.routing-api.system_domain: '"((DOMAIN))"'
-    properties.routing-api.uaa_token_endpoint: '"((UAA_HOST))"'
-    properties.routing-api.uri: http://((ROUTING_API_HOST))
+    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh force the setting below.
+    properties.router.ssl_skip_validation: true
+    properties.routing_api.system_domain: '"((DOMAIN))"'
+    properties.routing_api.uri: http://((ROUTING_API_HOST))
+    properties.routing.etcd.servers: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -1927,6 +1921,9 @@ configuration:
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
     properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
+    properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
