@@ -1199,7 +1199,6 @@ roles:
         protocol: 'TCP'
         source: 9052
         target: 9052
-        public: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
