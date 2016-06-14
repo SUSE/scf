@@ -1129,7 +1129,7 @@ roles:
   type: bosh-task
   jobs:
   - name: sso-create-service
-    release_name: hcf-deployment-hooks
+    release_name: hcf
   processes: []
   run:
     scaling:
