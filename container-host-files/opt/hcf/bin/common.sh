@@ -140,14 +140,20 @@ function setup_role() {
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
-  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
+  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag:/container/path/2
   local persistent_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."persistent-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
 
   # Add shared volumes
   # If there are any shared volumes defined, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
-  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag/container/path/2
+  # -v /store/path/a_tag:/container/path/1 -v /store/path/b_tag:/container/path/2
   local shared_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '."shared-volumes"[] | if length > 0 then "-v " + (["'"${store_dir}"'/" + .tag + ":" + .path] | join(" -v ")) else "" end')
+
+  # Add docker volumes
+  # If there are any docker volumes defined, this creates a string that resembles the
+  # line below. It returns an empty string otherwise.
+  # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
+  local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
   # Add anything not found in roles-manifest.yml
   local extra=""
@@ -158,7 +164,7 @@ function setup_role() {
 	  ;;
   esac
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${extra}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${extra}"
 }
 
 # gets the role name from a docker image name

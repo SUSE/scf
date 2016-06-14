@@ -1170,6 +1170,38 @@ roles:
       source: 3000
       target: 3000
       public: false
+- name: status-route
+  post_config_scripts:
+  - status-route-start.sh
+  jobs:
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: route_registrar
+  - name: gotty
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    docker-volumes:
+    - host: /var/run/docker.sock
+      container: /var/run/docker.sock
+    - host: /home/vagrant/hcf/container-host-files
+      container: /container-host-files
+    memory: 128
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'status-route'
+        protocol: 'TCP'
+        source: 9052
+        target: 9052
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
 configuration:
   variables:
   - name: API_HOST
