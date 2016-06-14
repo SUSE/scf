@@ -316,9 +316,10 @@ roles:
 - name: router
   scripts:
   - fake_spec_index_on_hcp.sh
+  - router_internal_host_names.sh
   jobs:
   - name: gorouter
-    release_name: cf
+    release_name: routing
   - name: consul_agent
     release_name: cf
   - name: metron_agent
@@ -343,6 +344,112 @@ roles:
         source: 80
         target: 80
         public: false
+- name: routing-ha-proxy
+  # XXX This might be able to co-locate with one of the others
+  # But this is a _different_ HAProxy from the one in the CF release.
+  scripts:
+  # XXX check if we need this
+  - fake_spec_index_on_hcp.sh
+  - router_internal_host_names.sh
+  jobs:
+  - name: haproxy
+    release_name: routing
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: router_configurer
+    release_name: routing
+  processes:
+  - name: consul_template
+  - name: haproxy
+  - name: metron_agent
+  - name: consul_agent
+  - name: router_configurer
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+    - name: 'tcp-routing'
+      protocol: TCP
+      source: "6500-7000"
+      target: "6500-7000"
+      public: true
+  configuration:
+    templates:
+      properties.dns_health_check_host: example.com
+- name: routing-api
+  scripts:
+  # XXX check if we need this
+  - fake_spec_index_on_hcp.sh
+  - router_internal_host_names.sh
+  jobs:
+  - name: consul_agent
+    release_name: cf
+  - name: routing-api
+    release_name: routing
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: consul_agent
+  - name: routing-api
+  - name: metron_agent
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports:
+      - name: routing-api
+        protocol: TCP
+        source: 3000
+        target: 3000
+        public: false
+  configuration:
+    templates:
+      properties.dns_health_check_host: example.com
+- name: tcp-emitter
+  scripts:
+  # XXX check if we need this
+  - fake_spec_index_on_hcp.sh
+  - router_internal_host_names.sh
+  jobs:
+  - name: consul_agent
+    release_name: cf
+  - name: tcp_emitter
+    release_name: routing
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: consul_agent
+  - name: tcp_emitter
+  - name: metron_agent
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports: []
+  configuration:
+    templates:
+      properties.dns_health_check_host: example.com
 - name: uaa
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -1283,6 +1390,9 @@ configuration:
   - name: LOGGREGATOR_HOST
     default: "loggregator"
     type-hint: "string,hostname"
+  - name: UAA_HOST
+    default: uaa
+    type-hint: string,hostname
   - name: BULK_API_PASSWORD
     secret: true
     type-hint: "password,random"
@@ -1821,10 +1931,25 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
+    properties.router.dns_health_check_host: '"example.com"' # Needs something with proper A, AAAA, and MX responsees
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
+    properties.router.router_configurer.routing_api_uri: http://((ROUTING_API_HOST))
+    properties.router.router_configurer.tcp_router_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.router.router_configurer.uaa_token_endpoint: '"((UAA_HOST))"'
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    properties.router.tcp_emitter.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.router.tcp_emitter.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.router.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.router.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.router.tcp_emitter.routing_api_uri: http://((ROUTING_API_HOST))
+    properties.router.tcp_emitter.tcp_emitter_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.router.tcp_emitter.uaa_token_endpoint: '"((UAA_HOST))"'
+    properties.routing-api.etcd_machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
+    properties.routing-api.system_domain: '"((DOMAIN))"'
+    properties.routing-api.uaa_token_endpoint: '"((UAA_HOST))"'
+    properties.routing-api.uri: http://((ROUTING_API_HOST))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -1859,6 +1984,7 @@ configuration:
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
+    properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'

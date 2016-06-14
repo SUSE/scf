@@ -135,7 +135,14 @@ function setup_role() {
   # If there are any exposed ports, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -p 80:80 -p 443:443
-  local ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | select(.public == true) |  if length > 0 then "-p " + ([(.target | tostring) + ":" + (.source | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
+  local ports=""
+  local port_info
+  while read -r port_info ; do
+    local protocol=$(echo "${port_info}" | jq --raw-output .protocol)
+    local source_port=$(echo "${port_info}" | jq --raw-output .source)
+    local target_port=$(echo "${port_info}" | jq --raw-output .target)
+    ports="${ports} -p ${target_port}:${source_port}/${protocol}"
+  done < <(echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)')
 
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the

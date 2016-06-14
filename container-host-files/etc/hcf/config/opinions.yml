@@ -344,8 +344,6 @@ properties:
     unmarshaller_count: 5
   doppler_endpoint:
     shared_secret: loggregator_endpoint_secret
-  dropsonde:
-    enabled: true
   etcd:
     ca_cert: null
     client_cert: null
@@ -434,16 +432,38 @@ properties:
       rotate: 5
       size: 3M
     requested_route_registration_interval_in_seconds: null
+    router_configurer:
+      routing_api_uri: http://routing-api
+      uaa_ssl_port: 8443  # See uaa.ssl.port
+      uaa_token_endpoint: uaa
+      skip_oauth_tls_verification: true
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
     # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh
     # force the setting below.
     ssl_skip_validation: true
+    # skip_oauth_tls_verification will be folded into ssl_skip_validation soon
     skip_oauth_tls_verification: null
     status:
       password: router_password
       user: router_user
+    tcp_emitter:
+      routing_api_uri: http://routing-api
+      uaa_ssl_port: 8443  # See uaa.ssl.port
+      uaa_token_endpoint: uaa
+      skip_oauth_tls_verification: true
+  routing-api:
+    router_groups:
+    - name: default-tcp
+      type: tcp
+      reservable_ports: 1024-65535
+    skip_oauth_tls_verification: true
+    uaa_ssl_port: 8443  # See uaa.ssl.port
+    uaa_token_endpoint: uaa
+    uri: http://routing-api
+  routing_api:
+    enabled: true
   smoke_tests:
     suite_name: CF_SMOKE_TESTS
     api: api.((DOMAIN))
@@ -529,7 +549,7 @@ properties:
         override: true
         secret: doppler_secret
       gorouter:
-        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise
+        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
         authorized-grant-types: client_credentials,refresh_token
         scope: openid,cloud_controller_service_permissions.read
         secret: gorouter_secret
@@ -588,9 +608,30 @@ properties:
       user:
         override: true
     spring_profiles: null
+    # For routing-release/jobs/gorouter
+    token_endpoint: uaa
     url: https://uaa.example.com
-    user: null
-    zones: null
+    user:
+      authorities:
+      - openid
+      - scim.me
+      - cloud_controller.read
+      - cloud_controller.write
+      - cloud_controller_service_permissions.read
+      - password.write
+      - uaa.user
+      - approvals.me
+      - oauth.approvals
+      - notification_preferences.read
+      - notification_preferences.write
+      - profile
+      - roles
+      - user_attributes
+      - routing.router_groups.read
+    zones:
+      internal:
+        hostnames:
+        - uaa
   uaadb:
     databases:
     - name: uaadb
