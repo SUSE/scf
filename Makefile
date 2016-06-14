@@ -132,11 +132,11 @@ generate: hcp mpc aws aws-spot aws-proxy aws-spot-proxy
 hcp:
 	${GIT_ROOT}/make/generate hcp
 
-ucp-instance:
-	${GIT_ROOT}/make/generate ucp-instance
+hcp-instance:
+	${GIT_ROOT}/make/generate hcp-instance
 
-ucp-instance-ha:
-	${GIT_ROOT}/make/generate ucp-instance-ha
+hcp-instance-ha:
+	${GIT_ROOT}/make/generate hcp-instance-ha
 
 mpc:
 	${GIT_ROOT}/make/generate mpc
