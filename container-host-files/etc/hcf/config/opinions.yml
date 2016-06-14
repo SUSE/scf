@@ -259,6 +259,10 @@ properties:
     require_ssl: false
     server_cert: null
     server_key: null
+  couchdb:
+    dbname: couchdb-scaling
+    metric_prefix: couchdb-scalingmetric
+    port: 5984
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
@@ -631,5 +635,3 @@ properties:
   cf_mysql:
     proxy:
       healthcheck_timeout_millis: 30000
-  couchdb:
-    port: 5984

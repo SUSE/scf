@@ -1048,13 +1048,13 @@ roles:
     exposed-ports:
       - name: 'autoscaler_api'
         protocol: 'TCP'
-        source: 28861
-        target: 28861
-        public: true
+        source: &autoscaler_api_port 28861
+        target: *autoscaler_api_port
+        public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
-      properties.tomcat.http.autoscaler_api.port: ((AUTOSCALER_API_PORT))
+      properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
 
 - name: autoscaler-server
   type: bosh
@@ -1077,14 +1077,14 @@ roles:
     exposed-ports:
       - name: 'autoscaler_server'
         protocol: 'TCP'
-        source: 28862
-        target: 28862
-        public: true
+        source: &autoscaler_server_port 28862
+        target: *autoscaler_server_port
+        public: false
   configuration:
     templates:
-      properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
+      properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
-      # properties.route_registrar.routes: '[{"name":"autoscaler-server", "port":28862, "uris":["autoscaler-server.((DOMAIN))"], "registration_interval":"10s"}]'
+
 
 - name: autoscaler-servicebroker
   type: bosh
@@ -1107,19 +1107,19 @@ roles:
     exposed-ports:
       - name: 'autoscaler_servicebroker'
         protocol: 'TCP'
-        source: 28863
-        target: 28863
-        public: true
+        source: &autoscaler_servicebroker_port 28863
+        target: *autoscaler_servicebroker_port
+        public: false
   configuration:
     templates:
       properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
-      properties.tomcat.http.autoscaler_api.port: ((AUTOSCALER_API_PORT))
+      properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
       properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
-      properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
-      properties.tomcat.http.autoscaler_servicebroker.port: ((AUTOSCALER_SERVICEBROKER_PORT))
+      properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
+      properties.tomcat.http.autoscaler_servicebroker.port: *autoscaler_servicebroker_port
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
-      properties.route_registrar.routes: '[{"name":"autoscaler-servicebroker", "port":28863, "uris":["autoscaler-servicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
+
 
 - name: couchdb
   type: bosh
@@ -1144,7 +1144,7 @@ roles:
         protocol: 'TCP'
         source: 5984
         target: 5984
-        public: true
+        public: false
   configuration:
     templates:
       properties.couchdb.username: '"((COUCHDB_USER))"'
@@ -1869,6 +1869,9 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
+    properties.couchdb.username: '"((COUCHDB_USER))"'
+    properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+    properties.couchdb.host: '"((COUCHDB_HOST))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -1936,6 +1939,7 @@ configuration:
     properties.etcd.peer_ca_cert: '"((ETCD_PEER_CA_CRT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
+    properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
@@ -1999,6 +2003,7 @@ configuration:
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
@@ -2022,20 +2027,3 @@ configuration:
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
-    properties.traffic_controller.tweak_locked_memory: false
-    properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
-    properties.couchdb.username: '"((COUCH_USER))"'
-    properties.couchdb.password: '"((COUCH_PASSWORD))"'
-    properties.couchdb.host: '"((COUCH_HOST))"'
-    properties.couchdb.port: 5984
-    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
-    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
