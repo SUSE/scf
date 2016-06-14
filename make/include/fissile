@@ -14,7 +14,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       garden-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
-      hcf-deployment-hooks
+      hcf-release
       hcf-sso/hcf-sso-release
       windows-runtime-release
     '); do

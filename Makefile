@@ -67,8 +67,8 @@ mysql-release:
 cflinuxfs2-rootfs-release:
 	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
 
-hcf-deployment-hooks:
-	${GIT_ROOT}/make/bosh-release src/hcf-deployment-hooks
+hcf-release:
+	${GIT_ROOT}/make/bosh-release src/hcf-release
 
 hcf-sso-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-sso/hcf-sso-release
@@ -76,7 +76,7 @@ hcf-sso-release:
 windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-deployment-hooks windows-runtime-release hcf-sso-release
+releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-release windows-runtime-release hcf-sso-release
 
 ########## FISSILE BUILD TARGETS ##########
 
@@ -132,11 +132,11 @@ generate: hcp mpc aws aws-spot aws-proxy aws-spot-proxy
 hcp:
 	${GIT_ROOT}/make/generate hcp
 
-hcp-instance:
-	${GIT_ROOT}/make/generate hcp-instance
+ucp-instance:
+	${GIT_ROOT}/make/generate ucp-instance
 
-hcp-instance-ha:
-	${GIT_ROOT}/make/generate hcp-instance-ha
+ucp-instance-ha:
+	${GIT_ROOT}/make/generate ucp-instance-ha
 
 mpc:
 	${GIT_ROOT}/make/generate mpc

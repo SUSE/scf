@@ -987,7 +987,7 @@ roles:
   type: bosh-task
   jobs:
   - name: cf-set-proxy
-    release_name: hcf-deployment-hooks
+    release_name: hcf
   processes: []
   run:
     scaling:
@@ -1111,7 +1111,7 @@ roles:
   dev-only: true
   jobs:
   - name: usb-create-services
-    release_name: hcf-deployment-hooks
+    release_name: hcf
   processes: []
   run:
     scaling:
