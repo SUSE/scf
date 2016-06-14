@@ -16,7 +16,7 @@ DOCKER_RUNTIME=${DOCKER_RUNTIME:-'maven:3-jdk-7'}
 cd $GIT_ROOT/src/open-Autoscaler
 for x in api server servicebroker ; do 
   echo $x
-  if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
+  if [[ $x != servicebroker ]] && ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
     echo Already have $x/target/$x-*.war
   else
     docker run -t --rm \
