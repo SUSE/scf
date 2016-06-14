@@ -25,3 +25,6 @@
 [submodule "src/hcf-sso"]
 	path = src/hcf-sso
 	url = git@github.com:hpcloud/hcf-sso
+[submodule "src/routing-release"]
+	path = src/routing-release
+	url = https://github.com/cloudfoundry-incubator/routing-release.git

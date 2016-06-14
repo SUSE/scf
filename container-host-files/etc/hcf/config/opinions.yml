@@ -16,6 +16,8 @@ properties:
   app_domains:
   - example.com
   app_ssh: null
+  bbs:
+    require_ssl: true
   cc:
     allow_app_ssh_access: true
     allowed_cors_domains: []
@@ -344,8 +346,6 @@ properties:
     unmarshaller_count: 5
   doppler_endpoint:
     shared_secret: loggregator_endpoint_secret
-  dropsonde:
-    enabled: true
   etcd:
     ca_cert: null
     client_cert: null
@@ -427,6 +427,8 @@ properties:
   request_timeout_in_seconds: 900
   router:
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
+    # dns_health_check_host needs proper (positive or negative) response to A, AAAA, and MX
+    dns_health_check_host: localhost
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
@@ -437,13 +439,17 @@ properties:
     route_services_timeout: null
     route_services_secret: null
     secure_cookies: null
-    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh
-    # force the setting below.
-    ssl_skip_validation: true
-    skip_oauth_tls_verification: null
+    ssl_skip_validation: null
     status:
       password: router_password
       user: router_user
+  routing_api:
+    enabled: true
+    router_groups:
+    - name: default-tcp
+      type: tcp
+      reservable_ports: 1024-65535
+    uri: http://routing-api
   smoke_tests:
     suite_name: CF_SMOKE_TESTS
     api: api.((DOMAIN))
@@ -529,7 +535,7 @@ properties:
         override: true
         secret: doppler_secret
       gorouter:
-        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise
+        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
         authorized-grant-types: client_credentials,refresh_token
         scope: openid,cloud_controller_service_permissions.read
         secret: gorouter_secret
@@ -576,7 +582,6 @@ properties:
     ldap: null
     login: null
     newrelic: null
-    no_ssl: false
     require_https: null
     ssl:
       port: 8443
@@ -588,9 +593,31 @@ properties:
       user:
         override: true
     spring_profiles: null
+    # For routing-release/jobs/gorouter
+    token_endpoint: uaa
+    tls_port: 8443
     url: https://uaa.example.com
-    user: null
-    zones: null
+    user:
+      authorities:
+      - openid
+      - scim.me
+      - cloud_controller.read
+      - cloud_controller.write
+      - cloud_controller_service_permissions.read
+      - password.write
+      - uaa.user
+      - approvals.me
+      - oauth.approvals
+      - notification_preferences.read
+      - notification_preferences.write
+      - profile
+      - roles
+      - user_attributes
+      - routing.router_groups.read
+    zones:
+      internal:
+        hostnames:
+        - uaa
   uaadb:
     databases:
     - name: uaadb

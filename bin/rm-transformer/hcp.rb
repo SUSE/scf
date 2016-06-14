@@ -308,10 +308,30 @@ class ToHCP < Common
     }
   end
 
+  MAX_PORT_RANGE = 50
   def add_ports(component, ports)
     cports = component['service_ports']
     ports.each do |port|
-      cports.push(convert_port(port))
+      if port['source'].to_s.include? '-'
+        # HCP does not yet support port ranges; do what we can. CAPS-435
+        if port['source'] != port['target']
+          raise "Port range forwarding #{port['name']}: must have the same source / target ranges"
+        end
+        first, last = port['source'].split('-').map(&:to_i)
+        if last - first > MAX_PORT_RANGE
+          last = first + MAX_PORT_RANGE
+          STDERR.puts "Warning: too many ports to forward in #{port['name']}, limiting to #{MAX_PORT_RANGE}"
+        end
+        (first..last).each do |port_number|
+          cports.push(convert_port(port.merge(
+            'source' => port_number,
+            'target' => port_number,
+            'name'   => "#{port['name']}-#{port_number}"
+          )))
+        end
+      else
+        cports.push(convert_port(port))
+      end
     end
   end
 

@@ -135,7 +135,17 @@ function setup_role() {
   # If there are any exposed ports, this creates a string that resembles the
   # line below. It returns an empty string otherwise.
   # -p 80:80 -p 443:443
-  local ports=$(echo "${role_info}" | jq --raw-output --compact-output '."exposed-ports"[] | select(.public == true) |  if length > 0 then "-p " + ([(.target | tostring) + ":" + (.source | tostring) + "/" + (.protocol | tostring) ] | join(" -p ")) else "" end')
+  local ports=""
+  local port_info
+  while read -r port_info ; do
+    local protocol=$(echo "${port_info}" | jq --raw-output .protocol)
+    local source_port=$(echo "${port_info}" | jq --raw-output .source)
+    local target_port=$(echo "${port_info}" | jq --raw-output .target)
+    if test "${source_port//-}" != "${source_port}" ; then
+      continue # This is a port range, handled in setup_port_range_forwarding()
+    fi
+    ports="${ports} -p ${target_port}:${source_port}/${protocol}"
+  done < <(echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)')
 
   # Add persistent volumes
   # If there are any persistent volume mounts defined, this creates a string that resembles the
@@ -165,6 +175,36 @@ function setup_role() {
   esac
 
   echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${extra}"
+}
+
+# Set up iptables rules for roles that require forwarding a whole range of ports
+# See setup_role() for data format details
+function setup_port_range_forwarding() {
+  load_all_roles
+
+  local role="$1"
+  local role_info="${role_manifest_run["${role}"]}"
+  local port_info
+  echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)' | while read -r port_info ; do
+    local protocol=$(echo "${port_info}" | jq --raw-output .protocol | tr [:upper:] [:lower:])
+    local source_ports=$(echo "${port_info}" | jq --raw-output .source)
+    local target_ports=$(echo "${port_info}" | jq --raw-output .target)
+    if test "${source_ports//-}" = "${source_ports}" ; then
+      continue # Not a port range; handled in setup_role()
+    fi
+    if test "${source_ports}" != "${target_ports}" ; then
+      printf "Port forwarding definition for %s contains source port range %s unequal to target port range %s; this is not supported.\n" \
+        "${role}" "${source_ports}" "${target_ports}" >&2
+      return 1
+    fi
+    local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' $role)
+    local lower_bound="${source_ports%%-*}"
+    local upper_bound="${source_ports##*-}"
+    local network_address=$(docker network inspect hcf | jq --raw-output '.[].IPAM.Config[].Gateway')
+    local network_interface=$(ip -4 addr | grep -F -B1 ${network_address}/ | head -n1 | awk -F: ' { print $2 } ')
+    sudo iptables -t nat -A POSTROUTING -s ${container_address}/32 -d ${container_address}/32 -p ${protocol} -m ${protocol} --dport ${lower_bound}:${upper_bound}
+    sudo iptables -t nat -A DOCKER ! -i ${network_interface} -p ${protocol} -m ${protocol} --dport ${lower_bound}:${upper_bound} -j DNAT --to-destination ${container_address}:${lower_bound}-${upper_bound}
+  done
 }
 
 # gets the role name from a docker image name
@@ -218,6 +258,7 @@ function handle_restart() {
     echo "Restarting ${role} ..."
     kill_role $role
     start_role $image $container_name $role $env_file_dir $extras
+    setup_port_range_forwarding $role
     return 0
   fi
 }

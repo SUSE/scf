@@ -316,9 +316,10 @@ roles:
 - name: router
   scripts:
   - fake_spec_index_on_hcp.sh
+  - router_internal_host_names.sh
   jobs:
   - name: gorouter
-    release_name: cf
+    release_name: routing
   - name: consul_agent
     release_name: cf
   - name: metron_agent
@@ -343,6 +344,83 @@ roles:
         source: 80
         target: 80
         public: false
+- name: routing-ha-proxy
+  # XXX This might be able to co-locate with one of the others
+  # But this is a _different_ HAProxy from the one in the CF release.
+  scripts:
+  - router_internal_host_names.sh
+  jobs:
+  - name: haproxy
+    release_name: routing
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: router_configurer
+    release_name: routing
+  processes:
+  - name: haproxy
+  - name: metron_agent
+  - name: consul_agent
+  - name: router_configurer
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+    - name: 'tcp-routing'
+      protocol: TCP
+      source: "1025-65535"
+      target: "1025-65535"
+      public: true
+  configuration:
+    templates:
+      properties.dns_health_check_host: localhost
+      properties.skip_ssl_validation: true
+- name: routing-api
+  scripts:
+  - router_internal_host_names.sh
+  jobs:
+  - name: consul_agent
+    release_name: cf
+  - name: metron_agent
+    release_name: cf
+  - name: routing-api
+    release_name: routing
+  - name: tcp_emitter
+    # TCP-emitter can be on a different role, it's just convenient here
+    release_name: routing
+  processes:
+  - name: consul_agent
+  - name: metron_agent
+  - name: routing-api
+  - name: tcp_emitter
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 65535
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 2048
+    virtual-cpus: 4
+    exposed-ports:
+      - name: routing-api
+        protocol: TCP
+        source: 3000
+        target: 3000
+        public: false
+  configuration:
+    templates:
+      properties.dns_health_check_host: localhost
+      properties.skip_ssl_validation: true
 - name: uaa
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -1280,9 +1358,15 @@ configuration:
   - name: ROUTER_HOST
     default: "router"
     type-hint: "string,hostname"
+  - name: ROUTING_API_HOST
+    default: routing-api
+    type-hint: string,hostname
   - name: LOGGREGATOR_HOST
     default: "loggregator"
     type-hint: "string,hostname"
+  - name: UAA_HOST
+    default: uaa
+    type-hint: string,hostname
   - name: BULK_API_PASSWORD
     secret: true
     type-hint: "password,random"
@@ -1621,6 +1705,8 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
+    properties.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
@@ -1821,10 +1907,16 @@ configuration:
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
+    properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
+    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh force the setting below.
+    properties.router.ssl_skip_validation: true
+    properties.routing_api.system_domain: '"((DOMAIN))"'
+    properties.routing_api.uri: http://((ROUTING_API_HOST))
+    properties.routing.etcd.servers: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -1832,6 +1924,9 @@ configuration:
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
     properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
+    properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
@@ -1859,6 +1954,7 @@ configuration:
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
+    properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'

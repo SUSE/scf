@@ -67,6 +67,9 @@ mysql-release:
 cflinuxfs2-rootfs-release:
 	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
 
+routing-release:
+	${GIT_ROOT}/make/bosh-release src/routing-release
+
 hcf-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-release
 
@@ -76,7 +79,19 @@ hcf-sso-release:
 windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
-releases: cf-release usb-release diego-release etcd-release garden-release mysql-release cflinuxfs2-rootfs-release hcf-release windows-runtime-release hcf-sso-release
+releases: \
+	cf-release \
+	usb-release \
+	diego-release \
+	etcd-release \
+	garden-release \
+	mysql-release \
+	cflinuxfs2-rootfs-release \
+	routing-release \
+	hcf-release \
+	windows-runtime-release \
+	hcf-sso-release \
+	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
 
