@@ -54,6 +54,7 @@ dopts="--storage-driver=devicemapper"
 dopts="$dopts --storage-opt dm.datadev=/dev/vg-docker/data"
 dopts="$dopts --storage-opt dm.metadatadev=/dev/vg-docker/metadata"
 dopts="$dopts --storage-opt dm.basesize=100G"
+dopts="$dopts --storage-opt dm.mountopt=discard"
 
 # By default, whitelist local network as insecure registry (to work on HCP)
 dopts="$dopts --insecure-registry=192.168.0.0/16"

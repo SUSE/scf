@@ -17,7 +17,7 @@ apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E8
 echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list
 
 apt-get update
-apt-get install docker-engine=1.10.3-0~trusty lvm2 -y
+apt-get install docker-engine=1.11.2-0~trusty lvm2 -y
 usermod -aG docker $user
 
 # Note: lvm2 is needed by configure_docker.sh (pvcreate, etc.)
