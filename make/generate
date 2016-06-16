@@ -16,7 +16,7 @@ OPTIONS=$(echo \
     --dtr \"${IMAGE_REGISTRY}\" \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
-    --hcf-tag \"${GIT_BRANCH}\" \
+    --hcf-tag \"${DOCKER_ARTIFACT_VERSION}\" \
     --hcf-version \"${ARTIFACT_VERSION}\" \
     --env-dir \"${ENV_DIR}\"
 )
