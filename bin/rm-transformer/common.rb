@@ -32,6 +32,10 @@ class Common
     role['run']['flight-stage'] || 'flight'
   end
 
+  def tags_of(role)
+    role['tags'] || []
+  end
+
   def skip_manual?(role)
     flight_stage_of(role) == 'manual' && !@options[:manual]
   end

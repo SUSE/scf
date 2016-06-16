@@ -115,6 +115,7 @@ class ToHCP < Common
     roles['roles'].each do |role|
       # HCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
+      next if tags_of(role).include?('dev-only')
 
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
