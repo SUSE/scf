@@ -12,6 +12,6 @@ case ${DOCKER_FRIENDLY_TAGS} in
         echo ${APP_VERSION}
         ;;
     *)
-        echo ${APP_VERSION} | tr + _
+        echo ${DOCKER_ARTIFACT_VERSION}
         ;;
 esac
