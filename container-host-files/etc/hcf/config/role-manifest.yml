@@ -1032,8 +1032,11 @@ roles:
   jobs:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
+  - name: route_registrar
+    release_name: cf
   processes:
   - name: tomcat
+  - name: route_registrar
   run:
     flight-stage: flight
     scaling:
