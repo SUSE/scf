@@ -337,8 +337,14 @@ class ToHCP < Common
   end
 
   def convert_port(port)
+    name = port['name']
+    if name.length > 15
+      # Service ports must have a length no more than 15 characters
+      # (to be a valid host name)
+      name = "#{name[0...8]}#{name.hash.to_s(16)[-8...-1]}"
+    end
     {
-      'name'        => port['name'],
+      'name'        => name,
       'protocol'    => port['protocol'],
       'source_port' => port['source'],
       'target_port' => port['target'],
