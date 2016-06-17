@@ -612,7 +612,7 @@ Name    | Effect | Notes |
 
 ## How do I run HCF with Vagrant behind a proxy?
 
-1. Set up the environment variables for the proxy:
+1. On your host that will run the Vagrant box, set up the environment variables for the proxy:
     ```bash
     export HTTP_PROXY=http://<your-proxy-ip>:<your-proxy-port>
     export http_proxy=http://<your-proxy-ip>:<your-proxy-port>
@@ -625,7 +625,7 @@ Name    | Effect | Notes |
     vagrant plugin install vagrant-proxyconf
     ```
 
-3. Add the proxy config to the Vagrantfile:
+3. Inside the `Vagrant.configure(2) do |config|` section of the Vagrantfile, add the proxy config:
     ```
     config.proxy.http     = "http://<your-proxy-ip>:<your-proxy-port>"
     config.proxy.https    = "http://<your-proxy-ip>:<your-proxy-port>"
