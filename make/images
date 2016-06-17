@@ -36,11 +36,11 @@ for ROLE in ${ROLES}; do
                     TAG=latest
                 ;;
             esac
-            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_ARTIFACT_VERSION}
+            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
             docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         publish)
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_ARTIFACT_VERSION}
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         clean)
@@ -60,7 +60,7 @@ for ROLE in ${ROLES}; do
             esac
             # For all images, there may be things tagged for the registry for the wrong branch
             docker images ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE} | tail -n +2 | while read REPOSITORY TAG _; do
-                if test "${TAG}" != "${DOCKER_ARTIFACT_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
+                if test "${TAG}" != "${DOCKER_APP_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
                     docker rmi "${REPOSITORY}:${TAG}"
                 fi
             done
