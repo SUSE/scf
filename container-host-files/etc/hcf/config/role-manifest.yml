@@ -994,7 +994,6 @@ roles:
     templates:
       properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
-      # properties.route_registrar.routes: '[{"name":"autoscaler-server", "port":28862, "uris":["autoscaler-server.((DOMAIN))"], "registration_interval":"10s"}]'
 
 - name: autoscaler-servicebroker
   type: bosh
@@ -1055,8 +1054,6 @@ roles:
         source: 5984
         target: 5984
         public: true
-  configuration:
-    templates:
 
 - name: acceptance-tests
   type: bosh-task
