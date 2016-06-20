@@ -21,6 +21,8 @@ properties:
     management:
       uaa:
         secret: cf-usb_secret
+  couchdb:
+    password: couchdb_password
   domain: example.com
   nats:
     user: nats_user

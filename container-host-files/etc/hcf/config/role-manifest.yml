@@ -1088,7 +1088,6 @@ roles:
       properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
 
-
 - name: autoscaler-servicebroker
   type: bosh
   jobs:
@@ -1117,12 +1116,13 @@ roles:
     templates:
       properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
       properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
+      properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
       properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
       properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
       properties.tomcat.http.autoscaler_servicebroker.port: *autoscaler_servicebroker_port
+      properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
-
 
 - name: couchdb
   type: bosh
@@ -1721,15 +1721,6 @@ configuration:
   - name: COUCHDB_PASSWORD
     secret: true
     type-hint: "password,random"
-  - name: DEVSVC_MONGODB_ADMIN_PASSWORD
-    secret: true
-    type-hint: "password,random"
-  - name: DEVSVC_MYSQL_ADMIN_PASSWORD
-    secret: true
-    type-hint: "password,random"
-  - name: DEVSVC_POSTGRES_ADMIN_PASSWORD
-    secret: true
-    type-hint: "password,random"
   - name: SKIP_CERT_VERIFY
     default: true
     type-hint: "boolean"
@@ -1765,13 +1756,16 @@ configuration:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_api.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_SERVICEBROKER_PASSWORD))"'
+    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_SERVICEBROKER_USERNAME))"'
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
@@ -1872,9 +1866,12 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.username: '"((COUCHDB_USER))"'
-    properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
     properties.couchdb.host: '"((COUCHDB_HOST))"'
+    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
+    properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+    properties.couchdb.port: '"((COUCHDB_PORT))"'
+    properties.couchdb.username: '"((COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
