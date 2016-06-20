@@ -1057,8 +1057,6 @@ roles:
         public: true
   configuration:
     templates:
-      properties.couchdb.username: '"((COUCHDB_USER))"'
-      properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
 
 - name: acceptance-tests
   type: bosh-task
@@ -1666,10 +1664,16 @@ configuration:
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_api.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_SERVICEBROKER_PASSWORD))"'
+    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_SERVICEBROKER_USERNAME))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.blobstore.tls.port: 443
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.capi.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
     properties.capi.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
@@ -1762,6 +1766,12 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
+    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
+    properties.couchdb.host: '"((COUCHDB_HOST))"'
+    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
+    properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+    properties.couchdb.port: '"((COUCHDB_PORT))"'
+    properties.couchdb.username: '"((COUCHDB_USER))"'
     properties.dev_services.mongodb.admin_password: "((DEVSVC_MONGODB_ADMIN_PASSWORD))"
     properties.dev_services.mysql.admin_password: "((DEVSVC_MYSQL_ADMIN_PASSWORD))"
     properties.dev_services.postgres.admin_password: "((DEVSVC_POSTGRES_ADMIN_PASSWORD))"
@@ -1890,10 +1900,3 @@ configuration:
     properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.traffic_controller.tweak_locked_memory: false
     properties.syslog_drain_binder.tweak_locked_memory: false
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
-    properties.couchdb.username: '"((COUCH_USER))"'
-    properties.couchdb.password: '"((COUCH_PASSWORD))"'
-    properties.couchdb.host: '"((COUCH_HOST))"'
-    properties.couchdb.port: 5984
-    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
-    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
