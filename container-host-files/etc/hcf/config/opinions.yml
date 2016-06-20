@@ -257,6 +257,8 @@ properties:
     require_ssl: false
     server_cert: null
     server_key: null
+  couchdb:
+    dbname: couchdb
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5

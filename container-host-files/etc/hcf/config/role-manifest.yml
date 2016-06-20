@@ -1023,8 +1023,10 @@ roles:
     templates:
       properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
       properties.tomcat.http.autoscaler_api.port: ((AUTOSCALER_API_PORT))
+      properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
       properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
       properties.tomcat.http.autoscaler_server.port: ((AUTOSCALER_SERVER_PORT))
+      properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
       properties.tomcat.http.autoscaler_servicebroker.port: ((AUTOSCALER_SERVICEBROKER_PORT))
       properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
