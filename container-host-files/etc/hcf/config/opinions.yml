@@ -616,7 +616,7 @@ properties:
       - routing.router_groups.read
     zones:
       internal:
-        hostnames: ['uua', 'uaa-int']
+        hostnames: ['uaa', 'uaa-int']
   uaadb:
     databases:
     - name: uaadb
