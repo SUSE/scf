@@ -429,7 +429,6 @@ roles:
 - name: uaa
   scripts:
   - fake_spec_index_on_hcp.sh
-  - fix_uaa_zones.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -460,7 +459,7 @@ roles:
         source: 8080
         target: 8080
         public: false
-      - name: 'uaa2'
+      - name: 'uaa-ssl'
         protocol: 'TCP'
         source: 8443
         target: 8443
@@ -1860,5 +1859,6 @@ configuration:
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
+    properties.uaa.zones.internal.hostnames: '["((UAA_HOST))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'

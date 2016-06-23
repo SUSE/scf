@@ -614,9 +614,6 @@ properties:
       - roles
       - user_attributes
       - routing.router_groups.read
-    zones:
-      internal:
-        hostnames: ['uaa', 'uaa-int']
   uaadb:
     databases:
     - name: uaadb
