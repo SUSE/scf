@@ -1092,7 +1092,7 @@ roles:
       indexed: 1
       min: 1
       max: 1
-    capabilities: ['NET_ADMIN']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
@@ -1100,12 +1100,12 @@ roles:
     exposed-ports:
       - name: 'dev-dns'
         protocol: 'UDP'
-        source: 53
+        source: 8600
         target: 53
         public: true
       - name: 'dev-dns-tcp'
         protocol: 'TCP'
-        source: 53
+        source: 8600
         target: 53
         public: true
 - name: sso-create-service
