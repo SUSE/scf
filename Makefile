@@ -142,7 +142,16 @@ show-versions:
 
 ########## CONFIGURATION TARGETS ##########
 
-generate: hcp mpc aws aws-spot aws-proxy aws-spot-proxy
+generate: \
+	hcp \
+	hcp-instance \
+	hcp-instance-ha \
+	mpc \
+	aws \
+	aws-spot \
+	aws-proxy \
+	aws-spot-proxy \
+	${NULL}
 
 hcp:
 	${GIT_ROOT}/make/generate hcp
@@ -170,7 +179,23 @@ aws-spot-proxy:
 
 ########## DISTRIBUTION TARGETS ##########
 
-dist: mpc-dist aws-dist aws-spot-dist aws-proxy-dist aws-spot-proxy-dist
+dist: \
+	hcp-dist \
+	hcp-ha-dist \
+	mpc-dist \
+	aws-dist \
+	aws-spot-dist \
+	aws-proxy-dist \
+	aws-spot-proxy-dist \
+	${NULL}
+
+hcp-dist: hcp hcp-instance
+	${GIT_ROOT}/make/package-hcp hcp
+	rm hcf-hcp*.json
+
+hcp-ha-dist: hcp hcp-instance-ha
+	${GIT_ROOT}/make/package-hcp hcp-ha
+	rm hcf-hcp*.json
 
 mpc-dist: mpc
 	${GIT_ROOT}/make/package-terraform mpc
