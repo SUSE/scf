@@ -18,3 +18,12 @@ password
 src/*-clone
 /*.tf
 /*.tf.json
+
+# `make dist` output of various forms
+/aws-hcf-*.zip
+/aws-proxy-hcf-*.zip
+/aws-spot-hcf-*.zip
+/aws-spot-proxy-hcf-*.zip
+/hcp-ha-hcf-*.zip
+/hcp-hcf-*.zip
+/mpc-hcf-*.zip

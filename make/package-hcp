@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/versioning
+
+TARGET=${1}
+
+case ${TARGET} in
+    hcp)
+        INSTANCE_DEFINITION=hcf-hcp-instance.json;;
+    hcp-ha)
+        INSTANCE_DEFINITION=hcf-hcp-instance-ha.json;;
+    *)
+        printf "\033[0;1;31mUnknown HCP package type ${TARGET}\033[0m\n" >&2
+        exit 1;;
+esac
+
+ARTIFACT=${TARGET}-${APP_VERSION}.zip
+
+zip -9 ${GIT_ROOT}/${ARTIFACT} hcf-hcp.json ${INSTANCE_DEFINITION}
+
+echo Generated ${ARTIFACT}
