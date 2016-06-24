@@ -467,6 +467,7 @@ roles:
   # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
   # to run migrations from
   - perform_nfs_test.sh
+  - cloud_controller_v2_droplet_count.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
