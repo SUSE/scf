@@ -1330,6 +1330,9 @@ configuration:
   - name: DOPPLER_ZONE
     default: z1
     type-hint: "string"
+  - name: HCF_SSO_HOST
+    default: hcf-sso
+    type-hint: hostname
   - name: HCF_SSO_PASSWORD
     secret: true
     type-hint: "password,random"
@@ -1790,6 +1793,7 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.hcf_sso.host: '"((HCF_SSO_HOST))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'

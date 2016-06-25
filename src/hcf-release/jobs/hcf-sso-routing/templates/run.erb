@@ -28,7 +28,7 @@ retry 10 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_doma
 cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 echo "Waiting for SSO Routing service broker..."
-while ! curl --fail --silent --insecure https://hcf-sso.hcf:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1; do
+while ! curl --fail --silent --insecure https://<%= p("hcf_sso.host") %>:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1; do
     sleep 10
 done
 
