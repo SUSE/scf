@@ -20,12 +20,13 @@ diff --git a/jobs/uaa/templates/uaa.yml.erb b/jobs/uaa/templates/uaa.yml.erb
 index 67c529a..abc7e1d 100644
 --- uaa.yml.erb
 +++ uaa.yml.erb
-@@ -191,7 +191,7 @@ zones:
+@@ -183,7 +183,8 @@ zones:
    internal:
      hostnames:
        <% if_p('domain') do |domain| %>- <%= "login.#{domain}" %><% end %>
 -      <% p_arr('uaa.zones.internal.hostnames').each do |hostname| %>- <%= hostname %><% end %>
-+<% p_arr('uaa.zones.internal.hostnames').each do |hostname| %><%= "      - #{hostname}\n" %><% end %>
++      <% p_arr('uaa.zones.internal.hostnames').each do |hostname| %>
++      - <%= hostname %><% end %>
  
  <% if_p('uaa.require_https') do |requireHttps| %>
  require_https: <%= requireHttps %>
