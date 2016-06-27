@@ -43,7 +43,7 @@ fi
 cf ${action}-service-broker sso-routing \
     <%= p("hcf_sso.username") %> \
     <%= p("hcf_sso.password") %> \
-    https://hcf-sso.hcf:<%= p("hcf_sso.port") %>
+    https://<%= p("hcf_sso.host") %>:<%= p("hcf_sso.port") %>
 
 # Make the broker available to all orgs and their spaces
 cf enable-service-access sso-routing
