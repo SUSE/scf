@@ -17,3 +17,5 @@ properties:
     description: Username for the service broker
   hcf_sso.password:
     description: Password for the service broker
+  hcf_sso.host
+    description: Hostname where the route service can be found
