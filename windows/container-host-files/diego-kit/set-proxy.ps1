@@ -80,10 +80,10 @@ if ($env:HTTP_PROXY -and $env:HTTPS_PROXY -and ($env:HTTP_PROXY -ne "") -and ($e
     # Set proxy for WinHTTP
     netsh winhttp set proxy proxy-server="$proxyServers" bypass-list="$bypassList"
 
-    # Run internet explorer as with an interactive logon toke to
+    # Run Internet Explorer with an interactive logon token to
     # initialize the system proxy.
-    # I agree, it is wired, but it is the only workaround that does not require
-    # the user to RDP into the box and start IE one time.
+    # I agree, it is weird, but it is the only workaround that does not require
+    # the user to RDP into the box and initialize IE.
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = "powershell.exe"
     $startInfo.Arguments = "/c", "(new-object -ComObject internetexplorer.application).navigate('dummy-url')"
