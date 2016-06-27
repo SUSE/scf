@@ -30,7 +30,7 @@ case ${TARGET} in
         ;;
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
-        TEMPLATE="hcp/hcf-${TARGET}.json.template"
+        TEMPLATE="hcp/hcf-${TARGET}.template.json"
         OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
