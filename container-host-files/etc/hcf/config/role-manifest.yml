@@ -386,7 +386,7 @@ roles:
       public: true
   configuration:
     templates:
-      properties.dns_health_check_host: localhost
+      properties.dns_health_check_host: example.com
       properties.skip_ssl_validation: true
 - name: routing-api
   scripts:
@@ -424,7 +424,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.dns_health_check_host: localhost
+      properties.dns_health_check_host: example.com
       properties.skip_ssl_validation: true
 - name: uaa
   scripts:
@@ -458,6 +458,11 @@ roles:
         protocol: 'TCP'
         source: 8080
         target: 8080
+        public: false
+      - name: 'uaa-ssl'
+        protocol: 'TCP'
+        source: 8443
+        target: 8443
         public: false
   configuration:
     templates:
@@ -1854,5 +1859,6 @@ configuration:
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
+    properties.uaa.zones.internal.hostnames: '["((UAA_HOST))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'

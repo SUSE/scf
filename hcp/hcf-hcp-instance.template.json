@@ -1,0 +1,9 @@
+{
+    "name": "hcf",
+    "version": "SOME VALID VERSION",
+    "vendor": "HPE",
+    "labels": ["my-hcf-cluster"],
+    "instance_id": "my-hcf-cluster",
+    "description": "HCF test cluster",
+    "parameters": []
+}

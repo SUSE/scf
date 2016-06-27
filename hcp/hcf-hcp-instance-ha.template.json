@@ -1,0 +1,93 @@
+{
+    "name": "hcf",
+    "version": "SOME HCF VERSION",
+    "vendor": "HPE",
+    "labels": ["my-hcf-cluster"],
+    "instance_id": "my-hcf-cluster",
+    "description": "HCF test cluster",
+    "parameters": [],
+    "scaling": [
+      {
+        "component": "diego-cell",
+        "min_instances": 5,
+        "max_instances": 5
+      },
+      {
+        "component": "api-1",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "router",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "api-worker",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "uaa",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "loggregator",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "doppler",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "diego-brain",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "diego-cc-bridge",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "diego-route-emitter",
+        "min_instances": 3,
+        "max_instances": 3
+      },
+      {
+        "component": "nats-1",
+        "min_instances": 1
+      },
+      {
+        "component": "nats-2",
+        "min_instances": 1
+      },
+      {
+        "component": "consul-1",
+        "min_instances": 1
+      },
+      {
+        "component": "consul-2",
+        "min_instances": 1
+      },
+      {
+        "component": "etcd-1",
+        "min_instances": 1
+      },
+      {
+        "component": "etcd-2",
+        "min_instances": 1
+      },
+      {
+        "component": "mysql-1",
+        "min_instances": 1
+      },
+      {
+        "component": "mysql-2",
+        "min_instances": 1
+      }
+    ]
+}

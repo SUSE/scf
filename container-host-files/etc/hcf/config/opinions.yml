@@ -428,7 +428,7 @@ properties:
   router:
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     # dns_health_check_host needs proper (positive or negative) response to A, AAAA, and MX
-    dns_health_check_host: localhost
+    dns_health_check_host: example.com
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
@@ -614,10 +614,6 @@ properties:
       - roles
       - user_attributes
       - routing.router_groups.read
-    zones:
-      internal:
-        hostnames:
-        - uaa
   uaadb:
     databases:
     - name: uaadb

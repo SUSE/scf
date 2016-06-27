@@ -309,7 +309,7 @@ class ToHCP < Common
     }
   end
 
-  MAX_PORT_RANGE = 50
+  MAX_PORT_RANGE = 10
   def add_ports(component, ports)
     cports = component['service_ports']
     ports.each do |port|
