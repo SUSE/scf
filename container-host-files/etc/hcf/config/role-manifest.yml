@@ -429,6 +429,7 @@ roles:
 - name: uaa
   scripts:
   - fake_spec_index_on_hcp.sh
+  - fix_uaa_hostnames_in_uaa_yml.sh
   jobs:
   - name: uaa
     release_name: cf
