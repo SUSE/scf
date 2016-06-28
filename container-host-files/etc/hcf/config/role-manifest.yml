@@ -2291,6 +2291,7 @@ configuration:
     properties.uaa.batch.username: '"((UAA_BATCH_USERNAME))"'
     properties.uaa.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
+    properties.uaa.clients: ((UAA_CLIENTS)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
@@ -2315,9 +2316,95 @@ configuration:
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
+    properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.uaa_url: '"https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443"'
+
+auth:
+  # This maps to properties.uaa.clients / properties.uaa.user.authorities;
+  # there is no mustache expansion here.
+  clients:
+    cf-autoscaler-client:
+      authorities: cloud_controller.read,cloud_controller.admin
+      authorized-grant-types: client_credentials
+    cf-usb:
+      authorities: cloud_controller.admin,usb.management.admin
+      authorized-grant-types: client_credentials
+      scope: usb.management.admin
+    cc-service-dashboards:
+      authorities: clients.read,clients.write,clients.admin
+      authorized-grant-types: client_credentials
+      scope: openid,cloud_controller_service_permissions.read
+    cc_routing:
+      authorities: routing.router_groups.read
+      authorized-grant-types: client_credentials
+    cf:
+      access-token-validity: 600
+      authorities: uaa.none
+      authorized-grant-types: implicit,password,refresh_token,client_credentials
+      autoapprove: true
+      override: true
+      refresh-token-validity: 2592000
+      scope: cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read
+
+    cloud_controller:
+      authorized-grant-types: client_credentials
+      authorities: scim.read,scim.write,password.write
+      id: cloud_controller
+      access-token-validity: 604800
+    cloud_controller_username_lookup:
+      authorities: scim.userids
+      authorized-grant-types: client_credentials
+    doppler:
+      authorities: uaa.resource
+      override: true
+    gorouter:
+      authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
+      authorized-grant-types: client_credentials,refresh_token
+      scope: openid,cloud_controller_service_permissions.read
+    hcf-sso:
+      access_token_validity: 3600
+      authorized-grant-types: authorization_code
+      scope: scim.me
+    login:
+      authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
+      authorized-grant-types: authorization_code,client_credentials,refresh_token
+      autoapprove: true
+      override: true
+      redirect-uri: https://login.example.com
+      scope: openid,oauth.approvals
+    notifications:
+      authorities: cloud_controller.admin,scim.read
+      authorized-grant-types: client_credentials
+    ssh-proxy:
+      authorized-grant-types: authorization_code
+      autoapprove: true
+      override: true
+      redirect-uri: /login
+      scope: openid,cloud_controller.read,cloud_controller.write
+    tcp_emitter:
+      authorities: routing.routes.write,routing.routes.read
+      authorized-grant-types: client_credentials,refresh_token
+    tcp_router:
+      authorities: routing.routes.read
+      authorized-grant-types: client_credentials,refresh_token
+  authorities:
+    - openid
+    - scim.me
+    - cloud_controller.read
+    - cloud_controller.write
+    - cloud_controller_service_permissions.read
+    - password.write
+    - uaa.user
+    - approvals.me
+    - oauth.approvals
+    - notification_preferences.read
+    - notification_preferences.write
+    - profile
+    - roles
+    - user_attributes
+    - routing.router_groups.read

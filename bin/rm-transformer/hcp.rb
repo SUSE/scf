@@ -27,20 +27,20 @@ class ToHCP < Common
   end
 
   # Public API
-  def transform(roles)
-    JSON.pretty_generate(to_hcp(roles))
+  def transform(role_manifest)
+    JSON.pretty_generate(to_hcp(role_manifest))
   end
 
   # Internal definitions
 
-  def to_hcp(roles)
+  def to_hcp(role_manifest)
     definition = empty_hcp
 
     fs = definition['volumes']
-    save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
-    collect_global_parameters(roles, definition)
-    determine_component_parameters(roles)
-    process_roles(roles, definition, fs)
+    save_shared_filesystems(fs, collect_shared_filesystems(role_manifest['roles']))
+    collect_global_parameters(role_manifest, definition)
+    determine_component_parameters(role_manifest)
+    process_roles(role_manifest, definition, fs)
 
     definition
     # Generated structure
@@ -86,6 +86,7 @@ class ToHCP < Common
     # DEF.parameters[].example				/string, !empty
     # DEF.parameters[].required				/bool
     # DEF.parameters[].secret				/bool
+    # DEF.features.auth[].auth_zone			/string
     #
     # (*1) Too many to list here. See hcp-developer/service_models.md
     #      for the full list. Notables:
@@ -110,20 +111,21 @@ class ToHCP < Common
       'vendor'            => 'HPE',         # TODO: Specify via option?
       'volumes'           => [],            # We do not generate volumes, leave empty
       'components'        => [],            # Fill from the roles, see below
+      'features'          => {},            # Fill from the roles, see below
       'parameters'        => [],            # Fill from the roles, see below
       'preflight'         => [],            # Fill from the roles, see below
       'postflight'        => []             # Fill from the roles, see below
     }
   end
 
-  def process_roles(roles, definition, fs)
+  def process_roles(role_manifest, definition, fs)
     section_map = {
       'pre-flight'  => 'preflight',
       'flight'      => 'components',
       'post-flight' => 'postflight'
     }
     gparam = definition['parameters']
-    roles['roles'].each do |role|
+    role_manifest['roles'].each do |role|
       # HCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
       next if tags_of(role).include?('dev-only')
@@ -131,12 +133,15 @@ class ToHCP < Common
       # We don't run to infinity because we will flood HCP if we do
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_role(roles, fs, dst, role, retries)
+      add_role(role_manifest, fs, dst, role, retries)
 
       # Collect per-role parameters
       if role['configuration'] && role['configuration']['variables']
         collect_parameters(gparam, role['configuration']['variables'])
       end
+    end
+    if role_manifest['auth']
+      definition['features']['auth'] = [generate_auth_definition(role_manifest)]
     end
   end
 
@@ -191,7 +196,7 @@ class ToHCP < Common
     fs.push(the_fs)
   end
 
-  def add_role(roles, fs, comps, role, retrycount)
+  def add_role(role_manifest, fs, comps, role, retrycount)
     runtime = role['run']
 
     scaling = runtime['scaling']
@@ -215,15 +220,15 @@ class ToHCP < Common
 
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
-        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
+        add_component(role_manifest, fs, comps, role, retrycount, x, mini, maxi)
       end
     else
       # Trivial scaling, no index, use min/max as is.
-      add_component(roles, fs, comps, role, retrycount, nil, min, max)
+      add_component(role_manifest, fs, comps, role, retrycount, nil, min, max)
     end
   end
 
-  def add_component(roles, fs, comps, role, retrycount, index, min, max)
+  def add_component(role_manifest, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
     iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
@@ -287,10 +292,10 @@ class ToHCP < Common
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
     # Reference global parameters
-    if roles['configuration'] && roles['configuration']['variables']
+    if role_manifest['configuration'] && role_manifest['configuration']['variables']
       add_parameter_names(the_comp,
                           component_parameters(the_comp,
-                                               roles['configuration']['variables']))
+                                               role_manifest['configuration']['variables']))
     end
 
     # Reference per-role parameters
@@ -600,6 +605,44 @@ class ToHCP < Common
     else
       maxi-x
     end
+  end
+
+  # Generate the features.auth element
+  def generate_auth_definition(role_manifest)
+    properties = role_manifest['configuration']['templates']
+    auth_configs = role_manifest['auth']
+    {
+      auth_zone: 'self',
+      user_authorities: auth_configs['authorities'],
+      clients: auth_configs['clients'].map{|client_id, client_config|
+        config = {
+          id: client_id,
+          name: client_id,
+          authorized_grant_types: client_config['authorized-grant-types'],
+          scope: client_config['scope'],
+          authorities: client_config['authorities'],
+          access_token_validity: client_config['access-token-validity'],
+          refresh_token_validity: client_config['refresh-token-validity'],
+          parameters: []
+        }
+        config.delete_if { |_, value| value.nil? }
+        [:authorized_grant_types, :scope, :authorities].each do |key|
+          # For these values, HCP wants them as arrays,
+          # UAA wants comma-delimited strings
+          if config[key].is_a? String
+            config[key] = config[key].split(',')
+          end
+        end
+        secret_value = properties["properties.uaa.clients.#{client_id}.secret"]
+        unless secret_value.nil?
+          # We need to get rid of some of the nested layers of mustaching
+          secret_value.gsub!(/^(["'])(.*)\1$/, '\2')
+          secret_value.gsub!(/\(\((.*?)\)\)/, '\1')
+          config[:parameters] << { name: secret_value }
+        end
+        config
+      }
+    }
   end
 
   # # ## ### ##### ########

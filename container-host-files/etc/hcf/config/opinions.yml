@@ -474,71 +474,7 @@ properties:
       username: batch_username
     catalina_opts:
       "-Xmx768m -XX:MaxPermSize=256m"
-    clients:
-      cf-autoscaler-client:
-        authorities: cloud_controller.read,cloud_controller.admin
-        authorized-grant-types: client_credentials
-      cf-usb:
-        authorities: cloud_controller.admin,usb.management.admin
-        authorized-grant-types: client_credentials
-        scope: usb.management.admin
-      cc-service-dashboards:
-        authorities: clients.read,clients.write,clients.admin
-        authorized-grant-types: client_credentials
-        scope: openid,cloud_controller_service_permissions.read
-      cc_routing:
-        authorities: routing.router_groups.read
-        authorized-grant-types: client_credentials
-      cf:
-        access-token-validity: 600
-        authorities: uaa.none
-        authorized-grant-types: implicit,password,refresh_token,client_credentials
-        autoapprove: true
-        override: true
-        refresh-token-validity: 2592000
-        scope: cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read
-
-      cloud_controller:
-        authorized-grant-types: client_credentials
-        authorities: scim.read,scim.write,password.write
-        id: cloud_controller
-        access-token-validity: 604800
-      cloud_controller_username_lookup:
-        authorities: scim.userids
-        authorized-grant-types: client_credentials
-      doppler:
-        authorities: uaa.resource
-        override: true
-      gorouter:
-        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
-        scope: openid,cloud_controller_service_permissions.read
-      hcf-sso:
-        access_token_validity: 3600
-        authorized-grant-types: authorization_code
-        scope: scim.me
-      login:
-        authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
-        authorized-grant-types: authorization_code,client_credentials,refresh_token
-        autoapprove: true
-        override: true
-        redirect-uri: https://login.example.com
-        scope: openid,oauth.approvals
-      notifications:
-        authorities: cloud_controller.admin,scim.read
-        authorized-grant-types: client_credentials
-      ssh-proxy:
-        authorized-grant-types: authorization_code
-        autoapprove: true
-        override: true
-        redirect-uri: /login
-        scope: openid,cloud_controller.read,cloud_controller.write
-      tcp_emitter:
-        authorities: routing.routes.write,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
-      tcp_router:
-        authorities: routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
+    clients: {} # Filled in from role manifest
     database:
       abandoned_timeout: 600
       log_abandoned: true
@@ -564,23 +500,7 @@ properties:
     token_endpoint: uaa
     tls_port: 8443
     url: https://uaa.example.com
-    user:
-      authorities:
-      - openid
-      - scim.me
-      - cloud_controller.read
-      - cloud_controller.write
-      - cloud_controller_service_permissions.read
-      - password.write
-      - uaa.user
-      - approvals.me
-      - oauth.approvals
-      - notification_preferences.read
-      - notification_preferences.write
-      - profile
-      - roles
-      - user_attributes
-      - routing.router_groups.read
+    user: {} # Filled in from role manifest
   uaadb:
     databases:
     - name: uaadb
