@@ -428,7 +428,7 @@ properties:
   router:
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     # dns_health_check_host needs proper (positive or negative) response to A, AAAA, and MX
-    dns_health_check_host: example.com
+    dns_health_check_host: 127.0.0.1
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:

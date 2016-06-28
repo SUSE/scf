@@ -386,7 +386,7 @@ roles:
       public: true
   configuration:
     templates:
-      properties.dns_health_check_host: example.com
+      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.skip_ssl_validation: true
 - name: routing-api
   scripts:
@@ -424,7 +424,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.dns_health_check_host: example.com
+      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.skip_ssl_validation: true
 - name: uaa
   scripts:
@@ -1228,6 +1228,9 @@ configuration:
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain"
     type-hint: "string,hostname"
+  - name: DNS_HEALTH_CHECK_HOST
+    default: "127.0.0.1"
+    type-hint: "string,hostname"
   - name: NATS_HOST
     default: "nats"
     type-hint: "string,hostname"
@@ -1773,7 +1776,7 @@ configuration:
     properties.etcd.ca_cert: '"((ETCD_CA_CRT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.etcd.dns_health_check_host: '"((CONSUL_HOST))"'
+    properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.etcd.peer_ca_cert: '"((ETCD_PEER_CA_CRT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
@@ -1812,6 +1815,7 @@ configuration:
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
