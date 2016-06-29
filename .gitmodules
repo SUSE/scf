@@ -30,5 +30,4 @@
 	url = https://github.com/cloudfoundry-incubator/routing-release.git
 [submodule "src/open-Autoscaler"]
 	path = src/open-Autoscaler
-	url = git@github.com:ericpromislow/open-Autoscaler.git
-	branch = 3-fix-network-addresses
+	url = git@github.com:hpcloud/open-Autoscaler.git
