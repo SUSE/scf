@@ -24,7 +24,6 @@ release_name=$2
 # to older ones
 docker run \
     --interactive \
-    --tty \
     --rm \
     --volume ${HOME}/.bosh:/root/.bosh \
     --volume $ROOT/:$ROOT/ \
