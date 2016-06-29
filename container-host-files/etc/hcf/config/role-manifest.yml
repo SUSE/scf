@@ -1649,10 +1649,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: UAA_CC_ROUTING_SECRET
-    secret: true
-    generator:
-      type: Password
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     secret: true
     generator:
