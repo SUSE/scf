@@ -625,19 +625,35 @@ class ToHCP < Common
           refresh_token_validity: client_config['refresh-token-validity'],
           parameters: []
         }
+
         config.delete_if { |_, value| value.nil? }
+
         [:authorized_grant_types, :scope, :authorities].each do |key|
-          # For these values, HCP wants them as arrays,
-          # UAA wants comma-delimited strings
-          if config[key].is_a? String
+          case config[key]
+          when nil then
+            config[key] = []
+          when String then
+            # For these values, HCP wants them as arrays,
+            # UAA wants comma-delimited strings
             config[key] = config[key].split(',')
           end
         end
+
+        if config[:authorized_grant_types].empty?
+          # While UAA.yml accepts things with no grant types, the UAA API
+          # requires them.  Push in the defaults.
+          config[:authorized_grant_types] << 'authorization_code'
+          config[:authorized_grant_types] << 'refresh_token'
+        end
+
         secret_value = properties["properties.uaa.clients.#{client_id}.secret"]
         unless secret_value.nil?
           # We need to get rid of some of the nested layers of mustaching
           secret_value.gsub!(/^(["'])(.*)\1$/, '\2')
           secret_value.gsub!(/\(\((.*?)\)\)/, '\1')
+          # secrets currently need to be lowercase and can only use dashes, not underscores
+          # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
+          secret_value.downcase!.gsub!('_', '-')
           config[:parameters] << { name: secret_value }
         end
         config
