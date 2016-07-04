@@ -11,7 +11,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       cf-usb/cf-usb-release
       diego-release
       etcd-release
-      garden-release
+      garden-linux-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
       hcf-release
