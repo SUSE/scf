@@ -6,3 +6,8 @@ PrePush:
   BranchHasNotes:
     enabled: true
     command: ./vendor/github.com/hpe-cloud-garage/git-notary/hooks/pre-push/branch-has-notes
+PreCommit:
+  JsonSyntax:
+    enabled: true
+  YamlSyntax:
+    enabled: true

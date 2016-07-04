@@ -361,8 +361,8 @@ properties:
     server_key: null
   etcd_metrics_server:
     nats:
-      password: *nats_password
-      username: *nats_user
+      password: &nats_password nats_password
+      username: &nats_user nats_user
   garden:
     deny_networks: []
     graph_cleanup_threshold_in_mb: 0
@@ -412,11 +412,11 @@ properties:
   nats:
     debug: false
     monitor_port: 0
-    password: &nats_password nats_password
+    password: *nats_password
     port: 4222
     prof_port: 0
     trace: false
-    user: &nats_user nats_user
+    user: *nats_user
   nfs_server:
     address: 0.0.0.3
     allow_from_entries:
