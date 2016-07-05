@@ -629,21 +629,17 @@ class ToHCP < Common
         config.delete_if { |_, value| value.nil? }
 
         [:authorized_grant_types, :scope, :authorities].each do |key|
-          case config[key]
-          when nil then
-            config[key] = []
-          when String then
+          if config[key].is_a? String
             # For these values, HCP wants them as arrays,
             # UAA wants comma-delimited strings
             config[key] = config[key].split(',')
           end
         end
 
-        if config[:authorized_grant_types].empty?
+        if config[:authorized_grant_types].nil?
           # While UAA.yml accepts things with no grant types, the UAA API
           # requires them.  Push in the defaults.
-          config[:authorized_grant_types] << 'authorization_code'
-          config[:authorized_grant_types] << 'refresh_token'
+          config[:authorized_grant_types] = ['authorization_code', 'refresh_token']
         end
 
         secret_value = properties["properties.uaa.clients.#{client_id}.secret"]
