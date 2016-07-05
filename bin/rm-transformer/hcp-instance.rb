@@ -1,6 +1,7 @@
 ## HCP instance definition output provider
 # # ## ### ##### ########
 
+require 'json'
 require_relative 'common'
 
 # Provider to generate HCP instance definitions
@@ -22,7 +23,9 @@ class ToHCPInstance < Common
   def to_hcp_instance(manifest)
     definition = load_template
     variables = (manifest['configuration'] || {})['variables']
-    definition['parameters'] = collect_parameters(variables)
+    definition['parameters'] = []
+    definition['parameters'].push(*get_uaa_parameter(manifest['auth']))
+    definition['parameters'].push(*collect_parameters(variables))
     definition['sdl_version'] = @hcf_version
     definition['product_version'] = Common.product_version
     definition
@@ -33,6 +36,27 @@ class ToHCPInstance < Common
     open(@options[:instance_definition_template], 'r') do |f|
       JSON.load f
     end
+  end
+
+  def get_uaa_parameter(auth_info)
+    # Add in the UAA clients / authorities information like we do for vagrant
+    # These aren't actually used, but we need the structure in place so
+    # configgin doesn't choke when trying to add child properties
+    return [] unless auth_info
+    results = []
+    if auth_info['clients']
+      results << {
+        'name' => 'UAA_CLIENTS',
+        'value' => auth_info['clients'].to_json
+      }
+    end
+    if auth_info['authorities']
+      results << {
+        'name' => 'UAA_USER_AUTHORITIES',
+        'value' => auth_info['authorities'].to_json
+      }
+    end
+    results
   end
 
   def collect_parameters(variables)
