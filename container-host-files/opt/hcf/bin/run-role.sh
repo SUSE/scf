@@ -12,6 +12,11 @@ setup_dir="$1"
 role_name="$2"
 shift 2
 
+if [ ! -d "$setup_dir" ]; then
+    echo 1>&2 "Config directory does not exist"
+    exit 1
+fi
+
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
 # SELF    = /opt/hcf/bin/list-roles.sh
 # SELFDIR = /opt/hcf/bin
