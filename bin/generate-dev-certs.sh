@@ -75,13 +75,12 @@ certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA bbsCA  --passphr
 
 
 # generate SSO routing certs
-# ATTENTION! These are self-signed.
-# This forces "router.ssl_skip_validation: true" in opinions.yml
 mkdir -p ${sso_routing_path}
-openssl genrsa -out ${sso_routing_path}/sso_routing.rsa 4096
-openssl req -new -key ${sso_routing_path}/sso_routing.rsa -out ${sso_routing_path}/sso_routing.csr -sha512 -subj "/CN=hcf-sso.hcf/C=US"
-openssl x509 -req -in ${sso_routing_path}/sso_routing.csr -signkey ${sso_routing_path}/sso_routing.rsa -out ${sso_routing_path}/sso_routing.crt
-cat ${sso_routing_path}/sso_routing.crt ${sso_routing_path}/sso_routing.rsa > ${sso_routing_path}/sso_routing.key
+certstrap --depot-path "${sso_routing_path}" init --common-name "ssoCA" --passphrase $signing_key_passphrase
+certstrap --depot-path "${sso_routing_path}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf" --passphrase ""
+certstrap --depot-path "${sso_routing_path}" sign hcf-sso.hcf --CA ssoCA --passphrase "$signing_key_passphrase"
+cat ${sso_routing_path}/hcf-sso.hcf.crt ${sso_routing_path}/hcf-sso.hcf.key > ${sso_routing_path}/sso_routing.key
+cp ${sso_routing_path}/hcf-sso.hcf.crt ${sso_routing_path}/sso_routing.crt
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${etcd_certs_dir}"  init --common-name "etcdCA" --passphrase $signing_key_passphrase
@@ -173,6 +172,7 @@ CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.crt")
 CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/agent.key")
 CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.crt")
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${consul_path}/server.key")
+SSO_ROUTE_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/ssoCA.crt")
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/sso_routing.key")
 
@@ -208,6 +208,7 @@ CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
 CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
 CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
+SSO_ROUTE_CA_CERT=${SSO_ROUTE_CA_CERT}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 ENVS

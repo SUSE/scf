@@ -322,6 +322,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
+  - add_sso_certs_to_system.sh
   jobs:
   - name: gorouter
     release_name: routing
@@ -1598,6 +1599,9 @@ configuration:
   - name: NO_PROXY
     default: "127.0.0.1"
     type-hint: "string"
+  - name: SSO_ROUTE_CA_CERT
+    secret: true
+    type-hint: "string,certificate"
   - name: SSO_ROUTE_CERT
     secret: true
     type-hint: "string,certificate"
@@ -1805,6 +1809,7 @@ configuration:
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.hcf_sso.host: '"((HCF_SSO_HOST))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
+    properties.hcf_sso.ca_cert: '"((SSO_ROUTE_CA_CERT))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
@@ -1820,8 +1825,7 @@ configuration:
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh force the setting below.
-    properties.router.ssl_skip_validation: true
+    properties.router.ssl_skip_validation: null
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.routing.etcd.servers: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
