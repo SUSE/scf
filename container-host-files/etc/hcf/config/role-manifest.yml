@@ -1029,6 +1029,8 @@ roles:
 
 - name: autoscaler-api
   type: bosh
+  scripts:
+  - configgin-config-properties.sh
   jobs:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
@@ -1056,11 +1058,15 @@ roles:
         public: false
   configuration:
     templates:
+      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
       properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
 
 - name: autoscaler-server
   type: bosh
+  scripts:
+  - configgin-config-properties.sh
   jobs:
   - name: autoscaler_server
     release_name: cf-open-autoscaler
@@ -1085,11 +1091,17 @@ roles:
         public: false
   configuration:
     templates:
+      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+      properties.couchdb.dbname: '"((AUTOSCALER_SERVER_COUCHDB_DBNAME))"'
+      properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
+      properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
       properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
-      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
 
 - name: autoscaler-servicebroker
   type: bosh
+  scripts:
+  - configgin-config-properties.sh
   jobs:
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
@@ -1115,14 +1127,18 @@ roles:
   configuration:
     templates:
       properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
+      properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
+      properties.autoscaler.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+      properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
+      properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_USERNAME))"'
+      properties.couchdb.dbname: '"((AUTOSCALER_SERVICEBROKER_COUCHDB_DBNAME))"'
       properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
       properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
-      properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
       properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
-      properties.tomcat.http.autoscaler_servicebroker.port: *autoscaler_servicebroker_port
       properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
-      properties.autoscaler.couchdb.host: '"((COUCHDB_HOST))"'
-      properties.couchdb.dbname: '"couchdb-scalingbroker"'
+      properties.tomcat.http.autoscaler_servicebroker.port: *autoscaler_servicebroker_port
 
 - name: couchdb
   type: bosh
@@ -1150,8 +1166,8 @@ roles:
         public: false
   configuration:
     templates:
-      properties.couchdb.username: '"((COUCHDB_USER))"'
-      properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
+      properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
+      properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
 
 - name: acceptance-tests
   type: bosh-task
@@ -1351,6 +1367,12 @@ configuration:
   - name: AUTOSCALER_SERVICE_BROKER_HOST
     default: "autoscaler-servicebroker"
     type-hint: "string,hostname"
+  - name: AUTOSCALER_USERNAME
+    default: admin
+    type-hint: "string"
+  - name: AUTOSCALER_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
     type-hint: "string,hostname"
@@ -1866,12 +1888,12 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.dbname: '"((COUCH_DBNAME))"'
-    properties.couchdb.host: '"((COUCHDB_HOST))"'
-    properties.couchdb.metric_prefix: '"((COUCH_METRIC_PREFIX))"'
-    properties.couchdb.password: '"((COUCHDB_PASSWORD))"'
-    properties.couchdb.port: '"((COUCHDB_PORT))"'
-    properties.couchdb.username: '"((COUCHDB_USER))"'
+    properties.couchdb.dbname: '"((AUTOSCALER_SERVER_COUCHDB_DBNAME))"'
+    properties.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.couchdb.metric_prefix: '"((AUTOSCALER_COUCHDB_METRIC_PREFIX))"'
+    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
+    properties.couchdb.port: '((AUTOSCALER_COUCHDB_PORT))'
+    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
