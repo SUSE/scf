@@ -493,6 +493,7 @@ roles:
   # to run migrations from
   - perform_nfs_test.sh
   - cloud_controller_v2_droplet_count.sh
+  - fix_buildpack_install.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
