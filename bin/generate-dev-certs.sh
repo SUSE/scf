@@ -66,7 +66,7 @@ openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key
 openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
 
 # Generate internal CA
-certstrap --depot-path "${bbs_certs_dir}" init --common-name "internalCA" --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${bbs_certs_dir}" init --common-name "internalCA" --passphrase "${signing_key_passphrase}" --years 10
 
 # generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${bbs_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
