@@ -529,7 +529,6 @@ roles:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
   - name: cloud_controller_worker_local_2
-  - name: cloud_controller_migration
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
