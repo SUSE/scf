@@ -39,6 +39,7 @@ BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-f
 # Certificate generation
 certs_path="/tmp/hcf/certs"
 hcf_certs_path="${certs_path}/hcf"
+internal_certs_dir="${certs_path}/internal"
 bbs_certs_dir="${certs_path}/internal"
 etcd_certs_dir="${certs_path}/internal"
 consul_path="${certs_path}/internal"
@@ -115,18 +116,12 @@ app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{pr
 # generate uaa certs
 
 uaa_server_key="${certs_path}/uaa_private_key.pem"
-uaa_server_csr="${certs_path}/uaa_server.csr"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-# (Instructions from github.com/cloudfoundry/uaa-release:)
-# 1. Generate your private key with any passphrase
-openssl genrsa -aes256 -out ${uaa_server_key} -passout pass:"${signing_key_passphrase}" 1024
-# 2. Remove passphrase from key
-openssl rsa -in ${uaa_server_key} -out ${uaa_server_key} -passin pass:"${signing_key_passphrase}"
-# 3. Generate certificate signing request for CA
-openssl req -x509 -sha256 -new -key ${uaa_server_key} -out ${uaa_server_csr} -subj "/CN=${UAA_HOST}/"
-# 4. Generate self-signed certificate with 365 days expiry-time
-openssl x509 -sha256 -days 365 -in ${uaa_server_csr} -signkey ${uaa_server_key} -out ${uaa_server_crt}
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign "${UAA_HOST}" --CA internalCA --passphrase "${signing_key_passphrase}"
+cp "${internal_certs_dir}/${UAA_HOST}.crt" "${uaa_server_crt}"
+cat "${internal_certs_dir}/${UAA_HOST}.crt" "${internal_certs_dir}/${UAA_HOST}.key" > "${uaa_server_key}"
 
 openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
@@ -151,7 +146,7 @@ BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsClient.key")
 BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsServer.crt")
 BBS_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${bbs_certs_dir}/bbsClient.crt")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
-UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_private_key.pem")
+UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
