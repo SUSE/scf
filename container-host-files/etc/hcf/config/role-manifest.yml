@@ -2003,6 +2003,8 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
+    properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
+    properties.hm9000.port: 5155
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
