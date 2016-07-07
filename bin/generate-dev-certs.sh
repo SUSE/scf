@@ -26,12 +26,10 @@ signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
   buildCertstrap=$(docker run -d golang:1.6 bash -c "go get github.com/square/certstrap")
-  docker wait ${buildCertstrap}
-  docker cp ${buildCertstrap}:/go/bin/certstrap /home/vagrant/bin/
-  docker rm  ${buildCertstrap}
+  docker wait "${buildCertstrap}"
+  docker cp "${buildCertstrap}:/go/bin/certstrap" /home/vagrant/bin/
+  docker rm "${buildCertstrap}"
 }
-
-BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-files/opt/hcf/bin" && pwd )/"`
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/settings.env"
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/hosts.env"
@@ -73,7 +71,6 @@ certstrap --depot-path "${internal_certs_dir}"  sign bbsClient  --CA internalCA 
 
 
 # generate SSO routing certs
-mkdir -p ${internal_certs_dir}
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign hcf-sso.hcf --CA internalCA --passphrase "${signing_key_passphrase}"
 cat ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/hcf-sso.hcf.key > ${internal_certs_dir}/sso_routing.key
