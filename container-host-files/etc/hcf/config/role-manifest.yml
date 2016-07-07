@@ -1789,6 +1789,7 @@ configuration:
     secret: true
     type-hint: "string,certificate"
   templates:
+    bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
