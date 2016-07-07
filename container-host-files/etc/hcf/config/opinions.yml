@@ -225,7 +225,7 @@ properties:
         restart_if_consistently_above_mb: null
     user_buildpacks: []
     users_can_select_backend: true
-    core_file_pattern: ""
+    core_file_pattern: false
   ccdb:
     databases:
     - name: ccdb
