@@ -13,7 +13,7 @@ output_path="$1"
 
 set -u
 
-if test -z "$output_path" ; then
+if test -z "${output_path}" ; then
   cat <<EOL
   Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
@@ -26,9 +26,9 @@ signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
   buildCertstrap=$(docker run -d golang:1.6 bash -c "go get github.com/square/certstrap")
-  docker wait  $buildCertstrap
-  docker cp $buildCertstrap:/go/bin/certstrap /home/vagrant/bin/
-  docker rm  $buildCertstrap
+  docker wait ${buildCertstrap}
+  docker cp ${buildCertstrap}:/go/bin/certstrap /home/vagrant/bin/
+  docker rm  ${buildCertstrap}
 }
 
 BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-files/opt/hcf/bin" && pwd )/"`
@@ -38,7 +38,7 @@ BINDIR=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../container-host-f
 
 # Certificate generation
 certs_path="/tmp/hcf/certs"
-hcf_certs_path="$certs_path/hcf"
+hcf_certs_path="${certs_path}/hcf"
 bbs_certs_dir="${certs_path}/internal"
 etcd_certs_dir="${certs_path}/internal"
 consul_path="${certs_path}/internal"
@@ -51,9 +51,9 @@ mkdir -p ${certs_path}
 
 # generate cf ha_proxy certs
 # Source: https://github.com/cloudfoundry/cf-release/blob/master/example_manifests/README.md#dns-configuration
-rm -rf $hcf_certs_path
-mkdir -p $hcf_certs_path
-cd $hcf_certs_path
+rm -rf ${hcf_certs_path}
+mkdir -p ${hcf_certs_path}
+cd ${hcf_certs_path}
 
 openssl genrsa -out hcf.key 4096
 openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
@@ -65,45 +65,45 @@ openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key
 openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
 
 # Generate internal CA
-certstrap --depot-path "${bbs_certs_dir}" init --common-name "internalCA" --passphrase $signing_key_passphrase
+certstrap --depot-path "${bbs_certs_dir}" init --common-name "internalCA" --passphrase "${signing_key_passphrase}"
 
 # generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${bbs_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${bbs_certs_dir}"  sign bbsServer  --CA internalCA  --passphrase $signing_key_passphrase
+certstrap --depot-path "${bbs_certs_dir}"  sign bbsServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${bbs_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
-certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA internalCA  --passphrase $signing_key_passphrase
+certstrap --depot-path "${bbs_certs_dir}"  sign bbsClient  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 
 # generate SSO routing certs
 mkdir -p ${sso_routing_path}
 certstrap --depot-path "${sso_routing_path}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf" --passphrase ""
-certstrap --depot-path "${sso_routing_path}" sign hcf-sso.hcf --CA internalCA --passphrase "$signing_key_passphrase"
+certstrap --depot-path "${sso_routing_path}" sign hcf-sso.hcf --CA internalCA --passphrase "${signing_key_passphrase}"
 cat ${sso_routing_path}/hcf-sso.hcf.crt ${sso_routing_path}/hcf-sso.hcf.key > ${sso_routing_path}/sso_routing.key
 cp ${sso_routing_path}/hcf-sso.hcf.crt ${sso_routing_path}/sso_routing.crt
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${etcd_certs_dir}"  sign etcdServer  --CA internalCA  --passphrase $signing_key_passphrase
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${etcd_certs_dir}"  request-cert  --common-name "etcdClient"  --passphrase ""
-certstrap --depot-path "${etcd_certs_dir}"  sign etcdClient  --CA internalCA  --passphrase $signing_key_passphrase
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdClient  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${etcd_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${etcd_certs_dir}"  sign etcdPeer  --CA internalCA  --passphrase $signing_key_passphrase
+certstrap --depot-path "${etcd_certs_dir}"  sign etcdPeer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
 # Server certificate to share across the consul cluster
 server_cn=server.dc1.hcf
-certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name $server_cn
-certstrap --depot-path ${consul_path} sign $server_cn --CA internalCA --passphrase $signing_key_passphrase
-mv -f ${consul_path}/$server_cn.key ${consul_path}/server.key
-mv -f ${consul_path}/$server_cn.csr ${consul_path}/server.csr
-mv -f ${consul_path}/$server_cn.crt ${consul_path}/server.crt
+certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name ${server_cn}
+certstrap --depot-path ${consul_path} sign ${server_cn} --CA internalCA --passphrase "${signing_key_passphrase}"
+mv -f ${consul_path}/${server_cn}.key ${consul_path}/server.key
+mv -f ${consul_path}/${server_cn}.csr ${consul_path}/server.csr
+mv -f ${consul_path}/${server_cn}.crt ${consul_path}/server.crt
 
 # Agent certificate to distribute to jobs that access consul
 certstrap --depot-path ${consul_path} request-cert --passphrase '' --common-name 'consul agent'
-certstrap --depot-path ${consul_path} sign consul_agent --CA internalCA --passphrase $signing_key_passphrase
+certstrap --depot-path ${consul_path} sign consul_agent --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f ${consul_path}/consul_agent.key ${consul_path}/agent.key
 mv -f ${consul_path}/consul_agent.csr ${consul_path}/agent.csr
 mv -f ${consul_path}/consul_agent.crt ${consul_path}/agent.crt
@@ -166,7 +166,7 @@ SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${sso_routing_path}/sso_routing.key
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
-cat <<ENVS > $output_path
+cat <<ENVS > ${output_path}
 CERTS_ROOT_CHAIN_PEM=${CERTS_ROOT_CHAIN_PEM}
 JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
 JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
