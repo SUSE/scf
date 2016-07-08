@@ -89,10 +89,6 @@ make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
 This generates the `hcf-hcp.json` file containing the HCP service definition for
 the current set of roles.
 
-#### Interim notes until the role-manifest transformer catches up:
-
-When targetting versions of HCP >= 1.1.22 ensure that the secret parameters do not have a default value.  If you're running an older version of rmtransformer this line will fix that:
-
 ### Register the service with HCP:
 
 ```bash
