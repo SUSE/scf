@@ -14,6 +14,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       garden-linux-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
+      routing-release
       hcf-release
       hcf-sso/hcf-sso-release
       windows-runtime-release
