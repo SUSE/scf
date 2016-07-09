@@ -21,6 +21,8 @@ properties:
     management:
       uaa:
         secret: cf-usb_secret
+  couchdb:
+    password: couchdb_password
   domain: example.com
   nats:
     user: nats_user
@@ -48,6 +50,8 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
+      cf-autoscaler-client:
+        secret: cf-autoscaler-client-secret
       cf-usb:
         secret: cf-usb_secret
       cc_routing:

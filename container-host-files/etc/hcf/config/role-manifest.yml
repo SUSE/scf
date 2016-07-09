@@ -1026,6 +1026,121 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
+
+- name: autoscaler-api
+  type: bosh
+  scripts:
+  - configgin-config-properties.sh
+  jobs:
+  - name: autoscaler_api
+    release_name: cf-open-autoscaler
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: tomcat
+  - name: route_registrar
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_api'
+        protocol: 'TCP'
+        source: 28861
+        target: 28861
+        public: false
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
+- name: autoscaler-server
+  type: bosh
+  scripts:
+  - configgin-config-properties.sh
+  jobs:
+  - name: autoscaler_server
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_server'
+        protocol: 'TCP'
+        source: 28862
+        target: 28862
+        public: false
+  configuration:
+    templates:
+      properties.couchdb.dbname: '"couchdb-scaling"'
+- name: autoscaler-servicebroker
+  type: bosh
+  scripts:
+  - configgin-config-properties.sh
+  jobs:
+  - name: autoscaler_servicebroker
+    release_name: cf-open-autoscaler
+  processes:
+  - name: tomcat
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'autoscaler_servicebroker'
+        protocol: 'TCP'
+        source: 28863
+        target: 28863
+        public: false
+  configuration:
+    templates:
+      properties.couchdb.dbname: '"couchdb-scalingbroker"'
+- name: couchdb
+  type: bosh
+  jobs:
+  - name: couchdb
+    release_name: cf-open-autoscaler
+  processes:
+  - name: couchdb
+  run:
+    flight-stage: flight
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports:
+      - name: 'couchdb'
+        protocol: 'TCP'
+        source: 5984
+        target: 5984
+        public: false
 - name: acceptance-tests
   type: bosh-task
   jobs:
@@ -1210,6 +1325,24 @@ configuration:
     secret: true
     type-hint: "password,random"
   - name: BLOBSTORE_SECURE_LINK
+    secret: true
+    type-hint: "password,random"
+  - name: COUCHDB_HOST
+    default: "couchdb"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_API_HOST
+    default: "autoscaler-api"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVER_HOST
+    default: "autoscaler-server"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_SERVICE_BROKER_HOST
+    default: "autoscaler-servicebroker"
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_USERNAME
+    default: admin
+    type-hint: "string"
+  - name: AUTOSCALER_PASSWORD
     secret: true
     type-hint: "password,random"
   - name: DIEGO_DATABASE_HOST
@@ -1479,6 +1612,9 @@ configuration:
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
     type-hint: "subnet"
+  - name: OPEN_AUTOSCALER_HOST
+    default: "open-autoscaler"
+    type-hint: "string,hostname"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -1573,6 +1709,12 @@ configuration:
   - name: CONSUL_SERVER_KEY
     secret: true
     type-hint: "string,certificate"
+  - name: COUCHDB_USER
+    default: admin
+    type-hint: "string"
+  - name: COUCHDB_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: SKIP_CERT_VERIFY
     default: true
     type-hint: "boolean"
@@ -1614,6 +1756,10 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_api.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_SERVICEBROKER_PASSWORD))"'
+    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_SERVICEBROKER_USERNAME))"'
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
@@ -1714,6 +1860,11 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
+    properties.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.couchdb.metric_prefix: '"((AUTOSCALER_COUCHDB_METRIC_PREFIX))"'
+    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
+    properties.couchdb.port: '((AUTOSCALER_COUCHDB_PORT))'
+    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -1842,8 +1993,10 @@ configuration:
     properties.uaa.batch.username: '"((UAA_BATCH_USERNAME))"'
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
+    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
@@ -1867,3 +2020,17 @@ configuration:
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
+    properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
+    properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
+    properties.autoscaler.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
+    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
+    properties.tomcat.http.autoscaler_api.port: 28861
+    properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
+    properties.tomcat.http.autoscaler_server.port: 28862
+    properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
+    properties.tomcat.http.autoscaler_servicebroker.port: 28863

@@ -259,6 +259,10 @@ properties:
     require_ssl: false
     server_cert: null
     server_key: null
+  couchdb:
+    dbname: couchdb-scaling
+    metric_prefix: couchdb-scalingmetric
+    port: 5984
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
@@ -494,6 +498,10 @@ properties:
     clients:
       app-direct:
         secret: app-direct_secret
+      cf-autoscaler-client:
+        authorities: cloud_controller.read,cloud_controller.admin
+        authorized-grant-types: client_credentials
+        secret: cf-autoscaler-client-secret
       cf-usb:
         authorities: cloud_controller.admin,usb.management.admin
         authorized-grant-types: client_credentials
