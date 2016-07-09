@@ -80,6 +80,11 @@ windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
 open-autoscaler-release:
+	rm -rf ${GIT_ROOT}/src/open-Autoscaler/servicebroker/target/
+	rm -rf ${GIT_ROOT}/src/open-Autoscaler/server/target/
+	rm -rf ${GIT_ROOT}/src/open-Autoscaler/api/target/
+	rm -rf ${GIT_ROOT}/src/open-Autoscaler/bosh-release/downloads/
+	rm -rf ${GIT_ROOT}/src/open-Autoscaler/bosh-release/blobs/
 	${GIT_ROOT}/make/generate-autoscaler-blobs --profile hcf src/open-Autoscaler
 	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 

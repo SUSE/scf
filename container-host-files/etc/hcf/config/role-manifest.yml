@@ -1053,16 +1053,12 @@ roles:
     exposed-ports:
       - name: 'autoscaler_api'
         protocol: 'TCP'
-        source: &autoscaler_api_port 28861
-        target: *autoscaler_api_port
+        source: 28861
+        target: 28861
         public: false
   configuration:
     templates:
-      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
-      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
-      properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
-
 - name: autoscaler-server
   type: bosh
   scripts:
@@ -1086,18 +1082,12 @@ roles:
     exposed-ports:
       - name: 'autoscaler_server'
         protocol: 'TCP'
-        source: &autoscaler_server_port 28862
-        target: *autoscaler_server_port
+        source: 28862
+        target: 28862
         public: false
   configuration:
     templates:
-      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
-      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
-      properties.couchdb.dbname: '"((AUTOSCALER_SERVER_COUCHDB_DBNAME))"'
-      properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
-      properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
-      properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
-
+      properties.couchdb.dbname: '"couchdb-scaling"'
 - name: autoscaler-servicebroker
   type: bosh
   scripts:
@@ -1121,25 +1111,12 @@ roles:
     exposed-ports:
       - name: 'autoscaler_servicebroker'
         protocol: 'TCP'
-        source: &autoscaler_servicebroker_port 28863
-        target: *autoscaler_servicebroker_port
+        source: 28863
+        target: 28863
         public: false
   configuration:
     templates:
-      properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
-      properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
-      properties.autoscaler.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
-      properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
-      properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
-      properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
-      properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_USERNAME))"'
-      properties.couchdb.dbname: '"((AUTOSCALER_SERVICEBROKER_COUCHDB_DBNAME))"'
-      properties.tomcat.http.autoscaler_api.port: *autoscaler_api_port
-      properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
-      properties.tomcat.http.autoscaler_server.port: *autoscaler_server_port
-      properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
-      properties.tomcat.http.autoscaler_servicebroker.port: *autoscaler_servicebroker_port
-
+      properties.couchdb.dbname: '"couchdb-scalingbroker"'
 - name: couchdb
   type: bosh
   jobs:
@@ -1164,11 +1141,6 @@ roles:
         source: 5984
         target: 5984
         public: false
-  configuration:
-    templates:
-      properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
-      properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
-
 - name: acceptance-tests
   type: bosh-task
   jobs:
@@ -1888,7 +1860,6 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.dbname: '"((AUTOSCALER_SERVER_COUCHDB_DBNAME))"'
     properties.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
     properties.couchdb.metric_prefix: '"((AUTOSCALER_COUCHDB_METRIC_PREFIX))"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
@@ -2049,3 +2020,17 @@ configuration:
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
+    properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
+    properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
+    properties.autoscaler.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
+    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
+    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
+    properties.tomcat.http.autoscaler_api.port: 28861
+    properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
+    properties.tomcat.http.autoscaler_server.port: 28862
+    properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
+    properties.tomcat.http.autoscaler_servicebroker.port: 28863
