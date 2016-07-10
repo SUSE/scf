@@ -3,6 +3,7 @@ roles:
 - name: nats
   scripts:
   - fake_spec_index_on_hcp.sh
+  - fix-nats-log-dir.sh
   jobs:
   - name: nats
     release_name: cf
