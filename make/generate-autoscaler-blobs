@@ -23,7 +23,7 @@ for x in api server servicebroker ; do
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
+       ${DOCKER_RUNTIME} -l -c "rm -rf ./$x/target/ && mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
     sudo chown -R $USER:$USER $x/target
   fi
 done
@@ -47,4 +47,4 @@ docker run \
     --volume ${HOME}/.bosh:/root/.bosh \
     --volume $GIT_ROOT/:$GIT_ROOT/ \
     helioncf/hcf-pipeline-ruby-bosh \
-    bash -l -c "rbenv global 2.2.3 && cd $GIT_ROOT/src/open-Autoscaler/bosh-release && rm -rf ../servicebroker/target/ && rm -rf ../server/target/ && rm -rf ../api/target/ && rm -rf ../bosh-release/downloads/ && rm -rf ../bosh-release/blobs/ && scripts/generate_blobs.sh"
+    bash -l -c "rbenv global 2.2.3 && cd $GIT_ROOT/src/open-Autoscaler/bosh-release && rm -rf ../bosh-release/downloads/ && rm -rf ../bosh-release/blobs/ && scripts/generate_blobs.sh"
