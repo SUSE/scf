@@ -1366,10 +1366,12 @@ configuration:
     type-hint: "string"
   - name: BLOBSTORE_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: BLOBSTORE_SECURE_LINK
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: COUCHDB_HOST
     default: "couchdb"
     type-hint: "string,hostname"
@@ -1387,7 +1389,8 @@ configuration:
     type-hint: "string"
   - name: AUTOSCALER_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
     type-hint: "string,hostname"
@@ -1456,13 +1459,15 @@ configuration:
     type-hint: string,hostname
   - name: BULK_API_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: CCDB_ROLE_NAME
     default: ccadmin
     type-hint: "string"
   - name: CCDB_ROLE_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: CCDB_ROLE_TAG
     default: admin
     type-hint: "string"
@@ -1486,7 +1491,8 @@ configuration:
     type-hint: "string"
   - name: CF_USB_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
     type-hint: "string"
@@ -1498,10 +1504,12 @@ configuration:
     type-hint: "string"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: DB_ENCRYPTION_KEY
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: DNS_SUFFIX
     default: ""
     required: false
@@ -1517,19 +1525,22 @@ configuration:
     type-hint: hostname
   - name: HCF_SSO_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: HCF_SSO_USERNAME
     default: username
     type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: METRON_AGENT_ZONE
     default: z1
     type-hint: "string"
   - name: MONIT_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: MONIT_PORT
     default: '2822'
     type-hint: "integer,port"
@@ -1538,22 +1549,26 @@ configuration:
     type-hint: "string"
   - name: NATS_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: NATS_USER
     default: nats_user
     type-hint: "string"
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: STAGING_UPLOAD_USER
     default: username
     type-hint: "string"
   - name: INTERNAL_API_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: INTERNAL_API_USER
     default: internal_user
     type-hint: "string"
@@ -1566,79 +1581,102 @@ configuration:
     type-hint: "certificate"
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_BATCH_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_BATCH_USERNAME
     default: batch_username
     type-hint: "string"
   - name: UAA_CC_CLIENT_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CC_ROUTING_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_HCF_SSO_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
     type-hint: "string"
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAADB_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: UAADB_TAG
     default: admin
     type-hint: "string"
@@ -1657,91 +1695,206 @@ configuration:
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "certs_root"
+      type: Certificate
+      value_type: cert_private_key
+      key_length: 4096
   - name: JWT_SIGNING_PEM
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "jwt_signing_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: JWT_SIGNING_PUB
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "jwt_signing_cert"
+      type: Certificate
+      value_type: public_key
   - name: ETCD_PEER_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_peer_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: ETCD_PEER_CRT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_peer_cert"
+      type: Certificate
+      value_type: certificate
+  - name: ETCD_PEER_CA_CRT
+    secret: true
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
+      key_length: 4096
   - name: ETCD_SERVER_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: ETCD_CLIENT_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_client_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: ETCD_SERVER_CRT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_server_cert"
+      type: Certificate
+      value_type: certificate
   - name: ETCD_CLIENT_CRT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "etcd_client_cert"
+      type: Certificate
+      value_type: certificate
+  - name: ETCD_CA_CRT
+    secret: true
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
   - name: BBS_SERVER_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "bbs_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: BBS_CLIENT_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "bbs_client_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: BBS_SERVER_CRT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "bbs_server_cert"
+      type: Certificate
+      value_type: certificate
   - name: BBS_CLIENT_CRT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "bbs_client_cert"
+      type: Certificate
+      value_type: certificate
+  - name: BBS_CA_CRT
+    secret: true
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
   - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
     default: bbs.service.cf.internal
     type-hint: "string,hostname"
   - name: SSH_KEY
     secret: true
-    type-hint: "string,ssh-key"
+    generator:
+      id: "app_ssh"
+      type: SSH
+      value_type: private_key
+      key_length: 4096
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
-    type-hint: "string"
+    generator:
+      id: "app_ssh"
+      type: SSH
+      value_type: fingerprint
   - name: ROUTER_SERVICES_SECRET
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: ROUTER_SSL_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "router_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
   - name: ROUTER_SSL_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "router_cert"
+      type: Certificate
+      value_type: private_key
   - name: UAA_PRIVATE_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "uaa_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
   - name: UAA_CERTIFICATE
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "uaa_cert"
+      type: Certificate
+      value_type: certificate
   - name: BLOBSTORE_TLS_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "blobstore_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
   - name: BLOBSTORE_TLS_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "blobstore_cert"
+      type: Certificate
+      value_type: private_key
+  - name: CONSUL_CA_CERT
+    secret: true
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
   - name: CONSUL_AGENT_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "consul_agent_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
   - name: CONSUL_AGENT_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "consul_agent_cert"
+      type: Certificate
+      value_type: private_key
   - name: CONSUL_SERVER_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "consul_server_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
   - name: CONSUL_SERVER_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "consul_server_cert"
+      type: Certificate
+      value_type: private_key
   - name: COUCHDB_USER
     default: admin
     type-hint: "string"
   - name: COUCHDB_PASSWORD
     secret: true
-    type-hint: "password,random"
+    generator:
+      type: Password
   - name: SKIP_CERT_VERIFY
     default: true
     type-hint: "boolean"
@@ -1769,13 +1922,23 @@ configuration:
     type-hint: "string"
   - name: INTERNAL_CA_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
   - name: SSO_ROUTE_CERT
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "sso_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
   - name: SSO_ROUTE_KEY
     secret: true
-    type-hint: "string,certificate"
+    generator:
+      id: "sso_cert"
+      type: Certificate
+      value_type: private_key
   - name: AUTOSCALER_SERVICEBROKER_HOST
     secret: false
     type-hint: "string,hostname"
@@ -1784,7 +1947,8 @@ configuration:
     type-hint: "string"
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
-    type-hint: "string,password"
+    generator:
+      type: Password
   - name: AUTOSCALER_COUCHDB_USER
     secret: false
     type-hint: "string"
@@ -1796,7 +1960,8 @@ configuration:
     type-hint: "string"
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
-    type-hint: "string,password"
+    generator:
+      type: Password
   templates:
     bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
