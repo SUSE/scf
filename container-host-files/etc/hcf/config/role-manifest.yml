@@ -3,6 +3,7 @@ roles:
 - name: nats
   scripts:
   - fake_spec_index_on_hcp.sh
+  - fix-nats-log-dir.sh
   jobs:
   - name: nats
     release_name: cf
@@ -10,6 +11,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/nats/bin/pre-start
+  - /var/vcap/jobs/nats_stream_forwarder/bin/pre-start
   processes:
   - name: metron_agent
   - name: nats
@@ -43,6 +47,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -223,6 +229,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/etcd/bin/pre-start
   processes:
   - name: bbs
   - name: etcd
@@ -282,6 +291,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: consul_template
   - name: haproxy
@@ -329,6 +340,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: gorouter
   - name: metron_agent
@@ -363,6 +376,8 @@ roles:
     release_name: cf
   - name: router_configurer
     release_name: routing
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: haproxy
   - name: metron_agent
@@ -401,6 +416,8 @@ roles:
   - name: tcp_emitter
     # TCP-emitter can be on a different role, it's just convenient here
     release_name: routing
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: consul_agent
   - name: metron_agent
@@ -439,6 +456,9 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/uaa/bin/pre-start
   processes:
   - name: uaa
   - name: consul_agent
@@ -474,6 +494,7 @@ roles:
   # to run migrations from
   - perform_nfs_test.sh
   - cloud_controller_v2_droplet_count.sh
+  - fix_buildpack_install.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -503,11 +524,13 @@ roles:
     release_name: cf
   - name: cf_iis_buildpack
     release_name: windows-runtime-release
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/cloud_controller_ng/bin/pre-start
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
   - name: cloud_controller_worker_local_2
-  - name: cloud_controller_migration
   - name: route_registrar
   - name: metron_agent
   - name: consul_agent
@@ -551,6 +574,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/cloud_controller_worker/bin/pre-start
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -621,6 +647,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/cloud_controller_clock/bin/pre-start
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -646,6 +675,8 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: usb
   - name: route_registrar
@@ -727,6 +758,9 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/etcd/bin/pre-start
+  - /var/vcap/jobs/etcd_metrics_server/bin/pre-start
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -820,6 +854,8 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: converger
   - name: auctioneer
@@ -857,6 +893,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: cc_uploader
   - name: stager
@@ -937,6 +975,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -966,6 +1006,8 @@ roles:
     release_name: diego
   - name: windows_buildpack_app_lifecycle
     release_name: windows-runtime-release
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: file_server
   - name: metron_agent
@@ -997,8 +1039,6 @@ roles:
   - fake_spec_index_on_hcp.sh
   - prevent_apparmor_disable.sh
   - configure-nested-net.sh
-  post_config_scripts:
-  - diego-cell-pre-start.sh
   jobs:
   - name: rep
     release_name: diego
@@ -1010,6 +1050,9 @@ roles:
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/cflinuxfs2-rootfs-setup/bin/pre-start
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1747,6 +1790,7 @@ configuration:
     secret: true
     type-hint: "string,certificate"
   templates:
+    bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
@@ -1960,6 +2004,8 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
+    properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
+    properties.hm9000.port: 5155
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'

@@ -240,14 +240,17 @@ class ToHCP < Common
     the_comp['retry_count'] = retrycount if retrycount > 0
 
     index = 0 if index.nil?
+    bootstrap = index == 0
 
     if role["type"] != 'docker'
       if runtime['exposed-ports'].any? {|port| port['public']}
         the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_BOOTSTRAP=#{bootstrap}",
                               "HCF_ROLE_INDEX=#{index}",
                               "/opt/hcf/run.sh"]
       else
         the_comp['entrypoint'] = ["/usr/bin/env",
+                              "HCF_BOOTSTRAP=#{bootstrap}",
                               "HCF_ROLE_INDEX=#{index}",
                               'HCP_HOSTNAME_SUFFIX=-int',
                               "/opt/hcf/run.sh"]
