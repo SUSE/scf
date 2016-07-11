@@ -17,6 +17,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       hcf-release
       hcf-sso/hcf-sso-release
       windows-runtime-release
+      open-Autoscaler/bosh-release
     '); do
         FISSILE_RELEASE=${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE};
     done
