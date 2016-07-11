@@ -1069,8 +1069,7 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports: []
-
-- name: autoscaler-api
+- name: sclr-api
   type: bosh
   scripts:
   - configgin-config-properties.sh
@@ -1094,7 +1093,7 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'autoscaler_api'
+      - name: 'api'
         protocol: 'TCP'
         source: 28861
         target: 28861
@@ -1102,7 +1101,7 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: autoscaler-server
+- name: sclr-server
   type: bosh
   scripts:
   - configgin-config-properties.sh
@@ -1123,7 +1122,7 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'autoscaler_server'
+      - name: 'server'
         protocol: 'TCP'
         source: 28862
         target: 28862
@@ -1131,7 +1130,7 @@ roles:
   configuration:
     templates:
       properties.couchdb.dbname: '"couchdb-scaling"'
-- name: autoscaler-servicebroker
+- name: sclr-broker
   type: bosh
   scripts:
   - configgin-config-properties.sh
@@ -1152,7 +1151,7 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'autoscaler_servicebroker'
+      - name: 'broker'
         protocol: 'TCP'
         source: 28863
         target: 28863
@@ -1391,10 +1390,6 @@ configuration:
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
     type-hint: "string,hostname"
-#  - name: DIEGO_DATABASE_HA_HOST_1
-#    required: false
-#  - name: DIEGO_DATABASE_HA_HOST_2
-#    required: false
   - name: DIEGO_ACCESS_HOST
     default: "diego-access"
     type-hint: "string,hostname"
@@ -1789,6 +1784,27 @@ configuration:
   - name: SSO_ROUTE_KEY
     secret: true
     type-hint: "string,certificate"
+  - name: AUTOSCALER_SERVICEBROKER_HOST
+    secret: false
+    type-hint: "string,hostname"
+  - name: AUTOSCALER_API_ROUTE
+    secret: false
+    type-hint: "string"
+  - name: AUTOSCALER_COUCHDB_PASSWORD
+    secret: true
+    type-hint: "string,password"
+  - name: AUTOSCALER_COUCHDB_USER
+    secret: false
+    type-hint: "string"
+  - name: AUTOSCALER_COUCHDB_PORT
+    secret: false
+    type-hint: "integer"
+  - name: AUTOSCALER_COUCHDB_METRIC_PREFIX
+    secret: false
+    type-hint: "string"
+  - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
+    secret: true
+    type-hint: "string,password"
   templates:
     bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
