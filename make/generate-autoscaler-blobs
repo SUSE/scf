@@ -43,7 +43,6 @@ fi
 
 docker run \
     --interactive \
-    --tty \
     --rm \
     --volume ${HOME}/.bosh:/root/.bosh \
     --volume $GIT_ROOT/:$GIT_ROOT/ \
