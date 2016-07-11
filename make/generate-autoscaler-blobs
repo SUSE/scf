@@ -24,7 +24,6 @@ for x in api server servicebroker ; do
        --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
        --entrypoint bash \
        ${DOCKER_RUNTIME} -l -c "rm -rf ./$x/target/ && mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
-    sudo chown -R $USER:$USER $x/target
   fi
 done
 
