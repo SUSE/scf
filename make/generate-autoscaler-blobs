@@ -19,7 +19,7 @@ for x in api server servicebroker ; do
     printf "Not rebuilding %s\n" $x
   else
     printf "Building %s...\n" $x
-    docker run --tty --rm \
+    docker run --rm \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
        --entrypoint bash \
