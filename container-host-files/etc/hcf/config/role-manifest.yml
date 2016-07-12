@@ -333,6 +333,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
+  - authorize_internal_ca.sh
   jobs:
   - name: gorouter
     release_name: routing
@@ -1669,9 +1670,6 @@ configuration:
   - name: ETCD_PEER_CRT
     secret: true
     type-hint: "string,certificate"
-  - name: ETCD_PEER_CA_CRT
-    secret: true
-    type-hint: "string,certificate"
   - name: ETCD_SERVER_KEY
     secret: true
     type-hint: "string,certificate"
@@ -1684,9 +1682,6 @@ configuration:
   - name: ETCD_CLIENT_CRT
     secret: true
     type-hint: "string,certificate"
-  - name: ETCD_CA_CRT
-    secret: true
-    type-hint: "string,certificate"
   - name: BBS_SERVER_KEY
     secret: true
     type-hint: "string,certificate"
@@ -1697,9 +1692,6 @@ configuration:
     secret: true
     type-hint: "string,certificate"
   - name: BBS_CLIENT_CRT
-    secret: true
-    type-hint: "string,certificate"
-  - name: BBS_CA_CRT
     secret: true
     type-hint: "string,certificate"
   - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
@@ -1730,9 +1722,6 @@ configuration:
     secret: true
     type-hint: "string,certificate"
   - name: BLOBSTORE_TLS_KEY
-    secret: true
-    type-hint: "string,certificate"
-  - name: CONSUL_CA_CERT
     secret: true
     type-hint: "string,certificate"
   - name: CONSUL_AGENT_CERT
@@ -1778,6 +1767,9 @@ configuration:
   - name: NO_PROXY
     default: "127.0.0.1"
     type-hint: "string"
+  - name: INTERNAL_CA_CERT
+    secret: true
+    type-hint: "string,certificate"
   - name: SSO_ROUTE_CERT
     secret: true
     type-hint: "string,certificate"
@@ -1821,7 +1813,7 @@ configuration:
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_SERVICEBROKER_PASSWORD))"'
     properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_SERVICEBROKER_USERNAME))"'
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.port: 80
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
@@ -1835,7 +1827,7 @@ configuration:
     properties.capi.cc_uploader.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.capi.cc_uploader.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.capi.nsync.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.capi.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.nsync.cc.base_url: '"https://api.((DOMAIN))"'
@@ -1845,7 +1837,7 @@ configuration:
     properties.capi.nsync.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.capi.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.capi.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.capi.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.stager.cc.base_url: '"https://api.((DOMAIN))"'
@@ -1858,7 +1850,7 @@ configuration:
     properties.capi.stager.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.capi.stager.staging_task_callback_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
     properties.capi.tps.bbs.api_location: '"((DIEGO_DATABASE_HOST)):8889"'
-    properties.capi.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.cc.base_url: '"https://api.((DOMAIN))"'
@@ -1916,7 +1908,7 @@ configuration:
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
     properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
-    properties.consul.ca_cert: '"((CONSUL_CA_CERT))"'
+    properties.consul.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
@@ -1926,41 +1918,41 @@ configuration:
     properties.couchdb.port: '((AUTOSCALER_COUCHDB_PORT))'
     properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.auctioneer.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
     properties.diego.bbs.advertisement_base_hostname: '"((BBS_ADVERTISEMENT_BASE_HOSTNAME))"'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
-    properties.diego.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "((BBS_ACTIVE_KEY_LABEL))", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
-    properties.diego.bbs.etcd.ca_cert: '"((ETCD_CA_CRT))"'
+    properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.converger.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.converger.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.nsync.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.rep.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.route_emitter.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.route_emitter.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
     properties.diego.route_emitter.nats.user: '"((NATS_USER))"'
     properties.diego.ssh_proxy.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.ssh_proxy.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
@@ -1969,10 +1961,10 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"https://uaa.((DOMAIN))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
-    properties.diego.stager.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.tps.bbs.ca_cert: '"((BBS_CA_CRT))"'
+    properties.diego.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.domain: '"((DOMAIN))"'
@@ -1984,12 +1976,12 @@ configuration:
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
 
     properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
-    properties.etcd.ca_cert: '"((ETCD_CA_CRT))"'
+    properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
     properties.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
-    properties.etcd.peer_ca_cert: '"((ETCD_PEER_CA_CRT))"'
+    properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
@@ -2016,6 +2008,7 @@ configuration:
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.hcf_sso.host: '"((HCF_SSO_HOST))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
+    properties.hcf_sso.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
@@ -2033,8 +2026,7 @@ configuration:
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    # ATTENTION! The self-signed SSO route certs made by bin/generate-dev-certs.sh force the setting below.
-    properties.router.ssl_skip_validation: true
+    properties.router.ssl_skip_validation: null
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.routing.etcd.servers: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
