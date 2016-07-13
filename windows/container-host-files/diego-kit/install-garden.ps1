@@ -7,19 +7,22 @@ cd $wd
 
 ## Download and install global dependencies
 
+echo "Downloading localwall"
+curl -Verbose -UseBasicParsing -OutFile $wd\localwall.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe
+
 # VC redist are used by cf-iis8-buildpack
-echo "Downloading VC 2013 and 2015 Update 1 redistributable"
-mkdir -Force "$wd\vc2013", "$wd\vc2015u2"
+echo "Downloading VC 2013 and 2015 redistributable"
+mkdir -Force "$wd\vc2013", "$wd\vc2015"
 curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x86.exe"  https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
 curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
-curl -Verbose -UseBasicParsing  -OutFile "vc2015u2\VC_redist.x86.exe"  https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x86.exe
-curl -Verbose -UseBasicParsing  -OutFile "vc2015u2\VC_redist.x64.exe"  https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x64.exe
+curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x86.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
+curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x64.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
 
-echo "Installing VC 2013 and 2015 Update 1 redistributable"
+echo "Installing VC 2013 and 2015 redistributable"
 start -Wait "vc2013\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "vc2013\vcredist_x64.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "vc2015u2\VC_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "vc2015u2\VC_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "vc2015\vc_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "vc2015\vc_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
 
 echo "Installing Windows Features"
 Install-WindowsFeature  Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Framework, Web-WHC, Web-ASP
@@ -61,10 +64,27 @@ New-NetFirewallRule -Name CFAllowAdmins -DisplayName "Allow admins" `
 
 Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction Block -Enabled True
 
+echo "Configuring WFP localhost filtering rules"
+
+& "$wd\localwall.exe" cleanup
+
+& "$wd\localwall.exe" add $machineIp 32 8301 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8400 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8500 Administrators # Consul rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  3457 Administrators # Metron rule
+& "$wd\localwall.exe" add $machineIp 32 6061 Administrators # Metron rule
+
+& "$wd\localwall.exe" add $machineIp 32 1800 Administrators # Rep rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  9241 Administrators # Garden rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  1788 Administrators # Containerizer rule
+
 
 ## Download installers
 
-$gardenVersion = "v0.141"
+$gardenVersion = "v0.153"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 
