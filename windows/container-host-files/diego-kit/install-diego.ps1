@@ -4,7 +4,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-15-2016-05-31_10-22-41/diego-installer.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-17-2016-07-13_10-06-13/diego-installer.exe -Verbose
 
 ## Setup Vagrant HCF networking
 
@@ -89,7 +89,7 @@ echo "Checking Consul health"
 echo (curl -UseBasicParsing http://127.0.0.1:8500/).StatusDescription
 
 echo "Checking Rep health"
-echo (curl -UseBasicParsing http://127.0.0.1:1800/ping).StatusDescription
+echo (curl -UseBasicParsing http://${machineIp}:1800/ping).StatusDescription
 
 echo "Interogating Rep status"
-echo (curl -UseBasicParsing http://127.0.0.1:1800/state).Content | ConvertFrom-Json
+echo (curl -UseBasicParsing http://${machineIp}:1800/state).Content | ConvertFrom-Json
