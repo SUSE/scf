@@ -4,11 +4,11 @@ $ErrorActionPreference = "Stop"
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"
 
-echo "Installing VC 2013 and 2015 Update 2 redistributable"
+echo "Installing VC 2013 and 2015 redistributable"
 start -Wait "$PSScriptRoot\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "$PSScriptRoot\vcredist_x64.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "$PSScriptRoot\VC_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
-start -Wait "$PSScriptRoot\VC_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "$PSScriptRoot\vc_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
+start -Wait "$PSScriptRoot\vc_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
 
 echo "Installing Windows Features"
 Install-WindowsFeature -Name Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Framework, Web-WHC, Web-ASP -Source D:\sources\sxs
