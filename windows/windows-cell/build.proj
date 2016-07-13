@@ -46,7 +46,10 @@
     <DiegoWindowsDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-17-2016-07-13_10-06-13/diego-installer.exe</DiegoWindowsDownloadURL>
     <DiegoWindowsFile>$(WindowsCellVHDMountPoint)\diego-installer.exe</DiegoWindowsFile>
 
-    <GardenWindowsVersion>v0.151</GardenWindowsVersion>
+    <LocalwallDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe</LocalwallDownloadURL>
+    <LocalwallFile>$(WindowsCellVHDMountPoint)\localwall.exe.exe</LocalwallFile>
+
+    <GardenWindowsVersion>v0.153</GardenWindowsVersion>
     <GardenWindowsDownloadURL>https://github.com/cloudfoundry/garden-windows-release/releases/download/$(GardenWindowsVersion)/GardenWindows.msi</GardenWindowsDownloadURL>
     <GardenWindowsFile>$(WindowsCellVHDMountPoint)\GardenWindows.msi</GardenWindowsFile>
 
@@ -110,6 +113,7 @@
 
   <Target Name="DownloadInstallers">
     <WebDownload FileUri="$(DiegoWindowsDownloadURL)" FileName="$(DiegoWindowsFile)"/>
+    <WebDownload FileUri="$(LocalwallDownloadURL)" FileName="$(LocalwallFile)"/>
     <WebDownload FileUri="$(GardenWindowsDownloadURL)" FileName="$(GardenWindowsFile)"/>
     <WebDownload FileUri="$(VCRedist2013x86DownloadURL)" FileName="$(VCRedist2013x86File)"/>
     <WebDownload FileUri="$(VCRedist2013x64DownloadURL)" FileName="$(VCRedist2013x64File)"/>

@@ -7,6 +7,9 @@ cd $wd
 
 ## Download and install global dependencies
 
+echo "Downloading localwall"
+curl -Verbose -UseBasicParsing -OutFile $wd\localwall.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe
+
 # VC redist are used by cf-iis8-buildpack
 echo "Downloading VC 2013 and 2015 redistributable"
 mkdir -Force "$wd\vc2013", "$wd\vc2015"
@@ -60,6 +63,23 @@ New-NetFirewallRule -Name CFAllowAdmins -DisplayName "Allow admins" `
   -LocalUser $LocalUser
 
 Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction Block -Enabled True
+
+echo "Configuring WFP localhost filtering rules"
+
+& "$wd\localwall.exe" cleanup
+
+& "$wd\localwall.exe" add $machineIp 32 8301 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8400 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8500 Administrators # Consul rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  3457 Administrators # Metron rule
+& "$wd\localwall.exe" add $machineIp 32 6061 Administrators # Metron rule
+
+& "$wd\localwall.exe" add $machineIp 32 1800 Administrators # Rep rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  9241 Administrators # Garden rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  1788 Administrators # Containerizer rule
 
 
 ## Download installers

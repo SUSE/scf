@@ -1,9 +1,6 @@
 $wd=$PSScriptRoot
 $ErrorActionPreference = "Stop"
 
-echo "Installing Diego-Windows"
-cmd /c "$wd\diego-installer.exe /Q"
-
 echo "Installing VC 2013 and 2015 redistributable"
 start -Wait "$PSScriptRoot\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "$PSScriptRoot\vcredist_x64.exe"  -ArgumentList "/install /passive /norestart"
@@ -57,4 +54,26 @@ Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction B
 $routeIP = "1.2.3.4"
 $machineIp = (Find-NetRoute -RemoteIPAddress $routeIP)[0].IPAddress
 
+echo "Configuring WFP localhost filtering rules"
+
+& "$wd\localwall.exe" cleanup
+
+& "$wd\localwall.exe" add $machineIp 32 8301 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8400 Administrators # Consul rule
+& "$wd\localwall.exe" add 127.0.0.1  8  8500 Administrators # Consul rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  3457 Administrators # Metron rule
+& "$wd\localwall.exe" add $machineIp 32 6061 Administrators # Metron rule
+
+& "$wd\localwall.exe" add $machineIp 32 1800 Administrators # Rep rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  9241 Administrators # Garden rule
+
+& "$wd\localwall.exe" add 127.0.0.1  8  1788 Administrators # Containerizer rule
+
+
+echo "Installing Garden-Windows"
 cmd /c  msiexec /passive /norestart /i $wd\GardenWindows.msi MACHINE_IP=$machineIp
+
+echo "Installing Diego-Windows"
+cmd /c "$wd\diego-installer.exe /Q"
