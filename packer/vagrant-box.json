@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "1.0.7",
+        "version": "1.0.8",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -81,6 +81,7 @@
             "vm_name": "{{user `vm_name`}}",
             "disk_size": 100000,
             "disk_interface": "scsi",
+            "disk_compression": true,
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
@@ -130,6 +131,15 @@
             "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
             "scripts": [
                 "scripts/virtualbox_tools.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["qemu"],
+            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "scripts": [
+                "scripts/qemu_tools.sh"
             ],
             "start_retry_timeout": "7m"
         },
