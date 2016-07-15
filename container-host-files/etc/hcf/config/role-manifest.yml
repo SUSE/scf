@@ -607,6 +607,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - /var/vcap/jobs/blobstore/bin/pre-start
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
@@ -628,13 +630,13 @@ roles:
     exposed-ports:
     - name: 'blobstore-ext'
       protocol: 'TCP'
-      source: 80
-      target: 80
+      source: 8080
+      target: 8080
       public: false
     - name: 'blobstore-int'
       protocol: 'TCP'
-      source: 443
-      target: 443
+      source: 4443
+      target: 4443
       public: false
   configuration:
     templates:
@@ -2010,11 +2012,11 @@ configuration:
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
-    properties.blobstore.port: 80
+    properties.blobstore.port: 8080
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.key: '"((BLOBSTORE_TLS_KEY))"'
-    properties.blobstore.tls.port: 443
+    properties.blobstore.tls.port: 4443
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.capi.cc_uploader.cc.base_url: '"https://api.((DOMAIN))"'
     properties.capi.cc_uploader.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
@@ -2058,7 +2060,7 @@ configuration:
     properties.cc.buildpacks.blobstore_type: webdav
     properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.buildpacks.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
@@ -2069,7 +2071,7 @@ configuration:
     properties.cc.droplets.blobstore_type: webdav
     properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.droplets.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
@@ -2078,13 +2080,13 @@ configuration:
     properties.cc.packages.app_package_directory_key: '"((APP_PACKAGE_DIRECTORY_KEY))"'
     properties.cc.packages.blobstore_type: webdav
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.packages.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.resource_pool.blobstore_type: webdav
     properties.cc.resource_pool.resource_directory_key: '"((RESOURCE_DIRECTORY_KEY))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
     properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "stackato_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
