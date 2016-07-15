@@ -394,6 +394,7 @@ roles:
 - name: routing-api
   scripts:
   - router_internal_host_names.sh
+  - authorize_internal_ca.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -2112,9 +2113,7 @@ configuration:
     properties.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
     properties.couchdb.metric_prefix: '"((AUTOSCALER_COUCHDB_METRIC_PREFIX))"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
-    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
     properties.couchdb.port: '((AUTOSCALER_COUCHDB_PORT))'
-    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2244,6 +2243,7 @@ configuration:
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.batch.password: '"((UAA_BATCH_PASSWORD))"'
     properties.uaa.batch.username: '"((UAA_BATCH_USERNAME))"'
+    properties.uaa.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.uaa.cc.client_secret: '"((UAA_CC_CLIENT_SECRET))"'
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
