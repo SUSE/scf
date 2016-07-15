@@ -73,6 +73,8 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
   vagrant plugin install vagrant-vmware-fusion
   ```
 
+**Note** `vagrant-vmware-fusion` version 4.0.9 or greater is required.
+
 3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
 
   ```bash
