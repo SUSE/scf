@@ -13,11 +13,11 @@ PATCH
 
 # Process arguments
 
-if [ -z ${1} ]; then echo "${usage}"; exit 1; else VOLUME=$1; fi
+if [ -z "${1}" ]; then echo "${usage}"; exit 1; else VOLUME=$1; fi
 
-#
-# # Setup an overlay ext4 filesystem using logical volume management
-#
+# Setup an overlay ext4 filesystem using logical volume management
+# We're using lvm so we can easily resize in the future
+
 service docker stop
 pvcreate -ff -y    $VOLUME
 pvs
@@ -33,7 +33,7 @@ mkfs.ext4 -T news /dev/vg-docker/data
 
 echo "/dev/vg-docker/data /var/lib/docker ext4 noatime 0 2" >> /etc/fstab
 
-mount -a
+mount /var/lib/docker
 
 # Insert the device information into the docker configuration
 dopts="--storage-driver=overlay2"
