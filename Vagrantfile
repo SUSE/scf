@@ -51,8 +51,17 @@ Vagrant.configure(2) do |config|
     # `vmrun getGuestIPAddress` often returns the address of the docker0 bridge instead of eth0 :(
     vb.enable_vmrun_ip_lookup = false
 
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    override.vm.synced_folder ".", "/home/vagrant/hcf"
+    # Disable default synced folder
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+
+    # Enable HGFS
+    vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
+
+    # Must be equal to the total number of shares
+    vb.vmx["sharedFolder.maxnum"] = "2"
+
+    # Configure shared folders
+    VMwareHacks.configure_shares(vb)
   end
 
   config.vm.provider "vmware_workstation" do |vb, override|
@@ -64,8 +73,17 @@ Vagrant.configure(2) do |config|
     # If you need to debug stuff
     # vb.gui = true
 
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    override.vm.synced_folder ".", "/home/vagrant/hcf"
+    # Disable default synced folder
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+
+    # Enable HGFS
+    vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
+
+    # Must be equal to the total number of shares
+    vb.vmx["sharedFolder.maxnum"] = "2"
+
+    # Configure shared folders
+    VMwareHacks.configure_shares(vb)
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
@@ -79,8 +97,29 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
+  # We can't run the VMware specific mounting in a provider override,
+  # because as documentation states, ordering is inside out:
+  # https://www.vagrantup.com/docs/provisioning/basic_usage.html
+  #
+  # This would mean that mounting the shared folders would always be the last
+  # thing done, when we need it to be the first
+  config.vm.provision "shell", privileged: false, inline: <<-SCRIPT
+    # Only run if we're on Workstation or Fusion
+    if hash vmhgfs-fuse 2>/dev/null; then
+      if [ ! -d "/home/vagrant/hcf" ]; then
+        echo "Sharing directories in the VMware world ..."
+
+        mkdir -p /home/vagrant/hcf
+        mkdir -p /home/vagrant/.bosh
+
+        sudo vmhgfs-fuse .host:hcf /home/vagrant/hcf -o allow_other
+        sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
+      fi
+    fi
+  SCRIPT
+
   unless OS.windows?
-    config.vm.provision "shell", inline: <<-SHELL
+    config.vm.provision "shell", privileged: false, inline: <<-SHELL
         if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
           echo "Looks like the cf-release submodule was not initialized" >&2
           echo "Did you run 'git submodule update --init --recursive'?" >&2
@@ -89,9 +128,7 @@ Vagrant.configure(2) do |config|
     SHELL
   end
 
-  config.vm.provision :reload
-
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
 
     # Configure Docker things
@@ -159,6 +196,35 @@ Vagrant.configure(2) do |config|
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
+end
+
+module VMwareHacks
+
+  # Here we manually define the shared folder for VMware-based providers
+  def VMwareHacks.configure_shares(vb)
+    current_dir = File.dirname(__FILE__)
+    bosh_cache = File.join(current_dir, '.fissile/.bosh')
+
+    # share . in the box
+    vb.vmx["sharedFolder0.present"] = "TRUE"
+    vb.vmx["sharedFolder0.enabled"] = "TRUE"
+    vb.vmx["sharedFolder0.readAccess"] = "TRUE"
+    vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
+    vb.vmx["sharedFolder0.hostPath"] = current_dir
+    vb.vmx["sharedFolder0.guestName"] = "hcf"
+    vb.vmx["sharedFolder0.expiration"] = "never"
+    vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
+
+    # share .fissile/.bosh in the box
+    vb.vmx["sharedFolder1.present"] = "TRUE"
+    vb.vmx["sharedFolder1.enabled"] = "TRUE"
+    vb.vmx["sharedFolder1.readAccess"] = "TRUE"
+    vb.vmx["sharedFolder1.writeAccess"] = "TRUE"
+    vb.vmx["sharedFolder1.hostPath"] = bosh_cache
+    vb.vmx["sharedFolder1.guestName"] = "bosh"
+    vb.vmx["sharedFolder1.expiration"] = "never"
+    vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
+  end
 end
 
 module OS
