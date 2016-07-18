@@ -98,22 +98,40 @@ Vagrant.configure(2) do |config|
   end
 
   # We can't run the VMware specific mounting in a provider override,
-  # because as documentation states, ordering is inside out:
+  # because as documentation states, ordering is outside in:
   # https://www.vagrantup.com/docs/provisioning/basic_usage.html
   #
   # This would mean that mounting the shared folders would always be the last
   # thing done, when we need it to be the first
   config.vm.provision "shell", privileged: false, inline: <<-SCRIPT
     # Only run if we're on Workstation or Fusion
-    if hash vmhgfs-fuse 2>/dev/null; then
-      if [ ! -d "/home/vagrant/hcf" ]; then
-        echo "Sharing directories in the VMware world ..."
+    if sudo dmidecode -s system-product-name | grep -qi vmware; then
+      echo "Waiting for mounts to be available ..."
+      retries=1
+      mounts_available="no"
+      until [ "$mounts_available" == "yes"  ] || [ "$retries" -gt 120 ]; do
+        sleep 1
+        retries=$((retries+1))
 
-        mkdir -p /home/vagrant/hcf
-        mkdir -p /home/vagrant/.bosh
+        if [ -d "/mnt/hgfs/hcf/src" ]; then
+          mounts_available="yes"
+        fi
+      done
 
-        sudo vmhgfs-fuse .host:hcf /home/vagrant/hcf -o allow_other
-        sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
+      if hash vmhgfs-fuse 2>/dev/null; then
+        echo "Mounts available after ${retries} seconds."
+
+        if [ ! -d "/home/vagrant/hcf" ]; then
+          echo "Sharing directories in the VMware world ..."
+          mkdir -p /home/vagrant/hcf
+          mkdir -p /home/vagrant/.bosh
+
+          sudo vmhgfs-fuse .host:hcf /home/vagrant/hcf -o allow_other
+          sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
+        fi
+      else
+        >&2 echo "Timed out waiting for mounts load after ${retries} seconds."
+        exit 1
       fi
     fi
   SCRIPT
@@ -181,6 +199,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
+    echo '/mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh' >> .profile
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
 
