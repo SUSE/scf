@@ -379,7 +379,7 @@ class ToHCP < Common
     # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
     vname.downcase!.gsub!('_', '-') if vsecret
 
-    {
+    parameter = {
       'name'        => vname,
       'description' => 'placeholder',
       'example'     => vexample,
@@ -387,6 +387,26 @@ class ToHCP < Common
       'secret'      => vsecret,
       'default'     => (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     }
+
+    unless var['generator'].nil?
+      optional_keys = ['value_type', 'length', 'characters', 'key_length']
+      generator_input = var['generator']
+      generate = {}
+      generate['type'] = generator_input['type']
+
+      for key in optional_keys
+        if generator_input.has_key?(key)
+          generate[key] = generator_input[key]
+        end
+      end
+
+      parameter['generator'] = {
+        'id'        => generator_input['id'] || vname,
+        'generate'  => generate
+      }
+    end
+
+    return parameter
   end
 
   def convert_parameter_ref(var)
