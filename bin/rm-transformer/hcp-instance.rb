@@ -10,7 +10,7 @@ class ToHCPInstance < Common
     # In HCP the version number becomes a kubernetes label, which puts
     # some restrictions on the set of allowed characters and its
     # length.
-    @hcf_version.gsub!(/[^a-zA-Z0-9._-]/, '_')
+    @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
   end
 
@@ -23,7 +23,8 @@ class ToHCPInstance < Common
     definition = load_template
     variables = (manifest['configuration'] || {})['variables']
     definition['parameters'] = collect_parameters(variables)
-    definition['version'] = @hcf_version
+    definition['sdl_version'] = @hcf_version
+    definition['product_version'] = "4.0.0"
     definition
   end
 

@@ -10,7 +10,7 @@ class ToHCP < Common
     # In HCP the version number becomes a kubernetes label, which puts
     # some restrictions on the set of allowed characters and its
     # length.
-    @hcf_version.gsub!(/[^a-zA-Z0-9._-]/, '-')
+    @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
   end
 
@@ -117,7 +117,9 @@ class ToHCP < Common
       next if flight_stage_of(role) == 'manual'
       next if tags_of(role).include?('dev-only')
 
-      retries = task?(role) ? 5 : 0
+      # Our tasks don't specify a retry count yet, so we
+      # should assume infinity until they do
+      retries = task?(role) ? 65535 : 0
       dst = definition[section_map[flight_stage_of(role)]]
       add_role(roles, fs, dst, role, retries)
 
