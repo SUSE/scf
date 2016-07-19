@@ -24,7 +24,7 @@ class ToHCPInstance < Common
     variables = (manifest['configuration'] || {})['variables']
     definition['parameters'] = collect_parameters(variables)
     definition['sdl_version'] = @hcf_version
-    definition['product_version'] = "4.0.0"
+    definition['product_version'] = Common.product_version
     definition
   end
 

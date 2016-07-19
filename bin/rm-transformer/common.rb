@@ -49,4 +49,8 @@ class Common
   end
 
   # # ## ### ##### ########
+
+  def self.product_version
+    "4.0.0" # TODO: Make the minor here == cf-release's version?
+  end
 end
