@@ -19,13 +19,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
 
 1. Install Vagrant (version 1.7.4 and higher).
 
-2. Install the `vagrant-reload` plugin:
-
-  ```bash
-  vagrant plugin install vagrant-reload
-  ```
-
-3. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
+2. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
 
   ```bash
   git clone git@github.com:hpcloud/hcf
@@ -35,7 +29,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
 
   __Important:__ Ensure you do not have uncommitted changes in any submodules.
 
-4. Bring the VM online and `ssh` into it:
+3. Bring the VM online and `ssh` into it:
 
   ```bash
   # Replace X with one of: vmware_fusion, vmware_workstation, virtualbox
@@ -45,7 +39,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
 
   __Note:__ The virtualbox provider is unstable and we've had many problems with HCF on it, try to use vmware when possible.
 
-5. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
 
   ```bash
   cd hcf
@@ -54,7 +48,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-6. On the VM, start HCF using the `make run` command.
+5. On the VM, start HCF using the `make run` command.
 
   ```bash
   make run
@@ -66,10 +60,9 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
 
   __Note:__ To get a license for VMware Fusion 7, use your HPE email address to send a message to hp@vmware.com with the subject `Fusion license request`.
 
-2. Install the `vagrant-reload` plugin and the Vagrant Fusion provider:
+2. Install the Vagrant Fusion provider plugin:
 
   ```bash
-  vagrant plugin install vagrant-reload
   vagrant plugin install vagrant-vmware-fusion
   ```
 
@@ -97,7 +90,7 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
   sudo usermod -G libvirtd -a <username>
   ```
 
-3. Log out, log in, and then install the `libvirt` and `vagrant-reload` plugins:
+3. Log out, log in, and then install the `libvirt` plugin:
 
   ```bash
   vagrant plugin install vagrant-libvirt
@@ -130,13 +123,12 @@ _NOTE:_ This is the common instructions that are shared between all providers, s
   newgrp libvirt
   ```
 
-3. Install `fog-libvirt` 0.0.3 and the `libvirt` and `vagrant-reload` plugins:
+3. Install `fog-libvirt` 0.0.3 and the `libvirt` plugins:
 
   ```bash
   # Workaround for https://github.com/fog/fog-libvirt/issues/16
   vagrant plugin install --plugin-version 0.0.3 fog-libvirt
   vagrant plugin install vagrant-libvirt
-  vagrant plugin install vagrant-reload
   ```
 
 4. To set the `libvert` daemon user to your username/group, edit `/etc/libvirt/qemu.conf` as follows:
