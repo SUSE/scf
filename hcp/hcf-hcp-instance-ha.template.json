@@ -1,6 +1,5 @@
 {
     "name": "hcf",
-    "version": "SOME HCF VERSION",
     "vendor": "HPE",
     "labels": ["my-hcf-cluster"],
     "instance_id": "my-hcf-cluster",
