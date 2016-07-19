@@ -161,7 +161,6 @@ roles:
       properties.cf_mysql.external_host: "((DOMAIN))"
       properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -210,7 +209,6 @@ roles:
       properties.cf_mysql.external_host: "((DOMAIN))"
       properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
-      properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
       # TODO: Take this out, and place our generated CA cert
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
@@ -799,7 +797,7 @@ roles:
     templates:
       properties.etcd.peer_require_ssl: 'false'
       properties.etcd.require_ssl: 'false'
-      properties.etcd.cluster: 'null'
+      properties.etcd.cluster: '[]'
       properties.etcd.peer_key: 'null'
       properties.etcd.peer_cert: 'null'
       properties.etcd.peer_ca_cert: 'null'
@@ -1677,6 +1675,10 @@ configuration:
     secret: true
     generator:
       type: Password
+    type-hint: "password,random"
+  - name: MYSQL_DIEGO_PASSWORD
+    secret: true
+    type-hint: "password,random"
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
     generator:
@@ -2115,6 +2117,8 @@ configuration:
     properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
+    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp({{MYSQL_HOST}}:3306)/diego{{=(( ))=}}"'
+    properties.diego.bbs.sql.db_driver: mysql
     properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.converger.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2195,6 +2199,7 @@ configuration:
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
