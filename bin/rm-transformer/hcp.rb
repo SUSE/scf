@@ -7,11 +7,10 @@ require_relative 'common'
 class ToHCP < Common
   def initialize(options)
     super(options)
-    @dtr = "#{@dtr}/" unless @dtr.empty?
     # In HCP the version number becomes a kubernetes label, which puts
     # some restrictions on the set of allowed characters and its
     # length.
-    @hcf_version.gsub!(/[^a-zA-Z0-9._-]/, '_')
+    @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
   end
 
@@ -94,14 +93,15 @@ class ToHCP < Common
 
   def empty_hcp
     {
-      'name'       => 'hcf',    # TODO: Specify via option?
-      'version'    =>  @hcf_version,
-      'vendor'     => 'HPE',    # TODO: Specify via option?
-      'volumes'    => [],	# We do not generate volumes, leave empty
-      'components' => [],	# Fill from the roles, see below
-      'parameters' => [],	# Fill from the roles, see below
-      'preflight'  => [],	# Fill from the roles, see below
-      'postflight' => []	# Fill from the roles, see below
+      'name'              => 'hcf',         # TODO: Specify via option?
+      'sdl_version'       => @hcf_version,
+      'product_version'   => Common.product_version,
+      'vendor'            => 'HPE',         # TODO: Specify via option?
+      'volumes'           => [],            # We do not generate volumes, leave empty
+      'components'        => [],            # Fill from the roles, see below
+      'parameters'        => [],            # Fill from the roles, see below
+      'preflight'         => [],            # Fill from the roles, see below
+      'postflight'        => []             # Fill from the roles, see below
     }
   end
 
@@ -117,7 +117,9 @@ class ToHCP < Common
       next if flight_stage_of(role) == 'manual'
       next if tags_of(role).include?('dev-only')
 
-      retries = task?(role) ? 5 : 0
+      # Our tasks don't specify a retry count yet, so we
+      # should assume infinity until they do
+      retries = task?(role) ? 65535 : 0
       dst = definition[section_map[flight_stage_of(role)]]
       add_role(roles, fs, dst, role, retries)
 
@@ -205,7 +207,7 @@ class ToHCP < Common
 
   def add_component(roles, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
-    iname = "#{@dtr}#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
+    iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
     rname = bname
     rname += "-#{index}" if index && index > 0
@@ -220,6 +222,7 @@ class ToHCP < Common
       'version'       => '0.0.0', # See also toplevel version
       'vendor'        => 'HPE',	  # See also toplevel vendor
       'image'         => iname,
+      'repository'    => @dtr,
       'min_RAM_mb'    => runtime['memory'],
       'min_disk_gb'   => 1, 	# Out of thin air
       'min_VCPU'      => runtime['virtual-cpus'],

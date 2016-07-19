@@ -170,7 +170,7 @@ function setup_role() {
   case "$role" in
     "diego-database")
 	  # TODO: Move into role-manifest.yml
-	  extra="$extra --add-host='diego-database-0.etcd.service.cf.internal:127.0.0.1'"
+	  extra="$extra --add-host=diego-database-0.etcd.service.cf.internal:127.0.0.1"
 	  ;;
   esac
 

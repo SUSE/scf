@@ -111,7 +111,7 @@ app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{pr
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --domain "uaa,uaa-int" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign "${UAA_HOST}" --CA internalCA --passphrase "${signing_key_passphrase}"
 cp "${internal_certs_dir}/${UAA_HOST}.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/${UAA_HOST}.crt" "${internal_certs_dir}/${UAA_HOST}.key" > "${uaa_server_key}"
