@@ -41,7 +41,8 @@ read -r -d '' setup_patch_etcd_ctl <<'PATCH' || true
 +        if [[ "${cluster}" != *"${this_node}"* ]]; then
            cluster="${cluster},${this_node}"
          fi
-       fiPATCH
+       fi
+PATCH
 
 cd "$PATCH_DIR"
 
