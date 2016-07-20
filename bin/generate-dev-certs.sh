@@ -71,7 +71,7 @@ certstrap --depot-path "${internal_certs_dir}"  sign bbsClient  --CA internalCA 
 
 
 # generate SSO routing certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf,hcf-sso-int" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign hcf-sso.hcf --CA internalCA --passphrase "${signing_key_passphrase}"
 cat ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/hcf-sso.hcf.key > ${internal_certs_dir}/sso_routing.key
 cp ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/sso_routing.crt
