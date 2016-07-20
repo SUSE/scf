@@ -200,7 +200,7 @@ roles:
   configuration:
     templates:
       properties.cf_mysql.mysql.cluster_ips: '["((MYSQL_HOST))"((#MYSQL_HA_HOST_1)), "((MYSQL_HA_HOST_1))"((/MYSQL_HA_HOST_1))((#MYSQL_HA_HOST_2)), "((MYSQL_HA_HOST_2))"((/MYSQL_HA_HOST_2))]'
-      properties.cf_mysql.mysql.database_startup_timeout: '300'
+      properties.cf_mysql.mysql.database_startup_timeout: 300
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
       properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST))"]'
@@ -2114,7 +2114,7 @@ configuration:
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.diego.bbs.etcd.machines: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
+    properties.diego.bbs.etcd.machines: '[]'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp({{MYSQL_HOST}}:3306)/diego{{=(( ))=}}"'
