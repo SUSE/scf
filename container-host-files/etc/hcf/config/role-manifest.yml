@@ -1387,6 +1387,9 @@ configuration:
   - name: AUTOSCALER_API_HOST
     default: "sclr-api"
     type-hint: "string,hostname"
+  - name: AUTOSCALER_COUCHDB_HOST
+    default: couchdb
+    type-hint: string,hostname
   - name: AUTOSCALER_SERVER_HOST
     default: "sclr-server"
     type-hint: "string,hostname"
@@ -1948,12 +1951,9 @@ configuration:
       id: "sso_cert"
       type: Certificate
       value_type: private_key
-  - name: AUTOSCALER_SERVICEBROKER_HOST
+  - name: AUTOSCALER_SERVICE_BROKER_HOST
     secret: false
     type-hint: "string,hostname"
-  - name: AUTOSCALER_API_ROUTE
-    secret: false
-    type-hint: "string"
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
     generator:
@@ -2219,9 +2219,9 @@ configuration:
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tomcat.http.autoscaler_api.port: 28861
-    properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_ROUTE))"'
+    properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST))"'
     properties.tomcat.http.autoscaler_server.port: 28862
-    properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_ROUTE))"'
+    properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST))"'
     properties.tomcat.http.autoscaler_servicebroker.port: 28863
     properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
