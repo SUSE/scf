@@ -395,6 +395,11 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
+    - name: 'healthcheck'
+      protocol: TCP
+      source: 80
+      target: 80
+      public: true
     - name: 'tcp-routing'
       protocol: TCP
       source: "60000-65535"
