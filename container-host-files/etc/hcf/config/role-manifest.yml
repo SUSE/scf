@@ -1380,13 +1380,13 @@ configuration:
     default: "couchdb"
     type-hint: "string,hostname"
   - name: AUTOSCALER_API_HOST
-    default: "autoscaler-api"
+    default: "sclr-api"
     type-hint: "string,hostname"
   - name: AUTOSCALER_SERVER_HOST
-    default: "autoscaler-server"
+    default: "sclr-server"
     type-hint: "string,hostname"
   - name: AUTOSCALER_SERVICE_BROKER_HOST
-    default: "autoscaler-servicebroker"
+    default: "sclr-broker"
     type-hint: "string,hostname"
   - name: AUTOSCALER_USERNAME
     default: admin
