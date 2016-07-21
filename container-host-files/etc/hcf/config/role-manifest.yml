@@ -398,7 +398,7 @@ roles:
     - name: 'healthcheck'
       protocol: TCP
       source: 80
-      target: 80
+      target: 2341
       public: true
     - name: 'tcp-routing'
       protocol: TCP
