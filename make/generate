@@ -23,6 +23,25 @@ OPTIONS=$(echo \
 
 TARGET=${1}
 
+# Blacklist env directories and docker repositories that aren't meant for the target
+case ${TARGET} in
+  hcp|hcp-instance|hcp-instance-ha)
+    if [ `echo ${ENV_DIR} | grep 'settings-dev'` ]; then
+      printf "\033[0;1;31mPolitely refusing to use ${ENV_DIR} for hcp settings (did you mean settings-hcp?)\033[0m\n" >&2
+      exit 1
+    fi
+    if [ `echo ${IMAGE_REGISTRY} | grep '\(potato\.helion\.lol\|docker\.helion\.lol\)'` ]; then
+      printf "\033[0;1;31mPolitely refusing to use credential protected ${IMAGE_REGISTRY} for hcp (did you mean docker-registry.helion.space?)\033[0m\n" >&2
+      exit 1
+    fi
+    ;;
+  aws|aws-spot|aws-proxy|aws-spot-proxy)
+    if [ `echo ${ENV_DIR} | grep 'settings-hcp'` ]; then
+      printf "\033[0;1;31mPolitely refusing to use ${ENV_DIR} for aws/mpc settings (did you mean settings-dev?)\033[0m\n" >&2
+      exit 1
+    fi
+esac
+
 case ${TARGET} in
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
