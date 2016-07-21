@@ -19,7 +19,7 @@ registry_state() {
 
 case $(registry_state) in
     set|unset)
-        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker.helion.lol'}
+        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker-registry.helion.space'}
         IMAGE_REGISTRY=${IMAGE_REGISTRY%/}/
         ;;
     empty)
