@@ -368,7 +368,7 @@ properties:
       password: &nats_password nats_password
       username: &nats_user nats_user
   garden:
-    deny_networks: []
+    deny_networks: [0.0.0.0/0]
     graph_cleanup_threshold_in_mb: 0
     listen_address: 0.0.0.0:7777
     listen_network: tcp
