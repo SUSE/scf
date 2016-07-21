@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+# put the cli on the path
+export PATH=/var/vcap/packages/cli/bin:${PATH} 
+
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    shift 2
+
+    for i in $(seq "${max}")
+    do
+        "$@" && break || sleep "${delay}"
+    done
+}
+
+
+#TODO: check for ssl validation property
+<% 
+skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
+username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
+%>
+retry 10 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
+cf auth <%= username.shellescape %> <%= password.shellescape %>
+
+echo "Waiting for Autoscaler service broker..."
+while ! curl --fail --silent --insecure http://<%= p("autoscaler_servicebroker.host") %>:<%= p("tomcat.http.autoscaler_servicebroker.port") %> >/dev/null 2>&1; do
+    sleep 10
+done
+
+echo "Registering Autoscaler service broker..."
+
+# Check if the broker is known already or not. Depending on the
+# result simply update the existing broker, or create a new one.
+service_name=<%= p("autoscaler_api.scaling_service.name") %>
+action=create
+if cf service-brokers 2>/dev/null | grep --quiet ${service_name} ; then
+    action=update
+fi
+cf ${action}-service-broker ${service_name} \
+    <%= p("autoscaler_servicebroker.auth.username") %> \
+    <%= p("autoscaler_servicebroker.auth.password") %> \
+    http://<%= p("autoscaler_servicebroker.host") %>:<%= p("tomcat.http.autoscaler_servicebroker.port") %>/servicebroker
+
+# Make the broker available to all orgs and their spaces
+cf enable-service-access ${service_name}
+
+echo "Registration of Autoscaler complete."

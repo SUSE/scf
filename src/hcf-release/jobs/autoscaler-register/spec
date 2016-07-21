@@ -1,0 +1,22 @@
+---
+name: autoscaler-create-service
+
+description: This job will register the autoscaler with cf
+
+packages:
+  - cli
+
+templates:
+  run.erb: bin/run
+
+properties:
+  autoscaler_servicebroker.auth.username:
+    description: Username for the service broker
+  autoscaler_servicebroker.auth.password:
+    description: Password for the service broker
+  autoscaler_servicebroker.host:
+    description: Host of the service broker
+  tomcat.http.autoscaler_servicebroker.port:
+    description: Port the route service listens on
+  autoscaler_api.scaling_service.name:
+    description: the autoscaler service name
