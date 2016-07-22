@@ -191,7 +191,7 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
 ## To Deploy HCF on Amazon AWS Using Terraform
 
-* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist ENV_DIR=$PWD/bin`
+* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist ENV_DIR=$PWD/bin/settings-dev`
   to generate the archive populated with development defaults and secrets.
 
 * Extract the newly created .zip file to a temporary working dir:
