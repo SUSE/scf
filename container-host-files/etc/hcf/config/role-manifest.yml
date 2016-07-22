@@ -1677,6 +1677,8 @@ configuration:
       type: Password
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
+    generator:
+      type: Password
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
     generator:
