@@ -106,8 +106,12 @@ mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
-# generate uaa certs
+# generate USB Broker certs
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer"  --domain "*.cf-usb.hcf,cf-usb.hcf,cf-usb,*.cf-usb,*.cf-usb-int.hcf,cf-usb-int.hcf,cf-usb-int,*.cf-usb-int"  --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
+
+# generate uaa certs
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
@@ -151,6 +155,9 @@ CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.c
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.key")
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
+CF_USB_BROKER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.key")
+CF_USB_BROKER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.crt")
+
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
@@ -187,6 +194,8 @@ CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
+CF_USB_BROKER_SERVER_KEY=${CF_USB_BROKER_SERVER_KEY}
+CF_USB_BROKER_SERVER_CERT=${CF_USB_BROKER_SERVER_CERT}
 ENVS
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"

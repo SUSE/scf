@@ -498,6 +498,7 @@ roles:
   - perform_nfs_test.sh
   - cloud_controller_v2_droplet_count.sh
   - fix_buildpack_install.sh
+  - authorize_internal_ca.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -2009,6 +2010,19 @@ configuration:
       id: "sso_cert"
       type: Certificate
       value_type: private_key
+  - name: CF_USB_BROKER_SERVER_CERT
+    secret: true
+    generator:
+      id: "usb_broker_server_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+  - name: CF_USB_BROKER_SERVER_KEY
+    secret: true
+    generator:
+      id: "usb_broker_server_cert"
+      type: Certificate
+      value_type: private_key
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
     generator:
@@ -2135,7 +2149,11 @@ configuration:
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
-    properties.cf-usb.broker.external_url: '"brokers.((DOMAIN))"'
+    properties.cf-usb.broker.external_url: '"https://((CF_USB_BROKER_HOST)):24054"'
+    properties.cf-usb.broker.port: 24054
+    properties.cf-usb.broker.require_tls: true
+    properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
+    properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
