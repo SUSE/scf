@@ -1675,10 +1675,8 @@ configuration:
     secret: true
     generator:
       type: Password
-    type-hint: "password,random"
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
-    type-hint: "password,random"
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
     generator:
