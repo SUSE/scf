@@ -1998,6 +1998,8 @@ configuration:
     properties.acceptance_tests.admin_user: '"((CLUSTER_ADMIN_USERNAME))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests.cf_push_timeout: 300
+    properties.acceptance_tests.default_timeout: 300
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
