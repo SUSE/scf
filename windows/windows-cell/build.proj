@@ -43,7 +43,7 @@
     <!-- Path to msbuild extensions - required by the package -->
     <MSBuildCommunityTasksPath>$(MSBuildTasksDirectory)\msbuildtasks.$(MSBuildPackageVersion)\tools\</MSBuildCommunityTasksPath>
 
-    <DiegoWindowsDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-17-2016-07-13_10-06-13/diego-installer.exe</DiegoWindowsDownloadURL>
+    <DiegoWindowsDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-19-2016-07-19_09-17-46/diego-installer.exe</DiegoWindowsDownloadURL>
     <DiegoWindowsFile>$(WindowsCellVHDMountPoint)\diego-installer.exe</DiegoWindowsFile>
 
     <LocalwallDownloadURL>https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe</LocalwallDownloadURL>
