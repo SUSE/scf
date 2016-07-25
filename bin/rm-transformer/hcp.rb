@@ -117,9 +117,8 @@ class ToHCP < Common
       next if flight_stage_of(role) == 'manual'
       next if tags_of(role).include?('dev-only')
 
-      # Our tasks don't specify a retry count yet, so we
-      # should assume infinity until they do
-      retries = task?(role) ? 65535 : 0
+      # We don't run to infinity because we will flood HCP if we do
+      retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
       add_role(roles, fs, dst, role, retries)
 
