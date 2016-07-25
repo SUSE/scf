@@ -10,11 +10,15 @@ export PATH=/var/vcap/packages/cli/bin:${PATH}
 function retry () {
     max=${1}
     delay=${2}
+    i=0
     shift 2
 
-    for i in $(seq "${max}")
-    do
-        "$@" && break || sleep "${delay}"
+    while test ${i} -lt ${max} ; do
+        if "$@" ; then
+            break
+        fi
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
     done
 }
 
@@ -24,13 +28,11 @@ function retry () {
 skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
-retry 10 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
+retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
 cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 echo "Waiting for SSO Routing service broker..."
-while ! curl --fail --silent --insecure https://<%= p("hcf_sso.host") %>:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1; do
-    sleep 10
-done
+retry 240 30s    curl --fail --silent --insecure https://<%= p("hcf_sso.host") %>:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1
 
 echo "Registering SSO Routing service broker..."
 

@@ -8,10 +8,26 @@ cf plugins | grep -q cf-plugin-usb || {
   cf install-plugin /var/vcap/packages/cf-plugin-usb/bin/cf-plugin-usb
 }
 
-#TODO: check for ssl validation property
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    i=0
+    shift 2
+
+    while test ${i} -lt ${max} ; do
+        if "$@" ; then
+            break
+        fi
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
+    done
+}
+
 
 <% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
-for i in {1..10}; do cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %> && break || sleep 30; done
+retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
 <% 
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
