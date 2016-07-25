@@ -484,6 +484,14 @@ properties:
   system_domain_organization: null
   traffic_controller:
     locked_memory_limit: kernel
+  tomcat:
+    http:
+      autoscaler_api:
+        port: 28861
+      autoscaler_server:
+        port: 28862
+      autoscaler_servicebroker:
+        port: 28863
   uaa:
     admin:
       client_secret: admin_secret

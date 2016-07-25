@@ -2218,11 +2218,8 @@ configuration:
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
-    properties.tomcat.http.autoscaler_api.port: 28861
     properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST))"'
-    properties.tomcat.http.autoscaler_server.port: 28862
     properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST))"'
-    properties.tomcat.http.autoscaler_servicebroker.port: 28863
     properties.traffic_controller.tweak_locked_memory: false
     properties.traffic_controller.zone: '"((TRAFFIC_CONTROLLER_ZONE))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
