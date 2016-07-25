@@ -219,8 +219,6 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
-  - name: etcd
-    release_name: etcd
   - name: bbs
     release_name: diego
   - name: consul_agent
@@ -229,10 +227,8 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/etcd/bin/pre-start
   processes:
   - name: bbs
-  - name: etcd
   - name: metron_agent
   - name: consul_agent
   run:
@@ -249,16 +245,6 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'cell-etcd'
-        protocol: 'TCP'
-        source: 4001
-        target: 4001
-        public: false
-      - name: 'cell-etcd-peer'
-        protocol: 'TCP'
-        source: 7001
-        target: 7001
-        public: false
       - name: 'cell-metrics'
         protocol: 'TCP'
         source: 5678
@@ -274,8 +260,6 @@ roles:
         source: 17017
         target: 17017
         public: false
-    hosts:
-      - diego-database-0.etcd.service.cf.internal: 127.0.0.1
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -413,6 +397,8 @@ roles:
   jobs:
   - name: consul_agent
     release_name: cf
+  - name: etcd
+    release_name: etcd
   - name: metron_agent
     release_name: cf
   - name: routing-api
@@ -422,8 +408,10 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - /var/vcap/jobs/etcd/bin/pre-start
   processes:
   - name: consul_agent
+  - name: etcd
   - name: metron_agent
   - name: routing-api
   - name: tcp_emitter
@@ -438,6 +426,16 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports:
+      - name: 'cell-etcd'
+        protocol: 'TCP'
+        source: 4001
+        target: 4001
+        public: false
+      - name: 'cell-etcd-peer'
+        protocol: 'TCP'
+        source: 7001
+        target: 7001
+        public: false
       - name: routing-api
         protocol: TCP
         source: 3000
@@ -2210,7 +2208,7 @@ configuration:
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.router.ssl_skip_validation: null
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.routing.etcd.servers: '["((DIEGO_DATABASE_HOST))"((#DIEGO_DATABASE_HA_HOST_1)), "((DIEGO_DATABASE_HA_HOST_1))"((/DIEGO_DATABASE_HA_HOST_1))((#DIEGO_DATABASE_HA_HOST_2)), "((DIEGO_DATABASE_HA_HOST_2))"((/DIEGO_DATABASE_HA_HOST_2))]'
+    properties.routing.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
