@@ -144,7 +144,7 @@ function setup_role() {
     if test "${source_port//-}" != "${source_port}" ; then
       continue # This is a port range, handled in setup_port_range_forwarding()
     fi
-    ports="${ports} -p ${target_port}:${source_port}/${protocol}"
+    ports="${ports} -p ${source_port}:${target_port}/${protocol}"
   done < <(echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)')
 
   # Add persistent volumes
