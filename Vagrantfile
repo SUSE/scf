@@ -29,7 +29,7 @@ Vagrant.configure(2) do |config|
     override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.9.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "6144"
+    vb.memory = "8192"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -43,7 +43,7 @@ Vagrant.configure(2) do |config|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.9.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "6144"
+    vb.memory = "8192"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -68,7 +68,7 @@ Vagrant.configure(2) do |config|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.9.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "6144"
+    vb.memory = "8192"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
