@@ -1836,6 +1836,11 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+      subject_alt_names:
+        - parameter: DOMAIN
+          wildcard: false
+        - parameter: DOMAIN
+          wildcard: true
   - name: ROUTER_SSL_KEY
     secret: true
     generator:
@@ -1862,6 +1867,11 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+      subject_alt_names:
+        - parameter: DOMAIN
+          wildcard: false
+        - parameter: DOMAIN
+          wildcard: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
