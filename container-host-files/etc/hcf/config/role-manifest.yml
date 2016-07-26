@@ -426,12 +426,12 @@ roles:
     memory: 2048
     virtual-cpus: 4
     exposed-ports:
-      - name: 'cell-etcd'
+      - name: route-etcd
         protocol: 'TCP'
         source: 4001
         target: 4001
         public: false
-      - name: 'cell-etcd-peer'
+      - name: route-etcd-peer
         protocol: 'TCP'
         source: 7001
         target: 7001
