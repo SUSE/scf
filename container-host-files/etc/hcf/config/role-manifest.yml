@@ -1300,6 +1300,24 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports: []
+- name: autoscaler-create-service
+  type: bosh-task
+  jobs:
+  - name: autoscaler-create-service
+    release_name: hcf
+  processes: []
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    flight-stage: post-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 1
+    exposed-ports: []
 - name: hcf-sso
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -1990,9 +2008,8 @@ configuration:
     properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_server.internal_auth.username: '"((AUTOSCALER_USERNAME))"'
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
-    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_SERVICEBROKER_PASSWORD))"'
-    properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_SERVICEBROKER_USERNAME))"'
     properties.autoscaler_servicebroker.auth.username: '"((AUTOSCALER_USERNAME))"'
+    properties.autoscaler_servicebroker.host: '"((AUTOSCALER_SERVICE_BROKER_HOST))"'
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'

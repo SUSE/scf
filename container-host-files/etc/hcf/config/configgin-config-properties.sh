@@ -29,3 +29,11 @@ if [ ! -f config.properties.orig ] ; then
   cp config.properties config.properties.orig
 fi
 run_configgin ${BASE_NAME} config.properties.orig config.properties
+
+if [ "${SHORT_NAME}" == "servicebroker" ] ; then
+  if [ ! -f catalog.json.orig ] ; then
+    cp catalog.json catalog.json.orig
+  fi
+
+  run_configgin ${BASE_NAME} catalog.json.orig catalog.json
+fi
