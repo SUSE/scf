@@ -391,24 +391,28 @@ class ToHCP < Common
     }
 
     unless var['generator'].nil?
-      optional_keys = ['value_type', 'length', 'characters', 'key_length']
-      generator_input = var['generator']
-      generate = {}
-      generate['type'] = generator_input['type']
-
-      for key in optional_keys
-        if generator_input.has_key?(key)
-          generate[key] = generator_input[key]
-        end
-      end
-
-      parameter['generator'] = {
-        'id'        => generator_input['id'] || vname,
-        'generate'  => generate
-      }
+      parameter['generator'] = convert_parameter_generator(var, vname)
     end
 
     return parameter
+  end
+
+  def convert_parameter_generator(var, vname)
+    optional_keys = ['value_type', 'length', 'characters', 'key_length']
+    generator_input = var['generator']
+    generate = generator_input.select { |k| optional_keys.include? k }
+    generate['type'] = generator_input['type']
+    if generator_input.has_key?('subject_alt_names')
+      optional_san_keys = ['static', 'parameter', 'wildcard']
+      generate['subject_alt_names'] = generator_input['subject_alt_names'].map do |subj_alt_name|
+        subj_alt_name.select { |k| optional_san_keys.include? k }
+      end
+    end
+
+    return {
+      'id'        => generator_input['id'] || vname,
+      'generate'  => generate
+    }
   end
 
   def convert_parameter_ref(var)
