@@ -1922,6 +1922,9 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+      subject_alt_names:
+        - static: server.dc1.hcf
+          wildcard: false
   - name: CONSUL_SERVER_KEY
     secret: true
     generator:
