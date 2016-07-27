@@ -635,3 +635,8 @@ properties:
   cf_mysql:
     proxy:
       healthcheck_timeout_millis: 30000
+  autoscaler_api:
+    scaling_service:
+      name: 'open-autoscaler'
+  autoscaler_servicebroker:
+    name: 'open-autoscaler'
