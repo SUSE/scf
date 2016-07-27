@@ -12,9 +12,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/nats/bin/pre-start
-  - /var/vcap/jobs/nats_stream_forwarder/bin/pre-start
   processes:
   - name: metron_agent
   - name: nats
@@ -49,8 +46,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -230,8 +225,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: bbs
   - name: metron_agent
@@ -279,8 +272,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: consul_template
   - name: haproxy
@@ -330,8 +321,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: gorouter
   - name: metron_agent
@@ -367,8 +356,6 @@ roles:
     release_name: cf
   - name: router_configurer
     release_name: routing
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: haproxy
   - name: metron_agent
@@ -416,9 +403,6 @@ roles:
   - name: tcp_emitter
     # TCP-emitter can be on a different role, it's just convenient here
     release_name: routing
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/etcd/bin/pre-start
   processes:
   - name: consul_agent
   - name: etcd
@@ -469,9 +453,6 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/uaa/bin/pre-start
   processes:
   - name: uaa
   - name: consul_agent
@@ -539,9 +520,6 @@ roles:
     release_name: cf
   - name: cf_iis_buildpack
     release_name: windows-runtime-release
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/cloud_controller_ng/bin/pre-start
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -590,9 +568,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/cloud_controller_worker/bin/pre-start
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -667,9 +642,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/cloud_controller_clock/bin/pre-start
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -696,8 +668,6 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: usb
   - name: route_registrar
@@ -781,9 +751,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/etcd/bin/pre-start
-  - /var/vcap/jobs/etcd_metrics_server/bin/pre-start
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -879,8 +846,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: converger
   - name: auctioneer
@@ -919,8 +884,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: cc_uploader
   - name: stager
@@ -1002,8 +965,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -1034,8 +995,6 @@ roles:
     release_name: diego
   - name: windows_buildpack_app_lifecycle
     release_name: windows-runtime-release
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
   processes:
   - name: file_server
   - name: metron_agent
@@ -1080,9 +1039,6 @@ roles:
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/consul_agent/bin/pre-start
-  - /var/vcap/jobs/cflinuxfs2-rootfs-setup/bin/pre-start
   processes:
   - name: metron_agent
   - name: consul_agent
