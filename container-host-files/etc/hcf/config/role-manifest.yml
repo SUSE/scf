@@ -1083,6 +1083,7 @@ roles:
   type: bosh
   scripts:
   - configgin-config-properties.sh
+  - wait_for_couchdb.sh
   jobs:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
@@ -1115,6 +1116,7 @@ roles:
   type: bosh
   scripts:
   - configgin-config-properties.sh
+  - wait_for_couchdb.sh
   jobs:
   - name: autoscaler_server
     release_name: cf-open-autoscaler
@@ -1144,6 +1146,7 @@ roles:
   type: bosh
   scripts:
   - configgin-config-properties.sh
+  - wait_for_couchdb.sh
   jobs:
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
