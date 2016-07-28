@@ -15,16 +15,12 @@ DOCKER_RUNTIME=${DOCKER_RUNTIME:-'maven:3-jdk-7'}
 
 cd $GIT_ROOT/src/open-Autoscaler
 for x in api server servicebroker ; do
-  if ls $x/target/$x-*-SNAPSHOT.war >/dev/null 2>&1 ;then
-    printf "Not rebuilding %s\n" $x
-  else
-    printf "Building %s...\n" $x
-    docker run --rm \
-       --volume ${GIT_ROOT}:${GIT_ROOT} \
-       --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
-       --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "rm -rf ./$x/target/ && mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
-  fi
+  printf "Building %s...\n" $x
+  docker run --rm \
+     --volume ${GIT_ROOT}:${GIT_ROOT} \
+     --workdir ${GIT_ROOT}/src/open-Autoscaler/$x \
+     --entrypoint bash \
+     ${DOCKER_RUNTIME} -l -c "rm -rf ./$x/target/ && mvn clean package -P${AUTOSCALER_PROFILE} -DskipTests"
 done
 
 release_path=${1:-${BOSH_RELEASE_PATH}}
