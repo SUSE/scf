@@ -1982,9 +1982,6 @@ configuration:
       id: "sso_cert"
       type: Certificate
       value_type: private_key
-  - name: AUTOSCALER_SERVICE_BROKER_HOST
-    secret: false
-    type-hint: "string,hostname"
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
     generator:
