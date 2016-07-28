@@ -75,7 +75,7 @@ function start_role {
   mkdir -p ${log_dir}/${role}
 
   function _do_start_role() {
-    docker run -it --name ${name} \
+    docker run -i --name ${name} \
         ${detach} \
         --net=hcf \
         --dns-search=hcf \
