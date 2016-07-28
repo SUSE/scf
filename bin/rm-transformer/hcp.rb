@@ -28,6 +28,7 @@ class ToHCP < Common
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
     collect_global_parameters(roles, definition)
     process_roles(roles, definition, fs)
+    fixup_no_proxy(definition)
 
     definition
     # Generated structure
@@ -134,6 +135,7 @@ class ToHCP < Common
     if roles['configuration'] && roles['configuration']['variables']
       collect_parameters(p, roles['configuration']['variables'])
     end
+    definition['parameters'] = p.sort_by { |param| param['name'] }
   end
 
   def collect_shared_filesystems(roles)
@@ -364,7 +366,12 @@ class ToHCP < Common
   end
 
   def add_parameters(component, variables)
+    variables = variables.dup
     para = component['parameters']
+    # Always include a no_proxy reference for HCP use
+    %w(no_proxy NO_PROXY).each do |name|
+      variables << { 'name' => name } if variables.none? { |p| p['name'] == name }
+    end
     variables.each do |var|
       para.push(convert_parameter_ref(var))
     end
@@ -438,6 +445,21 @@ class ToHCP < Common
       1
     else
       maxi-x
+    end
+  end
+
+  # Fix up the no_proxy environment variables to always skip local roles
+  def fixup_no_proxy(definition)
+    role_names = definition['components'].map { |comp| comp['name'] }
+    host_names = role_names.map { |name| "#{name}-int" }
+    %w(no_proxy NO_PROXY).each do |name|
+      param = definition['parameters'].select { |p| p['name'] == name }.first
+      if param.nil?
+        param = convert_parameter('name' => name)
+        definition['parameters'] << param
+      end
+      values = (param['default'] || '').split(',') + host_names
+      param['default'] = values.uniq.sort.join(',')
     end
   end
 
