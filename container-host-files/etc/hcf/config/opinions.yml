@@ -369,8 +369,8 @@ properties:
       username: &nats_user nats_user
   garden:
     # By default we want to restrict all outbound access from containers
-    # so they can't access the CF network, or other apps. Traffic to the 
-    # internet and services is configured using proper CF security group 
+    # so they can't access the CF network, or other apps. Traffic to the
+    # internet and services is configured using proper CF security group
     # rules.
     deny_networks: [0.0.0.0/0]
     graph_cleanup_threshold_in_mb: 0
@@ -649,6 +649,6 @@ properties:
       healthcheck_timeout_millis: 30000
   autoscaler_api:
     scaling_service:
-      name: 'open-autoscaler'
+      name: 'CF-AutoScaler'
   autoscaler_servicebroker:
-    name: 'open-autoscaler'
+    name: 'CF-AutoScaler'
