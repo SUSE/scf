@@ -1,6 +1,8 @@
 ---
 roles:
 - name: nats
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix-nats-log-dir.sh
@@ -40,6 +42,8 @@ roles:
         target: 4223
         public: false
 - name: consul
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -105,6 +109,8 @@ roles:
     templates:
       properties.consul.agent.mode: '"server"'
 - name: mysql
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_advertise_ip.sh
@@ -163,6 +169,8 @@ roles:
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_proxy_host_list.sh
@@ -218,6 +226,8 @@ roles:
       properties.skip_ssl_validation: 'true'
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -282,6 +292,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -330,6 +342,8 @@ roles:
         target: 2222
         public: true
 - name: router
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
@@ -366,6 +380,8 @@ roles:
 - name: routing-ha-proxy
   # XXX This might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - router_internal_host_names.sh
   jobs:
@@ -410,6 +426,8 @@ roles:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.skip_ssl_validation: true
 - name: routing-api
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - router_internal_host_names.sh
   jobs:
@@ -451,7 +469,6 @@ roles:
       properties.skip_ssl_validation: true
 - name: uaa
   scripts:
-  - fake_spec_index_on_hcp.sh
   - fix_uaa_hostnames_in_uaa_yml.sh
   jobs:
   - name: uaa
@@ -495,6 +512,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
   # to run migrations from
@@ -571,6 +590,8 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -602,6 +623,8 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: blobstore
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -644,6 +667,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -672,6 +697,8 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -715,6 +742,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -755,6 +784,8 @@ roles:
         target: 3458
         public: false
 - name: etcd
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fix_etcd_bootstrap.sh
   jobs:
@@ -811,6 +842,8 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -849,6 +882,8 @@ roles:
         target: 8081
         public: false
 - name: diego-brain
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -884,6 +919,8 @@ roles:
         target: 9016
         public: false
 - name: diego-cc-bridge
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -972,6 +1009,8 @@ roles:
         target: 17018
         public: false
 - name: diego-route-emitter
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -999,6 +1038,8 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: diego-access
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -1041,6 +1082,8 @@ roles:
         target: 8080
         public: false
 - name: diego-cell
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - prevent_apparmor_disable.sh
@@ -1081,6 +1124,8 @@ roles:
     exposed-ports: []
 - name: sclr-api
   type: bosh
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
@@ -1114,6 +1159,8 @@ roles:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: sclr-server
   type: bosh
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
@@ -1144,6 +1191,8 @@ roles:
       properties.couchdb.dbname: '"couchdb-scaling"'
 - name: sclr-broker
   type: bosh
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
@@ -1174,6 +1223,8 @@ roles:
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
 - name: couchdb
   type: bosh
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: couchdb
     release_name: cf-open-autoscaler
@@ -1198,6 +1249,8 @@ roles:
         public: false
 - name: acceptance-tests
   type: bosh-task
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: acceptance-tests
     release_name: cf
@@ -1215,6 +1268,8 @@ roles:
     exposed-ports: []
 - name: smoke-tests
   type: bosh-task
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: smoke-tests
     release_name: cf
@@ -1245,6 +1300,8 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: cf-set-proxy
     release_name: hcf
@@ -1287,6 +1344,8 @@ roles:
         public: true
 - name: sso-create-service
   type: bosh-task
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: sso-create-service
     release_name: hcf
@@ -1305,6 +1364,8 @@ roles:
     exposed-ports: []
 - name: autoscaler-create-service
   type: bosh-task
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   jobs:
   - name: autoscaler-create-service
     release_name: hcf
@@ -1322,6 +1383,8 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -1349,6 +1412,8 @@ roles:
       target: 3000
       public: false
 - name: status-route
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
   post_config_scripts:
   - status-route-start.sh
   jobs:
