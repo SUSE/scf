@@ -16,6 +16,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/nats/bin/pre-start
   - /var/vcap/jobs/nats_stream_forwarder/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: nats
@@ -53,6 +54,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -117,6 +119,8 @@ roles:
   jobs:
   - name: mysql
     release_name: cf-mysql
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: mariadb_ctrl
   - name: galera-healthcheck
@@ -177,6 +181,8 @@ roles:
   jobs:
   - name: proxy
     release_name: cf-mysql
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: route-registrar
   - name: switchboard
@@ -242,6 +248,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/etcd/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: bbs
   - name: etcd
@@ -305,6 +312,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: consul_template
   - name: haproxy
@@ -357,6 +365,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: gorouter
   - name: metron_agent
@@ -395,6 +404,7 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: haproxy
   - name: metron_agent
@@ -442,6 +452,7 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: consul_agent
   - name: metron_agent
@@ -482,6 +493,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/uaa/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: uaa
   - name: consul_agent
@@ -552,6 +564,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_ng/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -604,6 +617,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_worker/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -634,6 +648,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
@@ -681,6 +697,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_clock/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -710,6 +727,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: usb
   - name: route_registrar
@@ -753,6 +771,8 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: doppler
   - name: metron_agent
@@ -798,6 +818,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/etcd/bin/pre-start
   - /var/vcap/jobs/etcd_metrics_server/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -853,6 +874,8 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: loggregator_trafficcontroller
   - name: metron_agent
@@ -897,6 +920,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: converger
   - name: auctioneer
@@ -938,6 +962,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: cc_uploader
   - name: stager
@@ -1022,6 +1047,7 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -1055,6 +1081,7 @@ roles:
     release_name: windows-runtime-release
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: file_server
   - name: metron_agent
@@ -1103,6 +1130,7 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cflinuxfs2-rootfs-setup/bin/pre-start
+  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1134,6 +1162,8 @@ roles:
     release_name: cf-open-autoscaler
   - name: route_registrar
     release_name: cf
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   - name: route_registrar
@@ -1167,6 +1197,8 @@ roles:
   jobs:
   - name: autoscaler_server
     release_name: cf-open-autoscaler
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   run:
@@ -1199,6 +1231,8 @@ roles:
   jobs:
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   run:
@@ -1228,6 +1262,8 @@ roles:
   jobs:
   - name: couchdb
     release_name: cf-open-autoscaler
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: couchdb
   run:
@@ -1392,6 +1428,8 @@ roles:
     release_name: hcf-sso
   - name: metron_agent
     release_name: cf
+  post_config_scripts:
+  - pass_proxies_through_monit.sh
   processes:
   - name: hcf-sso
   - name: metron_agent
@@ -1416,6 +1454,7 @@ roles:
   - setup_hcp_no_proxy.sh
   post_config_scripts:
   - status-route-start.sh
+  - pass_proxies_through_monit.sh
   jobs:
   - name: route_registrar
     release_name: cf
