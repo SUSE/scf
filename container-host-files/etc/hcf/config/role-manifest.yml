@@ -67,7 +67,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: consul-data
-        size: 100
+        size: 5
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -134,7 +134,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: mysql-data
-        size: 100
+        size: 5
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -263,7 +263,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: diego-database-data
-        size: 100
+        size: 10
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -741,7 +741,7 @@ roles:
     persistent-volumes: []
     shared-volumes:
     - path: '/var/vcap/nfs'
-      size: 100
+      size: 10
       tag: 'cf-usb-data'
     memory: 1024
     virtual-cpus: 2
@@ -831,7 +831,7 @@ roles:
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
-        size: 100
+        size: 10
         tag: cf-etcd-data
     shared-volumes: []
     memory: 1024
@@ -1145,7 +1145,7 @@ roles:
     persistent-volumes:
     - path: '/var/vcap/data/garden'
       tag: garden-graph
-      size: 100
+      size: 50
     shared-volumes: []
     memory: 2048
     virtual-cpus: 4
