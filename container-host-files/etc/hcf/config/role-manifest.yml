@@ -2054,22 +2054,6 @@ configuration:
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     type-hint: "string,ipaddress"
-  # Proxy
-  - name: HTTP_PROXY
-    default: ""
-    type-hint: "string,hostname"
-  - name: http_proxy
-    default: ""
-    type-hint: "string,hostname"
-  - name: HTTPS_PROXY
-    default: ""
-    type-hint: "string,hostname"
-  - name: https_proxy
-    default: ""
-    type-hint: "string,hostname"
-  - name: NO_PROXY
-    default: "127.0.0.1"
-    type-hint: "string"
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
