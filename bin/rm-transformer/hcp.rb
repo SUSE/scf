@@ -392,8 +392,12 @@ class ToHCP < Common
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret,
-      'default'     => (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     }
+
+    default_value = (var['default'].nil? || vsecret) ? nil : var['default'].to_s
+    unless default_value.nil?
+      parameter['default'] = default_value
+    end
 
     unless var['generator'].nil?
       parameter['generator'] = convert_parameter_generator(var, vname)
