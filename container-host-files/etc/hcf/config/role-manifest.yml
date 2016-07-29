@@ -436,8 +436,6 @@ roles:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.skip_ssl_validation: true
 - name: routing-api
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - router_internal_host_names.sh
   jobs:
@@ -452,7 +450,6 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: consul_agent
   - name: metron_agent
@@ -943,8 +940,6 @@ roles:
         target: 9016
         public: false
 - name: diego-cc-bridge
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -962,7 +957,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: cc_uploader
   - name: stager
