@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "1.0.9",
+        "version": "1.0.10",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
