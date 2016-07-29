@@ -1347,6 +1347,41 @@ roles:
       external: 3000
       internal: 3000
       public: false
+- name: hcf-versions
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
+  scripts:
+  - fake_spec_index_on_hcp.sh
+  jobs:
+  - name: hcf-versions
+    release_name: hcf-versions
+  - name: metron_agent
+    release_name: cf
+  - name: route_registrar
+    release_name: cf
+  processes:
+  - name: hcf-versions
+  - name: metron_agent
+  - name: route_registrar
+  run:
+    scaling:
+      indexed: 1
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 512
+    virtual-cpus: 1
+    exposed-ports:
+    - name: 'api'
+      protocol: TCP
+      source: 3000
+      target: 3000
+      public: false
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: status-route
   tags:
   - dev-only
@@ -2212,6 +2247,11 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
+    properties.hcf_versions.blobstore.host: '"((BLOBSTORE_HOST))"'
+    properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.hcf_versions.blobstore.username: '"((BLOBSTORE_USERNAME))"'
+    properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+    properties.hcf_versions.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hm9000.port: 5155
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'

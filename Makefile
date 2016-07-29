@@ -76,6 +76,9 @@ hcf-release:
 hcf-sso-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-sso/hcf-sso-release
 
+hcf-versions-release:
+	${GIT_ROOT}/make/bosh-release src/hcf-versions/hcf-versions-release
+
 windows-runtime-release:
 	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
 
@@ -95,6 +98,7 @@ releases: \
 	hcf-release \
 	windows-runtime-release \
 	hcf-sso-release \
+	hcf-versions-release \
 	open-autoscaler-release \
 	${NULL}
 
