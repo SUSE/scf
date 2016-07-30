@@ -3,7 +3,7 @@
 set -e
 
 # put the cli on the path
-export PATH=/var/vcap/packages/cli/bin:${PATH} 
+export PATH=/var/vcap/packages/cli/bin:${PATH}
 
 # helper function to retry a command several times, with a delay between trials
 # usage: retry <max-tries> <delay> <command>...
@@ -24,7 +24,7 @@ function retry () {
 
 
 #TODO: check for ssl validation property
-<% 
+<%
 skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
@@ -32,7 +32,7 @@ retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_dom
 cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 echo "Waiting for SSO Routing service broker..."
-retry 240 30s    curl --fail --silent --insecure https://<%= p("hcf_sso.host") %>:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1
+retry 240 30s    curl --fail --silent --insecure https://<%= p("hcf_sso.host") %>.$HCP_SERVICE_DOMAIN_SUFFIX:<%= p("hcf_sso.port") %>/ping >/dev/null 2>&1
 
 echo "Registering SSO Routing service broker..."
 

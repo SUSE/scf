@@ -28,7 +28,7 @@ function retry () {
 
 <% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
 retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
-<% 
+<%
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
 cf auth <%= username.shellescape %> <%= password.shellescape %>
