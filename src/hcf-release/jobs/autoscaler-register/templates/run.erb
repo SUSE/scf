@@ -28,7 +28,7 @@ retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_dom
 cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 echo "Waiting for Autoscaler service broker..."
-while ! curl --fail --silent --insecure http://<%= p("autoscaler_servicebroker.host") %>:<%= p("tomcat.http.autoscaler_servicebroker.port") %> >/dev/null 2>&1; do
+while ! curl --fail --silent --insecure http://<%= p("autoscaler_servicebroker.host") %>.$HCP_SERVICE_DOMAIN_SUFFIX:<%= p("tomcat.http.autoscaler_servicebroker.port") %> >/dev/null 2>&1; do
     sleep 10
 done
 
