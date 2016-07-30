@@ -26,8 +26,8 @@ class ToHCP < Common
 
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
-    process_roles(roles, definition, fs)
     collect_global_parameters(roles, definition)
+    process_roles(roles, definition, fs)
 
     definition
     # Generated structure
@@ -134,10 +134,6 @@ class ToHCP < Common
     if roles['configuration'] && roles['configuration']['variables']
       collect_parameters(p, roles['configuration']['variables'])
     end
-    component_names = definition['components'].map { |comp| comp['name'] }
-    host_names = component_names.map { |comp| "#{comp}-int" }
-    p << convert_parameter('name' => 'HCF_HCP_CLUSTER_HOSTS',
-                           'default' => host_names.join(','))
   end
 
   def collect_shared_filesystems(roles)
@@ -372,7 +368,6 @@ class ToHCP < Common
     variables.each do |var|
       para.push(convert_parameter_ref(var))
     end
-    para << convert_parameter_ref('name' => 'HCF_HCP_CLUSTER_HOSTS')
   end
 
   def convert_parameter(var)

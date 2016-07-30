@@ -1,8 +1,6 @@
 ---
 roles:
 - name: nats
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix-nats-log-dir.sh
@@ -16,7 +14,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/nats/bin/pre-start
   - /var/vcap/jobs/nats_stream_forwarder/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: nats
@@ -43,8 +40,6 @@ roles:
         target: 4223
         public: false
 - name: consul
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -54,7 +49,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -111,16 +105,12 @@ roles:
     templates:
       properties.consul.agent.mode: '"server"'
 - name: mysql
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_advertise_ip.sh
   jobs:
   - name: mysql
     release_name: cf-mysql
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: mariadb_ctrl
   - name: galera-healthcheck
@@ -173,16 +163,12 @@ roles:
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}]'
 - name: mysql-proxy
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_proxy_host_list.sh
   jobs:
   - name: proxy
     release_name: cf-mysql
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: route-registrar
   - name: switchboard
@@ -232,8 +218,6 @@ roles:
       properties.skip_ssl_validation: 'true'
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -248,7 +232,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/etcd/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: bbs
   - name: etcd
@@ -299,8 +282,6 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -312,7 +293,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: consul_template
   - name: haproxy
@@ -350,8 +330,6 @@ roles:
         target: 2222
         public: true
 - name: router
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
@@ -365,7 +343,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: gorouter
   - name: metron_agent
@@ -389,8 +366,6 @@ roles:
 - name: routing-ha-proxy
   # XXX This might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - router_internal_host_names.sh
   jobs:
@@ -404,7 +379,6 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: haproxy
   - name: metron_agent
@@ -436,8 +410,6 @@ roles:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.skip_ssl_validation: true
 - name: routing-api
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - router_internal_host_names.sh
   jobs:
@@ -452,7 +424,6 @@ roles:
     release_name: routing
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: consul_agent
   - name: metron_agent
@@ -480,6 +451,7 @@ roles:
       properties.skip_ssl_validation: true
 - name: uaa
   scripts:
+  - fake_spec_index_on_hcp.sh
   - fix_uaa_hostnames_in_uaa_yml.sh
   jobs:
   - name: uaa
@@ -493,7 +465,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/uaa/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: uaa
   - name: consul_agent
@@ -524,8 +495,6 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
   # to run migrations from
@@ -564,7 +533,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_ng/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -603,8 +571,6 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -617,7 +583,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_worker/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -637,8 +602,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: blobstore
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -648,8 +611,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
@@ -683,8 +644,6 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":80, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -697,7 +656,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cloud_controller_clock/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -714,8 +672,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -727,7 +683,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: usb
   - name: route_registrar
@@ -760,8 +715,6 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -771,8 +724,6 @@ roles:
     release_name: cf
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: doppler
   - name: metron_agent
@@ -804,8 +755,6 @@ roles:
         target: 3458
         public: false
 - name: etcd
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fix_etcd_bootstrap.sh
   jobs:
@@ -818,7 +767,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/etcd/bin/pre-start
   - /var/vcap/jobs/etcd_metrics_server/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -863,8 +811,6 @@ roles:
       properties.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -874,8 +820,6 @@ roles:
     release_name: cf
   - name: route_registrar
     release_name: cf
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: loggregator_trafficcontroller
   - name: metron_agent
@@ -905,8 +849,6 @@ roles:
         target: 8081
         public: false
 - name: diego-brain
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -920,7 +862,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: converger
   - name: auctioneer
@@ -943,8 +884,6 @@ roles:
         target: 9016
         public: false
 - name: diego-cc-bridge
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -962,7 +901,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: cc_uploader
   - name: stager
@@ -1034,8 +972,6 @@ roles:
         target: 17018
         public: false
 - name: diego-route-emitter
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -1047,7 +983,6 @@ roles:
     release_name: cf
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -1064,8 +999,6 @@ roles:
     virtual-cpus: 2
     exposed-ports: []
 - name: diego-access
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -1081,7 +1014,6 @@ roles:
     release_name: windows-runtime-release
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: file_server
   - name: metron_agent
@@ -1109,8 +1041,6 @@ roles:
         target: 8080
         public: false
 - name: diego-cell
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - prevent_apparmor_disable.sh
@@ -1130,7 +1060,6 @@ roles:
   post_config_scripts:
   - /var/vcap/jobs/consul_agent/bin/pre-start
   - /var/vcap/jobs/cflinuxfs2-rootfs-setup/bin/pre-start
-  - pass_proxies_through_monit.sh
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1152,8 +1081,6 @@ roles:
     exposed-ports: []
 - name: sclr-api
   type: bosh
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
@@ -1162,8 +1089,6 @@ roles:
     release_name: cf-open-autoscaler
   - name: route_registrar
     release_name: cf
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   - name: route_registrar
@@ -1189,16 +1114,12 @@ roles:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: sclr-server
   type: bosh
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
   jobs:
   - name: autoscaler_server
     release_name: cf-open-autoscaler
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   run:
@@ -1223,16 +1144,12 @@ roles:
       properties.couchdb.dbname: '"couchdb-scaling"'
 - name: sclr-broker
   type: bosh
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
   jobs:
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: tomcat
   run:
@@ -1257,13 +1174,9 @@ roles:
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
 - name: couchdb
   type: bosh
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: couchdb
     release_name: cf-open-autoscaler
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: couchdb
   run:
@@ -1285,8 +1198,6 @@ roles:
         public: false
 - name: acceptance-tests
   type: bosh-task
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: acceptance-tests
     release_name: cf
@@ -1304,8 +1215,6 @@ roles:
     exposed-ports: []
 - name: smoke-tests
   type: bosh-task
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: smoke-tests
     release_name: cf
@@ -1336,8 +1245,6 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: cf-set-proxy
     release_name: hcf
@@ -1380,8 +1287,6 @@ roles:
         public: true
 - name: sso-create-service
   type: bosh-task
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: sso-create-service
     release_name: hcf
@@ -1400,8 +1305,6 @@ roles:
     exposed-ports: []
 - name: autoscaler-create-service
   type: bosh-task
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   jobs:
   - name: autoscaler-create-service
     release_name: hcf
@@ -1419,8 +1322,6 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   jobs:
@@ -1428,8 +1329,6 @@ roles:
     release_name: hcf-sso
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - pass_proxies_through_monit.sh
   processes:
   - name: hcf-sso
   - name: metron_agent
@@ -1450,11 +1349,8 @@ roles:
       target: 3000
       public: false
 - name: status-route
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   post_config_scripts:
   - status-route-start.sh
-  - pass_proxies_through_monit.sh
   jobs:
   - name: route_registrar
     release_name: cf
