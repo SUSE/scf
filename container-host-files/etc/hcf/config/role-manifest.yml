@@ -402,8 +402,8 @@ roles:
       public: true
     - name: 'tcp-routing'
       protocol: TCP
-      source: "60000-65535"
-      target: "60000-65535"
+      source: "20000-25535"
+      target: "20000-25535"
       public: true
   configuration:
     templates:
