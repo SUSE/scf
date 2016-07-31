@@ -456,7 +456,7 @@ properties:
     router_groups:
     - name: default-tcp
       type: tcp
-      reservable_ports: 60000-65535
+      reservable_ports: 20000-25535
     uri: http://routing-api
   smoke_tests:
     suite_name: CF_SMOKE_TESTS
