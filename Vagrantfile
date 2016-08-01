@@ -201,7 +201,7 @@ Vagrant.configure(2) do |config|
     set -e
     echo 'source ~/hcf/bin/.fissilerc' >> .profile
     echo 'source ~/hcf/bin/.runrc' >> .profile
-    echo '/mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh' >> .profile
+    echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
