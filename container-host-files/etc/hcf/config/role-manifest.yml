@@ -783,7 +783,7 @@ roles:
     templates:
       properties.etcd.peer_require_ssl: 'false'
       properties.etcd.require_ssl: 'false'
-      properties.etcd.cluster: '[]'
+      properties.etcd.cluster: 'null'
       properties.etcd.peer_key: 'null'
       properties.etcd.peer_cert: 'null'
       properties.etcd.peer_ca_cert: 'null'
