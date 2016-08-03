@@ -89,7 +89,17 @@ docker run \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT} \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "rbenv global 2.2.3 && bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
+       ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
     > ${OUTFILE}
+
+for num in 3 6 ; do
+    docker run \
+        --rm \
+        --volume ${GIT_ROOT}:${GIT_ROOT} \
+        --workdir ${GIT_ROOT} \
+        --entrypoint bash \
+        ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 ruby bin/rm-transformer/diego-cell-count-modifier.rb ${num} ${OUTFILE}" \
+    > ${OUTFILE%.*}.${num}.json
+done
 
 echo Generated ${OUTFILE}
