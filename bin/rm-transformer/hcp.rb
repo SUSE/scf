@@ -314,8 +314,10 @@ class ToHCP < Common
     }
   end
 
-  MAX_PORT_RANGE = 10
+  MAX_EXTERNAL_PORT_COUNT = 100
+  EXTERNAL_PORT_UPPER_BOUND = 29999
   def add_ports(component, ports)
+    cname = component['name']
     cports = component['service_ports']
     ports.each do |port|
       if port['source'].to_s.include? '-'
@@ -324,25 +326,27 @@ class ToHCP < Common
           raise "Port range forwarding #{port['name']}: must have the same source / target ranges"
         end
         first, last = port['source'].split('-').map(&:to_i)
-        if last - first > MAX_PORT_RANGE
-          last = first + MAX_PORT_RANGE
-          STDERR.puts "Warning: too many ports to forward in #{port['name']}, limiting to #{MAX_PORT_RANGE}"
-        end
         (first..last).each do |port_number|
-          cports.push(convert_port(port.merge(
+          cports.push(convert_port(cname, port.merge(
             'source' => port_number,
             'target' => port_number,
             'name'   => "#{port['name']}-#{port_number}"
           )))
         end
       else
-        cports.push(convert_port(port))
+        cports.push(convert_port(cname, port))
       end
+    end
+    if cports.length > MAX_EXTERNAL_PORT_COUNT
+      raise "Error: too many ports to forward (#{cports.length}) in #{cname}, limited to #{MAX_EXTERNAL_PORT_COUNT}"
     end
   end
 
-  def convert_port(port)
+  def convert_port(name, port)
     name = port['name']
+    if port['source'] > EXTERNAL_PORT_UPPER_BOUND
+      raise "Error: Cannot export port #{port['source']} (in #{name}), above the limit of #{EXTERNAL_PORT_UPPER_BOUND}"
+    end
     if name.length > 15
       # Service ports must have a length no more than 15 characters
       # (to be a valid host name)
