@@ -165,16 +165,7 @@ function setup_role() {
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
   local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
-  # Add anything not found in roles-manifest.yml
-  local extra=""
-  case "$role" in
-    "diego-database")
-	  # TODO: Move into role-manifest.yml
-	  extra="$extra --add-host=diego-database-0.etcd.service.cf.internal:127.0.0.1"
-	  ;;
-  esac
-
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${extra}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } "
 }
 
 # Set up iptables rules for roles that require forwarding a whole range of ports
