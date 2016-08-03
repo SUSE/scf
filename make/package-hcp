@@ -10,9 +10,9 @@ TARGET=${1}
 
 case ${TARGET} in
     hcp)
-        INSTANCE_DEFINITION=hcf-hcp-instance.json;;
+        INSTANCE_DEFINITION_BASE=hcf-hcp-instance;;
     hcp-ha)
-        INSTANCE_DEFINITION=hcf-hcp-instance-ha.json;;
+        INSTANCE_DEFINITION_BASE=hcf-hcp-instance-ha;;
     *)
         printf "\033[0;1;31mUnknown HCP package type ${TARGET}\033[0m\n" >&2
         exit 1;;
@@ -20,6 +20,8 @@ esac
 
 ARTIFACT=${TARGET}-${APP_VERSION}.zip
 
-zip -9 ${GIT_ROOT}/${ARTIFACT} hcf-hcp.json ${INSTANCE_DEFINITION}
+zip -9 ${GIT_ROOT}/${ARTIFACT} \
+    hcf-hcp.json hcf-hcp.3.json hcf-hcp.6.json \
+    ${INSTANCE_DEFINITION_BASE}.json ${INSTANCE_DEFINITION_BASE}.3.json ${INSTANCE_DEFINITION_BASE}.6.json
 
 echo Generated ${ARTIFACT}
