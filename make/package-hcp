@@ -21,7 +21,7 @@ esac
 ARTIFACT=${TARGET}-${APP_VERSION}.zip
 
 zip -9 ${GIT_ROOT}/${ARTIFACT} \
-    hcf-hcp.json hcf-hcp.3.json hcf-hcf.6.json \
+    hcf-hcp.json hcf-hcp.3.json hcf-hcp.6.json \
     ${INSTANCE_DEFINITION_BASE}.json ${INSTANCE_DEFINITION_BASE}.3.json ${INSTANCE_DEFINITION_BASE}.6.json
 
 echo Generated ${ARTIFACT}

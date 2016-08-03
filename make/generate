@@ -93,6 +93,7 @@ docker run \
     > ${OUTFILE}
 
 for num in 3 6 ; do
+    printf "%bGenerating %s%b\n" "\033[0;32m" "${OUTFILE%.*}.${num}.json" "\033[0m"
     docker run \
         --rm \
         --volume ${GIT_ROOT}:${GIT_ROOT} \
@@ -102,4 +103,4 @@ for num in 3 6 ; do
     > ${OUTFILE%.*}.${num}.json
 done
 
-echo Generated ${OUTFILE}
+printf "%bGenerated %s%b\n" "\033[0;32m" "${OUTFILE}" "\033[0m"
