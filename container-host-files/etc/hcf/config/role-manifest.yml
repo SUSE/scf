@@ -1222,6 +1222,30 @@ roles:
         external: 5984
         internal: 5984
         public: false
+- name: acctestsflightrec
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
+  jobs:
+  - name: acctestsflightrec
+    release_name: cf
+  run:
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'acctestsflightrec'
+        protocol: 'TCP'
+        source: 10514
+        target: 10514
+        public: false
+
 - name: acceptance-tests
   type: bosh-task
   jobs:
