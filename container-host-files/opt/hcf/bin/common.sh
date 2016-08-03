@@ -139,12 +139,12 @@ function setup_role() {
   local port_info
   while read -r port_info ; do
     local protocol=$(echo "${port_info}" | jq --raw-output .protocol)
-    local source_port=$(echo "${port_info}" | jq --raw-output .source)
-    local target_port=$(echo "${port_info}" | jq --raw-output .target)
-    if test "${source_port//-}" != "${source_port}" ; then
+    local external_port=$(echo "${port_info}" | jq --raw-output .external)
+    local internal_port=$(echo "${port_info}" | jq --raw-output .internal)
+    if test "${external_port//-}" != "${external_port}" ; then
       continue # This is a port range, handled in setup_port_range_forwarding()
     fi
-    ports="${ports} -p ${source_port}:${target_port}/${protocol}"
+    ports="${ports} -p ${external_port}:${internal_port}/${protocol}"
   done < <(echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)')
 
   # Add persistent volumes
@@ -178,19 +178,19 @@ function setup_port_range_forwarding() {
   local port_info
   echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)' | while read -r port_info ; do
     local protocol=$(echo "${port_info}" | jq --raw-output .protocol | tr [:upper:] [:lower:])
-    local source_ports=$(echo "${port_info}" | jq --raw-output .source)
-    local target_ports=$(echo "${port_info}" | jq --raw-output .target)
-    if test "${source_ports//-}" = "${source_ports}" ; then
+    local external_ports=$(echo "${port_info}" | jq --raw-output .external)
+    local internal_ports=$(echo "${port_info}" | jq --raw-output .internal)
+    if test "${external_ports//-}" = "${external_ports}" ; then
       continue # Not a port range; handled in setup_role()
     fi
-    if test "${source_ports}" != "${target_ports}" ; then
-      printf "Port forwarding definition for %s contains source port range %s unequal to target port range %s; this is not supported.\n" \
-        "${role}" "${source_ports}" "${target_ports}" >&2
+    if test "${external_ports}" != "${internal_ports}" ; then
+      printf "Port forwarding definition for %s contains external port range %s unequal to internal port range %s; this is not supported.\n" \
+        "${role}" "${external_ports}" "${internal_ports}" >&2
       return 1
     fi
     local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' $role)
-    local lower_bound="${source_ports%%-*}"
-    local upper_bound="${source_ports##*-}"
+    local lower_bound="${external_ports%%-*}"
+    local upper_bound="${external_ports##*-}"
     local network_address=$(docker network inspect hcf | jq --raw-output '.[].IPAM.Config[].Gateway')
     local network_interface=$(ip -4 addr | grep -F -B1 ${network_address}/ | head -n1 | awk -F: ' { print $2 } ')
     sudo iptables -t nat -A POSTROUTING -s ${container_address}/32 -d ${container_address}/32 -p ${protocol} -m ${protocol} --dport ${lower_bound}:${upper_bound}

@@ -355,8 +355,8 @@ class ToHCP < Common
     {
       'name'        => name,
       'protocol'    => port['protocol'],
-      'source_port' => port['source'],
-      'target_port' => port['target'],
+      'source_port' => port['external'],
+      'target_port' => port['internal'],
       'public'      => port['public']
     }
   end

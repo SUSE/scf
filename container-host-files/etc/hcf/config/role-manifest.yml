@@ -31,13 +31,13 @@ roles:
     exposed-ports:
       - name: 'nats'
         protocol: 'TCP'
-        source: 4222
-        target: 4222
+        external: 4222
+        internal: 4222
         public: false
       - name: 'nats-routes'
         protocol: 'TCP'
-        source: 4223
-        target: 4223
+        external: 4223
+        internal: 4223
         public: false
 - name: consul
   scripts:
@@ -68,38 +68,38 @@ roles:
     exposed-ports:
       - name: 'server-rpc'
         protocol: 'TCP'
-        source: 8300
-        target: 8300
+        external: 8300
+        internal: 8300
         public: false
       - name: 'serf-lan-tcp'
         protocol: 'TCP'
-        source: 8301
-        target: 8301
+        external: 8301
+        internal: 8301
         public: false
       - name: 'serf-lan-udp'
         protocol: 'UDP'
-        source: 8301
-        target: 8301
+        external: 8301
+        internal: 8301
         public: false
       - name: 'serf-wan-tcp'
         protocol: 'TCP'
-        source: 8302
-        target: 8302
+        external: 8302
+        internal: 8302
         public: false
       - name: 'serf-wan-udp'
         protocol: 'UDP'
-        source: 8302
-        target: 8302
+        external: 8302
+        internal: 8302
         public: false
       - name: 'cli-rpc'
         protocol: 'TCP'
-        source: 8400
-        target: 8400
+        external: 8400
+        internal: 8400
         public: false
       - name: 'http-api'
         protocol: 'TCP'
-        source: 8500
-        target: 8500
+        external: 8500
+        internal: 8500
         public: false
   configuration:
     templates:
@@ -131,23 +131,23 @@ roles:
     exposed-ports:
       - name: 'mysql'
         protocol: 'TCP'
-        source: 3306
-        target: 3306
+        external: 3306
+        internal: 3306
         public: false
       - name: 'galera'
         protocol: 'TCP'
-        source: 4567
-        target: 4567
+        external: 4567
+        internal: 4567
         public: false
       - name: 'healthcheck'
         protocol: 'tcp'
-        source: 9200
-        target: 9200
+        external: 9200
+        internal: 9200
         public: false
       - name: 'xtrabackup'
         protocol: 'tcp'
-        source: 4444
-        target: 4444
+        external: 4444
+        internal: 4444
         public: false
   configuration:
     templates:
@@ -184,18 +184,18 @@ roles:
     exposed-ports:
       - name: 'mysql-proxy'
         protocol: 'TCP'
-        source: 3306
-        target: 3306
+        external: 3306
+        internal: 3306
         public: false
       - name: 'api'
         protocol: 'TCP'
-        source: 80
-        target: 80
+        external: 80
+        internal: 80
         public: false
       - name: 'healthcheck'
         protocol: 'TCP'
-        source: 1936
-        target: 1936
+        external: 1936
+        internal: 1936
         public: false
   configuration:
     templates:
@@ -247,18 +247,18 @@ roles:
     exposed-ports:
       - name: 'cell-metrics'
         protocol: 'TCP'
-        source: 5678
-        target: 5678
+        external: 5678
+        internal: 5678
         public: false
       - name: 'cell-bbs-api'
         protocol: 'TCP'
-        source: 8889
-        target: 8889
+        external: 8889
+        internal: 8889
         public: false
       - name: 'cell-bbs-dbg'
         protocol: 'TCP'
-        source: 17017
-        target: 17017
+        external: 17017
+        internal: 17017
         public: false
   configuration:
     templates:
@@ -293,23 +293,23 @@ roles:
     exposed-ports:
       - name: 'ha-proxy'
         protocol: 'TCP'
-        source: 80
-        target: 80
+        external: 80
+        internal: 80
         public: true
       - name: 'ha-proxy2'
         protocol: 'TCP'
-        source: 443
-        target: 443
+        external: 443
+        internal: 443
         public: true
       - name: 'ha-proxy3'
         protocol: 'TCP'
-        source: 4443
-        target: 4443
+        external: 4443
+        internal: 4443
         public: true
       - name: 'app-ssh'
         protocol: 'TCP'
-        source: 2222
-        target: 2222
+        external: 2222
+        internal: 2222
         public: true
 - name: router
   scripts:
@@ -342,8 +342,8 @@ roles:
     exposed-ports:
       - name: 'router'
         protocol: 'TCP'
-        source: 80
-        target: 80
+        external: 80
+        internal: 80
         public: false
 - name: routing-ha-proxy
   # XXX This might be able to co-locate with one of the others
@@ -379,13 +379,13 @@ roles:
     exposed-ports:
     - name: 'healthcheck'
       protocol: TCP
-      source: 2341
-      target: 80
+      external: 2341
+      internal: 80
       public: true
     - name: 'tcp-routing'
       protocol: TCP
-      source: "20000-20098"
-      target: "20000-20098"
+      external: "20000-20098"
+      internal: "20000-20098"
       public: true
   configuration:
     templates:
@@ -429,18 +429,18 @@ roles:
     exposed-ports:
       - name: route-etcd
         protocol: 'TCP'
-        source: 4001
-        target: 4001
+        external: 4001
+        internal: 4001
         public: false
       - name: route-etcd-peer
         protocol: 'TCP'
-        source: 7001
-        target: 7001
+        external: 7001
+        internal: 7001
         public: false
       - name: routing-api
         protocol: TCP
-        source: 3000
-        target: 3000
+        external: 3000
+        internal: 3000
         public: false
   configuration:
     templates:
@@ -480,13 +480,13 @@ roles:
     exposed-ports:
       - name: 'uaa'
         protocol: 'TCP'
-        source: 8080
-        target: 8080
+        external: 8080
+        internal: 8080
         public: false
       - name: 'uaa-ssl'
         protocol: 'TCP'
-        source: 8443
-        target: 8443
+        external: 8443
+        internal: 8443
         public: false
   configuration:
     templates:
@@ -555,13 +555,13 @@ roles:
     exposed-ports:
       - name: 'api'
         protocol: 'TCP'
-        source: 9022
-        target: 9022
+        external: 9022
+        internal: 9022
         public: false
       - name: 'statsd'
         protocol: 'TCP'
-        source: 8125
-        target: 8125
+        external: 8125
+        internal: 8125
         public: false
   configuration:
     templates:
@@ -631,13 +631,13 @@ roles:
     exposed-ports:
     - name: 'blobstore-ext'
       protocol: 'TCP'
-      source: 8080
-      target: 8080
+      external: 8080
+      internal: 8080
       public: false
     - name: 'blobstore-int'
       protocol: 'TCP'
-      source: 4443
-      target: 4443
+      external: 4443
+      internal: 4443
       public: false
   configuration:
     templates:
@@ -702,13 +702,13 @@ roles:
     exposed-ports:
       - name: 'usb'
         protocol: 'TCP'
-        source: 24054
-        target: 24054
+        external: 24054
+        internal: 24054
         public: false
       - name: 'usb2'
         protocol: 'TCP'
-        source: 24053
-        target: 24053
+        external: 24053
+        internal: 24053
         public: false
   configuration:
     templates:
@@ -740,18 +740,18 @@ roles:
     exposed-ports:
       - name: 'doppler-in'
         protocol: 'TCP'
-        source: 3456
-        target: 3456
+        external: 3456
+        internal: 3456
         public: false
       - name: 'dropsnode-in'
         protocol: 'TCP'
-        source: 3457
-        target: 3457
+        external: 3457
+        internal: 3457
         public: false
       - name: 'doppler-tls'
         protocol: 'TCP'
-        source: 3458
-        target: 3458
+        external: 3458
+        internal: 3458
         public: false
 - name: etcd
   scripts:
@@ -786,13 +786,13 @@ roles:
     exposed-ports:
       - name: 'etcd-client'
         protocol: 'TCP'
-        source: 4001
-        target: 4001
+        external: 4001
+        internal: 4001
         public: false
       - name: 'etcd-peer'
         protocol: 'TCP'
-        source: 7001
-        target: 7001
+        external: 7001
+        internal: 7001
         public: false
   configuration:
     templates:
@@ -839,13 +839,13 @@ roles:
     exposed-ports:
       - name: 'loggregator'
         protocol: 'TCP'
-        source: 8080
-        target: 8080
+        external: 8080
+        internal: 8080
         public: false
       - name: 'loggregator-ws'
         protocol: 'TCP'
-        source: 8081
-        target: 8081
+        external: 8081
+        internal: 8081
         public: false
 - name: diego-brain
   scripts:
@@ -879,8 +879,8 @@ roles:
     exposed-ports:
       - name: 'diego-auction'
         protocol: 'TCP'
-        source: 9016
-        target: 9016
+        external: 9016
+        internal: 9016
         public: false
 - name: diego-cc-bridge
   scripts:
@@ -922,53 +922,53 @@ roles:
     exposed-ports:
       - name: 'nsync-listen'
         protocol: 'TCP'
-        source: 8787
-        target: 8787
+        external: 8787
+        internal: 8787
         public: false
       - name: 'nsync-dbg-l'
         protocol: 'TCP'
-        source: 17006
-        target: 17006
+        external: 17006
+        internal: 17006
         public: false
       - name: 'nsync-dbg-b'
         protocol: 'TCP'
-        source: 17007
-        target: 17007
+        external: 17007
+        internal: 17007
         public: false
       - name: 'stager-dbg'
         protocol: 'TCP'
-        source: 17011
-        target: 17011
+        external: 17011
+        internal: 17011
         public: false
       - name: 'stager-listen'
         protocol: 'TCP'
-        source: 8888
-        target: 8888
+        external: 8888
+        internal: 8888
         public: false
       - name: 'tps-listen'
         protocol: 'TCP'
-        source: 1518
-        target: 1518
+        external: 1518
+        internal: 1518
         public: false
       - name: 'tps-dbg-l'
         protocol: 'TCP'
-        source: 17014
-        target: 17014
+        external: 17014
+        internal: 17014
         public: false
       - name: 'tps-dbg-w'
         protocol: 'TCP'
-        source: 17015
-        target: 17015
+        external: 17015
+        internal: 17015
         public: false
       - name: 'cc-up-listen'
         protocol: 'TCP'
-        source: 9090
-        target: 9090
+        external: 9090
+        internal: 9090
         public: false
       - name: 'cc-up-dbg'
         protocol: 'TCP'
-        source: 17018
-        target: 17018
+        external: 17018
+        internal: 17018
         public: false
 - name: diego-route-emitter
   scripts:
@@ -1031,13 +1031,13 @@ roles:
     exposed-ports:
       - name: 'diego-ssh'
         protocol: 'TCP'
-        source: 2222
-        target: 2222
+        external: 2222
+        internal: 2222
         public: false
       - name: 'diego-files'
         protocol: 'TCP'
-        source: 8080
-        target: 8080
+        external: 8080
+        internal: 8080
         public: false
 - name: diego-cell
   scripts:
@@ -1105,8 +1105,8 @@ roles:
     exposed-ports:
       - name: 'api'
         protocol: 'TCP'
-        source: 28861
-        target: 28861
+        external: 28861
+        internal: 28861
         public: false
   configuration:
     templates:
@@ -1135,8 +1135,8 @@ roles:
     exposed-ports:
       - name: 'server'
         protocol: 'TCP'
-        source: 28862
-        target: 28862
+        external: 28862
+        internal: 28862
         public: false
   configuration:
     templates:
@@ -1165,8 +1165,8 @@ roles:
     exposed-ports:
       - name: 'broker'
         protocol: 'TCP'
-        source: 28863
-        target: 28863
+        external: 28863
+        internal: 28863
         public: false
   configuration:
     templates:
@@ -1192,8 +1192,8 @@ roles:
     exposed-ports:
       - name: 'couchdb'
         protocol: 'TCP'
-        source: 5984
-        target: 5984
+        external: 5984
+        internal: 5984
         public: false
 - name: acceptance-tests
   type: bosh-task
@@ -1276,13 +1276,13 @@ roles:
     exposed-ports:
       - name: 'dev-dns'
         protocol: 'UDP'
-        source: 53
-        target: 8600
+        external: 53
+        internal: 8600
         public: true
       - name: 'dev-dns-tcp'
         protocol: 'TCP'
-        source: 53
-        target: 8600
+        external: 53
+        internal: 8600
         public: true
 - name: sso-create-service
   type: bosh-task
@@ -1344,8 +1344,8 @@ roles:
     exposed-ports:
     - name: service-broker
       protocol: TCP
-      source: 3000
-      target: 3000
+      external: 3000
+      internal: 3000
       public: false
 - name: status-route
   tags:
@@ -1376,8 +1376,8 @@ roles:
     exposed-ports:
       - name: 'status-route'
         protocol: 'TCP'
-        source: 9052
-        target: 9052
+        external: 9052
+        internal: 9052
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
