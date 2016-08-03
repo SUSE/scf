@@ -1345,6 +1345,8 @@ roles:
       target: 3000
       public: false
 - name: status-route
+  tags:
+  - dev-only
   post_config_scripts:
   - status-route-start.sh
   jobs:
