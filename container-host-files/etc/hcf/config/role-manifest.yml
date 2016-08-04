@@ -262,7 +262,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -384,8 +384,8 @@ roles:
       public: true
     - name: 'tcp-routing'
       protocol: TCP
-      source: "20000-25535"
-      target: "20000-25535"
+      source: "20000-20098"
+      target: "20000-20098"
       public: true
   configuration:
     templates:
@@ -702,17 +702,17 @@ roles:
     exposed-ports:
       - name: 'usb'
         protocol: 'TCP'
-        source: 54054
-        target: 54054
+        source: 24054
+        target: 24054
         public: false
       - name: 'usb2'
         protocol: 'TCP'
-        source: 54053
-        target: 54053
+        source: 24053
+        target: 24053
         public: false
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port": 54053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 54054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
   - fake_spec_index_on_hcp.sh

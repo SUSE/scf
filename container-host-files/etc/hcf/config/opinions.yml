@@ -241,10 +241,12 @@ properties:
       external_url: brokers.example.com
       username: cf-usb_username
       password: cf-usb_password
+      port: 24054
     configconnectionstring: 127.0.0.1:8500
     configprovider: consulConfigProvider
     management:
       dev_mode: true
+      port: 24053
       uaa:
         client: cf-usb
         secret: cf-usb_secret
