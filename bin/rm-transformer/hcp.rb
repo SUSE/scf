@@ -320,12 +320,12 @@ class ToHCP < Common
     cname = component['name']
     cports = component['service_ports']
     ports.each do |port|
-      if port['source'].to_s.include? '-'
+      if port['external'].to_s.include? '-'
         # HCP does not yet support port ranges; do what we can. CAPS-435
-        if port['source'] != port['target']
-          raise "Port range forwarding #{port['name']}: must have the same source / target ranges"
+        if port['external'] != port['internal']
+          raise "Port range forwarding #{port['name']}: must have the same external / internal ranges"
         end
-        first, last = port['source'].split('-').map(&:to_i)
+        first, last = port['external'].split('-').map(&:to_i)
         (first..last).each do |port_number|
           cports.push(convert_port(cname, port.merge(
             'source' => port_number,
