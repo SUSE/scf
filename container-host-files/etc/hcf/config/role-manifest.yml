@@ -1066,9 +1066,9 @@ roles:
   - name: garden
   run:
     scaling:
-      indexed: 20
+      indexed: 6
       min: 1
-      max: 20
+      max: 6
     capabilities: ['ALL']
     persistent-volumes:
     - path: '/var/vcap/data/garden'
