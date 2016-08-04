@@ -342,10 +342,10 @@ class ToHCP < Common
     end
   end
 
-  def convert_port(name, port)
+  def convert_port(cname, port)
     name = port['name']
     if port['source'] > EXTERNAL_PORT_UPPER_BOUND
-      raise "Error: Cannot export port #{port['source']} (in #{name}), above the limit of #{EXTERNAL_PORT_UPPER_BOUND}"
+      raise "Error: Cannot export port #{port['source']} (in #{cname}), above the limit of #{EXTERNAL_PORT_UPPER_BOUND}"
     end
     if name.length > 15
       # Service ports must have a length no more than 15 characters
