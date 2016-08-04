@@ -15,10 +15,10 @@ USAGE
 if [ "${1}" == "--help" ]; then echo "${usage}"; exit 1; fi
 
 # Verification to see that we're in the HCP vagrant directory
-if [ -f "./setup_node.sh" ] && [ -f "./setup_master.sh" ]; then
+if [ -f "./common-initd/setup_node.sh" ] && [ -f "./common-initd/setup_master.sh" ]; then
   vagrant status node 2>&1 1>/dev/null
 else
-  echo "This script must be run from the HCP dev harness Vagrant directory." >&2
+  echo "This script must be run from the HCP dev harness Vagrant directory. (current directory: $PWD)" >&2
   exit 1
 fi
 
@@ -26,7 +26,7 @@ tmpfile=/tmp/hcf-on-hcp-installer.ssh
 vagrant ssh-config node > $tmpfile
 
 # Copy hcf-status over to the node
-echo "Seting up an hcf dir ..."
+echo "Setting up an hcf dir ..."
 ssh -F "$tmpfile" node 'bash -c "mkdir -p ~/hcf/"'
 echo "Copying hcf tools to HCP dev harness node ..."
 scp -F "$tmpfile" -prq ${CURDIR}/../container-host-files/* node:~/hcf/
