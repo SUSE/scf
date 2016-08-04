@@ -1374,10 +1374,10 @@ roles:
     memory: 512
     virtual-cpus: 1
     exposed-ports:
-    - name: 'api'
+    - name: 'hcf-versions-api'
       protocol: TCP
-      source: 3000
-      target: 3000
+      external: 3000
+      internal: 3000
       public: false
   configuration:
     templates:
