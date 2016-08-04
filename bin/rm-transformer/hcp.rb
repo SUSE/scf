@@ -328,8 +328,8 @@ class ToHCP < Common
         first, last = port['external'].split('-').map(&:to_i)
         (first..last).each do |port_number|
           cports.push(convert_port(cname, port.merge(
-            'source' => port_number,
-            'target' => port_number,
+            'external' => port_number,
+            'internal' => port_number,
             'name'   => "#{port['name']}-#{port_number}"
           )))
         end
