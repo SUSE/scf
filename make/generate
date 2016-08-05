@@ -92,15 +92,19 @@ docker run \
        ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
     > ${OUTFILE}
 
-for num in 3 6 ; do
-    printf "%bGenerating %s%b\n" "\033[0;32m" "${OUTFILE%.*}.${num}.json" "\033[0m"
-    docker run \
-        --rm \
-        --volume ${GIT_ROOT}:${GIT_ROOT} \
-        --workdir ${GIT_ROOT} \
-        --entrypoint bash \
-        ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 ruby bin/rm-transformer/diego-cell-count-modifier.rb ${num} ${OUTFILE}" \
-    > ${OUTFILE%.*}.${num}.json
-done
+case ${TARGET} in
+  hcp|hcp-instance|hcp-instance-ha)
+    for num in 3 6 ; do
+        printf "%bGenerating %s%b\n" "\033[0;32m" "${OUTFILE%.*}.${num}.json" "\033[0m"
+        docker run \
+            --rm \
+            --volume ${GIT_ROOT}:${GIT_ROOT} \
+            --workdir ${GIT_ROOT} \
+            --entrypoint bash \
+            ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 ruby bin/rm-transformer/diego-cell-count-modifier.rb ${num} ${OUTFILE}" \
+        > ${OUTFILE%.*}.${num}.json
+    done
+  ;;
+esac
 
 printf "%bGenerated %s%b\n" "\033[0;32m" "${OUTFILE}" "\033[0m"
