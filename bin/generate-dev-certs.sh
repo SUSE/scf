@@ -63,7 +63,7 @@ openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${sig
 certstrap --depot-path "${internal_certs_dir}" init --common-name "internalCA" --passphrase "${signing_key_passphrase}" --years 10
 
 # generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign bbsServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${internal_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
@@ -71,19 +71,19 @@ certstrap --depot-path "${internal_certs_dir}"  sign bbsClient  --CA internalCA 
 
 
 # generate SSO routing certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso,hcf-sso.hcf,hcf-sso-int" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso-int" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign hcf-sso.hcf --CA internalCA --passphrase "${signing_key_passphrase}"
 cat ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/hcf-sso.hcf.key > ${internal_certs_dir}/sso_routing.key
 cp ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/sso_routing.crt
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${internal_certs_dir}"  request-cert  --common-name "etcdClient"  --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdClient  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database.hcf,diego-database.hcf,diego-database,*.diego-database,*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer  --CA internalCA  --passphrase "${signing_key_passphrase}"
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
@@ -115,7 +115,7 @@ certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer  --CA int
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --domain "uaa,uaa-int" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --domain "uaa-int" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign "${UAA_HOST}" --CA internalCA --passphrase "${signing_key_passphrase}"
 cp "${internal_certs_dir}/${UAA_HOST}.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/${UAA_HOST}.crt" "${internal_certs_dir}/${UAA_HOST}.key" > "${uaa_server_key}"
