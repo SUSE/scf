@@ -1223,11 +1223,9 @@ roles:
         internal: 5984
         public: false
 - name: acctestsflightrec
+  type: docker
   environment_scripts:
   - setup_hcp_no_proxy.sh
-  jobs:
-  - name: acctestsflightrec
-    release_name: cf
   run:
     scaling:
       indexed: 1
@@ -1245,7 +1243,6 @@ roles:
         source: 10514
         target: 10514
         public: false
-
 - name: acceptance-tests
   type: bosh-task
   jobs:
