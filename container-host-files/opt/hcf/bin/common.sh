@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
+BINDIR=$(readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/")
 
 # Determines whether a container is running, given a container name and an image name
 # container_running <CONTAINER_NAME> <IMAGE_NAME>
@@ -257,7 +257,7 @@ function handle_restart() {
 # Loads all roles from the role-manifest.yml
 function load_all_roles() {
   local role_block
-  local role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  local role_manifest_file=$(readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml")
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
