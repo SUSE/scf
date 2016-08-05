@@ -80,7 +80,7 @@ function start_role {
         --net=hcf \
         --dns-search=hcf \
         --label=hcf_role=${role} \
-        --hostname=${role}.hcf \
+        --hostname=${role}-int.hcf \
         ${restart} \
         ${env_files} \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
@@ -188,7 +188,7 @@ function setup_port_range_forwarding() {
         "${role}" "${external_ports}" "${internal_ports}" >&2
       return 1
     fi
-    local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' $role)
+    local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' "${role}"-int)
     local lower_bound="${external_ports%%-*}"
     local upper_bound="${external_ports##*-}"
     local network_address=$(docker network inspect hcf | jq --raw-output '.[].IPAM.Config[].Gateway')
@@ -201,7 +201,7 @@ function setup_port_range_forwarding() {
 # gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' "$1")-int
 }
 
 # gets an image name from a role name
