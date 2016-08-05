@@ -17,6 +17,7 @@ if test -z ${FISSILE_RELEASE:-''}; then
       routing-release
       hcf-release
       hcf-sso/hcf-sso-release
+      hcf-versions/hcf-versions-release
       windows-runtime-release
       open-Autoscaler/bosh-release
     '); do

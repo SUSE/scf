@@ -226,6 +226,7 @@ Name        | Effect |
 `garden-release`  | `bosh create release` for `garden-linux-release` |
 `cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
 `hcf-sso-release` | `bosh create release` for `hcf-sso-release` |
+`hcf-versions-release` | `bosh create release` for `hcf-versions-release` |
 `cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
 `releases`      | Make all of the BOSH releases above |
 
