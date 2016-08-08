@@ -314,7 +314,7 @@ class ToHCP < Common
     }
   end
 
-  MAX_EXTERNAL_PORT_COUNT = 100
+  MAX_EXTERNAL_PORT_COUNT = 10
   EXTERNAL_PORT_UPPER_BOUND = 29999
   def add_ports(component, ports)
     cname = component['name']
