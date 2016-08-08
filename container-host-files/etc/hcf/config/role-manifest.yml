@@ -4,6 +4,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix-nats-log-dir.sh
+  - forward_logfiles.sh
   jobs:
   - name: nats
     release_name: cf
@@ -42,6 +43,7 @@ roles:
 - name: consul
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -108,6 +110,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_advertise_ip.sh
+  - forward_logfiles.sh
   jobs:
   - name: mysql
     release_name: cf-mysql
@@ -165,6 +168,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_mysql_proxy_host_list.sh
+  - forward_logfiles.sh
   jobs:
   - name: proxy
     release_name: cf-mysql
@@ -218,6 +222,7 @@ roles:
 - name: diego-database
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: bbs
     release_name: diego
@@ -266,6 +271,7 @@ roles:
 - name: ha-proxy
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: haproxy
     release_name: cf
@@ -316,6 +322,7 @@ roles:
   - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
   - authorize_internal_ca.sh
+  - forward_logfiles.sh
   jobs:
   - name: gorouter
     release_name: routing
@@ -350,6 +357,7 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   scripts:
   - router_internal_host_names.sh
+  - forward_logfiles.sh
   jobs:
   - name: haproxy
     release_name: routing
@@ -395,6 +403,7 @@ roles:
   scripts:
   - router_internal_host_names.sh
   - authorize_internal_ca.sh
+  - forward_logfiles.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -450,6 +459,7 @@ roles:
   scripts:
   - fake_spec_index_on_hcp.sh
   - fix_uaa_hostnames_in_uaa_yml.sh
+  - forward_logfiles.sh
   jobs:
   - name: uaa
     release_name: cf
@@ -499,6 +509,7 @@ roles:
   - cloud_controller_v2_droplet_count.sh
   - fix_buildpack_install.sh
   - authorize_internal_ca.sh
+  - forward_logfiles.sh
   jobs:
   - name: cloud_controller_ng
     release_name: cf
@@ -571,6 +582,7 @@ roles:
 - name: api-worker
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: cloud_controller_worker
     release_name: cf
@@ -602,6 +614,7 @@ roles:
 - name: blobstore
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: blobstore
     release_name: cf
@@ -646,6 +659,7 @@ roles:
 - name: clock-global
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: cloud_controller_clock
     release_name: cf
@@ -674,6 +688,7 @@ roles:
 - name: cf-usb
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: cf-usb
     release_name: cf-usb
@@ -717,6 +732,7 @@ roles:
 - name: doppler
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: doppler
     release_name: cf
@@ -757,6 +773,7 @@ roles:
 - name: etcd
   scripts:
   - fix_etcd_bootstrap.sh
+  - forward_logfiles.sh
   jobs:
   - name: etcd
     release_name: cf
@@ -813,6 +830,7 @@ roles:
 - name: loggregator
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: loggregator_trafficcontroller
     release_name: cf
@@ -851,6 +869,7 @@ roles:
 - name: diego-brain
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: consul_agent
     release_name: cf
@@ -886,6 +905,7 @@ roles:
 - name: diego-cc-bridge
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: stager
     release_name: cf
@@ -974,6 +994,7 @@ roles:
 - name: diego-route-emitter
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: route_emitter
     release_name: diego
@@ -1001,6 +1022,7 @@ roles:
 - name: diego-access
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: ssh_proxy
     release_name: diego
@@ -1046,6 +1068,7 @@ roles:
   - prevent_apparmor_disable.sh
   - configure-nested-net.sh
   - cleanup-garden-graph.sh
+  - forward_logfiles.sh
   jobs:
   - name: rep
     release_name: diego
@@ -1084,6 +1107,7 @@ roles:
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
+  - forward_logfiles.sh
   jobs:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
@@ -1117,6 +1141,7 @@ roles:
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
+  - forward_logfiles.sh
   jobs:
   - name: autoscaler_server
     release_name: cf-open-autoscaler
@@ -1147,6 +1172,7 @@ roles:
   scripts:
   - configgin-config-properties.sh
   - wait_for_couchdb.sh
+  - forward_logfiles.sh
   jobs:
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
@@ -1324,6 +1350,7 @@ roles:
 - name: hcf-sso
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: hcf-sso
     release_name: hcf-sso
