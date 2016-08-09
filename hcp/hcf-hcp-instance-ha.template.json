@@ -7,11 +7,6 @@
     "parameters": [],
     "scaling": [
       {
-        "component": "diego-cell",
-        "min_instances": 5,
-        "max_instances": 5
-      },
-      {
         "component": "api-1",
         "min_instances": 3,
         "max_instances": 3
@@ -115,11 +110,6 @@
       },
       {
         "component": "diego-cell-5",
-        "min_instances": 0,
-        "max_instances": 1
-      },
-      {
-        "component": "diego-cell-6",
         "min_instances": 0,
         "max_instances": 1
       },
