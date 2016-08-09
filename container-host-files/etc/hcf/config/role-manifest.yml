@@ -1448,16 +1448,16 @@ configuration:
   variables:
   - name: API_HOST
     default: "api"
-    type-hint: "string,hostname"
   - name: API_HA_HOST
     required: false
-    type-hint: "string,hostname"
   - name: BLOBSTORE_HOST
     default: "blobstore"
-    type-hint: "string,hostname"
   - name: BLOBSTORE_USERNAME
     default: "blobstore_user"
-    type-hint: "string"
+  - name: BLOBSTORE_HTTP_PORT
+    default: 8080
+  - name: BLOBSTORE_HTTPS_PORT
+    default: 4443
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
@@ -1468,137 +1468,98 @@ configuration:
       type: Password
   - name: COUCHDB_HOST
     default: "couchdb"
-    type-hint: "string,hostname"
   - name: AUTOSCALER_API_HOST
     default: "sclr-api"
-    type-hint: "string,hostname"
   - name: AUTOSCALER_COUCHDB_HOST
     default: couchdb
-    type-hint: string,hostname
   - name: AUTOSCALER_SERVER_HOST
     default: "sclr-server"
-    type-hint: "string,hostname"
   - name: AUTOSCALER_SERVICE_BROKER_HOST
     default: "sclr-broker"
-    type-hint: "string,hostname"
   - name: AUTOSCALER_USERNAME
     default: admin
-    type-hint: "string"
   - name: AUTOSCALER_PASSWORD
     secret: true
     generator:
       type: Password
   - name: DIEGO_DATABASE_HOST
     default: "diego-database"
-    type-hint: "string,hostname"
   - name: DIEGO_ACCESS_HOST
     default: "diego-access"
-    type-hint: "string,hostname"
   - name: DIEGO_CC_BRIDGE_HOST
     default: "diego-cc-bridge"
-    type-hint: "string,hostname"
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain"
-    type-hint: "string,hostname"
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
-    type-hint: "string,hostname"
   - name: NATS_HOST
     default: "nats"
-    type-hint: "string,hostname"
   - name: NATS_HA_HOST_1
     required: false
-    type-hint: "string,hostname"
   - name: NATS_HA_HOST_2
     required: false
-    type-hint: "string,hostname"
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy"
-    type-hint: "string,hostname"
   - name: MYSQL_HOST
     default: "mysql"
-    type-hint: "string,hostname"
   - name: MYSQL_HA_HOST_1
     required: false
-    type-hint: "string,hostname"
   - name: MYSQL_HA_HOST_2
     required: false
-    type-hint: "string,hostname"
   - name: ETCD_HOST
     default: "etcd"
-    type-hint: "string,hostname"
   - name: ETCD_HA_HOST_1
     required: false
-    type-hint: "string,hostname"
   - name: ETCD_HA_HOST_2
     required: false
-    type-hint: "string,hostname"
   - name: CONSUL_HOST
     default: "consul"
-    type-hint: "string,hostname"
   - name: CONSUL_HA_HOST_1
     required: false
-    type-hint: "string,hostname"
   - name: CONSUL_HA_HOST_2
     required: false
-    type-hint: "string,hostname"
   - name: ROUTER_HOST
     default: "router"
-    type-hint: "string,hostname"
   - name: ROUTING_API_HOST
     default: routing-api
-    type-hint: string,hostname
   - name: LOGGREGATOR_HOST
     default: "loggregator"
-    type-hint: "string,hostname"
   - name: UAA_HOST
     default: uaa
-    type-hint: string,hostname
   - name: BULK_API_PASSWORD
     secret: true
     generator:
       type: Password
   - name: CCDB_ROLE_NAME
     default: ccadmin
-    type-hint: "string"
   - name: CCDB_ROLE_PASSWORD
     secret: true
     generator:
       type: Password
   - name: CCDB_ROLE_TAG
     default: admin
-    type-hint: "string"
   - name: CERTS_PREFIX
     default: hcf
-    type-hint: "string"
   - name: DROPLET_DIRECTORY_KEY
     default: "cc-droplets"
-    type-hint: "string"
   - name: BUILDPACK_DIRECTORY_KEY
     default: "cc-buildpacks"
-    type-hint: "string"
   - name: APP_PACKAGE_DIRECTORY_KEY
     default: "cc-packages"
-    type-hint: "string"
   - name: RESOURCE_DIRECTORY_KEY
     default: "cc-resources"
-    type-hint: "string"
   - name: CF_USB_USERNAME
     default: broker-admin
-    type-hint: "string"
   - name: CF_USB_PASSWORD
     secret: true
     generator:
       type: Password
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
-    type-hint: "string"
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
-    type-hint: "password,human"
   - name: CLUSTER_ADMIN_USERNAME
     default: admin
-    type-hint: "string"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
     generator:
@@ -1610,47 +1571,38 @@ configuration:
   - name: DNS_SUFFIX
     default: ""
     required: false
-    type-hint: "string,domain"
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
-    type-hint: "string,domain"
   - name: DOPPLER_ZONE
     default: z1
-    type-hint: "string"
   - name: HCF_SSO_HOST
     default: hcf-sso
-    type-hint: hostname
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:
       type: Password
   - name: HCF_SSO_USERNAME
     default: username
-    type-hint: "string"
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     generator:
       type: Password
   - name: METRON_AGENT_ZONE
     default: z1
-    type-hint: "string"
   - name: MONIT_PASSWORD
     secret: true
     generator:
       type: Password
   - name: MONIT_PORT
     default: '2822'
-    type-hint: "integer,port"
   - name: MONIT_USER
     default: monit_user
-    type-hint: "string"
   - name: NATS_PASSWORD
     secret: true
     generator:
       type: Password
   - name: NATS_USER
     default: nats_user
-    type-hint: "string"
   - name: SERVICE_PROVIDER_KEY_PASSPHRASE
     secret: true
     generator:
@@ -1661,21 +1613,17 @@ configuration:
       type: Password
   - name: STAGING_UPLOAD_USER
     default: username
-    type-hint: "string"
   - name: INTERNAL_API_PASSWORD
     secret: true
     generator:
       type: Password
   - name: INTERNAL_API_USER
     default: internal_user
-    type-hint: "string"
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
-    type-hint: "string"
   - name: TRUSTED_CERTS
     secret: true
     required: false
-    type-hint: "certificate"
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     generator:
@@ -1686,7 +1634,6 @@ configuration:
       type: Password
   - name: UAA_BATCH_USERNAME
     default: batch_username
-    type-hint: "string"
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     generator:
@@ -1749,7 +1696,6 @@ configuration:
       type: Password
   - name: BBS_ACTIVE_KEY_LABEL
     default: key1
-    type-hint: "string"
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
     generator:
@@ -1780,19 +1726,14 @@ configuration:
       type: Password
   - name: UAADB_TAG
     default: admin
-    type-hint: "string"
   - name: UAADB_USERNAME
     default: uaaadmin
-    type-hint: "string"
   - name: ALLOWED_SERVICES_SUBNET
     default: 10.254.0.0/16
-    type-hint: "subnet"
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
-    type-hint: "subnet"
   - name: OPEN_AUTOSCALER_HOST
     default: "open-autoscaler"
-    type-hint: "string,hostname"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true
@@ -1900,7 +1841,6 @@ configuration:
       value_type: certificate
   - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
     default: bbs.service.cf.internal
-    type-hint: "string,hostname"
   - name: SSH_KEY
     secret: true
     generator:
@@ -2004,20 +1944,16 @@ configuration:
       value_type: private_key
   - name: COUCHDB_USER
     default: admin
-    type-hint: "string"
   - name: COUCHDB_PASSWORD
     secret: true
     generator:
       type: Password
   - name: SKIP_CERT_VERIFY
     default: true
-    type-hint: "boolean"
   - name: ROUTER_ACCESS_LOG_STREAMING
     default: false
-    type-hint: "boolean"
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
-    type-hint: "string,ipaddress"
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
@@ -2056,13 +1992,10 @@ configuration:
       type: Password
   - name: AUTOSCALER_COUCHDB_USER
     secret: false
-    type-hint: "string"
   - name: AUTOSCALER_COUCHDB_PORT
     secret: false
-    type-hint: "integer"
   - name: AUTOSCALER_COUCHDB_METRIC_PREFIX
     secret: false
-    type-hint: "string"
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
     generator:
