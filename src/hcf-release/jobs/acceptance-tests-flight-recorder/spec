@@ -1,0 +1,14 @@
+---
+name: acceptance-tests-flight-recorder
+
+description: This job will run the acceptance tests for flight recorder
+
+packages:
+  - acceptance-tests-flight-recorder
+
+templates:
+  run.erb: bin/run
+
+properties:
+  acceptance-tests-flight-recorder.retry_count:
+    description: The retry cont for the autoscaler

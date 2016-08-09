@@ -1222,8 +1222,11 @@ roles:
         external: 5984
         internal: 5984
         public: false
-- name: acctestsflightrec
-  type: docker
+- name: acceptance-tests-flight-recorder
+  type: bosh-task
+  jobs:
+  - name: acceptance-tests-flight-recorder
+    release_name: hcf
   environment_scripts:
   - setup_hcp_no_proxy.sh
   run:
@@ -1238,7 +1241,7 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'acctestsflightrec'
+      - name: 'acceptanceflightrecorder'
         protocol: 'TCP'
         source: 10514
         target: 10514

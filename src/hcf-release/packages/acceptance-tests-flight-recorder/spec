@@ -1,0 +1,5 @@
+---
+name: acceptance-tests-flight-recorder
+
+files:
+  - acceptance-tests-flight-recorder/*
