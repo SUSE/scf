@@ -92,7 +92,7 @@ To use the development secrets (instead of supplying your own in
 `aws.tfvars`), regenerate `hcf-aws.tf.json` with them built in:
 
 ```bash
-  make aws ENV_DIR=$PWD/bin
+  make aws
 ```
 
 ## Terraform

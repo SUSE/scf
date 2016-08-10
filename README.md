@@ -191,7 +191,7 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
 ## To Deploy HCF on Amazon AWS Using Terraform
 
-* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist ENV_DIR=$PWD/bin/settings-dev`
+* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist`
   to generate the archive populated with development defaults and secrets.
 
 * Extract the newly created .zip file to a temporary working dir:
@@ -307,8 +307,8 @@ Name    | Effect | Notes |
   On the Vagrant box, when `hcf-status` reports all roles are running, execute the following commands:
 
   ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings-dev/ smoke-tests
-  run-role.sh /home/vagrant/hcf/bin/settings-dev/ acceptance-tests
+  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
   ```
 
 ### `fissile` refuses to create images that already exist. How do I recreate images?
@@ -353,7 +353,7 @@ Name    | Effect | Notes |
 
   2. The default username is: `root`.
 
-  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings-dev/settings.env` file on the Vagrant box.
+  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings/settings.env` file on the Vagrant box.
 
 
 ### How do I add a new BOSH release to HCF?
@@ -370,9 +370,9 @@ Name    | Effect | Notes |
 
     c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
 
-    d. Add defaults for your configuration settings to `~/hcf/bin/settings-dev/settings.env`.
+    d. Add defaults for your configuration settings to `~/hcf/bin/settings/settings.env`.
 
-    e. If you need any extra default certificates, add them to `~/hcf/bin/settings-dev/certs.env`.
+    e. If you need any extra default certificates, add them to `~/hcf/bin/settings/certs.env`.
 
     f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
 
@@ -408,7 +408,7 @@ Name    | Effect | Notes |
 
         ii. `yaml path: /roles/*/configuration/templates`
 
-  2. Add defaults for your new settings in `~/hcf/bin/settings-dev/settings.env`.
+  2. Add defaults for your new settings in `~/hcf/bin/settings/settings.env`.
 
   3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
 

@@ -6,22 +6,15 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/versioning
 
-TARGET=${1}
+ARTIFACT=hcp-${APP_VERSION}.zip
 
-case ${TARGET} in
-    hcp)
-        INSTANCE_DEFINITION_BASE=hcf-hcp-instance;;
-    hcp-ha)
-        INSTANCE_DEFINITION_BASE=hcf-hcp-instance-ha;;
-    *)
-        printf "\033[0;1;31mUnknown HCP package type ${TARGET}\033[0m\n" >&2
-        exit 1;;
-esac
+FILES=""
+for base in hcf-hcp hcf-hcp-instance hcf-hcp-instance-ha ; do
+    for num in "" .3 .6 ; do
+        FILES="${FILES} ${base}${num}.json"
+    done
+done
 
-ARTIFACT=${TARGET}-${APP_VERSION}.zip
-
-zip -9 ${GIT_ROOT}/${ARTIFACT} \
-    hcf-hcp.json hcf-hcp.3.json hcf-hcp.6.json \
-    ${INSTANCE_DEFINITION_BASE}.json ${INSTANCE_DEFINITION_BASE}.3.json ${INSTANCE_DEFINITION_BASE}.6.json
+zip -9 ${GIT_ROOT}/${ARTIFACT} ${FILES}
 
 echo Generated ${ARTIFACT}

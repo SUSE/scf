@@ -41,7 +41,7 @@ def main
     hcf_version: '0.0.0',
     manual:      false
   }
-  env_dir = nil
+  env_dir_list = []
 
   op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
@@ -76,10 +76,7 @@ def main
       options[:manual] = v
     end
     opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
-      env_dir = v
-    end
-    opts.on('--no-env-dir', 'Opt out of using *.env files') do
-      env_dir = ''
+      env_dir_list << v
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
@@ -99,14 +96,14 @@ def main
     STDERR.puts "Instance definition templates are not supported for provider #{provider}"
     exit 1
   end
-  if env_dir.nil?
-    STDERR.puts "--env-dir not specified; use --no-env-dir if necessary."
+  if env_dir_list.empty?
+    STDERR.puts "--env-dir not specified."
     exit 1
   end
 
   origin = ARGV[0]
 
-  role_manifest = load_role_manifest(origin, env_dir)
+  role_manifest = load_role_manifest(origin, env_dir_list)
   check_roles role_manifest['roles']
 
   provider = provider_constructor[provider].call.new(options)
@@ -144,7 +141,7 @@ def provider_constructor
   })
 end
 
-def load_role_manifest(path, env_dir)
+def load_role_manifest(path, env_dir_list)
   if path == '-'
     # Read from stdin.
     role_manifest = YAML.load($stdin)
@@ -152,27 +149,42 @@ def load_role_manifest(path, env_dir)
     role_manifest = YAML.load_file(path)
   end
 
-  unless env_dir.empty?
-    vars = role_manifest['configuration']['variables']
+  collected_env = {}
+
+  env_dir_list.each do |env_dir|
     env_files = Dir.glob(File.join(env_dir, "*.env")).sort
     if env_files.empty?
       STDERR.puts "--env-dir #{env_dir} does not contain any *.env files"
       exit 1
     end
     env_files.each do |env_file|
-      File.readlines(env_file).each do |line|
+      File.readlines(env_file).each_with_index do |line, i|
         next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
         name, value = line.strip.split('=', 2)
-        i = vars.find_index{|x| x['name'] == name }
-        if i.nil?
-          STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
+        if value.nil?
+          match = /^ \s* unset \s* (?<name>\w+) \s* $/x.match(line)
+          if match
+            collected_env.delete match['name']
+          else
+            STDERR.puts "Cannot parse line #{i} in #{env_file}: #{line}"
+            exit 1
+          end
         else
-          vars[i]['default'] = value
+          collected_env[name] = [env_file, value]
         end
       end
     end
   end
 
+  vars = role_manifest['configuration']['variables']
+  collected_env.each_pair do |name, (env_file, value)|
+    i = vars.find_index{|x| x['name'] == name }
+    if i.nil?
+      STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
+    else
+      vars[i]['default'] = value
+    end
+  end
   role_manifest
 end
 
