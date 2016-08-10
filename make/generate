@@ -18,39 +18,30 @@ OPTIONS=$(echo \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${DOCKER_APP_VERSION}\" \
     --hcf-version \"${ARTIFACT_VERSION}\" \
-    --env-dir \"${ENV_DIR}\"
+    --env-dir bin/settings/
 )
 
 TARGET=${1}
 
 # Blacklist env directories and docker repositories that aren't meant for the target
 case ${TARGET} in
-  hcp|hcp-instance|hcp-instance-ha)
-    if [ `echo ${ENV_DIR} | grep 'settings-dev'` ]; then
-      printf "\033[0;1;31mPolitely refusing to use ${ENV_DIR} for hcp settings (did you mean settings-hcp?)\033[0m\n" >&2
-      exit 1
-    fi
+  hcp|hcp-instance*)
     if [ `echo ${IMAGE_REGISTRY} | grep '\(potato\.helion\.lol\|docker\.helion\.lol\)'` ]; then
       printf "\033[0;1;31mPolitely refusing to use credential protected ${IMAGE_REGISTRY} for hcp (did you mean docker-registry.helion.space?)\033[0m\n" >&2
       exit 1
     fi
     ;;
-  aws|aws-spot|aws-proxy|aws-spot-proxy)
-    if [ `echo ${ENV_DIR} | grep 'settings-hcp'` ]; then
-      printf "\033[0;1;31mPolitely refusing to use ${ENV_DIR} for aws/mpc settings (did you mean settings-dev?)\033[0m\n" >&2
-      exit 1
-    fi
 esac
 
 case ${TARGET} in
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
-        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
+        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider \"${TARGET}\""
         ;;
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         TEMPLATE="hcp/hcf-${TARGET}.template.json"
-        OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
+        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --env-dir bin/settings/hcp/ha/ --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
@@ -93,7 +84,7 @@ docker run \
     > ${OUTFILE}
 
 case ${TARGET} in
-  hcp|hcp-instance|hcp-instance-ha)
+  hcp|hcp-instance*)
     for num in 3 6 ; do
         printf "%bGenerating %s%b\n" "\033[0;32m" "${OUTFILE%.*}.${num}.json" "\033[0m"
         docker run \

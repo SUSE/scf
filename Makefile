@@ -197,12 +197,8 @@ dist: \
 	aws-spot-proxy-dist \
 	${NULL}
 
-hcp-dist: hcp hcp-instance
-	${GIT_ROOT}/make/package-hcp hcp
-	rm hcf-hcp*.json
-
-hcp-ha-dist: hcp hcp-instance-ha
-	${GIT_ROOT}/make/package-hcp hcp-ha
+hcp-dist: hcp hcp-instance hcp-instance-ha
+	${GIT_ROOT}/make/package-hcp
 	rm hcf-hcp*.json
 
 mpc-dist: mpc

@@ -83,7 +83,7 @@ that sets this value.
 Back inside the HCF vagrant box run:
 
 ```bash
-make hcp IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
+make hcp IMAGE_REGISTRY=192.168.77.77:5000
 ```
 
 This generates the `hcf-hcp.json` file containing the HCP service definition for
@@ -99,9 +99,9 @@ curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.js
 ### Generate an instance definition (#1) ###
 
 ```bash
-make hcp-instance IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp
+make hcp-instance IMAGE_REGISTRY=192.168.77.77:5000
 # or
-make hcp-instance-ha IMAGE_REGISTRY=192.168.77.77:5000 ENV_DIR=$PWD/bin/settings-hcp/ha
+make hcp-instance-ha IMAGE_REGISTRY=192.168.77.77:5000
 ```
 
 Or instead of running `make hcp-instance`, you can use the `~/hcf/hcp/hcf-hcp-instance.json` sample configuration to create an instance of the newly registered service:
