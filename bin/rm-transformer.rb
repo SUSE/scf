@@ -162,7 +162,7 @@ def load_role_manifest(path, env_dir_list)
         next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
         name, value = line.strip.split('=', 2)
         if value.nil?
-          match = /^ \s* unset \s* (?<name>\w+) \s* $/x.match(line)
+          match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
           if match
             collected_env.delete match['name']
           else
