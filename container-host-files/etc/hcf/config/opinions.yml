@@ -651,6 +651,6 @@ properties:
       healthcheck_timeout_millis: 30000
   autoscaler_api:
     scaling_service:
-      name: 'CF-AutoScaler'
+      name: 'open-autoscaler'
   autoscaler_servicebroker:
-    name: 'CF-AutoScaler'
+    name: 'open-autoscaler'
