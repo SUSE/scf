@@ -1,2 +1,15 @@
 set -e -x
 
+REPO_NAME=github.com/hpcloud/hdp-resource-manager
+
+REPO_DIR=${BOSH_INSTALL_TARGET}/src/${REPO_NAME}
+
+mkdir -p $(dirname $REPO_DIR)
+
+cp -a $REPO_NAME/ $REPO_DIR
+
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.6)
+export PATH=$GOROOT/bin:$PATH
+export GOPATH=${BOSH_INSTALL_TARGET}
+
+go build -o /var/vcap/packages/acceptance-tests-flight-recorder/bin/flight-recorder ${REPO_DIR}/cmd/flightrecorder/main.go

@@ -3,3 +3,6 @@ name: acceptance-tests-flight-recorder
 
 files:
   - acceptance-tests-flight-recorder/*
+  - github.com/hpcloud/hdp-resource-manager/**/*
+dependencies:
+  - golang1.6

@@ -5,6 +5,7 @@ description: This job will run the acceptance tests for flight recorder
 
 packages:
   - acceptance-tests-flight-recorder
+  - redis
 
 templates:
   run.erb: bin/run
