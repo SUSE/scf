@@ -42,11 +42,6 @@
         "max_instances": 1
       },
       {
-        "component": "diego-cell-6",
-        "min_instances": 0,
-        "max_instances": 1
-      },
-      {
         "component": "diego-cell-7",
         "min_instances": 0,
         "max_instances": 1
