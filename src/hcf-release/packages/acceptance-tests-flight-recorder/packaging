@@ -1,5 +1,6 @@
 set -e -x
 
+#build flight recorder
 REPO_NAME=github.com/hpcloud/hdp-resource-manager
 
 REPO_DIR=${BOSH_INSTALL_TARGET}/src/${REPO_NAME}
@@ -14,6 +15,11 @@ export GOPATH=${BOSH_INSTALL_TARGET}
 
 go build -o ${BOSH_INSTALL_TARGET}/bin/flight-recorder ${REPO_DIR}/cmd/flightrecorder/main.go
 
+#copy necessary files
+mkdir -p ${BOSH_INSTALL_TARGET}/config/
 cp acceptance-tests-flight-recorder/check.sh ${BOSH_INSTALL_TARGET}/bin/
-cp acceptance-tests-flight-recorder/source_to_check.txt ${BOSH_INSTALL_TARGET}/bin/
-cp acceptance-tests-flight-recorder/Dockerfile ${BOSH_INSTALL_TARGET}/bin/
+cp hcf-config/role-manifest.yml ${BOSH_INSTALL_TARGET}/config/
+
+#compute source_to_check.txt
+/var/vcap/packages/ruby-2.3/bin/ruby acceptance-tests-flight-recorder/generate_check_roles.rb
+

@@ -6,7 +6,7 @@ RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 
-SOURCE_FILE=/var/vcap/packages/acceptance-tests-flight-recorder/bin/source_to_check.txt
+SOURCE_FILE=/var/vcap/packages/acceptance-tests-flight-recorder/config/source_to_check.txt
 SOURCE_ITEMS=
 REDIS_PASS_FILE=$REDIS_PASSWORD_FILE
 

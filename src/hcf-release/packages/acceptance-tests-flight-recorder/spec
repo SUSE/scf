@@ -3,6 +3,8 @@ name: acceptance-tests-flight-recorder
 
 files:
   - acceptance-tests-flight-recorder/*
+  - hcf-config/role-manifest.yml
   - github.com/hpcloud/hdp-resource-manager/**/*
 dependencies:
   - golang1.6
+  - ruby-2.3

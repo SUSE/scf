@@ -1406,6 +1406,7 @@ roles:
   - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: hcf-versions
     release_name: hcf-versions
