@@ -8,13 +8,10 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 ARTIFACT=hcp-${APP_VERSION}.zip
 
-FILES=""
-for base in hcf-hcp hcf-hcp-instance hcf-hcp-instance-ha ; do
-    for num in "" .3 .6 ; do
-        FILES="${FILES} ${base}${num}.json"
-    done
-done
-
-zip -9 ${GIT_ROOT}/${ARTIFACT} ${FILES}
+zip -9 ${GIT_ROOT}/${ARTIFACT} \
+    hcf-hcp.json \
+    hcf-hcp-instance.json \
+    hcf-hcp-instance-ha.json \
+    ${NULL:-}
 
 echo Generated ${ARTIFACT}
