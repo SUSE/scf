@@ -7,7 +7,7 @@ tools_dir="${tools_dir:-/home/vagrant/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
 configgin_url="${configgin_url:-https://helion-developers.s3.amazonaws.com/viovanov/hcf/configgin-1.0.0%2B22.g92b40f2.vladi-fix-typing-linux-amd64.tgz}" # Favor configgin 1.0.4!
 fissile_url="${fissile_url:-https://helion-developers.s3.amazonaws.com/alexh/hcf/fissile-1.0.0%2B20.ge4fe28a.develop-linux.amd64.tgz}"
-cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.19.0&source=github-rel}"
+cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
 
 mkdir -p $bin_dir
 mkdir -p $tools_dir
