@@ -1203,6 +1203,8 @@ roles:
   jobs:
   - name: couchdb
     release_name: cf-open-autoscaler
+  scripts:
+  - forward_logfiles.sh
   processes:
   - name: couchdb
   run:
@@ -1440,6 +1442,8 @@ roles:
 - name: status-route
   tags:
   - dev-only
+  scripts:
+  - forward_logfiles.sh
   post_config_scripts:
   - status-route-start.sh
   jobs:
