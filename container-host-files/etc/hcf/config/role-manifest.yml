@@ -1409,6 +1409,9 @@ roles:
       public: false
   configuration:
     templates:
+      # Workaround until we fix how the versioning server constructs the
+      # location of the cloud controller
+      properties.cc.internal_service_hostname: 'api'
       properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: status-route
   tags:
