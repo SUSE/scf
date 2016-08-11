@@ -1,5 +1,7 @@
 #!/bin/bash
 
+<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
+
 set -e
 
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
@@ -38,31 +40,37 @@ function retarget_auth () {
     # command.  This fakes `cf auth` out, forcing it to use the
     # internal auth host. Note the special port for https.
 
-    UAA="https://uaa.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
-    edit_config AuthorizationEndpoint "$UAA"
-    edit_config UaaEndpoint           "$UAA"
+    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
+    edit_config UaaEndpoint           "$UAA_ENDPOINT"
 }
 
-<%
-skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
-username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
-%>
-
-retry 240 30s cf api <%= skip_ssl_validation %> api.${HCP_SERVICE_DOMAIN_SUFFIX}:9022
-
-retarget_auth
-
-retry 240 30s cf auth <%= username.shellescape %> <%= password.shellescape %>
-
+SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+USER="<%= username.shellescape %>"
+PASSWORD="<%= password.shellescape %>"
 HSDS=${HCP_SERVICE_DOMAIN_SUFFIX}
+
+UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+USB_ENDPOINT="http://${CF_USB_BROKER_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:24053"
+API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+
 MOP="<%= properties.dev_services.mongodb.admin_password %>"
 MYP="<%= properties.dev_services.mysql.admin_password %>"
 POP="<%= properties.dev_services.postgres.admin_password %>"
 
-retry 10 20s cf usb target http://cf-usb.${HCP_SERVICE_DOMAIN_SUFFIX}:24053
-#
+echo "Waiting for CC... $SKIP $API_ENDPOINT"
+retry 240 30s cf api $SKIP "$API_ENDPOINT"
+
+retarget_auth
+
+echo "Waiting for UAA..."
+retry 240 30s cf auth "$USER" "$PASSWORD"
+
+retry 10 20s cf usb target "$USB_ENDPOINT"
 retry 10 20s cf usb create-instance mongo mongodb     -c "{\"server\":\"dev-service-mongodb.${HSDS}\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"${MOP}\"}"
 retry 10 20s cf usb create-instance mysql mysql       -c "{\"server\":\"dev-service-mysql.${HSDS}\",\"port\":\"3306\",\"userid\":\"root\",\"password\":\"${MYP}\"}"
 retry 10 20s cf usb create-instance postgres postgres -c "{\"host\":\"dev-service-postgres.${HSDS}\",\"port\":\"5432\",\"user\":\"postgres\",\"password\":\"${POP}\",\"dbname\":\"postgres\",\"sslmode\":\"disable\"}"
 retry 10 20s cf usb create-instance rabbitmq rabbitmq -c "{\"docker_endpoint\":\"http://dev-service-rabbitmq.${HSDS}:4444\",\"docker_image\":\"rabbitmq\",\"docker_image_version\":\"3.6.0-management\"}"
 retry 10 20s cf usb create-instance redis redis       -c "{\"docker_endpoint\":\"http://dev-service-redis.${HSDS}:4444\",\"docker_image\":\"redis\",\"docker_image_version\":\"3.0.7\"}"
+
+
+echo "Registration of USB services complete."

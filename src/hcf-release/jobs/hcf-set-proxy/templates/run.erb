@@ -1,8 +1,12 @@
 #!/bin/bash
 
+<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
+
 set -e
 
-export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+# put the cli on the path
+export PATH=/var/vcap/packages/cli/bin:${PATH}
+
 <%
 require 'shellwords'
 env = {}
@@ -77,21 +81,24 @@ function retarget_auth () {
     # command.  This fakes `cf auth` out, forcing it to use the
     # internal auth host. Note the special port for https.
 
-    UAA="https://uaa.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
-    edit_config AuthorizationEndpoint "$UAA"
-    edit_config UaaEndpoint           "$UAA"
+    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
+    edit_config UaaEndpoint           "$UAA_ENDPOINT"
 }
 
-<%
-skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
-username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
-%>
+SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+USER="<%= username.shellescape %>"
+PASSWORD="<%= password.shellescape %>"
 
-retry 240 30s cf api <%= skip_ssl_validation %> api.${HCP_SERVICE_DOMAIN_SUFFIX}:9022
+UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+
+echo "Waiting for CC... $SKIP $API_ENDPOINT"
+retry 240 30s cf api $SKIP "$API_ENDPOINT"
 
 retarget_auth
 
-retry 240 30s cf auth <%= username.shellescape %> <%= password.shellescape %>
+echo "Waiting for UAA..."
+retry 240 30s cf auth "$USER" "$PASSWORD"
 
 <% 
 %W{staging running}.each do |runtime| 
@@ -99,3 +106,5 @@ retry 240 30s cf auth <%= username.shellescape %> <%= password.shellescape %>
 cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
 <%end 
 end %>
+
+echo "Setting of external proxies complete."
