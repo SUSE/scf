@@ -309,6 +309,7 @@ Name    | Effect | Notes |
   ```bash
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
 
 ### `fissile` refuses to create images that already exist. How do I recreate images?

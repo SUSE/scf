@@ -1203,6 +1203,8 @@ roles:
   jobs:
   - name: couchdb
     release_name: cf-open-autoscaler
+  scripts:
+  - forward_logfiles.sh
   processes:
   - name: couchdb
   run:
@@ -1221,6 +1223,30 @@ roles:
         protocol: 'TCP'
         external: 5984
         internal: 5984
+        public: false
+- name: acceptance-tests-flight-recorder
+  type: bosh-task
+  jobs:
+  - name: acceptance-tests-flight-recorder
+    release_name: hcf
+  environment_scripts:
+  - setup_hcp_no_proxy.sh
+  run:
+    scaling:
+      indexed: 1
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'acceptanceflightrecorder'
+        protocol: 'TCP'
+        source: 10514
+        target: 10514
         public: false
 - name: acceptance-tests
   type: bosh-task
@@ -1380,6 +1406,7 @@ roles:
   - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
+  - forward_logfiles.sh
   jobs:
   - name: hcf-versions
     release_name: hcf-versions
@@ -1416,6 +1443,8 @@ roles:
 - name: status-route
   tags:
   - dev-only
+  scripts:
+  - forward_logfiles.sh
   post_config_scripts:
   - status-route-start.sh
   jobs:

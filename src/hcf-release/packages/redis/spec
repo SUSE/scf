@@ -1,0 +1,4 @@
+---
+name: redis
+files:
+  - pre_packaging_utils/*

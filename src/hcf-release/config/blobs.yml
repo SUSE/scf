@@ -7,3 +7,11 @@ golang/go1.4.3.linux-amd64.tar.gz:
   object_id: 17b23a63-49af-467c-8893-db57a059d7b3
   sha: 332b64236d30a8805fc8dd8b3a269915b4c507fe
   size: 61210288
+golang/go1.6.3.linux-amd64.tar.gz:
+  object_id: 7ad4929c-a987-4b84-b686-3c9598951f25
+  sha: 5e916ba4dd8c2fc43beafca4c08b334c4d0686f3
+  size: 84856920
+ruby-2.3/ruby-2.3.1.tar.gz:
+  object_id: 95a32294-6f17-45b7-8911-ef6729195536
+  sha: c39b4001f7acb4e334cb60a0f4df72d434bef711
+  size: 17797997

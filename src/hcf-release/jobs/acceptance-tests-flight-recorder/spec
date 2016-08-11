@@ -1,0 +1,25 @@
+---
+name: acceptance-tests-flight-recorder
+
+description: This job will run the acceptance tests for flight recorder
+
+packages:
+  - acceptance-tests-flight-recorder
+  - redis
+  - ruby-2.3
+
+templates:
+  run.erb: bin/run
+  redis.conf.erb: config/redis.conf
+  redis_pass.txt.erb: config/redis_pass.txt
+
+properties:
+  acceptance-tests-flight-recorder.retry_count:
+    description: The retry cont for the autoscaler
+    default: 300
+  acceptance-tests-flight-recorder.redis_port:
+    description: The redis port used by the redis server and flight recorder
+    default: 6379
+  acceptance-tests-flight-recorder.redis_password:
+    descrption: The password used by the redis server and the flight recorder
+    default: changeme
