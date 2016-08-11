@@ -307,8 +307,10 @@ Name    | Effect | Notes |
   On the Vagrant box, when `hcf-status` reports all roles are running, execute the following commands:
 
   ```bash
+<<<<<<< f3b86b5c14f586eda4d222ee58c76209acda5ebf
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
 
 ### `fissile` refuses to create images that already exist. How do I recreate images?
