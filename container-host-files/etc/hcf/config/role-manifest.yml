@@ -1526,6 +1526,8 @@ configuration:
     default: "loggregator"
   - name: UAA_HOST
     default: uaa
+  - name: CF_USB_BROKER_HOST
+    default: "cf-usb"
   - name: BULK_API_PASSWORD
     secret: true
     generator:
