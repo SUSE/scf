@@ -12,4 +12,8 @@ export GOROOT=$(readlink -nf /var/vcap/packages/golang1.6)
 export PATH=$GOROOT/bin:$PATH
 export GOPATH=${BOSH_INSTALL_TARGET}
 
-go build -o /var/vcap/packages/acceptance-tests-flight-recorder/bin/flight-recorder ${REPO_DIR}/cmd/flightrecorder/main.go
+go build -o ${BOSH_INSTALL_TARGET}/bin/flight-recorder ${REPO_DIR}/cmd/flightrecorder/main.go
+
+cp acceptance-tests-flight-recorder/check.sh ${BOSH_INSTALL_TARGET}/bin/
+cp acceptance-tests-flight-recorder/source_to_check.txt ${BOSH_INSTALL_TARGET}/bin/
+cp acceptance-tests-flight-recorder/Dockerfile ${BOSH_INSTALL_TARGET}/bin/

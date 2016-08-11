@@ -2,4 +2,15 @@
 
 set -e
 
-watch -c /var/vcap/packages/acceptance-tests-flight-recorder/check.sh
+/var/vcap/packages/redis/bin/redis-server /var/vcap/jobs/acceptance-tests-flight-recorder/config/redis.conf &
+sleep 2
+
+export REDIS_PASSWORD_FILE=/var/vcap/jobs/acceptance-tests-flight-recorder/config/redis_pass.txt
+
+/var/vcap/packages/acceptance-tests-flight-recorder/bin/flight-recorder  > /dev/null &
+
+sleep 1
+
+export PATH=$PATH:/var/vcap/packages/redis/bin/
+/var/vcap/packages/acceptance-tests-flight-recorder/bin/check.sh <%= p('acceptance-tests-flight-recorder.retry_count') %>
+
