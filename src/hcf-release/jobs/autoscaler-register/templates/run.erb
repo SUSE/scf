@@ -18,19 +18,36 @@ function retry () {
     done
 }
 
+function edit_config () {
+    key="$1"
+    value="$2"
+    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
+    sed < $HOME/.cf/config.json > $$ -e "$pattern"
+    mv $$ $HOME/.cf/config.json
+}
 
-#TODO: check for ssl validation property
+function retarget_auth () {
+    # Manipulate the authentication endpoints saved by the `cf api`
+    # command.  This fakes `cf auth` out, forcing it to use the
+    # internal auth host. Note the special port for https.
+
+    UAA="https://uaa.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+    edit_config AuthorizationEndpoint "$UAA"
+    edit_config UaaEndpoint           "$UAA"
+}
+
 <%
 skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
-retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
-cf auth <%= username.shellescape %> <%= password.shellescape %>
+retry 240 30s cf api <%= skip_ssl_validation %> api.${HCP_SERVICE_DOMAIN_SUFFIX}:9022
+
+retarget_auth
+
+retry 240 30s cf auth <%= username.shellescape %> <%= password.shellescape %>
 
 echo "Waiting for Autoscaler service broker..."
-while ! curl --fail --silent --insecure http://<%= p("autoscaler_servicebroker.host") %>.$HCP_SERVICE_DOMAIN_SUFFIX:<%= p("tomcat.http.autoscaler_servicebroker.port") %> >/dev/null 2>&1; do
-    sleep 10
-done
+retry 240 30s curl --fail --silent --insecure http://<%= p("autoscaler_servicebroker.host") %>.$HCP_SERVICE_DOMAIN_SUFFIX:<%= p("tomcat.http.autoscaler_servicebroker.port") %> >/dev/null 2>&1
 
 echo "Registering Autoscaler service broker..."
 

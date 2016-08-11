@@ -25,17 +25,44 @@ function retry () {
     done
 }
 
+function edit_config () {
+    key="$1"
+    value="$2"
+    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
+    sed < $HOME/.cf/config.json > $$ -e "$pattern"
+    mv $$ $HOME/.cf/config.json
+}
 
-<% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
-retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
+function retarget_auth () {
+    # Manipulate the authentication endpoints saved by the `cf api`
+    # command.  This fakes `cf auth` out, forcing it to use the
+    # internal auth host. Note the special port for https.
+
+    UAA="https://uaa.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+    edit_config AuthorizationEndpoint "$UAA"
+    edit_config UaaEndpoint           "$UAA"
+}
+
 <%
+skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
 %>
-cf auth <%= username.shellescape %> <%= password.shellescape %>
 
-for i in {1..10}; do cf usb target http://usb.<%= properties.system_domain %> && break || sleep 20; done
-for i in {1..10}; do cf usb create-instance mongo mongodb -c "{\"server\":\"dev-service-mongodb.hcf\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"<%= properties.dev_services.mongodb.admin_password %>\"}" && break || sleep 20; done
-for i in {1..10}; do cf usb create-instance mysql mysql -c "{\"server\":\"dev-service-mysql.hcf\",\"port\":\"3306\",\"userid\":\"root\",\"password\":\"<%= properties.dev_services.mysql.admin_password %>\"}" && break || sleep 20; done
-for i in {1..10}; do cf usb create-instance postgres postgres -c "{\"host\":\"dev-service-postgres.hcf\",\"port\":\"5432\",\"user\":\"postgres\",\"password\":\"<%= properties.dev_services.postgres.admin_password %>\",\"dbname\":\"postgres\",\"sslmode\":\"disable\"}" && break || sleep 20; done
-for i in {1..10}; do cf usb create-instance rabbitmq rabbitmq -c "{\"docker_endpoint\":\"http://dev-service-rabbitmq.hcf:4444\",\"docker_image\":\"rabbitmq\",\"docker_image_version\":\"3.6.0-management\"}" && break || sleep 20; done
-for i in {1..10}; do cf usb create-instance redis redis -c "{\"docker_endpoint\":\"http://dev-service-redis.hcf:4444\",\"docker_image\":\"redis\",\"docker_image_version\":\"3.0.7\"}" && break || sleep 20; done
+retry 240 30s cf api <%= skip_ssl_validation %> api.${HCP_SERVICE_DOMAIN_SUFFIX}:9022
+
+retarget_auth
+
+retry 240 30s cf auth <%= username.shellescape %> <%= password.shellescape %>
+
+HSDS=${HCP_SERVICE_DOMAIN_SUFFIX}
+MOP="<%= properties.dev_services.mongodb.admin_password %>"
+MYP="<%= properties.dev_services.mysql.admin_password %>"
+POP="<%= properties.dev_services.postgres.admin_password %>"
+
+retry 10 20s cf usb target http://cf-usb.${HCP_SERVICE_DOMAIN_SUFFIX}:24053
+#
+retry 10 20s cf usb create-instance mongo mongodb     -c "{\"server\":\"dev-service-mongodb.${HSDS}\",\"port\":\"27017\",\"userid\":\"admin\",\"password\":\"${MOP}\"}"
+retry 10 20s cf usb create-instance mysql mysql       -c "{\"server\":\"dev-service-mysql.${HSDS}\",\"port\":\"3306\",\"userid\":\"root\",\"password\":\"${MYP}\"}"
+retry 10 20s cf usb create-instance postgres postgres -c "{\"host\":\"dev-service-postgres.${HSDS}\",\"port\":\"5432\",\"user\":\"postgres\",\"password\":\"${POP}\",\"dbname\":\"postgres\",\"sslmode\":\"disable\"}"
+retry 10 20s cf usb create-instance rabbitmq rabbitmq -c "{\"docker_endpoint\":\"http://dev-service-rabbitmq.${HSDS}:4444\",\"docker_image\":\"rabbitmq\",\"docker_image_version\":\"3.6.0-management\"}"
+retry 10 20s cf usb create-instance redis redis       -c "{\"docker_endpoint\":\"http://dev-service-redis.${HSDS}:4444\",\"docker_image\":\"redis\",\"docker_image_version\":\"3.0.7\"}"
