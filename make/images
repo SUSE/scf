@@ -9,14 +9,19 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 TARGET=${1}
 ACTION=${2}
+ROLES=${3:-}
 
 case ${TARGET} in
     docker)
-        ROLES=$(${GIT_ROOT}/container-host-files/opt/hcf/bin/list-docker-roles.sh)
+        if test -z "${ROLES}" ; then
+            ROLES=$(${GIT_ROOT}/container-host-files/opt/hcf/bin/list-docker-roles.sh)
+        fi
         PREFIX=''
         ;;
     bosh)
-        ROLES=$(fissile show image| awk -F : '{ print $1 }' | sed 's/^fissile-//')
+        if test -z "${ROLES}" ; then
+            ROLES=$(fissile show image| awk -F : '{ print $1 }' | sed 's/^fissile-//')
+        fi
         PREFIX='fissile-'
         ;;
 esac
@@ -64,6 +69,9 @@ for ROLE in ${ROLES}; do
                     docker rmi "${REPOSITORY}:${TAG}"
                 fi
             done
+            ;;
+        print)
+            echo ${ROLE}
             ;;
     esac
 done
