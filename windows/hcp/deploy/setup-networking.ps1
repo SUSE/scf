@@ -14,7 +14,7 @@ param (
     [Parameter(Mandatory=$false)]
     [string] $k8sQueryPeriod = "1s",
     [Parameter(Mandatory=$true)]
-    [string] $etcdKeyfile,
+    [string] $etcdKeyFile,
     [Parameter(Mandatory=$true)]
     [string] $etcdCertFile,
     [Parameter(Mandatory=$true)]
@@ -71,8 +71,7 @@ $kubedns = (curl "${k8MasterIP}:${k8sPort}/api/v1/namespaces/kube-system/service
 $dns = $kubedns.spec.ClusterIP
 Write-Output "Found dns ${dns}"
 Write-Output "Setting dns server..."
-$networkIntefaceIndex = (Get-NetIPAddress -IPAddress $localIP).InterfaceIndex
-Set-DnsClientServerAddress -InterfaceIndex $networkIntefaceIndex -ServerAddresses ($dns)
+Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses ($dns)
 Write-Output "Finished setting dns server"
 
 Write-Output "Waiting for services to start ..."
