@@ -211,8 +211,8 @@ class ToTerraform < Common
     {
       'name'        => 'ssh',
       'protocol'    => 'tcp',
-      'source'      => 22,
-      'target'      => 22,
+      'external'    => 22,
+      'internal'    => 22,
       'public'      => true
     }
   end
