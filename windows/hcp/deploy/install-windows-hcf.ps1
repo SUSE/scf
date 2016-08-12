@@ -20,11 +20,12 @@ Clear-DnsClientCache
 
 $coreIpAddress = (Resolve-DnsName -Name "consul-int" -Type A)[0].IpAddress
 $machineIp = (Find-NetRoute -RemoteIPAddress $coreIpAddress)[0].IPAddress
+$machineInterfaceIndex = (Find-NetRoute -RemoteIPAddress $coreIpAddress)[0].InterfaceIndex
 
 # 1.2.3.4 is used by rep and metron to discover the IP address to be announced to the diego cluster
 # https://github.com/pivotal-golang/localip/blob/ca5f12419a47fe0c8547eea32f9498eb6e9fe817/localip.go#L7
-route delete 1.2.3.4
-route add 1.2.3.4 $coreIpAddress -p
+Remove-NetRoute -DestinationPrefix "1.2.3.4/32" -Confirm:$false -ErrorAction SilentlyContinue
+New-NetRoute -DestinationPrefix "1.2.3.4/32" -InterfaceIndex $machineInterfaceIndex
 
 echo "Installing VC 2013 and 2015 redistributable"
 start -Wait "$wd\vc2013\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
