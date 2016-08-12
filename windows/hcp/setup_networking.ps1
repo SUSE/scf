@@ -1,18 +1,24 @@
 param (
     [Parameter(Mandatory=$true)]
     [string] $k8MasterIP,
-	[Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$true)]
     [string] $k8sServSubnet,
-	[Parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [int] $k8sPort = 8080,
-	[Parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [int] $etcdPort = 2379,
-	[Parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $flannelUserPassword = "Password1234!",
-	[Parameter(Mandatory=$false)]
+    [Parameter(Mandatory=$false)]
     [string] $flannelInstallDir = "C:/flannel",
-	[Parameter(Mandatory=$false)]
-    [string] $k8sQueryPeriod = "1s"
+    [Parameter(Mandatory=$false)]
+    [string] $k8sQueryPeriod = "1s",
+    [Parameter(Mandatory=$true)]
+    [string] $etcdKeyfile,
+    [Parameter(Mandatory=$true)]
+    [string] $etcdCertFile,
+    [Parameter(Mandatory=$true)]
+    [string] $etcdCaFile
 )
 
 Write-Output "Creating working directory ..."
@@ -44,13 +50,16 @@ cmd /c "$wd\win-k8s-conn-installer.exe /Q"
 Write-Output "Finished installing win-k8s-connector."
 
 Write-Output "Downloading flannel installer ..."
-curl -UseBasicParsing -OutFile $wd\flannel-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/flannel/5-2016-08-09_10-25-30/flannel-installer.EXE -Verbose
+curl -UseBasicParsing -OutFile $wd\flannel-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/flannel/7-2016-08-11_13-26-30/flannel-installer.EXE -Verbose
 Write-Output "Finished downloading flannel installer."
 
-$env:FLANNEL_ETCD_ENDPOINTS = "http://${k8MasterIP}:${etcdPort}"
+$env:FLANNEL_ETCD_ENDPOINTS = "https://${k8MasterIP}:${etcdPort}"
 $env:FLANNEL_INSTALL_DIR = $flannelInstallDir
 $env:FLANNEL_USER_PASSWORD = $flannelUserPassword
 $env:FLANNEL_EXT_INTERFACE = $localIP
+$env:FLANNEL_ETCD_KEYFILE = $etcdKeyfile
+$env:FLANNEL_ETCD_CERTFILE = $etcdCertFile
+$env:FLANNEL_ETCD_CAFILE = $etcdCaFile
 
 Write-Output @"
 Installing flannel using: 
@@ -58,6 +67,9 @@ Installing flannel using:
     FLANNEL_INSTALL_DIR=$($env:FLANNEL_INSTALL_DIR)
     FLANNEL_USER_PASSWORD=$($env:FLANNEL_USER_PASSWORD)
     FLANNEL_EXT_INTERFACE=$($env:FLANNEL_EXT_INTERFACE)
+    FLANNEL_ETCD_KEYFILE=$($env:FLANNEL_ETCD_KEYFILE)
+    FLANNEL_ETCD_CERTFILE=$($env:FLANNEL_ETCD_CERTFILE)
+    FLANNEL_ETCD_CAFILE=$($env:FLANNEL_ETCD_CAFILE)
 "@
 cmd /c "$wd\flannel-installer.exe /Q"
 Write-Output "Finished installing flannel"
