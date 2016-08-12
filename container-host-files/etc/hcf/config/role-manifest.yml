@@ -1092,7 +1092,7 @@ roles:
     scaling:
       indexed: 1
       min: 1
-      max: 20
+      max: 65535
     capabilities: ['ALL']
     persistent-volumes:
     - path: '/var/vcap/data/garden'

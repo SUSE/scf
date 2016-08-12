@@ -86,7 +86,7 @@
       {
         "component": "diego-cell",
         "min_instances": 1,
-        "max_instances": 20
+        "max_instances": 65535
       }
     ]
 }
