@@ -1,0 +1,16 @@
+---
+name: acceptance-tests-autoscaler
+
+description: This job will run the accepatance tests for autoscaler
+
+packages:
+  - acceptance-tests-autoscaler
+  - cli
+  - cf-plugin-autoscale
+
+templates:
+  run.erb: bin/run
+
+properties:
+  acceptance-tests-autoscaler.retry_count:
+    description: The retry count for the autoscaler

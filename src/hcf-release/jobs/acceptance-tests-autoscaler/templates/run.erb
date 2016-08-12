@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
+
+set -e
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+
+cf plugins | grep -q cf-plugin-autoscale || {
+  cf install-plugin /var/vcap/packages/cf-plugin-autoscale/bin/cf-plugin-autoscale
+}
+
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    i=0
+    shift 2
+
+    while test ${i} -lt ${max} ; do
+        if "$@" ; then
+            break
+        fi
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
+    done
+}
+
+SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+USER="<%= username.shellescape %>"
+PASSWORD="<%= password.shellescape %>"
+HSDS=${HCP_SERVICE_DOMAIN_SUFFIX}
+
+UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+AUTOSCALER_ENDPOINT="http://${AUTOSCALER_API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:28861"
+API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+
+echo "Waiting for CC... $SKIP $API_ENDPOINT"
+retry 240 30s cf api $SKIP "$API_ENDPOINT"
+
+echo "Waiting for UAA..."
+retry 240 30s cf auth "$USER" "$PASSWORD"
+
+retry 10 20s cf autoscale target "$AUTOSCALER_ENDPOINT"
+
+echo "Preparing simple test application..."
+
+mkdir testApp
+cd testApp
+echo "<?php phpinfo();?>" > index.php
+
+retry 10 20s cf create-org autoscaler-acceptance
+retry 10 20s cf target -o autoscaler-acceptance
+retry 10 20s cf create-space autoscaler-acceptance
+retry 10 20s cf target -o autoscaler-acceptance -s autoscaler-acceptance
+
+retry 10 20s cf push testApp
+retry 10 20s cf create-service open-autoscaler default testAcc
+retry 10 20s cf bind-service testApp testAcc
+retry 10 20s cf restage testApp
+
+export TERM=linux
+/var/vcap/packages/acceptance-tests-autoscaler/bin/check.sh

@@ -1,0 +1,5 @@
+set -e -x
+
+mkdir -p ${BOSH_INSTALL_TARGET}/bin/
+
+cp acceptance-tests-autoscaler/check.sh ${BOSH_INSTALL_TARGET}/bin/
