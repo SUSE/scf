@@ -13,12 +13,12 @@ RUN veritas completions >> /root/.bashrc
 
 # Use HCP secrets if they exist
 RUN echo 'if [ -r /etc/secrets/bbs-client-crt ]; then \
-            cat /etc/secrets/bbs-client-crt > /root/bbs.crt; \
+            printf %b "$(cat /etc/secrets/bbs-client-crt)" > /root/bbs.crt; \
           else \
             echo -e $BBS_CLIENT_CRT > /root/bbs.crt; \
           fi' >> /root/.bashrc
 RUN echo 'if [ -r /etc/secrets/bbs-client-key ]; then \
-            cat /etc/secrets/bbs-client-key > /root/bbs.key; \
+            printf %b "$(cat /etc/secrets/bbs-client-key)" > /root/bbs.key; \
           else \
             echo -e $BBS_CLIENT_KEY > /root/bbs.key; \
           fi' >> /root/.bashrc
