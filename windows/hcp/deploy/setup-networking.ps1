@@ -21,18 +21,14 @@ param (
     [string] $etcdCaFile
 )
 
-Write-Output "Creating working directory ..."
-$wd="C:\hcf-networking"
+$ErrorActionPreference = "Stop"
+
+$wd="$PSScriptRoot\resources\hcf-networking"
 mkdir -f $wd  | Out-Null
-cd $wd
 
 Write-Output "Getting local IP ..."
 $localIP = (Find-NetRoute -RemoteIPAddress $k8MasterIP)[0].IPAddress
 Write-Output "Found local IP: ${localIP}"
-
-Write-Output "Downloading win-k8s-connector installer ..."
-curl -UseBasicParsing -OutFile $wd\win-k8s-conn-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/win-k8s-connector/10-2016-08-05_13-38-07/win-k8s-conn-installer.EXE -Verbose
-Write-Output "Finished downloading win-k8s-connector installer."
 
 $env:WIN_K8S_SERV_SUBNET = $k8sServSubnet
 $env:WIN_K8S_IP = "${k8MasterIP}:${k8sPort}"
@@ -40,7 +36,7 @@ $env:WIN_K8S_QUERY_PERIOD = $k8sQueryPeriod
 $env:WIN_K8S_EXTERNAL_IP = $localIP
 
 Write-Output @"
-Installing win-k8s-connector using: 
+Installing win-k8s-connector using:
     WIN_K8S_SERV_SUBNET=$($env:WIN_K8S_SERV_SUBNET)
     WIN_K8S_IP=$($env:WIN_K8S_IP)
     WIN_K8S_QUERY_PERIOD=$($env:WIN_K8S_QUERY_PERIOD)
@@ -48,10 +44,6 @@ Installing win-k8s-connector using:
 "@
 cmd /c "$wd\win-k8s-conn-installer.exe /Q"
 Write-Output "Finished installing win-k8s-connector."
-
-Write-Output "Downloading flannel installer ..."
-curl -UseBasicParsing -OutFile $wd\flannel-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/flannel/7-2016-08-11_13-26-30/flannel-installer.EXE -Verbose
-Write-Output "Finished downloading flannel installer."
 
 $env:FLANNEL_ETCD_ENDPOINTS = "https://${k8MasterIP}:${etcdPort}"
 $env:FLANNEL_INSTALL_DIR = $flannelInstallDir
@@ -62,7 +54,7 @@ $env:FLANNEL_ETCD_CERTFILE = $etcdCertFile
 $env:FLANNEL_ETCD_CAFILE = $etcdCaFile
 
 Write-Output @"
-Installing flannel using: 
+Installing flannel using:
     FLANNEL_ETCD_ENDPOINTS=$($env:FLANNEL_ETCD_ENDPOINTS)
     FLANNEL_INSTALL_DIR=$($env:FLANNEL_INSTALL_DIR)
     FLANNEL_USER_PASSWORD=$($env:FLANNEL_USER_PASSWORD)
