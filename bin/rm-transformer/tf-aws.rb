@@ -66,7 +66,7 @@ class ToTerraformAWS < ToTerraform
     rules = {}
     get_exposed_ports(roles).each do |port|
       protocol = port['protocol'].downcase
-      port_number = port['internal'].to_i
+      port_number = port['external'].to_i
       rules["#{group_name}_ingress_#{protocol}_to_#{port_number}"] = {
         'security_group_id' => "${aws_security_group.#{group_name}.id}",
         'type' => 'ingress',
