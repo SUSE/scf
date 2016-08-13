@@ -1229,8 +1229,6 @@ roles:
   jobs:
   - name: acceptance-tests-flight-recorder
     release_name: hcf
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   run:
     scaling:
       indexed: 1
@@ -1402,8 +1400,6 @@ roles:
       internal: 3000
       public: false
 - name: hcf-versions
-  environment_scripts:
-  - setup_hcp_no_proxy.sh
   scripts:
   - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
