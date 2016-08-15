@@ -31,9 +31,9 @@ command -v certstrap > /dev/null 2>&1 || {
   docker rm "${buildCertstrap}"
 }
 
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/settings.env"
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/hosts.env"
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings-dev/network.env"
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/settings.env"
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/hosts.env"
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/network.env"
 
 # Certificate generation
 certs_path="/tmp/hcf/certs"
