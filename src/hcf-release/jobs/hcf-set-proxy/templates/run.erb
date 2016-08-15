@@ -1,8 +1,12 @@
 #!/bin/bash
 
+<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
+
 set -e
 
-export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+# put the cli on the path
+export PATH=/var/vcap/packages/cli/bin:${PATH}
+
 <%
 require 'shellwords'
 env = {}
@@ -64,13 +68,37 @@ function retry () {
     done
 }
 
+function edit_config () {
+    key="$1"
+    value="$2"
+    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
+    sed < $HOME/.cf/config.json > $$ -e "$pattern"
+    mv $$ $HOME/.cf/config.json
+}
 
-<% skip_ssl_validation = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>
-retry 240 30s    cf api <%= skip_ssl_validation %> api.<%= properties.system_domain %>
-<% 
-username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1]
-%>
-cf auth <%= username.shellescape %> <%= password.shellescape %>
+function retarget_auth () {
+    # Manipulate the authentication endpoints saved by the `cf api`
+    # command.  This fakes `cf auth` out, forcing it to use the
+    # internal auth host. Note the special port for https.
+
+    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
+    edit_config UaaEndpoint           "$UAA_ENDPOINT"
+}
+
+SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+USER="<%= username.shellescape %>"
+PASSWORD="<%= password.shellescape %>"
+
+UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+
+echo "Waiting for CC... $SKIP $API_ENDPOINT"
+retry 240 30s cf api $SKIP "$API_ENDPOINT"
+
+retarget_auth
+
+echo "Waiting for UAA..."
+retry 240 30s cf auth "$USER" "$PASSWORD"
 
 <% 
 %W{staging running}.each do |runtime| 
@@ -78,3 +106,5 @@ cf auth <%= username.shellescape %> <%= password.shellescape %>
 cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
 <%end 
 end %>
+
+echo "Setting of external proxies complete."
