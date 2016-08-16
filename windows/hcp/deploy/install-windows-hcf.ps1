@@ -10,7 +10,7 @@ mkdir -f $wd | Out-Null
 
 # Prepare network
 
-$hcfIdl = (cat $hcfIdlPath) | ConvertFrom-Json
+$hcfIdl = Get-Content -Raw $hcfIdlPath | ConvertFrom-Json
 
 $instanceId = $hcfIdl.'instance_id'
 $clusterDnsAffix = "svc.cluster.hcp"
