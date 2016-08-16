@@ -1475,11 +1475,11 @@ roles:
 configuration:
   variables:
   - name: API_HOST
-    default: "api"
+    default: "api-int"
   - name: API_HA_HOST
     required: false
   - name: BLOBSTORE_HOST
-    default: "blobstore"
+    default: "blobstore-int"
   - name: BLOBSTORE_USERNAME
     default: "blobstore_user"
   - name: BLOBSTORE_HTTP_PORT
@@ -1494,16 +1494,14 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: COUCHDB_HOST
-    default: "couchdb"
   - name: AUTOSCALER_API_HOST
-    default: "sclr-api"
+    default: "sclr-api-int"
   - name: AUTOSCALER_COUCHDB_HOST
-    default: couchdb
+    default: couchdb-int
   - name: AUTOSCALER_SERVER_HOST
-    default: "sclr-server"
+    default: "sclr-server-int"
   - name: AUTOSCALER_SERVICE_BROKER_HOST
-    default: "sclr-broker"
+    default: "sclr-broker-int"
   - name: AUTOSCALER_USERNAME
     default: admin
   - name: AUTOSCALER_PASSWORD
@@ -1511,51 +1509,51 @@ configuration:
     generator:
       type: Password
   - name: DIEGO_DATABASE_HOST
-    default: "diego-database"
+    default: "diego-database-int"
   - name: DIEGO_ACCESS_HOST
-    default: "diego-access"
+    default: "diego-access-int"
   - name: DIEGO_CC_BRIDGE_HOST
-    default: "diego-cc-bridge"
+    default: "diego-cc-bridge-int"
   - name: DIEGO_BRAIN_HOST
-    default: "diego-brain"
+    default: "diego-brain-int"
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
   - name: NATS_HOST
-    default: "nats"
+    default: "nats-int"
   - name: NATS_HA_HOST_1
     required: false
   - name: NATS_HA_HOST_2
     required: false
   - name: MYSQL_PROXY_HOST
-    default: "mysql-proxy"
+    default: "mysql-proxy-int"
   - name: MYSQL_HOST
-    default: "mysql"
+    default: "mysql-int"
   - name: MYSQL_HA_HOST_1
     required: false
   - name: MYSQL_HA_HOST_2
     required: false
   - name: ETCD_HOST
-    default: "etcd"
+    default: "etcd-int"
   - name: ETCD_HA_HOST_1
     required: false
   - name: ETCD_HA_HOST_2
     required: false
   - name: CONSUL_HOST
-    default: "consul"
+    default: "consul-int"
   - name: CONSUL_HA_HOST_1
     required: false
   - name: CONSUL_HA_HOST_2
     required: false
   - name: ROUTER_HOST
-    default: "router"
+    default: "router-int"
   - name: ROUTING_API_HOST
-    default: routing-api
+    default: "routing-api-int"
   - name: LOGGREGATOR_HOST
-    default: "loggregator"
+    default: "loggregator-int"
   - name: UAA_HOST
-    default: uaa
+    default: "uaa-int"
   - name: CF_USB_BROKER_HOST
-    default: "cf-usb"
+    default: "cf-usb-int"
   - name: BULK_API_PASSWORD
     secret: true
     generator:
@@ -1606,7 +1604,7 @@ configuration:
   - name: DOPPLER_ZONE
     default: z1
   - name: HCF_SSO_HOST
-    default: hcf-sso
+    default: hcf-sso-int
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:
@@ -1763,7 +1761,7 @@ configuration:
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
   - name: OPEN_AUTOSCALER_HOST
-    default: "open-autoscaler"
+    default: "open-autoscaler-int"
   # Certificates
   - name: CERTS_ROOT_CHAIN_PEM
     secret: true

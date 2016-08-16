@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
+BINDIR=$(readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/")
 
 # Determines whether a container is running, given a container name and an image name
 # container_running <CONTAINER_NAME> <IMAGE_NAME>
@@ -80,7 +80,7 @@ function start_role {
         --net=hcf \
         --dns-search=hcf \
         --label=hcf_role=${role} \
-        --hostname=${role}.hcf \
+        --hostname=${role}-int.hcf \
         ${restart} \
         ${env_files} \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
@@ -188,7 +188,7 @@ function setup_port_range_forwarding() {
         "${role}" "${external_ports}" "${internal_ports}" >&2
       return 1
     fi
-    local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' $role)
+    local container_address=$(docker inspect --format '{{.NetworkSettings.Networks.hcf.IPAddress}}' "${role}"-int)
     local lower_bound="${external_ports%%-*}"
     local upper_bound="${external_ports##*-}"
     local network_address=$(docker network inspect hcf | jq --raw-output '.[].IPAM.Config[].Gateway')
@@ -201,7 +201,7 @@ function setup_port_range_forwarding() {
 # gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' $1)
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' "$1")-int
 }
 
 # gets an image name from a role name
@@ -257,7 +257,7 @@ function handle_restart() {
 # Loads all roles from the role-manifest.yml
 function load_all_roles() {
   local role_block
-  local role_manifest_file=`readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml"`
+  local role_manifest_file=$(readlink -f "${BINDIR}/../../../etc/hcf/config/role-manifest.yml")
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
