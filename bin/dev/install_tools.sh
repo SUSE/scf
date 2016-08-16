@@ -5,8 +5,8 @@ set -e
 bin_dir="${bin_dir:-/home/vagrant/bin}"
 tools_dir="${tools_dir:-/home/vagrant/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
-configgin_url="${configgin_url:-https://helion-developers.s3.amazonaws.com/viovanov/hcf/configgin-1.0.0%2B22.g92b40f2.vladi-fix-typing-linux-amd64.tgz}" # Favor configgin 1.0.4!
-fissile_url="${fissile_url:-https://helion-developers.s3.amazonaws.com/alexh/hcf/fissile-1.0.0%2B20.ge4fe28a.develop-linux.amd64.tgz}"
+configgin_url="${configgin_url:-https://concourse-hpe.s3.amazonaws.com/configgin-1.1.0%2B0.g12b62f9.master-linux-amd64.tgz}"
+fissile_url="${fissile_url:-https://concourse-hpe.s3.amazonaws.com/fissile-2.0.1%2B7.gdb09504.develop-linux.amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
 
 mkdir -p $bin_dir
