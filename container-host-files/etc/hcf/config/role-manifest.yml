@@ -842,12 +842,9 @@ roles:
     release_name: cf
   - name: auctioneer
     release_name: diego
-  - name: converger
-    release_name: diego
   - name: metron_agent
     release_name: cf
   processes:
-  - name: converger
   - name: auctioneer
   - name: metron_agent
   - name: consul_agent
@@ -2175,10 +2172,6 @@ configuration:
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp({{MYSQL_HOST}}:3306)/diego{{=(( ))=}}"'
     properties.diego.bbs.sql.db_driver: mysql
-    properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.converger.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
