@@ -16,7 +16,10 @@ class ToHCPInstance < Common
 
   # Public API
   def transform(manifest)
-    JSON.pretty_generate(to_hcp_instance(manifest))
+    pretty_manifest = JSON.pretty_generate(to_hcp_instance(manifest))
+    # Certificates coming from certs.env contain `\n` which are converted to `\\n` by the JSON encoding
+    # We want them to keep their `\n`
+    pretty_manifest.gsub!('\\\\n', '\\n')
   end
 
   def to_hcp_instance(manifest)
