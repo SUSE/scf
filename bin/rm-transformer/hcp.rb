@@ -16,10 +16,7 @@ class ToHCP < Common
 
   # Public API
   def transform(roles)
-    pretty_manifest = JSON.pretty_generate(to_hcp(roles))
-    # Certificates coming from certs.env contain `\n` which are converted to `\\n` by the JSON encoding
-    # We want them to keep their `\n`
-    pretty_manifest.gsub!('\\\\n', '\\n')
+    JSON.pretty_generate(to_hcp(roles))
   end
 
   # Internal definitions

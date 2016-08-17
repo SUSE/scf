@@ -16,10 +16,7 @@ class ToHCPInstance < Common
 
   # Public API
   def transform(manifest)
-    pretty_manifest = JSON.pretty_generate(to_hcp_instance(manifest))
-    # Certificates coming from certs.env contain `\n` which are converted to `\\n` by the JSON encoding
-    # We want them to keep their `\n`
-    pretty_manifest.gsub!('\\\\n', '\\n')
+    JSON.pretty_generate(to_hcp_instance(manifest))
   end
 
   def to_hcp_instance(manifest)
@@ -50,9 +47,12 @@ class ToHCPInstance < Common
       # secrets currently need to be lowercase and can only use dashes, not underscores
       # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
       name.downcase!.gsub!('_', '-') if var['secret']
+      value = var['default']
+      # Some certificates coming from certs.env contain literal `\n` instead of line breaks
+      value.gsub!('\\n', "\n")
       results << {
         'name' => name,
-        'value' => var['default']
+        'value' => value
       }
     end
     results
