@@ -1432,9 +1432,6 @@ roles:
       public: false
   configuration:
     templates:
-      # Workaround until we fix how the versioning server constructs the
-      # location of the cloud controller
-      properties.cc.internal_service_hostname: 'api'
       properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: status-route
   tags:
@@ -2253,9 +2250,7 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
-    properties.hcf_versions.blobstore.host: '"((BLOBSTORE_HOST))"'
-    properties.hcf_versions.blobstore.http_port: '"((BLOBSTORE_HTTP_PORT))"'
-    properties.hcf_versions.blobstore.https_port: '"((BLOBSTORE_HTTPS_PORT))"'
+    properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
     properties.hcf_versions.blobstore.username: '"((BLOBSTORE_USERNAME))"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
