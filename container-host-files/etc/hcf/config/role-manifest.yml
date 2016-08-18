@@ -1471,6 +1471,8 @@ configuration:
     default: "diego-brain-int"
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
+  - name: DROPLET_MAX_STAGED_STORED
+    default: 5
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
   - name: NATS_HOST
@@ -2072,6 +2074,7 @@ configuration:
     properties.cc.diego.tps_url: "http://((DIEGO_CC_BRIDGE_HOST)):1518"
     properties.cc.droplets.blobstore_type: webdav
     properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
+    properties.cc.droplets.max_staged_droplets_stored: '((DROPLET_MAX_STAGED_STORED))'
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
