@@ -37,3 +37,6 @@
 [submodule "src/hcf-release/src/github.com/hpcloud/hdp-resource-manager"]
 	path = src/hcf-release/src/github.com/hpcloud/hdp-resource-manager
 	url = git@github.com:hpcloud/hdp-resource-manager.git
+[submodule "src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale"]
+	path = src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale
+	url = git@github.com:hpcloud/cf-plugin-autoscale.git
