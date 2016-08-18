@@ -1862,6 +1862,11 @@ configuration:
       id: "router_cert"
       type: Certificate
       value_type: private_key
+  - name: ROUTER_STATUS_PASSWORD
+    secret: true
+    generator:
+      id: "router_status_password"
+      type: Password
   - name: UAA_PRIVATE_KEY
     secret: true
     generator:
@@ -2223,6 +2228,7 @@ configuration:
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
+    properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
@@ -2233,6 +2239,7 @@ configuration:
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.router.ssl_skip_validation: null
+    properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.routing.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
@@ -2259,7 +2266,6 @@ configuration:
     properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"

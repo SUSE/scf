@@ -31,12 +31,9 @@ properties:
     broker_client_max_async_poll_duration_minutes: 10080
     broker_client_timeout_seconds: 70
     buildpacks:
-      buildpack_directory_key: bd_key
       cdn: null
       fog_connection: null
-    bulk_api_password: password
     client_max_body_size: 15M
-    db_encryption_key: the_key
     db_logging_level: debug2
     default_app_disk_in_mb: 1024
     default_app_memory: 1024
@@ -75,7 +72,6 @@ properties:
     disable_custom_buildpacks: false
     droplets:
       cdn: null
-      droplet_directory_key: the_key
       fog_connection: null
     external_host: api
     external_protocol: http
@@ -98,7 +94,6 @@ properties:
       package: binary-buildpack
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
-    internal_api_password: password
     internal_api_user: internal_user
     jobs:
       app_bits_packer:
@@ -136,7 +131,6 @@ properties:
         enabled: true
         record_sql: obfuscated
     packages:
-      app_package_directory_key: example.com-cc-packages
       cdn: null
       fog_connection: null
       max_package_size: 1073741824
@@ -149,7 +143,6 @@ properties:
     resource_pool:
       cdn: null
       fog_connection: null
-      resource_directory_key: example.com-cc-resources
     security_event_logging:
       enabled: null
     security_group_definitions:
@@ -185,7 +178,6 @@ properties:
       description: Windows Server 2012 R2
     - name: windows2012R2
       description: Windows Server 2012 R2
-    staging_upload_password: password
     staging_upload_user: username
     system_buildpacks:
     - name: staticfile_buildpack
@@ -234,13 +226,11 @@ properties:
     port: 3306
     roles:
     - name: ccadmin
-      password: admin_password
       tag: admin
   cf-usb:
     broker:
       external_url: brokers.example.com
       username: cf-usb_username
-      password: cf-usb_password
       port: 24054
     configconnectionstring: 127.0.0.1:8500
     configprovider: consulConfigProvider
@@ -249,18 +239,12 @@ properties:
       port: 24053
       uaa:
         client: cf-usb
-        secret: cf-usb_secret
     skip_tls_validation: true
   consul:
     agent:
       log_level: null
-    agent_cert: null
-    agent_key: null
-    ca_cert: null
     encrypt_keys: []
     require_ssl: false
-    server_cert: null
-    server_key: null
   couchdb:
     dbname: couchdb-scaling
     metric_prefix: couchdb-scalingmetric
@@ -350,12 +334,7 @@ properties:
     maxRetainedLogMessages: 100
     port: 4443
     unmarshaller_count: 5
-  doppler_endpoint:
-    shared_secret: loggregator_endpoint_secret
   etcd:
-    ca_cert: null
-    client_cert: null
-    client_key: null
     cluster:
     - instances: 1
       name: diego-database
@@ -363,11 +342,8 @@ properties:
     peer_require_ssl: false
     # Until we figure out DNS names
     require_ssl: false
-    server_cert: null
-    server_key: null
   etcd_metrics_server:
     nats:
-      password: &nats_password nats_password
       username: &nats_user nats_user
   garden:
     # By default we want to restrict all outbound access from containers
@@ -417,12 +393,9 @@ properties:
     url: null
   metron_agent:
     deployment: hcf-deployment
-  metron_endpoint:
-    shared_secret: loggregator_endpoint_secret
   nats:
     debug: false
     monitor_port: 0
-    password: *nats_password
     port: 4222
     prof_port: 0
     trace: false
@@ -447,11 +420,9 @@ properties:
       size: 3M
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
-    route_services_secret: null
     secure_cookies: null
     ssl_skip_validation: null
     status:
-      password: router_password
       user: router_user
   routing_api:
     enabled: true
@@ -495,41 +466,30 @@ properties:
       autoscaler_servicebroker:
         port: 28863
   uaa:
-    admin:
-      client_secret: admin_secret
     authentication:
       policy:
         countFailuresWithinSeconds: null
         lockoutAfterFailures: null
         lockoutPeriodSeconds: null
     batch:
-      password: batch_password
       username: batch_username
     catalina_opts:
       "-Xmx768m -XX:MaxPermSize=256m"
-    cc:
-      client_secret: cc_client_secret
     clients:
-      app-direct:
-        secret: app-direct_secret
       cf-autoscaler-client:
         authorities: cloud_controller.read,cloud_controller.admin
         authorized-grant-types: client_credentials
-        secret: cf-autoscaler-client-secret
       cf-usb:
         authorities: cloud_controller.admin,usb.management.admin
         authorized-grant-types: client_credentials
         scope: usb.management.admin
-        secret: cf-usb_secret
       cc-service-dashboards:
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
         scope: openid,cloud_controller_service_permissions.read
-        secret: cc-broker-secret
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
-        secret: cc_routing_secret
       cf:
         access-token-validity: 600
         authorities: uaa.none
@@ -543,29 +503,21 @@ properties:
         authorized-grant-types: client_credentials
         authorities: scim.read,scim.write,password.write
         id: cloud_controller
-        secret: "cc_client_secret"
         access-token-validity: 604800
-
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials
-        secret: cloud_controller_username_lookup_secret
-      developer_console:
-        secret: developer_console_secret
       doppler:
         authorities: uaa.resource
         override: true
-        secret: doppler_secret
       gorouter:
         authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
         authorized-grant-types: client_credentials,refresh_token
         scope: openid,cloud_controller_service_permissions.read
-        secret: gorouter_secret
       hcf-sso:
         access_token_validity: 3600
         authorized-grant-types: authorization_code
         scope: scim.me
-        secret: hcf_sso_secret
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
         authorized-grant-types: authorization_code,client_credentials,refresh_token
@@ -573,18 +525,15 @@ properties:
         override: true
         redirect-uri: https://login.example.com
         scope: openid,oauth.approvals
-        secret: login_client_secret
       notifications:
         authorities: cloud_controller.admin,scim.read
         authorized-grant-types: client_credentials
-        secret: notification_secret
       ssh-proxy:
         authorized-grant-types: authorization_code
         autoapprove: true
         override: true
         redirect-uri: /login
         scope: openid,cloud_controller.read,cloud_controller.write
-        secret: ssh-proxy_secret
       tcp_emitter:
         authorities: routing.routes.write,routing.routes.read
         authorized-grant-types: client_credentials,refresh_token
@@ -598,9 +547,6 @@ properties:
       max_idle_connections: 10
       remove_abandoned: true
     issuer: https://uaa.example.com
-    jwt:
-      signing_key: sk
-      verification_key: vk
     ldap: null
     login: null
     newrelic: null
@@ -644,7 +590,6 @@ properties:
     port: 3306
     roles:
     - name: uaaadmin
-      password: admin_password
       tag: admin
   cf_mysql:
     proxy:
