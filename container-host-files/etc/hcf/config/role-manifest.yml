@@ -1472,6 +1472,8 @@ configuration:
     default: "diego-cc-bridge-int"
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain-int"
+  - name: DIEGO_CELL_MEMORY_CAPACITY_MB
+    default: auto
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
   - name: NATS_HOST
@@ -2137,6 +2139,7 @@ configuration:
     properties.diego.converger.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
