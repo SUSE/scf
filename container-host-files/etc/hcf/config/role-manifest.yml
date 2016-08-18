@@ -1540,8 +1540,10 @@ configuration:
     default: "cf-usb-int"
   - name: UAA_SSL_PORT
     default: 8443
+  - name: UAA_EXTERNAL_URL
+    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((UAA_SSL_PORT))
   - name: UAA_INTERNAL_URL
-    default: https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))
+    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((UAA_SSL_PORT))
   - name: BULK_API_PASSWORD
     secret: true
     generator:
@@ -2235,6 +2237,7 @@ configuration:
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.monit.port: '((MONIT_PORT))'
     properties.hcf.monit.user: '"((MONIT_USER))"'
+    properties.hcf.uaa.internal-url: '"((UAA_INTERNAL_URL))"'
     properties.hcf_set_proxy.api_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
@@ -2257,6 +2260,7 @@ configuration:
     properties.hm9000.port: 5155
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
+    properties.login.url: '"((UAA_EXTERNAL_URL))"'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
@@ -2320,7 +2324,7 @@ configuration:
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.uaa.token_endpoint: '"((UAA_HOST))"'
-    properties.uaa.url: '"((UAA_INTERNAL_URL))"'
+    properties.uaa.url: '"((UAA_EXTERNAL_URL))"'
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'

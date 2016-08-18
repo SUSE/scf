@@ -89,7 +89,7 @@ SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
 USER="<%= username.shellescape %>"
 PASSWORD="<%= password.shellescape %>"
 
-UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
 
 echo "Waiting for CC... $SKIP $API_ENDPOINT"

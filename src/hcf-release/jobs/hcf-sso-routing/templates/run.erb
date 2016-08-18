@@ -73,7 +73,7 @@ SSO_PORT="<%= p("hcf_sso.port") %>"
 SSO_USER="<%= p("hcf_sso.username") %>"
 SSO_PASS="<%= p("hcf_sso.password") %>"
 
-UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 SSO_ENDPOINT="https://${HCF_SSO_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:${SSO_PORT}"
 API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
 
