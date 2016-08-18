@@ -48,7 +48,7 @@ function appendToCron {
 #check if cron has something in it
 crontab -l 1>>$PB_OUT 2>>$PB_OUT
 if [ $? -ne 0 ]; then
-	echo "#creating cron conf as it does not exist yet" >> $PB_FILE
+	echo "#creating cron conf as it does not exist yet" >> $PB_OUT
 	appendToCron
 else
 	#put the script in cron if it is not there already
