@@ -15,6 +15,6 @@ CF_RELEASE=https://raw.githubusercontent.com/cloudfoundry/cf-release/master/rele
 COMMIT_HASH=$(curl $CF_RELEASE 2>/dev/null | yaml2json | jq '"X"+.commit_hash')
 
 COMPAT=https://raw.githubusercontent.com/cloudfoundry-incubator/diego-cf-compatibility/master/compatibility-v4.csv
-RELEASE_INFO=$(curl $COMPAT 2>/dev/null | perl -pe '$. == 1 or s/,/,X/g' | csv2json | jq -c "map( select(.[\"cf-release-commit-sha\"] | contains($COMMIT_HASH)))|.[0]")
+RELEASE_INFO=$(curl $COMPAT 2>/dev/null | perl -pe '$. == 1 or s/,/,X/g' | csv2json | jq -c "map( select(.[\"cf-release-commit-sha\"] | contains($COMMIT_HASH)))|.[-1]")
 
 echo $RELEASE_INFO | jq . | perl -pe 's/"X/"/'
