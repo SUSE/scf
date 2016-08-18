@@ -1250,6 +1250,8 @@ roles:
 - name: post-deployment-setup
   type: bosh-task
   jobs:
+  - name: uaa-create-user
+    release_name: hcf
   - name: cf-set-proxy
     release_name: hcf
   processes: []
@@ -1707,6 +1709,10 @@ configuration:
     generator:
       type: Password
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
+    secret: true
+    generator:
+      type: Password
+  - name: UAA_CLIENTS_UAA_CREATE_FIRST_USER_SECRET
     secret: true
     generator:
       type: Password
@@ -2317,6 +2323,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.uaa.clients.uaa_create_first_user.secret: '"((UAA_CLIENTS_UAA_CREATE_FIRST_USER_SECRET))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
@@ -2401,6 +2408,10 @@ auth:
     tcp_router:
       authorities: routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
+    uaa_create_first_user:
+      access-token-validity: 600
+      authorities: scim.read,scim.write
+      authorized-grant-types: client_credentials
   authorities:
     - openid
     - scim.me

@@ -1,0 +1,21 @@
+---
+name: uaa-create-user
+
+description: Create the initial user in UAA
+
+packages:
+  - jq
+
+templates:
+  run.erb: bin/run
+
+properties:
+  ssl.skip_cert_verify:
+    description: specifies that the job is allowed to skip ssl cert verification
+    default: false
+  uaa.scim.users:
+    description: A list of users to be bootstrapped with authorities.
+  uaa.clients.login.secret:
+    description: The password for the login client
+  uaa.url:
+    description: The base url of the UAA with the correct zone id

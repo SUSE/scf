@@ -1,0 +1,5 @@
+---
+name: jq
+
+files:
+  - pre_packaging_utils/get_jq.sh

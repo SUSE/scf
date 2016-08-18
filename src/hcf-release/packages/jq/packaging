@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+BIN_DIR="${BOSH_INSTALL_TARGET}/bin"
+
+mkdir -p "${BIN_DIR}"
+
+cp jq/jq-linux64 "${BIN_DIR}/jq"
+chmod a+x "${BIN_DIR}/jq"
