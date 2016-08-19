@@ -1607,7 +1607,6 @@ configuration:
   - name: TRAFFIC_CONTROLLER_ZONE
     default: z1
   - name: TRUSTED_CERTS
-    secret: true
     required: false
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
@@ -1934,10 +1933,6 @@ configuration:
       value_type: private_key
   - name: COUCHDB_USER
     default: admin
-  - name: COUCHDB_PASSWORD
-    secret: true
-    generator:
-      type: Password
   - name: SKIP_CERT_VERIFY
     default: true
   - name: ROUTER_ACCESS_LOG_STREAMING
