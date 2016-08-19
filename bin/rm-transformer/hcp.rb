@@ -44,7 +44,6 @@ class ToHCP < Common
     # DEF.components[].name				/string
     # DEF.components[].version				/string
     # DEF.components[].vendor				/string
-    # DEF.components[].external_name			/string	(*6)
     # DEF.components[].image				/string	(*7)
     # DEF.components[].min_RAM_mb			/int32
     # DEF.components[].min_disk_gb			/int32
@@ -85,10 +84,9 @@ class ToHCP < Common
     # (*3) ('linux-x86_64', 'win2012r2-x86_64')
     # (*4) ('container', 'vm')
     # (*5) (cmd and parameters, each a separate entry)
-    # (*6) Human readable name of the component
     # (*7) Container image name for component
     # (*8) See the 1st 3 attributes of components
-    # (*9) Subset of comp below (- external_name + retry_count /int32)
+    # (*9) Subset of comp below (+ retry_count /int32)
   end
 
   def empty_hcp
@@ -235,7 +233,6 @@ class ToHCP < Common
       'service_ports' => [],	  # Fill from role runtime config, see below
       'volume_mounts' => [],	  # Ditto
       'parameters'    => [],	  # Fill from role configuration, see below
-      'external_name' => rname,
       'workload_type' => 'container'
     }
 
