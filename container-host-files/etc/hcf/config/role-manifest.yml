@@ -1931,8 +1931,6 @@ configuration:
       id: "consul_server_cert"
       type: Certificate
       value_type: private_key
-  - name: COUCHDB_USER
-    default: admin
   - name: SKIP_CERT_VERIFY
     default: true
   - name: ROUTER_ACCESS_LOG_STREAMING
