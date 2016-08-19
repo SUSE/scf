@@ -1,5 +1,5 @@
 path,uri
-\hcf-networking\win-k8s-conn-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/win-k8s-connector/10-2016-08-05_13-38-07/win-k8s-conn-installer.EXE
+\hcf-networking\win-k8s-conn-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/win-k8s-connector/11-2016-08-19_07-43-43/win-k8s-conn-installer.EXE
 \hcf-networking\flannel-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/flannel/7-2016-08-11_13-26-30/flannel-installer.EXE
 \diego-kit\localwall.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe
 \diego-kit\vc2013\vcredist_x86.exe,https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
@@ -7,4 +7,4 @@ path,uri
 \diego-kit\vc2015\vc_redist.x86.exe,https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
 \diego-kit\vc2015\vc_redist.x64.exe,https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
 \diego-kit\GardenWindows.msi,https://github.com/cloudfoundry/garden-windows-release/releases/download/v0.153/GardenWindows.msi
-\diego-kit\diego-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-19-2016-07-19_09-17-46/diego-installer.exe
+\diego-kit\diego-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-20-2016-08-19_07-43-15/diego-installer.exe
