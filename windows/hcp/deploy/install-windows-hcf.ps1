@@ -35,7 +35,7 @@ start -Wait "$wd\vc2015\vc_redist.x64.exe"  -ArgumentList "/install /passive /no
 
 echo "Installing Windows Features"
 Install-WindowsFeature  Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Framework, Web-WHC, Web-ASP
-Install-WindowsFeature  Web-Net-Ext, Web-AppInit # Extra features for the cf-iis8-buildpack
+Install-WindowsFeature  Web-Net-Ext45, Web-AppInit # Extra features for the cf-iis8-buildpack
 
 ## Enable disk quota
 
