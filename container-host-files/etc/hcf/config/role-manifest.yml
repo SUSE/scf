@@ -2167,7 +2167,7 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: '"https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))/oauth/token"'
+    properties.diego.ssh_proxy.uaa_token_url: '"https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.diego.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
