@@ -596,6 +596,6 @@ properties:
       healthcheck_timeout_millis: 30000
   autoscaler_api:
     scaling_service:
-      name: 'open-autoscaler'
+      name: 'app-autoscaler'
   autoscaler_servicebroker:
-    name: 'open-autoscaler'
+    name: 'app-autoscaler'
