@@ -12,23 +12,6 @@ function Check-IsAdmin{[CmdletBinding()]param()
   }
 }
 
-function Get-Dependency{[CmdletBinding()]param($name)
-  $dependenciesFile = 'dependencies.csv'
-  $dependencies = Import-Csv (Join-Path $currentDir $dependenciesFile)
-  $dependency = $dependencies | where { $_.Name -eq $name }
-
-  if ($dependency -eq $null)
-  {
-    throw "Could not resolve dependency ${name}."
-  }
-  else
-  {
-    $dependencyUri = $dependency.uri
-    Write-Verbose "Dependency '${name}' resolved to '${dependencyUri}'."
-    return $dependencyUri
-  }
-}
-
 function Clean-Dir{[CmdletBinding()]param($path)
   Write-Verbose "Cleaning directory ${$path}"
   rm -Recurse -Force -Confirm:$false $path -ErrorAction SilentlyContinue
@@ -45,7 +28,7 @@ function Download-File-With-Retry{[CmdletBinding()]param($url, $targetFile)
       catch {
         if ($retry_left -lt 1) {
           throw
-          } 
+          }
           else {
             $errorMessage = $_.Exception.Message
             Write-Output "Call failed with exception: ${errorMessage}"
@@ -54,7 +37,7 @@ function Download-File-With-Retry{[CmdletBinding()]param($url, $targetFile)
             Write-Output "Retries left: ${retry_left}"
          }
       }
-        
+
   }
 }
 

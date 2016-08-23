@@ -1,3 +1,5 @@
+Import-Module -DisableNameChecking "$PSScriptRoot\cf-install-utils.psm1"
+
 ## Create working directory
 
 $wd="C:\garden-kit"
@@ -5,7 +7,7 @@ mkdir -f $wd
 cd $wd
 
 
-## Download and install global dependencies
+## Download dependencies
 
 echo "Downloading localwall"
 curl -Verbose -UseBasicParsing -OutFile $wd\localwall.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe
@@ -18,98 +20,39 @@ curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  https://down
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x86.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x64.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
 
+$gardenVersion = "v0.153"
+echo "Downloading GardenWindows.msi $gardenVersion"
+curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
+
+
+## Install dependencies
+
 echo "Installing VC 2013 and 2015 redistributable"
 start -Wait "vc2013\vcredist_x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "vc2013\vcredist_x64.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "vc2015\vc_redist.x86.exe"  -ArgumentList "/install /passive /norestart"
 start -Wait "vc2015\vc_redist.x64.exe"  -ArgumentList "/install /passive /norestart"
 
-echo "Installing Windows Features"
-Install-WindowsFeature  Web-Webserver, Web-WebSockets, AS-Web-Support, AS-NET-Framework, Web-WHC, Web-ASP
-Install-WindowsFeature  Web-Net-Ext, Web-AppInit # Extra features for the cf-iis8-buildpack
+IntalledRequiredWindowsFeatures
 
+EnableDiskQuota
+ConfigureCellWindowsFirewall
+ConfigureCellLocalwall "$wd\localwall.exe"
 
-## Enable disk quota
-
-echo "Enabling disk quota"
-fsutil quota enforce C:
-
-
-## Configure firewall
-
-echo "Configuring Windows Firewall"
-
-# Snippet source: https://github.com/cloudfoundry/garden-windows-release/blob/master/scripts/setup.ps1#L134
-$admins = New-Object System.Security.Principal.NTAccount("Administrators")
-$adminsSid = $admins.Translate([System.Security.Principal.SecurityIdentifier])
-
-$LocalUser = "D:(A;;CC;;;$adminsSid)"
-$otherAdmins = Get-WmiObject win32_groupuser |
-  Where-Object { $_.GroupComponent -match 'Administrators' } |
-  ForEach-Object { [wmi]$_.PartComponent }
-
-foreach($admin in $otherAdmins)
-{
-  $ntAccount = New-Object System.Security.Principal.NTAccount($admin.Name)
-  $sid = $ntAccount.Translate([System.Security.Principal.SecurityIdentifier]).Value
-  $LocalUser = $LocalUser + "(A;;CC;;;$sid)"
-}
-
-Remove-NetFirewallRule -Name CFAllowAdmins -ErrorAction Ignore
-New-NetFirewallRule -Name CFAllowAdmins -DisplayName "Allow admins" `
-  -Description "Allow admin users" -RemotePort Any `
-  -LocalPort Any -LocalAddress Any -RemoteAddress Any `
-  -Enabled True -Profile Any -Action Allow -Direction Outbound `
-  -LocalUser $LocalUser
-
-Set-NetFirewallProfile -All -DefaultInboundAction Allow -DefaultOutboundAction Block -Enabled True
-
-echo "Configuring WFP localhost filtering rules"
-
-& "$wd\localwall.exe" cleanup
-
-& "$wd\localwall.exe" add $machineIp 32 8301 Administrators # Consul rule
-& "$wd\localwall.exe" add 127.0.0.1  8  8400 Administrators # Consul rule
-& "$wd\localwall.exe" add 127.0.0.1  8  8500 Administrators # Consul rule
-
-& "$wd\localwall.exe" add 127.0.0.1  8  3457 Administrators # Metron rule
-& "$wd\localwall.exe" add $machineIp 32 6061 Administrators # Metron rule
-
-& "$wd\localwall.exe" add $machineIp 32 1800 Administrators # Rep rule
-
-& "$wd\localwall.exe" add 127.0.0.1  8  9241 Administrators # Garden rule
-
-& "$wd\localwall.exe" add 127.0.0.1  8  1788 Administrators # Containerizer rule
-
-
-## Download installers
-
-$gardenVersion = "v0.153"
-echo "Downloading GardenWindows.msi $gardenVersion"
-curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 
 ## Prepare configs
 
-$externalRoute = "192.168.77.77"
-$machineIp = (Find-NetRoute -RemoteIPAddress $externalRoute)[0].IPAddress
-echo "The machine IP dicovered that will be used for Diego and CloudFoundry is: $machineIp"
-
-
-$gardenProduct = gwmi win32_product | ? {$_.name -match 'GardenWindows'}
-if ($gardenProduct) {
-  echo "Uninstalling existing GardenWindows. `nDetails: $gardenProduct"
-  $gardenProduct.Uninstall()
-}
-
-
-echo "msiexec /passive /norestart /i $wd\GardenWindows.msi  MACHINE_IP=$machineIp" `
- | Out-File -Encoding ascii  $wd\install-garden.bat
+$hcfCoreIpAddress = "192.168.77.77"
+$advertisedMachineIp = (Find-NetRoute -RemoteIPAddress $hcfCoreIpAddress)[0].IPAddress
+echo "The machine IP dicovered that will be used for Diego and CloudFoundry is: $advertisedMachineIp"
 
 
 ## Install the msi
 
-echo "Installing GardenWindows"
-cmd /c "$wd\install-garden.bat"
+UninstallGardenWindows
+
+echo "Installing Garden-Windows"
+cmd /c  msiexec /passive /norestart /i $wd\GardenWindows.msi MACHINE_IP=$advertisedMachineIp
 
 
 ## Checking health

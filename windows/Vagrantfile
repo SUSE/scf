@@ -26,6 +26,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "file", source: "container-host-files/diego-kit/install-garden.ps1", destination: "C:\\diego-kit\\install-garden.ps1"
   config.vm.provision "file", source: "container-host-files/diego-kit/install-diego.ps1", destination: "C:\\diego-kit\\install-diego.ps1"
+  config.vm.provision "file", source: "utils/cf-install-utils.psm1", destination: "C:\\diego-kit\\cf-install-utils.psm1"
   config.vm.provision "file", source: "container-host-files/diego-kit/set-proxy.ps1", destination: "C:\\diego-kit\\set-proxy.ps1"
 
   config.vm.provision "shell", inline: <<-SHELL
