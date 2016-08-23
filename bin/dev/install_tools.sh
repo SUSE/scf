@@ -21,6 +21,7 @@ wget -q "$fissile_url"   -O - | tar xz -C $bin_dir fissile
 
 echo "Unpacking cf CLI ..."
 tar -xzf $tools_dir/cf.tgz -C $bin_dir
+mv $bin_dir/cf-cli_linux_x86-64 $bin_dir/cf
 
 echo "Making binaries executable ..."
 chmod +x $bin_dir/fissile
