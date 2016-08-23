@@ -41,7 +41,10 @@ case ${TARGET} in
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         TEMPLATE="hcp/hcf-${TARGET}.template.json"
-        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --env-dir bin/settings/hcp/ha/ --provider hcp-instance --instance-definition-template ${TEMPLATE}"
+        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider hcp-instance --instance-definition-template ${TEMPLATE}"
+        if test ${TARGET} = hcp-instance-ha ; then
+            OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ha/"
+        fi
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
