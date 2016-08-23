@@ -40,3 +40,6 @@
 [submodule "src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale"]
 	path = src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale
 	url = git@github.com:hpcloud/cf-plugin-autoscale.git
+[submodule "src/hcf-release/src/github.com/hpcloud/hcf-demophon"]
+	path = src/hcf-release/src/github.com/hpcloud/hcf-demophon
+	url = git@github.com:hpcloud/hcf-demophon.git

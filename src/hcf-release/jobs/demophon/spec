@@ -1,0 +1,37 @@
+---
+name: demophon
+
+templates:
+  demophon_ctl.erb: bin/demophon_ctl
+  server_cert.pem.erb: config/certs/tls/server_cert.pem
+  server_key.pem.erb: config/certs/tls/server_key.pem
+
+packages:
+  - demophon
+  - pid_utils
+
+properties:
+  hcf.demophon.server_cert:
+    description: "PEM-encoded server certificate"
+
+  hcf.demophon.server_key:
+    description: "PEM-encoded server key"
+
+  hcf.demophon.listen_address:
+    description: Address to listen on.
+    default: 0.0.0.0
+
+  hcf.demophon.port:
+    description: Port to listen on.
+    default: 8443
+
+  hcf.demophon.log_level:
+    description: Logging level.
+    default: info
+
+  hcf.demophon.skip_cert_verify:
+    description: Skip certificate validation when talking to other components.
+    default: false
+
+  hcf.demophon.uaa_url:
+    description: UAA endpoint for authn and authz.

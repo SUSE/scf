@@ -1,0 +1,7 @@
+---
+name: demophon
+
+files:
+  - github.com/hpcloud/hcf-demophon/**/*
+dependencies:
+  - golang1.6
