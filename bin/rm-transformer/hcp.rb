@@ -617,9 +617,9 @@ class ToHCP < Common
       clients: auth_configs['clients'].map{|client_id, client_config|
         config = {
           id: client_id,
-          name: client_id,
           authorized_grant_types: client_config['authorized-grant-types'],
-          scope: client_config['scope'],
+          scopes: client_config['scope'] || [],
+          autoapprove: client_config['autoapprove'] || [],
           authorities: client_config['authorities'],
           access_token_validity: client_config['access-token-validity'],
           refresh_token_validity: client_config['refresh-token-validity'],
@@ -628,12 +628,17 @@ class ToHCP < Common
 
         config.delete_if { |_, value| value.nil? }
 
-        [:authorized_grant_types, :scope, :authorities].each do |key|
+        [:authorized_grant_types, :scopes, :authorities].each do |key|
           if config[key].is_a? String
             # For these values, HCP wants them as arrays,
             # UAA wants comma-delimited strings
             config[key] = config[key].split(',')
           end
+        end
+
+        if config[:autoapprove].eql? true
+          # UAA.yml's `true` means approve everything
+          config[:autoapprove] = config[:scopes].dup
         end
 
         if config[:authorized_grant_types].nil?
