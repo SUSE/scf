@@ -1,6 +1,10 @@
 param (
     [Parameter(Mandatory=$true)]
-    [string]$hcfIdlPath
+    [string]$HCPInstanceId,
+    [Parameter(Mandatory=$true)]
+    [string]$CloudFoundryAdminUsername,
+    [Parameter(Mandatory=$true)]
+    [string]$CloudFoundryAdminPassword
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,12 +15,9 @@ $wd="$PSScriptRoot\resources\diego-kit"
 
 # Prepare network
 
-$hcfIdl = Get-Content -Raw $hcfIdlPath | ConvertFrom-Json
-
-$instanceId = $hcfIdl.'instance_id'
 $clusterDnsAffix = "svc.cluster.hcp"
 
-Set-DnsClientGlobalSetting -SuffixSearchList @($instanceId + "." + $clusterDnsAffix)
+Set-DnsClientGlobalSetting -SuffixSearchList @($HCPInstanceId + "." + $clusterDnsAffix)
 Clear-DnsClientCache
 
 $hcfCompoentHostname = "consul-int"
@@ -41,9 +42,8 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 ## HCF setting
 
-$hcfSettings = New-Object System.Collections.Hashtable
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPassword -DemaphonEndpoint "https://demophon:8443" -SkipCertificateValidation $true
 
-$hcfIdl.'parameters' | % { $hcfSettings.Add( $_.name, $_.value -replace ( "\\n", "`n") ) }
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
 $env:DIEGO_USER_PASSWORD = "changeme1234!"
@@ -54,19 +54,19 @@ $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "auto"
 
-$env:CONSUL_SERVER_IP = "consul-int"
-$env:CONSUL_ENCRYPT_KEY = $hcfSettings.'consul-encryption-keys'
-$env:CONSUL_CA_CRT = $hcfSettings.'consul-ca-cert'
-$env:CONSUL_AGENT_CRT = $hcfSettings.'consul-agent-cert'
-$env:CONSUL_AGENT_KEY = $hcfSettings.'consul-agent-key'
+$env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
+$env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
+$env:CONSUL_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
+$env:CONSUL_AGENT_CRT = $hcfSettings.'CONSUL_AGENT_CERT'
+$env:CONSUL_AGENT_KEY = $hcfSettings.'CONSUL_AGENT_KEY'
 
-$env:BBS_ADDRESS = "https://diego-database-int:8889"
-$env:BBS_CA_CRT = $hcfSettings.'bbs-ca-crt'
-$env:BBS_CLIENT_CRT = $hcfSettings.'bbs-client-crt'
-$env:BBS_CLIENT_KEY = $hcfSettings.'bbs-client-key'
+$env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CRT'
+$env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
+$env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
+$env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
-$env:ETCD_CLUSTER = "http://etcd-int:4001"
-$env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'loggregator-shared-secret'
+$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
 $env:LOGGRAGATOR_INDEX = 0
 

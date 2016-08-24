@@ -89,6 +89,55 @@ function EnableDiskQuota {
   fsutil quota enforce C:
 }
 
+function GetHttpString {
+  [OutputType([string])]
+  param(
+    [parameter(Mandatory = $true)]
+    [string]$Url,
+    [parameter(Mandatory = $true)]
+    [string]$Username,
+    [parameter(Mandatory = $true)]
+    [string]$Password,
+    [bool]$SkipCertificateValidation = $false
+  )
+
+  $request = [System.Net.HttpWebRequest]::Create($Url)
+  
+  if ($SkipCertificateValidation) {
+    $request.ServerCertificateValidationCallback = {$true}
+  }
+
+  $creds = "Basic {0}" -f [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $Username, $Password)))
+  $request.Headers.Set("Authorization", $creds)
+
+  $response = $request.GetResponse()
+  $requestStream = $response.GetResponseStream()
+  $readStream = New-Object System.IO.StreamReader $requestStream
+
+  return $readStream.ReadToEnd()
+}
+
+function GetConfigFromDemophon {
+  [OutputType([System.Collections.Hashtable])]
+  param(
+    [parameter(Mandatory = $true)]
+    [string]$Username,
+    [parameter(Mandatory = $true)]
+    [string]$Password,
+    [parameter(Mandatory = $true)]
+    [string]$DemaphonEndpoint,
+    [bool]$SkipCertificateValidation = $false
+  )
+
+  $configResponse = GetHttpString -Url ($DemaphonEndpoint + "/v1/configuration") -Username $Username -Password $Password -SkipCertificateValidation $SkipCertificateValidation
+
+  $configResult = ($configResponse | ConvertFrom-Json)
+  $hcfSettings = New-Object System.Collections.Hashtable
+
+  $configResult | % { $hcfSettings.Add( $_.name, $_.value -replace ( "\\n", "`n") ) }
+  return $hcfSettings
+}
+
 Export-ModuleMember `
  ConfigureCellLocalwall, `
  ConfigureCellWindowsFirewall, `
@@ -96,5 +145,6 @@ Export-ModuleMember `
  UninstallGardenWindows, `
  SetInterfaceForLocalipGoPackage, `
  IntalledRequiredWindowsFeatures, `
- EnableDiskQuota
+ EnableDiskQuota, `
+ GetConfigFromDemophon
  
