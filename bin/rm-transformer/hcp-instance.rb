@@ -38,9 +38,6 @@ class ToHCPInstance < Common
   def collect_parameters(variables)
     results = []
     variables.each do |var|
-      unless var['secret']
-        next unless ['DOMAIN'].include? var['name']
-      end
       # HCP currently freaks out if it gets empty values
       next if var['default'].nil? || var['default'].empty?
       name = var['name']
