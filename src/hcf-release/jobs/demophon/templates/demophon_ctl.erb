@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+RUN_DIR=/var/vcap/sys/run/demophon
+LOG_DIR=/var/vcap/sys/log/demophon
+CONF_DIR=/var/vcap/jobs/demophon/config
+
+PIDFILE=$RUN_DIR/demophon.pid
+
+source /var/vcap/packages/pid_utils/pid_utils.sh
+
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE "demophon"
+
+    mkdir -p $RUN_DIR
+    chown -R vcap:vcap $RUN_DIR
+
+    mkdir -p $LOG_DIR
+    chown -R vcap:vcap $LOG_DIR
+
+    echo $$ > $PIDFILE
+
+    # Work around for GOLANG 1.5.3 DNS bug
+    export GODEBUG=netdns=cgo
+
+    # Allowed number of open file descriptors
+    ulimit -n 100000
+
+    source /var/vcap/jobs/demophon/config/monit.env.sh
+
+    exec chpst -u vcap:vcap /var/vcap/packages/demophon/bin/demophon run \
+    --listen <%= p('hcf.demophon.listen_address') %> \
+    --port <%= p('hcf.demophon.port') %> \
+    --log-level <%= p('hcf.demophon.log_level') %> \
+    --skip-cert-verify <%= p('hcf.demophon.skip_cert_verify') %> \
+    --cert-file ${CONF_DIR}/certs/tls/server_cert.pem \
+    --key-file ${CONF_DIR}/certs/tls/server_key.pem \
+    --uaa-url <%= p('hcf.demophon.uaa_url') %> \
+      2> >(tee -a $LOG_DIR/demophon.stderr.log | logger -p user.error -t vcap.demophon) \
+      1> >(tee -a $LOG_DIR/demophon.stdout.log | logger -p user.info -t vcap.demophon)
+
+    ;;
+
+  stop)
+    kill_and_wait $PIDFILE
+
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}"
+
+    ;;
+
+esac

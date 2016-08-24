@@ -96,6 +96,14 @@ mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/server.key
 mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/server.csr
 mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/server.crt
 
+# Server certificate for the demophon component
+server_cn=demophon-int
+certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name ${server_cn}
+certstrap --depot-path ${internal_certs_dir} sign ${server_cn} --CA internalCA --passphrase "${signing_key_passphrase}"
+mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/demophon_server.key
+mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/demophon_server.csr
+mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/demophon_server.crt
+
 # Agent certificate to distribute to jobs that access consul
 certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name 'consul agent'
 certstrap --depot-path ${internal_certs_dir} sign consul_agent --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -154,6 +162,8 @@ CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.crt
 CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.key")
 CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.crt")
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.key")
+DEMOPHON_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.crt")
+DEMOPHON_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.key")
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
 CF_USB_BROKER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.key")
@@ -193,6 +203,8 @@ CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
 CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
 CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
+DEMOPHON_SERVER_CERT=${DEMOPHON_SERVER_CERT}
+DEMOPHON_SERVER_KEY=${DEMOPHON_SERVER_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 CF_USB_BROKER_SERVER_KEY=${CF_USB_BROKER_SERVER_KEY}

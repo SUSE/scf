@@ -357,6 +357,9 @@ properties:
     log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
+  hcf:
+    demophon:
+      skip_cert_verify: true
   hcf_sso:
     port: 3000
   hm9000:

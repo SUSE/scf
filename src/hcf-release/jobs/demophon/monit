@@ -1,0 +1,5 @@
+check process demophon
+  with pidfile /var/vcap/sys/run/demophon/demophon.pid
+  start program "/var/vcap/jobs/demophon/bin/demophon_ctl start"
+  stop program "/var/vcap/jobs/demophon/bin/demophon_ctl stop"
+  group vcap
