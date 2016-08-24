@@ -33,12 +33,14 @@ AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="resources.zip"
 FILE1="deploy.zip"
-FILE2="install.ps1"
+FILE2="utils.zip"
+FILE3="install.ps1"
 [SourceFiles]
 SourceFiles0=.\
 SourceFiles1=..\
 [SourceFiles0]
 %FILE0%=
 %FILE1%=
-[SourceFiles1]
 %FILE2%=
+[SourceFiles1]
+%FILE3%=

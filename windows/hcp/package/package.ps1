@@ -15,6 +15,7 @@ param (
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 $resourcesDir = Join-Path $currentDir "resources"
 $deployDir = Join-Path $currentDir "../deploy"
+$utilsDir = Join-Path $currentDir "../../utils"
 
 Import-Module -DisableNameChecking (Join-Path $currentDir '../deploy/common/utils.psm1')
 
@@ -70,6 +71,7 @@ function DoAction-Package()
 
     $resourceArchive = Create-ZipFile $resourcesDir "resources.zip"
     $deployArchive = Create-ZipFile $deployDir "deploy.zip"
+    $deployArchive = Create-ZipFile $utilsDir "utils.zip"
 
     Write-Output 'Creating the self extracting exe ...'
 

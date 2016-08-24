@@ -1,3 +1,7 @@
+Import-Module -DisableNameChecking "$PSScriptRoot\cf-install-utils.psm1"
+
+## Create working directory
+
 $wd="C:\diego-kit"
 mkdir -f $wd
 cd $wd
@@ -8,35 +12,25 @@ curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amaz
 
 ## Setup Vagrant HCF networking
 
-$coreIpAddress = "192.168.77.77"
-
-# 1.2.3.4 is used by rep and metron to discover the IP address to be announced to the diego cluster
-# https://github.com/pivotal-golang/localip/blob/ca5f12419a47fe0c8547eea32f9498eb6e9fe817/localip.go#L7
-route delete 1.2.3.4
-route add 1.2.3.4 $coreIpAddress -p
+$hcfCoreIpAddress = "192.168.77.77"
+$advertisedMachineIp = (Find-NetRoute -RemoteIPAddress $hcfCoreIpAddress)[0].IPAddress
+$advertisedMachineInterfaceIndex = (Find-NetRoute -RemoteIPAddress $hcfCoreIpAddress)[0].InterfaceIndex
+$diegoInterface = Get-NetIPAddress -IPAddress $advertisedMachineIp
 
 route delete 172.20.10.0
-route add 172.20.10.0 mask 255.255.255.0 $coreIpAddress -p
+route add 172.20.10.0 mask 255.255.255.0 $hcfCoreIpAddress -p
 
-$hcfServiceDiscoveryDns = @($coreIpAddress)
+## Setup Vagrant HCF DNS
 
-$machineIp = (Find-NetRoute -RemoteIPAddress $coreIpAddress)[0].IPAddress
-$diegoInterface = Get-NetIPAddress -IPAddress $machineIp
+$hcfServiceDiscoveryDns = @($hcfCoreIpAddress)
 
 $currentDNS = ((Get-DnsClientServerAddress -InterfaceAlias $diegoInterface.InterfaceAlias) | where {$_.ServerAddresses -notmatch $hcfServiceDiscoveryDns } ).ServerAddresses
 Set-DnsClientServerAddress -InterfaceAlias $diegoInterface.InterfaceAlias -ServerAddresses (($hcfServiceDiscoveryDns + $currentDNS) -join ",")
 
 Set-DnsClientGlobalSetting -SuffixSearchList @("hcf")
 
-## Disable negative DNS client cache
-
-echo "Disabling negative DNS cache"
-
-New-Item 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters' -Force | `
-  New-ItemProperty -Name MaxNegativeCacheTtl -PropertyType "DWord" -Value 1 -Force
-
-Clear-DnsClientCache
-
+SetInterfaceForLocalipGoPackage $advertisedMachineInterfaceIndex
+DisableNegativeDnsClientCache
 
 ## Make sure the IP is static (only necessary for vagrant + vmware)
 
@@ -50,9 +44,9 @@ $diegoInterface | New-NetIPAddress -AddressFamily IPv4  -IPAddress $ipaddr -Pref
 ## Read HCF Settings
 
 $hcfSettings = New-Object System.Collections.Hashtable
-(cat "C:\hcf\bin\settings-dev\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings-dev\hosts.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings-dev\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
+(cat "C:\hcf\bin\settings\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
+(cat "C:\hcf\bin\settings\hosts.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
+(cat "C:\hcf\bin\settings\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
 
 
 ## Prepare diego configs parameters
@@ -85,11 +79,14 @@ $env:LOGGRAGATOR_INDEX = 0
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"
 
+
+## Checking health
+
 echo "Checking Consul health"
 echo (curl -UseBasicParsing http://127.0.0.1:8500/).StatusDescription
 
 echo "Checking Rep health"
-echo (curl -UseBasicParsing http://${machineIp}:1800/ping).StatusDescription
+echo (curl -UseBasicParsing http://${advertisedMachineIp}:1800/ping).StatusDescription
 
 echo "Interogating Rep status"
-echo (curl -UseBasicParsing http://${machineIp}:1800/state).Content | ConvertFrom-Json
+echo (curl -UseBasicParsing http://${advertisedMachineIp}:1800/state).Content | ConvertFrom-Json
