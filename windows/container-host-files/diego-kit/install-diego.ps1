@@ -20,6 +20,14 @@ $diegoInterface = Get-NetIPAddress -IPAddress $advertisedMachineIp
 route delete 172.20.10.0
 route add 172.20.10.0 mask 255.255.255.0 $hcfCoreIpAddress -p
 
+## Make sure the IP is static (only necessary for vagrant + vmware)
+
+$ipaddr = $diegoInterface.IPAddress
+$maskbits = $diegoInterface.PrefixLength
+
+$diegoInterface | Remove-NetIPAddress -AddressFamily IPv4 -Confirm:$false
+$diegoInterface | New-NetIPAddress -AddressFamily IPv4  -IPAddress $ipaddr -PrefixLength $maskbits
+
 ## Setup Vagrant HCF DNS
 
 $hcfServiceDiscoveryDns = @($hcfCoreIpAddress)
@@ -32,22 +40,11 @@ Set-DnsClientGlobalSetting -SuffixSearchList @("hcf")
 SetInterfaceForLocalipGoPackage $advertisedMachineInterfaceIndex
 DisableNegativeDnsClientCache
 
-## Make sure the IP is static (only necessary for vagrant + vmware)
-
-$ipaddr = $diegoInterface.IPAddress
-$maskbits = $diegoInterface.PrefixLength
-
-$diegoInterface | Remove-NetIPAddress -AddressFamily IPv4 -Confirm:$false
-$diegoInterface | New-NetIPAddress -AddressFamily IPv4  -IPAddress $ipaddr -PrefixLength $maskbits
-
-
 ## Read HCF Settings
 
-$hcfSettings = New-Object System.Collections.Hashtable
-(cat "C:\hcf\bin\settings\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings\hosts.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
+while(-not (Resolve-DnsName -DnsOnly "demophon-int" -ErrorAction SilentlyContinue)) {start-sleep 2; echo "Trying to resolve demophon-int hostname"} # Wait for HCF DNS-based service dicovery to work
 
+$hcfSettings = GetConfigFromDemophon -Username "admin" -Password "changeme" -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $true
 
 ## Prepare diego configs parameters
 
