@@ -79,3 +79,57 @@ cmd /c  msiexec /passive /norestart /i $wd\GardenWindows.msi MACHINE_IP=$adverti
 
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"
+
+#Check if the services are started and running ok
+
+function CheckService
+{
+	$serviceName = $args[0]
+	$rez = (get-service $serviceName -ErrorAction SilentlyContinue)
+	if ($rez -ne $null){
+		$rez = $rez.Status
+	}else{
+		$rez = "Service not found"
+	}
+	return $rez
+}
+
+#List of services to check if started
+$services = @("rep","consul","metron","GardenWindowsService","ContainerizerService")
+$runningServices = @()
+
+foreach ($service in $services){
+	$rez = (CheckService($service)).ToString()
+	if ($rez.ToLower() -ne "running"){
+		echo "WARNING: Service $service is not running. It's status is '$rez'"
+	}else{
+		$runningServices = $runningServices+=$service
+		echo "INFO: Service $service is '$rez'"
+	}
+}
+
+#Check is the services are in the correct state
+try {
+	$resp = (curl -UseBasicParsing http://127.0.0.1:8500 -ErrorAction:SilentlyContinue).StatusDescription
+}catch{$resp="NOK"}
+if ($resp -ne "OK"){
+	echo "WARNING: Consul service does not seem to be in the expected state!"
+}else{
+	echo "INFO: Consul service is in the expected state"
+}
+
+try{
+	$resp = (curl -UseBasicParsing http://${advertisedMachineIp}:1800/ping).StatusDescription
+}catch{$resp="NOK"}
+
+if ($resp -ne "OK"){
+	echo "WARNING: Rep service does not seem to be in the expected state!"
+}else{
+	echo "INFO: Rep service is in the expected state"
+}
+
+echo ""
+echo "Interrogating Rep status"
+try{
+  echo (curl -UseBasicParsing http://${advertisedMachineIp}:1800/state).Content | ConvertFrom-Json
+}catch{echo "WARNING: could not get Rep service status"}
