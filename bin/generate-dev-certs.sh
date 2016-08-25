@@ -82,6 +82,9 @@ openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 cat hcf.crt hcf.key > hcf.pem
 
+# Given a host name (e.g. "api-int"), produce variations based on:
+# - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-int", "api-int.hcf")
+# - Wildcard and not ("api-int", "*.api-int")
 make_domains() {
     local host_name="$1"
     local result="${host_name},*.${host_name}"
