@@ -2267,7 +2267,7 @@ configuration:
     properties.router.ssl_skip_validation: null
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.routing.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
+    properties.routing_api.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
