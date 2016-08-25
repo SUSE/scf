@@ -9,6 +9,7 @@
 
 if test -n "${HCP_IDENTITY_EXTERNAL_HOST:-}" ; then
     export JWT_SIGNING_PUB="$(\
-        curl -kv "${HCP_IDENTITY_SCHEME}://${HCP_IDENTITY_EXTERNAL_HOST}:${HCP_IDENTITY_EXTERNAL_PORT}/token_key" \
+        curl -v $(if test "${SKIP_CERT_VERIFY}" = "true" ; then echo "--skip-ssl-validation" ; fi)\
+            "${HCP_IDENTITY_SCHEME}://${HCP_IDENTITY_EXTERNAL_HOST}:${HCP_IDENTITY_EXTERNAL_PORT}/token_key" \
             | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"
 fi
