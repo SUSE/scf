@@ -3,9 +3,9 @@ $coreIpAddress = "192.168.77.77"
 ## Read HCF Settings
 
 $hcfSettings = New-Object System.Collections.Hashtable
-(cat "C:\hcf\bin\settings-dev\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings-dev\hosts.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
-(cat "C:\hcf\bin\settings-dev\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
+(cat "C:\hcf\bin\settings\settings.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
+(cat "C:\hcf\bin\settings\hosts.env") -split '`n' |  % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] ) }
+(cat "C:\hcf\bin\settings\certs.env") -split '`n' | % { $s = $_ -split ('=', 2); $hcfSettings.Add( $s[0], $s[1] -replace ( "\\n", "`n") ) }
 
 
 ## Prepare diego configs parameters
