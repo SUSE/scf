@@ -75,7 +75,7 @@ AS_USER="<%= p("autoscaler_servicebroker.auth.username") %>"
 AS_PASS="<%= p("autoscaler_servicebroker.auth.password") %>"
 AS_SERVICE="<%= p("autoscaler_api.scaling_service.name") %>"
 
-UAA_ENDPOINT="https://${UAA_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:8443"
+UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 AS_ENDPOINT="http://${AUTOSCALER_SERVICE_BROKER_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:$AS_PORT"
 API_ENDPOINT="${API_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
 
