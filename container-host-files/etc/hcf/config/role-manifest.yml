@@ -1544,12 +1544,10 @@ configuration:
     default: "uaa-int"
   - name: CF_USB_BROKER_HOST
     default: "cf-usb-int"
-  - name: UAA_SSL_PORT
-    default: 8443
   - name: UAA_EXTERNAL_URL
-    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((UAA_SSL_PORT))
+    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))
   - name: UAA_INTERNAL_URL
-    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((UAA_SSL_PORT))
+    default: https://((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))
   - name: BULK_API_PASSWORD
     secret: true
     generator:
@@ -2318,10 +2316,10 @@ configuration:
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
-    properties.uaa.ssl.port: ((UAA_SSL_PORT))
+    properties.uaa.ssl.port: ((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
-    properties.uaa.tls_port: '"((UAA_SSL_PORT))"'
+    properties.uaa.tls_port: '"((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))"'
     properties.uaa.token_endpoint: '"((UAA_HOST))"'
     properties.uaa.url: '"((UAA_EXTERNAL_URL))"'
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
