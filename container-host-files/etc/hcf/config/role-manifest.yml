@@ -452,7 +452,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: uaa
   - name: consul_agent
@@ -501,7 +501,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   - name: go-buildpack
     release_name: cf
   - name: binary-buildpack
@@ -594,7 +594,7 @@ roles:
   - name: blobstore
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   - name: metron_agent
     release_name: cf
   post_config_scripts:
@@ -667,7 +667,7 @@ roles:
   - name: consul_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: usb
   - name: route_registrar
@@ -804,7 +804,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: loggregator_trafficcontroller
   - name: metron_agent
@@ -842,12 +842,9 @@ roles:
     release_name: cf
   - name: auctioneer
     release_name: diego
-  - name: converger
-    release_name: diego
   - name: metron_agent
     release_name: cf
   processes:
-  - name: converger
   - name: auctioneer
   - name: metron_agent
   - name: consul_agent
@@ -1068,7 +1065,7 @@ roles:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: tomcat
   - name: route_registrar
@@ -1365,7 +1362,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: hcf-versions
   - name: metron_agent
@@ -1398,7 +1395,7 @@ roles:
   - status-route-start.sh
   jobs:
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: route_registrar
   - name: gotty
@@ -2176,10 +2173,6 @@ configuration:
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp({{MYSQL_HOST}}:3306)/diego{{=(( ))=}}"'
     properties.diego.bbs.sql.db_driver: mysql
-    properties.diego.converger.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
-    properties.diego.converger.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.converger.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.converger.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2275,7 +2268,7 @@ configuration:
     properties.router.ssl_skip_validation: null
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.routing.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
+    properties.routing_api.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
@@ -2287,6 +2280,7 @@ configuration:
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.tcp_emitter.debug_address: 0.0.0.0:17003
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST))"'
     properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST))"'

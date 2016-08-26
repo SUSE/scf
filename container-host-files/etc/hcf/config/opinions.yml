@@ -268,10 +268,6 @@ properties:
       require_ssl: true
     cc_uploader:
       log_level: debug
-    converger:
-      bbs:
-        require_ssl: true
-      log_level: debug
     executor:
       drain_timeout_in_seconds: 0
       garden:
