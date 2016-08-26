@@ -1587,6 +1587,7 @@ configuration:
     required: false
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
+    required: true
   - name: DOPPLER_ZONE
     default: z1
   - name: HCF_SSO_HOST
