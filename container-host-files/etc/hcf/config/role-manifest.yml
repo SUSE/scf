@@ -2279,6 +2279,7 @@ configuration:
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.tcp_emitter.debug_address: 0.0.0.0:17003
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST))"'
     properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST))"'
