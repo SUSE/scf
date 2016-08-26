@@ -452,7 +452,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: uaa
   - name: consul_agent
@@ -501,7 +501,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   - name: go-buildpack
     release_name: cf
   - name: binary-buildpack
@@ -594,7 +594,7 @@ roles:
   - name: blobstore
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   - name: metron_agent
     release_name: cf
   post_config_scripts:
@@ -667,7 +667,7 @@ roles:
   - name: consul_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: usb
   - name: route_registrar
@@ -804,7 +804,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: loggregator_trafficcontroller
   - name: metron_agent
@@ -1065,7 +1065,7 @@ roles:
   - name: autoscaler_api
     release_name: cf-open-autoscaler
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: tomcat
   - name: route_registrar
@@ -1362,7 +1362,7 @@ roles:
   - name: metron_agent
     release_name: cf
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: hcf-versions
   - name: metron_agent
@@ -1395,7 +1395,7 @@ roles:
   - status-route-start.sh
   jobs:
   - name: route_registrar
-    release_name: cf
+    release_name: routing
   processes:
   - name: route_registrar
   - name: gotty
