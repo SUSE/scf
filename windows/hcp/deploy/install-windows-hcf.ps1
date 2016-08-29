@@ -4,7 +4,9 @@ param (
     [Parameter(Mandatory=$true)]
     [string]$CloudFoundryAdminUsername,
     [Parameter(Mandatory=$true)]
-    [string]$CloudFoundryAdminPassword
+    [string]$CloudFoundryAdminPassword,
+    [Parameter(Mandatory=$false)]
+    [switch]$SkipCertificateValidation = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,7 +44,7 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 ## HCF setting
 
-$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPassword -DemaphonEndpoint "https://demophon:8443" -SkipCertificateValidation $true
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPassword -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
 
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
@@ -79,3 +81,63 @@ cmd /c  msiexec /passive /norestart /i $wd\GardenWindows.msi MACHINE_IP=$adverti
 
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"
+
+#Check if the services are started and running ok
+
+function CheckService
+{
+	Param($serviceName)
+	$rez = (get-service $serviceName -ErrorAction SilentlyContinue)
+	
+	if ($rez -ne $null) {
+		if ($rez.Status.ToString().ToLower() -eq "running"){
+			write-host "INFO: Service $serviceName is running"
+		}else{
+			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+		}
+		
+	}else{
+		write-warning "Service $serviceName not found"
+	}
+}
+
+#List of services to check if started
+$services = @("rep","consul","metron","GardenWindowsService","ContainerizerService")
+
+foreach ($service in $services){
+	CheckService($service)
+}
+
+#Check is the services are in the correct state
+try {
+	$resp = (curl -UseBasicParsing http://127.0.0.1:8500 -ErrorAction:SilentlyContinue).StatusDescription
+}catch{$resp="NOK"}
+if ($resp -ne "OK"){
+	$time=Get-Date
+	Add-Content install.log "${time}: curl -UseBasicParsing http://127.0.0.1:8500 => $resp"
+	write-warning "Consul service does not seem to be in the expected state!"	
+}else{
+	echo "INFO: Consul service is in the expected state"
+}
+
+Start-Sleep -s 5
+
+try{
+	$resp = (curl -UseBasicParsing http://${advertisedMachineIp}:1800/ping).StatusDescription
+}catch{$resp="NOK"}
+
+if ($resp -ne "OK"){
+	$time=Get-Date
+	Add-Content install.log "${time}: curl -UseBasicParsing http://${advertisedMachineIp}:1800/ping => $resp"
+	write-warning "Rep service does not seem to be in the expected state!"
+}else{
+	echo "INFO: Rep service is in the expected state"
+}
+
+echo ""
+echo "Interrogating Rep status"
+try{
+  echo (curl -UseBasicParsing http://${advertisedMachineIp}:1800/state).Content | ConvertFrom-Json
+}catch{
+  write-warning "could not get Rep service status"
+}
