@@ -464,10 +464,19 @@ class ToHCP < Common
       parameters = []
       if role['jobs']
         role['jobs'].each do |job|
-          # A bad role-manifest referencing a job/release which does
-          # not exist in the releases will cause an abort below.
+          release = job['release_name']
+          unless @property[release]
+            STDERR.puts "Role #{role['name']}: Reference to unknown release #{release}"
+            next
+          end
 
-          @property[job['release_name']][job['name']].each do |pname|
+          jname = job['name']
+          unless @property[release][jname]
+            STDERR.puts "Role #{role['name']}: Reference to unknown job #{jname} @#{release}"
+            next
+          end
+
+          @property[release][jname].each do |pname|
             # Note. '@property' uses property names without a
             # 'properties.' prefix as keys, whereas the
             # template-derived 'templates' has this prefix.
