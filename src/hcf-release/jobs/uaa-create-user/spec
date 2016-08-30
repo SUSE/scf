@@ -4,7 +4,8 @@ name: uaa-create-user
 description: Create the initial user in UAA
 
 packages:
-  - jq
+  - cf-uaac
+  - ruby-2.3
 
 templates:
   run.erb: bin/run
