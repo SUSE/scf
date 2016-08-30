@@ -12,6 +12,14 @@ class ToHCP < Common
     # length.
     @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
+
+    # Quick access to the loaded properties (release -> job -> list(property-name))
+    @property = @options[:propmap]
+
+    # And the map (component -> list(parameter-name)).
+    # This is created in "determine_component_parameters" (if @property)
+    # and used by "component_parameters" (if @component_parameters)
+    @component_parameters = nil
   end
 
   # Public API
@@ -27,6 +35,7 @@ class ToHCP < Common
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
     collect_global_parameters(roles, definition)
+    determine_component_parameters(roles)
     process_roles(roles, definition, fs)
 
     definition
@@ -192,6 +201,14 @@ class ToHCP < Common
       # The component clone is created by a recursive call
       # which cannot get here because of the 'index' getting set.
       indexed.times do |x|
+        if @component_parameters
+          # We have per-component information about parameters.
+          # We have to make a copy for the indexed sibling.
+          base = role['name']
+          copy = base + "-#{x}"
+          @component_parameters[copy] = @component_parameters[base]
+        end
+
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
         add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
@@ -267,7 +284,9 @@ class ToHCP < Common
 
     # Reference global parameters
     if roles['configuration'] && roles['configuration']['variables']
-      add_parameters(the_comp, roles['configuration']['variables'])
+      add_parameter_names(the_comp,
+                          component_parameters(the_comp,
+                                               roles['configuration']['variables']))
     end
 
     # Reference per-role parameters
@@ -359,8 +378,120 @@ class ToHCP < Common
   end
 
   def collect_parameters(para, variables)
+    @allpara = {}
     variables.each do |var|
+      @allpara[var['name']] = nil ;# value irrelevant. See 'process_templates' for use.
       para.push(convert_parameter(var))
+    end
+  end
+
+  def process_templates(rolemanifest)
+    return unless rolemanifest['configuration'] && rolemanifest['configuration']['templates']
+
+    templates = {}
+    rolemanifest['configuration']['templates'].each do |property, template|
+      templates[property] = parameters_in_template(template)
+
+      # Report all templates which contain references to unknown
+      # variables, and the bogus variables themselves.  We ignore the
+      # undeclared variables provided by HCP, these are ok.  See
+      # 'collect_parameters' (above) for the place filling @allpara.
+
+      templates[property].each do |vname|
+        next if @allpara.has_key? vname
+        next if /^HCP_/ =~ vname
+
+        STDERR.puts "Template #{property}: #{vname} referenced, not declared"
+      end
+    end
+
+    templates
+  end
+
+  def parameters_in_template(template)
+    # Locate all of
+    #   ((#name)), ((^name)), ((/name)), ((name))
+    #
+    # Note however, if we see '((={{' look for
+    #   {{#name}}, {{^name}}, {{/name}}, {{name}}
+    #
+    # instead
+
+    template = template.to_s
+
+    if /\(\(=\{\{/.match(template)
+      # Delimiter change. Remove the change instructions and then
+      # parse with the new delimiters.
+      template.gsub!(/\(\(=\{\{/, '')
+      template.gsub!(/\}\}=\)\)/, '')
+      template.gsub!(/\{\{=\(\)/, '')
+      template.gsub!(/\)\)=\}\}/, '')
+      matches = template.scan(/\{\{[^}]*\}\}/)
+    else
+      matches = template.scan(/\(\([^)]*\)\)/)
+    end
+
+    # Clean the matches, remove the delimiters from the pieces.
+    matches.each do |match|
+      match.gsub!(/\{\{/, '')
+      match.gsub!(/\}\}/, '')
+      match.gsub!(/\(\(/, '')
+      match.gsub!(/\)\)/, '')
+      match.gsub!(/^#/, '')
+      match.gsub!(/^[\^]/, '')
+      match.gsub!(/^\//, '')
+    end.uniq
+  end
+
+  def determine_component_parameters(rolemanifest)
+    # Here we compute the per-component parameter information.
+    # Incoming data are:
+    # 1. role-manifest :: (role/component -> (job,release))
+    # 2. @property     :: (release -> job -> list(property))
+    # 3. template      :: (property -> list(parameter-name))
+    #
+    # Iterating and indexing through these we generate
+    #
+    # =  @component_parameters :: (role -> list(parameter-name))
+
+    return unless @property
+
+    templates = process_templates(rolemanifest)
+    return unless templates
+
+    @component_parameters = {}
+    rolemanifest['roles'].each do |role|
+      parameters = []
+      if role['jobs']
+        role['jobs'].each do |job|
+          # A bad role-manifest referencing a job/release which does
+          # not exist in the releases will cause an abort below.
+
+          @property[job['release_name']][job['name']].each do |pname|
+            # Note. '@property' uses property names without a
+            # 'properties.' prefix as keys, whereas the
+            # template-derived 'templates' has this prefix.
+            pname = "properties.#{pname}"
+
+            # Ignore the job/release properties not declared as a
+            # template. These are used with their defaults, or our
+            # opinions. They cannot change and have no parameters.
+            next unless templates[pname]
+
+            parameters.push(*templates[pname])
+          end
+        end
+      end
+      @component_parameters[role['name']] = parameters.uniq.sort
+    end
+  end
+
+  def component_parameters(component, variables)
+    return @component_parameters[component['name']] if @component_parameters
+    # If we have no per-component information we fall back to use all
+    # declared parameters.
+    variables.each do |var|
+      var['name']
     end
   end
 
@@ -368,6 +499,13 @@ class ToHCP < Common
     para = component['parameters']
     variables.each do |var|
       para.push(convert_parameter_ref(var))
+    end
+  end
+
+  def add_parameter_names(component, varnames)
+    para = component['parameters']
+    varnames.each do |vname|
+      para.push(convert_parameter_name(vname))
     end
   end
 
@@ -423,6 +561,12 @@ class ToHCP < Common
   def convert_parameter_ref(var)
     {
       'name' => var['name']
+    }
+  end
+
+  def convert_parameter_name(vname)
+    {
+      'name' => vname
     }
   end
 
