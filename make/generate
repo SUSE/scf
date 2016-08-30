@@ -21,6 +21,7 @@ OPTIONS=$(echo \
     --env-dir bin/settings/
 )
 
+CLEAN=""
 TARGET=${1}
 
 # Blacklist env directories and docker repositories that aren't meant for the target
@@ -37,6 +38,12 @@ case ${TARGET} in
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider \"${TARGET}\""
+
+	( . ${GIT_ROOT}/make/include/fissile
+	  fissile show properties --output yaml ) > hcf-hcp-propmap.yaml
+
+        OPTIONS="${OPTIONS} --property-map hcf-hcp-propmap.yaml"
+	CLEAN="${CLEAN} hcf-hcp-propmap.yaml"
         ;;
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
@@ -85,5 +92,7 @@ docker run \
        --entrypoint bash \
        ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
     > ${OUTFILE}
+
+rm -f $CLEAN
 
 printf "%bGenerated %s%b\n" "\033[0;32m" "${OUTFILE}" "\033[0m"
