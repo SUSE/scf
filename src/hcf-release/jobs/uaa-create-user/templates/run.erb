@@ -8,109 +8,80 @@
 
 set -o errexit -o nounset
 
-if test -z "${HCP_INSTANCE_ID:-}" ; then
-    # Not running in HCP; we don't need to create users
-    exit 0
-fi
-
+# Report progress to the user; use as printf
 status() {
     local fmt="${1}"
     shift
     printf "\n%b${fmt}%b\n" "\033[0;32m" "$@" "\033[0m"
 }
 
-<%
-skip_ssl_validation = properties.ssl.skip_cert_verify ? '--insecure' : ''
-username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|').take(2)
-%>
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    i=0
+    shift 2
 
-export PATH="${PATH}:/var/vcap/packages/jq/bin"
-
-# Get an auth token
-access_token="$(curl \
-    <%= skip_ssl_validation %> \
-    --silent \
-    --user 'uaa_create_first_user:<%= p("uaa.clients.uaa_create_first_user.secret") %>' \
-    '<%= p("uaa.url") %>/oauth/token?grant_type=client_credentials' \
-    | jq -r .access_token)"
-
-request() {
-    curl \
-        <%= skip_ssl_validation %> \
-        --header 'Accept: application/json' \
-        --header "Authorization: bearer ${access_token}" \
-        --header 'Content-Type: application/json' \
-        "$@"
+    while test ${i} -lt ${max} ; do
+        if "$@" ; then
+            break
+        fi
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
+    done
 }
 
-# Create the user
-status "Creating user %s" '<%= username %>'
-request --data @- \
-    '<%= p("uaa.url") %>/Users' <<-EOF
-    {
-        "userName": "<%= username %>",
-        "password": "<%= password %>",
-        "name": {
-            "familyName": "",
-            "givenName": ""
-        },
-        "emails": [{
-            "value": "<%= username %>",
-            "primary": true
-        }],
-        "verified": true
-    }
-EOF
+if test -z "${HCP_INSTANCE_ID:-}" ; then
+    # Not running in HCP; we don't need to create users
+    status "Skipping user creation, not running on HCP"
+    exit 0
+fi
 
-# Get the user id
-user_id="$(request '<%= p("uaa.url") %>/Users' \
-    | jq -r ".resources[] | select(.userName == \"<%= username %>\") | .id")"
-status "Created user %s with id %s" '<%= username %>' "${user_id}"
+export PATH="${PATH}:/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin"
+export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
 
-# Add the user to the relevant groups
-groups="$(request '<%= p("uaa.url") %>/Groups' | jq -r "(.resources // []) | .[]")"
-for group_name in $(echo "
-        approvals.me
-        cloud_controller.admin
-        cloud_controller.read
-        cloud_controller_service_permissions.read
-        cloud_controller.write
-        doppler.firehose
-        notification_preferences.read
-        notification_preferences.write
-        oauth.approvals
-        openid
-        password.write
-        profile
-        roles
-        routing.router_groups.read
-        scim.me
-        scim.read
-        scim.write
-        uaa.user
-        user_attributes
-    ") ; do
-    group_id=$(printf %s "${groups}" \
-               | jq -r "select(.displayName == \"${group_name}\") | .id")
-    if test -z "${group_id}" ; then
-        status "Creating missing group %s" "${group_name}"
-        request '<%= p("uaa.url") %>/Groups' -d@- <<-EOF
-        {
-            "displayName": "${group_name}"
-        }
-EOF
-        groups="$(request '<%= p("uaa.url") %>/Groups' | jq -r "(.resources // []) | .[]")"
-        group_id=$(printf %s "${groups}" \
-                   | jq -r "select(.displayName == \"${group_name}\") | .id")
+<%
+curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
+uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
+%>
+
+status "Waiting for UAA to be availabile..."
+retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
+
+status "Logging in to %s" '<%= p("uaa.url") %>'
+uaac target <%= uaac_ssl %> <%= p("uaa.url") %>
+uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
+
+<% properties.uaa.scim.users.each do |user_info| %>
+
+    <% username, password, authorities = user_info.split('|') %>
+    <% authorities = authorities.split(',') %>
+
+    if uaac user get '<%= username %>' ; then
+        status "User %s already exists" '<%= username %>'
+    else
+        status "Creating user %s" '<%= username %>'
+        uaac user add '<%= username %>' --given_name '' --family_name '' --emails '<%= username %>' --password '<%= password %>'
     fi
-    status "Adding user %s to group %s (id %s)" '<%= username %>' "${group_name}" "${group_id}"
-    request "<%= p("uaa.url") %>/Groups/${group_id}/members" -d@- <<-EOF
-    {
-        "origin": "uaa",
-        "type": "USER",
-        "value": "${user_id}"
-    }
-EOF
-done
 
-# We need to leave the user around, so that this script can be re-run :/
+    user_id=$(uaac user get '<%= username %>' | awk '/^  id:/ { print $2 }')
+
+    <% authorities.each do |authority| %>
+        status "Adding users to authority %s" '<%= authority %>'
+        if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
+            uaac group add '<%= authority %>'
+        fi
+        if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
+            status "User %s already in %s" '<%= username %>' '<%= authority %>'
+            continue
+        fi
+        if ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
+            uaac member add '<%= authority %>' '<%= username %>'
+        fi
+    <% end %>
+
+<% end %>
+
+status "UAA initialization successful"
+# We need to leave the initial user around, so that this script can be re-run :/
