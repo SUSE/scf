@@ -21,20 +21,21 @@ load_all_roles
 col_len=$(echo ${role_names[@]} | awk 'BEGIN { RS="[ \t\n]" } { print length($0); }' | sort -nr | head -n1)
 
 # Define the format of a row
-rowfmt="%${col_len}b%b%12b%b%7b%b%11b${txtrst}\n"
-#       │           │ │   │ │  │ │   │
-#       │           │ │   │ │  │ │   └──────────────────────────┐
-#       │           │ │   │ │  │ └───────────────────┐          │
-#       │           │ │   │ │  └──────────────┐      │          │
-#       │    ┌──────┘ │   │ └──────────┐      │      │          │
-# ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │
-# <role name><COLOR><containers><COLOR><monit><COLOR><processes><COLOR RESET>
+rowfmt="%${col_len}b%b%12b%b%7b%b%11b%11b${txtrst}\n"
+#       │           │ │   │ │  │ │   │  │
+#       │           │ │   │ │  │ │   │  └─────────────────────────────────┐
+#       │           │ │   │ │  │ │   └──────────────────────────┐         │
+#       │           │ │   │ │  │ └───────────────────┐          │         │
+#       │           │ │   │ │  └──────────────┐      │          │         │
+#       │    ┌──────┘ │   │ └──────────┐      │      │          │         │
+# ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │         │
+# <role name><COLOR><containers><COLOR><monit><COLOR><processes><memusage><COLOR RESET>
 
 if [ -z "${SILENT}" ]; then
   # Print a table header
-  printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes"
-  # Print  a line after the header (30 is the fixed length of all but the first columns)
-  printf '=%.0s' $(seq 1 $(($col_len+30)))
+  printf $rowfmt "Role" "" "Containers" "" "Monit" "" "Processes" "Usage"
+  # Print  a line after the header (41 is the fixed length of all but the first columns)
+  printf '=%.0s' $(seq 1 $(($col_len+41)))
   printf '\n'
 fi
 
@@ -47,7 +48,7 @@ function status_job_bosh() {
     if [[ -n "${SILENT}" ]]; then
       exit 1
     fi
-    printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a"
+    printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a" "n/a" 
     return
   fi
 
@@ -59,7 +60,7 @@ function status_job_bosh() {
     if [[ -n "${SILENT}" ]]; then
       exit 1
     fi
-    printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${bldred} "down" ${bldred} "0/${#processes[@]}"
+    printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${bldred} "down" ${bldred} "0/${#processes[@]}"  "n/a"
     return
   fi
 
@@ -89,7 +90,45 @@ function status_job_bosh() {
     *)                processes_color=${bldpur};;
   esac
 
-  printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${txtgrn} "up" ${processes_color} "${ok_processes}/${#processes[@]}"
+  mem_used=$(mem_used_from_docker_role ${role})
+  printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${txtgrn} "up" ${processes_color} "${ok_processes}/${#processes[@]}" ${mem_used}
+}
+
+function mem_used_from_docker_role {
+    local role=${1}
+    role_id=$(docker inspect ${role}-int | jq --raw-output '.[0].Id')
+    memory_file=/sys/fs/cgroup/memory/docker/${role_id}/memory.max_usage_in_bytes
+    if [[ ! -f ${memory_file} ]] ; then
+	echo "n/a"
+    else
+	printable_memory_usage $(cat ${memory_file})
+    fi
+}
+
+function printable_memory_usage {
+    local bytes_used=${1}
+    KB=1024
+    MB=$((1024 * KB))
+    GB=$((1024 * MB))
+    TB=$((1024 * GB))
+    PB=$((1024 * TB))
+    if [[ $bytes_used -ge $PB ]] ; then
+	divisor=${PB}
+	suffix=PB
+    elif [[ $bytes_used -ge $TB ]] ; then
+	divisor=${TB}
+	suffix=TB
+    elif [[ $bytes_used -ge $GB ]] ; then
+	divisor=${GB}
+	suffix=GB
+    elif [[ $bytes_used -ge $MB || $bytes_used -eq 0 ]] ; then
+	divisor=${MB}
+	suffix=MB
+    else
+	divisor=${KB}
+	suffix=KB
+    fi
+    awk -v divisor=${divisor} -v bytes_used=${bytes_used} -v suffix="${suffix}" 'BEGIN { printf("%.1f%s\n", bytes_used / divisor, suffix); exit; }'
 }
 
 # Print the status of a docker job
@@ -108,7 +147,7 @@ function status_job_docker() {
     return
   fi
 
-  printf ${rowfmt} ${role} ${containers_color} ${#containers[@]} ${txtgrn} n/a ${txtgrn} n/a
+  printf ${rowfmt} ${role} ${containers_color} ${#containers[@]} ${txtgrn} n/a ${txtgrn} n/a n/a
 }
 
 # Print the status of a pre/post flight role
@@ -119,7 +158,7 @@ function status_task() {
     if [[ -n "${SILENT}" ]]; then
       exit 1
     fi
-    printf ${rowfmt} ${role} ${bldred} 0 ${txtgrn} n/a ${txtgrn} n/a
+    printf ${rowfmt} ${role} ${bldred} 0 ${txtgrn} n/a ${txtgrn} n/a n/a
     return
   fi
   local color
@@ -138,7 +177,8 @@ function status_task() {
     running|created)    color=${bldpur};;
     *)                  color=${bldred};;
   esac
-  printf ${rowfmt} ${role} ${txtgrn} 1 ${txtgrn} n/a ${color} ${process_state}
+  mem_used=$(mem_used_from_docker_role ${role})
+  printf ${rowfmt} ${role} ${txtgrn} 1 ${txtgrn} n/a ${color} ${process_state} ${mem_used}
 }
 
 # Print pre-flight roles
