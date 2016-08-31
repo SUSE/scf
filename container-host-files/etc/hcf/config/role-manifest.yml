@@ -2027,7 +2027,10 @@ configuration:
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.cf_push_timeout: 300
+    properties.acceptance_tests.cloud_controller.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
     properties.acceptance_tests.default_timeout: 300
+    properties.acceptance_tests.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
+    properties.acceptance_tests.uaa.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
@@ -2136,6 +2139,8 @@ configuration:
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
+    properties.cf-usb.skip_tls_validation: '"((SKIP_CERT_VERIFY))"'
+    properties.cf.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
     properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.consul.agent.domain: '"hcf"'
@@ -2200,6 +2205,7 @@ configuration:
     properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.domain: '"((DOMAIN))"'
+    properties.doppler.syslog_skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.doppler.tweak_locked_memory: false
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -2226,6 +2232,7 @@ configuration:
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
+    properties.hcf.demophon.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.hcf.demophon.uaa_url: '"https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.monit.port: '((MONIT_PORT))'
@@ -2264,18 +2271,19 @@ configuration:
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    # XXX Temporary workaround for UAA-on-HCP
-    properties.router.ssl_skip_validation: true
+    properties.router.ssl_skip_validation: '"((SKIP_CERT_VERIFY))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.routing_api.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
+    properties.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.smoke_tests.skip_ssl_validation: '"((SKIP_CERT_VERIFY))"'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
-    properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
+    properties.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
     properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
