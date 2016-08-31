@@ -4,10 +4,12 @@ param (
     [Parameter(Mandatory=$true)]
     [string]$CloudFoundryAdminUsername,
     [Parameter(Mandatory=$true)]
-    [string]$CloudFoundryAdminPassword,
+    [Security.SecureString]$CloudFoundryAdminPassword,
     [Parameter(Mandatory=$false)]
     [switch]$SkipCertificateValidation = $false
 )
+
+$CloudFoundryAdminPasswordClear = (New-Object System.Management.AUtomation.PSCredential('dummy',$CloudFoundryAdminPassword)).GetNetworkCredential().password
 
 $ErrorActionPreference = "Stop"
 
@@ -44,7 +46,7 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 ## HCF setting
 
-$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPassword -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
 
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
@@ -88,14 +90,14 @@ function CheckService
 {
 	Param($serviceName)
 	$rez = (get-service $serviceName -ErrorAction SilentlyContinue)
-	
+
 	if ($rez -ne $null) {
 		if ($rez.Status.ToString().ToLower() -eq "running"){
 			write-host "INFO: Service $serviceName is running"
 		}else{
 			write-warning "Service $serviceName is not running. Its status is $rez.Status"
 		}
-		
+
 	}else{
 		write-warning "Service $serviceName not found"
 	}
@@ -115,7 +117,7 @@ try {
 if ($resp -ne "OK"){
 	$time=Get-Date
 	Add-Content install.log "${time}: curl -UseBasicParsing http://127.0.0.1:8500 => $resp"
-	write-warning "Consul service does not seem to be in the expected state!"	
+	write-warning "Consul service does not seem to be in the expected state!"
 }else{
 	echo "INFO: Consul service is in the expected state"
 }
