@@ -1,7 +1,11 @@
 ## HCP output provider
 # # ## ### ##### ########
 
-require_relative 'common'
+# Put file's location into the load path. Mustache does not use 'require_relative'
+$:.unshift File.dirname(__FILE__)
+
+require 'mustache'
+require 'common'
 
 # Provider for HCP specifications derived from a role-manifest.
 class ToHCP < Common
@@ -12,6 +16,14 @@ class ToHCP < Common
     # length.
     @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
+
+    # Quick access to the loaded properties (release -> job -> list(property-name))
+    @property = @options[:propmap]
+
+    # And the map (component -> list(parameter-name)).
+    # This is created in "determine_component_parameters" (if @property)
+    # and used by "component_parameters" (if @component_parameters)
+    @component_parameters = nil
   end
 
   # Public API
@@ -27,6 +39,7 @@ class ToHCP < Common
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
     collect_global_parameters(roles, definition)
+    determine_component_parameters(roles)
     process_roles(roles, definition, fs)
 
     definition
@@ -192,6 +205,14 @@ class ToHCP < Common
       # The component clone is created by a recursive call
       # which cannot get here because of the 'index' getting set.
       indexed.times do |x|
+        if @component_parameters
+          # We have per-component information about parameters.
+          # We have to make a copy for the indexed sibling.
+          base = role['name']
+          copy = base + "-#{x}"
+          @component_parameters[copy] = @component_parameters[base]
+        end
+
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
         add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
@@ -267,7 +288,9 @@ class ToHCP < Common
 
     # Reference global parameters
     if roles['configuration'] && roles['configuration']['variables']
-      add_parameters(the_comp, roles['configuration']['variables'])
+      add_parameter_names(the_comp,
+                          component_parameters(the_comp,
+                                               roles['configuration']['variables']))
     end
 
     # Reference per-role parameters
@@ -359,8 +382,128 @@ class ToHCP < Common
   end
 
   def collect_parameters(para, variables)
+    @allpara = {}
     variables.each do |var|
+      @allpara[var['name']] = nil ;# value irrelevant. See 'process_templates' for use.
       para.push(convert_parameter(var))
+    end
+  end
+
+  def process_templates(rolemanifest)
+    return unless rolemanifest['configuration'] && rolemanifest['configuration']['templates']
+
+    templates = {}
+    rolemanifest['configuration']['templates'].each do |property, template|
+      templates[property] = parameters_in_template(template)
+
+      # Report all templates which contain references to unknown
+      # variables, and the bogus variables themselves.  We ignore the
+      # undeclared variables provided by HCP, these are ok.  See
+      # 'collect_parameters' (above) for the place filling @allpara.
+
+      templates[property].each do |vname|
+        next if @allpara.has_key? vname
+        next if /^HCP_/ =~ vname
+
+        STDERR.puts "Template \033[0;31m#{property}\033[0m: Referencing undeclared variable \033[0;31m#{vname}\033[0m"
+      end
+    end
+
+    templates
+  end
+
+  def parameters_in_template(template)
+    # Note: The prefix "{{=(( ))=}}" is required because role manifest
+    # uses ((, )) as delimiters by default, which is non-default for
+    # mustache. The prefix activates our delimiters.
+
+    template = template.to_s
+    tokens = Mustache::Template.new("{{=(( ))=}}" + template).tokens
+
+    vars = []
+    vars_in_tokens(vars, tokens)
+    vars.uniq
+  end
+
+  def vars_in_tokens(vars,tokens)
+    tokens.each do |atoken|
+      # Skip :multi
+      next unless atoken.kind_of?(Array)
+
+      # Skip static and other non-mustache things
+      next unless atoken[0] == :mustache
+
+      # Now we know that we are looking at a ((...)) form.  All of
+      # them have the primary variable(s) at the same place. Take and
+      # remember them.
+      vars.push(*atoken[2][2])
+      next if atoken[1] == :etag
+
+      # We are now looking at the more complex forms ((#...), ((^...),
+      # and ((/...).  These all have a nested set of tokens we have to
+      # process as well.
+      vars_in_tokens(vars, atoken[4])
+    end
+  end
+
+  def determine_component_parameters(rolemanifest)
+    # Here we compute the per-component parameter information.
+    # Incoming data are:
+    # 1. role-manifest :: (role/component -> (job,release))
+    # 2. @property     :: (release -> job -> list(property))
+    # 3. template      :: (property -> list(parameter-name))
+    #
+    # Iterating and indexing through these we generate
+    #
+    # =  @component_parameters :: (role -> list(parameter-name))
+
+    return unless @property
+
+    templates = process_templates(rolemanifest)
+    return unless templates
+
+    @component_parameters = {}
+    rolemanifest['roles'].each do |role|
+      parameters = []
+      if role['jobs']
+        role['jobs'].each do |job|
+          release = job['release_name']
+          unless @property[release]
+            STDERR.puts "Role #{role['name']}: Reference to unknown release #{release}"
+            next
+          end
+
+          jname = job['name']
+          unless @property[release][jname]
+            STDERR.puts "Role #{role['name']}: Reference to unknown job #{jname} @#{release}"
+            next
+          end
+
+          @property[release][jname].each do |pname|
+            # Note. '@property' uses property names without a
+            # 'properties.' prefix as keys, whereas the
+            # template-derived 'templates' has this prefix.
+            pname = "properties.#{pname}"
+
+            # Ignore the job/release properties not declared as a
+            # template. These are used with their defaults, or our
+            # opinions. They cannot change and have no parameters.
+            next unless templates[pname]
+
+            parameters.push(*templates[pname])
+          end
+        end
+      end
+      @component_parameters[role['name']] = parameters.uniq.sort
+    end
+  end
+
+  def component_parameters(component, variables)
+    return @component_parameters[component['name']] if @component_parameters
+    # If we have no per-component information we fall back to use all
+    # declared parameters.
+    variables.collect do |var|
+      var['name']
     end
   end
 
@@ -368,6 +511,13 @@ class ToHCP < Common
     para = component['parameters']
     variables.each do |var|
       para.push(convert_parameter_ref(var))
+    end
+  end
+
+  def add_parameter_names(component, varnames)
+    para = component['parameters']
+    varnames.each do |vname|
+      para.push(convert_parameter_name(vname))
     end
   end
 
@@ -423,6 +573,12 @@ class ToHCP < Common
   def convert_parameter_ref(var)
     {
       'name' => var['name']
+    }
+  end
+
+  def convert_parameter_name(vname)
+    {
+      'name' => vname
     }
   end
 

@@ -14,6 +14,7 @@ def main
   # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
   ##
   # --manual          ~ Include manually started roles in the output
+  # --property-map <file> ~ File mapping releases and jobs to the properties they use.
   # --provider <name> ~ Choose the output format.
   #                     Known: hcp, tf
   #                     Default: hcp
@@ -39,7 +40,8 @@ def main
     hcf_tag:     'develop',
     hcf_prefix:  'hcf',
     hcf_version: '0.0.0',
-    manual:      false
+    manual:      false,
+    propmap:     nil
   }
   env_dir_list = []
 
@@ -74,6 +76,9 @@ def main
     end
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v
+    end
+    opts.on('-M', '--property-map text', 'Path to YAML file with the mapping from releases to jobs to properties') do |v|
+      options[:propmap] = YAML.load_file(v)
     end
     opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
       env_dir_list << v
