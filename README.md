@@ -6,6 +6,13 @@ This repository integrates all HCF components.
 
 __Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
 
+## Manually testing a branch on Jenkins
+
+1. Login to [Jenkins](https://jenkins.issueses.io)
+2. Lookup the `hcf-vagrant-in-cloud-develop` job
+3. Use the `Build with Parameters` link to start a build
+4. Specify the branch you want built and start
+
 ## To Use Port 80 on Your Host Without `root` Privileges
 
 ```bash
