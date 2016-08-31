@@ -1,8 +1,6 @@
 param (
     [Parameter(Mandatory=$true)]
     [string] $k8MasterIP,
-    [Parameter(Mandatory=$true)]
-    [string] $k8sServSubnet,
     [Parameter(Mandatory=$false)]
     [int] $k8sPort = 8080,
     [Parameter(Mandatory=$false)]
@@ -19,12 +17,16 @@ param (
     [string] $etcdCertFile,
     [Parameter(Mandatory=$true)]
     [string] $etcdCaFile,
+  [Parameter(Mandatory=$false)]
+    [string] $k8sServSubnet = "",
 	[Parameter(Mandatory=$false)]
     [string] $httpProxy = "",
 	[Parameter(Mandatory=$false)]
     [string] $httpsProxy = "",
 	[Parameter(Mandatory=$false)]
-    [string] $noProxy = ""
+    [string] $noProxy = "",
+  [Parameter(Mandatory=$false)]
+    [string] $k8sAllowedSubnet=""
 )
 
 $ErrorActionPreference = "Stop"
@@ -121,10 +123,17 @@ Write-Output "Getting local IP ..."
 $localIP = (Find-NetRoute -RemoteIPAddress $k8MasterIP)[0].IPAddress
 Write-Output "Found local IP: ${localIP}"
 
+if($k8sServSubnet -eq ""){
+  $k8sServSubnet="172.16.0.0/16"
+}
+
 $env:WIN_K8S_SERV_SUBNET = $k8sServSubnet
 $env:WIN_K8S_IP = "${k8MasterIP}:${k8sPort}"
 $env:WIN_K8S_QUERY_PERIOD = $k8sQueryPeriod
 $env:WIN_K8S_EXTERNAL_IP = $localIP
+if($k8sAllowedSubnet -ne ""){
+  $env:WIN_K8S_ALLOWED_SUBNET = $k8sAllowedSubnet
+}
 
 Write-Output @"
 Installing win-k8s-connector using:
@@ -133,6 +142,9 @@ Installing win-k8s-connector using:
     WIN_K8S_QUERY_PERIOD=$($env:WIN_K8S_QUERY_PERIOD)
     WIN_K8S_EXTERNAL_IP=$($env:WIN_K8S_EXTERNAL_IP)
 "@
+if($k8sAllowedSubnet -ne ""){
+  Write-Output "    WIN_K8S_ALLOWED_SUBNET=$($env:WIN_K8S_ALLOWED_SUBNET)"
+}
 cmd /c "$wd\win-k8s-conn-installer.exe /Q"
 Write-Output "Finished installing win-k8s-connector."
 
