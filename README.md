@@ -8,7 +8,7 @@ __Note:__ You can run the Windows Cell Add-On on a variety of systems within a V
 
 ## Manually testing a branch on Jenkins
 
-1. Login to [Jenkins](jenkins.issueses.io)
+1. Login to [Jenkins](https://jenkins.issueses.io)
 2. Lookup the `hcf-vagrant-in-cloud-develop` job
 3. Use the `Build with Parameters` link to start a build
 4. Specify the branch you want built and start
