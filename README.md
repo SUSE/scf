@@ -304,7 +304,13 @@ Name    | Effect | Notes |
 
 ### How do I run smoke and acceptance tests?
 
-  On the Vagrant box, when `hcf-status` reports all roles are running, execute the following commands:
+  On the Vagrant box, when `hcf-status` reports all roles are running, enable `diego_docker` support with
+  
+```bash
+cf enable-feature-flag diego_docker
+```
+
+  and execute the following commands:
 
   ```bash
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
