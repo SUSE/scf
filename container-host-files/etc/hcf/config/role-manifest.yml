@@ -212,8 +212,6 @@ roles:
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
       properties.proxy.api_force_https: 'false'
-      properties.skip_ssl_validation: 'true'
-      properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -385,7 +383,6 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-      properties.skip_ssl_validation: true
 - name: routing-api
   scripts:
   - router_internal_host_names.sh
@@ -438,7 +435,6 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-      properties.skip_ssl_validation: true
 - name: uaa
   tags: ['dev-only']
   scripts:
