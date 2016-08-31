@@ -2,7 +2,6 @@
 roles:
 - name: nats
   scripts:
-  - fake_spec_index_on_hcp.sh
   - fix-nats-log-dir.sh
   - forward_logfiles.sh
   jobs:
@@ -39,7 +38,6 @@ roles:
         public: false
 - name: consul
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: consul_agent
@@ -103,7 +101,6 @@ roles:
       properties.consul.agent.mode: '"server"'
 - name: mysql
   scripts:
-  - fake_spec_index_on_hcp.sh
   - fix_mysql_advertise_ip.sh
   - forward_logfiles.sh
   jobs:
@@ -161,7 +158,6 @@ roles:
       properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
 - name: mysql-proxy
   scripts:
-  - fake_spec_index_on_hcp.sh
   - fix_mysql_proxy_host_list.sh
   - forward_logfiles.sh
   jobs:
@@ -216,7 +212,6 @@ roles:
       properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: bbs
@@ -263,7 +258,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: haproxy
@@ -310,7 +304,6 @@ roles:
         public: true
 - name: router
   scripts:
-  - fake_spec_index_on_hcp.sh
   - router_internal_host_names.sh
   - authorize_internal_ca.sh
   - forward_logfiles.sh
@@ -441,7 +434,6 @@ roles:
       properties.skip_ssl_validation: true
 - name: uaa
   scripts:
-  - fake_spec_index_on_hcp.sh
   - fix_uaa_hostnames_in_uaa_yml.sh
   - forward_logfiles.sh
   jobs:
@@ -484,8 +476,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api
   scripts:
-  # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
-  # to run migrations from
   - perform_nfs_test.sh
   - cloud_controller_v2_droplet_count.sh
   - fix_buildpack_install.sh
@@ -559,7 +549,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: cloud_controller_worker
@@ -588,7 +577,6 @@ roles:
     exposed-ports: []
 - name: blobstore
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: blobstore
@@ -633,7 +621,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: cloud_controller_clock
@@ -659,7 +646,6 @@ roles:
     exposed-ports: []
 - name: cf-usb
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: cf-usb
@@ -701,7 +687,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: doppler
@@ -796,7 +781,6 @@ roles:
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: loggregator_trafficcontroller
@@ -835,7 +819,6 @@ roles:
         public: false
 - name: diego-brain
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: consul_agent
@@ -866,7 +849,6 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: stager
@@ -953,7 +935,6 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: route_emitter
@@ -979,7 +960,6 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: ssh_proxy
@@ -1020,7 +1000,6 @@ roles:
         public: false
 - name: diego-cell
   scripts:
-  - fake_spec_index_on_hcp.sh
   - prevent_apparmor_disable.sh
   - configure-nested-net.sh
   - cleanup-garden-graph.sh
@@ -1326,7 +1305,6 @@ roles:
     exposed-ports: []
 - name: hcf-sso
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: hcf-sso
@@ -1354,7 +1332,6 @@ roles:
       public: false
 - name: hcf-versions
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   jobs:
   - name: hcf-versions
@@ -1424,7 +1401,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: demophon
   scripts:
-  - fake_spec_index_on_hcp.sh
   - forward_logfiles.sh
   - setup-demophon-env.sh
   jobs:
@@ -2024,8 +2000,6 @@ configuration:
     generator:
       type: Password
   templates:
-    bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
-    index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'

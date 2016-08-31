@@ -192,51 +192,18 @@ class ToHCP < Common
   end
 
   def add_role(roles, fs, comps, role, retrycount)
-    runtime = role['run']
-
-    scaling = runtime['scaling']
-    indexed = scaling['indexed']
-    min     = scaling['min']
-    max     = scaling['max']
-
-    if indexed > 1
-      # Non-trivial scaling. Replicate the role as specified,
-      # with min and max computed per the HA specification.
-      # The component clone is created by a recursive call
-      # which cannot get here because of the 'index' getting set.
-      indexed.times do |x|
-        if @component_parameters
-          # We have per-component information about parameters.
-          # We have to make a copy for the indexed sibling.
-          base = role['name']
-          copy = base + "-#{x}"
-          @component_parameters[copy] = @component_parameters[base]
-        end
-
-        mini = scale_min(x,indexed,min,max)
-        maxi = scale_max(x,indexed,min,max)
-        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
-      end
-    else
-      # Trivial scaling, no index, use min/max as is.
-      add_component(roles, fs, comps, role, retrycount, nil, min, max)
-    end
-  end
-
-  def add_component(roles, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
     iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
-    rname = bname
-    rname += "-#{index}" if index && index > 0
-
     labels = [ bname ]
-    labels << rname if rname != bname
 
     runtime = role['run']
+    scaling = runtime['scaling']
+    min     = scaling['min']
+    max     = scaling['max']
 
     the_comp = {
-      'name'          => rname,
+      'name'          => bname,
       'version'       => '0.0.0', # See also toplevel version
       'vendor'        => 'HPE',	  # See also toplevel vendor
       'image'         => iname,
@@ -259,19 +226,12 @@ class ToHCP < Common
 
     the_comp['retry_count'] = retrycount if retrycount > 0
 
-    index = 0 if index.nil?
-    bootstrap = index == 0
-
     if role["type"] != 'docker'
       if runtime['exposed-ports'].any? {|port| port['public']}
         the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
                               "/opt/hcf/run.sh"]
       else
         the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
                               'HCP_HOSTNAME_SUFFIX=-int',
                               "/opt/hcf/run.sh"]
       end
@@ -281,8 +241,8 @@ class ToHCP < Common
     pv = runtime['persistent-volumes']
     sv = runtime['shared-volumes']
 
-    add_volumes(fs, the_comp, pv, index, false) if pv
-    add_volumes(fs, the_comp, sv, nil, true) if sv
+    add_volumes(fs, the_comp, pv, false) if pv
+    add_volumes(fs, the_comp, sv, true) if sv
 
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
@@ -304,22 +264,21 @@ class ToHCP < Common
     comps.push(the_comp)
   end
 
-  def add_volumes(fs, component, volumes, index, shared_fs)
+  def add_volumes(fs, component, volumes, shared_fs)
     vols = component['volume_mounts']
     serial = 0
     volumes.each do |v|
-      serial, the_vol = convert_volume(fs, v, serial, index, shared_fs)
+      serial, the_vol = convert_volume(fs, v, serial, shared_fs)
       vols.push(the_vol)
     end
   end
 
-  def convert_volume(fs, v, serial, index, shared_fs)
+  def convert_volume(fs, v, serial, shared_fs)
     vname = v['tag']
     if !shared_fs
       # Private volume, export now
       vsize = v['size'] # [GB], same as used by HCP, no conversion required
       serial += 1
-      vname += "-#{index}" if index && index > 0
 
       add_filesystem(fs, vname, vsize, false)
     end
