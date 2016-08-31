@@ -1,7 +1,11 @@
 ## HCP output provider
 # # ## ### ##### ########
 
-require_relative 'common'
+# Put file's location into the load path. Mustache does not use 'require_relative'
+$:.unshift File.dirname(__FILE__)
+
+require 'mustache'
+require 'common'
 
 # Provider for HCP specifications derived from a role-manifest.
 class ToHCP < Common
