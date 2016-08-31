@@ -499,7 +499,7 @@ class ToHCP < Common
     return @component_parameters[component['name']] if @component_parameters
     # If we have no per-component information we fall back to use all
     # declared parameters.
-    variables.each do |var|
+    variables.collect do |var|
       var['name']
     end
   end
