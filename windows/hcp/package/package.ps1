@@ -10,8 +10,11 @@
 #>
 
 param (
+  [Parameter(Mandatory=$false)]
+    [string]$version=""
 )
 
+$baseVersion="1.0.0"
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 $resourcesDir = Join-Path $currentDir "resources"
 $deployDir = Join-Path $currentDir "../deploy"
@@ -19,7 +22,11 @@ $utilsDir = Join-Path $currentDir "../../utils"
 
 Import-Module -DisableNameChecking (Join-Path $currentDir '../deploy/common/utils.psm1')
 
-
+if($version -ne ""){
+  (Get-Content "$PSScriptRoot\helion-windows.SED") | Foreach-Object{$_ -replace "^FileVer=.+$", "FileVer=$baseVersion.$version"} | Set-Content "$PSScriptRoot\helion-windows.SED"
+  (Get-Content "$PSScriptRoot\..\deploy\shell.ps1") | Foreach-Object{$_ -replace "^Version:.+$", "Version:$baseVersion.$version"} | Set-Content "$PSScriptRoot\..\deploy\shell.ps1"
+  Set-Content -Path "$PSScriptRoot\..\deploy\version.ps1" -Value "Write-Output 'Version:$baseVersion.$version'"
+}
 
 function Download-Resources() {
     $resourceFile = Join-Path $currentDir "resources.csv"

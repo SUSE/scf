@@ -3,6 +3,7 @@ $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 Import-Module -DisableNameChecking (Join-Path $currentDir 'common\utils.psm1')
 
 Write-Output @"
+Version:1.0.0.7x
 
  To setup the network for HCP, run the following script:
   .\setup-networking.ps1
