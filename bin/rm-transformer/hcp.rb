@@ -202,8 +202,10 @@ class ToHCP < Common
     indexed = scaling['indexed']
     min     = scaling['min']
     max     = scaling['max']
+    # temporary hack until HCF-913, HCF-914, HCF-915, HCF-916, HCF-917, HCF-884
+    duplicate = scaling.fetch('duplicate', true)
 
-    if indexed > 1
+    if indexed > 1 and duplicate
       # Non-trivial scaling. Replicate the role as specified,
       # with min and max computed per the HA specification.
       # The component clone is created by a recursive call
@@ -302,7 +304,11 @@ class ToHCP < Common
     bootstrap = options[:index] == 0
     entrypoint = ["/usr/bin/env", "HCF_BOOTSTRAP=#{bootstrap}"]
 
-    entrypoint << "HCF_ROLE_INDEX=#{options[:index]}"
+    # temporary hack until HCF-913, HCF-914, HCF-915, HCF-916, HCF-917, HCF-884
+    duplicate = options[:runtime]['scaling'].fetch('duplicate', true)
+    if duplicate
+      entrypoint << "HCF_ROLE_INDEX=#{options[:index]}"
+    end
 
     exposed_ports = options[:runtime]['exposed-ports']
     unless exposed_ports.any? {|port| port['public']}

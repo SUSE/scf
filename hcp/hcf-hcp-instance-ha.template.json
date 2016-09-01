@@ -76,12 +76,8 @@
         "min_instances": 1
       },
       {
-        "component": "mysql-1",
-        "min_instances": 1
-      },
-      {
-        "component": "mysql-2",
-        "min_instances": 1
+        "component": "mysql",
+        "min_instances": 3
       },
       {
         "component": "diego-cell",
