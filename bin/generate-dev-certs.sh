@@ -1,23 +1,53 @@
 #!/bin/bash
 
-set -e
+set -o errexit -o nounset
 
-if [[ "$1" == "--help" ]]; then
+load_env() {
+    local dir="${1}"
+    for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$') ; do
+        if ! test -e "${f}" ; then
+            echo "Invalid environment file ${f}" >&2
+            exit 1
+        fi
+        source "${f}"
+        has_env=yes
+    done
+}
+
+has_env=no
+
+while getopts e: opt ; do
+    case "$opt" in
+        e)
+            if ! test -d "${OPTARG}" ; then
+                echo "Invalid -${opt} argument ${OPTARG}, must be a directory" >&2
+                exit 1
+            fi
+            load_env "${OPTARG}"
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [[ "${1:-}" == "--help" ]]; then
 cat <<EOL
 Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
 exit 0
 fi
 
-output_path="$1"
-
-set -u
+output_path="${1:-}"
 
 if test -z "${output_path}" ; then
   cat <<EOL
   Usage: generate_dev_certs.sh <OUTPUT_PATH>
 EOL
   exit 1
+fi
+
+if test "${has_env}" = "no" ; then
+    load_env "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
 fi
 
 # Generate a random signing key passphrase
@@ -30,10 +60,6 @@ command -v certstrap > /dev/null 2>&1 || {
   docker cp "${buildCertstrap}:/go/bin/certstrap" /home/vagrant/bin/
   docker rm "${buildCertstrap}"
 }
-
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/settings.env"
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/hosts.env"
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/network.env"
 
 # Certificate generation
 certs_path="/tmp/hcf/certs"
@@ -56,6 +82,18 @@ openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 cat hcf.crt hcf.key > hcf.pem
 
+# Given a host name (e.g. "api-int"), produce variations based on:
+# - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-int", "api-int.hcf")
+# - Wildcard and not ("api-int", "*.api-int")
+make_domains() {
+    local host_name="$1"
+    local result="${host_name},*.${host_name}"
+    if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
+        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+    fi
+    echo "${result}"
+}
+
 # generate JWT certs
 openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
 openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
@@ -64,28 +102,28 @@ openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${sig
 certstrap --depot-path "${internal_certs_dir}" init --common-name "internalCA" --passphrase "${signing_key_passphrase}" --years 10
 
 # generate BBS certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsServer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign bbsServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsServer" --domain "$(make_domains "diego-database-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign bbsServer --CA internalCA --passphrase "${signing_key_passphrase}"
 
-certstrap --depot-path "${internal_certs_dir}"  request-cert  --common-name "bbsClient"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign bbsClient  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsClient" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign bbsClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
 
 # generate SSO routing certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso.hcf --domain "hcf-sso-int" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign hcf-sso.hcf --CA internalCA --passphrase "${signing_key_passphrase}"
-cat ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/hcf-sso.hcf.key > ${internal_certs_dir}/sso_routing.key
-cp ${internal_certs_dir}/hcf-sso.hcf.crt ${internal_certs_dir}/sso_routing.crt
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign hcf-sso --CA internalCA --passphrase "${signing_key_passphrase}"
+cat ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/hcf-sso.key > ${internal_certs_dir}/sso_routing.key
+cp ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/sso_routing.crt
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_domains "diego-database-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign etcdServer --CA internalCA --passphrase "${signing_key_passphrase}"
 
-certstrap --depot-path "${internal_certs_dir}"  request-cert  --common-name "etcdClient"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdClient  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdClient" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign etcdClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer"  --domain "*.diego-database-int.hcf,diego-database-int.hcf,diego-database-int,*.diego-database-int"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer" --domain "$(make_domains "diego-database-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
 # Server certificate to share across the consul cluster
@@ -116,18 +154,18 @@ ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
 
 # generate USB Broker certs
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer"  --domain "*.cf-usb.hcf,cf-usb.hcf,cf-usb,*.cf-usb,*.cf-usb-int.hcf,cf-usb-int.hcf,cf-usb-int,*.cf-usb-int"  --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer  --CA internalCA  --passphrase "${signing_key_passphrase}"
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 
 # generate uaa certs
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "${UAA_HOST}" --domain "uaa-int" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign "${UAA_HOST}" --CA internalCA --passphrase "${signing_key_passphrase}"
-cp "${internal_certs_dir}/${UAA_HOST}.crt" "${uaa_server_crt}"
-cat "${internal_certs_dir}/${UAA_HOST}.crt" "${internal_certs_dir}/${UAA_HOST}.key" > "${uaa_server_key}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "$(make_domains "uaa-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --passphrase "${signing_key_passphrase}"
+cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
+cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
 
 openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \

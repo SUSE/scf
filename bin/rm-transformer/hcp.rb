@@ -27,20 +27,20 @@ class ToHCP < Common
   end
 
   # Public API
-  def transform(roles)
-    JSON.pretty_generate(to_hcp(roles))
+  def transform(role_manifest)
+    JSON.pretty_generate(to_hcp(role_manifest))
   end
 
   # Internal definitions
 
-  def to_hcp(roles)
+  def to_hcp(role_manifest)
     definition = empty_hcp
 
     fs = definition['volumes']
-    save_shared_filesystems(fs, collect_shared_filesystems(roles['roles']))
-    collect_global_parameters(roles, definition)
-    determine_component_parameters(roles)
-    process_roles(roles, definition, fs)
+    save_shared_filesystems(fs, collect_shared_filesystems(role_manifest['roles']))
+    collect_global_parameters(role_manifest, definition)
+    determine_component_parameters(role_manifest)
+    process_roles(role_manifest, definition, fs)
 
     definition
     # Generated structure
@@ -86,6 +86,7 @@ class ToHCP < Common
     # DEF.parameters[].example				/string, !empty
     # DEF.parameters[].required				/bool
     # DEF.parameters[].secret				/bool
+    # DEF.features.auth[].auth_zone			/string
     #
     # (*1) Too many to list here. See hcp-developer/service_models.md
     #      for the full list. Notables:
@@ -110,20 +111,21 @@ class ToHCP < Common
       'vendor'            => 'HPE',         # TODO: Specify via option?
       'volumes'           => [],            # We do not generate volumes, leave empty
       'components'        => [],            # Fill from the roles, see below
+      'features'          => {},            # Fill from the roles, see below
       'parameters'        => [],            # Fill from the roles, see below
       'preflight'         => [],            # Fill from the roles, see below
       'postflight'        => []             # Fill from the roles, see below
     }
   end
 
-  def process_roles(roles, definition, fs)
+  def process_roles(role_manifest, definition, fs)
     section_map = {
       'pre-flight'  => 'preflight',
       'flight'      => 'components',
       'post-flight' => 'postflight'
     }
     gparam = definition['parameters']
-    roles['roles'].each do |role|
+    role_manifest['roles'].each do |role|
       # HCP doesn't have manual jobs
       next if flight_stage_of(role) == 'manual'
       next if tags_of(role).include?('dev-only')
@@ -131,12 +133,15 @@ class ToHCP < Common
       # We don't run to infinity because we will flood HCP if we do
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_role(roles, fs, dst, role, retries)
+      add_role(role_manifest, fs, dst, role, retries)
 
       # Collect per-role parameters
       if role['configuration'] && role['configuration']['variables']
         collect_parameters(gparam, role['configuration']['variables'])
       end
+    end
+    if role_manifest['auth']
+      definition['features']['auth'] = [generate_auth_definition(role_manifest)]
     end
   end
 
@@ -191,7 +196,7 @@ class ToHCP < Common
     fs.push(the_fs)
   end
 
-  def add_role(roles, fs, comps, role, retrycount)
+  def add_role(role_manifest, fs, comps, role, retrycount)
     runtime = role['run']
 
     scaling = runtime['scaling']
@@ -215,15 +220,15 @@ class ToHCP < Common
 
         mini = scale_min(x,indexed,min,max)
         maxi = scale_max(x,indexed,min,max)
-        add_component(roles, fs, comps, role, retrycount, x, mini, maxi)
+        add_component(role_manifest, fs, comps, role, retrycount, x, mini, maxi)
       end
     else
       # Trivial scaling, no index, use min/max as is.
-      add_component(roles, fs, comps, role, retrycount, nil, min, max)
+      add_component(role_manifest, fs, comps, role, retrycount, nil, min, max)
     end
   end
 
-  def add_component(roles, fs, comps, role, retrycount, index, min, max)
+  def add_component(role_manifest, fs, comps, role, retrycount, index, min, max)
     bname = role['name']
     iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
@@ -260,21 +265,11 @@ class ToHCP < Common
     the_comp['retry_count'] = retrycount if retrycount > 0
 
     index = 0 if index.nil?
-    bootstrap = index == 0
 
-    if role["type"] != 'docker'
-      if runtime['exposed-ports'].any? {|port| port['public']}
-        the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
-                              "/opt/hcf/run.sh"]
-      else
-        the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
-                              'HCP_HOSTNAME_SUFFIX=-int',
-                              "/opt/hcf/run.sh"]
-      end
+    unless role['type'] == 'docker'
+      the_comp['entrypoint'] = build_entrypoint(index: index,
+                                                runtime: runtime,
+                                                role_manifest: role_manifest)
     end
 
     # Record persistent and shared volumes, ports
@@ -287,10 +282,10 @@ class ToHCP < Common
     add_ports(the_comp, runtime['exposed-ports']) if runtime['exposed-ports']
 
     # Reference global parameters
-    if roles['configuration'] && roles['configuration']['variables']
+    if role_manifest['configuration'] && role_manifest['configuration']['variables']
       add_parameter_names(the_comp,
                           component_parameters(the_comp,
-                                               roles['configuration']['variables']))
+                                               role_manifest['configuration']['variables']))
     end
 
     # Reference per-role parameters
@@ -302,6 +297,30 @@ class ToHCP < Common
     # role parameters is empty.
 
     comps.push(the_comp)
+  end
+
+  def build_entrypoint(options)
+    bootstrap = options[:index] == 0
+    entrypoint = ["/usr/bin/env", "HCF_BOOTSTRAP=#{bootstrap}"]
+
+    entrypoint << "HCF_ROLE_INDEX=#{options[:index]}"
+
+    exposed_ports = options[:runtime]['exposed-ports']
+    unless exposed_ports.any? {|port| port['public']}
+      entrypoint << 'HCP_HOSTNAME_SUFFIX=-int'
+    end
+
+    auth_info = options[:role_manifest]['auth'] || {}
+    if auth_info['clients']
+      entrypoint << "UAA_CLIENTS=#{auth_info['clients'].to_json}"
+    end
+    if auth_info['authorities']
+      entrypoint << "UAA_USER_AUTHORITIES=#{auth_info['authorities'].to_json}"
+    end
+
+    entrypoint << '/opt/hcf/run.sh'
+
+    entrypoint
   end
 
   def add_volumes(fs, component, volumes, index, shared_fs)
@@ -600,6 +619,61 @@ class ToHCP < Common
     else
       maxi-x
     end
+  end
+
+  # Generate the features.auth element
+  def generate_auth_definition(role_manifest)
+    properties = role_manifest['configuration']['templates']
+    auth_configs = role_manifest['auth']
+    {
+      auth_zone: 'self',
+      user_authorities: auth_configs['authorities'],
+      clients: auth_configs['clients'].map{|client_id, client_config|
+        config = {
+          id: client_id,
+          authorized_grant_types: client_config['authorized-grant-types'],
+          scopes: client_config['scope'] || [],
+          autoapprove: client_config['autoapprove'] || [],
+          authorities: client_config['authorities'],
+          access_token_validity: client_config['access-token-validity'],
+          refresh_token_validity: client_config['refresh-token-validity'],
+          parameters: []
+        }
+
+        config.delete_if { |_, value| value.nil? }
+
+        [:authorized_grant_types, :scopes, :authorities].each do |key|
+          if config[key].is_a? String
+            # For these values, HCP wants them as arrays,
+            # UAA wants comma-delimited strings
+            config[key] = config[key].split(',')
+          end
+        end
+
+        if config[:autoapprove].eql? true
+          # UAA.yml's `true` means approve everything
+          config[:autoapprove] = config[:scopes].dup
+        end
+
+        if config[:authorized_grant_types].nil?
+          # While UAA.yml accepts things with no grant types, the UAA API
+          # requires them.  Push in the defaults.
+          config[:authorized_grant_types] = ['authorization_code', 'refresh_token']
+        end
+
+        secret_value = properties["properties.uaa.clients.#{client_id}.secret"]
+        unless secret_value.nil?
+          # We need to get rid of some of the nested layers of mustaching
+          secret_value.gsub!(/^(["'])(.*)\1$/, '\2')
+          secret_value.gsub!(/\(\((.*?)\)\)/, '\1')
+          # secrets currently need to be lowercase and can only use dashes, not underscores
+          # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
+          secret_value.downcase!.gsub!('_', '-')
+          config[:parameters] << { name: secret_value }
+        end
+        config
+      }
+    }
   end
 
   # # ## ### ##### ########

@@ -1,6 +1,7 @@
 ## HCP instance definition output provider
 # # ## ### ##### ########
 
+require 'json'
 require_relative 'common'
 
 # Provider to generate HCP instance definitions
@@ -22,7 +23,8 @@ class ToHCPInstance < Common
   def to_hcp_instance(manifest)
     definition = load_template
     variables = (manifest['configuration'] || {})['variables']
-    definition['parameters'] = collect_parameters(variables)
+    definition['parameters'] = []
+    definition['parameters'].push(*collect_parameters(variables))
     definition['sdl_version'] = @hcf_version
     definition['product_version'] = Common.product_version
     definition

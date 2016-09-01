@@ -74,6 +74,11 @@ function start_role {
 
   mkdir -p ${log_dir}/${role}
 
+  local uaa_env_overrides=(
+    "--env=UAA_CLIENTS=$(echo ${role_manifest_data} | jq --compact-output .auth.clients)"
+    "--env=UAA_USER_AUTHORITIES=$(echo ${role_manifest_data} | jq --compact-output .auth.authorities)"
+  )
+
   function _do_start_role() {
     docker run --name ${name} \
         ${detach} \
@@ -82,6 +87,7 @@ function start_role {
         --label=hcf_role=${role} \
         --hostname=${role}-int.hcf \
         ${restart} \
+        ${uaa_env_overrides[@]} \
         ${env_files} \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
         ${extra} \
