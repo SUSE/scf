@@ -265,21 +265,11 @@ class ToHCP < Common
     the_comp['retry_count'] = retrycount if retrycount > 0
 
     index = 0 if index.nil?
-    bootstrap = index == 0
 
-    if role["type"] != 'docker'
-      if runtime['exposed-ports'].any? {|port| port['public']}
-        the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
-                              "/opt/hcf/run.sh"]
-      else
-        the_comp['entrypoint'] = ["/usr/bin/env",
-                              "HCF_BOOTSTRAP=#{bootstrap}",
-                              "HCF_ROLE_INDEX=#{index}",
-                              'HCP_HOSTNAME_SUFFIX=-int',
-                              "/opt/hcf/run.sh"]
-      end
+    unless role['type'] == 'docker'
+      the_comp['entrypoint'] = build_entrypoint(index: index,
+                                                runtime: runtime,
+                                                role_manifest: role_manifest)
     end
 
     # Record persistent and shared volumes, ports
@@ -307,6 +297,30 @@ class ToHCP < Common
     # role parameters is empty.
 
     comps.push(the_comp)
+  end
+
+  def build_entrypoint(options)
+    bootstrap = options[:index] == 0
+    entrypoint = ["/usr/bin/env", "HCF_BOOTSTRAP=#{bootstrap}"]
+
+    entrypoint << "HCF_ROLE_INDEX=#{options[:index]}"
+
+    exposed_ports = options[:runtime]['exposed-ports']
+    unless exposed_ports.any? {|port| port['public']}
+      entrypoint << 'HCP_HOSTNAME_SUFFIX=-int'
+    end
+
+    auth_info = options[:role_manifest]['auth'] || {}
+    if auth_info['clients']
+      entrypoint << "UAA_CLIENTS=#{auth_info['clients'].to_json}"
+    end
+    if auth_info['authorities']
+      entrypoint << "UAA_USER_AUTHORITIES=#{auth_info['authorities'].to_json}"
+    end
+
+    entrypoint << '/opt/hcf/run.sh'
+
+    entrypoint
   end
 
   def add_volumes(fs, component, volumes, index, shared_fs)

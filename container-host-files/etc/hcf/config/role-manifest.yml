@@ -1656,8 +1656,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: UAA_CLIENTS
-    type: string
   - name: UAA_CLIENTS_APP_DIRECT_SECRET
     secret: true
     generator:
