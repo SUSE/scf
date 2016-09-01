@@ -1,7 +1,6 @@
 ---
 properties:
   acceptance_tests:
-    skip_ssl_validation: true
     backend: diego
     include_diego_ssh: true
     include_diego_docker: true
@@ -239,7 +238,6 @@ properties:
       port: 24053
       uaa:
         client: cf-usb
-    skip_tls_validation: true
   consul:
     agent:
       log_level: null
@@ -299,8 +297,6 @@ properties:
         require_ssl: true
       enable_cf_auth: true
       enable_diego_auth: false
-    ssl:
-      skip_cert_verify: true
     stager:
       bbs:
         require_ssl: true
@@ -353,9 +349,6 @@ properties:
     log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
-  hcf:
-    demophon:
-      skip_cert_verify: true
   hcf_sso:
     port: 3000
   hm9000:
@@ -420,7 +413,6 @@ properties:
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
-    ssl_skip_validation: null
     status:
       user: router_user
   routing_api:
@@ -442,12 +434,6 @@ properties:
     use_existing_space: false
     logging_app: ""
     runtime_app: ""
-    skip_ssl_validation: true
-  ssl:
-    # TODO: Default to false, and place our generated CA cert
-    # into the appropriate /usr/share/ca-certificates folders
-    # and call update-ca-certificates at container startup
-    skip_cert_verify: true
   support_address: http://support.cloudfoundry.com
   syslog_daemon_config: null
   syslog_drain_binder:

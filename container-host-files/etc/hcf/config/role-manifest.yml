@@ -212,8 +212,6 @@ roles:
       # into the appropriate /usr/share/ca-certificates folders
       # and call update-ca-certificates at container startup
       properties.proxy.api_force_https: 'false'
-      properties.skip_ssl_validation: 'true'
-      properties.cf-usb.skip_tls_validation: 'true'
 - name: diego-database
   scripts:
   - fake_spec_index_on_hcp.sh
@@ -385,7 +383,6 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-      properties.skip_ssl_validation: true
 - name: routing-api
   scripts:
   - router_internal_host_names.sh
@@ -438,7 +435,6 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-      properties.skip_ssl_validation: true
 - name: uaa
   tags: ['dev-only']
   scripts:
@@ -1965,7 +1961,9 @@ configuration:
       id: "demophon_server_cert"
       type: Certificate
       value_type: private_key
-  - name: SKIP_CERT_VERIFY
+  - name: SKIP_CERT_VERIFY_INTERNAL
+    default: true
+  - name: SKIP_CERT_VERIFY_EXTERNAL
     default: true
   - name: ROUTER_ACCESS_LOG_STREAMING
     default: false
@@ -2027,7 +2025,10 @@ configuration:
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.cf_push_timeout: 300
+    properties.acceptance_tests.cloud_controller.skip_ssl_validation: '"((SKIP_CERT_VERIFY_EXTERNAL))"'
     properties.acceptance_tests.default_timeout: 300
+    properties.acceptance_tests.skip_ssl_validation: '"((SKIP_CERT_VERIFY_EXTERNAL))"'
+    properties.acceptance_tests.uaa.skip_ssl_validation: '"((SKIP_CERT_VERIFY_EXTERNAL))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
@@ -2128,15 +2129,18 @@ configuration:
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
     properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
     properties.cf-usb.broker.external_url: '"https://((CF_USB_BROKER_HOST)):24054"'
+    properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.port: 24054
     properties.cf-usb.broker.require_tls: true
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
-    properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.username: '"((CF_USB_USERNAME))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
+    properties.cf-usb.skip_tls_validation: '"((SKIP_CERT_VERIFY_INTERNAL))"'
+    properties.cf.skip_ssl_validation: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.consul.agent.domain: '"hcf"'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
@@ -2191,7 +2195,7 @@ configuration:
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
-    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
+    properties.diego.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.diego.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2199,6 +2203,7 @@ configuration:
     properties.diego.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.domain: '"((DOMAIN))"'
+    properties.doppler.syslog_skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.doppler.tweak_locked_memory: false
     properties.doppler.zone: '"((DOPPLER_ZONE))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -2218,41 +2223,44 @@ configuration:
     properties.etcd_metrics_server.nats.password: '"((NATS_PASSWORD))"'
     properties.etcd_metrics_server.nats.username: '"((NATS_USER))"'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
-    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
+    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
+    properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
+    properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
+    properties.hcf.demophon.skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
+    properties.hcf.demophon.uaa_url: '"https://((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.monit.port: '((MONIT_PORT))'
     properties.hcf.monit.user: '"((MONIT_USER))"'
     properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.hcf_set_proxy.api_proxy: '"((HTTPS_PROXY))"'
-    properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
+    properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.hcf_sso.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf_sso.host: '"((HCF_SSO_HOST))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
-    properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
+    properties.hcf_sso.skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.hcf_sso.username: '"((HCF_SSO_USERNAME))"'
-    properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
     properties.hcf_versions.blobstore.username: '"((BLOBSTORE_USERNAME))"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-    properties.hcf_versions.skip_cert_verify: '"((SKIP_CERT_VERIFY))"'
+    properties.hcf_versions.skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.hm9000.port: 5155
     properties.hm9000.url: '"https://hm9000.((DOMAIN))"'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.metron_agent.zone: '"((METRON_AGENT_ZONE))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nats.user: '"((NATS_USER))"'
@@ -2261,18 +2269,19 @@ configuration:
     properties.router.servers: '["((ROUTER_HOST))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    # XXX Temporary workaround for UAA-on-HCP
-    properties.router.ssl_skip_validation: true
+    properties.router.ssl_skip_validation: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.routing_api.etcd.servers: '["((ROUTING_API_HOST))"((#ROUTING_API_HA_HOST_1)), "((ROUTING_API_HA_HOST_1))"((/ROUTING_API_HA_HOST_1))((#ROUTING_API_HA_HOST_2)), "((ROUTING_API_HA_HOST_2))"((/ROUTING_API_HA_HOST_2))]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
+    properties.skip_ssl_validation: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.smoke_tests.skip_ssl_validation: '"((SKIP_CERT_VERIFY_EXTERNAL))"'
     properties.smoke_tests.user: '"((CLUSTER_ADMIN_USERNAME))"'
-    properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY))'
+    properties.ssl.skip_cert_verify: '"((SKIP_CERT_VERIFY_INTERNAL))"'
     properties.syslog_drain_binder.tweak_locked_memory: false
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2320,10 +2329,6 @@ configuration:
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
-    properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
-    properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
-    properties.hcf.demophon.uaa_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
-
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
   # there is no mustache expansion here.
