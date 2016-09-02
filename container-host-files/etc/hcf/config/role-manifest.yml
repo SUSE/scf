@@ -1459,7 +1459,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 128
     virtual-cpus: 1
     exposed-ports:
     - name: 'hcf-versions-api'
