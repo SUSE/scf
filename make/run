@@ -4,6 +4,8 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-${GIT_ROOT}/bin/validation.sh
+${GIT_ROOT}/make/generate vagrant
 
 ${GIT_ROOT}/bin/run.sh
+
+rm ${GIT_ROOT}/vagrant.json

@@ -2,6 +2,7 @@
 set -e
 
 BINDIR=$(readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/")
+ROOT=$(readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/../../../../")
 
 # Determines whether a container is running, given a container name and an image name
 # container_running <CONTAINER_NAME> <IMAGE_NAME>
@@ -79,6 +80,13 @@ function start_role {
     "--env=UAA_USER_AUTHORITIES=$(echo ${role_manifest_data} | jq --compact-output .auth.authorities)"
   )
 
+  local the_env=()
+  while read -r edef
+  do
+      the_env+=("--env=${edef}")
+  done < <(cat ${env_files} | \
+      grep "$(cat ${ROOT}/vagrant.json | jq -r ".${role}" | sed -e 's/|/\\|/g')")
+
   function _do_start_role() {
     docker run --name ${name} \
         ${detach} \
@@ -88,7 +96,7 @@ function start_role {
         --hostname=${role}-int.hcf \
         ${restart} \
         ${uaa_env_overrides[@]} \
-        ${env_files} \
+        "${the_env[@]}" \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
         ${extra} \
         ${user_extra} \
@@ -104,14 +112,7 @@ function start_role {
 # collect_env <PATH_TO_ENV_FILES>
 function collect_env() {
     env_path="$(readlink -f "$1")"
-    options=""
-
-    for e in $(ls 2>/dev/null "$env_path"/*.env)
-    do
-	options="$options --env-file=${e}"
-    done
-
-    echo $options
+    echo $(ls 2>/dev/null "$env_path"/*.env)
 }
 
 # Perform role-specific setup. Return extra arguments needed to start
