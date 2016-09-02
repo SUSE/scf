@@ -158,10 +158,6 @@ properties:
         protocol: all
       - destination: 192.169.0.0-255.255.255.255
         protocol: all
-    - name: dev_services
-      rules:
-      - destination: 172.20.10.0/24
-        protocol: all
     - name: dns
       rules:
       - destination: 0.0.0.0/0
