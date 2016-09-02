@@ -1,0 +1,22 @@
+---
+name: patch-properties
+description: Dummy BOSH job used to host parameters that are used in HCF patches for upstream bugs
+
+templates:
+  run.erb: bin/run
+
+packages:
+
+properties:
+
+  cf_mysql.mysql.advertise_host:
+    description: "Used to patch mysql's advertising mechanism"
+
+  routing_api.uri:
+    description: "Used to patch the router's configuration for the routing api"
+
+  uaa.token_endpoint:
+    description: "Used to patch the router's configuration"
+
+  etcd.bootstrap_node:
+    description: "Used to patch etcd server bootstrap"

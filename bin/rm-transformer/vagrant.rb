@@ -46,10 +46,10 @@ class ToVAGRANT < Common
 
     return unless @property
 
-    templates = process_templates(rolemanifest)
-    return unless templates
-
     rolemanifest['roles'].each do |role|
+      templates = process_templates(rolemanifest, role)
+      return unless templates
+
       parameters = []
       if role['jobs']
         role['jobs'].each do |job|
@@ -71,6 +71,15 @@ class ToVAGRANT < Common
             # template-derived 'templates' has this prefix.
             pname = "properties.#{pname}"
 
+            # If we have a special property (that contains a hash) we need to
+            # include all templates that are part of it in our search
+            if Common.special_property(pname)
+              templates.each do |key, templ|
+                next unless key =~ Regexp.new("^#{pname}")
+                parameters.push(*templates[key])
+              end
+            end
+
             # Ignore the job/release properties not declared as a
             # template. These are used with their defaults, or our
             # opinions. They cannot change and have no parameters.
@@ -80,16 +89,22 @@ class ToVAGRANT < Common
           end
         end
       end
-      definition[role['name']] = parameters.uniq.sort.join("\|")
+      definition[role['name']] = parameters.uniq.sort.join("\\|")
     end
   end
 
-  def process_templates(rolemanifest)
+  def process_templates(rolemanifest, role)
     return unless rolemanifest['configuration'] && rolemanifest['configuration']['templates']
 
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
       templates[property] = Common.parameters_in_template(template)
+    end
+
+    if role['configuration'] && role['configuration']['templates']
+      role['configuration']['templates'].each do |property, template|
+        templates[property] = Common.parameters_in_template(template)
+      end
     end
 
     templates

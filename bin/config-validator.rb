@@ -138,7 +138,7 @@ end
 def check_env_files(role_manifest, dev_env)
   vars = role_manifest['configuration']['variables']
   dev_env.each_pair do |name, (env_file, value)|
-    next if special_env(name)
+    next if Common.special_env(name)
     i = vars.find_index{|x| x['name'] == name }
     next unless i.nil?
     STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
@@ -195,9 +195,9 @@ def check_rm_templates(templates,manifest)
   templates.each do |label, defs|
     defs.each do |property, template|
       Common.parameters_in_template(template).each do |vname|
-        next if special_env(vname)
-        next if special_uaa(vname)
-        next if special_indexed(vname)
+        next if Common.special_env(vname)
+        next if Common.special_uaa(vname)
+        next if Common.special_indexed(vname)
         next if variables.has_key? vname
 
         STDERR.puts "#{label.cyan} template #{property.red}: Referencing undeclared variable #{vname.red}"
@@ -211,7 +211,7 @@ end
 # Check to see if all properties are defined in a BOSH release
 def check_bosh_properties(defs, bosh_properties, check_type)
   defs.each do |prop, _|
-    next if special(prop)
+    next if Common.special_property(prop)
     next unless prop.start_with? 'properties.'
 
     bosh_property = prop.sub(/^properties./, '')
@@ -305,41 +305,6 @@ def collect(defs,prefix,input)
   end
 end
 
-def special(key)
-  # Detect keys with structured values "collect" must not recurse into.
-  return true if key =~ /^properties.cc.security_group_definitions/
-  return true if key =~ /^properties.ccdb.roles/
-  return true if key =~ /^properties.uaadb.roles/
-  return true if key =~ /^properties.uaa.clients/
-  return true if key =~ /^properties.cc.quota_definitions/
-  false
-end
-
-def special_indexed(key)
-  return true if key == "HCF_BOOTSTRAP"
-  return true if key == "HCF_ROLE_INDEX"
-  false
-end
-
-def special_uaa(key)
-  return true if key == "JWT_SIGNING_PUB"
-  return true if key == "JWT_SIGNING_PEM"
-  return true if key == "UAA_CLIENTS"
-  return true if key == "UAA_USER_AUTHORITIES"
-  false
-end
-
-def special_env(key)
-  # Detect env var keys that are special (they are used, but not defined in the role manifest).
-  return true if key =~ /^HCP_/
-  return true if key == 'http_proxy'
-  return true if key == 'https_proxy'
-  return true if key == 'no_proxy'
-  return true if key == 'HTTP_PROXY'
-  return true if key == 'HTTPS_PROXY'
-  return true if key == 'NO_PROXY'
-  false
-end
 
 # Loaded structure
 ##

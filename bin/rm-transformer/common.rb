@@ -142,6 +142,44 @@ class Common
     end
   end
 
+  def self.special_property(key)
+    # Detect keys with structured values "collect" must not recurse into.
+    return true if key =~ /^properties.cc.security_group_definitions/
+    return true if key =~ /^properties.ccdb.roles/
+    return true if key =~ /^properties.uaadb.roles/
+    return true if key =~ /^properties.uaa.clients/
+    return true if key =~ /^properties.cc.quota_definitions/
+    false
+  end
+
+  def self.special_indexed(key)
+    return true if key == "HCF_BOOTSTRAP"
+    return true if key == "HCF_ROLE_INDEX"
+    false
+  end
+
+  def self.special_uaa(key)
+    return true if key == "JWT_SIGNING_PUB"
+    return true if key == "JWT_SIGNING_PEM"
+    return true if key == "UAA_CLIENTS"
+    return true if key == "UAA_USER_AUTHORITIES"
+    false
+  end
+
+  def self.special_env(key)
+    # Detect env var keys that are special (they are used, but not defined in the role manifest).
+    return true if key =~ /^HCP_/
+    return true if key == 'http_proxy'
+    return true if key == 'https_proxy'
+    return true if key == 'no_proxy'
+    return true if key == 'HTTP_PROXY'
+    return true if key == 'HTTPS_PROXY'
+    return true if key == 'NO_PROXY'
+    return true if key == "JWT_SIGNING_PUB"
+    return true if key == "JWT_SIGNING_PEM"
+    false
+  end
+
   def self.product_version
     "4.0.0" # TODO: Make the minor here == cf-release's version?
   end

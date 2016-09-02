@@ -19,3 +19,9 @@ properties:
     description: Password for the service broker
   hcf_sso.host:
     description: Hostname where the route service can be found
+  uaa.scim.users:
+    description: A list of users to be bootstrapped on UAA.
+  hcf.uaa.internal-url:
+    description: URL to UAA that can be accessed before the cluster's domain is setup
+  ssl.skip_cert_verify:
+    description: True for insecure connections

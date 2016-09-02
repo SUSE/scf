@@ -20,3 +20,9 @@ properties:
     description: Port the route service listens on
   autoscaler_api.scaling_service.name:
     description: the autoscaler service name
+  uaa.scim.users:
+    description: A list of users to be bootstrapped on UAA.
+  hcf.uaa.internal-url:
+    description: URL to UAA that can be accessed before the cluster's domain is setup
+  ssl.skip_cert_verify:
+    description: True for insecure connections

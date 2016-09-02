@@ -22,3 +22,9 @@ properties:
     description: The HTTPS proxy to use during running
   hcf_set_proxy.running_no_proxy:
     description: The NO_PROXY setting to use during running
+  uaa.scim.users:
+    description: A list of users to be bootstrapped on UAA.
+  hcf.uaa.internal-url:
+    description: URL to UAA that can be accessed before the cluster's domain is setup
+  ssl.skip_cert_verify:
+    description: True for insecure connections

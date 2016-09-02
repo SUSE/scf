@@ -208,6 +208,7 @@ properties:
   couchdb:
     metric_prefix: couchdb-scalingmetric
     port: 5984
+    username: admin
   dea_next:
     # Used in ccng/templates/cc_api.yml.erb
     advertise_interval_in_seconds: 5
@@ -224,8 +225,7 @@ properties:
       sql:
         db_driver: mysql
       etcd:
-        # Until we figure out DNS names
-        require_ssl: false
+        machines: []
       require_ssl: true
     executor:
       garden:
@@ -342,10 +342,6 @@ properties:
     user: nats
   nfs_server:
     address: 0.0.0.3
-    allow_from_entries:
-    - null
-    - null
-    share: null
     share_path: /var/vcap/nfs
   request_timeout_in_seconds: 900
   router:

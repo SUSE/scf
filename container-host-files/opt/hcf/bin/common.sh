@@ -75,17 +75,17 @@ function start_role {
 
   mkdir -p ${log_dir}/${role}
 
-  local uaa_env_overrides=(
-    "--env=UAA_CLIENTS=$(echo ${role_manifest_data} | jq --compact-output .auth.clients)"
-    "--env=UAA_USER_AUTHORITIES=$(echo ${role_manifest_data} | jq --compact-output .auth.authorities)"
-  )
+  # Load all env vars from all files
+  env_file_contents=$(cat ${env_files})
+  # Load the map that details which vars are allowed for which role
+  role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
 
   local the_env=()
+  # Iterate through all env vars that match the ones used by the role
   while read -r edef
   do
       the_env+=("--env=${edef}")
-  done < <(cat ${env_files} | \
-      grep "$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]" | sed -e 's/|/\\|/g')")
+  done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 
   function _do_start_role() {
     docker run --name ${name} \
@@ -268,6 +268,7 @@ function load_all_roles() {
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
+    declare -g  'uaa_env_overrides'
     declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
@@ -287,13 +288,18 @@ function load_all_roles() {
       role_manifest["${role_name}"]=$role_block
       role_manifest_types["${role_name}"]=$role_type
       role_manifest_processes["${role_name}"]=$role_processes
-    done < <(echo "${role_manifest_data}" | jq --raw-output '.roles[] | .name + " " + (.type // "bosh") + " " + ([(.processes//[])[].name]//[] | join(","))')
+    done < <(printf '%s' "${role_manifest_data}" | jq --raw-output '.roles[] | .name + " " + (.type // "bosh") + " " + ([(.processes//[])[].name]//[] | join(","))')
 
     while IFS= read -r role_block; do
-      role_name=$(echo "${role_block}" | jq --raw-output '.name')
-      role_run=$(echo "${role_block}" | jq --raw-output --compact-output '.run')
+      role_name=$(printf '%s' "${role_block}" | jq --raw-output '.name')
+      role_run=$(printf '%s' "${role_block}" | jq --raw-output --compact-output '.run')
       role_manifest_run["${role_name}"]=$role_run
-    done < <(echo "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
+    done < <(printf '%s' "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
+
+    uaa_env_overrides=(
+      "--env=UAA_CLIENTS=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.clients)"
+      "--env=UAA_USER_AUTHORITIES=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.authorities)"
+    )
   fi
 }
 

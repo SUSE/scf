@@ -6,6 +6,8 @@ roles:
   - scripts/patches/fix-nats-log-dir.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: nats
     release_name: cf
   - name: nats_stream_forwarder
@@ -42,6 +44,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: consul_agent
     release_name: cf
   - name: metron_agent
@@ -107,6 +111,10 @@ roles:
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: mysql
     release_name: cf-mysql
   processes:
@@ -165,6 +173,10 @@ roles:
   - scripts/patches/fix_mysql_proxy_host_list.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: proxy
     release_name: cf-mysql
   processes:
@@ -217,6 +229,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: bbs
     release_name: diego
   - name: consul_agent
@@ -264,6 +278,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: haproxy
     release_name: cf
   - name: consul_agent
@@ -313,6 +329,10 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: gorouter
     release_name: routing
   - name: consul_agent
@@ -346,6 +366,10 @@ roles:
   - scripts/patches/router_internal_host_names.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: haproxy
     release_name: routing
   - name: consul_agent
@@ -389,6 +413,10 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: consul_agent
     release_name: cf
   - name: etcd
@@ -442,6 +470,8 @@ roles:
   - scripts/patches/fix_uaa_hostnames_in_uaa_yml.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: uaa
     release_name: cf
   - name: consul_agent
@@ -491,6 +521,8 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: cloud_controller_ng
     release_name: cf
   - name: statsd-injector
@@ -561,6 +593,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: cloud_controller_worker
     release_name: cf
   - name: consul_agent
@@ -590,6 +624,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: blobstore
     release_name: cf
   - name: route_registrar
@@ -635,6 +671,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: cloud_controller_clock
     release_name: cf
   - name: consul_agent
@@ -663,6 +701,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: cf-usb
     release_name: cf-usb
   - name: consul_agent
@@ -705,6 +745,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: doppler
     release_name: cf
   - name: syslog_drain_binder
@@ -746,6 +788,10 @@ roles:
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: patch-properties
+    release_name: hcf
   - name: etcd
     release_name: cf
   - name: etcd_metrics_server
@@ -800,6 +846,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: loggregator_trafficcontroller
     release_name: cf
   - name: metron_agent
@@ -839,6 +887,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: consul_agent
     release_name: cf
   - name: auctioneer
@@ -870,6 +920,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: stager
     release_name: cf
   - name: nsync
@@ -957,6 +1009,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: route_emitter
     release_name: diego
   - name: consul_agent
@@ -983,6 +1037,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: ssh_proxy
     release_name: diego
   - name: consul_agent
@@ -1027,6 +1083,8 @@ roles:
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: rep
     release_name: diego
   - name: consul_agent
@@ -1063,6 +1121,8 @@ roles:
   - scripts/wait_for_couchdb.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: autoscaler_api
     release_name: cf-open-autoscaler
   - name: route_registrar
@@ -1097,6 +1157,8 @@ roles:
   - scripts/wait_for_couchdb.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: autoscaler_server
     release_name: cf-open-autoscaler
   processes:
@@ -1128,6 +1190,8 @@ roles:
   - scripts/wait_for_couchdb.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: autoscaler_servicebroker
     release_name: cf-open-autoscaler
   processes:
@@ -1155,6 +1219,8 @@ roles:
 - name: couchdb
   type: bosh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: couchdb
     release_name: cf-open-autoscaler
   scripts:
@@ -1181,6 +1247,8 @@ roles:
 - name: acceptance-tests-flight-recorder
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: acceptance-tests-flight-recorder
     release_name: hcf
   run:
@@ -1203,6 +1271,8 @@ roles:
 - name: acceptance-tests
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: acceptance-tests
     release_name: cf
   run:
@@ -1220,6 +1290,8 @@ roles:
 - name: smoke-tests
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: smoke-tests
     release_name: cf
   run:
@@ -1250,6 +1322,8 @@ roles:
 - name: post-deployment-setup
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: uaa-create-user
     release_name: hcf
   - name: cf-set-proxy
@@ -1294,6 +1368,8 @@ roles:
 - name: sso-create-service
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: sso-create-service
     release_name: hcf
   processes: []
@@ -1312,6 +1388,8 @@ roles:
 - name: autoscaler-create-service
   type: bosh-task
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: autoscaler-create-service
     release_name: hcf
   processes: []
@@ -1332,6 +1410,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: hcf-sso
     release_name: hcf-sso
   - name: metron_agent
@@ -1360,6 +1440,8 @@ roles:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: hcf-versions
     release_name: hcf-versions
   - name: metron_agent
@@ -1397,6 +1479,8 @@ roles:
   post_config_scripts:
   - scripts/status-route-start.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: route_registrar
     release_name: routing
   processes:
@@ -1431,6 +1515,8 @@ roles:
   - scripts/forward_logfiles.sh
   - scripts/setup-demophon-env.sh
   jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
   - name: demophon
     release_name: hcf
   - name: metron_agent
@@ -1462,8 +1548,6 @@ configuration:
     required: false
   - name: BLOBSTORE_HOST
     default: "blobstore-int"
-  - name: BLOBSTORE_USERNAME
-    default: "blobstore_user"
   - name: BLOBSTORE_HTTPS_PORT
     default: 4443
   - name: BLOBSTORE_PASSWORD
@@ -1476,8 +1560,6 @@ configuration:
       type: Password
   - name: AUTOSCALER_API_HOST
     default: "sclr-api-int"
-  - name: AUTOSCALER_COUCHDB_HOST
-    default: couchdb-int
   - name: AUTOSCALER_SERVER_HOST
     default: "sclr-server-int"
   - name: AUTOSCALER_SERVICE_BROKER_HOST
@@ -1550,14 +1632,10 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: CCDB_ROLE_NAME
-    default: ccadmin
   - name: CCDB_ROLE_PASSWORD
     secret: true
     generator:
       type: Password
-  - name: CCDB_ROLE_TAG
-    default: admin
   - name: DROPLET_DIRECTORY_KEY
     default: "cc-droplets"
   - name: BUILDPACK_DIRECTORY_KEY
@@ -1574,8 +1652,6 @@ configuration:
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
-  - name: CLUSTER_ADMIN_USERNAME
-    default: admin
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
     generator:
@@ -1710,7 +1786,7 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
+  - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     generator:
       type: Password
@@ -1718,10 +1794,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: UAADB_TAG
-    default: admin
-  - name: UAADB_USERNAME
-    default: uaaadmin
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
   # Certificates
@@ -1954,8 +2026,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: AUTOSCALER_COUCHDB_USER
-    secret: false
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
     generator:
@@ -1965,6 +2035,7 @@ configuration:
     index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))0((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
+    properties.hcf.hcp_service_domain_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
@@ -1974,14 +2045,14 @@ configuration:
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST))"'
     properties.autoscaler.autoscaler_server.host: '"((AUTOSCALER_SERVER_HOST))"'
-    properties.autoscaler.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.autoscaler.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.host: '"((AUTOSCALER_SERVICE_BROKER_HOST))"'
     properties.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.blobstore.admin_users:  '[{"username": "((BLOBSTORE_USERNAME))", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
@@ -2035,7 +2106,7 @@ configuration:
     properties.cc.srv_api_uri: '"http://((API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.ccdb.address: '((MYSQL_PROXY_HOST))'
-    properties.ccdb.roles: '[{"name": "((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))", "tag": "((CCDB_ROLE_TAG))"}]'
+    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-usb.broker.external_url: '"https://((CF_USB_BROKER_HOST)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
@@ -2044,7 +2115,7 @@ configuration:
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"((CCDB_ROLE_NAME))", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "((UAADB_USERNAME))", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.consul.agent.servers.lan: '["((CONSUL_HOST))"((#CONSUL_HA_HOST_1)), "((CONSUL_HA_HOST_1))"((/CONSUL_HA_HOST_1))((#CONSUL_HA_HOST_2)), "((CONSUL_HA_HOST_2))"((/CONSUL_HA_HOST_2))]'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
     properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
@@ -2052,9 +2123,8 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.host: '"((AUTOSCALER_COUCHDB_HOST))"'
+    properties.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
-    properties.couchdb.username: '"((AUTOSCALER_COUCHDB_USER))"'
     properties.diego.auctioneer.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2172,7 +2242,7 @@ configuration:
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
-    properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
+    properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.developer_console.secret: '"((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
@@ -2186,7 +2256,7 @@ configuration:
     properties.uaa.clients.uaa_create_first_user.secret: '"((UAA_CLIENTS_UAA_CREATE_FIRST_USER_SECRET))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
-    properties.uaa.scim.users: '["((CLUSTER_ADMIN_USERNAME))|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
+    properties.uaa.scim.users: '["admin|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
     properties.uaa.ssl.port: ((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
@@ -2196,7 +2266,7 @@ configuration:
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
-    properties.uaadb.roles: '[{"name": "((UAADB_USERNAME))", "password": "((UAADB_PASSWORD))", "tag": "((UAADB_TAG))"}]'
+    properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
   # there is no mustache expansion here.
