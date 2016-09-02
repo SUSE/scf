@@ -400,9 +400,7 @@ class ToHCP < Common
   end
 
   def collect_parameters(para, variables)
-    @allpara = {}
     variables.each do |var|
-      @allpara[var['name']] = nil ;# value irrelevant. See 'process_templates' for use.
       para.push(convert_parameter(var))
     end
   end
@@ -413,24 +411,6 @@ class ToHCP < Common
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
       templates[property] = Common.parameters_in_template(template)
-
-      # Report all templates which contain references to unknown
-      # variables, and the bogus variables themselves.  We ignore the
-      # undeclared variables provided by HCP, these are ok.  See
-      # 'collect_parameters' (above) for the place filling @allpara.
-
-      templates[property].each do |vname|
-        next if @allpara.has_key? vname
-        next if /^HCP_/ =~ vname
-        next if 'http_proxy' == vname
-        next if 'HTTP_PROXY' == vname
-        next if 'https_proxy' == vname
-        next if 'HTTPS_PROXY' == vname
-        next if 'no_proxy' == vname
-        next if 'NO_PROXY' == vname
-
-        STDERR.puts "Template #{property.red}: Referencing undeclared variable #{vname.red}"
-      end
     end
 
     templates

@@ -69,6 +69,9 @@ def main
   STDOUT.puts "\nAll role manifest params must be used".cyan
   check_rm_variables(manifest)
 
+  STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
+  check_rm_templates(templates,manifest)
+
   STDOUT.puts "\nThe role manifest must not contain any constants in the global section".cyan
   check_non_templates(manifest)
 
@@ -177,6 +180,31 @@ def check_rm_variables(manifest)
     @has_errors += 1
   end
 end
+
+# Conversely to the preceding, check if all templates use only declared parameters
+def check_rm_templates(templates,manifest)
+  # Report all templates which contain references to unknown
+  # parameters, and the bogus parameters themselves.  We ignore the
+  # parameters provided by HCP, and the proxy parts, these are ok.
+
+  variables = {}
+  manifest['configuration']['variables'].each do |var|
+    variables[var['name']] = nil
+  end
+
+  templates.each do |label, defs|
+    defs.each do |property, template|
+      Common.parameters_in_template(template).each do |vname|
+        next if special_env(vname)
+        next if variables.has_key? vname
+
+        STDERR.puts "#{label.cyan} template #{property.red}: Referencing undeclared variable #{vname.red}"
+        @has_errors += 1
+      end
+    end
+  end
+end
+
 
 # Check to see if all properties are defined in a BOSH release
 def check_bosh_properties(defs, bosh_properties, check_type)
