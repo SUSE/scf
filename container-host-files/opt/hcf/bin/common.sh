@@ -85,7 +85,7 @@ function start_role {
   do
       the_env+=("--env=${edef}")
   done < <(cat ${env_files} | \
-      grep "$(cat ${ROOT}/vagrant.json | jq -r ".${role}" | sed -e 's/|/\\|/g')")
+      grep "$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]" | sed -e 's/|/\\|/g')")
 
   function _do_start_role() {
     docker run --name ${name} \
