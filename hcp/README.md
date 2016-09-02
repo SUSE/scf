@@ -32,7 +32,7 @@ registry inside the HCF vagrant box:
 ```bash
 tar xfz hcp-developer-1.0.xxx+master.hhhhhhhh.yyymmddhhmmss.tar.gz
 cd hcp-developer
-INSECURE_REGISTRY=192.168.77.77:5000 vagrant up --provider vmware_fusion
+INSECURE_REGISTRY=192.168.77.77:5000 ./start
 ```
 
 ### Create a local Docker registry (#1) ###
@@ -92,8 +92,11 @@ the current set of roles.
 ### Register the service with HCP:
 
 ```bash
-PORT=$(curl -Ss http://192.168.200.2:8080/api/v1/namespaces/hcp/services/ipmgr | jq --raw-output '.spec.ports[0].nodePort')
-curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp.json http://192.168.200.3:$PORT/v1/services
+PORT=$(curl -Ss http://192.168.200.2:8080/api/v1/namespaces/hcp/services/ipmgr | jq -r '.spec.ports[0].nodePort')
+hcp api https://192.168.200.3:$PORT
+hcp login admin -p cnapadmin
+TOKEN=$(cat $HOME/.hcp | jq -r .AccessToken)
+curl -k -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -XPOST -d @/home/vagrant/hcf/hcf-hcp.json https://192.168.200.3:$PORT/v1/services
 ```
 
 ### Generate an instance definition (#1) ###
@@ -125,7 +128,7 @@ talking to HCP about it.
 To instantiate the service, post the instance definition to HCP:
 
 ```bash
-curl -H "Content-Type: application/json" -XPOST -d @/home/vagrant/hcf/hcf-hcp-instance.json http://192.168.200.3:$PORT/v1/instances
+curl -k -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -XPOST -d @/home/vagrant/hcf/hcf-hcp-instance.json https://192.168.200.3:$PORT/v1/instances
 ```
 
 where `$PORT` is set above.
