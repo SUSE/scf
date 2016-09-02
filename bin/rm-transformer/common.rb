@@ -97,22 +97,12 @@ class Common
     collected_env
   end
 
-  def self.load_role_manifest(path, env_vars)
+  def self.load_role_manifest(path)
     if path == '-'
       # Read from stdin.
       role_manifest = YAML.load($stdin)
     else
       role_manifest = YAML.load_file(path)
-    end
-
-    vars = role_manifest['configuration']['variables']
-    env_vars.each_pair do |name, (env_file, value)|
-      i = vars.find_index{|x| x['name'] == name }
-      if i.nil?
-        STDERR.puts "Variable #{name.red} defined in #{env_file.red} does not exist in role manifest"
-      else
-        vars[i]['default'] = value
-      end
     end
 
     role_manifest

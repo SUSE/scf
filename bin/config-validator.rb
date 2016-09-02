@@ -21,7 +21,7 @@ def main
   light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/opinions.yml'))
   dark_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/dark-opinions.yml'))
 
-  manifest = Common.load_role_manifest(manifest_file, {})
+  manifest = Common.load_role_manifest(manifest_file)
   light = YAML.load_file(light_opinions_file)
   dark = YAML.load_file(dark_opinions_file)
 

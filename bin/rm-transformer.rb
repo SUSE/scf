@@ -28,7 +28,6 @@ def main
   # --hcf-prefix      ~ The prefix used during image generation
   #                     (Default: hcf)
   #                     Used to construct the image names to look for.
-  # --env <dir>       ~ Read all *.env files from this directory.
   # --hcf-version     ~ Version of the service.
   #                     (Default: 0.0.0)
   ##
@@ -44,7 +43,6 @@ def main
     manual:      false,
     propmap:     nil
   }
-  env_dir_list = []
 
   op = OptionParser.new do |opts|
     opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
@@ -81,9 +79,6 @@ def main
     opts.on('-M', '--property-map text', 'Path to YAML file with the mapping from releases to jobs to properties') do |v|
       options[:propmap] = YAML.load_file(v)
     end
-    opts.on('-e', '--env-dir dir', 'Directory containing *.env files') do |v|
-      env_dir_list << v
-    end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
       provider = v
@@ -102,15 +97,10 @@ def main
     STDERR.puts "Instance definition templates are not supported for provider #{provider}"
     exit 1
   end
-  if env_dir_list.empty?
-    STDERR.puts "--env-dir not specified."
-    exit 1
-  end
 
   origin = ARGV[0]
 
-  role_manifest = Common.load_role_manifest(origin,
-                                            Common.collect_dev_env(env_dir_list))
+  role_manifest = Common.load_role_manifest(origin)
   check_roles role_manifest['roles']
 
   provider = provider_constructor[provider].call.new(options)

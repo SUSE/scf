@@ -20,7 +20,6 @@ OPTIONS=$(echo \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${DOCKER_APP_VERSION}\" \
     --hcf-version \"${ARTIFACT_VERSION}\" \
-    --env-dir bin/settings/
 )
 
 CLEAN=""
@@ -39,7 +38,7 @@ esac
 case ${TARGET} in
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
-        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider \"${TARGET}\""
+        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
 
 	( . ${GIT_ROOT}/make/include/fissile
 	  fissile show properties --output yaml ) > hcf-hcp-propmap.yaml
@@ -50,10 +49,7 @@ case ${TARGET} in
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         TEMPLATE="hcp/hcf-${TARGET}.template.json"
-        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider hcp-instance --instance-definition-template ${TEMPLATE}"
-        if test ${TARGET} = hcp-instance-ha ; then
-            OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ha/"
-        fi
+        OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
