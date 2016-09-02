@@ -45,7 +45,7 @@ def main
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc] [--env-dir DIR] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: hcp)
@@ -111,6 +111,10 @@ end
 
 def provider_constructor
   ({
+    'vagrant' => lambda {
+      require_relative 'rm-transformer/vagrant'
+      ToVAGRANT
+    },
     'hcp' => lambda {
       require_relative 'rm-transformer/hcp'
       ToHCP

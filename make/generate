@@ -36,6 +36,16 @@ case ${TARGET} in
 esac
 
 case ${TARGET} in
+    vagrant)
+        OUTFILE=${OUTFILE:-"${TARGET}.json"}
+        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
+
+	( . ${GIT_ROOT}/make/include/fissile
+	  fissile show properties --output yaml ) > vagrant-propmap.yaml
+
+        OPTIONS="${OPTIONS} --property-map vagrant-propmap.yaml"
+	CLEAN="${CLEAN} vagrant-propmap.yaml"
+        ;;
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
