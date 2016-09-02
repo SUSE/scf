@@ -12,10 +12,12 @@ require_relative 'rm-transformer/common'
 def main
   STDOUT.sync = true
   @has_errors = 0
+  @configure_ha = "scripts/configure-HA-hosts.sh"
 
   STDOUT.puts "Running configuration checks ..."
 
   bosh_properties = JSON.load(ARGF.read)
+  # :: hash (release -> hash (job -> array (property)))
 
   manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/role-manifest.yml'))
   light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/opinions.yml'))
@@ -70,13 +72,16 @@ def main
   check_rm_variables(manifest)
 
   STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
-  check_rm_templates(templates,manifest)
+  check_rm_templates(templates, manifest)
 
   STDOUT.puts "\nThe role manifest must not contain any constants in the global section".cyan
   check_non_templates(manifest)
 
   STDOUT.puts "\nAll of the scripts must be used".cyan
   check_role_manifest_scripts(manifest)
+
+  STDOUT.puts "\nCheck clustering".cyan
+  check_clustering(manifest, bosh_properties)
 
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
@@ -148,8 +153,6 @@ end
 
 # Checks that none of the role manifest templates are used as constants
 def check_non_templates(manifest)
-  templates = manifest['configuration']['templates'].values
-
   manifest['configuration']['templates'].each do |property, template|
     empty = Common.parameters_in_template(template).length == 0
 
@@ -159,6 +162,71 @@ def check_non_templates(manifest)
   end
 end
 
+# Checks that all roles required any of the clustering parameters use
+# scripts/configure-HA-hosts.sh and that all roles which don't will
+# not.
+def check_clustering(manifest, bosh_properties)
+  params = {}
+  manifest['configuration']['templates'].each do |property, template|
+    params[property] = Common.parameters_in_template(template)
+  end
+
+  # Iterate over roles
+  # - Iterate over jobs
+  #   - Determine templates used by job
+  #     - Determine parameters used by template
+  #       - Collect /_HCF_CLUSTER_IPS$/
+
+  manifest['roles'].each do |r|
+    rparams = params
+    if r['configuration'] && r['configuration']['templates']
+      r['configuration']['templates'].each do |property, template|
+        rparams[property] = Common.parameters_in_template(template)
+      end
+    end
+
+    cp = {}
+    # cp :: hash (parameter -> array (pair (job,release)))
+
+    (r['jobs'] || []).each do |j|
+      jname = j['name']
+      rname = j['release_name']
+      bosh_properties[rname][jname].each do |p|
+        (rparams["properties." + p] || []).each do |param|
+          next unless param =~ /_HCF_CLUSTER_IPS$/
+          cp[param] = [] unless cp[param]
+          cp[param] << [jname,rname]
+        end
+      end
+    end
+
+    if cp.empty?
+      if has_script(r, @configure_ha)
+        STDOUT.puts "Superfluous use of #{@configure_ha.red} by role #{r['name'].red}"
+        @has_errors += 1
+      end
+    else
+      if !has_script(r, @configure_ha)
+        STDOUT.puts "Missing #{@configure_ha.red} in role #{r['name'].red}, requested by"
+        cp.each do |param, jobs|
+          STDOUT.puts "- #{param.red}"
+          jobs.each do |job|
+          STDOUT.puts "  - Job #{job[0].red} in release #{job[1].red}"
+          end
+        end
+        @has_errors += 1
+      end
+    end
+  end
+end
+
+def make_command(role,params)
+  "MAP['#{role}']=\"#{params.join(" ")}\""
+end
+
+def has_script(r,script)
+  (r['environment_scripts'] || []).include? script
+end
 
 # Checks if all role manifest params are being used in a template
 def check_rm_variables(manifest)
