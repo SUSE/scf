@@ -42,15 +42,6 @@ if_p("hcf_set_proxy.running_no_proxy") do |val|
 end
 %>
 
-<%
-if_p("hcf_set_proxy.api_proxy") do |val|
-  %>
-    export http_proxy=<%= val %>
-    export https_proxy=<%= val %>
-  <%
-end
-%>
-
 # helper function to retry a command several times, with a delay between trials
 # usage: retry <max-tries> <delay> <command>...
 function retry () {
@@ -100,11 +91,11 @@ retarget_auth
 echo "Waiting for UAA..."
 retry 240 30s cf auth "$USER" "$PASSWORD"
 
-<% 
-%W{staging running}.each do |runtime| 
+<%
+%W{staging running}.each do |runtime|
   if env[runtime] %>
 cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
-<%end 
+<%end
 end %>
 
 echo "Setting of external proxies complete."

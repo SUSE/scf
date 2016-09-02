@@ -27,6 +27,9 @@ print-version:
 run:
 	${GIT_ROOT}/make/run
 
+validate:
+	${GIT_ROOT}/make/validate
+
 stop:
 	${GIT_ROOT}/make/stop
 

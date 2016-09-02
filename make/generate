@@ -7,6 +7,8 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 . ${GIT_ROOT}/make/include/registry
 . ${GIT_ROOT}/make/include/versioning
 
+${GIT_ROOT}/bin/validation.sh
+
 # If you're looking at these quotes and wondering what I was thinking...
 # The quotes need to be escaped so echo doesn't consume them, because they need
 # to be used in the `docker run` command further on, which already has quotes

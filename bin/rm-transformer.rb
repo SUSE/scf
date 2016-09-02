@@ -146,52 +146,7 @@ def provider_constructor
   })
 end
 
-def load_role_manifest(path, env_dir_list)
-  if path == '-'
-    # Read from stdin.
-    role_manifest = YAML.load($stdin)
-  else
-    role_manifest = YAML.load_file(path)
-  end
 
-  collected_env = {}
-
-  env_dir_list.each do |env_dir|
-    env_files = Dir.glob(File.join(env_dir, "*.env")).sort
-    if env_files.empty?
-      STDERR.puts "--env-dir #{env_dir} does not contain any *.env files"
-      exit 1
-    end
-    env_files.each do |env_file|
-      File.readlines(env_file).each_with_index do |line, i|
-        next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
-        name, value = line.strip.split('=', 2)
-        if value.nil?
-          match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
-          if match
-            collected_env.delete match['name']
-          else
-            STDERR.puts "Cannot parse line #{i} in #{env_file}: #{line}"
-            exit 1
-          end
-        else
-          collected_env[name] = [env_file, value]
-        end
-      end
-    end
-  end
-
-  vars = role_manifest['configuration']['variables']
-  collected_env.each_pair do |name, (env_file, value)|
-    i = vars.find_index{|x| x['name'] == name }
-    if i.nil?
-      STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
-    else
-      vars[i]['default'] = value
-    end
-  end
-  role_manifest
-end
 
 # Loaded structure
 ##
