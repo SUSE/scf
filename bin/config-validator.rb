@@ -196,6 +196,8 @@ def check_rm_templates(templates,manifest)
     defs.each do |property, template|
       Common.parameters_in_template(template).each do |vname|
         next if special_env(vname)
+        next if special_uaa(vname)
+        next if special_indexed(vname)
         next if variables.has_key? vname
 
         STDERR.puts "#{label.cyan} template #{property.red}: Referencing undeclared variable #{vname.red}"
@@ -310,6 +312,20 @@ def special(key)
   return true if key =~ /^properties.uaadb.roles/
   return true if key =~ /^properties.uaa.clients/
   return true if key =~ /^properties.cc.quota_definitions/
+  false
+end
+
+def special_indexed(key)
+  return true if key == "HCF_BOOTSTRAP"
+  return true if key == "HCF_ROLE_INDEX"
+  false
+end
+
+def special_uaa(key)
+  return true if key == "JWT_SIGNING_PUB"
+  return true if key == "JWT_SIGNING_PEM"
+  return true if key == "UAA_CLIENTS"
+  return true if key == "UAA_USER_AUTHORITIES"
   false
 end
 
