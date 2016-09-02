@@ -52,12 +52,8 @@
         "max_instances": 3
       },
       {
-        "component": "nats-1",
-        "min_instances": 1
-      },
-      {
-        "component": "nats-2",
-        "min_instances": 1
+        "component": "nats",
+        "min_instances": 3
       },
       {
         "component": "consul-1",

@@ -26,12 +26,25 @@ find_cluster_ha_hosts() {
 }
 
 case "${HCP_COMPONENT_NAME:-}" in
-    mysql|mysql-proxy)
-        export MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+    api)
+	export ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+	# job: route_registrar, cloud_controller_ng
+        export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+	;;
+    api-worker|blobstore|cf-usb|clock-global|diego-route-emitter|hcf-versions|loggregator|nats|router|sclr-api|status-route|uaa)
+        export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
         ;;
-    api|etcd)
+    etcd)
 	export ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
 	;;
+    mysql)
+        export MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+        ;;
+    mysql-proxy)
+        export MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+	# job: proxy
+        export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+        ;;
 esac
 
 # Note: While every role has a metron-agent, and the metron-agent
