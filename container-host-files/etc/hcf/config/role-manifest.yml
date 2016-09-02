@@ -122,7 +122,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: mysql-data
-        size: 5
+        size: 10
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
@@ -1742,8 +1742,6 @@ configuration:
     default: admin
   - name: UAADB_USERNAME
     default: uaaadmin
-  - name: ALLOWED_SERVICES_SUBNET
-    default: 10.254.0.0/16
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
   - name: OPEN_AUTOSCALER_HOST
@@ -2122,7 +2120,6 @@ configuration:
     properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.username: '"((BLOBSTORE_USERNAME))"'
-    properties.cc.security_group_definitions: '[{"name":"public_networks", "rules":[{"destination":"0.0.0.0-9.255.255.255", "protocol":"all"}, {"destination":"11.0.0.0-169.253.255.255","protocol":"all"}, {"destination":"169.255.0.0-172.15.255.255","protocol":"all"}, {"destination":"172.32.0.0-192.167.255.255","protocol":"all"}, {"destination":"192.169.0.0-255.255.255.255","protocol":"all"}]}, {"name": "stackato_services", "rules": [{"destination":"((ALLOWED_SERVICES_SUBNET))","protocol":"all"}]}, {"name":"dns", "rules": [{"destination":"0.0.0.0/0","ports":"53","protocol":"tcp"},{"destination":"0.0.0.0/0","ports":"53","protocol":"udp"}]}]'
     properties.cc.srv_api_uri: '"http://((API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.staging_upload_user: '"((STAGING_UPLOAD_USER))"'
