@@ -9,20 +9,6 @@ require 'json'
 require 'pathname'
 require_relative 'rm-transformer/common'
 
-class String
-  def red
-    "\033[0;31m#{self}\033[0m"
-  end
-
-  def green
-    "\033[0;32m#{self}\033[0m"
-  end
-
-  def cyan
-    "\033[0;36m#{self}\033[0m"
-  end
-end
-
 def main
   STDOUT.sync = true
   @has_errors = false

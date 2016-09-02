@@ -3,6 +3,21 @@
 # # ## ### ##### ########
 require 'mustache'
 
+# Colorization support.
+class String
+  def red
+    "\033[0;31m#{self}\033[0m"
+  end
+
+  def green
+    "\033[0;32m#{self}\033[0m"
+  end
+
+  def cyan
+    "\033[0;36m#{self}\033[0m"
+  end
+end
+
 # Common functionality for all providers.
 class Common
   # # ## ### ##### ########
@@ -90,10 +105,11 @@ class Common
       role_manifest = YAML.load_file(path)
     end
 
+    vars = role_manifest['configuration']['variables']
     env_vars.each_pair do |name, (env_file, value)|
       i = vars.find_index{|x| x['name'] == name }
       if i.nil?
-        STDERR.puts "Variable #{name} defined in #{env_file} does not exist in role manifest"
+        STDERR.puts "Variable #{name.red} defined in #{env_file.red} does not exist in role manifest"
       else
         vars[i]['default'] = value
       end

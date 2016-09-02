@@ -9,6 +9,7 @@
 require 'optparse'
 require 'yaml'
 require 'json'
+require_relative 'rm-transformer/common'
 
 def main
   # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
@@ -108,7 +109,8 @@ def main
 
   origin = ARGV[0]
 
-  role_manifest = load_role_manifest(origin, env_dir_list)
+  role_manifest = Common.load_role_manifest(origin,
+                                            Common.collect_dev_env(env_dir_list))
   check_roles role_manifest['roles']
 
   provider = provider_constructor[provider].call.new(options)

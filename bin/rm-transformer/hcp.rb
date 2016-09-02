@@ -412,7 +412,7 @@ class ToHCP < Common
 
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
-      templates[property] = parameters_in_template(template)
+      templates[property] = Common.parameters_in_template(template)
 
       # Report all templates which contain references to unknown
       # variables, and the bogus variables themselves.  We ignore the
@@ -429,7 +429,7 @@ class ToHCP < Common
         next if 'no_proxy' == vname
         next if 'NO_PROXY' == vname
 
-        STDERR.puts "Template \033[0;31m#{property}\033[0m: Referencing undeclared variable \033[0;31m#{vname}\033[0m"
+        STDERR.puts "Template #{property.red}: Referencing undeclared variable #{vname.red}"
       end
     end
 
