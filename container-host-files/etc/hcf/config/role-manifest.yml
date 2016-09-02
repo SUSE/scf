@@ -508,9 +508,17 @@ roles:
         external: 8443
         internal: 8443
         public: false
+    docker-args:
+      - --network-alias
+      - hcf.uaa-int
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
+      # This is only used to create the custom zone and populate it
+      properties.login.url: '"https://login.((DOMAIN))"'
+      properties.uaa.clients: '{"default_zone_admin": {"secret": "default_zone_admin_secret", "authorized-grant-types": "client_credentials", "scope": "uaa.admin", "authorities": "uaa.admin"}}'
+      properties.uaa.url: '"https://uaa.((DOMAIN))"'
+      properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
   - scripts/fetch_uaa_verification_key.sh
@@ -2155,7 +2163,7 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"((API_HA_HOST))((^API_HA_HOST))((API_HOST))((/API_HA_HOST))"'
     properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
+    properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
@@ -2183,7 +2191,8 @@ configuration:
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"((CONSUL_HOST))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"((DIEGO_DATABASE_HOST))"},{"name":"ETCD_HOST","value":"((ETCD_HOST))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"}]'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
-    properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.hcf.uaa.root-zone.url: '"https://((UAA_HOST)):8443"' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
     properties.hcf.skip_cert_verify_external: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2201,7 +2210,7 @@ configuration:
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"((#ETCD_HA_HOST_1)), "((ETCD_HA_HOST_1))"((/ETCD_HA_HOST_1))((#ETCD_HA_HOST_2)), "((ETCD_HA_HOST_2))"((/ETCD_HA_HOST_2))]'
-    properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
@@ -2256,16 +2265,19 @@ configuration:
     properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
     properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
     properties.uaa.tls_port: '"((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))"'
-    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))((UAA_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))"'
-    properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.((UAA_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
-    properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.uaadb.address: '((MYSQL_PROXY_HOST))'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
   # there is no mustache expansion here.
   clients:
+    # Note that these clients are overridden in the dev-only UAA role; that is
+    # instead used to bootstrap the default zone, whereas all of these clients
+    # go into the HCF zone.
     app-direct:
       authorized-grant-types: refresh_token,authorization_code
     cf-autoscaler-client:
@@ -2293,20 +2305,22 @@ auth:
     cloud_controller:
       authorized-grant-types: client_credentials
       authorities: scim.read,scim.write,password.write
-      id: cloud_controller
       access-token-validity: 604800
     cloud_controller_username_lookup:
       authorities: scim.userids
       authorized-grant-types: client_credentials
+    developer_console:
+      authorized-grant-types: authorization_code,refresh_token
     doppler:
       authorities: uaa.resource
+      authorized-grant-types: authorization_code,refresh_token
       override: true
     gorouter:
       authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
       scope: openid,cloud_controller_service_permissions.read
     hcf-sso:
-      access_token_validity: 3600
+      access-token-validity: 3600
       authorized-grant-types: authorization_code
       scope: scim.me
       autoapprove: true

@@ -11,12 +11,23 @@ templates:
   run.erb: bin/run
 
 properties:
+  hcf.uaa.authorities:
+    description: List of user authorities to create in the HCF zone
+  hcf.uaa.internal-url:
+    description: The URL of the HCF UAA zone
+    example: https://hcf.uaa.example.com
+  hcf.uaa.root-zone.url:
+    description: The URL of the root zone, used to create the HCF zone
+    example: https://uaa.example.com
   ssl.skip_cert_verify:
     description: specifies that the job is allowed to skip ssl cert verification
     default: false
+  uaa.clients:
+    description: The clients to configure for the UAA zone
+    example: {}
+  uaa.clients.uaa_create_first_user.secret:
+    description: The client secret of the account used to create the initial CF user
   uaa.scim.users:
     description: A list of users to be bootstrapped with authorities.
-  uaa.clients.login.secret:
-    description: The password for the login client
   uaa.url:
     description: The base url of the UAA with the correct zone id
