@@ -81,7 +81,7 @@ def main
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
 
-  if @has_errors
+  if @has_errors > 0
     STDOUT.puts "\nConfiguration check failed (#{@has_errors} errors)".red
     exit 1
   else
