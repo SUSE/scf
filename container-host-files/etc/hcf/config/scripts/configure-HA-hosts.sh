@@ -29,6 +29,15 @@ case "${HCP_COMPONENT_NAME:-}" in
     mysql|mysql-proxy)
         export MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
         ;;
+    api|etcd)
+	export ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+	;;
 esac
+
+# Note: While every role has a metron-agent, and the metron-agent
+# needs access to the etcd cluster, this does not mean that all roles
+# have to compute the cluster ips. The metron-agent uses ETCD_HOST as
+# its target, which the low-level network setup of the system
+# round-robins to all the machines in the etcd sub-cluster.
 
 unset find_cluster_ha_hosts
