@@ -1,7 +1,17 @@
 [Version]
 Class=IEXPRESS
 SEDVersion=3
+[VersionSection]
+Internalname=HCF-Windows-Cell-Installer.exe
+OriginalFilename=helion-windows.exe
+FileVersion=%FileVer%
+FileDescription=%FriendlyName%
+CompanyName="Hewlett Packard Enterprise"
+ProductName="HCF Windows Cell"
+ProductVersion=%FileVer%
+LegalCopyright=
 [Options]
+VersionInfo=VersionSection
 CheckAdminRights=1
 PackagePurpose=InstallApp
 ShowInstallProgramWindow=0
@@ -25,6 +35,7 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
+FileVer=1.0.0.7m
 TargetName=.\helion-windows.exe
 FriendlyName=Stackato Windows Package
 AppLaunched=powershell.exe -ExecutionPolicy Bypass -noexit -nologo -File .\install.ps1
