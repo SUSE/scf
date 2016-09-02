@@ -41,14 +41,20 @@ class ToHCPInstance < Common
     results = []
     variables.each do |var|
       # HCP currently freaks out if it gets empty values
-      next if var['default'].nil? || var['default'].empty?
+      value = var['default']
+      next if value.nil? || value.to_s.empty?
       name = var['name']
       # secrets currently need to be lowercase and can only use dashes, not underscores
       # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
       name.downcase!.gsub!('_', '-') if var['secret']
-      value = var['default']
-      # Some certificates coming from certs.env contain literal `\n` instead of line breaks
-      value.gsub!('\\n', "\n")
+      begin
+        # Some certificates coming from certs.env contain literal `\n`
+        # instead of line breaks. We rescue ourselves from trouble
+        # with applying this to non-string values (port numbers,
+        # boolean flag, etc.)
+        value.gsub!('\\n', "\n")
+      rescue
+      end
       results << {
         'name' => name,
         'value' => value
