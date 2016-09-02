@@ -11,7 +11,7 @@ require_relative 'rm-transformer/common'
 
 def main
   STDOUT.sync = true
-  @has_errors = false
+  @has_errors = 0
 
   STDOUT.puts "Running configuration checks ..."
 
@@ -79,7 +79,7 @@ def main
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
 
   if @has_errors
-    STDOUT.puts "\nConfiguration check failed".red
+    STDOUT.puts "\nConfiguration check failed (#{@has_errors} errors)".red
     exit 1
   else
     STDOUT.puts "\nConfiguration check passed".green
@@ -127,7 +127,7 @@ def check_role_manifest_scripts(manifest)
 
     next if found
     STDOUT.puts "script #{relative_path.to_s.red} is not used in the role manifest"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -139,7 +139,7 @@ def check_env_files(role_manifest, dev_env)
     i = vars.find_index{|x| x['name'] == name }
     next unless i.nil?
     STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -152,7 +152,7 @@ def check_non_templates(manifest)
 
     next unless empty
     STDOUT.puts "global role manifest template #{property.red} is used as a constant"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -174,7 +174,7 @@ def check_rm_variables(manifest)
 
     next if found
     STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -188,7 +188,7 @@ def check_bosh_properties(defs, bosh_properties, check_type)
 
     next if property_exists_in_bosh?(bosh_property, bosh_properties)
     STDOUT.puts "#{check_type} #{bosh_property.red} was not found in any bosh release"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -206,7 +206,7 @@ def dark_exposed(templates, dark)
   dark.each do |k,v|
     next if contains(templates,k)
     STDOUT.puts "dark-opinion #{k.red} missing template in role-manifest"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -223,7 +223,7 @@ def dark_unexposed(light,dark)
   dark.each do |property,v|
     next unless light[property]
     STDOUT.puts "dark-opinion #{property.red} found in light-opinions"
-    @has_errors = true
+    @has_errors += 1
   end
 end
 
@@ -238,7 +238,7 @@ def check(defs,light)
     next unless light[property]
     if value.to_s == light[property].to_s
       STDOUT.puts "duplicated #{property.red}"
-      @has_errors = true
+      @has_errors += 1
       sep = true
     end
   end
@@ -248,7 +248,7 @@ def check(defs,light)
   defs.each do |property, value|
     next unless light[property]
     if value.to_s != light[property].to_s
-      @has_errors = true
+      @has_errors += 1
       STDOUT.puts "conflict for #{property.red}"
       STDOUT.puts "  manifest: |#{value}|"
       STDOUT.puts "  opinion:  |#{light[property]}|"
