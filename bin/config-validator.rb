@@ -29,7 +29,6 @@ def main
 
   STDOUT.puts "Running configuration checks ..."
 
-
   bosh_properties = JSON.load(ARGF.read)
 
   manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/role-manifest.yml'))
@@ -140,10 +139,9 @@ def check_role_manifest_scripts(manifest)
       (r['scripts'] || []).concat(r['post_config_scripts'] || []).concat(r['environment_scripts'] || []).include?(relative_path.to_s)
     }
 
-    unless found
-      STDOUT.puts "script #{relative_path.to_s.red} is not used in the role manifest"
-      @has_errors = true
-    end
+    next if found
+    STDOUT.puts "script #{relative_path.to_s.red} is not used in the role manifest"
+    @has_errors = true
   end
 end
 
@@ -153,10 +151,9 @@ def check_env_files(role_manifest, dev_env)
   dev_env.each_pair do |name, (env_file, value)|
     next if special_env(name)
     i = vars.find_index{|x| x['name'] == name }
-    if i.nil?
-      STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
-      @has_errors = true
-    end
+    next unless i.nil?
+    STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
+    @has_errors = true
   end
 end
 
@@ -167,10 +164,9 @@ def check_non_templates(manifest)
   manifest['configuration']['templates'].each do |property, template|
     empty = Common.parameters_in_template(template).length == 0
 
-    if empty
-      STDOUT.puts "global role manifest template #{property.red} is used as a constant"
-      @has_errors = true
-    end
+    next unless empty
+    STDOUT.puts "global role manifest template #{property.red} is used as a constant"
+    @has_errors = true
   end
 end
 
@@ -190,10 +186,9 @@ def check_rm_variables(manifest)
       Common.parameters_in_template(template).include?(variable['name'])
     }
 
-    unless found
-      STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
-      @has_errors = true
-    end
+    next if found
+    STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
+    @has_errors = true
   end
 end
 
@@ -205,10 +200,9 @@ def check_bosh_properties(defs, bosh_properties, check_type)
 
     bosh_property = prop.sub(/^properties./, '')
 
-    unless property_exists_in_bosh?(bosh_property, bosh_properties)
-      STDOUT.puts "#{check_type} #{bosh_property.red} was not found in any bosh release"
-      @has_errors = true
-    end
+    next if property_exists_in_bosh?(bosh_property, bosh_properties)
+    STDOUT.puts "#{check_type} #{bosh_property.red} was not found in any bosh release"
+    @has_errors = true
   end
 end
 
