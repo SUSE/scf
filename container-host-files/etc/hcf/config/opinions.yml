@@ -48,11 +48,9 @@ properties:
     default_running_security_groups:
     - public_networks
     - dns
-    - dev_services
     default_staging_security_groups:
     - public_networks
     - dns
-    - dev_services
     default_to_diego_backend: true
     development_mode: false
     disable_custom_buildpacks: false
