@@ -17,6 +17,15 @@ if [ ! -d "$setup_dir" ]; then
     exit 1
 fi
 
+# Check for the filter helper file created for us by either 'make run'
+# or 'run-all-roles.sh'. If it is missing create it ourselves
+ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
+CLEAN=""
+if test ! -f $ROOT/vagrant.json ; then
+    ( cd $ROOT ; make/generate vagrant )
+    CLEAN="${CLEAN} $ROOT/vagrant.json"
+fi
+
 # Terraform, in HOS/MPC VM, hcf-infra container support as copied
 # SELF    = /opt/hcf/bin/list-roles.sh
 # SELFDIR = /opt/hcf/bin
@@ -38,3 +47,5 @@ log_dir=$HCF_RUN_LOG_DIRECTORY
 load_all_roles
 # (Re)start the specified role
 handle_restart "$role_name" "${setup_dir}" "$@"
+
+rm -f $CLEAN

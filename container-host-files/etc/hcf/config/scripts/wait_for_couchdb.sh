@@ -11,4 +11,6 @@ function retry () {
     done
 }
 
-retry 240 30s curl $AUTOSCALER_COUCHDB_HOST:$AUTOSCALER_COUCHDB_PORT 1>/dev/null 2>&1
+echo "Waiting for couchdb to come online..."
+
+retry 240 30s curl -s couchdb-int.$HCP_SERVICE_DOMAIN_SUFFIX:5984

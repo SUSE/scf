@@ -7,6 +7,8 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 . ${GIT_ROOT}/make/include/registry
 . ${GIT_ROOT}/make/include/versioning
 
+${GIT_ROOT}/bin/validation.sh
+
 # If you're looking at these quotes and wondering what I was thinking...
 # The quotes need to be escaped so echo doesn't consume them, because they need
 # to be used in the `docker run` command further on, which already has quotes
@@ -18,7 +20,6 @@ OPTIONS=$(echo \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${DOCKER_APP_VERSION}\" \
     --hcf-version \"${ARTIFACT_VERSION}\" \
-    --env-dir bin/settings/
 )
 
 CLEAN=""
@@ -35,9 +36,19 @@ case ${TARGET} in
 esac
 
 case ${TARGET} in
+    vagrant)
+        OUTFILE=${OUTFILE:-"${TARGET}.json"}
+        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
+
+	( . ${GIT_ROOT}/make/include/fissile
+	  fissile show properties --output yaml ) > vagrant-propmap.yaml
+
+        OPTIONS="${OPTIONS} --property-map vagrant-propmap.yaml"
+	CLEAN="${CLEAN} vagrant-propmap.yaml"
+        ;;
     hcp)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
-        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider \"${TARGET}\""
+        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
 
 	( . ${GIT_ROOT}/make/include/fissile
 	  fissile show properties --output yaml ) > hcf-hcp-propmap.yaml
@@ -48,10 +59,7 @@ case ${TARGET} in
     hcp-instance|hcp-instance-ha)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         TEMPLATE="hcp/hcf-${TARGET}.template.json"
-        OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ --provider hcp-instance --instance-definition-template ${TEMPLATE}"
-        if test ${TARGET} = hcp-instance-ha ; then
-            OPTIONS="${OPTIONS} --env-dir bin/settings/hcp/ha/"
-        fi
+        OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}

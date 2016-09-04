@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+# Check for the filter helper file created for us by 'make run'.
+# If it is missing create it ourselves
+ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
+CLEAN=""
+if test ! -f $ROOT/vagrant.json ; then
+    ( cd $ROOT ; make/generate vagrant )
+    CLEAN="${CLEAN} $ROOT/vagrant.json"
+fi
+
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
 . "${BINDIR}/common.sh"
@@ -47,3 +56,5 @@ do
     fi
     ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
+
+rm -f $CLEAN

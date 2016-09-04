@@ -5,7 +5,6 @@ properties:
       droplet_directory_key: the_key
     buildpacks:
       buildpack_directory_key: bd_key
-    staging_upload_user: username
     staging_upload_password: password
     bulk_api_password: password
     db_encryption_key: the_key
@@ -16,7 +15,6 @@ properties:
       tag: admin
   cf-usb:
     broker:
-      username: cf-usb_username
       password: cf-usb_password
     management:
       uaa:
@@ -25,28 +23,20 @@ properties:
     password: couchdb_password
   domain: example.com
   nats:
-    user: nats_user
     password: nats_password
   router:
     ssl_cert: ''
     ssl_key: ''
     status:
-      user: router_user
       password: router_password
     route_services_secret: null
   smoke_tests:
     api: api.((DOMAIN))
     apps_domain: [ ((DOMAIN)) ]
-    user: ((CLUSTER_ADMIN_USERNAME))
     password: ((CLUSTER_ADMIN_PASSWORD))
   uaa:
     admin:
       client_secret: admin_secret
-    batch:
-      username: batch_username
-      password: batch_password
-    cc:
-      client_secret: cc_client_secret
     clients:
       app-direct:
         secret: app-direct_secret
@@ -82,7 +72,7 @@ properties:
       verification_key: vk
       signing_key: sk
     scim:
-      users: []      
+      users: []
   uaadb:
     roles:
     - name: uaaadmin

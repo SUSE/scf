@@ -1,0 +1,22 @@
+---
+name: global-properties
+description: Dummy BOSH job used to host global parameters that are required to configure HCF
+
+templates:
+  run.erb: bin/run
+
+packages:
+
+properties:
+
+  hcf.hcp_service_domain_suffix:
+    description: "Domain suffix used in an HCP environment"
+
+  hcf.monit.password:
+    description: "Password used for the monit API"
+
+  hcf.monit.port:
+    description: "Port used for the monit API"
+
+  hcf.monit.user:
+    description: "Username for the monit API"
