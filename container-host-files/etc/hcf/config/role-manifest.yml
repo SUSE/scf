@@ -3,7 +3,6 @@ roles:
 - name: nats
   scripts:
   - scripts/fake_spec_index_on_hcp.sh
-  - scripts/patches/fix-nats-log-dir.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -2176,8 +2175,6 @@ configuration:
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
-    properties.etcd_metrics_server.nats.machines: '["((NATS_HOST))"((#NATS_HA_HOST_1)), "((NATS_HA_HOST_1))"((/NATS_HA_HOST_1))((#NATS_HA_HOST_2)), "((NATS_HA_HOST_2))"((/NATS_HA_HOST_2))]'
-    properties.etcd_metrics_server.nats.password: '"((NATS_PASSWORD))"'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
