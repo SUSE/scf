@@ -9,8 +9,6 @@ properties:
     include_backend_compatibility: false
     include_v3: false
     include_security_groups: true
-    include_logging: true
-    include_operator: true
     include_internet_dependent: true
     include_services: true
     include_route_services: false
@@ -283,9 +281,6 @@ properties:
     peer_require_ssl: false
     # Until we figure out DNS names
     require_ssl: false
-  etcd_metrics_server:
-    nats:
-      username: nats
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
