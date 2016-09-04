@@ -1337,7 +1337,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: dev-dns
@@ -1381,7 +1381,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: autoscaler-create-service
@@ -1401,7 +1401,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
