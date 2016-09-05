@@ -1796,13 +1796,6 @@ configuration:
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
   # Certificates
-  - name: CERTS_ROOT_CHAIN_PEM
-    secret: true
-    generator:
-      id: "certs_root"
-      type: Certificate
-      value_type: cert_private_key
-      key_length: 4096
   - name: ETCD_PEER_KEY
     secret: true
     generator:
@@ -1905,6 +1898,12 @@ configuration:
       id: "router_cert"
       type: Certificate
       value_type: private_key
+  - name: HAPROXY_SSL_CERT_KEY
+    secret: true
+    generator:
+      id: "router_cert"
+      type: Certificate
+      value_type: cert_private_key
   - name: ROUTER_STATUS_PASSWORD
     secret: true
     generator:
@@ -2180,7 +2179,7 @@ configuration:
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.ha_proxy.ssl_pem: '"((CERTS_ROOT_CHAIN_PEM))"'
+    properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'

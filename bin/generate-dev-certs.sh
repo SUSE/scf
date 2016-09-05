@@ -80,7 +80,6 @@ cd ${hcf_certs_path}
 openssl genrsa -out hcf.key 4096
 openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
-cat hcf.crt hcf.key > hcf.pem
 
 # Given a host name (e.g. "api-int"), produce variations based on:
 # - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-int", "api-int.hcf")
@@ -167,15 +166,17 @@ certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --pass
 cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
 
-openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
-    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
-    -keyout "${certs_path}/router_ssl.key" -out "${certs_path}/router_ssl.cert"
+server_cn=router_ssl
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router-int,router-int.hcf,${DOMAIN},*.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
+mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
+mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
+cat "${certs_path}/router_ssl.cert" "${certs_path}/router_ssl.key" > "${certs_path}/ha_proxy.pem"
 
 openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
     -keyout "${certs_path}/blobstore_tls.key" -out "${certs_path}/blobstore_tls.cert"
 
-CERTS_ROOT_CHAIN_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/hcf/hcf.pem")
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
 INTERNAL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/internalCA.crt")
@@ -194,6 +195,7 @@ UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
+HAPROXY_SSL_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ha_proxy.pem")
 BLOBSTORE_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.cert")
 BLOBSTORE_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.key")
 CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.crt")
@@ -211,7 +213,6 @@ CF_USB_BROKER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/c
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
 cat <<ENVS > ${output_path}
-CERTS_ROOT_CHAIN_PEM=${CERTS_ROOT_CHAIN_PEM}
 JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
 JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
 INTERNAL_CA_CERT=${INTERNAL_CA_CERT}
@@ -229,6 +230,7 @@ SSH_KEY=${SSH_KEY}
 APP_SSH_HOST_KEY_FINGERPRINT=${APP_SSH_HOST_KEY_FINGERPRINT}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
+HAPROXY_SSL_CERT_KEY=${HAPROXY_SSL_CERT_KEY}
 BLOBSTORE_TLS_CERT=${BLOBSTORE_TLS_CERT}
 BLOBSTORE_TLS_KEY=${BLOBSTORE_TLS_KEY}
 UAA_PRIVATE_KEY=${UAA_PRIVATE_KEY}

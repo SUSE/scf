@@ -405,12 +405,18 @@ class ToHCP < Common
     end
   end
 
-  def process_templates(rolemanifest)
+  def process_templates(rolemanifest, role)
     return unless rolemanifest['configuration'] && rolemanifest['configuration']['templates']
 
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
       templates[property] = Common.parameters_in_template(template)
+    end
+
+    if role['configuration'] && role['configuration']['templates']
+      role['configuration']['templates'].each do |property, template|
+        templates[property] = Common.parameters_in_template(template)
+      end
     end
 
     templates
@@ -429,11 +435,11 @@ class ToHCP < Common
 
     return unless @property
 
-    templates = process_templates(rolemanifest)
-    return unless templates
-
     @component_parameters = {}
     rolemanifest['roles'].each do |role|
+      templates = process_templates(rolemanifest, role)
+      next unless templates
+
       parameters = []
       if role['jobs']
         role['jobs'].each do |job|
