@@ -9,6 +9,9 @@ packages:
 
 properties:
 
+  hcf.skip_cert_verify_external:
+    description: "Skip certificate validation when talking to external endpoints"
+
   hcf.hcp_service_domain_suffix:
     description: "Domain suffix used in an HCP environment"
 
