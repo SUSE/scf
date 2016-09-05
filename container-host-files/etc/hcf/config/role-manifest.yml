@@ -1405,6 +1405,8 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
+  environment_scripts:
+  - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
