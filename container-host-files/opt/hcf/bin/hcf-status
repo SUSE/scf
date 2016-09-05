@@ -48,7 +48,7 @@ function status_job_bosh() {
     if [[ -n "${SILENT}" ]]; then
       exit 1
     fi
-    printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a" "n/a" 
+    printf ${rowfmt} ${role} ${bldred} ${#containers[@]} ${txtgrn} "n/a" ${txtgrn} "n/a" "n/a"
     return
   fi
 
@@ -99,36 +99,10 @@ function mem_used_from_docker_role {
     role_id=$(docker inspect ${role}-int | jq --raw-output '.[0].Id')
     memory_file=/sys/fs/cgroup/memory/docker/${role_id}/memory.max_usage_in_bytes
     if [[ ! -f ${memory_file} ]] ; then
-	echo "n/a"
+      echo "n/a"
     else
-	printable_memory_usage $(cat ${memory_file})
+      numfmt --to=iec --suffix=B $(cat ${memory_file})
     fi
-}
-
-function printable_memory_usage {
-    local bytes_used=${1}
-    KB=1024
-    MB=$((1024 * KB))
-    GB=$((1024 * MB))
-    TB=$((1024 * GB))
-    PB=$((1024 * TB))
-    if [[ $bytes_used -ge $PB ]] ; then
-	divisor=${PB}
-	suffix=PB
-    elif [[ $bytes_used -ge $TB ]] ; then
-	divisor=${TB}
-	suffix=TB
-    elif [[ $bytes_used -ge $GB ]] ; then
-	divisor=${GB}
-	suffix=GB
-    elif [[ $bytes_used -ge $MB || $bytes_used -eq 0 ]] ; then
-	divisor=${MB}
-	suffix=MB
-    else
-	divisor=${KB}
-	suffix=KB
-    fi
-    awk -v divisor=${divisor} -v bytes_used=${bytes_used} -v suffix="${suffix}" 'BEGIN { printf("%.1f%s\n", bytes_used / divisor, suffix); exit; }'
 }
 
 # Print the status of a docker job
