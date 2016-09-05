@@ -32,7 +32,7 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
     fi
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
 
 # Start flight roles
@@ -43,7 +43,7 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
     fi
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
 
 # Start post-flight roles
@@ -54,7 +54,7 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
     fi
-    ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
 done
 
 rm -f $CLEAN

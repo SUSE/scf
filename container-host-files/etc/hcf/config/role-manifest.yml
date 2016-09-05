@@ -25,7 +25,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 4
     exposed-ports:
       - name: 'nats'
@@ -63,7 +63,7 @@ roles:
         tag: consul-data
         size: 5
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'server-rpc'
@@ -131,7 +131,7 @@ roles:
         tag: mysql-data
         size: 10
     shared-volumes: []
-    memory: 1024
+    memory: 3072
     virtual-cpus: 2
     exposed-ports:
       - name: 'mysql'
@@ -189,7 +189,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'mysql-proxy'
@@ -251,7 +251,7 @@ roles:
         tag: diego-database-data
         size: 10
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'cell-metrics'
@@ -298,7 +298,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'ha-proxy'
@@ -350,7 +350,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 2048
+    memory: 256
     virtual-cpus: 4
     exposed-ports:
       - name: 'router'
@@ -390,7 +390,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
     - name: 'healthcheck'
@@ -441,7 +441,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 2048
+    memory: 512
     virtual-cpus: 4
     exposed-ports:
       - name: route-etcd
@@ -492,7 +492,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 2048
     virtual-cpus: 2
     exposed-ports:
       - name: 'uaa'
@@ -570,7 +570,7 @@ roles:
     - path: '/var/vcap/nfs/shared'
       tag: api-data
       size: 100
-    memory: 2048
+    memory: 2560
     virtual-cpus: 4
     exposed-ports:
       - name: 'api'
@@ -615,7 +615,7 @@ roles:
     - path: '/var/vcap/nfs/shared'
       size: 100
       tag: 'api-data'
-    memory: 1024
+    memory: 512
     virtual-cpus: 2
     exposed-ports: []
 - name: blobstore
@@ -649,7 +649,7 @@ roles:
       tag: blobstore-data
       size: 100
     shared-volumes: []
-    memory: 1024
+    memory: 1536
     virtual-cpus: 2
     exposed-ports:
     - name: 'blobstore-ext'
@@ -690,7 +690,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 512
     virtual-cpus: 2
     exposed-ports: []
 - name: cf-usb
@@ -723,7 +723,7 @@ roles:
     - path: '/var/vcap/nfs'
       size: 10
       tag: 'cf-usb-data'
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'usb'
@@ -764,7 +764,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'doppler-in'
@@ -812,7 +812,7 @@ roles:
         size: 10
         tag: cf-etcd-data
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'etcd-client'
@@ -868,7 +868,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'loggregator'
@@ -906,7 +906,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 4
     exposed-ports:
       - name: 'diego-auction'
@@ -950,7 +950,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 512
     virtual-cpus: 4
     exposed-ports:
       - name: 'nsync-listen'
@@ -1028,7 +1028,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports: []
 - name: diego-access
@@ -1061,7 +1061,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 2
     exposed-ports:
       - name: 'diego-ssh'
@@ -1110,7 +1110,7 @@ roles:
       tag: garden-graph
       size: 50
     shared-volumes: []
-    memory: 2048
+    memory: 4096
     virtual-cpus: 4
     exposed-ports: []
 - name: sclr-api
@@ -1138,7 +1138,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 1536
     virtual-cpus: 1
     exposed-ports:
       - name: 'api'
@@ -1204,7 +1204,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 1536
     virtual-cpus: 1
     exposed-ports:
       - name: 'broker'
@@ -1235,7 +1235,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports:
       - name: 'couchdb'
@@ -1337,7 +1337,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: dev-dns
@@ -1381,7 +1381,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: autoscaler-create-service
@@ -1401,7 +1401,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 256
     virtual-cpus: 1
     exposed-ports: []
 - name: hcf-sso
@@ -1426,7 +1426,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 128
     virtual-cpus: 1
     exposed-ports:
     - name: service-broker
@@ -1459,7 +1459,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 128
     virtual-cpus: 1
     exposed-ports:
     - name: 'hcf-versions-api'
@@ -1498,7 +1498,7 @@ roles:
       container: /var/run/docker.sock
     - host: /home/vagrant/hcf/container-host-files
       container: /container-host-files
-    memory: 128
+    memory: 512
     virtual-cpus: 1
     exposed-ports:
       - name: 'status-route'
@@ -1531,7 +1531,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 128
     virtual-cpus: 2
     exposed-ports:
       - name: 'demophon'
