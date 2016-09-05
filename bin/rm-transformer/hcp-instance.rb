@@ -22,6 +22,16 @@ class ToHCPInstance < Common
 
   def to_hcp_instance(manifest)
     definition = load_template
+
+    dev_env = Common.collect_dev_env(dirs_for_flavor[@options[:instance_definition_template]])
+
+    vars = manifest['configuration']['variables']
+
+    dev_env.each_pair do |name, (env_file, value)|
+      i = vars.find_index{|x| x['name'] == name }
+      vars[i]['default'] = value unless i.nil?
+    end
+
     variables = (manifest['configuration'] || {})['variables']
     definition['parameters'] = []
     definition['parameters'].push(*collect_parameters(variables))
@@ -35,6 +45,13 @@ class ToHCPInstance < Common
     open(@options[:instance_definition_template], 'r') do |f|
       JSON.load f
     end
+  end
+
+  def dirs_for_flavor
+    {
+      'hcp/hcf-hcp-instance.template.json' => ['bin/settings', 'bin/settings/hcp'],
+      'hcp/hcf-hcp-instance-ha.template.json' => ['bin/settings', 'bin/settings/hcp', 'bin/settings/hcp/ha']
+    }
   end
 
   def collect_parameters(variables)
@@ -57,7 +74,7 @@ class ToHCPInstance < Common
       end
       results << {
         'name' => name,
-        'value' => value
+        'value' => value.to_s
       }
     end
     results
