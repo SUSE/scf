@@ -83,14 +83,14 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
                             %> --<%= key.tr('-', '_') %> '<%= client_data[key] %>' <%
                         end
                     end
-                %> \
-                <% if client_data.key? :autoapprove
-                    if client_data[:autoapprove].eql? true
-                        puts "--autoapprove #{client_data[:scope]}"
-                    else
-                        puts "--autoapprove #{client_data[:autoapprove]}"
+                    if client_data.key? 'autoapprove'
+                        if client_data['autoapprove'].eql? true
+                            %> --autoapprove '<%= client_data['scope'] %>' <%
+                        else
+                            %> --autoapprove '<%= client_data['autoapprove'] %>' <%
+                        end
                     end
-                end %>
+                %>
         fi
     <% end %>
 fi
