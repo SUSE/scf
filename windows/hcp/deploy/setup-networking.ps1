@@ -180,6 +180,32 @@ Write-Output "Finished setting dns server"
 Write-Output "Waiting for services to start ..."
 Start-Sleep -s 30
 
+#Check if the services are started and running ok
+
+function CheckService
+{
+	Param($serviceName)
+	$rez = (get-service $serviceName -ErrorAction SilentlyContinue)
+
+	if ($rez -ne $null) {
+		if ($rez.Status.ToString().ToLower() -eq "running"){
+			write-host "INFO: Service $serviceName is running"
+		}else{
+			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+		}
+
+	}else{
+		write-warning "Service $serviceName not found"
+	}
+}
+
+#List of services to check if started
+$services = @("win-k8s-connector","flannel")
+
+foreach ($service in $services){
+	CheckService($service)
+}
+
 Write-Output "Getting rpmgr IP ..."
 $rpmgr = (curl "${k8MasterIP}:${k8sPort}/api/v1/namespaces/hcp/services/rpmgr-int").Content | ConvertFrom-Json
 $rpmgrip = $rpmgr.spec.ClusterIP
