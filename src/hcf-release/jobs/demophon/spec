@@ -5,6 +5,7 @@ templates:
   demophon_ctl.erb: bin/demophon_ctl
   server_cert.pem.erb: config/certs/tls/server_cert.pem
   server_key.pem.erb: config/certs/tls/server_key.pem
+  demophon.config.erb: config/demophon.config
 
 packages:
   - demophon
@@ -35,3 +36,6 @@ properties:
 
   hcf.demophon.uaa_url:
     description: UAA endpoint for authn and authz.
+
+  hcf.demophon.config:
+    description: Configuration for demophon service
