@@ -158,7 +158,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_CLUSTER_IPS))'
+      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_CLUSTER_IPS))((#MYSQL_CLUSTER_CONFIG_REVISION))((/MYSQL_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.database_startup_timeout: '300'
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
@@ -212,7 +212,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_CLUSTER_IPS))'
+      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_CLUSTER_IPS))((#MYSQL_CLUSTER_CONFIG_REVISION))((/MYSQL_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.database_startup_timeout: 300
       properties.network_name: 'default'
       properties.cf_mysql.proxy.api_username: 'mysql_proxy'
