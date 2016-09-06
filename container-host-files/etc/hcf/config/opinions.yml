@@ -236,7 +236,6 @@ properties:
       log_level: debug
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
-      zone: z1
     route_emitter:
       bbs:
         require_ssl: true
