@@ -37,7 +37,7 @@ case $1 in
     --skip-cert-verify <%= p('hcf.demophon.skip_cert_verify') %> \
     --cert-file ${CONF_DIR}/certs/tls/server_cert.pem \
     --key-file ${CONF_DIR}/certs/tls/server_key.pem \
-    --uaa-url <%= p('hcf.demophon.uaa_url') %> \
+    --uaa-url <%= p('hcf.uaa.internal-url') %> \
     --config-path /var/vcap/jobs/demophon/config/demophon.config
       2> >(tee -a $LOG_DIR/demophon.stderr.log | logger -p user.error -t vcap.demophon) \
       1> >(tee -a $LOG_DIR/demophon.stdout.log | logger -p user.info -t vcap.demophon)
