@@ -34,7 +34,7 @@ properties:
     description: Skip certificate validation when talking to other components.
     default: false
 
-  hcf.demophon.uaa_url:
+  hcf.uaa.internal-url:
     description: UAA endpoint for authn and authz.
 
   hcf.demophon.config:
