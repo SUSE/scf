@@ -619,6 +619,39 @@ cf enable-feature-flag diego_docker
     ```
 
 
+## How do I run HCF with Vagrant behind a proxy?
+
+1. On your host that will run the Vagrant box, set up the environment variables for the proxy:
+    ```bash
+    export HTTP_PROXY=http://<your-proxy-ip>:<your-proxy-port>
+    export http_proxy=http://<your-proxy-ip>:<your-proxy-port>
+    export HTTPS_PROXY=https://<your-proxy-ip>:<your-proxy-port>
+    export https_proxy=https://<your-proxy-ip>:<your-proxy-port>
+    ```
+
+2. Install the vagrant proxy plugin:
+    ```bash
+    vagrant plugin install vagrant-proxyconf
+    ```
+
+3. Inside the `Vagrant.configure(2) do |config|` section of the Vagrantfile, add the proxy config:
+    ```
+    config.proxy.http     = "http://<your-proxy-ip>:<your-proxy-port>"
+    config.proxy.https    = "http://<your-proxy-ip>:<your-proxy-port>"
+    config.proxy.no_proxy = "localhost,127.0.0.1"
+    ```
+
+4. Modify `bin/settings-dev/settings.env` to use the proxy:
+    ```
+    HTTP_PROXY=http://<your-proxy-ip>:<your-proxy-port>
+    http_proxy=http://<your-proxy-ip>:<your-proxy-port>
+    HTTPS_PROXY=https://<your-proxy-ip>:<your-proxy-port>
+    https_proxy=https://<your-proxy-ip>:<your-proxy-port>
+    ```
+
+5. Run `vagrant up` and start HCF as described previously.
+
+
 ## Build Dependencies
 
 [![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)
