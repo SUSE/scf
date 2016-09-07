@@ -2012,7 +2012,7 @@ configuration:
       type: Certificate
       value_type: private_key
   - name: SKIP_CERT_VERIFY_INTERNAL
-    default: true
+    default: false
   - name: SKIP_CERT_VERIFY_EXTERNAL
     default: true
   - name: GARDEN_LINUX_DNS_SERVER
