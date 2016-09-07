@@ -2056,7 +2056,7 @@ configuration:
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.capi.nsync.cc.base_url: '"https://((API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.capi.nsync.cc.base_url: '"http://((API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.nsync.file_server_url: "http://((DIEGO_ACCESS_HOST)):8080"
     properties.capi.stager.bbs.api_location: '((DIEGO_DATABASE_HOST)):8889'
