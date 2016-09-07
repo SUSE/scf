@@ -185,7 +185,14 @@ class Common
     ).include? key
   end
 
+  def self.source_root_dir
+    return @source_root_dir if @source_root_dir
+    @source_root_dir = File.join(File.dirname(__FILE__), '..', '..')
+  end
+
   def self.product_version
-    "4.0.0" # TODO: Make the minor here == cf-release's version?
+    return @product_version if @product_version
+    product_version = open("#{source_root_dir}/VERSION").read.strip
+    @product_version = "#{product_version}"
   end
 end

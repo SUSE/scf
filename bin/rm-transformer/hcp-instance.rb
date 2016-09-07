@@ -6,15 +6,6 @@ require_relative 'common'
 
 # Provider to generate HCP instance definitions
 class ToHCPInstance < Common
-  def initialize(options)
-    super(options)
-    # In HCP the version number becomes a kubernetes label, which puts
-    # some restrictions on the set of allowed characters and its
-    # length.
-    @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
-    @hcf_version = @hcf_version.slice(0,63)
-  end
-
   # Public API
   def transform(manifest)
     JSON.pretty_generate(to_hcp_instance(manifest))
