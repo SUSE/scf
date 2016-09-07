@@ -1157,6 +1157,8 @@ roles:
     exposed-ports: []
 - name: sclr-api
   type: bosh
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/configgin-config-properties.sh
   - scripts/wait_for_couchdb.sh
@@ -1520,6 +1522,8 @@ roles:
 - name: status-route
   tags:
   - dev-only
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   post_config_scripts:
