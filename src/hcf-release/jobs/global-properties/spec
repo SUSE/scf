@@ -15,6 +15,12 @@ properties:
   hcf.hcp_service_domain_suffix:
     description: "Domain suffix used in an HCP environment"
 
+  hcf.hcp_flightrecorder_host:
+    description: "Host of the HCP flightrecorder"
+
+  hcf.hcp_flightrecorder_port:
+    description: "Port of the HCP flightrecorder"
+
   hcf.monit.password:
     description: "Password used for the monit API"
 

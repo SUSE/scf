@@ -1,6 +1,0 @@
-set -e -x
-
-./pre_packaging_utils/get_redis.sh
-
-cd ${BUILD_DIR}
-rm -rf pre_packaging_utils

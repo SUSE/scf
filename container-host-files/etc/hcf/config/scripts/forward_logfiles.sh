@@ -67,7 +67,8 @@ function initialConfig {
         echo "\$template RFC5424Format,\"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n\"" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
         echo "\$ActionFileDefaultTemplate RFC5424Format" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
         echo "\$RepeatedMsgReduction on" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo \*.\* @@$HCP_FLIGHTRECORDER_HOST:$HCP_FLIGHTRECORDER_PORT >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
+        echo "\$ActionQueueType LinkedList" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
+        echo \*.\* @$HCP_FLIGHTRECORDER_HOST:$HCP_FLIGHTRECORDER_PORT >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
         echo ":app-name, contains, \"vcap\"" ~ >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
 
         if [ $? -ne 0 ]; then
