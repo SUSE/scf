@@ -855,6 +855,7 @@ roles:
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
