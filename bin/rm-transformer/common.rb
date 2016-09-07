@@ -168,16 +168,19 @@ class Common
 
   def self.special_env(key)
     # Detect env var keys that are special (they are used, but not defined in the role manifest).
-    return true if key =~ /^HCP_/
-    return true if key == 'http_proxy'
-    return true if key == 'https_proxy'
-    return true if key == 'no_proxy'
-    return true if key == 'HTTP_PROXY'
-    return true if key == 'HTTPS_PROXY'
-    return true if key == 'NO_PROXY'
-    return true if key == "JWT_SIGNING_PUB"
-    return true if key == "JWT_SIGNING_PEM"
-    false
+    return true if key.start_with? 'HCP_'
+    %w(
+      http_proxy
+      https_proxy
+      no_proxy
+      HTTP_PROXY
+      HTTPS_PROXY
+      NO_PROXY
+      MYSQL_CLUSTER_CONFIG_REVISION
+      MYSQL_CLUSTER_IPS
+      JWT_SIGNING_PUB
+      JWT_SIGNING_PEM
+    ).include? key
   end
 
   def self.product_version

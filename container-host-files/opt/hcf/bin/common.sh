@@ -50,6 +50,7 @@ function start_role {
   local role=$3
   local env_file_dir=$4
   local extra="$(setup_role $role)"
+  local hcp_compat_env=""
   local env_files="$(collect_env "$env_file_dir")"
   shift 4
   local user_extra="$@"
@@ -61,15 +62,18 @@ function start_role {
     pre-flight)
       restart="--restart=no"
       stdin="</dev/null"
+      hcp_compat_env="--env HCP_JOB_NAME=${role}"
       ;;
     flight)
       detach="--detach"
       restart="--restart=always"
+      hcp_compat_env="--env HCP_COMPONENT_NAME=${role}"
       ;;
     post-flight)
       detach="--detach"
       restart="--restart=on-failure"
       stdin="</dev/null"
+      hcp_compat_env="--env HCP_JOB_NAME=${role}"
       ;;
   esac
 
@@ -96,6 +100,7 @@ function start_role {
         --hostname=${role}-int.hcf \
         ${restart} \
         ${uaa_env_overrides[@]} \
+        ${hcp_compat_env} \
         "${the_env[@]}" \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
         ${extra} \
