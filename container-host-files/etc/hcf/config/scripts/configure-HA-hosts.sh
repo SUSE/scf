@@ -30,10 +30,19 @@ case "${HCP_COMPONENT_NAME:-}" in
 	export ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
 	# job: route_registrar, cloud_controller_ng
         export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+	# job: consul_agent
+        export CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
 	;;
-    api-worker|blobstore|cf-usb|clock-global|diego-route-emitter|hcf-versions|loggregator|nats|router|sclr-api|status-route|uaa)
+    api-worker|cf-usb|clock-global|diego-route-emitter|router|uaa)
+        export CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+        export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+	;;
+    blobstore|hcf-versions|loggregator|nats|sclr-api|status-route)
         export NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
         ;;
+    consul|diego-access|diego-brain|diego-cc-bridge|diego-cell|diego-database|ha-proxy|routing-api|routing-ha-proxy)
+        export CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+	;;
     etcd)
 	export ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
 	;;

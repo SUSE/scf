@@ -56,12 +56,8 @@
         "min_instances": 3
       },
       {
-        "component": "consul-1",
-        "min_instances": 1
-      },
-      {
-        "component": "consul-2",
-        "min_instances": 1
+        "component": "consul",
+        "min_instances": 2
       },
       {
         "component": "etcd",
