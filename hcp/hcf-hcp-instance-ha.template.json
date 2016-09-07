@@ -7,7 +7,7 @@
     "parameters": [],
     "scaling": [
       {
-        "component": "api-1",
+        "component": "api",
         "min_instances": 3,
         "max_instances": 3
       },
