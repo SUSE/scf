@@ -59,6 +59,12 @@ case ${TARGET} in
 
         OPTIONS="${OPTIONS} --property-map hcf-hcp-propmap.yaml"
 	CLEAN="${CLEAN} hcf-hcp-propmap.yaml"
+
+	( . ${GIT_ROOT}/make/include/fissile
+	  fissile show descriptions --output yaml ) > hcf-hcp-propdesc.yaml
+
+        OPTIONS="${OPTIONS} --property-desc hcf-hcp-propdesc.yaml"
+	CLEAN="${CLEAN} hcf-hcp-propdesc.yaml"
         ;;
     instance-basic-dev|instance-ha-dev)
         OUTFILE=${OUTFILE:-"output/${TARGET}.json"}

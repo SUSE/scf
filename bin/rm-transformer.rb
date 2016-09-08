@@ -15,7 +15,8 @@ def main
   # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
   ##
   # --manual          ~ Include manually started roles in the output
-  # --property-map <file> ~ File mapping releases and jobs to the properties they use.
+  # --property-map  <file> ~ File mapping releases, jobs, and properties to their default values.
+  # --property-desc <file> ~ File mapping releases, jobs, and properties to their descriptions.
   # --provider <name> ~ Choose the output format.
   #                     Known: hcp, tf
   #                     Default: hcp
@@ -45,6 +46,7 @@ def main
     hcf_root_dir: nil,
     manual:      false,
     propmap:     nil,
+    propdesc:    nil,
     hcp_cpu_num: 6
   }
 
@@ -87,8 +89,11 @@ def main
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v
     end
-    opts.on('-M', '--property-map text', 'Path to YAML file with the mapping from releases to jobs to properties') do |v|
+    opts.on('-M', '--property-map text', 'Path to YAML file with the mapping from releases to jobs to properties to default values') do |v|
       options[:propmap] = YAML.load_file(v)
+    end
+    opts.on('-M', '--property-desc text', 'Path to YAML file with the mapping from releases to jobs to properties to descriptions') do |v|
+      options[:propdesc] = YAML.load_file(v)
     end
     opts.on('-p', '--provider format', 'Chose output format') do |v|
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
