@@ -207,14 +207,7 @@ class ToHCP < Common
     end
   end
 
-  def is_compound_value(property_value)
-    "[{".index(property_value[0])
-  end
-
   def get_best_description(var_name)
-    if var_name == "CONSUL_HOST"
-      puts "Stop here"
-    end
     longest_description = ""
     longest_default = ""
     # Favor properties.foo = '"blah ... ((VAR))..."' over '[{"name": "((VAR))",...]'
