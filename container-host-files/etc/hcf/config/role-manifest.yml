@@ -1336,21 +1336,6 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-- name: diego-debugger
-  type: docker
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  run:
-    scaling:
-      indexed: 1
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 128
-    virtual-cpus: 1
-    exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
   scripts:
@@ -1513,45 +1498,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: status-route
-  tags:
-  - dev-only
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  post_config_scripts:
-  - scripts/status-route-start.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: route_registrar
-    release_name: routing
-  processes:
-  - name: route_registrar
-  - name: gotty
-  run:
-    scaling:
-      indexed: 1
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    docker-volumes:
-    - host: /var/run/docker.sock
-      container: /var/run/docker.sock
-    - host: /home/vagrant/hcf/container-host-files
-      container: /container-host-files
-    memory: 512
-    virtual-cpus: 1
-    exposed-ports:
-      - name: 'status-route'
-        protocol: 'TCP'
-        external: 9052
-        internal: 9052
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: demophon
   scripts:
   - scripts/authorize_internal_ca.sh
