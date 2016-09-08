@@ -9,6 +9,9 @@ packages:
 
 properties:
 
+  hcf.internal-ca-cert:
+    description: "Internal CA certificate for use across the cluster"
+
   hcf.skip_cert_verify_external:
     description: "Skip certificate validation when talking to external endpoints"
 

@@ -40,6 +40,7 @@ roles:
         public: false
 - name: consul
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -228,6 +229,7 @@ roles:
       properties.cf_mysql.proxy.api_force_https: 'false'
 - name: diego-database
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -277,6 +279,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: ha-proxy
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -366,6 +369,7 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   scripts:
   - scripts/patches/router_internal_host_names.sh
+  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -468,6 +472,7 @@ roles:
 - name: uaa
   tags: ['dev-only']
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/patches/fix_uaa_hostnames_in_uaa_yml.sh
   - scripts/forward_logfiles.sh
@@ -519,6 +524,7 @@ roles:
       properties.uaa.zones.internal.hostnames: '["((UAA_HOST))","((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   scripts:
   # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
@@ -598,6 +604,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -676,6 +683,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -706,6 +714,7 @@ roles:
   environment_scripts:
   - scripts/fetch_uaa_verification_key.sh
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -793,6 +802,7 @@ roles:
         public: false
 - name: etcd
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -851,6 +861,7 @@ roles:
       properties.etcd.bootstrap_node: 'etcd-0'
 - name: loggregator
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -892,6 +903,7 @@ roles:
         public: false
 - name: diego-brain
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -925,6 +937,7 @@ roles:
         public: false
 - name: diego-cc-bridge
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1014,6 +1027,7 @@ roles:
         public: false
 - name: diego-route-emitter
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1042,6 +1056,7 @@ roles:
     exposed-ports: []
 - name: diego-access
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1085,6 +1100,7 @@ roles:
         public: false
 - name: diego-cell
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/prevent_apparmor_disable.sh
   - scripts/configure-nested-net.sh
@@ -1254,6 +1270,8 @@ roles:
         public: false
 - name: acceptance-tests-flight-recorder
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1278,6 +1296,8 @@ roles:
         public: false
 - name: acceptance-tests
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1297,6 +1317,8 @@ roles:
     exposed-ports: []
 - name: smoke-tests
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1316,6 +1338,8 @@ roles:
     exposed-ports: []
 - name: diego-debugger
   type: docker
+  scripts:
+  - scripts/authorize_internal_ca.sh
   run:
     scaling:
       indexed: 1
@@ -1329,6 +1353,8 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1375,6 +1401,8 @@ roles:
         public: true
 - name: sso-create-service
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1395,6 +1423,8 @@ roles:
     exposed-ports: []
 - name: autoscaler-create-service
   type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1415,6 +1445,7 @@ roles:
     exposed-ports: []
 - name: hcf-sso
   environment_scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/fake_spec_index_on_hcp.sh
@@ -1447,6 +1478,7 @@ roles:
       public: false
 - name: hcf-versions
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1485,6 +1517,7 @@ roles:
   tags:
   - dev-only
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   post_config_scripts:
   - scripts/status-route-start.sh
@@ -1521,6 +1554,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"status-route", "port": 9052, "uris":["status.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: demophon
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fake_spec_index_on_hcp.sh
   - scripts/forward_logfiles.sh
   - scripts/setup-demophon-env.sh
@@ -1986,7 +2020,7 @@ configuration:
       type: Certificate
       value_type: private_key
   - name: SKIP_CERT_VERIFY_INTERNAL
-    default: true
+    default: false
   - name: SKIP_CERT_VERIFY_EXTERNAL
     default: true
   - name: GARDEN_LINUX_DNS_SERVER
@@ -2190,6 +2224,7 @@ configuration:
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"((CONSUL_HOST))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"((DIEGO_DATABASE_HOST))"},{"name":"ETCD_HOST","value":"((ETCD_HOST))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"}]'
+    properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.hcf.uaa.root-zone.url: '"https://((UAA_HOST)):8443"' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
