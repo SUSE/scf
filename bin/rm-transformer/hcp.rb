@@ -31,8 +31,22 @@ class ToHCP < Common
   end
 
   # Internal definitions
+  private
+
+  # Less is better for these values, so VAR_USE_NONE is the initial value, and replaced by anything
+  VAR_USE_SIMPLE = 1
+  VAR_USE_COMPOUND = 2
+  VAR_USE_AS_FIELD = 3
+  VAR_USE_NONE = 4
 
   def to_hcp(role_manifest)
+    @properties_for_var_name = {}
+    @property_spec_descriptions = {}
+    @property_null_block = {"description"=>"", "default" => ""}
+    @ptn_match_single_var = /\A (["']?) \(\( (\w+) \)\) \1 \z/x
+    @ptn_match_var_as_field = /(["']) (\w+) \1 \s* : \s* (["']?) \(\((\w+)\)\) \3/x
+    get_properties_for_var_name(role_manifest)
+    collect_property_spec_descriptions
     definition = empty_hcp
 
     fs = definition['volumes']
@@ -164,6 +178,126 @@ class ToHCP < Common
     shared
   end
 
+  def collect_properties_for_var_name_from_template_list(templates)
+    templates.each do |k, v|
+      parts = k.split(".", 2)
+      next if parts[0] != "properties"
+      next if !v.respond_to?(:scan)
+      m = @ptn_match_single_var.match(v)
+      if m
+        var_name = m[2]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_USE_SIMPLE]
+        next
+      end
+      m = @ptn_match_var_as_field.match(v)
+      if m
+        field_name = m[2]
+        var_name = m[4]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_USE_AS_FIELD, field_name]
+        next
+      end
+      # Treat the rest as just part of the value
+      v.scan(/\(\((\w+)\)\)/) do |match|
+        var_name = match[0]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_USE_COMPOUND]
+      end
+    end
+  end
+
+  def get_best_description(var_name)
+    longest_description = ""
+    longest_default = ""
+    # Favor properties.foo = '"blah ... ((VAR))..."' over '[{"name": "((VAR))",...]'
+    saw_string_var = false
+    current_use_type = VAR_USE_NONE
+    @properties_for_var_name.fetch(var_name, []).each do |property, use_type, field_name|
+      if use_type > current_use_type
+        # We want to find the tightest use of the variable, so reject looser ones.
+        # e.g. '"((FOO))"' is tighter than '"http://((HOST)).((DOMAIN))"
+        next
+      end
+      block = @property_spec_descriptions.fetch(property, @property_null_block)
+      ["default", "description"].each do |k|
+        # nils and numeric values make it hard to do string-comparison, so get rid of them.
+        # nil.to_s ==> ""
+        block[k] = block[k].to_s
+      end
+      description = block["description"]
+      if description.size == 0
+        # No point bothering with this
+        next
+      end
+      default = block["default"]
+      accept_this_string = false
+      if use_type < current_use_type
+        accept_this_string = true
+      else
+        if use_type != current_use_type
+          $stderr.puts("rm-transformer/hcp.rb: Internal error: got unexpected use-type of #{use_type}")
+          exit 2
+        end
+        # Favor cases with both a default and a description
+        if longest_description.size == 0
+          accept_this_string = true
+        elsif longest_description.size > 0 && longest_default.size > 0
+          if description.size > longest_description.size && default.size > 0
+            accept_this_string = true
+          end
+        elsif longest_description.size > 0 && longest_default.size == 0
+          if description.size >= longest_description.size || default.size > 0
+            accept_this_string = true
+          end
+        end
+      end
+      if accept_this_string
+        longest_description = case use_type
+                      when VAR_USE_SIMPLE ; description
+                      when VAR_USE_AS_FIELD ; "the #{field_name} field of: #{description}"
+                      when VAR_USE_COMPOUND ; "part of: #{description}"
+                      else description
+                      end
+        if default.size > 0
+          longest_default = default
+        end
+        current_use_type = use_type
+      end
+    end # @properties_for_var_name[var_name].each
+    [longest_description, longest_default]
+  end
+
+  def get_properties_for_var_name(role_manifest)
+    # {var-name => [list of property names containing the var-name]}
+    role_manifest['roles'].map{|role| role.fetch('configuration',{}).fetch('templates', {})}.
+          reject{|templates| templates.size == 0 }.
+          each do |templates|
+      collect_properties_for_var_name_from_template_list(templates)
+    end
+    collect_properties_for_var_name_from_template_list(role_manifest.fetch('configuration',{}).fetch('templates', {}))
+  end
+
+  # Visit all the spec files in the bosh-releases and pull out their property sections
+  def collect_property_spec_descriptions
+    require 'find'
+    Find.find(File.join(Dir.getwd, "src")) do |path|
+      parent_path, f = File.split(path)
+      if f[0] == "." || f == "packages"
+        Find.prune
+      elsif f == "spec" && File.file?(path) && File.basename(File.dirname(parent_path)) == "jobs"
+        # In Boshland we're interested in .../jobs/JOBNAME/spec
+        begin
+          # Ignore duplicate property names.  They usually map to the same description and
+          # default strings anyway.
+          @property_spec_descriptions.merge!(YAML.load_file(path).fetch('properties', {}))
+        rescue Exception => ex
+          $stderr.puts("rm-transformer/hcp.rb: ToHCP: Failed to load YAML file#{path}: #{ex}")
+        end
+      end
+    end
+  end
+
   def add_shared_fs(shared, v)
     vname = v['tag']
     vsize = v['size']
@@ -205,7 +339,7 @@ class ToHCP < Common
     # temporary hack until HCF-913, HCF-914, HCF-915, HCF-916, HCF-917, HCF-884
     duplicate = scaling.fetch('duplicate', true)
 
-    if indexed > 1 and duplicate
+    if indexed > 1 && duplicate
       # Non-trivial scaling. Replicate the role as specified,
       # with min and max computed per the HA specification.
       # The component clone is created by a recursive call
@@ -428,7 +562,7 @@ class ToHCP < Common
     templates
   end
 
-  def determine_component_parameters(rolemanifest)
+  def determine_component_parameters(role_manifest)
     # Here we compute the per-component parameter information.
     # Incoming data are:
     # 1. role-manifest :: (role/component -> (job,release))
@@ -442,8 +576,8 @@ class ToHCP < Common
     return unless @property
 
     @component_parameters = {}
-    rolemanifest['roles'].each do |role|
-      templates = process_templates(rolemanifest, role)
+    role_manifest['roles'].each do |role|
+      templates = process_templates(role_manifest, role)
       next unless templates
 
       parameters = []
@@ -505,18 +639,30 @@ class ToHCP < Common
 
   def convert_parameter(var)
     vname    = var['name']
+    original_vname = vname.clone
     vrequired = var.has_key?("required") ? var['required'] : true
     vsecret  = var.has_key?("secret") ? var['secret'] : false
     vexample = (var['example'] || var['default']).to_s
-    vexample = 'unknown' if vexample == ''
+    vdescription = var.fetch("description", "")
 
     # secrets currently need to be lowercase and can only use dashes, not underscores
     # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
     vname.downcase!.gsub!('_', '-') if vsecret
 
+    if vdescription.size == 0
+      longest_description, longest_default = get_best_description(original_vname)
+      if vexample.size == 0 && longest_default.size > 0
+        vexample = longest_default
+      end
+      vdescription = longest_description.size > 0 ? longest_description : "[no description available]"
+    end
+    if vexample.size == 0
+      vexample = "[no example given]"
+    end
+
     parameter = {
       'name'        => vname,
-      'description' => 'placeholder',
+      'description' => vdescription,
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret,
