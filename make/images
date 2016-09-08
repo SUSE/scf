@@ -45,8 +45,8 @@ for ROLE in ${ROLES}; do
             docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         publish)
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION} | cat
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH} | cat
             ;;
         clean)
             case ${TARGET} in
