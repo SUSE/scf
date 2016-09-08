@@ -177,7 +177,10 @@ function setup_role() {
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
   local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } "
+  # Add arbitrary docker arguments
+  local docker_args=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-args" // []) | join(" ")')
+
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${docker_args}"
 }
 
 # Set up iptables rules for roles that require forwarding a whole range of ports

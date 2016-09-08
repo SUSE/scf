@@ -32,12 +32,6 @@ function retry () {
     done
 }
 
-if test -z "${HCP_INSTANCE_ID:-}" ; then
-    # Not running in HCP; we don't need to create users
-    status "Skipping user creation, not running on HCP"
-    exit 0
-fi
-
 export PATH="${PATH}:/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin"
 export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
 
@@ -46,11 +40,67 @@ curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
 uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 %>
 
-status "Waiting for UAA to be availabile..."
-retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
+if test -z "${HCP_INSTANCE_ID:-}" ; then
+    # Running in vagrant / AWS, and managing our own UAA
+    # We need to create the zone and populate it the way HCP would have done.
 
-status "Logging in to %s" '<%= p("uaa.url") %>'
-uaac target <%= uaac_ssl %> <%= p("uaa.url") %>
+    UAA_ZONE_ID="hcf"
+
+    status "Waiting for root UAA to be available..."
+    retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
+
+    # We need to create the HCF zone manually
+    status "Checking for UAA zone ${UAA_ZONE_ID}..."
+
+    uaac target <%= uaac_ssl %> '<%= p("hcf.uaa.root-zone.url") %>'
+    uaac token client get default_zone_admin --secret default_zone_admin_secret
+
+    if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404 Not Found' ; then
+        status "Creating UAA zone ${UAA_ZONE_ID}"
+        uaac curl <%= curl_ssl %> -X POST /identity-zones -H 'Content-Type: application/json' -d '{
+            "id": "'"${UAA_ZONE_ID}"'",
+            "subdomain": "'"${UAA_ZONE_ID}"'",
+            "name": "'"${UAA_ZONE_ID}"'"
+        }'
+    fi
+
+    status "Creating groups..."
+    <% p('hcf.uaa.authorities', []).each do |group_name| %>
+        if ! uaac --zone "${UAA_ZONE_ID}" group get '<%= group_name %>' ; then
+            uaac --zone "${UAA_ZONE_ID}" group add '<%= group_name %>'
+        fi
+    <% end %>
+
+    status "Populating clients..."
+    <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
+        if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
+            echo '<%= client_id %>' | uaac --zone "${UAA_ZONE_ID}" client add \
+                --no-interactive \
+                --name '<%= client_id %>' \
+                <%
+                    %w(scope authorized-grant-types authorities access-token-validity refresh-token-validity redirect-uri secret).each do |key|
+                        if client_data.key? key
+                            %> --<%= key.tr('-', '_') %> '<%= client_data[key] %>' <%
+                        end
+                    end
+                    if client_data.key? 'autoapprove'
+                        if client_data['autoapprove'].eql? true
+                            %> --autoapprove '<%= client_data['scope'] %>' <%
+                        else
+                            %> --autoapprove '<%= client_data['autoapprove'] %>' <%
+                        end
+                    end
+                %>
+        fi
+    <% end %>
+fi
+
+
+status "Waiting for UAA to be availabile..."
+retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+
+status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
+uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
 uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
 
 <% properties.uaa.scim.users.each do |user_info| %>
