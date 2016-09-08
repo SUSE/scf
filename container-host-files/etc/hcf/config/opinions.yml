@@ -297,7 +297,8 @@ properties:
       user: "admin"
       port: 2289
     uaa:
-      root-zone.url: '"https://uaa-int:8443"' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
+      root-zone:
+        url: 'https://uaa-int.hcf:8443' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
   hcf_sso:
     username: 'username'
     port: 3000

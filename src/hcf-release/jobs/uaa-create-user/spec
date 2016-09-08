@@ -22,6 +22,9 @@ properties:
   ssl.skip_cert_verify:
     description: specifies that the job is allowed to skip ssl cert verification
     default: false
+  # Not used in HCP, used only for the dev UAA
+  uaa.admin.client_secret:
+    description: "Secret of the admin client - a client named admin with uaa.admin as an authority"
   uaa.clients:
     description: The clients to configure for the UAA zone
     example: {}
