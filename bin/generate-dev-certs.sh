@@ -161,7 +161,7 @@ certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA inte
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "$(make_domains "uaa-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "uaa-int,hcf.uaa.${DOMAIN}" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --passphrase "${signing_key_passphrase}"
 cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
