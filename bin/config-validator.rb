@@ -218,10 +218,6 @@ def check_clustering(manifest, bosh_properties)
   end
 end
 
-def make_command(role,params)
-  "MAP['#{role}']=\"#{params.join(" ")}\""
-end
-
 def has_script(r,script)
   (r['environment_scripts'] || []).include? script
 end
