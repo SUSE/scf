@@ -47,13 +47,13 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     UAA_ZONE_ID="hcf"
 
     status "Waiting for root UAA to be available..."
-    retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
+    retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
 
     # We need to create the HCF zone manually
     status "Checking for UAA zone ${UAA_ZONE_ID}..."
 
     uaac target <%= uaac_ssl %> '<%= p("hcf.uaa.root-zone.url") %>'
-    uaac token client get default_zone_admin --secret default_zone_admin_secret
+    uaac token client get default_zone_admin --secret '<%= p("uaa.admin.client_secret") %>'
 
     if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404 Not Found' ; then
         status "Creating UAA zone ${UAA_ZONE_ID}"
@@ -97,7 +97,7 @@ fi
 
 
 status "Waiting for UAA to be availabile..."
-retry 240 30s curl --silent --fail '<%= curl_ssl %>' --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
 status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
 uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
