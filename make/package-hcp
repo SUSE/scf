@@ -8,10 +8,12 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 ARTIFACT=hcp-${APP_VERSION}.zip
 
-zip -9 ${GIT_ROOT}/${ARTIFACT} \
-    hcf-hcp.json \
-    hcf-hcp-instance.json \
-    hcf-hcp-instance-ha.json \
+rm ${GIT_ROOT}/${ARTIFACT} 2>/dev/null || true
+
+cd output && zip -9 ${GIT_ROOT}/${ARTIFACT} \
+    sdl.json \
+    instance-basic-dev.json \
+    instance-ha-dev.json \
     ${NULL:-}
 
 echo Generated ${ARTIFACT}
