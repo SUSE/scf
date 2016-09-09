@@ -20,10 +20,8 @@ roles:
   - name: nats_stream_forwarder
   run:
     scaling:
-      indexed: 3
       min: 1
       max: 3
-      duplicate: false
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -58,10 +56,8 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 3
       min: 1
       max: 3
-      duplicate: false
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -128,10 +124,8 @@ roles:
   - name: gra-log-purger-executable
   run:
     scaling:
-      indexed: 3
       min: 1
       max: 3
-      duplicate: false
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -191,7 +185,6 @@ roles:
   - name: switchboard
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -252,7 +245,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -304,7 +296,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -357,7 +348,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -400,7 +390,6 @@ roles:
   - name: router_configurer
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -453,7 +442,6 @@ roles:
   - name: tcp_emitter
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -506,7 +494,6 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -539,8 +526,6 @@ roles:
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   scripts:
-  # Do not apply fake_spec_index_on_hcp.sh here because we need an index 0
-  # to run migrations from
   - scripts/perform_nfs_test.sh
   - scripts/patches/cloud_controller_v2_droplet_count.sh
   - scripts/patches/fix_buildpack_install.sh
@@ -588,10 +573,8 @@ roles:
   - name: statsd-injector
   run:
     scaling:
-      indexed: 2
       min: 1
       max: 65535
-      duplicate: false
     capabilities: []
     persistent-volumes: []
     shared-volumes:
@@ -635,7 +618,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -670,7 +652,6 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -716,7 +697,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -747,7 +727,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -790,7 +769,6 @@ roles:
   - name: syslog_drain_binder
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -838,10 +816,8 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 3
       min: 1
       max: 3
-      duplicate: false
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
@@ -899,7 +875,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -939,7 +914,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -985,7 +959,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -1065,7 +1038,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -1100,7 +1072,6 @@ roles:
   - name: consul_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: []
@@ -1148,7 +1119,6 @@ roles:
   - name: garden
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 65535
     capabilities: ['ALL']
@@ -1181,7 +1151,6 @@ roles:
   run:
     flight-stage: flight
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1214,7 +1183,6 @@ roles:
   run:
     flight-stage: flight
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1247,7 +1215,6 @@ roles:
   run:
     flight-stage: flight
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1278,7 +1245,6 @@ roles:
   run:
     flight-stage: flight
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1303,7 +1269,6 @@ roles:
     release_name: hcf
   run:
     scaling:
-      indexed: 1
       min: 0
       max: 1
     flight-stage: manual
@@ -1329,7 +1294,6 @@ roles:
     release_name: cf
   run:
     scaling:
-      indexed: 1
       min: 0
       max: 1
     flight-stage: manual
@@ -1350,7 +1314,6 @@ roles:
     release_name: cf
   run:
     scaling:
-      indexed: 1
       min: 0
       max: 1
     flight-stage: manual
@@ -1374,7 +1337,6 @@ roles:
   processes: []
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     flight-stage: post-flight
@@ -1389,7 +1351,6 @@ roles:
   tags: ['dev-only']
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: ['NET_ADMIN']
@@ -1420,7 +1381,6 @@ roles:
   processes: []
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     flight-stage: post-flight
@@ -1442,7 +1402,6 @@ roles:
   processes: []
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     flight-stage: post-flight
@@ -1470,7 +1429,6 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1505,7 +1463,6 @@ roles:
   - name: route_registrar
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -1539,7 +1496,6 @@ roles:
   - name: metron_agent
   run:
     scaling:
-      indexed: 1
       min: 1
       max: 1
     capabilities: []
@@ -2009,8 +1965,6 @@ configuration:
     generator:
       type: Password
   templates:
-    bootstrap: "((HCF_BOOTSTRAP))((^HCF_BOOTSTRAP))true((/HCF_BOOTSTRAP))"
-    index: "((HCF_ROLE_INDEX))((^HCF_ROLE_INDEX))((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))((/HCF_ROLE_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.hcf.hcp_service_domain_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
