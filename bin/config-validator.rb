@@ -177,45 +177,43 @@ def check_clustering(manifest, bosh_properties)
   #     - Determine parameters used by template
   #       - Collect /_HCF_CLUSTER_IPS$/
 
-  manifest['roles'].each do |r|
+  manifest['roles'].each do |role|
     rparams = params.dup
-    if r['configuration'] && r['configuration']['templates']
-      r['configuration']['templates'].each do |property, template|
+    if role['configuration'] && role['configuration']['templates']
+      role['configuration']['templates'].each do |property, template|
         rparams[property] = Common.parameters_in_template(template)
       end
     end
 
-    cp = {}
-    # cp :: hash (parameter -> array (pair (job,release)))
+    collected_params = Hash.new { |h, k| h[k] = [] }
+    # collected_params :: hash (parameter -> array (pair (job,release)))
+    # And default unknown elements as empty list.
 
-    (r['jobs'] || []).each do |j|
-      jname = j['name']
-      rname = j['release_name']
-      bosh_properties[rname][jname].each do |p|
-        (rparams["properties." + p] || []).each do |param|
-          next unless param =~ /_HCF_CLUSTER_IPS$/
-          cp[param] = [] unless cp[param]
-          cp[param] << [jname,rname]
+    (role['jobs'] || []).each do |job|
+      job_name = job['name']
+      release_name = job['release_name']
+      bosh_properties[release_name][job_name].each do |property|
+        (rparams["properties." + property] || []).each do |param|
+          next unless param.end_with? '_HCF_CLUSTER_IPS'
+          collected_params[param] << [job_name, release_name]
         end
       end
     end
 
-    if cp.empty?
-      if has_script(r, @configure_ha)
-        STDOUT.puts "Superfluous use of #{@configure_ha.red} by role #{r['name'].red}"
-        @has_errors += 1
-      end
+    if collected_params.empty?
+      next unless has_script(role, @configure_ha)
+      STDOUT.puts "Superfluous use of #{@configure_ha.red} by role #{role['name'].red}"
+      @has_errors += 1
     else
-      if !has_script(r, @configure_ha)
-        STDOUT.puts "Missing #{@configure_ha.red} in role #{r['name'].red}, requested by"
-        cp.each do |param, jobs|
-          STDOUT.puts "- #{param.red}"
-          jobs.each do |job|
+      next if has_script(role, @configure_ha)
+      STDOUT.puts "Missing #{@configure_ha.red} in role #{role['name'].red}, requested by"
+      collected_params.each do |param, jobs|
+        STDOUT.puts "- #{param.red}"
+        jobs.each do |job|
           STDOUT.puts "  - Job #{job[0].red} in release #{job[1].red}"
-          end
         end
-        @has_errors += 1
       end
+      @has_errors += 1
     end
   end
 end
