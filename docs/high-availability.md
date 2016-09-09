@@ -20,7 +20,6 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
 
 - **min:** minimum number of instances for a role
 - **max:** maximum number of instances of a role
-- **indexed:** the number of cloned components for a role
 
   [![HA scaling definitions](high-availability-scaling-definitions.png)](high-availability-scaling-definitions.md)
 
@@ -40,7 +39,6 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
         scaling:
           min: 3
           max: 3
-          indexed: 3
         ...
     ```
 
@@ -49,23 +47,11 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
     ```json
     "components": [
       {
-        "name": "nats-0",
-        "min_instances": 1,
-        "max_instances": 1,
-        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=0", "/opt/hcf/run.sh"]
+        "name": "nats",
+        "min_instances": 3,
+        "max_instances": 3,
+        "entrypoint": ["/usr/bin/env", "/opt/hcf/run.sh"]
       },
-      {
-        "name": "nats-1",
-        "min_instances": 1,
-        "max_instances": 1,
-        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=1", "/opt/hcf/run.sh"]
-      },
-      {
-        "name": "nats-2",
-        "min_instances": 1,
-        "max_instances": 1,
-        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=2", "/opt/hcf/run.sh"]
-      }
     ]
     ```
 
@@ -79,7 +65,6 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
         scaling:
           min: 1
           max: 65535
-          indexed: 1
         ...
     ```
     For the HCP, this will yield a configuration similar to (details cut for brevity):
@@ -90,16 +75,10 @@ For upstream's recommendations see [this page](https://docs.cloudfoundry.org/con
         "name": "diego-cell",
         "min_instances": 1,
         "max_instances": 65535,
-        "entrypoint": ["/usr/bin/env", "HCF_ROLE_INDEX=0", "/opt/hcf/run.sh"]
+        "entrypoint": ["/usr/bin/env", "/opt/hcf/run.sh"]
       }
     ]
     ```    
-
-2. The index configuration template in the role manifest.
-
-  The template for `index` should be `((HCF_ROLE_INDEX))`.
-
-  For roles that have `scaling/indexed > 1`, the environment variable `((HCF_ROLE_INDEX))` should be automatically set to the correct value by our transformers. In HCP, this variable can only be set by modifying the entrypoint of the component, as shown in the examples at point #1. 
 
 ## Load balanced roles
 
@@ -119,7 +98,7 @@ An HA configuration for these components in Vagrant/MPC is not be available.
 
 The way to programmatically identify these components is by looking for roles that have public ports exposed.
 
-These roles should have `scaling/indexed == 1`.
+These roles should have `scaling/min == 1`.
 
 > Note: the [documentation](https://github.com/cloudfoundry/cf-mysql-release#create-load-balancer) for the MySQL proxy mentions that an active/passive balancing policy should be used, to decrease chances of deadlocking.
 > It also mentions that health checking should be done on a specific port. Some of these requirements may not be supported by HCP.
@@ -138,7 +117,7 @@ These roles register with the gorouter (all except the gorouters themselves).
 
 No specific transformer changes are required for these roles.
 
-These roles should have `scaling/indexed == 1`.
+These roles should have `scaling/min == 1`.
 
 - api
 
@@ -153,7 +132,6 @@ The scaling definition for the API role should look like this:
     scaling:
       min: 1
       max: 65535
-      indexed: 2
     ...
 ```
 
@@ -170,7 +148,7 @@ balanced.
 
 No specific transformer changes are required for these roles.
 
-These roles should have `scaling/indexed == 1`.
+These roles should have `scaling/min == 1`.
 
 ## Self clustering roles
 
@@ -183,7 +161,7 @@ components have to be scaled by using a "role duplication" artifice.
 - diego-database
 - etcd
 
-These roles should have `scaling/indexed >= 2`, depending on documented recommendations.
+These roles should have `scaling/min >= 2`, depending on documented recommendations.
 
 > Note: For the mysql role we should use the `arbiter` role when available, to reduce footprint.
 
