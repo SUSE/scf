@@ -178,7 +178,7 @@ def check_clustering(manifest, bosh_properties)
   #       - Collect /_HCF_CLUSTER_IPS$/
 
   manifest['roles'].each do |r|
-    rparams = params
+    rparams = params.dup
     if r['configuration'] && r['configuration']['templates']
       r['configuration']['templates'].each do |property, template|
         rparams[property] = Common.parameters_in_template(template)
