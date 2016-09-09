@@ -175,8 +175,8 @@ show-versions:
 
 generate: \
 	hcp \
-	hcp-instance-basic-dev \
-	hcp-instance-ha-dev \
+	hcp-instance \
+	hcp-instance-ha \
 	mpc \
 	aws \
 	aws-spot \
@@ -187,11 +187,11 @@ generate: \
 hcp:
 	${GIT_ROOT}/make/generate hcp
 
-hcp-instance-basic-dev:
-	${GIT_ROOT}/make/generate instance-basic-dev
+hcp-instance:
+	${GIT_ROOT}/make/generate hcp-instance
 
-hcp-instance-ha-dev:
-	${GIT_ROOT}/make/generate instance-ha-dev
+hcp-instance-ha:
+	${GIT_ROOT}/make/generate hcp-instance-ha
 
 mpc:
 	${GIT_ROOT}/make/generate mpc
@@ -212,6 +212,7 @@ aws-spot-proxy:
 
 dist: \
 	hcp-dist \
+	hcp-ha-dist \
 	mpc-dist \
 	aws-dist \
 	aws-spot-dist \
@@ -219,8 +220,9 @@ dist: \
 	aws-spot-proxy-dist \
 	${NULL}
 
-hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
+hcp-dist: hcp hcp-instance hcp-instance-ha
 	${GIT_ROOT}/make/package-hcp
+	rm hcf-hcp*.json
 
 mpc-dist: mpc
 	${GIT_ROOT}/make/package-terraform mpc

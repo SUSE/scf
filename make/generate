@@ -35,8 +35,6 @@ case ${TARGET} in
     ;;
 esac
 
-mkdir -p output
-
 case ${TARGET} in
     vagrant)
         OUTFILE=${OUTFILE:-"${TARGET}.json"}
@@ -49,7 +47,7 @@ case ${TARGET} in
 	CLEAN="${CLEAN} vagrant-propmap.yaml"
         ;;
     hcp)
-        OUTFILE=${OUTFILE:-"output/sdl.json"}
+        OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
 
 	( . ${GIT_ROOT}/make/include/fissile
@@ -58,9 +56,9 @@ case ${TARGET} in
         OPTIONS="${OPTIONS} --property-map hcf-hcp-propmap.yaml"
 	CLEAN="${CLEAN} hcf-hcp-propmap.yaml"
         ;;
-    instance-basic-dev|instance-ha-dev)
-        OUTFILE=${OUTFILE:-"output/${TARGET}.json"}
-        TEMPLATE="hcp/${TARGET}.template.json"
+    hcp-instance|hcp-instance-ha)
+        OUTFILE=${OUTFILE:-"hcf-${TARGET}.json"}
+        TEMPLATE="hcp/hcf-${TARGET}.template.json"
         OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
