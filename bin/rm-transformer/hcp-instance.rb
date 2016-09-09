@@ -49,8 +49,8 @@ class ToHCPInstance < Common
 
   def dirs_for_flavor
     {
-      'hcp/hcf-hcp-instance.template.json' => ['bin/settings', 'bin/settings/hcp'],
-      'hcp/hcf-hcp-instance-ha.template.json' => ['bin/settings', 'bin/settings/hcp']
+      'hcp/instance-basic-dev.template.json' => ['bin/settings', 'bin/settings/hcp'],
+      'hcp/instance-ha-dev.template.json' => ['bin/settings', 'bin/settings/hcp']
     }
   end
 
