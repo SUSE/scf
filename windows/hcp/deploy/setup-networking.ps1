@@ -1,32 +1,100 @@
-param (
-    [Parameter(Mandatory=$true)]
+param(
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({ if($_ -match "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"){
+		$True
+		}else{
+			Throw "$_ is not a valid IPV4 address. Please use something like 10.21.0.1."
+		}
+	})]
     [string] $k8MasterIP,
     [Parameter(Mandatory=$false)]
+	[ValidateRange(80,65535)]
     [int] $k8sPort = 8080,
     [Parameter(Mandatory=$false)]
+	[ValidateRange(80,65535)]
     [int] $etcdPort = 2379,
     [Parameter(Mandatory=$false)]
     [string] $flannelUserPassword = "Password1234!",
     [Parameter(Mandatory=$false)]
+	[ValidateScript({If (Test-Path $_) {
+			$True
+		}else{
+			Throw "$_ is not a valid file."
+		}
+	})]
     [string] $flannelInstallDir = "C:/flannel",
     [Parameter(Mandatory=$false)]
-    [string] $k8sQueryPeriod = "1s",
+    [ValidateScript({ if($_ -match "^[0-9]{1,3}[s,m]$"){
+		$True
+		}else{
+			Throw "$_ is not a valid interval. Please use something like 1s for 1 seccond or 2m for 2 minutes."
+		}
+	})]
+	[string] $k8sQueryPeriod = "1s",
     [Parameter(Mandatory=$true)]
+	[ValidateScript({If (Test-Path $_) {
+			$True
+		}else{
+			Throw "$_ is not a valid file."
+		}
+	})]
     [string] $etcdKeyFile,
     [Parameter(Mandatory=$true)]
+	[ValidateScript({If (Test-Path $_) {
+			$True
+		}else{
+			Throw "$_ is not a valid file."
+		}
+	})]
     [string] $etcdCertFile,
     [Parameter(Mandatory=$true)]
-    [string] $etcdCaFile,
+    [ValidateScript({If (Test-Path $_) {
+			$True
+		}else{
+			Throw "$_ is not a valid file."
+		}
+	})]
+	[string] $etcdCaFile	,
   [Parameter(Mandatory=$false)]
+	[ValidateScript({ if($_ -match "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/(8|16|24)$"){
+		$True
+		}else{
+			Throw "$_ is not a valid subnet. Please use something like 10.21.0.0/16  or don't use this param to use the default."
+		}
+	})]
     [string] $k8sServSubnet = "",
 	[Parameter(Mandatory=$false)]
+	[ValidateScript({ if($_ -match "^http:\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{2,5}$"){
+		$True
+		}else{
+			Throw "$_ is not a valid address:port for proxy. Please use something like http://10.12.22.1:3128 or don't use this param to use the default."
+		}
+	})]
     [string] $httpProxy = "",
 	[Parameter(Mandatory=$false)]
+	[ValidateScript({ if($_ -match "^http[s]?:\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{2,5}$"){
+		$True
+		}else{
+			Throw "$_ is not a valid address:port for proxy. Please use something like http://10.12.22.1:3128. or don't use this param to use the default."
+		}
+	})]
     [string] $httpsProxy = "",
 	[Parameter(Mandatory=$false)]
+	[ValidateScript( { If ($_ -match "^([0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3}\,?){1,}$"){
+		$True
+		}else{
+			Throw "$_ is not a valid specifier for noProxy. Please use something like 10.21.*.*,192.100.200.* or don't use this param to use the default."
+		}
+	})]
     [string] $noProxy = "",
   [Parameter(Mandatory=$false)]
-    [string] $k8sAllowedSubnet=""
+	[ValidateScript({ if($_ -match "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/(8|16|24)$"){
+		$True
+		}else{
+			Throw "$_ is not a valid subnet. Please use something like 10.21.0.0/16 or don't use this param to use the default."
+		}
+	})]
+	[string] $k8sAllowedSubnet=""
 )
 
 $ErrorActionPreference = "Stop"
@@ -192,6 +260,7 @@ function CheckService
 			write-host "INFO: Service $serviceName is running"
 		}else{
 			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+      Write-Output "Please look in the logs C:\$serviceName\logs for a possible reason."
 		}
 
 	}else{
