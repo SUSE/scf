@@ -1,5 +1,10 @@
 ---
 properties:
+  build: 4.0.0
+  description: HPE Helion Cloud Foundry
+  name: HCF
+  support_address: stackato-support@hpe.com
+  version: 2
   acceptance_tests:
     admin_user: admin
     skip_ssl_validation: true
@@ -212,7 +217,6 @@ properties:
     staging_disk_limit_mb: 6144
     # Used in cc_ng and cc_worker
     staging_memory_limit_mb: 1024
-  description: Helion Cloud Foundry
   diego:
     auctioneer:
       bbs:
@@ -369,7 +373,6 @@ properties:
     logging_app: ""
     runtime_app: ""
     skip_ssl_validation: true
-  support_address: http://support.cloudfoundry.com
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
