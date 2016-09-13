@@ -10,10 +10,15 @@ ARTIFACT=hcp-${APP_VERSION}.zip
 
 rm ${GIT_ROOT}/${ARTIFACT} 2>/dev/null || true
 
+cp hcp/instance-basic-dev.template.json output/instance-basic-simple.json
+cp hcp/instance-ha-dev.template.json output/instance-ha-simple.json
+
 cd output && zip -9 ${GIT_ROOT}/${ARTIFACT} \
     sdl.json \
     instance-basic-dev.json \
+    instance-basic-simple.json \
     instance-ha-dev.json \
+    instance-ha-simple.json \
     ${NULL:-}
 
 echo Generated ${ARTIFACT}
