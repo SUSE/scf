@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 <% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
 
 set -e
@@ -9,7 +7,7 @@ set -e
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
 
 cf plugins | grep -q cf-plugin-autoscale || {
-  cf install-plugin /var/vcap/packages/cf-plugin-autoscale/bin/cf-plugin-autoscale
+  yes | cf install-plugin /var/vcap/packages/cf-plugin-autoscale/bin/cf-plugin-autoscale
 }
 
 # helper function to retry a command several times, with a delay between trials
@@ -58,7 +56,7 @@ retry 10 20s cf create-space autoscaler-acceptance
 retry 10 20s cf target -o autoscaler-acceptance -s autoscaler-acceptance
 
 retry 10 20s cf push testApp
-retry 10 20s cf create-service open-autoscaler default testAcc
+retry 10 20s cf create-service app-autoscaler default testAcc
 retry 10 20s cf bind-service testApp testAcc
 retry 10 20s cf restage testApp
 

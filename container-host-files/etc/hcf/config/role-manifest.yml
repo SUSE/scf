@@ -1258,6 +1258,26 @@ roles:
         external: 5984
         internal: 5984
         public: false
+- name: acceptance-tests-autoscaler
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: acceptance-tests-autoscaler
+    release_name: hcf
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: acceptance-tests-flight-recorder
   type: bosh-task
   scripts:
