@@ -23,11 +23,11 @@ class ToHCPInstance < Common
   def to_hcp_instance(manifest)
     definition = load_template
 
-    dev_env = Common.collect_dev_env(dirs_for_flavor[@options[:instance_definition_template]])
+    dev_env = Common.collect_dev_env(env_dirs)
 
     vars = manifest['configuration']['variables']
 
-    dev_env.each_pair do |name, (env_file, value)|
+    dev_env.each_pair do |name, (_, value)|
       i = vars.find_index{|x| x['name'] == name }
       vars[i]['default'] = value unless i.nil?
     end
@@ -47,11 +47,8 @@ class ToHCPInstance < Common
     end
   end
 
-  def dirs_for_flavor
-    {
-      'hcp/instance-basic-dev.template.json' => ['bin/settings', 'bin/settings/hcp'],
-      'hcp/instance-ha-dev.template.json' => ['bin/settings', 'bin/settings/hcp']
-    }
+  def env_dirs
+    ['bin/settings', 'bin/settings/hcp']
   end
 
   def collect_parameters(variables)

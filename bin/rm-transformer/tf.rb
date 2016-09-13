@@ -62,18 +62,14 @@ class ToTerraform < Common
   # High level emitters, HCF specific structures ...
 
   def emit_configuration(manifest)
-    manifest['configuration']['variables'].each do |config|
-      name = config['name']
+    Common.collect_dev_env(env_dirs).each do |name, (_, value)|
       if special_variables.include?(name)
         @have_specials << name
         next
       end
-      value = config['default']
-      # Ignore optional values without a default.
-      next if value.nil? && !config['required']
       emit_variable(name, value: value)
     end
-    missing = special_variables.sort - @have_specials.sort
+    missing = (special_variables - @have_specials).sort
     missing.each do |var_name|
       STDERR.puts "#{var_name} is missing from input role-manifest"
     end
@@ -215,6 +211,10 @@ class ToTerraform < Common
       'internal'    => 22,
       'public'      => true
     }
+  end
+
+  def env_dirs
+    ['bin/settings']
   end
 
   # # ## ### ##### ########
