@@ -7,6 +7,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 . ${GIT_ROOT}/make/include/fissile
 
 rm -rf ${FISSILE_WORK_DIR}
+rm -rf ${GIT_ROOT}/output
 
 ${GIT_ROOT}/make/images docker clean
 ${GIT_ROOT}/make/images bosh clean

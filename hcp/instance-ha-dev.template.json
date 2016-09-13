@@ -1,10 +1,14 @@
 {
-    "name": "hcf",
-    "vendor": "HPE",
-    "labels": ["my-hcf-cluster"],
-    "instance_id": "my-hcf-cluster",
-    "description": "HCF test cluster",
-    "parameters": [],
+    "parameters": [
+        {
+            "name": "DOMAIN",
+            "value": ""
+        },
+        {
+            "name": "cluster-admin-password",
+            "value": ""
+        }
+    ],
     "scaling": [
       {
         "component": "api",

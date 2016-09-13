@@ -42,9 +42,16 @@ class ToHCPInstance < Common
 
   # Load the instance definition template
   def load_template
-    open(@options[:instance_definition_template], 'r') do |f|
-      JSON.load f
-    end
+    json = File.read(@options[:instance_definition_template])
+    templ = JSON.parse(json)
+
+    templ['name']        ||= "hcf"
+    templ['vendor']      ||= "HPE"
+    templ['labels']      ||= ["my-hcf-cluster"]
+    templ['instance_id'] ||= "my-hcf-cluster"
+    templ['description'] ||= "HCF test cluster"
+
+    templ
   end
 
   def dirs_for_flavor
