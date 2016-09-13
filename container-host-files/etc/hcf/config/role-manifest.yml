@@ -1303,6 +1303,26 @@ roles:
         source: 10514
         target: 10514
         public: false
+- name: acceptance-tests-mysql
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: acceptance-tests
+    release_name: cf-mysql
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: acceptance-tests
   type: bosh-task
   scripts:
