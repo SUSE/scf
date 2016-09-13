@@ -83,6 +83,12 @@ def main
   STDOUT.puts "\nCheck clustering".cyan
   check_clustering(manifest, bosh_properties)
 
+  STDOUT.puts "\nAll docker roles must declare 'run.env' (even if empty)".cyan
+  check_docker_run_env(manifest)
+
+  STDOUT.puts "\nNo non-docker role may declare 'run.env'".cyan
+  check_nondocker_run_env(manifest)
+
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
 
@@ -117,6 +123,29 @@ def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   STDOUT.puts "#{dev_env.length.to_s.rjust(10, ' ').cyan} dev env vars"
   STDOUT.puts "#{scripts.length.to_s.rjust(10, ' ').cyan} scripts"
   STDOUT.puts "#{rm_parameters.length.to_s.rjust(10, ' ').cyan} role manifest variables"
+end
+
+# Makes sure that all docker roles have run.env
+def check_docker_run_env(manifest)
+  manifest['roles'].each do |role|
+    next unless role['type'] == 'docker'
+    next if role['run'] && role['run']['env']
+
+    STDOUT.puts "Docker role #{role['name'].red} does not declare its parameters (run.env)"
+    @has_errors += 1
+  end
+end
+
+# Makes sure that no non-docker roles have run.env
+def check_nondocker_run_env(manifest)
+  manifest['roles'].each do |role|
+    next if role['type'] == 'docker'
+    next unless role['run']
+    next unless role['run']['env']
+
+    STDOUT.puts "Non-docker role #{role['name'].red} declares bogus parameters (run.env)"
+    @has_errors += 1
+  end
 end
 
 # Makes sure that all scripts are being used in the role manifest
