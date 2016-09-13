@@ -256,6 +256,13 @@ class ToHCP < Common
       add_parameters(the_comp, role['configuration']['variables'])
     end
 
+    # Reference explicitly declared parameters. This is exclusive to
+    # docker roles, as they have no bosh parameters.
+    if (role['type'] == 'docker') && runtime['env']
+      add_parameters(the_comp,
+                     runtime['env'].collect { |name| { 'name' => name } })
+    end
+
     # TODO: Should check that the intersection of between global and
     # role parameters is empty.
 
