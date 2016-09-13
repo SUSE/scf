@@ -37,9 +37,16 @@ class ToHCP < Common
 
     fs = definition['volumes']
     save_shared_filesystems(fs, collect_shared_filesystems(role_manifest['roles']))
-    collect_global_parameters(role_manifest, definition)
-    determine_component_parameters(role_manifest)
-    process_roles(role_manifest, definition, fs)
+
+    if role_manifest['configuration'] && role_manifest['configuration']['variables']
+      sdl_names = sdl_names(role_manifest['configuration']['variables'])
+    else
+      sdl_names = {}
+    end
+
+    collect_global_parameters(role_manifest, sdl_names, definition)
+    determine_component_parameters(role_manifest, sdl_names)
+    process_roles(role_manifest, definition, fs, sdl_names)
 
     definition
     # Generated structure
@@ -117,7 +124,7 @@ class ToHCP < Common
     }
   end
 
-  def process_roles(role_manifest, definition, fs)
+  def process_roles(role_manifest, definition, fs, sdl_names)
     section_map = {
       'pre-flight'  => 'preflight',
       'flight'      => 'components',
@@ -132,11 +139,11 @@ class ToHCP < Common
       # We don't run to infinity because we will flood HCP if we do
       retries = task?(role) ? 5 : 0
       dst = definition[section_map[flight_stage_of(role)]]
-      add_role(role_manifest, fs, dst, role, retries)
+      add_role(role_manifest, fs, dst, role, retries, sdl_names)
 
       # Collect per-role parameters
       if role['configuration'] && role['configuration']['variables']
-        collect_parameters(gparam, role['configuration']['variables'])
+        collect_parameters(gparam, sdl_names, role['configuration']['variables'])
       end
     end
     if role_manifest['auth']
@@ -144,10 +151,10 @@ class ToHCP < Common
     end
   end
 
-  def collect_global_parameters(roles, definition)
+  def collect_global_parameters(role_manifest, sdl_names, definition)
     p = definition['parameters']
-    if roles['configuration'] && roles['configuration']['variables']
-      collect_parameters(p, roles['configuration']['variables'])
+    if role_manifest['configuration'] && role_manifest['configuration']['variables']
+      collect_parameters(p, sdl_names, role_manifest['configuration']['variables'])
     end
   end
 
@@ -195,7 +202,7 @@ class ToHCP < Common
     fs.push(the_fs)
   end
 
-  def add_role(role_manifest, fs, comps, role, retrycount)
+  def add_role(role_manifest, fs, comps, role, retrycount, sdl_names)
     bname = role['name']
     iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
 
@@ -247,8 +254,7 @@ class ToHCP < Common
     # Reference global parameters
     if role_manifest['configuration'] && role_manifest['configuration']['variables']
       add_parameter_names(the_comp,
-                          component_parameters(the_comp,
-                                               role_manifest['configuration']['variables']))
+                          component_parameters(the_comp, sdl_names.values))
     end
 
     # Reference per-role parameters
@@ -260,6 +266,21 @@ class ToHCP < Common
     # role parameters is empty.
 
     comps.push(the_comp)
+  end
+
+  def sdl_names(variables)
+    map = {}
+    variables.each do |var|
+      vname   = var['name']
+      vsecret = var.has_key?("secret") ? var['secret'] : false
+
+      # secrets currently need to be lowercase and can only use dashes, not underscores
+      # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
+      vname = vname.downcase.gsub('_', '-') if vsecret
+
+      map[var['name']] = vname
+    end
+    map
   end
 
   def build_entrypoint(options)
@@ -359,9 +380,9 @@ class ToHCP < Common
     }
   end
 
-  def collect_parameters(para, variables)
+  def collect_parameters(para, sdl_names, variables)
     variables.each do |var|
-      para.push(convert_parameter(var))
+      para.push(convert_parameter(var, sdl_names))
     end
   end
 
@@ -382,7 +403,7 @@ class ToHCP < Common
     templates
   end
 
-  def determine_component_parameters(rolemanifest)
+  def determine_component_parameters(role_manifest, sdl_names)
     # Here we compute the per-component parameter information.
     # Incoming data are:
     # 1. role-manifest :: (role/component -> (job,release))
@@ -396,8 +417,8 @@ class ToHCP < Common
     return unless @property
 
     @component_parameters = {}
-    rolemanifest['roles'].each do |role|
-      templates = process_templates(rolemanifest, role)
+    role_manifest['roles'].each do |role|
+      templates = process_templates(role_manifest, role)
       next unless templates
 
       parameters = []
@@ -430,7 +451,12 @@ class ToHCP < Common
           end
         end
       end
-      @component_parameters[role['name']] = parameters.uniq.sort
+      @component_parameters[role['name']] = parameters.uniq.sort.collect do |name|
+        sdl_names[name] || name
+        # The "|| name"-part ensures that parameters like HCP_*, which
+        # do not exist in sdl_names, are passed through as-is.
+        # It might be a good idea to filter them out instead.
+      end
     end
   end
 
@@ -438,9 +464,7 @@ class ToHCP < Common
     return @component_parameters[component['name']] if @component_parameters
     # If we have no per-component information we fall back to use all
     # declared parameters.
-    variables.collect do |var|
-      var['name']
-    end
+    variables
   end
 
   def add_parameters(component, variables)
@@ -457,16 +481,14 @@ class ToHCP < Common
     end
   end
 
-  def convert_parameter(var)
-    vname    = var['name']
+  def convert_parameter(var, sdl_names)
+    vname     = var['name']
     vrequired = var.has_key?("required") ? var['required'] : true
-    vsecret  = var.has_key?("secret") ? var['secret'] : false
-    vexample = (var['example'] || var['default']).to_s
-    vexample = 'unknown' if vexample == ''
+    vsecret   = var.has_key?("secret") ? var['secret'] : false
+    vexample  = (var['example'] || var['default']).to_s
+    vexample  = 'unknown' if vexample == ''
 
-    # secrets currently need to be lowercase and can only use dashes, not underscores
-    # This should be handled by HCP instead: https://jira.hpcloud.net/browse/CAPS-184
-    vname.downcase!.gsub!('_', '-') if vsecret
+    vname = sdl_names[vname]
 
     parameter = {
       'name'        => vname,
