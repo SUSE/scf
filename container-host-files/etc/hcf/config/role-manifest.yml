@@ -836,18 +836,10 @@ roles:
         public: false
   configuration:
     templates:
-      properties.etcd.peer_require_ssl: 'false'
-      properties.etcd.require_ssl: 'false'
-      properties.etcd.cluster: 'null'
-      properties.etcd.peer_key: 'null'
-      properties.etcd.peer_cert: 'null'
-      properties.etcd.peer_ca_cert: 'null'
-      properties.etcd.server_key: 'null'
-      properties.etcd.client_key: 'null'
-      properties.etcd.server_cert: 'null'
-      properties.etcd.client_cert: 'null'
-      properties.etcd.ca_cert: 'null'
       properties.etcd.bootstrap_node: 'etcd-0'
+      properties.etcd.cluster: null
+      properties.etcd.peer_require_ssl: true
+      properties.etcd.require_ssl: true
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1620,9 +1612,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: DNS_SUFFIX
-    default: ""
-    required: false
   - name: DOMAIN
     example: "192.168.77.77.nip.io"
     required: true
@@ -2105,7 +2094,7 @@ configuration:
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
-    properties.etcd.advertise_urls_dns_suffix: '["((DNS_SUFFIX))"]'
+    properties.etcd.advertise_urls_dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
