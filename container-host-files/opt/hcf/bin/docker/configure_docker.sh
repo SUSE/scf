@@ -41,6 +41,9 @@ dopts="--storage-driver=overlay2"
 # By default, whitelist local network as insecure registry (to work on HCP)
 dopts="$dopts --insecure-registry=192.168.0.0/16"
 
+# Limit log file size; don't bother rotating because `docker logs` only uses the current log
+dopts="$dopts --log-opt max-file=1 --log-opt max-size=50m"
+
 for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
   if test -n "${!var}" ; then
     echo "export ${var}=${!var}" >> /etc/default/docker
