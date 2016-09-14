@@ -16,8 +16,8 @@ def main
 
   STDOUT.puts "Running configuration checks ..."
 
-  bosh_properties = JSON.load(ARGF.read)
-  # :: hash (release -> hash (job -> array (property)))
+  bosh_properties = YAML.load(ARGF.read)
+  # :: hash (release -> hash (job -> hash (property -> default)))
 
   manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/role-manifest.yml'))
   light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/opinions.yml'))
@@ -207,6 +207,8 @@ end
 # scripts/configure-HA-hosts.sh and that all roles which don't will
 # not.
 def check_clustering(manifest, bosh_properties)
+  # :: hash (release -> hash (job -> hash (property -> default)))
+
   params = {}
   manifest['configuration']['templates'].each do |property, template|
     params[property] = Common.parameters_in_template(template)
@@ -233,7 +235,7 @@ def check_clustering(manifest, bosh_properties)
     (role['jobs'] || []).each do |job|
       job_name = job['name']
       release_name = job['release_name']
-      bosh_properties[release_name][job_name].each do |property|
+      bosh_properties[release_name][job_name].each do |property, __default_ignored__|
         (rparams["properties." + property] || []).each do |param|
           next unless param.end_with? '_HCF_CLUSTER_IPS'
           collected_params[param] << [job_name, release_name]
@@ -319,6 +321,8 @@ end
 
 # Check to see if all properties are defined in a BOSH release
 def check_bosh_properties(defs, bosh_properties, check_type)
+  # :: hash (release -> hash (job -> hash (property -> default)))
+
   defs.each do |prop, _|
     next if Common.special_property(prop)
     next unless prop.start_with? 'properties.'
