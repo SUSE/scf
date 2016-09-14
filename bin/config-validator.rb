@@ -40,6 +40,8 @@ def main
     templates[r['name']] = r['configuration']['templates']
   end
 
+  global_variables = global_variables(manifest)
+
   STDOUT.puts "\nAll dark opinions must be configured as templates".cyan
   dark_exposed(templates, dark)
 
@@ -72,7 +74,7 @@ def main
   check_rm_variables(manifest)
 
   STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
-  check_rm_templates(templates, manifest)
+  check_rm_templates(templates, manifest, global_variables)
 
   STDOUT.puts "\nThe role manifest must not contain any constants in the global section".cyan
   check_non_templates(manifest)
@@ -82,6 +84,12 @@ def main
 
   STDOUT.puts "\nCheck clustering".cyan
   check_clustering(manifest, bosh_properties)
+
+  STDOUT.puts "\nThe run.env references of docker roles must use only declared params".cyan
+  check_docker_run_env(manifest, global_variables)
+
+  STDOUT.puts "\nNo non-docker role may declare 'run.env'".cyan
+  check_nondocker_run_env(manifest)
 
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
@@ -117,6 +125,39 @@ def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   STDOUT.puts "#{dev_env.length.to_s.rjust(10, ' ').cyan} dev env vars"
   STDOUT.puts "#{scripts.length.to_s.rjust(10, ' ').cyan} scripts"
   STDOUT.puts "#{rm_parameters.length.to_s.rjust(10, ' ').cyan} role manifest variables"
+end
+
+# Makes sure the run.env of docker roles uses only declared params
+# (see also check_rm_templeates).
+def check_docker_run_env(manifest, global_variables)
+  # Report all roles with run.env elements which reference unknown
+  # parameters, and the bogus parameters themselves.  We ignore the
+  # parameters provided by HCP, and the proxy parts, these are ok.
+
+  manifest['roles'].each do |role|
+    next unless role['type'] == 'docker'
+    next unless role['run']
+    next unless role['run']['env']
+
+    # Docker role with run.env references. Check against declared
+    # parameters.
+
+    role['run']['env'].each do |vname|
+      report_bogus_variable("Docker role #{role['name'].red} run.env", vname, global_variables)
+    end
+  end
+end
+
+# Makes sure that no non-docker roles have run.env
+def check_nondocker_run_env(manifest)
+  manifest['roles'].each do |role|
+    next if role['type'] == 'docker'
+    next unless role['run']
+    next unless role['run']['env']
+
+    STDOUT.puts "Non-docker role #{role['name'].red} declares bogus parameters (run.env)"
+    @has_errors += 1
+  end
 end
 
 # Makes sure that all scripts are being used in the role manifest
@@ -243,32 +284,38 @@ def check_rm_variables(manifest)
   end
 end
 
-# Conversely to the preceding, check if all templates use only declared parameters
-def check_rm_templates(templates,manifest)
-  # Report all templates which contain references to unknown
-  # parameters, and the bogus parameters themselves.  We ignore the
-  # parameters provided by HCP, and the proxy parts, these are ok.
-
+def global_variables(manifest)
   variables = {}
   manifest['configuration']['variables'].each do |var|
     variables[var['name']] = nil
   end
+  variables
+end
+
+# Conversely to the preceding, check if all templates use only declared parameters
+def check_rm_templates(templates,manifest,global_variables)
+  # Report all templates which contain references to unknown
+  # parameters, and the bogus parameters themselves.  We ignore the
+  # parameters provided by HCP, and the proxy parts, these are ok.
 
   templates.each do |label, defs|
     defs.each do |property, template|
       Common.parameters_in_template(template).each do |vname|
-        next if Common.special_env(vname)
-        next if Common.special_uaa(vname)
-        next if Common.special_indexed(vname)
-        next if variables.has_key? vname
-
-        STDERR.puts "#{label.cyan} template #{property.red}: Referencing undeclared variable #{vname.red}"
-        @has_errors += 1
+        report_bogus_variable("#{label.cyan} template #{property.red}", vname, global_variables)
       end
     end
   end
 end
 
+def report_bogus_variable(label,vname,global_variables)
+  return if Common.special_env(vname)
+  return if Common.special_uaa(vname)
+  return if Common.special_indexed(vname)
+  return if global_variables.has_key? vname
+
+  STDERR.puts "#{label}: Referencing undeclared variable #{vname.red}"
+  @has_errors += 1
+end
 
 # Check to see if all properties are defined in a BOSH release
 def check_bosh_properties(defs, bosh_properties, check_type)
