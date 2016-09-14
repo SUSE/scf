@@ -14,12 +14,45 @@ properties:
     include_route_services: false
     cf_push_timeout: 300
     default_timeout: 300
+  autoscaler_api:
+    internal_auth:
+      username: 'admin'
+    scaling_service:
+      name: 'app-autoscaler'
+  autoscaler_server:
+    internal_auth:
+      username: 'admin'
+  autoscaler_servicebroker:
+    name: 'app-autoscaler'
+    auth:
+      username: 'admin'
   bbs:
     require_ssl: true
   blobstore:
     port: 8080
     tls:
       port: 4443
+  build: 4.0.0
+  capi:
+    nsync:
+      cc:
+        basic_auth_username: 'internal_user'
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
+    stager:
+      cc:
+        basic_auth_username: 'internal_user'
+      lifecycle_bundles:
+        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
+        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
+    tps:
+      cc:
+        basic_auth_username: 'internal_user'
   cc:
     allow_app_ssh_access: true
     allowed_cors_domains: []
@@ -197,6 +230,9 @@ properties:
       uaa:
         client: cf-usb
     skip_tls_validation: true
+  cf_mysql:
+    proxy:
+      healthcheck_timeout_millis: 30000
   consul:
     agent:
       log_level: null
@@ -212,7 +248,7 @@ properties:
     staging_disk_limit_mb: 6144
     # Used in cc_ng and cc_worker
     staging_memory_limit_mb: 1024
-  description: Helion Cloud Foundry
+  description: HPE Helion Cloud Foundry
   diego:
     auctioneer:
       bbs:
@@ -248,26 +284,6 @@ properties:
         require_ssl: true
       enable_cf_auth: true
       enable_diego_auth: false
-  capi:
-    tps:
-      cc:
-        basic_auth_username: 'internal_user'
-    nsync:
-      cc:
-        basic_auth_username: 'internal_user'
-      lifecycle_bundles:
-        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
-    stager:
-      cc:
-        basic_auth_username: 'internal_user'
-      lifecycle_bundles:
-        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
   doppler:
     blacklisted_syslog_ranges: null
     debug: false
@@ -302,6 +318,9 @@ properties:
   hcf_sso:
     username: 'username'
     port: 3000
+  hcf_versions:
+    blobstore:
+      username: 'blobstore_user'
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
@@ -328,6 +347,7 @@ properties:
     url: null
   metron_agent:
     deployment: hcf-deployment
+  name: HCF
   nats:
     debug: false
     monitor_port: 0
@@ -369,10 +389,12 @@ properties:
     logging_app: ""
     runtime_app: ""
     skip_ssl_validation: true
-  support_address: http://support.cloudfoundry.com
+  support_address: stackato-support@hpe.com
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
+  tcp_emitter:
+    debug_address: 0.0.0.0:17003
   traffic_controller:
     locked_memory_limit: kernel
   tomcat:
@@ -407,29 +429,10 @@ properties:
       userids_enabled: true
       user:
         override: true
-  tcp_emitter:
-    debug_address: 0.0.0.0:17003
   uaadb:
     databases:
     - name: uaadb
       tag: uaa
     db_scheme: mysql
     port: 3306
-  cf_mysql:
-    proxy:
-      healthcheck_timeout_millis: 30000
-  autoscaler_api:
-    internal_auth:
-      username: 'admin'
-    scaling_service:
-      name: 'app-autoscaler'
-  autoscaler_server:
-    internal_auth:
-      username: 'admin'
-  autoscaler_servicebroker:
-    name: 'app-autoscaler'
-    auth:
-      username: 'admin'
-  hcf_versions:
-    blobstore:
-      username: 'blobstore_user'
+  version: 2
