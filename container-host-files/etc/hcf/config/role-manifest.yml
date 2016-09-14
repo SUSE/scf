@@ -425,8 +425,6 @@ roles:
     release_name: hcf
   - name: consul_agent
     release_name: cf
-  - name: etcd
-    release_name: etcd
   - name: metron_agent
     release_name: cf
   - name: routing-api
@@ -436,7 +434,6 @@ roles:
     release_name: routing
   processes:
   - name: consul_agent
-  - name: etcd
   - name: metron_agent
   - name: routing-api
   - name: tcp_emitter
@@ -450,16 +447,6 @@ roles:
     memory: 512
     virtual-cpus: 4
     exposed-ports:
-      - name: route-etcd
-        protocol: 'TCP'
-        external: 4001
-        internal: 4001
-        public: false
-      - name: route-etcd-peer
-        protocol: 'TCP'
-        external: 7001
-        internal: 7001
-        public: false
       - name: routing-api
         protocol: TCP
         external: 3000
@@ -2175,7 +2162,7 @@ configuration:
     properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.routing_api.etcd.servers: '["((ROUTING_API_HOST))"]'
+    properties.routing_api.etcd.servers: '["((ETCD_HOST))"]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST))
     properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
