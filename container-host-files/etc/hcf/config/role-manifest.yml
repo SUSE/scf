@@ -749,6 +749,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -789,12 +791,16 @@ roles:
         external: 3458
         internal: 3458
         public: false
+  configuration:
+    templates:
+      properties.loggregator.etcd.require_ssl: true
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_etcd_bootstrap.sh
+  - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -862,6 +868,7 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.loggregator.etcd.require_ssl: true
   run:
     scaling:
       min: 1
@@ -1425,6 +1432,7 @@ roles:
 - name: hcf-sso
   environment_scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/configure-HA-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1491,6 +1499,8 @@ roles:
     templates:
       properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: demophon
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -2091,6 +2101,8 @@ configuration:
     properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
+    properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
@@ -2134,9 +2146,12 @@ configuration:
     properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.loggregator.etcd.machines: '["((ETCD_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+    properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.loggregator.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
+    properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
     properties.nats.password: '"((NATS_PASSWORD))"'
@@ -2156,12 +2171,16 @@ configuration:
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.clients: ((UAA_CLIENTS))((^UAA_CLIENTS)){}((/UAA_CLIENTS)) # This is _not_ quoted to let the JSON expand in configgin
