@@ -170,17 +170,13 @@ class Common
     # Detect env var keys that are special (they are used, but not defined in the role manifest).
     return true if key.start_with? 'HCP_'
     %w(
-      CONSUL_HCF_CLUSTER_CONFIG_REVISION
       CONSUL_HCF_CLUSTER_IPS
-      ETCD_HCF_CLUSTER_CONFIG_REVISION
       ETCD_HCF_CLUSTER_IPS
       HTTPS_PROXY
       HTTP_PROXY
       JWT_SIGNING_PEM
       JWT_SIGNING_PUB
-      MYSQL_HCF_CLUSTER_CONFIG_REVISION
       MYSQL_HCF_CLUSTER_IPS
-      NATS_HCF_CLUSTER_CONFIG_REVISION
       NATS_HCF_CLUSTER_IPS
       NO_PROXY
       http_proxy

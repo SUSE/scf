@@ -1555,6 +1555,8 @@ configuration:
     secret: true
     generator:
       type: Password
+  - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
   - name: DIEGO_DATABASE_HOST
     default: "diego-database-int"
   - name: DIEGO_ACCESS_HOST
@@ -1571,10 +1573,16 @@ configuration:
     default: "127.0.0.1"
   - name: DNS_RECORD_NAME
     required: false
+  - name: NATS_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy-int"
+  - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
   - name: MYSQL_HOST
     default: "mysql-int"
+  - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
   - name: ETCD_HOST
     default: "etcd-int"
   - name: CONSUL_HOST
