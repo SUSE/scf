@@ -398,12 +398,16 @@ class ToHCP < Common
 
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
-      templates[property] = Common.parameters_in_template(template)
+      templates[property] = Common.parameters_in_template(template).reject do |pname|
+        Common.special_env(pname)
+      end
     end
 
     if role['configuration'] && role['configuration']['templates']
       role['configuration']['templates'].each do |property, template|
-        templates[property] = Common.parameters_in_template(template)
+        templates[property] = Common.parameters_in_template(template).reject do |pname|
+          Common.special_env(pname)
+        end
       end
     end
 
@@ -459,10 +463,7 @@ class ToHCP < Common
         end
       end
       @component_parameters[role['name']] = parameters.uniq.sort.collect do |name|
-        sdl_names[name] || name
-        # The "|| name"-part ensures that parameters like HCP_*, which
-        # do not exist in sdl_names, are passed through as-is.
-        # It might be a good idea to filter them out instead.
+        sdl_names[name]
       end
     end
   end
