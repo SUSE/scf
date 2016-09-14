@@ -391,15 +391,15 @@ class ToHCP < Common
 
     templates = {}
     rolemanifest['configuration']['templates'].each do |property, template|
-      templates[property] = Common.parameters_in_template(template).select do |pname|
-        ! Common.special_env(pname)
+      templates[property] = Common.parameters_in_template(template).reject do |pname|
+        Common.special_env(pname)
       end
     end
 
     if role['configuration'] && role['configuration']['templates']
       role['configuration']['templates'].each do |property, template|
-        templates[property] = Common.parameters_in_template(template).select do |pname|
-          ! Common.special_env(pname)
+        templates[property] = Common.parameters_in_template(template).reject do |pname|
+          Common.special_env(pname)
         end
       end
     end
