@@ -6,12 +6,9 @@ properties:
     backend: diego
     include_diego_ssh: true
     include_diego_docker: true
-    include_backend_compatibility: false
-    include_v3: false
     include_security_groups: true
     include_internet_dependent: true
     include_services: true
-    include_route_services: false
     cf_push_timeout: 300
     default_timeout: 300
   autoscaler_api:
@@ -26,54 +23,27 @@ properties:
     name: 'app-autoscaler'
     auth:
       username: 'admin'
-  bbs:
-    require_ssl: true
-  blobstore:
-    port: 8080
-    tls:
-      port: 4443
   build: 4.0.0
   capi:
     nsync:
-      cc:
-        basic_auth_username: 'internal_user'
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
-      cc:
-        basic_auth_username: 'internal_user'
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
-    tps:
-      cc:
-        basic_auth_username: 'internal_user'
   cc:
-    allow_app_ssh_access: true
-    allowed_cors_domains: []
-    app_events:
-      cutoff_age_in_days: 31
-    app_usage_events:
-      cutoff_age_in_days: 31
-    audit_events:
-      cutoff_age_in_days: 31
-    broker_client_default_async_poll_interval_seconds: 60
-    broker_client_max_async_poll_duration_minutes: 10080
     broker_client_timeout_seconds: 70
     buildpacks:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-      fog_connection: null
     client_max_body_size: 15M
-    db_logging_level: debug2
-    default_health_check_timeout: 60
-    default_quota_definition: default
     default_running_security_groups:
     - public_networks
     - dns
@@ -81,15 +51,11 @@ properties:
     - public_networks
     - dns
     default_to_diego_backend: true
-    development_mode: false
-    disable_custom_buildpacks: false
     droplets:
       blobstore_type: webdav
       droplet_directory_key: cc-droplets
       webdav_config:
         username: 'blobstore_user'
-      fog_connection: null
-    external_host: api
     external_protocol: http
     install_buildpacks:
     - name: staticfile_buildpack
@@ -110,37 +76,12 @@ properties:
       package: binary-buildpack
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
-    internal_api_user: internal_user
     jobs:
-      app_bits_packer:
-        timeout_in_seconds: null
-      app_events_cleanup:
-        timeout_in_seconds: null
-      app_usage_events_cleanup:
-        timeout_in_seconds: null
-      blobstore_delete:
-        timeout_in_seconds: null
-      blobstore_upload:
-        timeout_in_seconds: null
-      droplet_deletion:
-        timeout_in_seconds: null
-      droplet_upload:
-        timeout_in_seconds: null
       generic:
         number_of_workers: null
-      global:
-        timeout_in_seconds: 14400
     logging_level: debug2
-    maximum_app_disk_in_mb: 2048
-    maximum_health_check_timeout: 180
-    min_cli_version: null
-    min_recommended_cli_version: null
     newrelic:
-      capture_params: false
-      developer_mode: false
       environment_name: null
-      license_key: null
-      monitor_mode: false
       transaction_tracer:
         enabled: true
         record_sql: obfuscated
@@ -148,8 +89,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-      fog_connection: null
-      max_package_size: 1073741824
     quota_definitions:
       default:
         memory_limit: 10240
@@ -160,7 +99,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-      fog_connection: null
     security_event_logging:
       enabled: null
     security_group_definitions:
@@ -209,7 +147,6 @@ properties:
         alert_if_above_mb: null
         restart_if_above_mb: null
         restart_if_consistently_above_mb: null
-    users_can_select_backend: true
     core_file_pattern: false
   ccdb:
     databases:
@@ -221,14 +158,11 @@ properties:
     broker:
       username: broker-admin
       port: 24054
-    configconnectionstring: 127.0.0.1:8500
-    configprovider: consulConfigProvider
     management:
       dev_mode: true
       port: 24053
       uaa:
         client: cf-usb
-    skip_tls_validation: true
   cf_mysql:
     proxy:
       healthcheck_timeout_millis: 30000
@@ -240,25 +174,12 @@ properties:
     metric_prefix: couchdb-scalingmetric
     port: 5984
     username: admin
-  dea_next:
-    # Used in ccng/templates/cc_api.yml.erb
-    advertise_interval_in_seconds: 5
-    # Used in cc_ng and cc_worker
-    staging_disk_limit_mb: 6144
-    # Used in cc_ng and cc_worker
-    staging_memory_limit_mb: 1024
   description: HPE Helion Cloud Foundry
   diego:
-    auctioneer:
-      bbs:
-        require_ssl: true
     bbs:
       active_key_label: active
-      sql:
-        db_driver: mysql
       etcd:
         machines: []
-      require_ssl: true
     executor:
       garden:
         address: 127.0.0.1:7777
@@ -266,31 +187,19 @@ properties:
     file_server:
       static_directory: /var/vcap/packages/
     rep:
-      bbs:
-        require_ssl: true
       evacuation_timeout_in_seconds: 60
       log_level: debug
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
     route_emitter:
-      bbs:
-        require_ssl: true
       log_level: debug
       nats:
         user: nats
-        port: 4222
     ssh_proxy:
-      bbs:
-        require_ssl: true
       enable_cf_auth: true
-      enable_diego_auth: false
   doppler:
-    blacklisted_syslog_ranges: null
-    debug: false
     locked_memory_limit: kernel
-    maxRetainedLogMessages: 100
     port: 4443
-    unmarshaller_count: 5
   etcd:
     # Until we figure out DNS names
     peer_require_ssl: false
@@ -317,7 +226,6 @@ properties:
         url: 'https://uaa-int.hcf:8443' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
   hcf_sso:
     username: 'username'
-    port: 3000
   hcf_versions:
     blobstore:
       username: 'blobstore_user'
@@ -327,38 +235,19 @@ properties:
   logger_endpoint:
     port: 4443
   login:
-    analytics:
-      code: null
-      domain: null
     asset_base_url: null
-    enabled: true
     logout:
       redirect:
         url: /login?template=openstack
-    messages: null
-    notifications:
-      url: null
-    protocol: https
-    self_service_links_enabled: null
     signups_enabled: null
-    smtp: null
-    tiles: null
-    uaa_base: null
-    url: null
   metron_agent:
     deployment: hcf-deployment
   name: HCF
   nats:
-    debug: false
-    monitor_port: 0
     port: 4222
-    prof_port: 0
-    trace: false
     user: nats
   nfs_server:
     address: 0.0.0.3
-    share_path: /var/vcap/nfs
-  request_timeout_in_seconds: 900
   router:
     cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
@@ -380,14 +269,9 @@ properties:
       type: tcp
       reservable_ports: 20000-20008
   smoke_tests:
-    suite_name: CF_SMOKE_TESTS
     user: 'admin'
     org: smoke-test-org
     space: smoke-test-space
-    use_existing_org: false
-    use_existing_space: false
-    logging_app: ""
-    runtime_app: ""
     skip_ssl_validation: true
   support_address: stackato-support@hpe.com
   syslog_drain_binder:
@@ -411,24 +295,12 @@ properties:
         countFailuresWithinSeconds: null
         lockoutAfterFailures: null
         lockoutPeriodSeconds: null
-    catalina_opts:
-      "-Xmx768m -XX:MaxPermSize=256m"
     clients: {} # Filled in from role manifest
     database:
       abandoned_timeout: 600
-      log_abandoned: true
-      max_connections: 100
-      max_idle_connections: 10
       remove_abandoned: true
     issuer: https://uaa.example.com
-    newrelic: null
     require_https: null
-    restricted_ips_regex: 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.1[6-9]{1}\.\d{1,3}\.\d{1,3}|172\.2[0-9]{1}\.\d{1,3}\.\d{1,3}|172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}
-    scim:
-      external_groups: null
-      userids_enabled: true
-      user:
-        override: true
   uaadb:
     databases:
     - name: uaadb
