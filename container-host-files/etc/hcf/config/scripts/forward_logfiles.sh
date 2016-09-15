@@ -158,5 +158,9 @@ fi
 
 #make sure the logs configs are added to rsyslog.d folder
 if searchTargetDir $RSYSLOG_FORWARDER_WATCH_DIR; then
-      service rsyslog restart
+        if test -r /var/run/rsyslog.pid; then
+                if test -d /proc/$(cat /var/run/rsyslog.pid); then
+                        service rsyslog restart
+                fi
+        fi
 fi
