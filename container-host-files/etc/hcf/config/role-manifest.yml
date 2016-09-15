@@ -1555,6 +1555,10 @@ configuration:
     default: "diego-brain-int"
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
+  - name: DEFAULT_APP_DISK_IN_MB
+    default: 1024
+  - name: DEFAULT_APP_MEMORY
+    default: 1024
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
   - name: DNS_HEALTH_CHECK_HOST
@@ -2036,6 +2040,8 @@ configuration:
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
+    properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
+    properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.diego.nsync_url: "http://((DIEGO_CC_BRIDGE_HOST)):8787"
     properties.cc.diego.stager_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
     properties.cc.diego.tps_url: "http://((DIEGO_CC_BRIDGE_HOST)):1518"
