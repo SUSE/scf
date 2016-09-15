@@ -64,7 +64,7 @@ param(
 	})]
     [string] $k8sServSubnet = "",
 	[Parameter(Mandatory=$false)]
-	[ValidateScript({ if($_ -match "^http:\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{2,5}$"){
+	[ValidateScript({ if($_ -match "^http:\/\/[0-9A-Za-z-_\.]*:[0-9]{2,5}$"){
 		$True
 		}else{
 			Throw "$_ is not a valid address:port for proxy. Please use something like http://10.12.22.1:3128 or don't use this param to use the default."
@@ -72,15 +72,15 @@ param(
 	})]
     [string] $httpProxy = "",
 	[Parameter(Mandatory=$false)]
-	[ValidateScript({ if($_ -match "^http[s]?:\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{2,5}$"){
+	[ValidateScript({ if($_ -match "^http[s]?:\/\/[0-9A-Za-z-_\.]*:[0-9]{2,5}$"){
 		$True
 		}else{
-			Throw "$_ is not a valid address:port for proxy. Please use something like http://10.12.22.1:3128. or don't use this param to use the default."
+			Throw "$_ is not a valid address:port for proxy. Please use something like http://10.12.22.1:3128 or http://host.com:8080 or don't use this param to use the default."
 		}
 	})]
     [string] $httpsProxy = "",
 	[Parameter(Mandatory=$false)]
-	[ValidateScript( { If ($_ -match "^([0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3}\,?){1,}$"){
+	[ValidateScript( { If ($_ -match "^((([0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3}\.[0-9|\*]{1,3})|([a-zA-Z0-9-*_\.]{3,}))\,?){1,}$"){
 		$True
 		}else{
 			Throw "$_ is not a valid specifier for noProxy. Please use something like 10.21.*.*,192.100.200.* or don't use this param to use the default."
