@@ -465,6 +465,7 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
+      properties.routing_api.etcd.require_ssl: true
 - name: uaa
   tags: ['dev-only']
   environment_scripts:
@@ -791,9 +792,6 @@ roles:
         external: 3458
         internal: 3458
         public: false
-  configuration:
-    templates:
-      properties.loggregator.etcd.require_ssl: true
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -868,7 +866,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
-      properties.loggregator.etcd.require_ssl: true
   run:
     scaling:
       min: 1
@@ -2163,7 +2160,10 @@ configuration:
     properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.routing_api.etcd.servers: '["((ETCD_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+    properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.routing_api.etcd.servers: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))
     properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
