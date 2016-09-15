@@ -12,6 +12,7 @@ require_relative 'rm-transformer/common'
 def main
   STDOUT.sync = true
   @has_errors = 0
+  @has_warnings = 0
   @configure_ha = "scripts/configure-HA-hosts.sh"
 
   STDOUT.puts "Running configuration checks ..."
@@ -64,6 +65,14 @@ def main
   STDOUT.puts "\nAll dark opinions must exist in a bosh release".cyan
   check_bosh_properties(dark, bosh_properties, "dark opinion")
 
+  global_defaults = global_defaults(bosh_properties)
+
+  STDOUT.puts "\nAll bosh properties in a release should have the same default across jobs".cyan
+  check_bosh_defaults(global_defaults)
+
+  STDOUT.puts "\nAll light opinions should differ from their defaults in the bosh releases".cyan
+  check_light_defaults(light, global_defaults)
+
   STDOUT.puts "\nAll vars in env files must exist in the role manifest".cyan
   env_dir = File.expand_path(File.join(__FILE__, '../settings'))
   all_env_dirs = Dir.glob(File.join(env_dir, "**/*/")) << env_dir
@@ -94,12 +103,19 @@ def main
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
 
+  message = "\nConfiguration check"
+
   if @has_errors > 0
-    STDOUT.puts "\nConfiguration check failed (#{@has_errors} errors)".red
-    exit 1
+    message = (message + " failed (#{@has_errors} errors)").red
   else
-    STDOUT.puts "\nConfiguration check passed".green
+    message = (message + " passed").green
   end
+  if @has_warnings > 0
+    message += " " + "(#{@has_warnings} warnings)".yellow
+  end
+
+  STDOUT.puts message
+  exit 1 if @has_errors > 0
 end
 
 def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
@@ -337,10 +353,128 @@ end
 
 def property_exists_in_bosh?(property, bosh_properties)
   bosh_properties.any? {|_, jobs|
-    jobs.any? {|_, property_list|
-      property_list.include? property
+    jobs.any? {|_, property_hash|
+      property_hash.include? property
     }
   }
+end
+
+# Convert the nested hash (release -> (job -> (property -> default value)))
+# Into a simpler hash     (property -> (default -> [[release,job]...])
+# In essence the incoming data is inverted and rekeyed to the property
+# and default values.
+def global_defaults(bosh_properties)
+  props = Hash.new { |h, k|
+    h[k] = Hash.new { |h, k|
+      h[k] = []
+    }
+  }
+
+  bosh_properties.each do |release, jobs|
+    jobs.each do |job, property_hash|
+      property_hash.each do |property, default|
+        props[property][default] << [release, job]
+      end
+    end
+  end
+
+  props
+end
+
+# Similar to global_defaults, the inversion is only partial,
+# collecting the jobs under properties and defaults, but keeping this
+# per-release, not mixing the releases together.
+# Result is (release -> (property -> (default -> [job...]))
+def release_defaults(bosh_properties)
+  props = Hash.new { |h, k|
+    h[k] = Hash.new { |h, k|
+      h[k] = Hash.new { |h, k|
+        h[k] = []
+      }
+    }
+  }
+
+  bosh_properties.each do |release, jobs|
+    jobs.each do |job, property_hash|
+      property_hash.each do |property, default|
+        props[release][property][default] << job
+      end
+    end
+  end
+
+  props
+end
+
+# Check that all bosh properties have the same default across all the
+# loaded releases and their jobs.
+def check_bosh_defaults(global_defaults)
+  prefix = "Warning"
+
+  global_defaults.each do |property, defaults|
+    # Ignore properties with a single default across all definitions.
+    next if defaults.size == 1
+    @has_warnings += 1
+
+    maxlen = 0
+    defaults.each { |default, _ | maxlen = [maxlen, stringify(default).length].max }
+
+    STDOUT.puts "#{prefix.bgyellow}: Property #{property.yellow} has #{defaults.size.to_s.yellow} defaults:"
+    defaults.each do |default, jobs|
+      default = stringify(default)
+
+      if jobs.length == 1
+        release, job = jobs[0]
+        STDOUT.puts "- Default #{default.ljust(maxlen).cyan}: Release #{release.cyan}, job #{job.cyan}"
+      else
+        STDOUT.puts "- Default #{default.cyan}:"
+        jobs.each do |spec|
+          release, job = spec
+          STDOUT.puts "  - Release #{release.cyan}, job #{job.cyan}"
+        end
+      end
+    end
+  end
+end
+
+def stringify(x)
+  # Distinguish null/nil from empty string
+  x = "((NULL))" if x.nil?
+  x = "\"\"" if x.to_s == ""
+  x.to_s
+end
+
+# Check to see if all opinions differ from their defaults in the BOSH releases.
+# Note, if a property has more than one default the opinion automatically differs
+# from at least one.
+
+def check_light_defaults(defs, global_defaults)
+  # global_defaults :: (property -> (default -> [[release,job]...]))
+
+  defs.each do |prop, opinion|
+    # Ignore specials
+    next if Common.special_property(prop)
+    # Ignore more specials
+    next unless prop.start_with? 'properties.'
+    prop = prop.sub(/^properties./, '')
+    # Ignore unknown/undefined
+    next unless global_defaults.include? prop
+    # Ignore if default is not unambigous
+    if global_defaults[prop].size > 1
+      STDOUT.puts "light opinion #{prop.yellow} ignored, #{"ambiguous default".yellow}"
+      next
+    end
+
+    # Get the unambigous default
+    default = global_defaults[prop].keys[0]
+
+    next unless opinion == default
+
+    # Ok, the opinion matches an unambigous default in the releases.
+    # That is noteworthy.
+
+    STDOUT.puts "light opinion #{prop.red} matches default of #{stringify(opinion).red}"
+    @has_errors += 1
+  end
 end
 
 def dark_exposed(templates, dark)
