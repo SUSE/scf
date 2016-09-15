@@ -244,14 +244,14 @@ def check_clustering(manifest, bosh_properties)
       end
     end
 
-    collected_params = Hash.new { |h, k| h[k] = [] }
+    collected_params = Hash.new { |h, parameter| h[parameter] = [] }
     # collected_params :: hash (parameter -> array (pair (job,release)))
     # And default unknown elements as empty list.
 
     (role['jobs'] || []).each do |job|
       job_name = job['name']
       release_name = job['release_name']
-      bosh_properties[release_name][job_name].each do |property, __default_ignored__|
+      bosh_properties[release_name][job_name].each_key do |property|
         (rparams["properties." + property] || []).each do |param|
           next unless param.end_with? '_HCF_CLUSTER_IPS'
           collected_params[param] << [job_name, release_name]
@@ -364,11 +364,11 @@ end
 # In essence the incoming data is inverted and rekeyed to the property
 # and default values.
 def global_defaults(bosh_properties)
-  props = Hash.new { |h, k|
-    h[k] = Hash.new { |h, k|
-      h[k] = []
-    }
-  }
+  props = Hash.new do |props, property|
+    props[property] = Hash.new do |prop_hash, default|
+      prop_hash[default] = []
+    end
+  end
 
   bosh_properties.each do |release, jobs|
     jobs.each do |job, property_hash|
@@ -386,13 +386,13 @@ end
 # per-release, not mixing the releases together.
 # Result is (release -> (property -> (default -> [job...]))
 def release_defaults(bosh_properties)
-  props = Hash.new { |h, k|
-    h[k] = Hash.new { |h, k|
-      h[k] = Hash.new { |h, k|
-        h[k] = []
-      }
-    }
-  }
+  props = Hash.new do |props, release|
+    props[release] = Hash.new do |release_hash, property|
+      release_hash[property] = Hash.new do |property_hash, default|
+        property_hash[default] = []
+      end
+    end
+  end
 
   bosh_properties.each do |release, jobs|
     jobs.each do |job, property_hash|
@@ -438,9 +438,11 @@ end
 
 def stringify(x)
   # Distinguish null/nil from empty string
-  x = "((NULL))" if x.nil?
-  x = "\"\"" if x.to_s == ""
-  x.to_s
+  case true
+  when x.nil? then '((NULL))'
+  when x.to_s.empty? then '""'
+  else x.to_s
+  end
 end
 
 # Check to see if all opinions differ from their defaults in the BOSH releases.
