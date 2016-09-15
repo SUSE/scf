@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.11.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.12.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -40,7 +40,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.11.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.12.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -65,7 +65,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_workstation" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.11.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.12.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -87,7 +87,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.11.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.12.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
