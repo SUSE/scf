@@ -27,12 +27,20 @@ make vagrant-prep
 
 It takes a while to start up HCP, so you want to start this early.  You need to
 provide the address of the docker registry for HCF images; here we use a local
-registry inside the HCF vagrant box:
+registry inside the HCF vagrant box.
+
+Find out the correct URLs for the latest dev harness and hcp client from the
+[HCP Release Notes](https://github.com/hpcloud/cnap/wiki/HCP-Release-Notes).
 
 ```bash
-tar xfz hcp-developer-1.0.xxx+master.hhhhhhhh.yyymmddhhmmss.tar.gz
+wget https://s3-us-west-2.amazonaws.com/hcp-concourse/hcp-developer-1.xxx.tar.gz
+tar xfz hcp-developer-1.xxx.tar.gz
+
 cd hcp-developer
-INSECURE_REGISTRY=192.168.77.77:5000 ./start
+wget https://s3-us-west-2.amazonaws.com/hcp-cli-release/hcp-1.xxx-darwin-amd64.tar.gz
+tar xfz hcp-1.xxx-darwin-amd64.tar.gz
+
+INSECURE_REGISTRY=192.168.77.77:5000 ./start.sh
 ```
 
 ### Create a local Docker registry (#1) ###
@@ -93,8 +101,8 @@ the current set of roles.
 
 ```bash
 PORT=$(curl -Ss http://192.168.200.2:8080/api/v1/namespaces/hcp/services/ipmgr | jq -r '.spec.ports[0].nodePort')
-hcp api https://192.168.200.3:$PORT
-hcp login admin -p cnapadmin
+./hcp api https://192.168.200.3:$PORT
+./hcp login admin -p cnapadmin
 TOKEN=$(cat $HOME/.hcp | jq -r .AccessToken)
 curl -k -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -XPOST -d @/home/vagrant/hcf/hcf-hcp.json https://192.168.200.3:$PORT/v1/services
 ```
