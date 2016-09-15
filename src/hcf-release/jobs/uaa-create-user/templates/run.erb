@@ -74,7 +74,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     status "Populating clients..."
     <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
         if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
-            echo '<%= client_id %>' | uaac --zone "${UAA_ZONE_ID}" client add \
+            uaac --zone "${UAA_ZONE_ID}" client add '<%= client_id %>' \
                 --no-interactive \
                 --name '<%= client_id %>' \
                 <%
@@ -92,6 +92,34 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
                     end
                 %>
         fi
+    <% end %>
+else
+    # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
+    # We update them manually to work around the issue.
+    status "Waiting for UAA zone to be availabile..."
+    retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+
+    status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
+    uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
+    uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
+
+    status "Fixing missing configs for clients..."
+    <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
+        <% next unless client_data['autoapprove'] || client_data['redirect-uri'] %>
+        uaac client update '<%= client_id %>' \
+            --no-interactive \
+            <%
+                if client_data.key? 'redirect-uri'
+                    %> --redirect_uri '<%= client_data['redirect-uri'] %>' <%
+                end
+                if client_data.key? 'autoapprove'
+                    if client_data['autoapprove'].eql? true
+                        %> --autoapprove '<%= client_data['scope'] %>' <%
+                    else
+                        %> --autoapprove '<%= client_data['autoapprove'] %>' <%
+                    end
+                end
+            %>
     <% end %>
 fi
 
