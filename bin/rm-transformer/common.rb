@@ -13,9 +13,46 @@ class String
     "\033[0;32m#{self}\033[0m"
   end
 
+  def yellow
+    "\033[0;33m#{self}\033[0m"
+  end
+
+  def blue
+    "\033[0;34m#{self}\033[0m"
+  end
+
+  def magenta
+    "\033[0;35m#{self}\033[0m"
+  end
+
   def cyan
     "\033[0;36m#{self}\033[0m"
   end
+
+  def bgred
+    "\033[0;41m#{self}\033[0m"
+  end
+
+  def bggreen
+    "\033[0;42m#{self}\033[0m"
+  end
+
+  def bgyellow
+    "\033[0;43m#{self}\033[0m"
+  end
+
+  def bgblue
+    "\033[0;44m#{self}\033[0m"
+  end
+
+  def bgmagenta
+    "\033[0;45m#{self}\033[0m"
+  end
+
+  def bgcyan
+    "\033[0;46m#{self}\033[0m"
+  end
+
 end
 
 # Common functionality for all providers.
