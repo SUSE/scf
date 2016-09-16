@@ -2302,7 +2302,9 @@ auth:
       authorized-grant-types: client_credentials,refresh_token
     uaa_create_first_user:
       access-token-validity: 600
-      authorities: scim.read,scim.write
+      # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
+      # we need clients.admin to make the necessary changes to UAA
+      authorities: scim.read,scim.write,clients.admin
       authorized-grant-types: client_credentials
   authorities:
     - openid
