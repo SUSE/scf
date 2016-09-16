@@ -85,6 +85,7 @@ properties:
     disable_custom_buildpacks: false
     droplets:
       blobstore_type: webdav
+      droplet_directory_key: cc-droplets
       webdav_config:
         username: 'blobstore_user'
       fog_connection: null
@@ -252,6 +253,7 @@ properties:
       bbs:
         require_ssl: true
     bbs:
+      active_key_label: active
       sql:
         db_driver: mysql
       etcd:

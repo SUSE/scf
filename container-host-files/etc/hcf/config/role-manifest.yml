@@ -1523,8 +1523,6 @@ configuration:
     default: "api-int"
   - name: BLOBSTORE_HOST
     default: "blobstore-int"
-  - name: BLOBSTORE_HTTPS_PORT
-    default: 4443
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
@@ -1595,14 +1593,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: DROPLET_DIRECTORY_KEY
-    default: "cc-droplets"
-  - name: BUILDPACK_DIRECTORY_KEY
-    default: "cc-buildpacks"
-  - name: APP_PACKAGE_DIRECTORY_KEY
-    default: "cc-packages"
-  - name: RESOURCE_DIRECTORY_KEY
-    default: "cc-resources"
   - name: CF_USB_PASSWORD
     secret: true
     generator:
@@ -1719,8 +1709,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: BBS_ACTIVE_KEY_LABEL
-    default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
     generator:
@@ -2034,9 +2022,8 @@ configuration:
     properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.tps.cc.internal_service_hostname: '"((API_HOST))"'
     properties.capi.tps.traffic_controller_url: "ws://((LOGGREGATOR_HOST)):8081"
-    properties.cc.buildpacks.buildpack_directory_key: '"((BUILDPACK_DIRECTORY_KEY))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
@@ -2045,20 +2032,17 @@ configuration:
     properties.cc.diego.nsync_url: "http://((DIEGO_CC_BRIDGE_HOST)):8787"
     properties.cc.diego.stager_url: "http://((DIEGO_CC_BRIDGE_HOST)):8888"
     properties.cc.diego.tps_url: "http://((DIEGO_CC_BRIDGE_HOST)):1518"
-    properties.cc.droplets.droplet_directory_key: '"((DROPLET_DIRECTORY_KEY))"'
     properties.cc.droplets.max_staged_droplets_stored: '((DROPLET_MAX_STAGED_STORED))'
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: '"((API_HOST))"'
-    properties.cc.packages.app_package_directory_key: '"((APP_PACKAGE_DIRECTORY_KEY))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
-    properties.cc.resource_pool.resource_directory_key: '"((RESOURCE_DIRECTORY_KEY))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.srv_api_uri: '"http://((API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
@@ -2086,11 +2070,10 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
     properties.diego.bbs.advertisement_base_hostname: '"((BBS_ADVERTISEMENT_BASE_HOSTNAME))"'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.bbs.encryption_keys: '[{"label": "((BBS_ACTIVE_KEY_LABEL))", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2160,7 +2143,7 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)):((BLOBSTORE_HTTPS_PORT))"'
+    properties.hcf_versions.blobstore.private_endpoint: '"https://((BLOBSTORE_HOST)):4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.loggregator.etcd.machines: '["((ETCD_HOST))"]'

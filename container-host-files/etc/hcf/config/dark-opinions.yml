@@ -1,10 +1,6 @@
 ---
 properties:
   cc:
-    droplets:
-      droplet_directory_key: the_key
-    buildpacks:
-      buildpack_directory_key: bd_key
     staging_upload_password: password
     bulk_api_password: password
     db_encryption_key: the_key
