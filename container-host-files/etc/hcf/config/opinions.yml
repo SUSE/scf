@@ -87,6 +87,7 @@ properties:
     disable_custom_buildpacks: false
     droplets:
       blobstore_type: webdav
+      droplet_directory_key: cc-droplets
       webdav_config:
         username: 'blobstore_user'
       fog_connection: null
