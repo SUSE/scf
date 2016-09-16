@@ -5,6 +5,7 @@
 $:.unshift File.dirname(__FILE__)
 
 require 'common'
+require 'set'
 
 # Provider for HCP specifications derived from a role-manifest.
 class ToHCP < Common
@@ -432,7 +433,7 @@ class ToHCP < Common
       templates = process_templates(role_manifest, role)
       next unless templates
 
-      parameters = []
+      env_var_names = Set.new
       if role['jobs']
         role['jobs'].each do |job|
           release = job['release_name']
@@ -458,13 +459,19 @@ class ToHCP < Common
             # opinions. They cannot change and have no parameters.
             next unless templates[pname]
 
-            parameters.push(*templates[pname])
+            env_var_names += templates[pname]
           end
         end
       end
-      @component_parameters[role['name']] = parameters.uniq.sort.collect do |name|
-        sdl_names[name]
-      end
+
+      # At this point, `env_var_names` is the list of all environment variables
+      # that are used in the role.  Some of them, such as `UAA_CLIENTS`, may
+      # not actually come from the SDL; we need to reject those.  We also need
+      # to convert them via the sdl_names mapping, as the secrets are named
+      # differently (lower-case-with-dash vs UPPER_CASE_UNDERSCORE).
+      component_param_names = env_var_names.map { |name| sdl_names[name] }
+      component_param_names.reject!(&:nil?)
+      @component_parameters[role['name']] = component_param_names.sort
     end
   end
 
