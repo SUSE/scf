@@ -2293,7 +2293,7 @@ auth:
       autoapprove: true
       override: true
       redirect-uri: /login
-      scope: openid,cloud_controller.read,cloud_controller.write
+      scope: openid,cloud_controller.read,cloud_controller.write,cloud_controller.admin
     tcp_emitter:
       authorities: routing.routes.write,routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
