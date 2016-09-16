@@ -72,8 +72,6 @@ properties:
       fog_connection: null
     client_max_body_size: 15M
     db_logging_level: debug2
-    default_app_disk_in_mb: 1024
-    default_app_memory: 1024
     default_health_check_timeout: 60
     default_quota_definition: default
     default_running_security_groups:

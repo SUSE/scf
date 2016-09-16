@@ -121,10 +121,10 @@ images: bosh-images docker-images
 image-base:
 	${GIT_ROOT}/make/image-base
 
-bosh-images:
+bosh-images: validate
 	${GIT_ROOT}/make/bosh-images
 
-docker-images:
+docker-images: validate
 	${GIT_ROOT}/make/images docker build
 
 build: compile images
