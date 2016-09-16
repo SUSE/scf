@@ -254,6 +254,7 @@ properties:
       bbs:
         require_ssl: true
     bbs:
+      active_key_label: active
       sql:
         db_driver: mysql
       etcd:

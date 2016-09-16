@@ -1705,8 +1705,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: BBS_ACTIVE_KEY_LABEL
-    default: key1
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
     generator:
@@ -2066,11 +2064,10 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.bbs.active_key_label: '"((BBS_ACTIVE_KEY_LABEL))"'
     properties.diego.bbs.advertisement_base_hostname: '"((BBS_ADVERTISEMENT_BASE_HOSTNAME))"'
     properties.diego.bbs.auctioneer.api_url: 'http://((DIEGO_BRAIN_HOST)):9016'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.bbs.encryption_keys: '[{"label": "((BBS_ACTIVE_KEY_LABEL))", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
