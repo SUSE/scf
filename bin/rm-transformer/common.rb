@@ -30,11 +30,12 @@ class Common
 
   def initialize_dtr_information
     # Get options, set defaults for missing parts
-    @dtr         = @options[:dtr]
-    @dtr_org     = @options[:dtr_org]
-    @hcf_tag     = @options[:hcf_tag]
-    @hcf_prefix  = @options[:hcf_prefix]
-    @hcf_version = @options[:hcf_version]
+    @dtr          = @options[:dtr]
+    @dtr_org      = @options[:dtr_org]
+    @hcf_tag      = @options[:hcf_tag]
+    @hcf_prefix   = @options[:hcf_prefix]
+    @hcf_version  = @options[:hcf_version]
+    @hcf_root_dir = @options[:hcf_root_dir]
   end
 
   # # ## ### ##### ########
@@ -185,14 +186,9 @@ class Common
     ).include? key
   end
 
-  def self.source_root_dir
-    return @source_root_dir if @source_root_dir
-    @source_root_dir = File.join(File.dirname(__FILE__), '..', '..')
-  end
-
-  def self.product_version
+  def product_version
     return @product_version if @product_version
-    product_version = open("#{source_root_dir}/VERSION").read.strip
+    product_version = open("#{@hcf_root_dir}/VERSION").read.strip
     @product_version = "#{product_version}"
   end
 end
