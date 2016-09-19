@@ -8,7 +8,8 @@
 set -o errexit -o nounset
 
 if test "$(id -u)" != 0 ; then
-    printf "%bERROR%b: wrong user %s\n" "\033[0;1;31m" "\033[0m" "$(id -u)" >&2
+    printf "%bERROR%b: wrong user %s; this should be run as root (in the container)\n" \
+        "\033[0;1;31m" "\033[0m" "$(id -u)" >&2
     exit 1
 fi
 
@@ -19,6 +20,9 @@ shift 3
 
 env | grep -i proxy | sort | sed -e 's/^/PROXY SETUP: /'
 
+# Add a user in the given group, so we can run `bosh create release` as that user.
+# All this stuff is to make sure that the correct user (the one that ran
+# `make releases` for HCF) will own the files created, instead of root.
 if ! grep --quiet -E ":${gid}:\$" /etc/group ; then
     addgroup --gid "${gid}" docker-group
 fi
