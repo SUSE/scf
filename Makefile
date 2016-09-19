@@ -25,10 +25,10 @@ print-version:
 ########## TOOL DOWNLOAD TARGETS ##########
 
 ${FISSILE_BINARY}: bin/dev/install_tools.sh
-	$<
+	bin/dev/install_tools.sh
 
 ${FISSILE_CONFIGGIN}: bin/dev/install_tools.sh
-	$<
+	bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########
 
