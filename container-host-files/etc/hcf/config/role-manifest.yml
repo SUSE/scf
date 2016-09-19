@@ -1685,15 +1685,15 @@ configuration:
     secret: true
     generator:
       type: Password
+  - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
+    secret: true
+    generator:
+      type: Password
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
     generator:
       type: Password
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
-    secret: true
-    generator:
-      type: Password
-  - name: UAA_CLIENTS_UAA_CREATE_FIRST_USER_SECRET
     secret: true
     generator:
       type: Password
@@ -2179,7 +2179,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.clients.uaa_create_first_user.secret: '"((UAA_CLIENTS_UAA_CREATE_FIRST_USER_SECRET))"'
+    properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '["admin|((CLUSTER_ADMIN_PASSWORD))|((CLUSTER_ADMIN_AUTHORITIES))"]'
@@ -2237,6 +2237,12 @@ auth:
       authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
       scope: openid,cloud_controller_service_permissions.read
+    hcf_auto_config:
+      access-token-validity: 600
+      # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
+      # we need clients.admin to make the necessary changes to UAA
+      authorities: scim.read,scim.write,clients.admin
+      authorized-grant-types: client_credentials
     hcf-sso:
       access-token-validity: 3600
       authorized-grant-types: authorization_code
@@ -2261,12 +2267,6 @@ auth:
     tcp_router:
       authorities: routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
-    uaa_create_first_user:
-      access-token-validity: 600
-      # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
-      # we need clients.admin to make the necessary changes to UAA
-      authorities: scim.read,scim.write,clients.admin
-      authorized-grant-types: client_credentials
   authorities:
     - openid
     - scim.me
