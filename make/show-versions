@@ -12,6 +12,5 @@ echo "Commits          = '${GIT_COMMITS}'"
 echo "SHA              = '${GIT_SHA}'"
 echo "Describe         = '${GIT_DESCRIBE}'"
 echo "Artifact Name    = '${ARTIFACT_NAME}'"
-echo "Artifact Version = '${ARTIFACT_VERSION}'"
 echo "App Version      = '${APP_VERSION}'"
 
