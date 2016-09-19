@@ -120,16 +120,16 @@ end
 
 def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   role_count = manifest['roles'].length
-  bosh_properties_count = bosh_properties.inject([]) {|all_props, (_, jobs)|
-      jobs.inject(all_props) {|all_props, (_, properties)|
-        all_props << properties
-      }
-    }.flatten.uniq.length
-  template_count = templates.inject([]) {|all_templates, (_, template_list)|
-      all_templates << template_list.keys
-    }.flatten.length
+  bosh_properties_count = bosh_properties.inject([]) do |all_props, (_, jobs)|
+    jobs.inject(all_props) do |all_props, (_, properties)|
+      all_props << properties
+    end
+  end.flatten.uniq.length
+  template_count = templates.inject([]) do |all_templates, (_, template_list)|
+    all_templates << template_list.keys
+  end.flatten.length
   scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
-  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject {|fn| File.directory?(fn) }
+  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
   rm_parameters = manifest['configuration']['variables']
 
   STDOUT.puts "\nConfiguration info:"
@@ -181,14 +181,14 @@ def check_role_manifest_scripts(manifest)
   manifest_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/'))
   scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
 
-  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject {|fn| File.directory?(fn) }
+  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
 
   scripts.each do |script|
     relative_path = Pathname.new(script).relative_path_from(Pathname.new(manifest_dir))
 
-    found = manifest['roles'].any? {|r|
+    found = manifest['roles'].any? do |r|
       (r['scripts'] || []).concat(r['post_config_scripts'] || []).concat(r['environment_scripts'] || []).include?(relative_path.to_s)
-    }
+    end
 
     next if found
     STDOUT.puts "script #{relative_path.to_s.red} is not used in the role manifest"
@@ -201,7 +201,7 @@ def check_env_files(role_manifest, dev_env)
   vars = role_manifest['configuration']['variables']
   dev_env.each_pair do |name, (env_file, value)|
     next if Common.special_env(name)
-    i = vars.find_index{|x| x['name'] == name }
+    i = vars.find_index{ |x| x['name'] == name }
     next unless i.nil?
     STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
     @has_errors += 1
@@ -292,9 +292,9 @@ def check_rm_variables(manifest)
   end
 
   manifest['configuration']['variables'].each do |variable|
-    found = templates.any? {|template|
+    found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
-    }
+    end
 
     next if found
     STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
@@ -352,11 +352,11 @@ def check_bosh_properties(defs, bosh_properties, check_type)
 end
 
 def property_exists_in_bosh?(property, bosh_properties)
-  bosh_properties.any? {|_, jobs|
-    jobs.any? {|_, property_hash|
+  bosh_properties.any? do |_, jobs|
+    jobs.any? do |_, property_hash|
       property_hash.include? property
-    }
-  }
+    end
+  end
 end
 
 # Convert the nested hash (release -> (job -> (property -> default value)))
@@ -415,15 +415,14 @@ def check_bosh_defaults(global_defaults)
     next if defaults.size == 1
     @has_warnings += 1
 
-    maxlen = 0
-    defaults.each { |default, _ | maxlen = [maxlen, stringify(default).length].max }
+    maxlen = defaults.keys.map { |default| stringify(default).length }.max
 
     STDOUT.puts "#{prefix.bgyellow}: Property #{property.yellow} has #{defaults.size.to_s.yellow} defaults:"
     defaults.each do |default, jobs|
       default = stringify(default)
 
       if jobs.length == 1
-        release, job = jobs[0]
+        release, job = jobs.first
         STDOUT.puts "- Default #{default.ljust(maxlen).cyan}: Release #{release.cyan}, job #{job.cyan}"
       else
         STDOUT.puts "- Default #{default.cyan}:"
