@@ -3,7 +3,7 @@ set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
-fissile show properties --output json | \
+fissile show properties --output yaml | \
 docker run \
     --interactive \
     --rm \

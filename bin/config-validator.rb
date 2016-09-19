@@ -12,12 +12,13 @@ require_relative 'rm-transformer/common'
 def main
   STDOUT.sync = true
   @has_errors = 0
+  @has_warnings = 0
   @configure_ha = "scripts/configure-HA-hosts.sh"
 
   STDOUT.puts "Running configuration checks ..."
 
-  bosh_properties = JSON.load(ARGF.read)
-  # :: hash (release -> hash (job -> array (property)))
+  bosh_properties = YAML.load(ARGF.read)
+  # :: hash (release -> hash (job -> hash (property -> default)))
 
   manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/role-manifest.yml'))
   light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/opinions.yml'))
@@ -64,6 +65,14 @@ def main
   STDOUT.puts "\nAll dark opinions must exist in a bosh release".cyan
   check_bosh_properties(dark, bosh_properties, "dark opinion")
 
+  global_defaults = global_defaults(bosh_properties)
+
+  STDOUT.puts "\nAll bosh properties in a release should have the same default across jobs".cyan
+  check_bosh_defaults(global_defaults)
+
+  STDOUT.puts "\nAll light opinions should differ from their defaults in the bosh releases".cyan
+  check_light_defaults(light, global_defaults)
+
   STDOUT.puts "\nAll vars in env files must exist in the role manifest".cyan
   env_dir = File.expand_path(File.join(__FILE__, '../settings'))
   all_env_dirs = Dir.glob(File.join(env_dir, "**/*/")) << env_dir
@@ -94,26 +103,33 @@ def main
   # print a report with information about our config
   print_report(manifest, bosh_properties, templates, light, dark, dev_env)
 
+  message = "\nConfiguration check"
+
   if @has_errors > 0
-    STDOUT.puts "\nConfiguration check failed (#{@has_errors} errors)".red
-    exit 1
+    message = (message + " failed (#{@has_errors} errors)").red
   else
-    STDOUT.puts "\nConfiguration check passed".green
+    message = (message + " passed").green
   end
+  if @has_warnings > 0
+    message += " " + "(#{@has_warnings} warnings)".yellow
+  end
+
+  STDOUT.puts message
+  exit 1 if @has_errors > 0
 end
 
 def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   role_count = manifest['roles'].length
-  bosh_properties_count = bosh_properties.inject([]) {|all_props, (_, jobs)|
-      jobs.inject(all_props) {|all_props, (_, properties)|
-        all_props << properties
-      }
-    }.flatten.uniq.length
-  template_count = templates.inject([]) {|all_templates, (_, template_list)|
-      all_templates << template_list.keys
-    }.flatten.length
+  bosh_properties_count = bosh_properties.inject([]) do |all_props, (_, jobs)|
+    jobs.inject(all_props) do |all_props, (_, properties)|
+      all_props << properties
+    end
+  end.flatten.uniq.length
+  template_count = templates.inject([]) do |all_templates, (_, template_list)|
+    all_templates << template_list.keys
+  end.flatten.length
   scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
-  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject {|fn| File.directory?(fn) }
+  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
   rm_parameters = manifest['configuration']['variables']
 
   STDOUT.puts "\nConfiguration info:"
@@ -165,14 +181,14 @@ def check_role_manifest_scripts(manifest)
   manifest_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/'))
   scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
 
-  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject {|fn| File.directory?(fn) }
+  scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
 
   scripts.each do |script|
     relative_path = Pathname.new(script).relative_path_from(Pathname.new(manifest_dir))
 
-    found = manifest['roles'].any? {|r|
+    found = manifest['roles'].any? do |r|
       (r['scripts'] || []).concat(r['post_config_scripts'] || []).concat(r['environment_scripts'] || []).include?(relative_path.to_s)
-    }
+    end
 
     next if found
     STDOUT.puts "script #{relative_path.to_s.red} is not used in the role manifest"
@@ -185,7 +201,7 @@ def check_env_files(role_manifest, dev_env)
   vars = role_manifest['configuration']['variables']
   dev_env.each_pair do |name, (env_file, value)|
     next if Common.special_env(name)
-    i = vars.find_index{|x| x['name'] == name }
+    i = vars.find_index{ |x| x['name'] == name }
     next unless i.nil?
     STDOUT.puts "dev env var #{name.red} defined in #{env_file.red} does not exist in role manifest"
     @has_errors += 1
@@ -207,6 +223,8 @@ end
 # scripts/configure-HA-hosts.sh and that all roles which don't will
 # not.
 def check_clustering(manifest, bosh_properties)
+  # :: hash (release -> hash (job -> hash (property -> default)))
+
   params = {}
   manifest['configuration']['templates'].each do |property, template|
     params[property] = Common.parameters_in_template(template)
@@ -226,14 +244,14 @@ def check_clustering(manifest, bosh_properties)
       end
     end
 
-    collected_params = Hash.new { |h, k| h[k] = [] }
+    collected_params = Hash.new { |h, parameter| h[parameter] = [] }
     # collected_params :: hash (parameter -> array (pair (job,release)))
     # And default unknown elements as empty list.
 
     (role['jobs'] || []).each do |job|
       job_name = job['name']
       release_name = job['release_name']
-      bosh_properties[release_name][job_name].each do |property|
+      bosh_properties[release_name][job_name].each_key do |property|
         (rparams["properties." + property] || []).each do |param|
           next unless param.end_with? '_HCF_CLUSTER_IPS'
           collected_params[param] << [job_name, release_name]
@@ -274,9 +292,9 @@ def check_rm_variables(manifest)
   end
 
   manifest['configuration']['variables'].each do |variable|
-    found = templates.any? {|template|
+    found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
-    }
+    end
 
     next if found
     STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
@@ -319,6 +337,8 @@ end
 
 # Check to see if all properties are defined in a BOSH release
 def check_bosh_properties(defs, bosh_properties, check_type)
+  # :: hash (release -> hash (job -> hash (property -> default)))
+
   defs.each do |prop, _|
     next if Common.special_property(prop)
     next unless prop.start_with? 'properties.'
@@ -332,11 +352,129 @@ def check_bosh_properties(defs, bosh_properties, check_type)
 end
 
 def property_exists_in_bosh?(property, bosh_properties)
-  bosh_properties.any? {|_, jobs|
-    jobs.any? {|_, property_list|
-      property_list.include? property
-    }
-  }
+  bosh_properties.any? do |_, jobs|
+    jobs.any? do |_, property_hash|
+      property_hash.include? property
+    end
+  end
+end
+
+# Convert the nested hash (release -> (job -> (property -> default value)))
+# Into a simpler hash     (property -> (default -> [[release,job]...])
+# In essence the incoming data is inverted and rekeyed to the property
+# and default values.
+def global_defaults(bosh_properties)
+  props = Hash.new do |props, property|
+    props[property] = Hash.new do |prop_hash, default|
+      prop_hash[default] = []
+    end
+  end
+
+  bosh_properties.each do |release, jobs|
+    jobs.each do |job, property_hash|
+      property_hash.each do |property, default|
+        props[property][default] << [release, job]
+      end
+    end
+  end
+
+  props
+end
+
+# Similar to global_defaults, the inversion is only partial,
+# collecting the jobs under properties and defaults, but keeping this
+# per-release, not mixing the releases together.
+# Result is (release -> (property -> (default -> [job...]))
+def release_defaults(bosh_properties)
+  props = Hash.new do |props, release|
+    props[release] = Hash.new do |release_hash, property|
+      release_hash[property] = Hash.new do |property_hash, default|
+        property_hash[default] = []
+      end
+    end
+  end
+
+  bosh_properties.each do |release, jobs|
+    jobs.each do |job, property_hash|
+      property_hash.each do |property, default|
+        props[release][property][default] << job
+      end
+    end
+  end
+
+  props
+end
+
+# Check that all bosh properties have the same default across all the
+# loaded releases and their jobs.
+def check_bosh_defaults(global_defaults)
+  prefix = "Warning"
+
+  global_defaults.each do |property, defaults|
+    # Ignore properties with a single default across all definitions.
+    next if defaults.size == 1
+    @has_warnings += 1
+
+    maxlen = defaults.keys.map { |default| stringify(default).length }.max
+
+    STDOUT.puts "#{prefix.bgyellow}: Property #{property.yellow} has #{defaults.size.to_s.yellow} defaults:"
+    defaults.each do |default, jobs|
+      default = stringify(default)
+
+      if jobs.length == 1
+        release, job = jobs.first
+        STDOUT.puts "- Default #{default.ljust(maxlen).cyan}: Release #{release.cyan}, job #{job.cyan}"
+      else
+        STDOUT.puts "- Default #{default.cyan}:"
+        jobs.each do |(release, job)|
+          STDOUT.puts "  - Release #{release.cyan}, job #{job.cyan}"
+        end
+      end
+    end
+  end
+end
+
+def stringify(x)
+  # Distinguish null/nil from empty string
+  case true
+  when x.nil? then '((NULL))'
+  when x.to_s.empty? then '""'
+  else x.to_s
+  end
+end
+
+# Check to see if all opinions differ from their defaults in the BOSH releases.
+# Note, if a property has more than one default the opinion automatically differs
+# from at least one.
+
+def check_light_defaults(defs, global_defaults)
+  # global_defaults :: (property -> (default -> [[release,job]...]))
+
+  defs.each do |prop, opinion|
+    # Ignore specials
+    next if Common.special_property(prop)
+    # Ignore more specials
+    next unless prop.start_with? 'properties.'
+    prop = prop.sub(/^properties./, '')
+    # Ignore unknown/undefined
+    next unless global_defaults.include? prop
+    # Ignore if default is not unambigous
+    if global_defaults[prop].size > 1
+      STDOUT.puts "light opinion #{prop.yellow} ignored, #{"ambiguous default".yellow}"
+      next
+    end
+
+    # Get the unambigous default
+    default = global_defaults[prop].keys[0]
+
+    next unless opinion == default
+
+    # Ok, the opinion matches an unambigous default in the releases.
+    # That is noteworthy.
+
+    STDOUT.puts "light opinion #{prop.red} matches default of #{stringify(opinion).red}"
+    @has_errors += 1
+  end
 end
 
 def dark_exposed(templates, dark)
