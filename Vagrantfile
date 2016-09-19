@@ -151,7 +151,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit -o nounset
     mkdir -p ${HOME}/bin
-    wget -O ${HOME}/bin/direnv https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
+    wget -O ${HOME}/bin/direnv --no-verbose \
+      https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
     chmod a+x ${HOME}/bin/direnv
     echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
     ln -s ${HOME}/hcf/bin/dev/vagrant-envrc ${HOME}/.envrc
