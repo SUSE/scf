@@ -6,8 +6,6 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 cd "${GIT_ROOT}"
 
-. "make/include/fissile"
-
 ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
 
 # TODO: We currently skip memory limits for development purposes

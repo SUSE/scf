@@ -1,9 +1,10 @@
 #!/bin/bash
-set -e
+set -o errexit
+set -o nounset
 
-ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
+ROOT="$(readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../")"
 
-if [[ $# < 2 || -z "$1" || -z "$2" ]]; then
+if [[ $# < 2 || -z "${1:-}" || -z "${2:-}" ]]; then
   cat <<HELP
   Usage: create-release.sh <RELEASE_PATH> <RELEASE_NAME>"
   RELEASE_PATH must be relative to the root of hcf-infrastructure
@@ -11,19 +12,12 @@ HELP
   exit 1
 fi
 
-release_path=$1
-release_name=$2
+release_path="$1"
+release_name="$2"
 
+stampy "${ROOT}/hcf_metrics.csv" "${BASH_SOURCE[0]}" "create-release::${release_name}" start
 
-# Deletes all dev releases before creating a new one.
-#
-# This is because by default fissile will use the latest (based on semver) dev
-# release available when working with a BOSH release.
-#
-# This is undesirable when working with newer releases, then switching back
-# to older ones
-
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} start
+mkdir -p "${FISSILE_CACHE_DIR}"
 
 # bosh create release calls `git status` (twice), but hcf doesn't need to know if the
 # repo is dirty, so stub it out.
@@ -99,16 +93,27 @@ done
 # - JAVA_OPTS  - cf-release
 # - MAVEN_OPTS - open-autoscaler-release
 
+# Deletes all dev releases before creating a new one.
+#
+# This is because by default fissile will use the latest (based on semver) dev
+# release available when working with a BOSH release.
+#
+# This is undesirable when working with newer releases, then switching back
+# to older ones
+rm -rf ${ROOT}/${release_path}/dev-releases
+
 docker run \
     --interactive \
     --rm \
-    --volume ${HOME}/.bosh:/root/.bosh \
+    --volume ${FISSILE_CACHE_DIR}:/bosh-cache \
     --volume $ROOT/:$ROOT/ \
+    --volume bin/dev/fake-git:/usr/local/bin/git:ro \
     --env RBENV_VERSION="${RUBY_VERSION:-2.2.3}" \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
     helioncf/hcf-pipeline-ruby-bosh \
-    bash -l -c "env | grep -i proxy | sort |sed -e 's/^/PROXY SETUP: /' ; cp $ROOT/bin/dev/fake-git /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
+    /usr/local/bin/create-release.sh \
+        "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
 
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done

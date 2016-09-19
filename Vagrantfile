@@ -147,6 +147,18 @@ Vagrant.configure(2) do |config|
     done
   SHELL
 
+  # set up direnv so we can pick up fissile configuration
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -o errexit -o nounset
+    mkdir -p ${HOME}/bin
+    wget -O ${HOME}/bin/direnv https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
+    chmod a+x ${HOME}/bin/direnv
+    echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
+    ln -s ${HOME}/hcf/bin/dev/vagrant-envrc ${HOME}/.envrc
+    ${HOME}/bin/direnv allow ${HOME}
+    ${HOME}/bin/direnv allow ${HOME}/hcf
+  SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
 
@@ -159,15 +171,9 @@ Vagrant.configure(2) do |config|
     export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
     # Install development tools
-    /home/vagrant/hcf/bin/dev/install_tools.sh
+    ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
 
     mkdir -p /home/vagrant/tmp
-
-    chown vagrant /home/vagrant/bin
-    chown vagrant /home/vagrant/bin/*
-    chown vagrant /home/vagrant/tools
-    chown vagrant /home/vagrant/tools/*
-    chown vagrant /home/vagrant/tmp
   SHELL
 
   config.vm.provision "shell", privileged: true, inline: <<-SHELL
@@ -204,21 +210,14 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
-    echo 'source ~/hcf/bin/.fissilerc' >> .profile
-    echo 'source ~/hcf/bin/.runrc' >> .profile
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
 
     ln -s /home/vagrant/hcf/.bash_history
-  SHELL
 
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    # Start a new shell to pick up .profile changes
-    set -e
-    cd /home/vagrant/hcf
-    make copy-compile-cache
+    direnv exec /home/vagrant/hcf make -C /home/vagrant/hcf copy-compile-cache
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL

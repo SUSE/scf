@@ -2,10 +2,6 @@
 
 set -o errexit -o nounset
 
-GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
-
-. "${GIT_ROOT}/make/include/fissile"
-
 FISSILE_VERSION=$(fissile version | sed 's/+/-/g')
 IMAGE_NAME="fissile-role-base:${FISSILE_VERSION}"
 

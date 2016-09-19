@@ -425,7 +425,7 @@ Name    | Effect | Notes |
 
   1. Add a Git submodule to the BOSH release in `./src`.
 
-  2. Mention the new release in `./bin/.fissilerc`
+  2. Mention the new release in `.envrc`
 
   3. Edit the release parameters:
 
