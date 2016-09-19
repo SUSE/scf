@@ -100,7 +100,7 @@ docker run \
        --volume ${GIT_ROOT}:${GIT_ROOT} \
        --workdir ${GIT_ROOT} \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "RBENV_VERSION=2.2.3 bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
+       ${DOCKER_RUNTIME} -l -c "bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
     > ${OUTFILE}
 
 rm -f $CLEAN

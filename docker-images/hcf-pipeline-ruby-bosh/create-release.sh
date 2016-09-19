@@ -23,7 +23,7 @@ if ! grep --quiet -E ":${gid}:\$" /etc/group ; then
     addgroup --gid "${gid}" docker-group
 fi
 group_name="$(awk -F : "/:${gid}:\$/ { print \$1 }" /etc/group)"
-useradd --gid "${gid}" --groups rvm --create-home --uid "${uid}" docker-user
+useradd --gid "${gid}" --create-home --uid "${uid}" docker-user
 mkdir ~docker-user/.bosh
 chown "docker-user:${group_name}" ~docker-user/.bosh
 ln -s "${bosh_cache}" ~docker-user/.bosh/cache
