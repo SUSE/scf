@@ -40,23 +40,25 @@ mkdir -p output
 
 case ${TARGET} in
     vagrant)
+        PROPMAP=$(mktemp -t vagrant-propmap.XXXXXX.yml)
         OUTFILE=${OUTFILE:-"${TARGET}.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
 
-	fissile show properties --output yaml > vagrant-propmap.yaml
+        fissile show properties --output yaml > ${PROPMAP}
 
-        OPTIONS="${OPTIONS} --property-map vagrant-propmap.yaml"
-	CLEAN="${CLEAN} vagrant-propmap.yaml"
+        OPTIONS="${OPTIONS} --property-map ${PROPMAP}"
+        CLEAN="${CLEAN} ${PROPMAP}"
         ;;
     hcp)
+        PROPMAP=$(mktemp -t hcf-hcp-propmap.XXXXXX.yml)
         OUTFILE=${OUTFILE:-"output/sdl.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
         OPTIONS="${OPTIONS} --hcp-cpu-num 6"
 
-	fissile show properties --output yaml > hcf-hcp-propmap.yaml
+        fissile show properties --output yaml > ${PROPMAP}
 
-        OPTIONS="${OPTIONS} --property-map hcf-hcp-propmap.yaml"
-	CLEAN="${CLEAN} hcf-hcp-propmap.yaml"
+        OPTIONS="${OPTIONS} --property-map ${PROPMAP}"
+        CLEAN="${CLEAN} ${PROPMAP}"
         ;;
     instance-basic-dev|instance-ha-dev)
         OUTFILE=${OUTFILE:-"output/${TARGET}.json"}
