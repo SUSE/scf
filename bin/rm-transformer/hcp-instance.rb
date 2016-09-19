@@ -36,7 +36,7 @@ class ToHCPInstance < Common
     definition['parameters'] = []
     definition['parameters'].push(*collect_parameters(variables))
     definition['sdl_version'] = @hcf_version
-    definition['product_version'] = Common.product_version
+    definition['product_version'] = product_version
     definition
   end
 

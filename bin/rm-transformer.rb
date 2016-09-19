@@ -40,12 +40,13 @@ def main
     hcf_tag:     'develop',
     hcf_prefix:  'hcf',
     hcf_version: '0.0.0',
+    hcf_root_dir: nil,
     manual:      false,
     propmap:     nil
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: hcp)
@@ -72,6 +73,9 @@ def main
     end
     opts.on('-V', '--hcf-version text', 'Version to use for the service') do |v|
       options[:hcf_version] = v
+    end
+    opts.on('-T', '--hcf-root-dir text', 'Absolute path of the HCF sources main directory') do |v|
+      options[:hcf_root_dir] = v
     end
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v

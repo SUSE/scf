@@ -19,7 +19,8 @@ OPTIONS=$(echo \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${DOCKER_APP_VERSION}\" \
-    --hcf-version \"${ARTIFACT_VERSION}\" \
+    --hcf-version \"${APP_VERSION}\" \
+    --hcf-root-dir \"${GIT_ROOT}\"
 )
 
 CLEAN=""

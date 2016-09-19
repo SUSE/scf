@@ -114,7 +114,7 @@ class ToHCP < Common
     {
       'name'              => 'hcf',         # TODO: Specify via option?
       'sdl_version'       => @hcf_version,
-      'product_version'   => Common.product_version,
+      'product_version'   => product_version,
       'vendor'            => 'HPE',         # TODO: Specify via option?
       'volumes'           => [],            # We do not generate volumes, leave empty
       'components'        => [],            # Fill from the roles, see below
