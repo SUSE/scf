@@ -8,6 +8,11 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
+if test -z "${HCF_FORCE_RUN:-}" -a "$(id -un)" != "ubuntu" -a "$(id -un)" != "vagrant" ; then
+    printf "%bERROR%b: Aborting run on host, this breaks due to port issues\n" "\033[0;1;31m" "\033[0m" >&2
+    exit 1
+fi
+
 setup_dir="$1"
 role_name="$2"
 shift 2
