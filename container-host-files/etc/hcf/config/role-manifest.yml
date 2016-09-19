@@ -2241,7 +2241,8 @@ auth:
       access-token-validity: 600
       # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
       # we need clients.admin to make the necessary changes to UAA
-      authorities: scim.read,scim.write,clients.admin
+      # cloud_controller.admin is needed for hcf-release/hcf-set-proxy job
+      authorities: scim.read,scim.write,clients.admin,cloud_controller.admin
       authorized-grant-types: client_credentials
     hcf-sso:
       access-token-validity: 3600
