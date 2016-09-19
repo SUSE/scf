@@ -67,8 +67,8 @@ function register_service () {
 }
 
 SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER="<%= username.shellescape %>"
-PASSWORD="<%= password.shellescape %>"
+USER=<%= username.shellescape %>
+PASSWORD=<%= password.shellescape %>
 
 AS_PORT="<%= p("tomcat.http.autoscaler_servicebroker.port") %>"
 AS_USER="<%= p("autoscaler_servicebroker.auth.username") %>"
