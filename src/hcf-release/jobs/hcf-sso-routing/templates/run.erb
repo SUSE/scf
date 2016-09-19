@@ -67,8 +67,8 @@ function register_service () {
 }
 
 SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER="<%= username.shellescape %>"
-PASS="<%= password.shellescape %>"
+USER=<%= username.shellescape %>
+PASS=<%= password.shellescape %>
 SSO_PORT="<%= p("hcf_sso.port") %>"
 SSO_USER="<%= p("hcf_sso.username") %>"
 SSO_PASS="<%= p("hcf_sso.password") %>"

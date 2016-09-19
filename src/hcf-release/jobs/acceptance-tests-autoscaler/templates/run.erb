@@ -28,8 +28,8 @@ function retry () {
 }
 
 SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER="<%= username.shellescape %>"
-PASSWORD="<%= password.shellescape %>"
+USER=<%= username.shellescape %>
+PASSWORD=<%= password.shellescape %>
 HSDS=${HCP_SERVICE_DOMAIN_SUFFIX}
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"

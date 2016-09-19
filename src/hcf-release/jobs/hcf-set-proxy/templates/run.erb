@@ -77,8 +77,8 @@ function retarget_auth () {
 }
 
 SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER="<%= username.shellescape %>"
-PASSWORD="<%= password.shellescape %>"
+USER=<%= username.shellescape %>
+PASSWORD=<%= password.shellescape %>
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
