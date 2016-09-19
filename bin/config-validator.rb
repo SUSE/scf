@@ -426,8 +426,7 @@ def check_bosh_defaults(global_defaults)
         STDOUT.puts "- Default #{default.ljust(maxlen).cyan}: Release #{release.cyan}, job #{job.cyan}"
       else
         STDOUT.puts "- Default #{default.cyan}:"
-        jobs.each do |spec|
-          release, job = spec
+        jobs.each do |(release, job)|
           STDOUT.puts "  - Release #{release.cyan}, job #{job.cyan}"
         end
       end
