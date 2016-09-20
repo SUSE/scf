@@ -1,96 +1,92 @@
-#!/bin/bash
+#!/var/vcap/packages/ruby-2.3/bin/ruby
 
-<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
-
-set -e
-
-# put the cli on the path
-export PATH=/var/vcap/packages/cli/bin:${PATH}
+require 'json'
+require 'open3'
 
 # helper function to retry a command several times, with a delay between trials
-# usage: retry <max-tries> <delay> <command>...
-function retry () {
-    max=${1}
-    delay=${2}
-    i=0
-    shift 2
+def do_retry(max_tries, delay, *command)
+  max_tries.times do |i|
+    Process.wait Process.spawn(*command, out: ['/dev/null', File::WRONLY])
+    if $?.success?
+      STDOUT.puts ''
+      return
+    end
+    STDOUT.write "\rSleeping for #{delay} seconds after #{i} attempts..."
+    STDOUT.flush
+    sleep delay
+  end
+  fail "Failed to run command #{command.join(' ')}, returned #{$?.exitstatus}"
+end
 
-    while test ${i} -lt ${max} ; do
-        if "$@" ; then
-            break
-        fi
-        sleep "${delay}"
-        i="$(expr ${i} + 1)"
-    done
-}
+def capture2(*args)
+  output, status = Open3.capture2(*args)
+  fail "Failed running #{args}" unless status.success?
+  output
+end
 
-function edit_config () {
-    key="$1"
-    value="$2"
-    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
-    sed < $HOME/.cf/config.json > $$ -e "$pattern"
-    mv $$ $HOME/.cf/config.json
-}
+def make_api_request(path, opts={})
+  args = %W(curl --fail)
+  args << $curl_ssl unless $curl_ssl.empty?
+  args += ['--header', 'Accept: application/json']
+  args += ['--header', "Authorization: bearer #{$token}"]
+  args += ['-X', opts[:method]]  if opts.has_key? :method
+  args << "http://#{$api_endpoint}#{path}"
+  if opts[:stdin]
+    args += %w(-d@-)
+    args << { stdin_data: opts[:stdin] }
+  end
+  capture2(*args)
+end
 
-function retarget_auth () {
-    # Manipulate the authentication endpoints saved by the `cf api`
-    # command.  This fakes `cf auth` out, forcing it to use the
-    # internal auth host. Note the special port for https.
+def register_service(service_name, user, pass, endpoint)
+  # Check if the service exists
+  services = JSON.load(make_api_request("/v2/service_brokers?q=name:#{service_name}"))
+  service_info = services['resources'].find { |resource| resource['entity']['name'] == service_name }
+  service_data = {
+    name: service_name,
+    broker_url: endpoint,
+    auth_username: user,
+    auth_password: pass,
+  }.to_json
+  if service_info.nil?
+    # Create
+    make_api_request('/v2/service_brokers', stdin: service_data)
+  else
+    # Update
+    make_api_request("/v2/service_brokers/#{service_info['metadata']['guid']}",
+                     method: 'PUT', stdin: service_data)
+  end
+end
 
-    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
-    edit_config UaaEndpoint           "$UAA_ENDPOINT"
-}
+$curl_ssl = '<%= properties.ssl.skip_cert_verify ? "--insecure" : "" %>'
 
-function select_action () {
-    SERVICE="$1"
+as_port = '<%= p("tomcat.http.autoscaler_servicebroker.port") %>'
+as_user = '<%= p("autoscaler_servicebroker.auth.username") %>'
+as_pass = "<%= p('autoscaler_servicebroker.auth.password').inspect[1..-2] %>"  # Magic inspect stuff to escape string correctly
+as_service = '<%= p("autoscaler_api.scaling_service.name") %>'
 
-    # Check if the broker is known already or not. Depending on the
-    # result we simply update the existing broker, or create a new one.
+uaa_endpoint = '<%= p("hcf.uaa.internal-url").chomp("/") %>' # UAA doesn't like extra slashes, at all.
+as_endpoint = "http://#{ENV['AUTOSCALER_SERVICE_BROKER_HOST']}.#{ENV['HCP_SERVICE_DOMAIN_SUFFIX']}:#{as_port}"
+$api_endpoint = "api-int.#{ENV['HCP_SERVICE_DOMAIN_SUFFIX']}:9022"
 
-    action=create
-    if cf service-brokers 2>/dev/null | grep --quiet "$SERVICE" ; then
-	action=update
-    fi
-    echo $action
-}
+puts "Waiting for CC... #{$api_endpoint}"
+do_retry 240, 30, *%W(curl --fail --silent #{$curl_ssl} -o /dev/null http://#{$api_endpoint}/v2/info)
 
-function register_service () {
-    SERVICE="$1"
-    USER="$2"
-    PASS="$3"
-    ENDPOINT="$4"
+puts "Waiting for UAA..."
+do_retry 240, 30, *%W(curl --fail --silent #{$curl_ssl} -o /dev/null --header), 'Accept: application/json', "#{uaa_endpoint}/info"
 
-    cf $(select_action "$SERVICE")-service-broker "$SERVICE" "$USER" "$PASS" "$ENDPOINT"
+puts "Waiting for Autoscaler service broker..."
+do_retry 240, 30, *%w(curl --fail --silent --insecure), as_endpoint
 
-    # Make the broker available to all orgs and their spaces
-    cf enable-service-access "$SERVICE"
-}
+puts "Logging in to #{uaa_endpoint}..."
+uaa_auth = capture2(*%W(curl --fail --silent #{$curl_ssl} --header),
+                    'Accept: application/json',
+                    "#{uaa_endpoint}/oauth/token",
+                    *%w(-d grant_type=client_credentials -u),
+                    'hcf_auto_config:<%=p("uaa.clients.hcf_auto_config.secret")%>')
+$token = JSON.load(uaa_auth)['access_token']
 
-SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER=<%= username.shellescape %>
-PASSWORD=<%= password.shellescape %>
+puts "Waiting for Autoscaler service broker..."
+register_service as_service, as_user, as_pass, "#{as_endpoint}/servicebroker"
 
-AS_PORT="<%= p("tomcat.http.autoscaler_servicebroker.port") %>"
-AS_USER="<%= p("autoscaler_servicebroker.auth.username") %>"
-AS_PASS="<%= p("autoscaler_servicebroker.auth.password") %>"
-AS_SERVICE="<%= p("autoscaler_api.scaling_service.name") %>"
-
-UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
-AS_ENDPOINT="http://${AUTOSCALER_SERVICE_BROKER_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:$AS_PORT"
-API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
-
-echo "Waiting for CC... $SKIP $API_ENDPOINT"
-retry 240 30s cf api $SKIP "$API_ENDPOINT"
-
-retarget_auth
-
-echo "Waiting for UAA..."
-retry 240 30s cf auth "$USER" "$PASSWORD"
-
-echo "Waiting for Autoscaler service broker..."
-retry 240 30s curl --fail --silent --insecure $AS_ENDPOINT >/dev/null 2>&1
-
-echo "Registering Autoscaler service broker..."
-register_service "$AS_SERVICE" "$AS_USER" "$AS_PASS" "$AS_ENDPOINT/servicebroker"
-
-echo "Registration of Autoscaler complete."
+puts "Registration of Autoscaler complete."
