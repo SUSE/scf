@@ -95,9 +95,9 @@ function cf_curl() {
             old_value="$(cf_curl "/v2/config/environment_variable_groups/<%= runtime %>" | tr -d '[:space:]')"
             if test "${old_value}" != "{}" ; then
                 printf "Skipping setting %s environment variable groups, unexpected value:\n%s\n" '<%= runtime %>' "${old_value}"
-                continue
+            else
+                cf_curl "/v2/config/environment_variable_groups/<%= runtime %>" -X PUT -d@- <<< <%= env[runtime].to_json.shellescape %>
             fi
-            cf_curl "/v2/config/environment_variable_groups/<%= runtime %>" -X PUT -d@- <<< <%= env[runtime].to_json.shellescape %>
         <%
     end
 %>
