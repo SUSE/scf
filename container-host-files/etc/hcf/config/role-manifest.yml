@@ -1653,14 +1653,6 @@ configuration:
     secret: true
     generator:
       type: Password
-  - name: UAA_CLIENTS_APP_DIRECT_SECRET
-    secret: true
-    generator:
-      type: Password
-  - name: UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET
-    secret: true
-    generator:
-      type: Password
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
     generator:
@@ -1674,10 +1666,6 @@ configuration:
     generator:
       type: Password
   - name: UAA_CLIENTS_LOGIN_SECRET
-    secret: true
-    generator:
-      type: Password
-  - name: UAA_CLIENTS_NOTIFICATIONS_SECRET
     secret: true
     generator:
       type: Password
@@ -2177,20 +2165,17 @@ configuration:
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.uaa.clients: ((UAA_CLIENTS))((^UAA_CLIENTS)){}((/UAA_CLIENTS)) # This is _not_ quoted to let the JSON expand in configgin
-    properties.uaa.clients.app-direct.secret: '"((UAA_CLIENTS_APP_DIRECT_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
-    properties.uaa.clients.developer_console.secret: '"((UAA_CLIENTS_DEVELOPER_CONSOLE_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
     properties.uaa.clients.hcf-sso.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
     properties.uaa.clients.login.redirect-uri: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))login.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
-    properties.uaa.clients.notifications.secret: '"((UAA_CLIENTS_NOTIFICATIONS_SECRET))"'
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
@@ -2215,8 +2200,6 @@ auth:
     # Note that these clients are overridden in the dev-only UAA role; that is
     # instead used to bootstrap the default zone, whereas all of these clients
     # go into the HCF zone.
-    app-direct:
-      authorized-grant-types: refresh_token,authorization_code
     cf-autoscaler-client:
       authorities: cloud_controller.read,cloud_controller.admin
       authorized-grant-types: client_credentials
@@ -2246,8 +2229,6 @@ auth:
     cloud_controller_username_lookup:
       authorities: scim.userids
       authorized-grant-types: client_credentials
-    developer_console:
-      authorized-grant-types: authorization_code,refresh_token
     doppler:
       authorities: uaa.resource
       authorized-grant-types: authorization_code,refresh_token
@@ -2268,9 +2249,6 @@ auth:
       override: true
       redirect-uri: https://login.example.com
       scope: openid,oauth.approvals
-    notifications:
-      authorities: cloud_controller.admin,scim.read
-      authorized-grant-types: client_credentials
     ssh-proxy:
       authorized-grant-types: authorization_code
       autoapprove: true
