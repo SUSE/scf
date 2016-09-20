@@ -104,9 +104,11 @@ else
     uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
 
     status "Fixing missing configs for clients..."
+    # Disable because we need to manually check uaac's exit code
+    set +o errexit
     <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
         <% next unless client_data['autoapprove'] || client_data['redirect-uri'] %>
-        uaac client update '<%= client_id %>' \
+          uuac_message="$(uaac client update '<%= client_id %>' \
             --no-interactive \
             <%
                 if client_data.key? 'redirect-uri'
@@ -119,10 +121,23 @@ else
                         %> --autoapprove '<%= client_data['autoapprove'] %>' <%
                     end
                 end
-            %>
-    <% end %>
-fi
+            %>)"
 
+          # Test to see if uaac failed because we've already done this.
+          # Post flight roles need to be idempotent.
+          # uaac will exit with 1 if it has nothing to do and display a message
+          # that says: Nothing to update. Use -i for interactive update.
+          if [ "$?" != "0" ]; then
+            if [[ ! "$uaac_message" == *"Nothing to update"* ]]; then
+              echo $uaac_message
+              exit 1
+            fi
+          fi
+    <% end %>
+
+    # Re-enable after dealing with uaac client update
+    set -o errexit
+fi
 
 status "Waiting for UAA to be availabile..."
 retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
