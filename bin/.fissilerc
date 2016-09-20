@@ -1,24 +1,36 @@
-ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
+if [ -z "${GIT_ROOT:-}" ] ; then
+    case $0 in
+      -bash) SRC="${BASH_SOURCE[0]}" ;;
+      *) SRC="$0" ;;
+    esac
+    GIT_ROOT=$(dirname $(cd $(dirname "${SRC}") ; echo ${PWD}))
+fi
 
 # The Docker repository name used for images
 export FISSILE_REPOSITORY=fissile
 
 # This is a comma separated list of paths to the local repositories
 # of all the releases that make up HCF
-FISSILE_RELEASE="${ROOT}/src/cf-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cf-usb/cf-usb-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/diego-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/etcd-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/garden-linux-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cf-mysql-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/cflinuxfs2-rootfs-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/routing-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/windows-runtime-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-sso/hcf-sso-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/hcf-versions/hcf-versions-release"
-FISSILE_RELEASE="${FISSILE_RELEASE},${ROOT}/src/open-Autoscaler/bosh-release"
-export FISSILE_RELEASE
+
+FISSILE_RELEASE=''
+for RELEASE in $(echo '
+      cf-release
+      cf-usb/cf-usb-release
+      diego-release
+      etcd-release
+      garden-linux-release
+      cf-mysql-release
+      cflinuxfs2-rootfs-release
+      routing-release
+      hcf-release
+      hcf-sso/hcf-sso-release
+      hcf-versions/hcf-versions-release
+      windows-runtime-release
+      open-Autoscaler/bosh-release
+      '); do
+    FISSILE_RELEASE=${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE};
+done
+export FISSILE_RELEASE=$(echo ${FISSILE_RELEASE} | sed 's/,//')
 
 # This is a comma separated list of dev release names
 # Ordering of the names needs to match the list in FISSILE_DEV_RELEASE
@@ -31,13 +43,13 @@ export FISSILE_RELEASE_NAME=
 export FISSILE_RELEASE_VERSION=
 
 # Path to an HCF role manifest
-export FISSILE_ROLE_MANIFEST="${ROOT}/container-host-files/etc/hcf/config/role-manifest.yml"
+export FISSILE_ROLE_MANIFEST="${GIT_ROOT}/container-host-files/etc/hcf/config/role-manifest.yml"
 
 # Path to a BOSH deployment manifest that contains light opinions
-export FISSILE_LIGHT_OPINIONS="${ROOT}/container-host-files/etc/hcf/config/opinions.yml"
+export FISSILE_LIGHT_OPINIONS="${GIT_ROOT}/container-host-files/etc/hcf/config/opinions.yml"
 
 # Path to a BOSH deployment manifest that contains dark opinions
-export FISSILE_DARK_OPINIONS="${ROOT}/container-host-files/etc/hcf/config/dark-opinions.yml"
+export FISSILE_DARK_OPINIONS="${GIT_ROOT}/container-host-files/etc/hcf/config/dark-opinions.yml"
 
 # Path to a location where all fissile output is stored
 export FISSILE_WORK_DIR="${HOME}/.fissile/"
@@ -89,3 +101,5 @@ export FISSILE_CONFIG_PREFIX=hcf
 
 # Default version label for the created images
 # export FISSILE_VERSION=
+
+
