@@ -20,7 +20,22 @@ end
 
 def capture2(*args)
   output, status = Open3.capture2(*args)
-  fail "Failed running #{args}" unless status.success?
+  unless status.success?
+    copy = args.dup
+    if copy.length > 0
+      if copy.last == 'hcf_auto_config:<%=p("uaa.clients.hcf_auto_config.secret")%>'
+        copy[-1] = 'hcf_auto_config:<password>'
+      end
+      copy = copy.map do |value|
+        if value.respond_to?(:start_with?) && value.start_with?('Authorization: bearer')
+          'Authorization: bearer <token>'
+        else
+          value
+        end
+      end
+    end
+    fail "Failed running #{copy}"
+  end
   output
 end
 
@@ -30,7 +45,7 @@ def make_api_request(path, opts={})
   args += ['--header', 'Accept: application/json']
   args += ['--header', "Authorization: bearer #{$token}"]
   args += ['-X', opts[:method]]  if opts.has_key? :method
-  args << ($api_endpoint + path)
+  args << "http://#{$api_endpoint}#{path}"
   if opts[:stdin]
     args += %w(-d@-)
     args << { stdin_data: opts[:stdin] }
