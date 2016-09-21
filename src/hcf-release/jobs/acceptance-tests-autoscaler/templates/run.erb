@@ -1,8 +1,24 @@
 #!/bin/bash
-
-<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
-
 set -e
+
+<% userinfo = properties.uaa.scim.users.first
+   if !userinfo.include? 'cloud_controller.admin'
+%>
+
+     echo "Configured admin user is not cloud_controller.admin (<%= userinfo %>)"
+     exit 1
+
+<% end
+
+   username = userinfo.split('|').first
+   secret   = '/etc/secrets/cluster-admin-password'
+
+   if File.exist?(secret)
+       password = File.read(secret)
+   else
+       password = ENV['CLUSTER_ADMIN_PASSWORD']
+   end
+ %>
 
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
 

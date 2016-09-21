@@ -146,34 +146,42 @@ status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
 uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
 uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
 
-<% properties.uaa.scim.users.each do |user_info| %>
+<% secret      = '/etc/secrets/cluster-admin-password'
+   username    = properties.uaa.scim.users.first.split('|').first.shellescape
+   authorities = ENV['CLUSTER_ADMIN_AUTHORITIES'].split(',')
+   if File.exist?(secret)
+       password = File.read(secret).shellescape
+   else
+       password = ENV['CLUSTER_ADMIN_PASSWORD'].shellescape
+   end
+%>
 
-    <% username, password, authorities = user_info.split('|') %>
-    <% authorities = authorities.split(',') %>
+if uaac user get <%= username %> ; then
+    status "User %s already exists" <%= username %>
+else
+    status "Creating user %s" <%= username %>
+    uaac user add <%= username %> \
+	--given_name '' \
+	--family_name '' \
+	--emails <%= username %> \
+	--password <%= password %>
+fi
 
-    if uaac user get '<%= username %>' ; then
-        status "User %s already exists" '<%= username %>'
-    else
-        status "Creating user %s" '<%= username %>'
-        uaac user add '<%= username %>' --given_name '' --family_name '' --emails '<%= username %>' --password '<%= password %>'
+user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')
+
+<% authorities.each do |authority| %>
+status "Adding users to authority %s" '<%= authority %>'
+if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
+    uaac group add '<%= authority %>'
+fi
+if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
+    status "User %s already in %s" <%= username %> '<%= authority %>'
+else
+    if ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
+	status "+ %s" <%= username %>
+	uaac member add '<%= authority %>' <%= username %>
     fi
-
-    user_id=$(uaac user get '<%= username %>' | awk '/^  id:/ { print $2 }')
-
-    <% authorities.each do |authority| %>
-        status "Adding users to authority %s" '<%= authority %>'
-        if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
-            uaac group add '<%= authority %>'
-        fi
-        if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
-            status "User %s already in %s" '<%= username %>' '<%= authority %>'
-            continue
-        fi
-        if ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
-            uaac member add '<%= authority %>' '<%= username %>'
-        fi
-    <% end %>
-
+fi
 <% end %>
 
 status "UAA initialization successful"
