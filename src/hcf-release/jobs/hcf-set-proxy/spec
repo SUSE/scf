@@ -4,8 +4,7 @@ name: cf-set-proxy
 description: cf-set-proxy will initialize the running- and staging-environment-variable-groups for the current HTTP(S) proxy settings
 
 packages:
-  - cf-uaac
-  - ruby-2.3
+  - cli
 
 templates:
   run.erb: bin/run

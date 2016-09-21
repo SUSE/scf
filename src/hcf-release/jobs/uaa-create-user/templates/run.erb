@@ -47,7 +47,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     UAA_ZONE_ID="hcf"
 
     status "Waiting for root UAA to be available..."
-    retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
+    retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
 
     # We need to create the HCF zone manually
     status "Checking for UAA zone ${UAA_ZONE_ID}..."
@@ -97,11 +97,11 @@ else
     # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
     # We update them manually to work around the issue.
     status "Waiting for UAA zone to be availabile..."
-    retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+    retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
     status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
     uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
-    uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
+    uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
 
     status "Fixing missing configs for clients..."
     # Disable because we need to manually check uaac's exit code
@@ -140,11 +140,11 @@ else
 fi
 
 status "Waiting for UAA to be availabile..."
-retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+retry 240 30s curl --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
 status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
 uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
-uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
+uaac token client get uaa_create_first_user --secret '<%= p("uaa.clients.uaa_create_first_user.secret") %>'
 
 <% properties.uaa.scim.users.each do |user_info| %>
 
