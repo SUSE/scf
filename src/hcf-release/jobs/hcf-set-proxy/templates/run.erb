@@ -1,11 +1,10 @@
 #!/bin/bash
 
-<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
+set -o errexit -o nounset
 
-set -e
-
-# put the cli on the path
-export PATH=/var/vcap/packages/cli/bin:${PATH}
+# put UAAC on the path
+export PATH="${PATH}:/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin"
+export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
 
 <%
 require 'shellwords'
@@ -59,43 +58,48 @@ function retry () {
     done
 }
 
-function edit_config () {
-    key="$1"
-    value="$2"
-    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
-    sed < $HOME/.cf/config.json > $$ -e "$pattern"
-    mv $$ $HOME/.cf/config.json
-}
-
-function retarget_auth () {
-    # Manipulate the authentication endpoints saved by the `cf api`
-    # command.  This fakes `cf auth` out, forcing it to use the
-    # internal auth host. Note the special port for https.
-
-    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
-    edit_config UaaEndpoint           "$UAA_ENDPOINT"
-}
-
-SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER=<%= username.shellescape %>
-PASSWORD=<%= password.shellescape %>
+# We need to use client_credentials to log in, and not as a user (so that we can
+# reliably run as a post-deployment job after the user has changed their
+# password); therefore, we can't use the `cf` command line client.
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
+UAA_ENDPOINT="${UAA_ENDPOINT%/}" # UAA doesn't like extra slashes, at all.
 API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
 
-echo "Waiting for CC... $SKIP $API_ENDPOINT"
-retry 240 30s cf api $SKIP "$API_ENDPOINT"
+<%
+curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
+uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
+%>
 
-retarget_auth
+printf "Waiting for CC... %s %s\n" '<%= curl_ssl %>' "${API_ENDPOINT}"
+retry 240 30s curl --fail --silent <%= curl_ssl %> -o /dev/null http://${API_ENDPOINT}/v2/info
 
-echo "Waiting for UAA..."
-retry 240 30s cf auth "$USER" "$PASSWORD"
+printf "Waiting for UAA... %s %s\n" '<%= curl_ssl %>' "${UAA_ENDPOINT}"
+retry 240 30s curl --fail --silent <%= curl_ssl %> -o /dev/null --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+
+printf 'Logging in to %s\n' '<%= p("hcf.uaa.internal-url") %>'
+uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
+uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
+token="$(uaac context | awk '/access_token:/ { print $2 }')"
+
+function cf_curl() {
+    local path="$1"
+    shift
+    curl --fail --silent --header 'Accept: application/json' --header "Authorization: bearer ${token}" "http://${API_ENDPOINT}${path}" "$@"
+}
 
 <%
-%W{staging running}.each do |runtime|
-  if env[runtime] %>
-cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
-<%end
-end %>
+    %W{staging running}.each do |runtime|
+        next unless env[runtime]
+        %>
+            old_value="$(cf_curl "/v2/config/environment_variable_groups/<%= runtime %>" | tr -d '[:space:]')"
+            if test "${old_value}" != "{}" ; then
+                printf "Skipping setting %s environment variable groups, unexpected value:\n%s\n" '<%= runtime %>' "${old_value}"
+            else
+                cf_curl "/v2/config/environment_variable_groups/<%= runtime %>" -X PUT -d@- <<< <%= env[runtime].to_json.shellescape %>
+            fi
+        <%
+    end
+%>
 
 echo "Setting of external proxies complete."
