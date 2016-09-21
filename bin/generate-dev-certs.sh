@@ -93,6 +93,12 @@ make_domains() {
     echo "${result}"
 }
 
+make_ha_domains() {
+    local host_base="$1"
+    local result="${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf}"
+    echo "${result}"
+}
+
 # generate JWT certs
 openssl genrsa -out "${certs_path}/jwt_signing.pem" -passout pass:"${signing_key_passphrase}" 4096
 openssl rsa -in "${certs_path}/jwt_signing.pem" -outform PEM -passin pass:"${signing_key_passphrase}" -pubout -out "${certs_path}/jwt_signing.pub"
@@ -115,13 +121,13 @@ cat ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/hcf-sso.key > ${inte
 cp ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/sso_routing.crt
 
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_domains "etcd-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_ha_domains "etcd")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdServer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdClient" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer" --domain "$(make_domains "etcd-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer" --domain "$(make_ha_domains "etcd")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
