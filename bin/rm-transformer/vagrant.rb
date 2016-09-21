@@ -11,22 +11,7 @@ class ToVAGRANT < Common
   def initialize(options)
     super(options)
 
-    # Quick access to the loaded properties: (release -> job -> property -> default-value)
-    # For the filtering we need:             (release -> job -> list(property))
-
-    @property = Hash.new do |props, release|
-      props[release] = Hash.new do |release_hash, job|
-        release_hash[job] = []
-      end
-    end
-
-    @options[:propmap].each do |release, jobs|
-      jobs.each do |job, properties|
-        properties.each_key do |property|
-          @property[release][job] << property
-        end
-      end
-    end
+    @property = convert_properties(@options[:propmap])
   end
 
   # Public API
