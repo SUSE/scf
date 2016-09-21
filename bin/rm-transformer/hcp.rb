@@ -17,8 +17,7 @@ class ToHCP < Common
     @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
 
-    # Quick access to the loaded properties (release -> job -> list(property-name))
-    @property = @options[:propmap]
+    @property = convert_properties(@options[:propmap])
 
     # And the map (component -> list(parameter-name)).
     # This is created in "determine_component_parameters" (if @property)
