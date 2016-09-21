@@ -108,7 +108,7 @@ else
     set +o errexit
     <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
         <% next unless client_data['autoapprove'] || client_data['redirect-uri'] %>
-          uuac_message="$(uaac client update '<%= client_id %>' \
+          uaac_message="$(uaac client update '<%= client_id %>' \
             --no-interactive \
             <%
                 if client_data.key? 'redirect-uri'
