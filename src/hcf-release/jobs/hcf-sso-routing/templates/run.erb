@@ -1,11 +1,9 @@
 #!/bin/bash
 
-<% username, password = properties.uaa.scim.users.detect{|u|u.include? 'cloud_controller.admin'}.split('|')[0..1] %>
-
-set -e
+set -o errexit -o nounset
 
 # put the cli on the path
-export PATH=/var/vcap/packages/cli/bin:${PATH}
+export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
 
 # helper function to retry a command several times, with a delay between trials
 # usage: retry <max-tries> <delay> <command>...
@@ -22,23 +20,6 @@ function retry () {
         sleep "${delay}"
         i="$(expr ${i} + 1)"
     done
-}
-
-function edit_config () {
-    key="$1"
-    value="$2"
-    pattern="s|\"$key\":[ 	]*\".*\",$|\"$key\": \"$value\",|"
-    sed < $HOME/.cf/config.json > $$ -e "$pattern"
-    mv $$ $HOME/.cf/config.json
-}
-
-function retarget_auth () {
-    # Manipulate the authentication endpoints saved by the `cf api`
-    # command.  This fakes `cf auth` out, forcing it to use the
-    # internal auth host. Note the special port for https.
-
-    edit_config AuthorizationEndpoint "$UAA_ENDPOINT"
-    edit_config UaaEndpoint           "$UAA_ENDPOINT"
 }
 
 function select_action () {
@@ -63,12 +44,18 @@ function register_service () {
     cf $(select_action "$SERVICE")-service-broker "$SERVICE" "$USER" "$PASS" "$ENDPOINT"
 
     # Make the broker available to all orgs and their spaces
-    cf enable-service-access "$SERVICE"
+    # This is the equivalent of `cf enable-service-access $SERVICE`, but that requires a refresh token
+    printf "Enabling access to all plans of service %s for all orgs...\n", "$SERVICE"
+    service_guid=$(cf curl "/v2/services?q=label:${SERVICE}" | ruby-query.rb 'resources.first.metadata.guid')
+    plan_guids="$(cf curl "/v2/service_plans?q=service_guid:${service_guid}" | ruby-query.rb 'resources.map { |x| x.metadata.guid }')"
+    for plan_guid in ${plan_guids} ; do
+        cf curl -X PUT -d '{"public": true}' "/v2/service_plans/${plan_guid}"
+        echo
+    done
 }
 
-SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
-USER=<%= username.shellescape %>
-PASS=<%= password.shellescape %>
+CF_SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
 SSO_PORT="<%= p("hcf_sso.port") %>"
 SSO_USER="<%= p("hcf_sso.username") %>"
 SSO_PASS="<%= p("hcf_sso.password") %>"
@@ -77,19 +64,19 @@ UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 SSO_ENDPOINT="https://${HCF_SSO_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:${SSO_PORT}"
 API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
 
-echo "Waiting for CC... $SKIP $API_ENDPOINT"
-retry 240 30s cf api $SKIP "$API_ENDPOINT"
+echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
+retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
 
-retarget_auth
-
-echo "Waiting for UAA..."
-retry 240 30s cf auth "$USER" "$PASS"
+echo "Waiting for UAA... $CURL_SKIP $UAA_ENDPOINT"
+retry 240 30s curl --fail --silent --header 'Accept: application/json' $UAA_ENDPOINT/info
 
 echo "Waiting for SSO Routing service broker..."
 retry 240 30s curl --fail --silent --insecure "$SSO_ENDPOINT/ping" >/dev/null 2>&1
 
-echo "Registering SSO Routing service broker..."
+echo "Logging in to $UAA_ENDPOINT..."
+insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.clients.hcf_auto_config.secret").shellescape %> ${CURL_SKIP}
 
+echo "Registering SSO Routing service broker..."
 register_service sso-routing "$SSO_USER" "$SSO_PASS" "$SSO_ENDPOINT"
 
 echo "Registration of SSO Routing complete."

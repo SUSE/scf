@@ -28,7 +28,7 @@ properties:
   uaa.clients:
     description: The clients to configure for the UAA zone
     example: {}
-  uaa.clients.uaa_create_first_user.secret:
+  uaa.clients.hcf_auto_config.secret:
     description: The client secret of the account used to create the initial CF user
   uaa.scim.users:
     description: A list of users to be bootstrapped with authorities.
