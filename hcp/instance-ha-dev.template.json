@@ -26,11 +26,6 @@
         "max_instances": 3
       },
       {
-        "component": "uaa",
-        "min_instances": 3,
-        "max_instances": 3
-      },
-      {
         "component": "loggregator",
         "min_instances": 3,
         "max_instances": 3
