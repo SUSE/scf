@@ -13,7 +13,7 @@ STEM=$(echo ${TARGET} | sed -e 's@-.*@@')
 WORKDIR=$(mktemp -d $(echo ${TARGET} | tr - _)_XXXXXXXXXX)
 trap "rm -rf ${WORKDIR}" HUP INT TERM EXIT
 
-ARTIFACT=${TARGET}-${APP_VERSION}.zip
+ARTIFACT=${ARTIFACT_NAME}-${TARGET}-${APP_VERSION}.zip
 
 mkdir -p ${WORKDIR}/${TARGET}
 

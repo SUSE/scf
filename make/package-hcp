@@ -6,7 +6,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/versioning
 
-ARTIFACT=hcp-${APP_VERSION}.zip
+ARTIFACT=${ARTIFACT_NAME}-hcp-${APP_VERSION}.zip
 
 rm ${GIT_ROOT}/${ARTIFACT} 2>/dev/null || true
 
