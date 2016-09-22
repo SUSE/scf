@@ -40,8 +40,8 @@ read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
  <% else %>
 -advertise_peer_url="http://<%= my_ip %>:7001"
 -advertise_client_url="http://<%= my_ip %>:4001"
-+advertise_peer_url="${peer_protocol}://$(hostname -s):7001"
-+advertise_client_url="${client_protocol}://$(hostname -s):4001"
++advertise_peer_url="${peer_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/'):7001"
++advertise_client_url="${client_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/'):4001"
  <% end %>
 
  listen_client_url="${client_protocol}://0.0.0.0:4001"
