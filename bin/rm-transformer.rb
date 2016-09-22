@@ -78,6 +78,7 @@ def main
       options[:hcf_version] = v
     end
     opts.on('-C', '--hcp-cpu-num text', 'Number of CPUs available') do |v|
+      abort "Bad number of cpus, expecting a value > 0." if v.to_i < 1
       options[:hcp_cpu_num] = v.to_i
     end
     opts.on('-T', '--hcf-root-dir text', 'Absolute path of the HCF sources main directory') do |v|
