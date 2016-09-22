@@ -5,13 +5,8 @@
 set -o errexit
 
 cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng/app/jobs/runtime
-
-if test -f droplet_upload.rb.sentinel ; then
-    # Already patched
-    exit 0
-fi
-
-patch -p0 --force <<'PATCH'
+if [ ! -f droplet_upload.rb.sentinel ]; then
+    patch -p0 --force <<'PATCH'
 --- droplet_upload.rb
 +++ droplet_upload.rb
 @@ -4,9 +4,10 @@ module VCAP::CloudController
@@ -36,5 +31,22 @@ patch -p0 --force <<'PATCH'
  
            FileUtils.rm_f(local_path)
 PATCH
+    touch droplet_upload.rb.sentinel
+fi
 
-touch droplet_upload.rb.sentinel
+cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng/app/models/runtime
+if [ ! -f droplet_uploader.rb.sentinel ]; then
+    patch -p0 --force <<'PATCH'
+--- droplet_uploader.rb
++++ droplet_uploader.rb
+@@ -12,6 +12,7 @@ module CloudController
+         VCAP::CloudController::Droplet.droplet_key(app.guid, digest)
+       )
+       app.add_new_droplet(digest)
++      app.mark_as_staged
+       current_droplet_size = app.droplets_dataset.count
+
+       if current_droplet_size > droplets_to_keep
+PATCH
+    touch droplet_uploader.rb.sentinel
+fi
