@@ -4,7 +4,9 @@ name: autoscaler-create-service
 description: This job will register the autoscaler with cf
 
 packages:
+  - cli
   - ruby-2.3
+  - service-registration-utils
 
 templates:
   run.erb: bin/run
@@ -25,4 +27,4 @@ properties:
   tomcat.http.autoscaler_servicebroker.port:
     description: Port the route service listens on
   uaa.clients.hcf_auto_config.secret:
-    description: The secret for the UAA client to set up SSO routing
+    description: The secret for the UAA client to set up autoscaler service

@@ -4,7 +4,9 @@ name: sso-create-service
 description: This job will create an instance of route service hcf-sso.
 
 packages:
+  - cli
   - ruby-2.3
+  - service-registration-utils
 
 templates:
   run.erb: bin/run
@@ -24,4 +26,4 @@ properties:
   ssl.skip_cert_verify:
     description: True for insecure connections
   uaa.clients.hcf_auto_config.secret:
-    description: The secret for the UAA client to set up SSO routing
+    description: The secret for the UAA client to set up SSO service

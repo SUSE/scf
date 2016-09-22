@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+cp -r service-registration-utils/* "${BOSH_INSTALL_TARGET}"
+chmod a+x "${BOSH_INSTALL_TARGET}/insert_cf_client_auth_token.rb"
+chmod a+x "${BOSH_INSTALL_TARGET}/ruby-query.rb"
