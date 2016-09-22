@@ -1,16 +1,12 @@
 #!/bin/sh
 
 # This file can be called numerous times from the various flows through `make *`, but
-# only set the FISSILE-* env vars if they're unset, or this file is sourced, not exec'ed.
+# only set the FISSILE-* env vars if they're unset, 
+# or this file is sourced from an interactive shell.
 
-if [ -z "${GIT_ROOT:-}" ] ; then
-    # If this file is sourced from other hcf/make files, GIT_ROOT will be set,
-    # so we can use this method for finding ROOT
-    case $0 in
-	-bash) SRC="${BASH_SOURCE[0]}" ;;  # file is sourced
-	*) SRC="$0" ;;                     # file is exec'ed
-    esac
-    echo $SRC
-    GIT_ROOT=$(dirname $(dirname $(cd $(dirname "${SRC}") ; echo ${PWD})))
+if [ -z "${FISSILE_RELEASE:-}" ] || ( [ $0 = "-bash" ] && [ -n "${BASH_SOURCE:-}" ] && [ ${#BASH_SOURCE[@]} -eq 1 ] ) ; then
+    if [ -z "${GIT_ROOT:-}" ] ; then
+	GIT_ROOT=$(dirname $(dirname $(cd $(dirname "${BASH_SOURCE[0]}") && echo ${PWD})))
+    fi
+    . ${GIT_ROOT}/bin/.fissilerc
 fi
-. $GIT_ROOT/bin/.fissilerc

@@ -1,9 +1,6 @@
 if [ -z "${GIT_ROOT:-}" ] ; then
-    case $0 in
-      -bash) SRC="${BASH_SOURCE[0]}" ;;
-      *) SRC="$0" ;;
-    esac
-    GIT_ROOT=$(dirname $(cd $(dirname "${SRC}") ; echo ${PWD}))
+    # This file should only be sourced, so ${BASH_SOURCE} should be set.
+    GIT_ROOT=$(dirname $(cd $(dirname "${BASH_SOURCE[0]}") && echo ${PWD}))
 fi
 
 # The Docker repository name used for images
@@ -28,9 +25,9 @@ for RELEASE in $(echo '
       windows-runtime-release
       open-Autoscaler/bosh-release
       '); do
-    FISSILE_RELEASE=${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE};
+    FISSILE_RELEASE="${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE}"
 done
-export FISSILE_RELEASE=$(echo ${FISSILE_RELEASE} | sed 's/,//')
+export FISSILE_RELEASE="$(echo ${FISSILE_RELEASE} | sed 's/,//')"
 
 # This is a comma separated list of dev release names
 # Ordering of the names needs to match the list in FISSILE_DEV_RELEASE
