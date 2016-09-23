@@ -8,6 +8,15 @@
 
 set -o errexit -o nounset
 
+<% if properties.uaa.scim.users.empty? %>
+     echo "Aborting. No admin user configured."
+     exit 1
+<% end %>
+<% if properties.uaa.scim.users.length > 1 %>
+     echo "Aborting. Configured more than one admin user: (<%= userinfo %>)"
+     exit 1
+<% end %>
+
 # Report progress to the user; use as printf
 status() {
     local fmt="${1}"

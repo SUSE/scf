@@ -1,13 +1,20 @@
 #!/bin/bash
 set -e
 
+<% if properties.uaa.scim.users.empty? %>
+     echo "Aborting. No admin user configured."
+     exit 1
+<% end %>
+<% if properties.uaa.scim.users.length > 1 %>
+     echo "Aborting. Configured more than one admin user: (<%= userinfo %>)"
+     exit 1
+<% end %>
+
 <% userinfo = properties.uaa.scim.users.first
    if !userinfo.include? 'cloud_controller.admin'
 %>
-
-     echo "Configured admin user is not cloud_controller.admin (<%= userinfo %>)"
+     echo "Aborting. Configured admin user is not cloud_controller.admin (<%= userinfo %>)"
      exit 1
-
 <% end
 
    username = userinfo.split('|').first
