@@ -17,6 +17,8 @@ class ToHCP < Common
     @hcf_version.gsub!(/[^a-zA-Z0-9.-]/, '-')
     @hcf_version = @hcf_version.slice(0,63)
 
+    @hcp_cpu_num = @options[:hcp_cpu_num]
+
     @property = convert_properties(@options[:propmap])
 
     # And the map (component -> list(parameter-name)).
@@ -45,6 +47,7 @@ class ToHCP < Common
     end
 
     collect_global_parameters(role_manifest, sdl_names, definition)
+    determine_cpu_unit(role_manifest)
     determine_component_parameters(role_manifest, sdl_names)
     process_roles(role_manifest, definition, fs, sdl_names)
 
@@ -221,7 +224,7 @@ class ToHCP < Common
       'repository'    => @dtr,
       'min_RAM_mb'    => runtime['memory'],
       'min_disk_gb'   => 1, 	# Out of thin air
-      'min_VCPU'      => runtime['virtual-cpus'],
+      'min_VCPU'      => cpu_fraction(runtime['virtual-cpus']),
       'platform'      => 'linux-x86_64',
       'capabilities'  => runtime['capabilities'],
       'depends_on'    => [],	  # No dependency info in the RM
@@ -552,6 +555,41 @@ class ToHCP < Common
     {
       'name' => vname
     }
+  end
+
+  def determine_cpu_unit(role_manifest)
+    # I. Sum the number of virtual-cpus requested by the components.
+    #    Manual and dev-only components are excluded, as HCP does not
+    #    have these, see "process_roles".
+    # Note, we do count the bosh-tasks, i.e. post-flight roles.
+    # Fitting them in simply gives us a bit more room later, when they
+    # are done.
+    total = 0
+    count = 0
+    role_manifest['roles'].each do |role|
+      next if flight_stage_of(role) == 'manual'
+      next if tags_of(role).include?('dev-only')
+      runtime = role['run']
+      next unless runtime
+      next unless runtime['virtual-cpus']
+
+      total += runtime['virtual-cpus']
+      count += 1
+
+      #STDERR.puts "#{role['name']}: #{runtime['virtual-cpus']}  --> #{total}"
+    end
+
+    # II. Compute the base unit, comparing the number of actual cpus
+    #     we wish to fit into vs the requested number.
+    @hcp_cpu_unit = @hcp_cpu_num.fdiv(total)
+
+    STDERR.puts "CPUs: Requested:  #{total}, over #{count} roles"
+    STDERR.puts "      Fit into:   #{@hcp_cpu_num}"
+    STDERR.puts "      Unit slice: #{@hcp_cpu_unit}"
+  end
+
+  def cpu_fraction(n)
+    n * @hcp_cpu_unit
   end
 
   def scale_min(x,indexed,mini,maxi)

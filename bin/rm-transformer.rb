@@ -30,6 +30,8 @@ def main
   #                     Used to construct the image names to look for.
   # --hcf-version     ~ Version of the service.
   #                     (Default: 0.0.0)
+  # --hcp-cpu-num     ~ Number of CPUs available to run the service.
+  #                     (Default: 6)
   ##
   # The generated definitions are written to stdout
 
@@ -42,11 +44,12 @@ def main
     hcf_version: '0.0.0',
     hcf_root_dir: nil,
     manual:      false,
-    propmap:     nil
+    propmap:     nil,
+    hcp_cpu_num: 6
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcp-cpu-num N] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: hcp)
@@ -73,6 +76,10 @@ def main
     end
     opts.on('-V', '--hcf-version text', 'Version to use for the service') do |v|
       options[:hcf_version] = v
+    end
+    opts.on('-C', '--hcp-cpu-num text', 'Number of CPUs available') do |v|
+      abort "Bad number of cpus, expecting a value > 0." if v.to_i < 1
+      options[:hcp_cpu_num] = v.to_i
     end
     opts.on('-T', '--hcf-root-dir text', 'Absolute path of the HCF sources main directory') do |v|
       options[:hcf_root_dir] = v

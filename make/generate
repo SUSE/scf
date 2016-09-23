@@ -52,6 +52,7 @@ case ${TARGET} in
     hcp)
         OUTFILE=${OUTFILE:-"output/sdl.json"}
         OPTIONS="${OPTIONS} --provider \"${TARGET}\""
+        OPTIONS="${OPTIONS} --hcp-cpu-num 6"
 
 	( . ${GIT_ROOT}/make/include/fissile
 	  fissile show properties --output yaml ) > hcf-hcp-propmap.yaml
