@@ -14,7 +14,7 @@ param (
     [string]$version=""
 )
 
-$baseVersion="1.0.0"
+$baseVersion="4.0"
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 $resourcesDir = Join-Path $currentDir "resources"
 $deployDir = Join-Path $currentDir "../deploy"
