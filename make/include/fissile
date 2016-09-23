@@ -1,33 +1,12 @@
 #!/bin/sh
 
-set -o errexit -o nounset
+# This file can be called numerous times from the various flows through `make *`, but
+# only set the FISSILE-* env vars if they're unset, 
+# or this file is sourced from an interactive shell.
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-if test -z ${FISSILE_RELEASE:-''}; then
-    FISSILE_RELEASE=''
-    for RELEASE in $(echo '
-      cf-release
-      cf-usb/cf-usb-release
-      diego-release
-      etcd-release
-      garden-linux-release
-      cf-mysql-release
-      cflinuxfs2-rootfs-release
-      routing-release
-      hcf-release
-      hcf-sso/hcf-sso-release
-      hcf-versions/hcf-versions-release
-      windows-runtime-release
-      open-Autoscaler/bosh-release
-    '); do
-        FISSILE_RELEASE=${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE};
-    done
+if [ -z "${FISSILE_RELEASE:-}" ] || ( [ $0 = "-bash" ] && [ -n "${BASH_SOURCE:-}" ] && [ ${#BASH_SOURCE[@]} -eq 1 ] ) ; then
+    if [ -z "${GIT_ROOT:-}" ] ; then
+	GIT_ROOT=$(dirname $(dirname $(cd $(dirname "${BASH_SOURCE[0]}") && echo ${PWD})))
+    fi
+    . ${GIT_ROOT}/bin/.fissilerc
 fi
-
-export FISSILE_RELEASE=$(echo ${FISSILE_RELEASE} | sed 's/^,//')
-export FISSILE_ROLE_MANIFEST=${FISSILE_ROLES_MANIFEST:-${GIT_ROOT}/container-host-files/etc/hcf/config/role-manifest.yml}
-export FISSILE_LIGHT_OPINIONS=${FISSILE_LIGHT_OPINIONS:-${GIT_ROOT}/container-host-files/etc/hcf/config/opinions.yml}
-export FISSILE_DARK_OPINIONS=${FISSILE_DARK_OPINIONS:-${GIT_ROOT}/container-host-files/etc/hcf/config/dark-opinions.yml}
-export FISSILE_CACHE_DIR=${FISSILE_DEV_CACHE_DIR:-${HOME}/.bosh/cache}
-export FISSILE_WORK_DIR=${FISSILE_WORK_DIR:-${GIT_ROOT}/_work}
