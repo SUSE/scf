@@ -10,23 +10,18 @@ Version:1.0.0.7x
 
  Parameters:
     [-k8MasterIP] <string>              - (Required) Private IP of the Kubernetes master.
-    [-etcdKeyFile] <string>             - (Required) Path to ETCD key file.
-    [-etcdCertFile] <string>            - (Required) Path to ETCD client cert file.
-    [-etcdCaFile] <string>              - (Required) Path to ETCD CA cert file.
-    [[-k8sPort] <int>]                  - Kubernetes service port. (Default: 8080)
-    [[-etcdPort] <int>]                 - Kubernetes ETCD port. (Default: 2379)
+	[-k8MasterSshKeyFile] <string>		- (Required) Kubernetes master user SSH key file path.
+	[[-k8MasterSshUser] <string>]		- Kubernetes master SSH username. (Default: ubuntu)
     [[-flannelUserPassword] <string>]   - Kubernetes flannel username.
     [[-flannelInstallDir] <string>]     - Kubernetes install directory. (Default: C:/flannel)
     [[-k8sQueryPeriod] <string>]        - Polling time for WinK8s connector. (Default: 1s)
     [[-httpProxy] <string>]             - The HTTP proxy that is going to be setup on the Windows Virtual Machine.
     [[-httpsProxy] <string>]            - The HTTPS proxy that is going to be setup on the Windows Virtual Machine.
     [[-noProxy] <string>]               - Comma separated list of domains/IPs that are going to bypass the proxy.
-    [[-k8sServSubnet] <string>]         - Subnet of the Kubernetes services. (default 172.16.0.0/16)
-    [[-k8sAllowedSubnet] <string>]      - The subnet of the kubernetes nodes that will be added to the route.
 
  Example:
   .\setup-networking.ps1 -?
-  .\setup-networking.ps1 -k8MasterIP 172.31.22.219 -k8sServSubnet 172.16.0.0/16 -etcdKeyFile C:\net-setup\client.key -etcdCertFile C:\net-setup\client.cert -etcdCaFile C:\net-setup\ca.crt -httpProxy http://my-proxy:8080 -httpsProxy http://my-proxy:8080 -noProxy "127.0.0.1,10.*.*.*,172.16.*.*,192.168.*.*"
+  .\setup-networking.ps1 -k8MasterIP 172.31.22.219 -httpProxy http://my-proxy:8080 -httpsProxy http://my-proxy:8080 -noProxy "127.0.0.1,10.*.*.*,172.16.*.*,192.168.*.*"
 
  To install the Cloud Foundry Diego components for Windows run the following script:
   .\install-windows-hcf.ps1

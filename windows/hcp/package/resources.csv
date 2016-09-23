@@ -1,6 +1,7 @@
 path,uri
-\hcf-networking\win-k8s-conn-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/win-k8s-connector/17-2016-08-31_13-03-32/win-k8s-conn-installer.EXE
+\hcf-networking\win-k8s-conn-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/win-k8s-connector/19-2016-09-23_14-39-02/win-k8s-conn-installer.EXE
 \hcf-networking\flannel-installer.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/flannel/9-2016-08-31_08-09-51/flannel-installer.EXE
+\hcf-networking\Posh-SSH.zip,https://github.com/darkoperator/Posh-SSH/archive/1.7.5.zip
 \diego-kit\localwall.exe,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/als-win-localhost-filter-artifacts/babysitter-23-2016-07-13_10-01-51/localwall.exe
 \diego-kit\vc2013\vcredist_x86.exe,https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
 \diego-kit\vc2013\vcredist_x64.exe,https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
