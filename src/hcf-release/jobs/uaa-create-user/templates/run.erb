@@ -176,11 +176,9 @@ if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
 fi
 if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
     status "User %s already in %s" <%= username %> '<%= authority %>'
-else
-    if ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
-	status "+ %s" <%= username %>
-	uaac member add '<%= authority %>' <%= username %>
-    fi
+elif ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
+    status "+ %s" <%= username %>
+    uaac member add '<%= authority %>' <%= username %>
 fi
 <% end %>
 
