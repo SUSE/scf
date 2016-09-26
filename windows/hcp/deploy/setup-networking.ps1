@@ -6,7 +6,7 @@ param(
 			Throw "$_ is not a valid IPV4 address. Please use something like 10.21.0.1."
 		}
 	})]
-    [string] $k8MasterIP,
+    [string] $hcpMasterIP,
 
 	[Parameter(Mandatory=$true)]
 	[ValidateScript({If (Test-Path $_) {
@@ -15,10 +15,10 @@ param(
 			Throw "$_ is not a valid file."
 		}
 	})]
-    [string] $k8MasterSshKeyFile,
+    [string] $hcpKeypairFile,
 
 	[Parameter(Mandatory=$false)]
-    [string] $k8MasterSshUser = "ubuntu",
+    [string] $hcpMasterSshUser = "ubuntu",
 
     [Parameter(Mandatory=$false)]
     [string] $flannelUserPassword = "Password1234!",
@@ -39,7 +39,7 @@ param(
 			Throw "$_ is not a valid interval. Please use something like 1s for 1 seccond or 2m for 2 minutes."
 		}
 	})]
-	[string] $k8sQueryPeriod = "1s",
+    [string] $k8sQueryPeriod = "1s",
 
     [Parameter(Mandatory=$false)]
 	[ValidateScript({ if($_ -match "^http:\/\/[0-9A-Za-z-_\.]*:[0-9]{2,5}$"){
@@ -99,8 +99,8 @@ if (!(Test-Path "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules\Posh-SS
 
 Import-Module -Name posh-ssh
 
-$cred = New-Object System.Management.Automation.PSCredential ($k8MasterSshUser, (new-object System.Security.SecureString))
-$sshSessionId = (New-SSHSession -ComputerName $k8MasterIP -KeyFile $k8MasterSshKeyFile -Force  -Verbose -Credential $cred).SessionId
+$cred = New-Object System.Management.Automation.PSCredential ($hcpMasterSshUser, (new-object System.Security.SecureString))
+$sshSessionId = (New-SSHSession -ComputerName $hcpMasterIP -KeyFile $hcpKeypairFile -Force  -Verbose -Credential $cred).SessionId
 
 (Invoke-SSHCommand -Command "cat /etc/flannel/ca.crt" -SessionId $sshSessionId).Output | Out-File $etcdCaFile -Encoding ascii
 (Invoke-SSHCommand -Command "cat /etc/flannel/client.key" -SessionId $sshSessionId).Output | Out-File $etcdKeyFile -Encoding ascii
@@ -226,7 +226,7 @@ if (($httpProxy -ne "") -and ($httpsProxy -ne "")) {
 }
 
 Write-Output "Getting local IP ..."
-$localIP = (Find-NetRoute -RemoteIPAddress $k8MasterIP)[0].IPAddress
+$localIP = (Find-NetRoute -RemoteIPAddress $hcpMasterIP)[0].IPAddress
 Write-Output "Found local IP: ${localIP}"
 
 if($k8sServSubnet -eq ""){
@@ -261,7 +261,7 @@ if($k8sAllowedSubnet -ne ""){
 cmd /c "$wd\win-k8s-conn-installer.exe /Q"
 Write-Output "Finished installing win-k8s-connector."
 
-$env:FLANNEL_ETCD_ENDPOINTS = "https://${k8MasterIP}:${etcdPort}"
+$env:FLANNEL_ETCD_ENDPOINTS = "https://${hcpMasterIP}:${etcdPort}"
 $env:FLANNEL_INSTALL_DIR = $flannelInstallDir
 $env:FLANNEL_USER_PASSWORD = $flannelUserPassword
 $env:FLANNEL_EXT_INTERFACE = $localIP
@@ -342,3 +342,4 @@ else {
 Write-Output "Checking dns ..."
 Resolve-DnsName "nats-int.hcp.svc.cluster.hcp"
 Write-Output "Finished."
+

@@ -9,19 +9,19 @@ Version:1.0.0.7x
   .\setup-networking.ps1
 
  Parameters:
-    [-k8MasterIP] <string>              - (Required) Private IP of the Kubernetes master.
-	[-k8MasterSshKeyFile] <string>		- (Required) Kubernetes master user SSH key file path.
-	[[-k8MasterSshUser] <string>]		- Kubernetes master SSH username. (Default: ubuntu)
-    [[-flannelUserPassword] <string>]   - Kubernetes flannel username.
-    [[-flannelInstallDir] <string>]     - Kubernetes install directory. (Default: C:/flannel)
-    [[-k8sQueryPeriod] <string>]        - Polling time for WinK8s connector. (Default: 1s)
-    [[-httpProxy] <string>]             - The HTTP proxy that is going to be setup on the Windows Virtual Machine.
-    [[-httpsProxy] <string>]            - The HTTPS proxy that is going to be setup on the Windows Virtual Machine.
-    [[-noProxy] <string>]               - Comma separated list of domains/IPs that are going to bypass the proxy.
+    [-hcpMasterIP] <string>            - (Required) Private IP of the Kubernetes master.
+    [-hcpKeypairFile] <string>         - (Required) Kubernetes master user SSH key file path.
+    [-hcpMasterSshUser] <string>]      - Kubernetes master SSH username. (Default: ubuntu)
+    [-flannelUserPassword] <string>]   - Kubernetes flannel username.
+    [-flannelInstallDir] <string>]     - Kubernetes install directory. (Default: C:/flannel)
+    [-k8sQueryPeriod] <string>]        - Polling time for WinK8s connector. (Default: 1s)
+    [-httpProxy] <string>]             - The HTTP proxy that is going to be setup on the Windows Virtual Machine.
+    [-httpsProxy] <string>]            - The HTTPS proxy that is going to be setup on the Windows Virtual Machine.
+    [-noProxy] <string>]               - Comma separated list of domains/IPs that are going to bypass the proxy.
 
  Example:
   .\setup-networking.ps1 -?
-  .\setup-networking.ps1 -k8MasterIP 172.31.22.219 -httpProxy http://my-proxy:8080 -httpsProxy http://my-proxy:8080 -noProxy "127.0.0.1,10.*.*.*,172.16.*.*,192.168.*.*"
+  .\setup-networking.ps1 -hcpMasterIP 172.31.22.219 -httpProxy http://my-proxy:8080 -httpsProxy http://my-proxy:8080 -noProxy "127.0.0.1,10.*.*.*,172.16.*.*,192.168.*.*"
 
  To install the Cloud Foundry Diego components for Windows run the following script:
   .\install-windows-hcf.ps1
