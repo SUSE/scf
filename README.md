@@ -312,10 +312,10 @@ Name    | Effect | Notes |
 ### How do I run smoke and acceptance tests?
 
   On the Vagrant box, when `hcf-status` reports all roles are running, enable `diego_docker` support with
-  
-```bash
-cf enable-feature-flag diego_docker
-```
+
+  ```bash
+  cf enable-feature-flag diego_docker
+  ```
 
   and execute the following commands:
 
@@ -324,6 +324,20 @@ cf enable-feature-flag diego_docker
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
+
+  To run the tests against a remote machine (e.g. to test a HCP deployment),
+  first make sure that your settings match the deployed configuration; the
+  easiest way to do this is to deploy via the fully-specified instance
+  definition files rather than the minimal ones meant for HSM.  Also remember to
+  enabling `deigo_docker` as above.  Afterwards, run the tests as normal but
+  with a `DOMAIN` override:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-test --env DOMAIN=hcf.hcp.example.com
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env DOMAIN=hcf.hcp.example.com
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-autoscaler --env DOMAIN=hcf.hcp.example.com
+  ```
+  It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
+  as it expects direct access to the other roles in the cluster.
 
 ### `fissile` refuses to create images that already exist. How do I recreate images?
 
