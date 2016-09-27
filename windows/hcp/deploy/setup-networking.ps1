@@ -21,7 +21,7 @@ param(
     [string] $hcpMasterSshUser = "ubuntu",
 
     [Parameter(Mandatory=$false)]
-    [string] $flannelUserPassword = "Password1234!",
+    [string] $flannelUserPassword,
 
     [Parameter(Mandatory=$false)]
 	[ValidateScript({If (Test-Path $_) {
@@ -36,10 +36,10 @@ param(
     [ValidateScript({ if($_ -match "^[0-9]{1,3}[s,m]$"){
 		$True
 		}else{
-			Throw "$_ is not a valid interval. Please use something like 1s for 1 seccond or 2m for 2 minutes."
+			Throw "$_ is not a valid interval. Please use something like 1s for 1 second or 2m for 2 minutes."
 		}
 	})]
-    [string] $k8sQueryPeriod = "1s",
+    [string] $kubeQueryPeriod = "1s",
 
     [Parameter(Mandatory=$false)]
 	[ValidateScript({ if($_ -match "^http:\/\/[0-9A-Za-z-_\.]*:[0-9]{2,5}$"){
@@ -67,6 +67,12 @@ param(
     [string] $noProxy = ""
 )
 
+if ($flannelUserPassword -eq "") {
+    Write-Output "Flannel windows user password was not supplied. Generating a random password ..."
+    [Reflection.Assembly]::LoadWithPartialName(“System.Web”) | Out-Null
+    $flannelUserPassword = [System.Web.Security.Membership]::GeneratePassword(12,1)
+}
+
 $ErrorActionPreference = "Stop"
 
 $wd="$PSScriptRoot\resources\hcf-networking"
@@ -88,13 +94,13 @@ if (!(Test-Path "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules\Posh-SS
     $shell_app=new-object -com shell.application
     $poshSshZip= Join-Path $wd Posh-SSH.zip
     $zip_file = $shell_app.namespace($poshSshZip)
-    Write-Output "Uncompressing the Zip file to $($targetondisk)" -ForegroundColor Cyan
+    Write-Output "Uncompressing $($poshSshZip) to $($targetondisk)"
     $destination = $shell_app.namespace($targetondisk)
     $destination.Copyhere($zip_file.items(), 0x10)
-    Write-Output "Renaming folder" -ForegroundColor Cyan
     $poshSshDir = (Get-ChildItem ($targetondisk+"\Posh-SSH-*"))[0].FullName
+    Write-Output "Renaming folder $($poshSshDir) to Posh-SSH"
     Rename-Item -Path $poshSshDir -NewName "Posh-SSH" -Force
-    Write-Output "Module has been installed" -ForegroundColor Green
+    Write-Output "Module Posh-SSH has been installed"
 }
 
 Import-Module -Name posh-ssh
@@ -113,11 +119,11 @@ $sshSessionId = (New-SSHSession -ComputerName $hcpMasterIP -KeyFile $hcpKeypairF
 $kubeApiServer = (Invoke-SSHCommand -Command "cat /etc/default/kube-apiserver" -SessionId $sshSessionId).Output
 $kubeBindAddress = [regex]::Match($kubeApiServer, '--bind-address\s(\S+)\s').captures.groups[1].value
 $kubeSecurePort = [regex]::Match($kubeApiServer, '--secure-port\s(\S+)\s').captures.groups[1].value
-$k8sServSubnet = [regex]::Match($kubeApiServer, '--service-cluster-ip-range=(\S+)\s').captures.groups[1].value
+$kubeServSubnet = [regex]::Match($kubeApiServer, '--service-cluster-ip-range=(\S+)\s').captures.groups[1].value
 $etcdPort = [regex]::Match($kubeApiServer, '--etcd_servers=https:\S+:(\d+)\s').captures.groups[1].value
 
 $kubeNetInterface = (Invoke-SSHCommand -Command "ifconfig | grep -B1 `"inet addr:${kubeBindAddress}`" | awk '`$1!=`"inet`" && `$1!=`"--`" {print `$1}'" -SessionId $sshSessionId).Output
-$k8sAllowedSubnet = (Invoke-SSHCommand -Command "ip -o -f inet addr show | grep ${kubeNetInterface} | awk '{print `$4}'" -SessionId $sshSessionId).Output
+$kubeAllowedSubnet = (Invoke-SSHCommand -Command "ip -o -f inet addr show | grep ${kubeNetInterface} | awk '{print `$4}'" -SessionId $sshSessionId).Output
 
 if (($httpProxy -ne "") -and ($httpsProxy -ne "")) {
 
@@ -229,37 +235,37 @@ Write-Output "Getting local IP ..."
 $localIP = (Find-NetRoute -RemoteIPAddress $hcpMasterIP)[0].IPAddress
 Write-Output "Found local IP: ${localIP}"
 
-if($k8sServSubnet -eq ""){
-  $k8sServSubnet="172.16.0.0/16"
+if($kubeServSubnet -eq ""){
+  $kubeServSubnet="172.16.0.0/16"
 }
 
-$env:WIN_K8S_SERV_SUBNET = $k8sServSubnet
-$env:WIN_K8S_API = "https://${kubeBindAddress}:${kubeSecurePort}"
-$env:WIN_K8S_QUERY_PERIOD = $k8sQueryPeriod
-$env:WIN_K8S_EXTERNAL_IP = $localIP
-$env:WIN_K8S_CA_FILE = $kubeCaFile
-$env:WIN_K8S_CERT_FILE = $kubeCertFile
-$env:WIN_K8S_KEY_FILE = $kubeKeyFile
+$env:WIN_KUBE_SERV_SUBNET = $kubeServSubnet
+$env:WIN_KUBE_API = "https://${kubeBindAddress}:${kubeSecurePort}"
+$env:WIN_KUBE_QUERY_PERIOD = $kubeQueryPeriod
+$env:WIN_KUBE_EXTERNAL_IP = $localIP
+$env:WIN_KUBE_CA_FILE = $kubeCaFile
+$env:WIN_KUBE_CERT_FILE = $kubeCertFile
+$env:WIN_KUBE_KEY_FILE = $kubeKeyFile
 
-if($k8sAllowedSubnet -ne ""){
-  $env:WIN_K8S_ALLOWED_SUBNET = $k8sAllowedSubnet
+if($kubeAllowedSubnet -ne ""){
+  $env:WIN_kube_ALLOWED_SUBNET = $kubeAllowedSubnet
 }
 
 Write-Output @"
-Installing win-k8s-connector using:
-    WIN_K8S_SERV_SUBNET=$($env:WIN_K8S_SERV_SUBNET)
-    WIN_K8S_API=$($env:WIN_K8S_API)
-    WIN_K8S_QUERY_PERIOD=$($env:WIN_K8S_QUERY_PERIOD)
-    WIN_K8S_EXTERNAL_IP=$($env:WIN_K8S_EXTERNAL_IP)
-    WIN_K8S_CA_FILE=$($env:WIN_K8S_CA_FILE)
-    WIN_K8S_CERT_FILE=$($env:WIN_K8S_CERT_FILE)
-    WIN_K8S_KEY_FILE=$($env:WIN_K8S_KEY_FILE)
+Installing win-kube-connector using:
+    WIN_KUBE_SERV_SUBNET=$($env:WIN_KUBE_SERV_SUBNET)
+    WIN_KUBE_API=$($env:WIN_KUBE_API)
+    WIN_KUBE_QUERY_PERIOD=$($env:WIN_KUBE_QUERY_PERIOD)
+    WIN_KUBE_EXTERNAL_IP=$($env:WIN_KUBE_EXTERNAL_IP)
+    WIN_KUBE_CA_FILE=$($env:WIN_KUBE_CA_FILE)
+    WIN_KUBE_CERT_FILE=$($env:WIN_KUBE_CERT_FILE)
+    WIN_KUBE_KEY_FILE=$($env:WIN_KUBE_KEY_FILE)
 "@
-if($k8sAllowedSubnet -ne ""){
-  Write-Output "    WIN_K8S_ALLOWED_SUBNET=$($env:WIN_K8S_ALLOWED_SUBNET)"
+if($kubeAllowedSubnet -ne ""){
+  Write-Output "    WIN_KUBE_ALLOWED_SUBNET=$($env:WIN_KUBE_ALLOWED_SUBNET)"
 }
-cmd /c "$wd\win-k8s-conn-installer.exe /Q"
-Write-Output "Finished installing win-k8s-connector."
+cmd /c "$wd\win-kube-conn-installer.exe /Q"
+Write-Output "Finished installing win-kube-connector."
 
 $env:FLANNEL_ETCD_ENDPOINTS = "https://${hcpMasterIP}:${etcdPort}"
 $env:FLANNEL_INSTALL_DIR = $flannelInstallDir
@@ -315,7 +321,7 @@ function CheckService
 }
 
 #List of services to check if started
-$services = @("win-k8s-connector","flannel")
+$services = @("win-kube-connector","flannel")
 
 foreach ($service in $services){
 	CheckService($service)
