@@ -1080,6 +1080,7 @@ roles:
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/set-diego-cell-memory-limits.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/prevent_apparmor_disable.sh
