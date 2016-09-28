@@ -140,10 +140,20 @@ roles:
         external: 3306
         internal: 3306
         public: false
-      - name: 'galera'
+      - name: 'galera-tcp'
         protocol: 'TCP'
         external: 4567
         internal: 4567
+        public: false
+      - name: 'galera-udp'
+        protocol: 'UDP'
+        external: 4567
+        internal: 4567
+        public: false
+      - name: 'galera-ist'
+        protocol: 'TCP'
+        external: 4568
+        internal: 4568
         public: false
       - name: 'healthcheck'
         protocol: 'tcp'
