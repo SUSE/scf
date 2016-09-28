@@ -2043,7 +2043,7 @@ configuration:
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))((HCP_HOSTNAME_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.consul.agent.servers.lan: '((CONSUL_HCF_CLUSTER_IPS))((#CONSUL_HCF_CLUSTER_CONFIG_REVISION))((/CONSUL_HCF_CLUSTER_CONFIG_REVISION))'
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
