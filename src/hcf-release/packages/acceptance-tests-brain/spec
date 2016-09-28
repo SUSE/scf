@@ -1,0 +1,8 @@
+---
+name: acceptance-tests-brain
+dependencies:
+  - cli
+files:
+  - acceptance-tests-brain/testbrain-1.0.0+9e642a2.master-linux-amd64.tgz
+  - acceptance-tests-brain/test-scripts/*
+  - acceptance-tests-brain/test-resources/*

@@ -1,0 +1,18 @@
+set -e -x
+
+cd acceptance-tests-brain
+
+tar xzf testbrain-1.0.0+9e642a2.master-linux-amd64.tgz
+
+BIN_DIR=${BOSH_INSTALL_TARGET}/bin
+SCRIPTS_DIR=${BOSH_INSTALL_TARGET}/test-scripts
+RESOURCES_DIR=${BOSH_INSTALL_TARGET}/test-resources
+
+mkdir -p ${BIN_DIR}
+mkdir -p ${SCRIPTS_DIR}
+mkdir -p ${RESOURCES_DIR}
+
+cp testbrain ${BIN_DIR}
+cp -r test-scripts ${BOSH_INSTALL_TARGET}
+cp -r test-resources ${BOSH_INSTALL_TARGET}
+

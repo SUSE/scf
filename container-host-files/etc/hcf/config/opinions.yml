@@ -11,6 +11,10 @@ properties:
     include_services: true
     cf_push_timeout: 300
     default_timeout: 300
+  acceptance_tests_brain:
+    user: 'admin'
+    org: test-brain-org
+    space: test-brain-space
   autoscaler_api:
     internal_auth:
       username: 'admin'
