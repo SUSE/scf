@@ -25,7 +25,7 @@ read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
    else
 -    my_ip = discover_external_ip
 -    cluster_members = p("etcd.machines").map { |m| "http://#{m}:4001" }.join(",")
-+    cluster_members = p("etcd.machines").map { |m| "#{client_protocol}://#{m}.#{p("etcd.advertise_urls_dns_suffix")}:4001" }.join(",")
++    cluster_members = p("etcd.machines").map { |m| "#{client_protocol}://#{m}:4001" }.join(",")
    end
  %>
 
