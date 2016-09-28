@@ -329,7 +329,7 @@ Name    | Effect | Notes |
   first make sure that your settings match the deployed configuration; the
   easiest way to do this is to deploy via the fully-specified instance
   definition files rather than the minimal ones meant for HSM.  Also remember to
-  enabling `deigo_docker` as above.  Afterwards, run the tests as normal but
+  enable `deigo_docker` as above.  Afterwards, run the tests as normal but
   with a `DOMAIN` override:
   ```bash
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-test --env DOMAIN=hcf.hcp.example.com
