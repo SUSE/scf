@@ -26,11 +26,9 @@ find_cluster_ha_hosts() {
 
     local hosts=''
     local i=0
-    component_name="${component_name^^}"
-    # upcase name
 
     while test "${i}" -lt 100 ; do
-	local varname="${component_name}_${i}_INT_SERVICE_HOST";
+	local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
 	# !varname => Double deref of the variable.
 	if test -z "${!varname:-}" ; then
 	    break
