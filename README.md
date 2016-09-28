@@ -13,16 +13,9 @@ __Note:__ You can run the Windows Cell Add-On on a variety of systems within a V
 3. Use the `Build with Parameters` link to start a build
 4. Specify the branch you want built and start
 
-## To Use Port 80 on Your Host Without `root` Privileges
-
-```bash
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
-```
-
 ## To Deploy HCF with Vagrant
 
-_NOTE:_ This is the common instructions that are shared between all providers, some providers have different requirements, make sure that you read the appropriate section for your provider.
+_NOTE:_ These are the common instructions that are shared between all providers, some providers have different requirements, make sure that you read the appropriate section for your provider.
 
 1. Install Vagrant (version 1.7.4 and higher).
 
@@ -265,7 +258,7 @@ Name    | Effect | Notes |
 `aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
 `aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
-## Development FAQ
+## Development FAQ (on the vagrant box)
 
 ### Where do I find logs?
 
@@ -366,22 +359,24 @@ Name    | Effect | Notes |
 
   * Manually stop the virtual machine and then run the `vagrant reload` command.
 
-  * Run the `vagrant destroy -f && vagrant up` command and then run `make run` on the Vagrant box.
+  * Run the `vagrant destroy -f && vagrant up` command and then run `make vagrant-prep run` on the Vagrant box.
 
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
-  You can target the cluster on the hardcoded `192.168.77.77` address assigned to a host-only network adapter.
+  You can target the cluster on the hardcoded `192.168.77.77.nip.io` address assigned to a host-only network adapter.
   You can access any URL or endpoint that references this address from your host.
 
 
 ### How do I connect to the Cloud Foundry database?
 
-  1. The MySQL instance is exposed at `192.168.77.77:3306`.
+  1. Use the role manifest to expose the port for the mysql proxy role
+  
+  2. The MySQL instance is exposed at `192.168.77.77:3306`.
 
-  2. The default username is: `root`.
+  3. The default username is: `root`.
 
-  3. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings/settings.env` file on the Vagrant box.
+  4. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings/settings.env` file on the Vagrant box.
 
 
 ### How do I add a new BOSH release to HCF?
@@ -445,7 +440,7 @@ Name    | Effect | Notes |
   5. Rebuild the role images that need this new setting:
 
     ```bash
-    docker stop <role>
+    docker stop <role>-int
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```
@@ -519,7 +514,7 @@ Name    | Effect | Notes |
 
     a. Consult the release notes of the new version of the release.
 
-  b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
+    b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
   7. Bump the real submodule:
 
@@ -594,7 +589,7 @@ Name    | Effect | Notes |
 
   2. `ssh` into the Vagrant box.
 
-  3. To generate the `hcf-hcp.json` file that contains the HCP service definition for the current set of roles, run the `make hcp` command.
+  3. To generate the SDL file that contain HCP service definition for the current set of roles, run the `make hcp` command.
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
