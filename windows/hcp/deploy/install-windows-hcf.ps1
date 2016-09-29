@@ -58,7 +58,7 @@ $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "auto"
 
-$env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
+$env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST' + '.' + $hcfSettings.'HCP_SERVICE_DOMAIN_SUFFIX'
 $env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
 $env:CONSUL_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
 $env:CONSUL_AGENT_CRT = $hcfSettings.'CONSUL_AGENT_CERT'
@@ -67,9 +67,9 @@ $env:CONSUL_AGENT_KEY = $hcfSettings.'CONSUL_AGENT_KEY'
 $env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CRT'
 $env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
-$env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
+$env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + '.' + $hcfSettings.'HCP_SERVICE_DOMAIN_SUFFIX' + ':8889'
 
-$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + '.' + $hcfSettings.'HCP_SERVICE_DOMAIN_SUFFIX' + ':4001'
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
 $env:LOGGRAGATOR_INDEX = 0
