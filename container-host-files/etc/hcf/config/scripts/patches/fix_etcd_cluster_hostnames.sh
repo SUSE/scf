@@ -3,11 +3,9 @@ set -e
 PATCH_DIR="/var/vcap/jobs-src/etcd/templates"
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
-if [ -f "${SENTINEL}" ]; then
-  exit 0
-fi
+if [ ! -f "${SENTINEL}" ]; then
 
-read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
+  read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
 --- etcd_bosh_utils.sh.erb.orig 2016-09-13 20:13:55.350149403 +0000
 +++ etcd_bosh_utils.sh.erb      2016-09-13 20:57:18.652577021 +0000
 @@ -27,7 +27,7 @@
@@ -47,10 +45,37 @@ read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
  listen_client_url="${client_protocol}://0.0.0.0:4001"
 PATCH
 
-cd "$PATCH_DIR"
+  cd "$PATCH_DIR"
+  
+  echo -e "${setup_patch_etcd_bosh_utils}" | patch --force
+  
+  touch "${SENTINEL}"
+fi
 
-echo -e "${setup_patch_etcd_bosh_utils}" | patch --force
+METRICS_PATCH_DIR="/var/vcap/jobs-src/etcd_metrics_server/templates"
+METRICS_SENTINEL="${METRICS_PATCH_DIR}/${0##*/}.sentinel"
 
-touch "${SENTINEL}"
+if [ ! -f "${METRICS_SENTINEL}" ]; then
+
+  read -r -d '' setup_patch_etcd_metrics_server_ctl <<'PATCH' || true
+--- etcd_metrics_server_ctl.erb.orig    2016-09-29 16:44:42.807075932 +0000
++++ etcd_metrics_server_ctl.erb 2016-09-29 16:45:46.942871812 +0000
+@@ -21,7 +21,7 @@
+
+ function start_etcd_metrics_server() {
+   local node_name
+-  node_name="<%= name.gsub('_', '-') %>-<%= spec.index %>"
++  node_name="$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/')"
+
+   /var/vcap/packages/etcd_metrics_server/bin/etcd-metrics-server \
+       -index=<%= spec.index %> \
+PATCH
+
+  cd "$METRICS_PATCH_DIR"
+  
+  echo -e "${setup_patch_etcd_metrics_server_ctl}" | patch --force
+  
+  touch "${METRICS_SENTINEL}"
+fi
 
 exit 0
