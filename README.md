@@ -589,7 +589,7 @@ Name    | Effect | Notes |
 
   2. `ssh` into the Vagrant box.
 
-  3. To generate the SDL file that contain HCP service definition for the current set of roles, run the `make hcp` command.
+  3. To generate the SDL file that contains HCP service definition for the current set of roles, run the `make hcp` command.
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
