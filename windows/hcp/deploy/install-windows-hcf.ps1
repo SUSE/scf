@@ -48,6 +48,8 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 $hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
 
+## Note: All the hosts already come with HCP_SERVICE_DOMAIN_SUFFIX,
+##       see 'properties.hcf.demophon.config' in the role manifest.
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
 $env:DIEGO_USER_PASSWORD = "changeme1234!"

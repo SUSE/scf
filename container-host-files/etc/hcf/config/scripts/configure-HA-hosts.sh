@@ -17,7 +17,7 @@ find_cluster_ha_hosts() {
     # Fall back to simple hostname
 
     if test -z "${HCP_INSTANCE_ID:-}" ; then
-        echo "[\"${component_name}-int\"]"
+        echo "[\"${component_name}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\"]"
         return 0
     fi
 
@@ -38,7 +38,7 @@ find_cluster_ha_hosts() {
 
 	# Note: The varname deref gives us an IP address. We want the
 	# actual host name, and construct it.
-	hosts="${hosts},\"${component_name}-${i}-int\""
+	hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
         i="$(expr "${i}" + 1)"
     done
     # Return the result, with [] around the hostnames, removing the leading comma
