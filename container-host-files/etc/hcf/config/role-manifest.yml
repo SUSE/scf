@@ -1531,209 +1531,288 @@ configuration:
   variables:
   - name: API_HOST
     default: "api-int"
+    description: The hostname of the Cloud Controller API for access by cluster components.
   - name: BLOBSTORE_HOST
     default: "blobstore-int"
+    description: The hostname of the webdav server used by the Cloud Controller for
+      storing artifacts (e.g. droplets, buildpacks).
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The basic auth password that Cloud Controller uses to connect to the blobstore
+      server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     generator:
       type: Password
+    description: The secret used for signing URLs between Cloud Controller and blobstore.
   - name: AUTOSCALER_API_HOST
     default: "sclr-api-int"
+    description: The hostname of the Autoscaler API.
   - name: AUTOSCALER_SERVER_HOST
     default: "sclr-server-int"
+    description: The hostname of the Autoscaler Server.
   - name: AUTOSCALER_SERVICE_BROKER_HOST
     default: "sclr-broker-int"
+    description: The hostname for the Autoscaler Service Broker.
   - name: AUTOSCALER_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The Autoscaler API password. Auto-generated if not provided. Passwords
+      must be alphanumeric (URL-safe).
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
+    description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
   - name: DIEGO_DATABASE_HOST
     default: "diego-database-int"
+    description: The hostname of the first etcd server used to manage HCF state. Auto-generated
+      if not provided.
   - name: DIEGO_ACCESS_HOST
     default: "diego-access-int"
+    description: The hostname of Diego file server.
   - name: DIEGO_CC_BRIDGE_HOST
     default: "diego-cc-bridge-int"
+    description: The hostname for server managing staging task callbacks.
   - name: DIEGO_BRAIN_HOST
     default: "diego-brain-int"
+    description: The hostname of the Diego auctioneer API server.
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
+    description: The memory capacity the cell should manage. If this capacity is larger
+      than the actual memory of the cell component, over-provisioning will occur.
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
+    description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
   - name: DEFAULT_APP_MEMORY
     default: 1024
+    description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
+    description: The number of versions of an application to keep. You will be able
+      to rollback to this amount of versions.
   - name: DNS_HEALTH_CHECK_HOST
-    default: "127.0.0.1"
+    default: example.com
+    description: The host to ping for confirmation of DNS resolution.
   - name: DNS_RECORD_NAME
     required: false
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
+    description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
   - name: MYSQL_PROXY_HOST
     default: "mysql-proxy-int"
+    description: The hostname of the MySQL proxy for the UAA database.
   - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
+    description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
   - name: MYSQL_HOST
     default: "mysql-int"
+    description: The hostname of the MySQL server for the UAA database.
   - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
     default: 0
+    description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
   - name: ETCD_HOST
     default: "etcd-int"
+    description: The hostname of the first etcd server used to manage HCF state.
   - name: CONSUL_HOST
     default: "consul-int"
+    description: The hostname of first consul server used to manage HCF state.
   - name: ROUTER_HOST
     default: "router-int"
+    description: 'Part of: Array of router IPs.'
   - name: ROUTING_API_HOST
     default: "routing-api-int"
+    description: 'Part of: Must be the internal DNS name for the etcd cluster when
+      require_ssl:true. When require_ssl:false either a DNS name or an array of IP
+      addresses is supported.'
   - name: LOGGREGATOR_HOST
     default: "loggregator-int"
+    description: The hostname for the Traffic controller API.
   - name: CF_USB_BROKER_HOST
     default: "cf-usb-int"
+    description: The hostname of the Universal Service Broker's API.
   - name: BULK_API_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for the bulk api.
   - name: CCDB_ROLE_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to the Cloud Controller database.
   - name: CF_USB_PASSWORD
     secret: true
     generator:
       type: Password
+    example: password
+    description: The password for access to the Universal Service Broker.
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
+    description: The Oauth2 authorities available to the cluster administrator.
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
+    description: The password for the cluster administrator.
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
     generator:
       type: Password
+    description: 'Part of: A list of passphrases that will be converted into encryption
+      keys, the first key in the list is the active one.'
   - name: DB_ENCRYPTION_KEY
     secret: true
     generator:
       type: Password
+    description: key for encrypting sensitive values in the Cloud Controller database.
   - name: DOMAIN
-    example: "192.168.77.77.nip.io"
+    example: my-hcf-cluster.com
     required: true
+    description: Base domain of the HCF cluster.
   - name: HCF_SSO_HOST
     default: hcf-sso-int
+    description: The hostname where the route service can be found.
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to the HCF SSO service broker.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     generator:
       type: Password
+    description: Shared secret used to verify cryptographically signed dropsonde messages.
   - name: MONIT_PASSWORD
     secret: true
     generator:
       type: Password
+    description: Password used for the monit API.
   - name: NATS_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to NATS.
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to the uploader of staged droplets.
   - name: INTERNAL_API_PASSWORD
     secret: true
     generator:
       type: Password
+    description: Basic auth password for access to the Cloud Controller's internal API.
   - name: IP_ADDRESS
     required: false
   - name: TRUSTED_CERTS
     required: false
+    description: Concatenation of trusted CA certificates to be made available on
+      the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     generator:
       type: Password
+    description: The password of the admin client - a client named admin with uaa.admin
+      as an authority.
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the Cloud Controller.
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by doppler.
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the gorouter.
   - name: UAA_CLIENTS_HCF_SSO_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the HCF SSO route service.
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the login client.
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the Routing API.
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
     generator:
       type: Password
+    description: Used for generating SSO clients for service brokers.
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the Universal Service Broker.
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the SSH proxy.
   - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the task creating the cluster administrator user
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the TCP emitter.
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the TCP router.
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
     generator:
       type: Password
+    description: The password for access to the diego BBS database.
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for the MySQL server admin user.
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for Basic Auth used to secure the MySQL proxy API.
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to MySQL by diego.
   - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password used by the bootstrap endpoints for Basic Auth.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the Cloud Controller for fetching usernames.
   - name: UAADB_PASSWORD
     secret: true
     generator:
       type: Password
+    description: The password for access to the UAA database.
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
+    description: A CIDR subnet mask specifying the range of subnets available to be
+      assigned to containers.
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
@@ -1742,12 +1821,14 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: PEM-encoded peer key.
   - name: ETCD_PEER_CRT
     secret: true
     generator:
       id: "etcd_peer_cert"
       type: Certificate
       value_type: certificate
+    description: PEM-encoded peer certificate.
   - name: ETCD_SERVER_KEY
     secret: true
     generator:
@@ -1755,6 +1836,7 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: PEM-encoded server key.
   - name: ETCD_CLIENT_KEY
     secret: true
     generator:
@@ -1762,18 +1844,21 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: PEM-encoded client key.
   - name: ETCD_SERVER_CRT
     secret: true
     generator:
       id: "etcd_server_cert"
       type: Certificate
       value_type: certificate
+    description: PEM-encoded server certificate.
   - name: ETCD_CLIENT_CRT
     secret: true
     generator:
       id: "etcd_client_cert"
       type: Certificate
       value_type: certificate
+    description: PEM-encoded client certificate.
   - name: BBS_SERVER_KEY
     secret: true
     generator:
@@ -1781,6 +1866,7 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: PEM-encoded client key.
   - name: BBS_CLIENT_KEY
     secret: true
     generator:
@@ -1788,20 +1874,24 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: PEM-encoded client key.
   - name: BBS_SERVER_CRT
     secret: true
     generator:
       id: "bbs_server_cert"
       type: Certificate
       value_type: certificate
+    description: PEM-encoded client certificate.
   - name: BBS_CLIENT_CRT
     secret: true
     generator:
       id: "bbs_client_cert"
       type: Certificate
       value_type: certificate
+    description: PEM-encoded client certificate.
   - name: BBS_ADVERTISEMENT_BASE_HOSTNAME
     default: bbs.service.cf.internal
+    description: Suffix for the BBS advertised hostname.
   - name: SSH_KEY
     secret: true
     generator:
@@ -1809,16 +1899,21 @@ configuration:
       type: SSH
       value_type: private_key
       key_length: 4096
+    description: PEM encoded RSA private key used to identify host.
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
     generator:
       id: "app_ssh"
       type: SSH
       value_type: fingerprint
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections
+      to application instances.
   - name: ROUTER_SERVICES_SECRET
     secret: true
     generator:
       type: Password
+    description: Support for route services is disabled when no value is configured.
+      A robust passphrase is recommended.
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
@@ -1831,23 +1926,27 @@ configuration:
           wildcard: false
         - parameter: DOMAIN
           wildcard: true
+    description: The public ssl cert for ssl termination.
   - name: ROUTER_SSL_KEY
     secret: true
     generator:
       id: "router_cert"
       type: Certificate
       value_type: private_key
+    description: The private ssl key for ssl termination.
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
     generator:
       id: "router_cert"
       type: Certificate
       value_type: cert_private_key
+    description: SSL certificate (PEM file).
   - name: ROUTER_STATUS_PASSWORD
     secret: true
     generator:
       id: "router_status_password"
       type: Password
+    description: Password for HTTP basic auth to the varz/status endpoint.
   - name: UAA_PRIVATE_KEY
     secret: true
     generator:
@@ -1855,12 +1954,15 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
+    description: The server's ssl private key. Only passphrase-less keys are supported.
   - name: UAA_CERTIFICATE
     secret: true
     generator:
       id: "uaa_cert"
       type: Certificate
       value_type: certificate
+    description: The server's ssl certificate. The default is a self-signed certificate
+      and should always be replaced for production deployments.
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
@@ -1873,12 +1975,15 @@ configuration:
           wildcard: false
         - parameter: DOMAIN
           wildcard: true
+    description: The PEM-encoded certificate (optionally as a certificate chain) for
+      serving blobs over TLS/SSL.
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
       id: "blobstore_cert"
       type: Certificate
       value_type: private_key
+    description: The PEM-encoded private key for signing TLS/SSL traffic.
   - name: CONSUL_AGENT_CERT
     secret: true
     generator:
@@ -1886,12 +1991,14 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+    description: PEM-encoded agent certificate.
   - name: CONSUL_AGENT_KEY
     secret: true
     generator:
       id: "consul_agent_cert"
       type: Certificate
       value_type: private_key
+    description: PEM-encoded client key.
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
@@ -1902,12 +2009,14 @@ configuration:
       subject_alt_names:
         - static: server.dc1.hcf
           wildcard: false
+    description: PEM-encoded server certificate.
   - name: CONSUL_SERVER_KEY
     secret: true
     generator:
       id: "consul_server_cert"
       type: Certificate
       value_type: private_key
+    description: PEM-encoded server key.
   - name: DEMOPHON_SERVER_CERT
     secret: true
     generator:
@@ -1915,24 +2024,34 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+    description: PEM-encoded server certificate.
   - name: DEMOPHON_SERVER_KEY
     secret: true
     generator:
       id: "demophon_server_cert"
       type: Certificate
       value_type: private_key
+    description: PEM-encoded server key.
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
+    example: false
+    description: Determines whether dashboard verifies SSL certificates when communicating
+      with Cloud Controller and UAA.
   - name: SKIP_CERT_VERIFY_EXTERNAL
     default: true
+    description: Skip TLS verification when communicating with UAA system domain.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
+    description: 'Part of: Override DNS servers to be used in containers; defaults
+      to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
       id: "cacert"
       type: CACertificate
       value_type: certificate
+    description: PEM-encoded CA certificate used to sign TLS certificate hosted by
+      Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
@@ -1940,12 +2059,14 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+    description: Certificate for the SSO service.
   - name: SSO_ROUTE_KEY
     secret: true
     generator:
       id: "sso_cert"
       type: Certificate
       value_type: private_key
+    description: Key for the SSO service.
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
@@ -1953,20 +2074,24 @@ configuration:
       type: Certificate
       value_type: certificate
       key_length: 4096
+    description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
     generator:
       id: "usb_broker_server_cert"
       type: Certificate
       value_type: private_key
+    description: PEM-encoded broker server key.
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
     generator:
       type: Password
+    description: the password.
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
     generator:
       type: Password
+    description: The password for UAA access by the Autoscaler.
   templates:
     index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
