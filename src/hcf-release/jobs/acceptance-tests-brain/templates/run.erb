@@ -14,15 +14,13 @@ source ${ENVVARS}
 
 export SCRIPTS_FOLDER=/var/vcap/packages/acceptance-tests-brain/test-scripts
 
-echo '################################################################################################################'
 echo $(go version)
-env | sort
-echo '################################################################################################################'
+echo "CF_API=${CF_API}"
 
 echo "Running Acceptance Tests Brain..."
 
 EXITSTATUS=0
-testbrain run --testfolder ${SCRIPTS_FOLDER} || EXITSTATUS=$?
+testbrain run --testfolder ${SCRIPTS_FOLDER} --verbose || EXITSTATUS=$?
 
 echo "Acceptance Tests Brain Complete; exit status: $EXITSTATUS"
 exit $EXITSTATUS
