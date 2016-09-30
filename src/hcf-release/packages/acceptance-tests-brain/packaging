@@ -2,7 +2,7 @@ set -e -x
 
 cd acceptance-tests-brain
 
-tar xzf testbrain-1.0.0+9e642a2.master-linux-amd64.tgz
+tar xzf testbrain-1.0.0+add86ee.master-linux-amd64.tgz
 
 BIN_DIR=${BOSH_INSTALL_TARGET}/bin
 SCRIPTS_DIR=${BOSH_INSTALL_TARGET}/test-scripts
