@@ -1,11 +1,10 @@
 #!/bin/bash
 
-set -ex
+set -o errexit
+set -o xtrace
 
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-cwd=`pwd`
 
 # login
 cf api --skip-ssl-validation ${CF_API}
@@ -34,4 +33,3 @@ cf delete-space -f ${SPACE}
 # delete org
 cf delete-org -f ${ORG}
 
-cd $cwd

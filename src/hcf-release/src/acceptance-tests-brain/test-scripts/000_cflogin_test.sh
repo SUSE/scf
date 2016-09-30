@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -ex
+set -o errexit
+set -o xtrace
 
 # login
 cf api --skip-ssl-validation ${CF_API}
@@ -19,3 +20,4 @@ cf delete-space -f ${SPACE}
 
 # delete org
 cf delete-org -f ${ORG}
+
