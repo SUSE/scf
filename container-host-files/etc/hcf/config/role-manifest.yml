@@ -2173,7 +2173,7 @@ configuration:
     properties.tomcat.http.autoscaler_api.route: '"((AUTOSCALER_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.tomcat.http.autoscaler_server.route: '"((AUTOSCALER_SERVER_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
-    properties.uaa.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.clients: ((UAA_CLIENTS))((^UAA_CLIENTS)){}((/UAA_CLIENTS)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
