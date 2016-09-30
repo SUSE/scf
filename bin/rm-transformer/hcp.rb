@@ -21,6 +21,16 @@ class ToHCP < Common
 
     @property = convert_properties(@options[:propmap])
 
+    @defaults     = get_defaults(@options[:propmap])
+    @descriptions = get_descriptions(@options[:propdesc])
+    # :: (property -> description|default)
+
+    @properties_for_var_name = {}
+    # :: (varname -> list(tuple(property,use,?detail...?))
+
+    @ptn_match_single_var = /\A (["']?) \(\( (\w+) \)\) \1 \z/x
+    @ptn_match_var_as_field = /(["']) (\w+) \1 \s* : \s* (["']?) \(\((\w+)\)\) \3/x
+
     # And the map (component -> list(parameter-name)).
     # This is created in "determine_component_parameters" (if @property)
     # and used by "component_parameters" (if @component_parameters)
@@ -33,8 +43,17 @@ class ToHCP < Common
   end
 
   # Internal definitions
+  private
+
+  # Less is better for these values, so VAR_IS_NONE is the initial
+  # value, and replaced by anything.
+  VAR_IS_SIMPLE   = 1
+  VAR_IS_COMPOUND = 2
+  VAR_IS_FIELD    = 3
+  VAR_IS_NONE     = 4
 
   def to_hcp(role_manifest)
+    get_properties_for_var_name(role_manifest)
     definition = empty_hcp
 
     fs = definition['volumes']
@@ -172,6 +191,158 @@ class ToHCP < Common
       end
     end
     shared
+  end
+
+  def collect_properties_for_var_name_from_template_list(templates)
+    templates.each do |k, v|
+      parts = k.split(".", 2)
+      next if parts[0] != "properties"
+      next if !v.respond_to?(:scan)
+      m = @ptn_match_single_var.match(v)
+      if m
+        var_name = m[2]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_IS_SIMPLE]
+        next
+      end
+      m = @ptn_match_var_as_field.match(v)
+      if m
+        field_name = m[2]
+        var_name = m[4]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_IS_FIELD, field_name]
+        next
+      end
+      # Treat the rest as just part of the value
+      v.scan(/\(\((\w+)\)\)/) do |match|
+        var_name = match[0]
+        @properties_for_var_name[var_name] = [] if !@properties_for_var_name.key?(var_name)
+        @properties_for_var_name[var_name] << [parts[1], VAR_IS_COMPOUND]
+      end
+    end
+  end
+
+  def get_best_description(var_name)
+    # Initialize
+    @best_description = ""
+    @best_default     = ""
+    @best_type        = VAR_IS_NONE
+
+    # We favor properties.foo = '"blah ... ((VAR))..."'
+    # over                      '[{"name": "((VAR))",...]'
+
+    @properties_for_var_name.fetch(var_name, []).each do |property, current_type, field_name|
+      # We want to find the tightest use of the variable, therefore
+      # reject looser occurences.
+      # e.g. '"((FOO))"' is tighter than '"http://((HOST)).((DOMAIN))"
+
+      next if current_type > @best_type
+
+      # Note, nils and numerics make it hard to do string comparisons,
+      # we get rid of them. This relies on ((nil.to_s ==> "")).
+
+      current_description = @descriptions[property].to_s
+
+      # No point bothering with properties without a description
+      next if current_description.empty?
+
+      current_default = @defaults[property].to_s
+
+      # Take tighter use. Note, this may reset the @best_description to empty.
+      if current_type < @best_type
+        accept(current_default, current_description, current_type, field_name)
+        next
+      end
+
+      # assert: current_type == @best_type
+
+      # Take first non-empty description with its default
+      if @best_description.empty?
+        accept(current_default, current_description, current_type, field_name)
+        next
+      end
+
+      # assert: !@best_description.empty?
+
+      unless @best_default.empty?
+        # With a @best_default chosen already accept only strictly
+        # better descriptions which also have a default.
+        if current_description.size > @best_description.size && !current_default.empty?
+          accept(current_default, current_description, current_type, field_name)
+        end
+        next
+      end
+
+      # assert: @best_default.empty?
+
+      # While no default is chosen yet accept anything with at least
+      # as good a description, or a default.
+
+      if current_description.size >= @best_description.size || !current_default.empty?
+        accept(current_default, current_description, current_type, field_name)
+      end
+    end # @properties_for_var_name[var_name].each
+
+    [@best_description, @best_default]
+  end
+
+  def accept(default, description, type, field_name)
+    @best_description = make_description(description, type, field_name)
+    @best_default     = default unless default.empty?
+    @best_type        = type
+  end
+
+  def make_description(description, type, field_name)
+    case type
+    when VAR_IS_SIMPLE   ; description
+    when VAR_IS_FIELD    ; "The #{field_name} field of: #{description}"
+    when VAR_IS_COMPOUND ; "Part of: #{description}"
+    else description
+    end
+  end
+
+  def get_properties_for_var_name(role_manifest)
+    # {var-name => [list of property names containing the var-name]}
+    role_manifest['roles'].map{|role| role.fetch('configuration',{}).fetch('templates', {})}.
+          reject{|templates| templates.size == 0 }.
+          each do |templates|
+      collect_properties_for_var_name_from_template_list(templates)
+    end
+    collect_properties_for_var_name_from_template_list(role_manifest.fetch('configuration',{}).fetch('templates', {}))
+  end
+
+  def get_descriptions(desc)
+    # Quick access to the loaded properties: (release -> job -> property -> description)
+    # For the descriptions we need:          (property -> description)
+    description = Hash.new { |desc, property| desc[property] = "" }
+    desc.each do |release, jobs|
+      jobs.each do |job, properties|
+        properties.each do |property, the_description|
+          # Keep longest, and last in case of equal lengths
+          the_description = the_description.to_s
+          next if the_description.size < description[property].size
+          description[property] = the_description
+        end
+      end
+    end
+    description
+  end
+
+  def get_defaults(defaults)
+    # Quick access to the loaded properties: (release -> job -> property -> description)
+    # For the descriptions we need:          (property -> default value)
+    defv = Hash.new { |defv, property| defv[property] = "" }
+    defaults.each do |release, jobs|
+      jobs.each do |job, properties|
+        properties.each do |property, the_default|
+          # Keep longest, and last in case of equal lengths
+          the_default = the_default.to_s
+          next if the_default.size < defv[property].size
+          defv[property] = the_default
+        end
+      end
+    end
+    defv
   end
 
   def add_shared_fs(shared, v)
@@ -502,14 +673,18 @@ class ToHCP < Common
     vname     = var['name']
     vrequired = var.has_key?("required") ? var['required'] : true
     vsecret   = var.has_key?("secret") ? var['secret'] : false
-    vexample  = (var['example'] || var['default']).to_s
-    vexample  = 'unknown' if vexample == ''
 
-    vname = sdl_names[vname]
+    longest_description, longest_default = get_best_description(vname)
+
+    longest_description = nil if longest_description.empty?
+    longest_default     = nil if longest_default.empty?
+
+    vexample = (var['example'] || var['default'] || longest_default || "[no example given]").to_s
+    vdescription = var["description"] || longest_description || "[no description available]"
 
     parameter = {
-      'name'        => vname,
-      'description' => 'placeholder',
+      'name'        => sdl_names[vname],
+      'description' => vdescription,
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret,
