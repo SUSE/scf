@@ -19,9 +19,13 @@ $wd="$PSScriptRoot\resources\diego-kit"
 
 # Prepare network
 
-$clusterDnsAffix = "svc.cluster.hcp"
+$clusterDnsAffix = "cluster.hcp"
 
-Set-DnsClientGlobalSetting -SuffixSearchList @($HCPInstanceId + "." + $clusterDnsAffix)
+Set-DnsClientGlobalSetting -SuffixSearchList @($clusterDnsAffix, "$($HCPInstanceId).svc.$($clusterDnsAffix)")
+
+#https://blogs.technet.microsoft.com/networking/2009/04/16/dns-client-name-resolution-behavior-in-windows-vista-vs-windows-xp/
+REG add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" /v AppendToMultiLabelName /t REG_DWORD /d 1 /f | out-null
+Restart-Service Dnscache
 Clear-DnsClientCache
 
 $hcfCompoentHostname = "consul-int"
