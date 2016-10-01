@@ -200,6 +200,8 @@ properties:
   doppler:
     locked_memory_limit: kernel
     port: 4443
+  etcd:
+    bootstrap_node: etcd-0
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the

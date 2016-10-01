@@ -465,7 +465,6 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-      properties.routing_api.etcd.require_ssl: true
 - name: uaa
   tags: ['dev-only']
   environment_scripts:
@@ -840,15 +839,7 @@ roles:
         public: false
   configuration:
     templates:
-      properties.etcd.bootstrap_node: 'etcd-0'
       properties.etcd.cluster: null
-      properties.etcd.peer_require_ssl: true
-      properties.etcd.require_ssl: true
-      properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-      properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-      properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
-      properties.etcd_metrics_server.etcd.require_ssl: true
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2117,8 +2108,15 @@ configuration:
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
+    properties.etcd.peer_require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
+    properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
+    properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.etcd_metrics_server.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
@@ -2216,6 +2214,8 @@ configuration:
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaadb.address: '((MYSQL_PROXY_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+
+    properties.routing_api.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
 
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
