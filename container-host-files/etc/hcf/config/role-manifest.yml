@@ -424,6 +424,7 @@ roles:
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
@@ -751,6 +752,7 @@ roles:
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -794,6 +796,7 @@ roles:
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_etcd_bootstrap.sh
@@ -843,6 +846,7 @@ roles:
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -2108,15 +2112,15 @@ configuration:
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    properties.etcd.peer_require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd.peer_require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.etcd_metrics_server.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
@@ -2166,6 +2170,7 @@ configuration:
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.routing_api.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
     properties.routing_api.etcd.servers: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))
@@ -2214,9 +2219,6 @@ configuration:
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaadb.address: '((MYSQL_PROXY_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
-
-    properties.routing_api.etcd.require_ssl: '((SKIP_CERT_VERIFY_INTERNAL))'
-
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
   # there is no mustache expansion here.
