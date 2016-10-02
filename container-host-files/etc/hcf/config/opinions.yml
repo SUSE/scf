@@ -231,9 +231,6 @@ properties:
     url: https://this.is.unused
   logger_endpoint:
     port: 4443
-  loggregator:
-    etcd:
-      require_ssl: true
   login:
     asset_base_url: null
     logout:
