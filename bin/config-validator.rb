@@ -408,8 +408,6 @@ end
 # Check that all bosh properties have the same default across all the
 # loaded releases and their jobs.
 def check_bosh_defaults(global_defaults)
-  prefix = "Warning"
-
   global_defaults.each do |property, defaults|
     # Ignore properties with a single default across all definitions.
     next if defaults.size == 1
@@ -417,7 +415,7 @@ def check_bosh_defaults(global_defaults)
 
     maxlen = defaults.keys.map { |default| stringify(default).length }.max
 
-    STDOUT.puts "#{prefix.bgyellow}: Property #{property.yellow} has #{defaults.size.to_s.yellow} defaults:"
+    STDOUT.puts "#{"Warning".yellow}: Property #{property.yellow} has #{defaults.size.to_s.yellow} defaults:"
     defaults.each do |default, jobs|
       default = stringify(default)
 
