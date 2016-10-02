@@ -84,18 +84,19 @@ openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 # Given a host name (e.g. "api-int"), produce variations based on:
 # - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-int", "api-int.hcf")
 # - Wildcard and not ("api-int", "*.api-int")
+# - Include "COMPONENT-int.*.svc", "COMPONENT.*.svc.cluster", "COMPONENT.*.svc.cluster.hcp"
 make_domains() {
     local host_name="$1"
-    local result="${host_name},*.${host_name}"
+    local result="${host_name},*.${host_name},${host_name}.hcf.svc,${host_name}.hcf.svc.cluster.hcp,${host_name}.hcf1.svc,${host_name}.hcf1.svc.cluster.hcp,${host_name}.hcf2.svc,${host_name}.hcf2.svc.cluster.hcp,${host_name}.hcf3.svc,${host_name}.hcf3.svc.cluster.hcp,${host_name}.hcf4.svc,${host_name}.hcf4.svc.cluster.hcp,${host_name}.hcf5.svc,${host_name}.hcf5.svc.cluster.hcp"
     if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
-        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.svc"
     fi
     echo "${result}"
 }
 
 make_ha_domains() {
     local host_base="$1"
-    local result="${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf}"
+    local result="${host_base}-int.hcf.svc,${host_base}-int.hcf.svc.cluster.hcp,${host_base}-int.hcf1.svc,${host_base}-int.hcf1.svc.cluster.hcp,${host_base}-int.hcf2.svc,${host_base}-int.hcf2.svc.cluster.hcp,${host_base}-int.hcf3.svc,${host_base}-int.hcf3.svc.cluster.hcp,${host_base}-int.hcf4.svc,${host_base}-int.hcf4.svc.cluster.hcp,${host_base}-int.hcf5.svc,${host_base}-int.hcf5.svc.cluster.hcp,${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},*.svc"
     echo "${result}"
 }
 
