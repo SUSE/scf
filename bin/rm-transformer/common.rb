@@ -28,31 +28,6 @@ class String
   def cyan
     "\033[0;36m#{self}\033[0m"
   end
-
-  def bgred
-    "\033[0;41m#{self}\033[0m"
-  end
-
-  def bggreen
-    "\033[0;42m#{self}\033[0m"
-  end
-
-  def bgyellow
-    "\033[0;43m#{self}\033[0m"
-  end
-
-  def bgblue
-    "\033[0;44m#{self}\033[0m"
-  end
-
-  def bgmagenta
-    "\033[0;45m#{self}\033[0m"
-  end
-
-  def bgcyan
-    "\033[0;46m#{self}\033[0m"
-  end
-
 end
 
 # Common functionality for all providers.
@@ -236,6 +211,7 @@ class Common
       JWT_SIGNING_PUB
       MYSQL_HCF_CLUSTER_IPS
       NATS_HCF_CLUSTER_IPS
+      DONT_SKIP_CERT_VERIFY_INTERNAL
       NO_PROXY
       http_proxy
       https_proxy
