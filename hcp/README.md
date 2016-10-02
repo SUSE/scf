@@ -122,15 +122,15 @@ Or instead of running `make hcp-instance`, you can use the `~/hcf/hcp/hcf-hcp-in
     "name": "hcf",
     "version": "0.0.0",
     "vendor": "HPE",
-    "labels": ["my-hcf-cluster"],
-    "instance_id": "my-hcf-cluster",
+    "labels": ["hcf"],
+    "instance_id": "hcf",
     "description": "HCF test cluster"
 }
 ```
 
 *NOTE*: Ensure that the `name`, `version`, and `vendor` fields in the instance definition match the same fields in the service definition.
 
-Remember the `instance_id`, here `my-hcf-cluster`, which is the name to use when
+Remember the `instance_id`, here `hcf`, which is the name to use when
 talking to HCP about it.
 
 To instantiate the service, post the instance definition to HCP:
@@ -149,7 +149,7 @@ on the log.
 Alternatively, for just a list of events for this new instance, you can run:
 
 ```bash
-kubectl get events --namespace=my-hcf-cluster --watch
+kubectl get events --namespace=hcf --watch
 ```
 
 ### Setting up hcf-status on HCP (#3) ###
@@ -176,7 +176,7 @@ docker exec -it $(docker ps -a -q --filter label=role=api) bash
 Here is a bash function to display the full Monit status for a container:
 
 ```bash
-get-container-id() { docker ps -a -q --filter=name="k8s_${1}\\..*my-hcf-cluster" ; }
+get-container-id() { docker ps -a -q --filter=name="k8s_${1}\\..*hcf" ; }
 enter() { docker exec -t -i $(get-container-id "$1") /bin/bash ; }
 m() { docker exec -t $(get-container-id "$1") curl -u monit_user:monit_password http://localhost:2822/_status ; }
 
@@ -191,7 +191,7 @@ when you are done.
 
 ```bash
 cd hcp-developer
-sudo ./setup_ports.sh my-hcf-cluster `ipconfig getifaddr en0`
+sudo ./setup_ports.sh hcf `ipconfig getifaddr en0`
 ```
 
 ### Push a sample app (#5) ###

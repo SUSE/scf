@@ -47,8 +47,8 @@ class ToHCPInstance < Common
 
     templ['name']        ||= "hcf"
     templ['vendor']      ||= "HPE"
-    templ['labels']      ||= ["my-hcf-cluster"]
-    templ['instance_id'] ||= "my-hcf-cluster"
+    templ['labels']      ||= ["hcf"]
+    templ['instance_id'] ||= "hcf"
     templ['description'] ||= "HCF test cluster"
 
     templ
