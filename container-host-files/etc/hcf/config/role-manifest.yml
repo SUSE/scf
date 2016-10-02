@@ -2112,15 +2112,18 @@ configuration:
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    properties.etcd.peer_require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
-    properties.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    properties.etcd.peer_require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    properties.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
@@ -2170,7 +2173,8 @@ configuration:
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.routing_api.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))'
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    properties.routing_api.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.routing_api.etcd.servers: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://((ROUTING_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))
