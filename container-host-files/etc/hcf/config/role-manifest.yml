@@ -1554,14 +1554,12 @@ configuration:
     description: The hostname of the Cloud Controller API for access by cluster components.
   - name: BLOBSTORE_HOST
     default: "blobstore-int"
-    description: The hostname of the webdav server used by the Cloud Controller for
-      storing artifacts (e.g. droplets, buildpacks).
+    description: The hostname of the webdav server used by the Cloud Controller for storing artifacts (e.g. droplets, buildpacks).
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
       type: Password
-    description: The basic auth password that Cloud Controller uses to connect to the blobstore
-      server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
+    description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     generator:
@@ -1580,15 +1578,13 @@ configuration:
     secret: true
     generator:
       type: Password
-    description: The Autoscaler API password. Auto-generated if not provided. Passwords
-      must be alphanumeric (URL-safe).
+    description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
   - name: DIEGO_DATABASE_HOST
     default: "diego-database-int"
-    description: The hostname of the first etcd server used to manage HCF state. Auto-generated
-      if not provided.
+    description: The hostname of the first etcd server used to manage HCF state. Auto-generated if not provided.
   - name: DIEGO_ACCESS_HOST
     default: "diego-access-int"
     description: The hostname of Diego file server.
@@ -1600,8 +1596,7 @@ configuration:
     description: The hostname of the Diego auctioneer API server.
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
-    description: The memory capacity the cell should manage. If this capacity is larger
-      than the actual memory of the cell component, over-provisioning will occur.
+    description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
     description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
@@ -1610,8 +1605,7 @@ configuration:
     description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
-    description: The number of versions of an application to keep. You will be able
-      to rollback to this amount of versions.
+    description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
     description: The host to ping for confirmation of DNS resolution.
@@ -1722,14 +1716,12 @@ configuration:
     description: Basic auth password for access to the Cloud Controller's internal API.
   - name: TRUSTED_CERTS
     required: false
-    description: Concatenation of trusted CA certificates to be made available on
-      the cell.
+    description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     generator:
       type: Password
-    description: The password of the admin client - a client named admin with uaa.admin
-      as an authority.
+    description: The password of the admin client - a client named admin with uaa.admin as an authority.
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     generator:
@@ -1827,8 +1819,7 @@ configuration:
     description: The password for access to the UAA database.
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
-    description: A CIDR subnet mask specifying the range of subnets available to be
-      assigned to containers.
+    description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
@@ -1922,14 +1913,12 @@ configuration:
       id: "app_ssh"
       type: SSH
       value_type: fingerprint
-    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections
-      to application instances.
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
   - name: ROUTER_SERVICES_SECRET
     secret: true
     generator:
       type: Password
-    description: Support for route services is disabled when no value is configured.
-      A robust passphrase is recommended.
+    description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
@@ -1977,8 +1966,7 @@ configuration:
       id: "uaa_cert"
       type: Certificate
       value_type: certificate
-    description: The server's ssl certificate. The default is a self-signed certificate
-      and should always be replaced for production deployments.
+    description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
@@ -1991,8 +1979,7 @@ configuration:
           wildcard: false
         - parameter: DOMAIN
           wildcard: true
-    description: The PEM-encoded certificate (optionally as a certificate chain) for
-      serving blobs over TLS/SSL.
+    description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
@@ -2051,8 +2038,7 @@ configuration:
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
     example: false
-    description: Determines whether dashboard verifies SSL certificates when communicating
-      with Cloud Controller and UAA.
+    description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
   - name: SKIP_CERT_VERIFY_EXTERNAL
     default: false
     description: Skip TLS verification when communicating with UAA system domain.
@@ -2066,8 +2052,7 @@ configuration:
       id: "cacert"
       type: CACertificate
       value_type: certificate
-    description: PEM-encoded CA certificate used to sign TLS certificate hosted by
-      Diego BBS.
+    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
