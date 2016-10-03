@@ -3,6 +3,7 @@ roles:
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -41,6 +42,7 @@ roles:
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -237,6 +239,7 @@ roles:
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -287,6 +290,7 @@ roles:
 - name: ha-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -337,6 +341,7 @@ roles:
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
@@ -376,6 +381,7 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
@@ -470,6 +476,7 @@ roles:
   tags: ['dev-only']
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_uaa_hostnames_in_uaa_yml.sh
@@ -523,6 +530,7 @@ roles:
   environment_scripts:
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/perform_nfs_test.sh
   - scripts/patches/cloud_controller_v2_droplet_count.sh
@@ -598,6 +606,7 @@ roles:
 - name: api-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -630,6 +639,7 @@ roles:
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -677,6 +687,7 @@ roles:
 - name: clock-global
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -889,6 +900,7 @@ roles:
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -923,6 +935,7 @@ roles:
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1013,6 +1026,7 @@ roles:
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1042,6 +1056,7 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1087,6 +1102,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/prevent_apparmor_disable.sh
@@ -1431,6 +1447,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/configure-HA-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -1464,6 +1481,7 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
+  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1502,6 +1520,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/setup-demophon-env.sh
+  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
