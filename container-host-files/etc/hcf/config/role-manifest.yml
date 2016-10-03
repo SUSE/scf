@@ -3,6 +3,7 @@ roles:
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -41,6 +42,7 @@ roles:
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -237,6 +239,7 @@ roles:
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -287,6 +290,7 @@ roles:
 - name: ha-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -337,6 +341,7 @@ roles:
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
@@ -376,6 +381,7 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
@@ -470,6 +476,7 @@ roles:
   tags: ['dev-only']
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_uaa_hostnames_in_uaa_yml.sh
@@ -521,8 +528,10 @@ roles:
       properties.uaa.zones.internal.hostnames: '["uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/perform_nfs_test.sh
   - scripts/patches/cloud_controller_v2_droplet_count.sh
@@ -598,6 +607,7 @@ roles:
 - name: api-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -630,6 +640,7 @@ roles:
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -677,6 +688,7 @@ roles:
 - name: clock-global
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -705,10 +717,10 @@ roles:
     exposed-ports: []
 - name: cf-usb
   environment_scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -889,6 +901,7 @@ roles:
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -923,6 +936,7 @@ roles:
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1013,6 +1027,7 @@ roles:
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1042,6 +1057,7 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1087,6 +1103,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/prevent_apparmor_disable.sh
@@ -1431,6 +1448,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/configure-HA-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -1464,6 +1482,7 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
+  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1502,6 +1521,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/setup-demophon-env.sh
+  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1534,14 +1554,12 @@ configuration:
     description: The hostname of the Cloud Controller API for access by cluster components.
   - name: BLOBSTORE_HOST
     default: "blobstore-int"
-    description: The hostname of the webdav server used by the Cloud Controller for
-      storing artifacts (e.g. droplets, buildpacks).
+    description: The hostname of the webdav server used by the Cloud Controller for storing artifacts (e.g. droplets, buildpacks).
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
       type: Password
-    description: The basic auth password that Cloud Controller uses to connect to the blobstore
-      server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
+    description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     generator:
@@ -1560,15 +1578,13 @@ configuration:
     secret: true
     generator:
       type: Password
-    description: The Autoscaler API password. Auto-generated if not provided. Passwords
-      must be alphanumeric (URL-safe).
+    description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
   - name: DIEGO_DATABASE_HOST
     default: "diego-database-int"
-    description: The hostname of the first etcd server used to manage HCF state. Auto-generated
-      if not provided.
+    description: The hostname of the first etcd server used to manage HCF state. Auto-generated if not provided.
   - name: DIEGO_ACCESS_HOST
     default: "diego-access-int"
     description: The hostname of Diego file server.
@@ -1580,8 +1596,7 @@ configuration:
     description: The hostname of the Diego auctioneer API server.
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
-    description: The memory capacity the cell should manage. If this capacity is larger
-      than the actual memory of the cell component, over-provisioning will occur.
+    description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
     description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
@@ -1590,8 +1605,7 @@ configuration:
     description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
-    description: The number of versions of an application to keep. You will be able
-      to rollback to this amount of versions.
+    description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
     description: The host to ping for confirmation of DNS resolution.
@@ -1702,14 +1716,12 @@ configuration:
     description: Basic auth password for access to the Cloud Controller's internal API.
   - name: TRUSTED_CERTS
     required: false
-    description: Concatenation of trusted CA certificates to be made available on
-      the cell.
+    description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     generator:
       type: Password
-    description: The password of the admin client - a client named admin with uaa.admin
-      as an authority.
+    description: The password of the admin client - a client named admin with uaa.admin as an authority.
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     generator:
@@ -1807,8 +1819,7 @@ configuration:
     description: The password for access to the UAA database.
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
-    description: A CIDR subnet mask specifying the range of subnets available to be
-      assigned to containers.
+    description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
@@ -1902,14 +1913,12 @@ configuration:
       id: "app_ssh"
       type: SSH
       value_type: fingerprint
-    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections
-      to application instances.
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
   - name: ROUTER_SERVICES_SECRET
     secret: true
     generator:
       type: Password
-    description: Support for route services is disabled when no value is configured.
-      A robust passphrase is recommended.
+    description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
@@ -1957,8 +1966,7 @@ configuration:
       id: "uaa_cert"
       type: Certificate
       value_type: certificate
-    description: The server's ssl certificate. The default is a self-signed certificate
-      and should always be replaced for production deployments.
+    description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
@@ -1971,8 +1979,7 @@ configuration:
           wildcard: false
         - parameter: DOMAIN
           wildcard: true
-    description: The PEM-encoded certificate (optionally as a certificate chain) for
-      serving blobs over TLS/SSL.
+    description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
@@ -2031,10 +2038,9 @@ configuration:
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
     example: false
-    description: Determines whether dashboard verifies SSL certificates when communicating
-      with Cloud Controller and UAA.
+    description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
   - name: SKIP_CERT_VERIFY_EXTERNAL
-    default: true
+    default: false
     description: Skip TLS verification when communicating with UAA system domain.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
@@ -2046,8 +2052,7 @@ configuration:
       id: "cacert"
       type: CACertificate
       value_type: certificate
-    description: PEM-encoded CA certificate used to sign TLS certificate hosted by
-      Diego BBS.
+    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
@@ -2254,7 +2259,7 @@ configuration:
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"((CONSUL_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"((DIEGO_DATABASE_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"((ETCD_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"}]'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"((CONSUL_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"((DIEGO_DATABASE_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"((ETCD_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"}]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
