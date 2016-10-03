@@ -504,12 +504,13 @@ class ToHCP < Common
     vsecret   = var.has_key?("secret") ? var['secret'] : false
     vexample  = (var['example'] || var['default']).to_s
     vexample  = 'unknown' if vexample == ''
+    vdescription = var["description"].to_s
 
     vname = sdl_names[vname]
 
     parameter = {
       'name'        => vname,
-      'description' => 'placeholder',
+      'description' => vdescription,
       'example'     => vexample,
       'required'    => vrequired,
       'secret'      => vsecret,

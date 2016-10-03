@@ -1595,8 +1595,6 @@ configuration:
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
     description: The host to ping for confirmation of DNS resolution.
-  - name: DNS_RECORD_NAME
-    required: false
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
@@ -1702,8 +1700,6 @@ configuration:
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
-  - name: IP_ADDRESS
-    required: false
   - name: TRUSTED_CERTS
     required: false
     description: Concatenation of trusted CA certificates to be made available on
