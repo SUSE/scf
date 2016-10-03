@@ -15,6 +15,7 @@ source ${ENVVARS}
 export SCRIPTS_FOLDER=/var/vcap/packages/acceptance-tests-brain/test-scripts
 
 echo $(go version)
+echo "SCRIPTS_FOLDER=${SCRIPTS_FOLDER}"
 echo "CF_API=${CF_API}"
 
 echo "Running Acceptance Tests Brain..."
