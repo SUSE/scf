@@ -1593,7 +1593,7 @@ configuration:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
   - name: DNS_HEALTH_CHECK_HOST
-    default: example.com
+    default: "127.0.0.1"
     description: The host to ping for confirmation of DNS resolution.
   - name: DNS_RECORD_NAME
     required: false
