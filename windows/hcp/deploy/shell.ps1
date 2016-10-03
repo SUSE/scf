@@ -30,9 +30,9 @@ Version:1.0.0.7x
     [-HCPInstanceId] <string>               - (Required) The id of the HCF instance.
     [-CloudFoundryAdminUsername] <string>   - (Required) An Cloud Foundry admin user account.
     [-CloudFoundryAdminPassword] <string>   - (Required) Password for Cloud Foundry admin user.
-    [-SkipCertificateValidation]            - Determine if it should skip the Certificate Validation. (Default: false)
+    [-SkipSslValidation]                    - Determine if it should skip the Certificate Validation. (Default: false)
 
  Exmaple:
   .\install-windows-hcf.ps1 -?
-  .\install-windows-hcf.ps1 -HCPInstanceId hcf-instance -CloudFoundryAdminUsername admin -CloudFoundryAdminPassword changeme -SkipCertificateValidation
+  .\install-windows-hcf.ps1 -HCPInstanceId hcf-instance -CloudFoundryAdminUsername admin -CloudFoundryAdminPassword changeme -SkipSslValidation
 "@
