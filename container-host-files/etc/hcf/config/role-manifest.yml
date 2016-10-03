@@ -2053,7 +2053,7 @@ configuration:
     description: Determines whether dashboard verifies SSL certificates when communicating
       with Cloud Controller and UAA.
   - name: SKIP_CERT_VERIFY_EXTERNAL
-    default: true
+    default: false
     description: Skip TLS verification when communicating with UAA system domain.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
