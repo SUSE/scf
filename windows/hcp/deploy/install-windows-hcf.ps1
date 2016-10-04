@@ -75,7 +75,12 @@ $env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
 $env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
-$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$etcdScheme = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'http://'} else {'https://'}
+$env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
+# Use INTERNAL_CA_CERT for ETCD_CA_CRT when it will be available. $env:ETCD_CA_CRT = $hcfSettings.'INTERNAL_CA_CERT'
+$env:ETCD_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
+$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CRT'
+$env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
 $env:LOGGRAGATOR_INDEX = 0
