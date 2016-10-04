@@ -31,10 +31,6 @@
         "min_instances": 3
       },
       {
-        "component": "diego-brain",
-        "min_instances": 3
-      },
-      {
         "component": "diego-database",
         "min_instances": 3
       },
