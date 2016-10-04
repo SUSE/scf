@@ -311,7 +311,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -407,7 +407,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -921,7 +921,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1163,7 +1163,7 @@ roles:
     flight-stage: flight
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1195,7 +1195,7 @@ roles:
     flight-stage: flight
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1227,7 +1227,7 @@ roles:
     flight-stage: flight
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1257,7 +1257,7 @@ roles:
     flight-stage: flight
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1464,7 +1464,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1499,7 +1499,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1535,7 +1535,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
