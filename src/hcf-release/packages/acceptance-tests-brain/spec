@@ -1,0 +1,8 @@
+---
+name: acceptance-tests-brain
+dependencies:
+  - cli
+files:
+  - acceptance-tests-brain/testbrain-*.tgz
+  - acceptance-tests-brain/test-scripts/*
+  - acceptance-tests-brain/test-resources/*

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.6)
+export PATH=${GOROOT}/bin:${PATH}
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+export PATH=/var/vcap/packages/acceptance-tests-brain/bin:${PATH} # put testbrain on the path
+
+echo "Creating environment variables..."
+export ENVVARS=/var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
+source ${ENVVARS}
+
+export SCRIPTS_FOLDER=/var/vcap/packages/acceptance-tests-brain/test-scripts
+
+echo $(go version)
+echo "SCRIPTS_FOLDER=${SCRIPTS_FOLDER}"
+echo "CF_API=${CF_API}"
+
+echo "Running Acceptance Tests Brain..."
+
+EXITSTATUS=0
+testbrain run --testfolder ${SCRIPTS_FOLDER} --verbose || EXITSTATUS=$?
+
+echo "Acceptance Tests Brain Complete; exit status: $EXITSTATUS"
+exit $EXITSTATUS

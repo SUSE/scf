@@ -1334,6 +1334,26 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: acceptance-tests-brain
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: acceptance-tests-brain
+    release_name: hcf
+  run:
+    scaling:
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: smoke-tests
   type: bosh-task
   scripts:
@@ -2105,6 +2125,8 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.cloud_controller.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.acceptance_tests.uaa.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
+    properties.acceptance_tests_brain.api: '"api.((DOMAIN))"'
+    properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"((AUTOSCALER_API_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
