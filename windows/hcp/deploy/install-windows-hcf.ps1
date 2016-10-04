@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory=$true)]
     [Security.SecureString]$CloudFoundryAdminPassword,
     [Parameter(Mandatory=$false)]
-    [switch]$SkipCertificateValidation = $false
+    [switch]$SkipSslValidation = $false
 )
 
 $CloudFoundryAdminPasswordClear = (New-Object System.Management.AUtomation.PSCredential('dummy',$CloudFoundryAdminPassword)).GetNetworkCredential().password
@@ -50,7 +50,7 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 ## HCF setting
 
-$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipSslValidation
 
 ## Note: All the hosts already come with HCP_SERVICE_DOMAIN_SUFFIX,
 ##       see 'properties.hcf.demophon.config' in the role manifest.
