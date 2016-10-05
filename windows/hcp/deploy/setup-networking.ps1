@@ -275,6 +275,8 @@ $env:FLANNEL_ETCD_KEYFILE = $etcdKeyfile
 $env:FLANNEL_ETCD_CERTFILE = $etcdCertFile
 $env:FLANNEL_ETCD_CAFILE = $etcdCaFile
 
+net user flannel /delete /y
+
 Write-Output @"
 Installing flannel using:
     FLANNEL_ETCD_ENDPOINTS=$($env:FLANNEL_ETCD_ENDPOINTS)
