@@ -1,5 +1,3 @@
 #!/bin/bash
-set -e
-set -x
-
+set -o errexit -o nounset -o xtrace
 rm -rf /var/vcap/data/garden/*

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -o errexit -o nounset
 
 # This scripts writes all environment variables to a script so they can
 # be sourced later. Demophon needs the entrypoint's variables to do useful
