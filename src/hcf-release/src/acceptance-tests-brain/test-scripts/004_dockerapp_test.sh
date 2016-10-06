@@ -6,8 +6,8 @@ set -o xtrace
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# configuration
-APP=${DIR}/../test-resources/node-env
+#configuration
+DOCKERAPP=docker-test-app
 
 # login
 cf api --skip-ssl-validation ${CF_API}
@@ -21,17 +21,15 @@ cf target -o  ${ORG}
 cf create-space ${SPACE}
 cf target -s    ${SPACE}
 
-# push an app
-(   cd ${APP}
-    cf push node-env
-)
+# Push a docker app
+cf enable-feature-flag diego_docker
+cf push ${DOCKERAPP} -o viovanov/node-env-tiny
 
-# delete the app
-cf delete -f node-env
+# delete app
+cf delete -f ${DOCKERAPP}
 
 # delete space
 cf delete-space -f ${SPACE}
 
 # delete org
 cf delete-org -f ${ORG}
-

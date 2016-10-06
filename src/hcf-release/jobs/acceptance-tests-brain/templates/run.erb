@@ -24,7 +24,6 @@ echo "Installing the required plugins..."
 
 for i in ${ASSETS}/plugins/*;
 do
-    sleep 1
     cf install-plugin -f $i
     # -f forces install without requiring confirmation.
 done
