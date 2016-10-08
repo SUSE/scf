@@ -42,20 +42,24 @@ rm /tmp/log
 loginpage=/tmp/ssologinpage
 cookies=/tmp/ssocookies.txt
 
-login=$(curl -w "%{url_effective}\n" \
+login="$(curl -w "%{url_effective}\n" \
     -c ${cookies} -L -s -k -S ${url} \
-    -o ${loginpage})
+    -o ${loginpage}).do"
 
 uaa_csrf=$(cat ${loginpage} | \
     sed -n 's/.*name="X-Uaa-Csrf"\s\+value="\([^"]\+\).*/\1/p')
-login+=".do"
 
 curl -b ${cookies} -c ${cookies} -L -v $login \
     --data "username=${CF_USERNAME}&password=${CF_PASSWORD}&X-Uaa-Csrf=${uaa_csrf}" \
-    --insecure 1>/tmp/sso.url 2>&1
+    --insecure \
+    > /tmp/sso.url \
+    2>&1
 
-cookie=$(cat   /tmp/sso.url | grep "Cookie: ssoCookie")
-httpcode=$(cat /tmp/sso.url | grep "200 OK")
+cat ${cookies} | sed -e 's/^/COOKIES| /'
+cat /tmp/sso.url | sed -e 's/^/SSO____| /'
+
+cookie="$(cat   /tmp/sso.url | grep "Cookie: ssoCookie")"
+httpcode="$(cat /tmp/sso.url | grep "200 OK")"
 
 if [ -z "$cookie" -o -z "$httpcode" ];
 then
