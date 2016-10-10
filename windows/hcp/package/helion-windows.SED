@@ -33,7 +33,7 @@ UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
 [Strings]
 InstallPrompt=
-DisplayLicense=
+DisplayLicense=.\LICENSE
 FinishMessage=
 FileVer=1.0.0.7m
 TargetName=.\helion-windows.exe
