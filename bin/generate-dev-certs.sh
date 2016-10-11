@@ -174,8 +174,8 @@ certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --pass
 cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
 
-# We include hcf.uaa.${DOMAIN} because it's not covered by *.${DOMAIN} and it's
-# required by the dev UAA server
+# We include hcf.uaa.${DOMAIN} / hcf.login.${DOMAIN} because it's not covered by
+# *.${DOMAIN} and it's required by the dev UAA server
 server_cn=router_ssl
 certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router-int,router-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},hcf.uaa.${DOMAIN},hcf.login.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
