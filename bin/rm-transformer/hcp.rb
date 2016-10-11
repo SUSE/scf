@@ -207,7 +207,7 @@ class ToHCP < Common
 
   def add_role(role_manifest, fs, comps, role, retrycount, sdl_names)
     bname = role['name']
-    iname = "#{@dtr_org}/#{@hcf_prefix}-#{bname}:#{@hcf_tag}"
+    iname = "#{@hcf_prefix}-#{bname}"
 
     labels = [ bname ]
 
@@ -220,8 +220,10 @@ class ToHCP < Common
       'name'          => bname,
       'version'       => '0.0.0', # See also toplevel version
       'vendor'        => 'HPE',	  # See also toplevel vendor
-      'image'         => iname,
       'repository'    => @dtr,
+      'organization'  => @dtr_org,
+      'image'         => iname,
+      'tag'           => @hcf_tag,
       'min_RAM_mb'    => runtime['memory'],
       'min_disk_gb'   => 1, 	# Out of thin air
       'min_VCPU'      => cpu_fraction(runtime['virtual-cpus']),
