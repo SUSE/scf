@@ -168,12 +168,19 @@ properties:
       uaa:
         client: cf-usb
   cf_mysql:
+    mysql:
+      bootstrap_endpoint:
+        username: 'bootstrap_user'
+      database_startup_timeout: 300
     proxy:
+      api_force_https: 'false'
+      api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
   consul:
     agent:
       log_level: null
       domain: hcf
+      mode: "server"
   couchdb:
     metric_prefix: couchdb-scalingmetric
     port: 5984
@@ -247,6 +254,7 @@ properties:
   nats:
     port: 4222
     user: nats
+  network_name: 'default'
   nfs_server:
     address: 0.0.0.3
   router:
