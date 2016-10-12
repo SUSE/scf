@@ -91,13 +91,16 @@ function start_role {
       the_env+=("--env=${edef}")
   done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 
+  domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
+
   function _do_start_role() {
     docker run --name ${name} \
         ${detach} \
+        --net-alias=${role}-int.${domain_suffix} \
         --net=hcf \
-        --dns-search=hcf \
+        --dns-search=${domain_suffix} \
         --label=hcf_role=${role} \
-        --hostname=${role}-int.hcf \
+        --hostname=${role}-int.${domain_suffix} \
         ${restart} \
         ${uaa_env_overrides[@]} \
         ${hcp_compat_env} \

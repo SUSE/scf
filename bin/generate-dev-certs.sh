@@ -97,7 +97,7 @@ make_domains() {
 
 make_ha_domains() {
     local host_base="$1"
-    local result="${host_base}-int.hcf.svc,${host_base}-int.hcf.svc.cluster.hcp,${host_base}-int.hcf1.svc,${host_base}-int.hcf1.svc.cluster.hcp,${host_base}-int.hcf2.svc,${host_base}-int.hcf2.svc.cluster.hcp,${host_base}-int.hcf3.svc,${host_base}-int.hcf3.svc.cluster.hcp,${host_base}-int.hcf4.svc,${host_base}-int.hcf4.svc.cluster.hcp,${host_base}-int.hcf5.svc,${host_base}-int.hcf5.svc.cluster.hcp,${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf}"
+    local result="${host_base}-int.hcf.svc,${host_base}-int.hcf.svc.cluster.hcp,${host_base}-int.hcf1.svc,${host_base}-int.hcf1.svc.cluster.hcp,${host_base}-int.hcf2.svc,${host_base}-int.hcf2.svc.cluster.hcp,${host_base}-int.hcf3.svc,${host_base}-int.hcf3.svc.cluster.hcp,${host_base}-int.hcf4.svc,${host_base}-int.hcf4.svc.cluster.hcp,${host_base}-int.hcf5.svc,${host_base}-int.hcf5.svc.cluster.hcp,${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc}"
     echo "${result}"
 }
 
