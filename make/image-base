@@ -6,7 +6,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/fissile
 
-UBUNTU_IMAGE=${UBUNTU_IMAGE:-'ubuntu:14.04'}
+UBUNTU_IMAGE=${UBUNTU_IMAGE:-'hpe-license-on-ubuntu:14.04'}
 
-fissile build layer stemcell --from ${UBUNTU_IMAGE}
+FISSILE_FROM=${UBUNTU_IMAGE} fissile build layer stemcell
 
