@@ -91,7 +91,7 @@ function start_role {
       the_env+=("--env=${edef}")
   done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 
-  domain_suffix=$(echo "${env_file_contents}" | grep -w "HCP_SERVICE_DOMAIN_SUFFIX" | sed 's/^[^=]*=//g')
+  domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
 
   function _do_start_role() {
     docker run --name ${name} \
