@@ -27,7 +27,15 @@ chmod +x $bin_dir/fissile
 chmod +x $bin_dir/cf
 
 echo "Pulling base image ..."
-docker pull $ubuntu_image
+docker pull ${ubuntu_image}
+
+echo "Adding HPE license to base image ..."
+TMPDIR=$(mktemp -d)
+cp container-LICENSE.txt "${TMPDIR}"
+printf "FROM %s\nADD container-LICENSE.txt /usr/share/doc/stackato/LICENSE.txt\n" "${ubuntu_image}" > "${TMPDIR}/Dockerfile"
+docker build -q -t hpe-license-on-${ubuntu_image} "${TMPDIR}"
+rm -rf "${TMPDIR}"
+
 echo "Pulling ruby bosh image ..."
 docker pull helioncf/hcf-pipeline-ruby-bosh
 
