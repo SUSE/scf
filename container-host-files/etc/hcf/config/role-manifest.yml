@@ -1855,7 +1855,7 @@ configuration:
     default: 10.38.0.0/16
     description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
   - name: DIEGO_CELL_NETWORK_MTU
-    default: "1500"
+    default: "1400"
     description: Maximum network transmission unit length in bytes for application containers.
   # Certificates
   - name: ETCD_PEER_KEY
