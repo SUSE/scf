@@ -1854,6 +1854,9 @@ configuration:
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
     description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
+  - name: DIEGO_CELL_NETWORK_MTU
+    default: "1500"
+    description: Maximum network transmission unit length in bytes for application containers.
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
@@ -2289,6 +2292,7 @@ configuration:
     properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
