@@ -12,7 +12,7 @@ if test -z "${BASH_SOURCE[1]:-}" ; then
     # This is being run standalone
     set -o errexit -o nounset
 else
-    # This is being source from a different script
+    # This is being sourced from a different script
     if ! ( echo "${SHELLOPTS:-}" | tr ':' '\n' | grep --quiet errexit ) ; then
         printf "Error: errexit not set\n" >&2
         exit 1

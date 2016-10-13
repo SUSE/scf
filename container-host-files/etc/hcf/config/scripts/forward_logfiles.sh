@@ -116,6 +116,8 @@ function searchTargetDir {
 
 #Create the rsyslog configuration file inside rsysconf.d
 function createTargetConf {
+        # We need to strip leading whitespace introduced by the heredoc (because
+        # it doesn't strip leading spaces, just tabs)
         cat <<-EOF | sed 's@^\s*@@' >${TARGET_NAME}
             \$InputFileName ${1}
             \$InputFileTag vcap-${TARGET_BASENAME}
