@@ -159,7 +159,7 @@ function setup_role() {
     # Forwarding a large range of ports using `-p` is very slow because docker is creating a userland proxy
     # for each port to support hairpin-nat. We used to have a custom iptables implementation for mapping ranges,
     # but not having hairpin-NAT breaks using apps as USB sidecars. It also broke the tcp-routing test when
-    # running inside a docker images as part of HAT for unknown reasons.  Find the iptables implemenation
+    # running inside a docker images as part of HAT for unknown reasons.  Find the iptables implementation
     # in the git history if you ever need to test on vagrant with a huge number of tcp routing ports.
     ports="${ports} -p ${external_port}:${internal_port}/${protocol}"
   done < <(echo "${role_info}" | jq --compact-output '."exposed-ports"[] | select(.public)')
