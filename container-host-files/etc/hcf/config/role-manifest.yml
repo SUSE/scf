@@ -2080,8 +2080,7 @@ configuration:
     description: Skip TLS verification when communicating with UAA system domain.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
-    description: 'Part of: Override DNS servers to be used in containers; defaults
-      to the same as the host.'
+    description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
