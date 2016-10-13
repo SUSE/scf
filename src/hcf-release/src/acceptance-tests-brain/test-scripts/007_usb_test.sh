@@ -7,28 +7,27 @@ set -o xtrace
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 HSM_SERVICE_INSTANCE=hsm-service
-DOMAIN=$(echo $CF_API | sed -e 's/^[^.]*\.//')
 
 # login
-cf api --skip-ssl-validation ${CF_API}
+cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 # create organization
-cf create-org ${ORG}
-cf target -o  ${ORG}
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
 
 # create space
-cf create-space ${SPACE}
-cf target -s    ${SPACE}
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 # allow tcp routing
-cf create-shared-domain usb-test.${DOMAIN} --router-group default-tcp
+cf create-shared-domain usb-test.${CF_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
 # run hsm passthrough docker
 cf push ${HSM_SERVICE_INSTANCE} \
     -o docker-registry.helion.space:443/rohcf/sidecar-acctests:latest \
-    -d usb-test.${DOMAIN} --random-route \
+    -d usb-test.${CF_DOMAIN} --random-route \
     --no-start
 cf set-env ${HSM_SERVICE_INSTANCE} SIDECAR_API_KEY string_empty
 cf restart ${HSM_SERVICE_INSTANCE} | tee /tmp/log
@@ -43,7 +42,7 @@ rm /tmp/log
 
 # add service
 cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
-    https://usb-test.${DOMAIN}:$port string_empty \
+    https://usb-test.${CF_DOMAIN}:${port} string_empty \
     -k -c '{"display_name":"hsm_passtrough"}'
 
 # push an app
@@ -74,8 +73,8 @@ echo -e "y\n" | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
 cf delete -f ${HSM_SERVICE_INSTANCE}
 
 # delete space
-cf delete-space -f ${SPACE}
+cf delete-space -f ${CF_SPACE}
 
 # delete org
-cf delete-org -f ${ORG}
+cf delete-org -f ${CF_ORG}
 

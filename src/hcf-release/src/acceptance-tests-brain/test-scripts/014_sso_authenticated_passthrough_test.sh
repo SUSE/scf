@@ -12,38 +12,37 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_NAME=go-env
 DESIRED_STRING="INSTANCE_INDEX=0"
 SSO_SERVICE="sso-service-test-brain"
-DOMAIN=$(echo $CF_API | sed -e 's/^[^.]*\.//')
 
 # login
-cf api --skip-ssl-validation ${CF_API}
+cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 do_cleanup() {
     # unbind route
     if test -n "${hostname:-}" ; then
-        cf unbind-route-service ${DOMAIN} ${SSO_SERVICE} -f --hostname ${hostname}
+        cf unbind-route-service ${CF_DOMAIN} ${SSO_SERVICE} -f --hostname ${hostname}
     fi
 
     cf delete-service -f ${SSO_SERVICE}
 
     # cleanup
     cf delete -f node-env
-    cf delete-space -f ${SPACE}
-    cf delete-org -f ${ORG}
+    cf delete-space -f ${CF_SPACE}
+    cf delete-org -f ${CF_ORG}
 }
 trap do_cleanup EXIT
 
 # create org and space
-cf create-org ${ORG}
-cf target -o ${ORG}
-cf create-space ${SPACE}
-cf target -s ${SPACE}
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 # push an app
 cd ${DIR}/../test-resources/${APP_NAME}-*
 cf push ${APP_NAME}
 
-url=${APP_NAME}.${DOMAIN}
+url=${APP_NAME}.${CF_DOMAIN}
 test -n "${url}"
 hostname="${url%%.*}"
 test -n "${hostname}"
@@ -53,7 +52,7 @@ curl "${url}/env" | grep ${DESIRED_STRING}
 
 # Set up SSO
 cf create-service sso-routing default ${SSO_SERVICE}
-cf bind-route-service ${DOMAIN} ${SSO_SERVICE} --hostname ${hostname}
+cf bind-route-service ${CF_DOMAIN} ${SSO_SERVICE} --hostname ${hostname}
 
 # SSO only applies after restaging
 cf restage ${APP_NAME}

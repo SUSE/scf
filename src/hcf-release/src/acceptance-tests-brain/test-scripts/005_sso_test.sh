@@ -9,20 +9,19 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # configuration
 DOCKERAPP=sso-test-app
 DOCKERSERVICE=sso-test-service
-DOMAIN=$(echo $CF_API | sed -e 's/^[^.]*\.//')
 STATUS=0
 
 # login
-cf api --skip-ssl-validation ${CF_API}
+cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 # create organization
-cf create-org ${ORG}
-cf target -o  ${ORG}
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
 
 # create space
-cf create-space ${SPACE}
-cf target -s    ${SPACE}
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 # Push a docker app
 cf enable-feature-flag diego_docker
@@ -30,7 +29,7 @@ cf push ${DOCKERAPP} -o viovanov/node-env-tiny
 
 # Test SSO
 cf create-service sso-routing default ${DOCKERSERVICE}
-cf bind-route-service ${DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
+cf bind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
 
 # restage app
 cf restage ${DOCKERAPP} | tee /tmp/log
@@ -68,14 +67,14 @@ then
 fi
 
 # unbind route
-cf unbind-route-service ${DOMAIN} ${DOCKERSERVICE} -f --hostname ${DOCKERAPP}
+cf unbind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} -f --hostname ${DOCKERAPP}
 cf delete-service -f ${DOCKERSERVICE}
 cf delete -f ${DOCKERAPP}
 
 # delete space
-cf delete-space -f ${SPACE}
+cf delete-space -f ${CF_SPACE}
 
 # delete org
-cf delete-org -f ${ORG}
+cf delete-org -f ${CF_ORG}
 
 exit $STATUS

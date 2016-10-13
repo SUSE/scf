@@ -2140,7 +2140,7 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.cloud_controller.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.acceptance_tests.uaa.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
-    properties.acceptance_tests_brain.api: '"api.((DOMAIN))"'
+    properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'

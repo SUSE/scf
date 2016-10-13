@@ -13,16 +13,16 @@ APP_NAME=scale-test-app
 SCALESERVICE=scale-test-service
 
 # login
-cf api --skip-ssl-validation ${CF_API}
+cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 # create organization
-cf create-org ${ORG}
-cf target -o  ${ORG}
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
 
 # create space
-cf create-space ${SPACE}
-cf target -s    ${SPACE}
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 # push an app
 ( cd ${APP}
@@ -45,10 +45,10 @@ cf delete-service -f $SCALESERVICE
 cf delete -f ${APP_NAME}
 
 # delete space
-cf delete-space -f ${SPACE}
+cf delete-space -f ${CF_SPACE}
 
 # delete org
-cf delete-org -f ${ORG}
+cf delete-org -f ${CF_ORG}
 
 [ -z "$instances" ] && instances=0
 

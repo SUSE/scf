@@ -9,30 +9,29 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # configuration
 APP=${DIR}/../test-resources/node-env
 APP_NAME=tcp-route-node-env
-DOMAIN=$(echo $CF_API | sed -e 's/^[^.]*\.//')
 STATUS=0
 
 # login
-cf api --skip-ssl-validation ${CF_API}
+cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 # create organization
-cf create-org ${ORG}
-cf target -o  ${ORG}
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
 
 # create space
-cf create-space ${SPACE}
-cf target -s    ${SPACE}
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 (   cd ${APP}
     cf push  ${APP_NAME}
 )
 
 # set up tcp routing
-cf create-shared-domain  tcp-test.${DOMAIN} --router-group default-tcp
+cf create-shared-domain  tcp-test.${CF_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
-cf map-route ${APP_NAME} tcp-test.${DOMAIN} --random-port | tee /tmp/log
+cf map-route ${APP_NAME} tcp-test.${CF_DOMAIN} --random-port | tee ${TMP}/log
 
 # retrieve the assigned random port
 port=$(cat /tmp/log | \
@@ -48,23 +47,23 @@ if [ -z "$port" ]; then
   STATUS=1
 else
   #check that the aplication works
-  curl tcp-test.${DOMAIN}:$port
+  curl tcp-test.${CF_DOMAIN}:${port}
 
   # unmap tcp route
-  cf unmap-route ${APP_NAME} tcp-test.${DOMAIN} --port $port
+  cf unmap-route ${APP_NAME} tcp-test.${CF_DOMAIN} --port ${port}
 fi
 
 # delete shared domain
-cf delete-shared-domain -f tcp-test.${DOMAIN}
+cf delete-shared-domain -f tcp-test.${CF_DOMAIN}
 
 # delete app
 cf delete -f ${APP_NAME}
 
 # delete space
-cf delete-space -f ${SPACE}
+cf delete-space -f ${CF_SPACE}
 
 # delete org
-cf delete-org -f ${ORG}
+cf delete-org -f ${CF_ORG}
 
 # report
 exit $STATUS
