@@ -10,7 +10,7 @@ if test "${DIEGO_CELL_MEMORY_CAPACITY_MB:-}" = "auto" ; then
     if test \
             $(cat /proc/meminfo | awk '/MemTotal:/ { printf "%.0f\n", $2 * 1024 }') \
         -gt \
-            $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes || echo 0)
+            $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || bc <<< '2 ^ 63')
     then
         export DIEGO_CELL_MEMORY_CAPACITY_MB=$(
             awk '{ printf "%.0f\n", $1 / 1024 / 1024 }' /sys/fs/cgroup/memory/memory.limit_in_bytes

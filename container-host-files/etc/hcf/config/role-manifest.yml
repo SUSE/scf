@@ -536,7 +536,6 @@ roles:
   - scripts/perform_nfs_test.sh
   - scripts/patches/cloud_controller_v2_droplet_count.sh
   - scripts/patches/fix_buildpack_install.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates

@@ -1,6 +1,5 @@
 #!/bin/bash
-set -e
-set -x 
+set -o errexit -o nounset
 
 # Usage: run_configin <job> <input>  <output>
 #                     name  template destination

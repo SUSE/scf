@@ -28,15 +28,15 @@ find_cluster_ha_hosts() {
     local i=0
 
     while test "${i}" -lt 100 ; do
-	local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
-	# !varname => Double deref of the variable.
-	if test -z "${!varname:-}" ; then
-	    break
-	fi
+        local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
+        # !varname => Double deref of the variable.
+        if test -z "${!varname:-}" ; then
+            break
+        fi
 
-	# Note: The varname deref gives us an IP address. We want the
-	# actual host name, and construct it.
-	hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
+        # Note: The varname deref gives us an IP address. We want the
+        # actual host name, and construct it.
+        hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
         i="$(expr "${i}" + 1)"
     done
     # Return the result, with [] around the hostnames, removing the leading comma

@@ -9,7 +9,9 @@
 
 if test -n "${HCP_INSTANCE_ID:-}" ; then
     export JWT_SIGNING_PUB="$(\
-        curl -v $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)\
+        { curl --fail $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)\
             "${HCP_IDENTITY_SCHEME}://${HCP_IDENTITY_EXTERNAL_HOST}:${HCP_IDENTITY_EXTERNAL_PORT}/token_key" \
-            | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"
+            || exit 1 \
+        ; } \
+        | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"
 fi

@@ -11,13 +11,13 @@ TARGET_NAME=
 TARGET_BASENAME=
 
 SCRIPT_FILE=/usr/sbin/forward_logfiles.sh
-PB_OUT=/usr/sbin/pb.out
+PB_OUT=/var/log/pb.out
 
 if [ ! -f $SCRIPT_FILE ]; then
 	echo "#log forwarding script" > $PB_OUT
 fi
 
-if [ -z "$RSYSLOG_FORWARDER_WATCH_DIR" ]; then
+if [ -z "${RSYSLOG_FORWARDER_WATCH_DIR:-}" ]; then
         RSYSLOG_FORWARDER_WATCH_DIR=$BACKUP_WATCH_DIR
         echo "RSYSLOG_FORWARDER_WATCH_DIR not set. Using default $BACKUP_WATCH_DIR" >> $PB_OUT
 fi
@@ -28,8 +28,8 @@ fi
 
 function appendToCron {
 	echo appending to cron
-	if [ ! -z "$HCP_FLIGHTRECORDER_HOST" ]; then
-                if [ -z "$HCP_FLIGHTRECORDER_PORT" ]; then
+        if [ ! -z "${HCP_FLIGHTRECORDER_HOST:-}" ]; then
+                if [ -z "${HCP_FLIGHTRECORDER_PORT:-}" ]; then
                         HCP_FLIGHTRECORDER_PORT=514
                 fi
                 crontab -l > tempcrontab
@@ -39,39 +39,36 @@ function appendToCron {
                 echo "*/1 * * * * bash $SCRIPT_FILE >> /dev/null 2>&1" >> tempcrontab
                 crontab tempcrontab
         else
-		
+
                 echo "HCP_FLIGHTRECORDER_HOST env var missing. Not adding log forwarding to cron." >> $SCRIPT_FILE
                 exit 0
         fi
 }
 
 #check if cron has something in it
-crontab -l 1>>$PB_OUT 2>>$PB_OUT
-if [ $? -ne 0 ]; then
-	echo "#creating cron conf as it does not exist yet" >> $PB_OUT
-	appendToCron
+if crontab -l &>/dev/null ; then
+        #put the script in cron if it is not there already
+        if ! { crontab -l | grep forward_logfiles.sh ; } ; then
+                appendToCron
+        fi
 else
-	#put the script in cron if it is not there already
-	crontab -l | grep forward_logfiles.sh
-
-	if [ $? -ne 0 ]; then
-        	appendToCron
-	fi	
+        echo "#creating cron conf as it does not exist yet" >> $PB_OUT
+        appendToCron
 fi
 
 
 #create the file that will forward all messages to flight recorder
 function initialConfig {
 
-        echo "module(load=\"imfile\" mode=\"polling\")" > $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo "\$template RFC5424Format,\"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n\"" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo "\$ActionFileDefaultTemplate RFC5424Format" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo "\$RepeatedMsgReduction on" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo "\$ActionQueueType LinkedList" >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo \*.\* @$HCP_FLIGHTRECORDER_HOST:$HCP_FLIGHTRECORDER_PORT >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-        echo ":app-name, contains, \"vcap\"" ~ >> $RSYSLOG_CONF_DIR/$MAIN_CONFIG
-
-        if [ $? -ne 0 ]; then
+        if ! cat <<-EOF | sed 's@^\s*@@' >$RSYSLOG_CONF_DIR/$MAIN_CONFIG ; then
+                module(load="imfile" mode="polling")
+                \$template RFC5424Format,"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n"
+                \$ActionFileDefaultTemplate RFC5424Format
+                \$RepeatedMsgReduction on
+                \$ActionQueueType LinkedList
+                *.* @${HCP_FLIGHTRECORDER_HOST}:${HCP_FLIGHTRECORDER_PORT}
+                :app-name, contains, "vcap" ${HOME}
+	EOF
                 echo "Rsyslog forwarder: Could not create $MAIN_CONFIG in $RSYSLOG_CONF_DIR" >> $PB_OUT
                 exit 0
         fi
@@ -119,11 +116,15 @@ function searchTargetDir {
 
 #Create the rsyslog configuration file inside rsysconf.d
 function createTargetConf {
-        echo "\$InputFileName $1" > $TARGET_NAME
-        echo "\$InputFileTag vcap-$TARGET_BASENAME" >> $TARGET_NAME
-        echo "\$InputFileStateFile ${TARGET_BASENAME}_state" >> $TARGET_NAME
-        echo "\$InputFileFacility local7" >> $TARGET_NAME
-        echo "\$InputRunFileMonitor" >> $TARGET_NAME
+        # We need to strip leading whitespace introduced by the heredoc (because
+        # it doesn't strip leading spaces, just tabs)
+        cat <<-EOF | sed 's@^\s*@@' >${TARGET_NAME}
+            \$InputFileName ${1}
+            \$InputFileTag vcap-${TARGET_BASENAME}
+            \$InputFileStateFile ${TARGET_BASENAME}_state
+            \$InputFileFacility local7
+            \$InputRunFileMonitor
+	EOF
 }
 
 function targetName {
