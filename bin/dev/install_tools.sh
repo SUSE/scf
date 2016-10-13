@@ -31,7 +31,7 @@ docker pull ${ubuntu_image}
 
 echo "Adding HPE license to base image ..."
 TMPDIR=$(mktemp -d)
-cp container-LICENSE.txt "${TMPDIR}"
+cp "$(dirname "${0}")/container-LICENSE.txt" "${TMPDIR}"
 cat >"${TMPDIR}/Dockerfile" <<-EOF
     FROM ${ubuntu_image}
     ADD container-LICENSE.txt /usr/share/doc/stackato/LICENSE.txt
