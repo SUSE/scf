@@ -3,13 +3,11 @@
 set -o errexit
 set -o xtrace
 
-# where do i live ?
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 # configuration
 DOCKERAPP=sso-test-app
 DOCKERSERVICE=sso-test-service
 STATUS=0
+TMP=$(mktemp -dt 005_sso.XXXXXX)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}
@@ -32,14 +30,13 @@ cf create-service sso-routing default ${DOCKERSERVICE}
 cf bind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
 
 # restage app
-cf restage ${DOCKERAPP} | tee /tmp/log
+cf restage ${DOCKERAPP} | tee ${TMP}/log
 
 # check if the redirect works
-url=$(cat /tmp/log | grep urls | cut -f 2- -d " " | head -n 1)
-rm /tmp/log
+url=$(grep urls ${TMP}/log | cut -f 2- -d " " | head -n 1)
 
-loginpage=/tmp/ssologinpage
-cookies=/tmp/ssocookies.txt
+loginpage=${TMP}/loginpage
+cookies=${TMP}/cookies.txt
 
 login="$(curl -w "%{url_effective}\n" \
     -c ${cookies} -L -s -k -S ${url} \
@@ -48,19 +45,16 @@ login="$(curl -w "%{url_effective}\n" \
 uaa_csrf=$(cat ${loginpage} | \
     sed -n 's/.*name="X-Uaa-Csrf"\s\+value="\([^"]\+\).*/\1/p')
 
-curl -b ${cookies} -c ${cookies} -L -v $login \
+curl -b ${cookies} -c ${cookies} -L -v ${login} \
     --data "username=${CF_USERNAME}&password=${CF_PASSWORD}&X-Uaa-Csrf=${uaa_csrf}" \
     --insecure \
-    > /tmp/sso.url \
+    > ${TMP}/sso.url \
     2>&1
 
-cat ${cookies} | sed -e 's/^/COOKIES| /'
-cat /tmp/sso.url | sed -e 's/^/SSO____| /'
+cookie="$(grep "Cookie: ssoCookie" ${TMP}/sso.url)"
+httpcode="$(grep "200 OK" ${TMP}/sso.url)"
 
-cookie="$(cat   /tmp/sso.url | grep "Cookie: ssoCookie")"
-httpcode="$(cat /tmp/sso.url | grep "200 OK")"
-
-if [ -z "$cookie" -o -z "$httpcode" ];
+if [ -z "${cookie}" -o -z "${httpcode}" ];
 then
   echo "ERROR: SSO redirect failed"
   STATUS=1
@@ -77,4 +71,5 @@ cf delete-space -f ${CF_SPACE}
 # delete org
 cf delete-org -f ${CF_ORG}
 
-exit $STATUS
+rm -rf ${TMP}
+exit ${STATUS}

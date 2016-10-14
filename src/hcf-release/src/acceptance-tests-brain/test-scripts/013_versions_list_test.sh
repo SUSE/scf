@@ -50,22 +50,22 @@ done
 # Check that we have 5 versions
 for (( i = 0 ; i < 5 ; i ++ )) ; do
     cf list-versions ${APP_NAME}
-    droplet_hash="$(get_droplet_hash $i)"
-    printf "Got droplet hash %s for version %s\n" "${droplet_hash}" "$i"
+    droplet_hash="$(get_droplet_hash ${i})"
+    printf "Got droplet hash %s for version %s\n" "${droplet_hash}" "${i}"
     test -n "${droplet_hash}"
 done
 
 # Check that all versions have a non-zero timestamp
 for (( i = 0 ; i < 5 ; i ++ )) ; do
-    timestamp="$(get_timestamp $i)"
-    printf "Got timestamp %s for version %s\n" "${timestamp}" "$i"
+    timestamp="$(get_timestamp ${i})"
+    printf "Got timestamp %s for version %s\n" "${timestamp}" "${i}"
     test "${timestamp}" -gt 0
 done
 
 # Check that all timestamps are incrementing
 for (( i = 0 ; i < 4 ; i ++ )) ; do
-    printf "Checking that timestamp for version %s is older than version %s\n" "$i" "$((i + 1))"
-    test $(get_timestamp $i) -lt $(get_timestamp $(($i + 1)) )
+    printf "Checking that timestamp for version %s is older than version %s\n" "${i}" "$((i + 1))"
+    test $(get_timestamp ${i}) -lt $(get_timestamp $((${i} + 1)) )
 done
 
 # cleanup

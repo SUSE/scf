@@ -27,7 +27,7 @@ cf push ${APP_NAME}
 curl ${APP_NAME}.${CF_DOMAIN} | grep "HPE Helion Stackato"
 
 # get version of the first instance
-version=`cf list-versions ${APP_NAME} | grep ^"0 " | awk '{print $2}'`
+version=$(cf list-versions ${APP_NAME} | awk '/^0 / {print $2}')
 
 # push the app again, slightly modified
 cd ${DIR}/../test-resources/${APP_NAME}
@@ -38,7 +38,7 @@ cf push ${APP_NAME}
 curl ${APP_NAME}.${CF_DOMAIN} | grep "Test Brain"
 
 # rollback to unmodified version
-cf rollback ${APP_NAME} $version
+cf rollback ${APP_NAME} ${version}
 
 # verify it is the unmodified version again
 curl ${APP_NAME}.${CF_DOMAIN} | grep "HPE Helion Stackato"

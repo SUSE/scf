@@ -10,6 +10,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP=${DIR}/../test-resources/node-env
 APP_NAME=tcp-route-node-env
 STATUS=0
+TMP=$(mktemp -dt 006_tcprouting.XXXXXX)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}
@@ -24,7 +25,7 @@ cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 (   cd ${APP}
-    cf push  ${APP_NAME}
+    cf push ${APP_NAME}
 )
 
 # set up tcp routing
@@ -34,14 +35,9 @@ cf update-quota default --reserved-route-ports -1
 cf map-route ${APP_NAME} tcp-test.${CF_DOMAIN} --random-port | tee ${TMP}/log
 
 # retrieve the assigned random port
-port=$(cat /tmp/log | \
-    grep Route | \
-    grep 'has been created' | \
-    awk '{print $2}' | \
-    cut -f 2 -d ':')
-rm /tmp/log
+port=$(awk '/Route .* has been created/ {print $2}' < ${TMP}/log | cut -f 2 -d ':')
 
-if [ -z "$port" ]; then
+if [ -z "${port}" ]; then
   echo "ERROR: Could not determine the assigned random port number"
   echo "ERROR: Mapping route to random port failed"
   STATUS=1
@@ -65,5 +61,7 @@ cf delete-space -f ${CF_SPACE}
 # delete org
 cf delete-org -f ${CF_ORG}
 
+rm -rf ${TMP}
+
 # report
-exit $STATUS
+exit ${STATUS}

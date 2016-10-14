@@ -5,6 +5,7 @@ set -o xtrace
 
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TMP=$(mktemp -dt 007_usb.XXXXXX)
 
 HSM_SERVICE_INSTANCE=hsm-service
 
@@ -28,17 +29,12 @@ cf update-quota default --reserved-route-ports -1
 cf push ${HSM_SERVICE_INSTANCE} \
     -o docker-registry.helion.space:443/rohcf/sidecar-acctests:latest \
     -d usb-test.${CF_DOMAIN} --random-route \
-    --no-start
+    --no-start | tee ${TMP}/log
 cf set-env ${HSM_SERVICE_INSTANCE} SIDECAR_API_KEY string_empty
-cf restart ${HSM_SERVICE_INSTANCE} | tee /tmp/log
+cf restart ${HSM_SERVICE_INSTANCE}
 
 # get the random port assigned
-port=$(cat /tmp/log | \
-    grep Binding | \
-    grep ${HSM_SERVICE_INSTANCE} | \
-    awk '{print $2}' | \
-    cut -f 2 -d ":")
-rm /tmp/log
+port=$(awk "/Binding .* to ${HSM_SERVICE_INSTANCE}/ {print \$2}" < ${TMP}/log | cut -f 2 -d ':')
 
 # add service
 cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
@@ -67,7 +63,7 @@ cf delete -f ${APP_NAME}
 cf delete-service -f srv${HSM_SERVICE_INSTANCE}
 
 #delete driver endpoint
-echo -e "y\n" | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
+yes | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
 
 #delete hsm_passtrough
 cf delete -f ${HSM_SERVICE_INSTANCE}
@@ -78,3 +74,4 @@ cf delete-space -f ${CF_SPACE}
 # delete org
 cf delete-org -f ${CF_ORG}
 
+rm -rf ${TMP}

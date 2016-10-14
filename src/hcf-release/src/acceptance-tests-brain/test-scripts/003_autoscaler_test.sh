@@ -30,17 +30,17 @@ cf target -s ${CF_SPACE}
 )
 
 # test autoscaler
-cf create-service app-autoscaler default $SCALESERVICE
-cf bind-service         ${APP_NAME} $SCALESERVICE
-cf restage              ${APP_NAME}
+cf create-service app-autoscaler default ${SCALESERVICE}
+cf bind-service ${APP_NAME} ${SCALESERVICE}
+cf restage ${APP_NAME}
 cf autoscale set-policy ${APP_NAME} ${POL}
 
 sleep 60
-instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d \/)
+instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
 
-cf unbind-service ${APP_NAME} $SCALESERVICE
+cf unbind-service ${APP_NAME} ${SCALESERVICE}
 
-cf delete-service -f $SCALESERVICE
+cf delete-service -f ${SCALESERVICE}
 
 cf delete -f ${APP_NAME}
 
@@ -50,11 +50,11 @@ cf delete-space -f ${CF_SPACE}
 # delete org
 cf delete-org -f ${CF_ORG}
 
-[ -z "$instances" ] && instances=0
+[ -z "${instances}" ] && instances=0
 
-if [ ! $instances -gt 1 ];
+if [ ! ${instances} -gt 1 ];
 then
   echo "ERROR autoscaling app"
-  echo "Autoscaling failed, only $instances instance(s)"
+  echo "Autoscaling failed, only ${instances} instance(s)"
   exit 1
 fi
