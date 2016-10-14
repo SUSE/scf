@@ -104,6 +104,9 @@ roles:
         external: 8500
         internal: 8500
         public: false
+  configuration:
+    templates:
+      properties.consul.agent.mode: '"server"'
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh

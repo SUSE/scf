@@ -173,14 +173,13 @@ properties:
         username: 'bootstrap_user'
       database_startup_timeout: 300
     proxy:
-      api_force_https: 'false'
+      api_force_https: false
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
   consul:
     agent:
       log_level: null
       domain: hcf
-      mode: "server"
   couchdb:
     metric_prefix: couchdb-scalingmetric
     port: 5984
