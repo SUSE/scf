@@ -64,7 +64,7 @@ AS_SERVICE="<%= p("autoscaler_api.scaling_service.name") %>"
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 AS_ENDPOINT="http://${AUTOSCALER_SERVICE_BROKER_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:$AS_PORT"
-API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
 
 echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
 retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"

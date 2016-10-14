@@ -12,6 +12,8 @@ templates:
   run.erb: bin/run
 
 properties:
+  cc.srv_api_uri:
+    description: The cloudcontroller's api endpoint
   hcf_sso.port:
     description: Port the route service listens on
     default: 3000
