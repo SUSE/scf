@@ -7,6 +7,8 @@ set -o xtrace
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TMP=$(mktemp -dt 007_usb.XXXXXX)
 
+APP_NAME=php-mysql
+
 HSM_SERVICE_INSTANCE=hsm-service
 
 # login
@@ -42,7 +44,7 @@ cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
     -k -c '{"display_name":"hsm_passtrough"}'
 
 # push an app
-cd ${DIR}/../assets/php-mysql-master
+cd ${DIR}/../test-resources/php-mysql-master
 cf push ${APP_NAME}
 
 # create & bind service

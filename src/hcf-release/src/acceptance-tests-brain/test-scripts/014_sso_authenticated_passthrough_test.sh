@@ -26,7 +26,7 @@ do_cleanup() {
     cf delete-service -f ${SSO_SERVICE}
 
     # cleanup
-    cf delete -f node-env
+    cf delete -f ${APP_NAME}
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
 }
