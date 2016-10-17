@@ -3,11 +3,16 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
-APP_NAME=node-env
+APP_DIR=node-env
+APP_NAME=${APP_DIR}-$(random_suffix)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}
@@ -20,7 +25,7 @@ cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 # push an app
-cd ${DIR}/../test-resources/${APP_NAME}
+cd ${DIR}/../test-resources/${APP_DIR}
 cf push ${APP_NAME}
 
 # verify it is the unmodified version
@@ -30,7 +35,7 @@ curl ${APP_NAME}.${CF_DOMAIN} | grep "HPE Helion Stackato"
 version=$(cf list-versions ${APP_NAME} | awk '/^0 / {print $2}')
 
 # push the app again, slightly modified
-cd ${DIR}/../test-resources/${APP_NAME}
+cd ${DIR}/../test-resources/${APP_DIR}
 sed -i 's/HPE Helion Stackato/Test Brain/' index.html
 cf push ${APP_NAME}
 

@@ -3,12 +3,16 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
 APP=${DIR}/../test-resources/node-env
-APP_NAME=tcp-route-node-env
+APP_NAME=tcp-route-node-env-$(random_suffix)
 STATUS=0
 TMP=$(mktemp -dt 006_tcprouting.XXXXXX)
 

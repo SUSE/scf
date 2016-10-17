@@ -6,10 +6,16 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-APP_NAME=go-env
+APP_DIR=go-env
+APP_NAME=${APP_DIR}-$(random_suffix)
+
 DESIRED_STRING="INSTANCE_INDEX=0"
 SSO_SERVICE="sso-service-test-brain"
 
@@ -39,7 +45,7 @@ cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 # push an app
-cd ${DIR}/../test-resources/${APP_NAME}-*
+cd ${DIR}/../test-resources/${APP_DIR}-*
 cf push ${APP_NAME}
 
 url=${APP_NAME}.${CF_DOMAIN}

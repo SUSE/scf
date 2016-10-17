@@ -3,8 +3,12 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 #configuration
-DOCKERAPP=docker-test-app
+DOCKERAPP=docker-test-app-$(random_suffix)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}

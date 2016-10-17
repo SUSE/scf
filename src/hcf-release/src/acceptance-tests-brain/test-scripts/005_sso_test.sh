@@ -3,8 +3,12 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # configuration
-DOCKERAPP=sso-test-app
+DOCKERAPP=sso-test-app-$(random_suffix)
 DOCKERSERVICE=sso-test-service
 STATUS=0
 TMP=$(mktemp -dt 005_sso.XXXXXX)

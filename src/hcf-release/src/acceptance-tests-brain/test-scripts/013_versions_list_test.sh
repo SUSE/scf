@@ -3,11 +3,16 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
-APP_NAME=node-env
+APP_DIR=node-env
+APP_NAME=${APP_DIR}-$(random_suffix)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}
@@ -43,7 +48,7 @@ get_timestamp() {
 
 # push an app 5 times
 for (( i = 0 ; i < 5 ; i ++ )) ; do
-    cd ${DIR}/../test-resources/${APP_NAME}
+    cd ${DIR}/../test-resources/${APP_DIR}
     cf push ${APP_NAME}
 done
 

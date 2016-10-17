@@ -3,13 +3,17 @@
 set -o errexit
 set -o xtrace
 
+function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
+CF_ORG=${CF_ORG:-org}-$(random_suffix)
+CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
 POL=${DIR}/../test-resources/policy.json
 APP=${DIR}/../test-resources/php-mysql-master
-APP_NAME=scale-test-app
+APP_NAME=scale-test-app-$(random_suffix)
 SCALESERVICE=scale-test-service
 
 # login
