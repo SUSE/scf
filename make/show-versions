@@ -8,7 +8,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 echo "Branch             = '${GIT_BRANCH}'"
 echo "Tag                = '${GIT_TAG}'"
-echo "Subtag             = '${GIT_SUBTAG}'"
+echo "Prerel             = '${GIT_PREREL}'"
 echo "Commits            = '${GIT_COMMITS}'"
 echo "SHA                = '${GIT_SHA}'"
 echo "Describe           = '${GIT_DESCRIBE}'"
