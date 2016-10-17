@@ -157,7 +157,7 @@ uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
 uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
 
 <% secret      = '/etc/secrets/cluster-admin-password'
-   username    = properties.uaa.scim.users.first.split('|').first.shellescape
+   username    = properties.uaa.scim.users.first["name"].shellescape
    authorities = ENV['CLUSTER_ADMIN_AUTHORITIES'].split(',')
    if File.exist?(secret)
        password = File.read(secret).shellescape

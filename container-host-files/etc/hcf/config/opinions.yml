@@ -246,7 +246,6 @@ properties:
     logout:
       redirect:
         url: /login?template=openstack
-    signups_enabled: null
   metron_agent:
     deployment: hcf-deployment
   name: HCF
