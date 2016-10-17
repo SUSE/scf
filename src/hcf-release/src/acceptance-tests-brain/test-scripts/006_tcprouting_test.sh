@@ -6,6 +6,7 @@ set -o xtrace
 function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
 CF_ORG=${CF_ORG:-org}-$(random_suffix)
 CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -33,10 +34,10 @@ cf target -s ${CF_SPACE}
 )
 
 # set up tcp routing
-cf create-shared-domain  tcp-test.${CF_DOMAIN} --router-group default-tcp
+cf create-shared-domain ${CF_TCP_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
-cf map-route ${APP_NAME} tcp-test.${CF_DOMAIN} --random-port | tee ${TMP}/log
+cf map-route ${APP_NAME} ${CF_TCP_DOMAIN} --random-port | tee ${TMP}/log
 
 # retrieve the assigned random port
 port=$(awk '/Route .* has been created/ {print $2}' < ${TMP}/log | cut -f 2 -d ':')
@@ -46,15 +47,15 @@ if [ -z "${port}" ]; then
   echo "ERROR: Mapping route to random port failed"
   STATUS=1
 else
-  #check that the aplication works
-  curl tcp-test.${CF_DOMAIN}:${port}
+  # check that the application works
+  curl ${CF_TCP_DOMAIN}:${port}
 
   # unmap tcp route
-  cf unmap-route ${APP_NAME} tcp-test.${CF_DOMAIN} --port ${port}
+  cf unmap-route ${APP_NAME} ${CF_TCP_DOMAIN} --port ${port}
 fi
 
 # delete shared domain
-cf delete-shared-domain -f tcp-test.${CF_DOMAIN}
+cf delete-shared-domain -f ${CF_TCP_DOMAIN}
 
 # delete app
 cf delete -f ${APP_NAME}

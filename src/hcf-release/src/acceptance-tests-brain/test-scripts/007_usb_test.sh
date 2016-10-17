@@ -6,6 +6,7 @@ set -o xtrace
 function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
 CF_ORG=${CF_ORG:-org}-$(random_suffix)
 CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
+CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -28,13 +29,13 @@ cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 # allow tcp routing
-cf create-shared-domain usb-test.${CF_DOMAIN} --router-group default-tcp
+cf create-shared-domain ${CF_TCP_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
 # run hsm passthrough docker
 cf push ${HSM_SERVICE_INSTANCE} \
     -o docker-registry.helion.space:443/rohcf/sidecar-acctests:latest \
-    -d usb-test.${CF_DOMAIN} --random-route \
+    -d ${CF_TCP_DOMAIN} --random-route \
     --no-start | tee ${TMP}/log
 cf set-env ${HSM_SERVICE_INSTANCE} SIDECAR_API_KEY string_empty
 cf restart ${HSM_SERVICE_INSTANCE}
@@ -44,7 +45,7 @@ port=$(awk "/Binding .* to ${HSM_SERVICE_INSTANCE}/ {print \$2}" < ${TMP}/log | 
 
 # add service
 cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
-    https://usb-test.${CF_DOMAIN}:${port} string_empty \
+    https://${CF_TCP_DOMAIN}:${port} string_empty \
     -k -c '{"display_name":"hsm_passtrough"}'
 
 # push an app
