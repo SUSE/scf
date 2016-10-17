@@ -142,7 +142,7 @@ else
               exit 1
             fi
           fi
-        uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
+        uaac secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
     <% end %>
 
     # Re-enable after dealing with uaac client update
