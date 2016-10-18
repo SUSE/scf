@@ -53,6 +53,8 @@ properties:
         secret: tcp-router-secret
       login:
         secret: login_client_secret
+      doppler:
+        secret: doppler_secret
       cloud_controller_username_lookup:
         secret: cloud_controller_username_lookup_secret
       gorouter:
