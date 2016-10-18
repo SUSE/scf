@@ -108,20 +108,9 @@ class Common
         exit 1
       end
       env_files.each do |env_file|
-        File.readlines(env_file).each_with_index do |line, i|
-          begin
-            # Skip empty lines and comments
-            next if /^($|\s*#)/ =~ line
-          rescue ArgumentError => ex
-            if ex.message["invalid byte sequence in US-ASCII"]
-              # Re-encode the ASCII string as utf-8
-              line = line.bytes.pack("U*")
-            else
-              raise
-            end
-          end
+        File.readlines(env_file, encoding:"UTF-8").each_with_index do |line, i|
+          next if line.strip.size == 0 || /^s*#/.match(line)
           name, value = line.strip.split('=', 2)
-
           if value.nil?
             match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
             if match
