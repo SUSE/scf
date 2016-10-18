@@ -61,6 +61,14 @@
       {
         "component": "diego-cell",
         "min_instances": 1
+      },
+      {
+        "component": "routing-ha-proxy",
+        "min_instances": 3
+      },
+      {
+        "component": "routing-api",
+        "min_instances": 3
       }
     ]
 }
