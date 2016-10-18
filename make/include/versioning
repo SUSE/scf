@@ -15,9 +15,9 @@ GIT_BRANCH=${GIT_BRANCH:-$(git name-rev --name-only HEAD | sed -e 's/[^-a-zA-Z0-
 GIT_PREREL=${GIT_PREREL:-pre}
 
 case ${GIT_PREREL} in
-    release)   GIT_PREREL="" ;;
-    pre)       GIT_PREREL="-${GIT_PREREL}" ;;
-    rc.[0-9]*) GIT_PREREL="-${GIT_PREREL}" ;;
+    release)   GIT_PREREL_INT="" ;;
+    pre)       GIT_PREREL_INT="-${GIT_PREREL}" ;;
+    rc.[0-9]*) GIT_PREREL_INT="-${GIT_PREREL}" ;;
     *)  echo "GIT_PREREL: Bad value \"${GIT_PREREL}\", expected 'pre', 'release', or 'rc.[0-9]+'"
 	exit 1
 	;;
@@ -28,5 +28,5 @@ GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $2 }' )}
 GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $3 }' )}
 
 ARTIFACT_NAME=${ARTIFACT_NAME:-$(basename $(git config --get remote.origin.url) .git | sed s/^hcf-//)}
-APP_VERSION=${GIT_TAG}${GIT_PREREL}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
+APP_VERSION=${GIT_TAG}${GIT_PREREL_INT}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
 DOCKER_APP_VERSION=$(echo ${APP_VERSION} | tr + -)
