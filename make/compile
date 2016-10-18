@@ -4,15 +4,15 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-. ${GIT_ROOT}/make/include/fissile
+. "${GIT_ROOT}/make/include/fissile"
 
 HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
 get_package_version_list() {
     fissile show release | grep -v 'Dev release' | grep -F '(' | cut -d: -f1 | while read package hash ; do
-        hash=$(echo ${hash} | tr -c -d 0-9a-f)
-        echo ${package}/${hash}
+        hash=$(echo "${hash}" | tr -c -d 0-9a-f)
+        echo "${package}/${hash}"
     done
 }
 
@@ -20,19 +20,20 @@ cache() {
     test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
 
     for package_version in $(get_package_version_list) ; do
-        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
+        package_hash="${package_version##*/}"
+        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
         test -e "${archive}" && {
             # Don't recreate an archive that already exists
             echo "Found:   ${archive}"
             continue
         }
-        test -d "${FISSILE_WORK_DIR}/compilation/${package_version}/compiled" || {
-            echo "Missing: ${package_version}/compiled"
+        test -d "${FISSILE_WORK_DIR}/compilation/${package_hash}/compiled" || {
+            echo "Missing: ${package_hash}/compiled"
             continue
         }
         mkdir -p "$(dirname "${archive}")"
         echo "Creating ${archive}"
-        tar cf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_version}/" compiled
+        nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}/" compiled
     done
 
     echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
@@ -46,15 +47,23 @@ restore() {
     mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
 
     for package_version in $(get_package_version_list) ; do
-        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
-        test -r "${archive}" -a -s "${archive}" || {
+        package_hash="${package_version##*/}"
+        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
+        if ! test -r "${archive}" -a -s "${archive}" ; then
+            old_archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
+            if test -r "${old_archive}" -a -s "${old_archive}" ; then
+                # Fall back to old-style archive until all the caches are reasonably full
+                archive="${old_archive}"
+            fi
+        fi
+        if ! test -r "${archive}" -a -s "${archive}" ; then
             echo "Missing:   ${archive}"
             continue
-        }
+        fi
         echo "Extracting ${archive}"
-        mkdir -p "${FISSILE_WORK_DIR}/compilation/${package_version}"
-        rm -rf "${FISSILE_WORK_DIR}/compilation/${package_version}/compiled"
-        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_version}"
+        mkdir -p "${FISSILE_WORK_DIR}/compilation/${package_hash}"
+        rm -rf "${FISSILE_WORK_DIR}/compilation/${package_hash}/compiled"
+        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}"
     done
 
     echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
@@ -64,14 +73,14 @@ restore() {
 clean() {
     test -d "${FISSILE_WORK_DIR}/compilation/" || return
     existing_packages=""
-    for directory in "${FISSILE_WORK_DIR}/compilation/"*/* ; do
+    for directory in "${FISSILE_WORK_DIR}/compilation/"* ; do
         test -d "${directory}" || continue  # in case expansion failed
         hash=$(basename "${directory}")
-        package=$(basename "$(dirname "${directory}")")
-        existing_packages="${existing_packages} ${package}/${hash}"
+        existing_packages="${existing_packages} ${hash}"
     done
     for wanted_package in $(get_package_version_list) ; do
-        existing_packages=$(echo ${existing_packages} | tr ' ' '\n' | grep -vF ${wanted_package})
+        wanted_hash="${wanted_package##*/}"
+        existing_packages=$(echo "${existing_packages}" | tr ' ' '\n' | grep -vF "${wanted_hash}.tar.xz")
     done
     for unneeded_package in ${existing_packages} ; do
         echo "Removing ${unneeded_package}"
