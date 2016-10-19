@@ -1449,10 +1449,10 @@ roles:
 - name: hcf-versions
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1487,11 +1487,11 @@ roles:
 - name: demophon
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/setup-demophon-env.sh
-  - scripts/inverted_skip_ssl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
