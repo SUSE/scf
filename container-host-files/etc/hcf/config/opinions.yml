@@ -208,6 +208,8 @@ properties:
     ssh_proxy:
       enable_cf_auth: true
   doppler:
+    tls:
+      enable: true
     locked_memory_limit: kernel
     port: 4443
   etcd:
@@ -249,6 +251,7 @@ properties:
     signups_enabled: null
   metron_agent:
     deployment: hcf-deployment
+    protocols: ["tls"]
   name: HCF
   nats:
     port: 4222
