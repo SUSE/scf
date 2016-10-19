@@ -28,7 +28,7 @@ Vagrant.configure(2) do |config|
     override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -42,7 +42,7 @@ Vagrant.configure(2) do |config|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -67,7 +67,7 @@ Vagrant.configure(2) do |config|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -90,7 +90,7 @@ Vagrant.configure(2) do |config|
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
-    libvirt.memory = 8192
+    libvirt.memory = 12288
     libvirt.cpus = 4
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
