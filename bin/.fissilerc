@@ -15,7 +15,6 @@ for RELEASE in $(echo '
       cf-usb/cf-usb-release
       diego-release
       etcd-release
-      garden-linux-release
       garden-runc-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
