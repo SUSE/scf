@@ -275,57 +275,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: ha-proxy
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: haproxy
-    release_name: cf
-  - name: consul_agent
-    release_name: cf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: consul_template
-  - name: haproxy
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-      - name: 'ha-proxy'
-        protocol: 'TCP'
-        external: 80
-        internal: 80
-        public: true
-      - name: 'ha-proxy2'
-        protocol: 'TCP'
-        external: 443
-        internal: 443
-        public: true
-      - name: 'ha-proxy3'
-        protocol: 'TCP'
-        external: 4443
-        internal: 4443
-        public: true
-      - name: 'app-ssh'
-        protocol: 'TCP'
-        external: 2222
-        internal: 2222
-        public: true
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -359,11 +308,21 @@ roles:
     memory: 256
     virtual-cpus: 4
     exposed-ports:
-      - name: 'router'
-        protocol: 'TCP'
-        external: 80
-        internal: 80
-        public: false
+    - name: 'router'
+      protocol: 'TCP'
+      external: 80
+      internal: 80
+      public: true
+    - name: 'router2'
+      protocol: 'TCP'
+      external: 443
+      internal: 443
+      public: true
+    - name: 'router3'
+      protocol: 'TCP'
+      external: 4443
+      internal: 443
+      public: true
 - name: routing-ha-proxy
   # XXX This might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -1085,7 +1044,7 @@ roles:
         protocol: 'TCP'
         external: 2222
         internal: 2222
-        public: false
+        public: true
       - name: 'diego-files'
         protocol: 'TCP'
         external: 8080
