@@ -3,15 +3,15 @@
 set -o errexit
 set -o xtrace
 
-function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
-CF_ORG=${CF_ORG:-org}-$(random_suffix)
-CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
-
 # where do i live ?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
 SGJ=${DIR}/../test-resources/secgroup.json
+
+# login
+cf api --skip-ssl-validation api.${CF_DOMAIN}
+cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
 # create security group
 cf create-security-group internal-services-workaround ${SGJ}
