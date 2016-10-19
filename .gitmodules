@@ -46,3 +46,6 @@
 [submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
 	path = src/hcf-release/src/github.com/hpcloud/testbrain
 	url = git@github.com:hpcloud/testbrain.git
+[submodule "src/garden-runc-release"]
+	path = src/garden-runc-release
+	url = https://github.com/cloudfoundry/garden-runc-release.git

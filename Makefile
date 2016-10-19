@@ -64,6 +64,9 @@ etcd-release:
 garden-release:
 	${GIT_ROOT}/make/bosh-release src/garden-linux-release
 
+garden-runc-release:
+	${GIT_ROOT}/make/bosh-release src/garden-runc-release
+
 mysql-release:
 	RUBY_VERSION=2.3.1 ${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 

@@ -224,6 +224,7 @@ Name        | Effect |
 `diego-release`    | `bosh create release` for `diego-release` |
 `etcd-release`    | `bosh create release` for `etcd-release` |
 `garden-release`  | `bosh create release` for `garden-linux-release` |
+`garden-runc-release`  | `bosh create release` for `garden-runc-release` |
 `cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
 `hcf-sso-release` | `bosh create release` for `hcf-sso-release` |
 `hcf-versions-release` | `bosh create release` for `hcf-versions-release` |
@@ -413,7 +414,7 @@ Name    | Effect | Notes |
 ### How do I connect to the Cloud Foundry database?
 
   1. Use the role manifest to expose the port for the mysql proxy role
-  
+
   2. The MySQL instance is exposed at `192.168.77.77:3306`.
 
   3. The default username is: `root`.
@@ -500,7 +501,7 @@ Name    | Effect | Notes |
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
   Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility)
-  for `cf-release`, `diego-release`, `etcd-release`, and `garden-linux-release`. If you are bumping
+  for `cf-release`, `diego-release`, `etcd-release`, and `garden-runc-release`. If you are bumping
   all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
   1 and 2 in the example:
 

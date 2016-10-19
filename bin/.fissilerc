@@ -16,6 +16,7 @@ for RELEASE in $(echo '
       diego-release
       etcd-release
       garden-linux-release
+      garden-runc-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
       routing-release
@@ -98,5 +99,3 @@ export FISSILE_CONFIG_PREFIX=hcf
 
 # Default version label for the created images
 # export FISSILE_VERSION=
-
-

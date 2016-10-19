@@ -1095,6 +1095,47 @@ roles:
     memory: 4096
     virtual-cpus: 4
     exposed-ports: []
+- name: diego-cell-runc
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/set-diego-cell-memory-limits.sh
+  - scripts/inverted_skip_ssl.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/configure-nested-net.sh
+  - scripts/cleanup-garden-graph.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: rep
+    release_name: diego
+  - name: consul_agent
+    release_name: cf
+  - name: garden
+    release_name: garden-runc
+  - name: cflinuxfs2-rootfs-setup
+    release_name: cflinuxfs2-rootfs
+  - name: metron_agent
+    release_name: cf
+  processes:
+  - name: metron_agent
+  - name: consul_agent
+  - name: rep
+  - name: garden
+  run:
+    scaling:
+      min: 0
+      max: 65535
+    capabilities: ['ALL']
+    persistent-volumes:
+    - path: '/var/vcap/data/garden'
+      tag: garden-graph
+      size: 50
+    shared-volumes: []
+    memory: 4096
+    virtual-cpus: 4
+    exposed-ports: []
 - name: sclr-api
   type: bosh
   environment_scripts:
