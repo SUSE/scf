@@ -78,4 +78,7 @@ cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shelle
 <%end
 end %>
 
+echo "Clear the access token"
+rm $HOME/.cf/config.json
+
 echo "Setting of external proxies complete."
