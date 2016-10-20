@@ -169,17 +169,18 @@ roles:
         public: false
   configuration:
     templates:
+      properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.proxy.proxy_ips: '["((MYSQL_PROXY_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"]'
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
       properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
 - name: mysql-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/patches/fix_mysql_proxy_host_list.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -189,7 +190,7 @@ roles:
   - name: proxy
     release_name: cf-mysql
   processes:
-  - name: route-registrar
+  - name: cf-mysql-route-registrar
   - name: switchboard
   run:
     scaling:
@@ -223,7 +224,7 @@ roles:
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
       properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.cf_mysql.mysql.bootstrap_endpoint.password: "((MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1781,6 +1782,11 @@ configuration:
     generator:
       type: Password
     description: The password for the MySQL server admin user.
+  - name: MYSQL_CLUSTER_HEALTH_PASSWORD
+    secret: true
+    generator:
+      type: Password
+    description: The password for the cluster logger health user.
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
     generator:
@@ -1791,11 +1797,11 @@ configuration:
     generator:
       type: Password
     description: The password for access to MySQL by diego.
-  - name: MYSQL_BOOTSTRAP_ENDPOINT_PASSWORD
+  - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
     generator:
       type: Password
-    description: The password used by the bootstrap endpoints for Basic Auth.
+    description: The password used to contact the sidecar endpoints via Basic Auth.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     generator:
