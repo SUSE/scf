@@ -20,6 +20,8 @@ properties:
     description: Password for the service broker
   autoscaler_servicebroker.host:
     description: Host of the service broker
+  cc.srv_api_uri:
+    description: The cloudcontroller's api endpoint
   hcf.uaa.internal-url:
     description: URL to UAA that can be accessed before the cluster's domain is setup
   ssl.skip_cert_verify:

@@ -11,32 +11,43 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
-APP=${DIR}/../test-resources/node-env
-APP_NAME=node-env-$(random_suffix)
+APP_DIR=node-env
+APP_NAME=${APP_DIR}-$(random_suffix)
 
 # login
 cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
-# create organization
+# create org and space
 cf create-org ${CF_ORG}
 cf target -o ${CF_ORG}
-
-# create space
 cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 # push an app
-(   cd ${APP}
-    cf push ${APP_NAME}
-)
+cd ${DIR}/../test-resources/${APP_DIR}
+cf push ${APP_NAME}
 
-# delete the app
+# backup the app
+cf backup snapshot
+
+# delete everything
 cf delete -f ${APP_NAME}
-
-# delete space
 cf delete-space -f ${CF_SPACE}
-
-# delete org
 cf delete-org -f ${CF_ORG}
 
+# restore the app
+cf backup restore
+
+sleep 60
+
+cf target -o ${CF_ORG}
+cf target -s ${CF_SPACE}
+
+# check if the app exists again
+cf apps | grep ${APP_NAME}
+
+# cleanup
+cf delete -f ${APP_NAME}
+cf delete-space -f ${CF_SPACE}
+cf delete-org -f ${CF_ORG}

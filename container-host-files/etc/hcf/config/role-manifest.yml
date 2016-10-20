@@ -1693,6 +1693,10 @@ configuration:
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
+  - name: TCP_DOMAIN
+    example: tcp.my-hcf-cluster.com
+    required: false
+    description: TCP routing domain of the HCF cluster.
   - name: HCF_SSO_HOST
     default: hcf-sso-int
     description: The hostname where the route service can be found.
@@ -2133,7 +2137,8 @@ configuration:
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests.cloud_controller.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.acceptance_tests.uaa.skip_ssl_validation: '((SKIP_CERT_VERIFY_EXTERNAL))'
-    properties.acceptance_tests_brain.api: '"api.((DOMAIN))"'
+    properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'

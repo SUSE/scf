@@ -12,11 +12,21 @@ echo "Creating environment variables..."
 export ENVVARS=/var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
 source ${ENVVARS}
 
-export SCRIPTS_FOLDER=/var/vcap/packages/acceptance-tests-brain/test-scripts
+export BRAIN=/var/vcap/packages/acceptance-tests-brain
+export ASSETS=${BRAIN}/test-resources
+export SCRIPTS_FOLDER=${BRAIN}/test-scripts
 
 echo $(go version)
 echo "SCRIPTS_FOLDER=${SCRIPTS_FOLDER}"
 echo "CF_API=${CF_API}"
+
+echo "Installing the required plugins..."
+
+for i in ${ASSETS}/plugins/*;
+do
+    cf install-plugin -f $i
+    # -f forces install without requiring confirmation.
+done
 
 echo "Running Acceptance Tests Brain..."
 

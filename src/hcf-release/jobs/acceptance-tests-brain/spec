@@ -13,8 +13,10 @@ templates:
   environment.sh.erb: bin/environment.sh
 
 properties:
-  acceptance_tests_brain.api:
-    description: The Elastic Runtime API endpoint URL
+  acceptance_tests_brain.domain:
+    description: The Elastic Runtime System Domain
+  acceptance_tests_brain.tcp_domain:
+    description: The Elastic Runtime TCP routing Domain
   acceptance_tests_brain.apps_domain:
     description: The Elastic Runtime Application Domain
   acceptance_tests_brain.user:
