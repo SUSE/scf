@@ -78,7 +78,7 @@ cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shelle
 <%end
 end %>
 
-echo "Clear the access token"
-rm $HOME/.cf/config.json
+echo "Remove temporary users"
+/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "$CF_SKIP" "$API_ENDPOINT"
 
 echo "Setting of external proxies complete."
