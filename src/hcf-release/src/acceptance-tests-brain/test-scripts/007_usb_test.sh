@@ -72,7 +72,10 @@ cf delete-service -f srv${HSM_SERVICE_INSTANCE}
 #delete driver endpoint
 yes | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
 
-#delete hsm_passtrough
+# delete shared domain
+cf delete-shared-domain -f ${CF_TCP_DOMAIN}
+
+# delete hsm_passtrough
 cf delete -f ${HSM_SERVICE_INSTANCE}
 
 # delete space
