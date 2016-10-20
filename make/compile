@@ -71,11 +71,11 @@ restore() {
 
 # Removes any compilation pieces that we don't need
 clean() {
-    test -d "${FISSILE_WORK_DIR}/compilation/" || return
+    test -d "${HCF_PACKAGE_COMPILATION_CACHE}/" || return
     existing_packages=""
-    for directory in "${FISSILE_WORK_DIR}/compilation/"* ; do
-        test -d "${directory}" || continue  # in case expansion failed
-        hash=$(basename "${directory}")
+    for path in "${HCF_PACKAGE_COMPILATION_CACHE}/"* ; do
+        test -e "${path}" || continue  # in case expansion failed
+        hash=$(basename "${path}")
         existing_packages="${existing_packages} ${hash}"
     done
     for wanted_package in $(get_package_version_list) ; do
@@ -84,7 +84,7 @@ clean() {
     done
     for unneeded_package in ${existing_packages} ; do
         echo "Removing ${unneeded_package}"
-        rm -rf "${FISSILE_WORK_DIR}/compilation/${unneeded_package}"
+        rm -rf "${HCF_PACKAGE_COMPILATION_CACHE}/${unneeded_package}"
     done
 }
 
