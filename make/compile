@@ -33,7 +33,7 @@ cache() {
         }
         mkdir -p "$(dirname "${archive}")"
         echo "Creating ${archive}"
-        nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}/" compiled
+        ionice -c 3 nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}/" compiled
     done
 
     echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
@@ -71,6 +71,10 @@ restore() {
 
 # Removes any compilation pieces that we don't need
 clean() {
+    if test -z "$(echo "${HCF_PACKAGE_COMPILATION_CACHE}" | tr -d ./)" ; then
+        echo "HCF_PACKAGE_COMPILATION_CACHE is empty; bailing to prevent wiping your disk" >&2
+        exit 1
+    fi
     test -d "${HCF_PACKAGE_COMPILATION_CACHE}/" || return
     existing_packages=""
     for path in "${HCF_PACKAGE_COMPILATION_CACHE}/"* ; do
