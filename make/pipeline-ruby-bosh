@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+do_build=0
+do_tag=0
+do_push=0
+version=
+TEMP=`getopt -o bptv: --long build,push,tag,version: -- "$@"`
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+eval set -- "$TEMP"
+while true ; do
+	case "$1" in
+		-b|--build) do_build=1 ; shift ;;
+		-p|--push) do_push=1 ; shift ;;
+		-t|--tag) do_tag=1 ; shift ;;
+		-v|--version) version=$2; shift 2 ;;
+		--) shift ; break ;;
+		*) echo "Internal error!" ; exit 1 ;;
+	esac
+done
+if [ $# -gt 0 ] ; then
+    echo "Unrecognized arguments: $@"
+    exit 1
+fi
+
+INAME=helioncf/hcf-pipeline-ruby-bosh
+
+if [ $do_build == 1 ] ; then
+    docker build --tag ${INAME} ${GIT_ROOT}/docker-images/hcf-pipeline-ruby-bosh
+fi
+
+if [ $do_tag == 1 ] ; then
+    docker tag ${INAME} ${INAME}:latest
+    if [ -n "$version" ] ; then
+	docker tag ${INAME} ${INAME}:$version
+    fi
+fi
+
+if [ $do_push == 1 ] ; then
+    docker push ${INAME}:latest
+    if [ -n "$version" ] ; then
+	docker push ${INAME}:$version
+    fi
+fi
