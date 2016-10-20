@@ -248,7 +248,7 @@ mpc-terraform-tests:
 aws-terraform-tests:
 	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
 
-########## MISCELLANEOUS TARGETS ##########
+########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
 
 hcf-pipeline-ruby-bosh:
 	${GIT_ROOT}/make/pipeline-ruby-bosh build tag push --version 2.3.1
