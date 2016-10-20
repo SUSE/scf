@@ -9,9 +9,8 @@ properties:
     include_security_groups: true
     include_internet_dependent: true
     include_services: true
-    cf_push_timeout: 1200
-    default_timeout: 1200
-    verbose: true
+    cf_push_timeout: 300
+    default_timeout: 300
   acceptance_tests_brain:
     user: 'admin'
     org: test-brain-org
