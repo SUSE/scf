@@ -627,6 +627,15 @@ Name    | Effect | Notes |
     make image-base images
     ```
 
+## How do I add a new version of Ruby to the build system?
+
+1. Add the version to the last line of `docker-images/hcf-pipeline-ruby-bosh/versions.txt`
+
+2. Edit the `HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGET` section of `Makefile`
+
+   Update the version from 2.3.1 to the desired version.
+
+3. Run `make hcf-pipeline-ruby-bosh`
 
 ## Build Dependencies
 
