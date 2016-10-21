@@ -57,7 +57,7 @@ done
 
 # Assemble everything for bosh ...
 
-tar xzf testbrain-1.0.0+153c569.master-linux-amd64.tgz
+tar xzf testbrain-1.0.0+2.g53f98c2.master-linux-amd64.tgz
 
 BIN_DIR=${BOSH_INSTALL_TARGET}/bin
 SCRIPTS_DIR=${BOSH_INSTALL_TARGET}/test-scripts
