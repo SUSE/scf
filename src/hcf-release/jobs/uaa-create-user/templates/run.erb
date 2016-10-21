@@ -44,6 +44,12 @@ function retry () {
 export PATH="${PATH}:/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin"
 export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
 
+# None of this requires access to outside the cluster - or even anything but UAA
+# However, if HTTP_PROXY is set, uaac will ignore NO_PROXY and try to go through
+# the proxy and everything falls over.  Work around this by unsetting all proxy-
+# related environment variables.
+unset HTTP_PROXY HTTPS_PROXY NO_PROXY http_proxy https_proxy no_proxy
+
 <%
 curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
 uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
