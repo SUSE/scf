@@ -12,7 +12,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # configuration
 POL=${DIR}/../test-resources/policy.json
-APP=${DIR}/../test-resources/php-mysql-master
+APP=${DIR}/../test-resources/php-mysql
 APP_NAME=scale-test-app-$(random_suffix)
 SCALESERVICE=scale-test-service
 

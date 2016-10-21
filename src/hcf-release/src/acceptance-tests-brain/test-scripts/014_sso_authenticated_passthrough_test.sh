@@ -45,7 +45,7 @@ cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
 
 # push an app
-cd ${DIR}/../test-resources/${APP_DIR}-*
+cd ${DIR}/../test-resources/${APP_DIR}
 cf push ${APP_NAME}
 
 url=${APP_NAME}.${CF_DOMAIN}

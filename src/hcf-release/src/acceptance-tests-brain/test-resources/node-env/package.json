@@ -1,0 +1,8 @@
+{
+  "name": "node-env",
+  "version": "1.0.0",
+  "engines": {
+    "node": "5.x"
+  },
+  "dependencies": {}
+}
