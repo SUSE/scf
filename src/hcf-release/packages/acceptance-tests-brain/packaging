@@ -48,13 +48,6 @@ do
     rm $name
 done
 
-# Extract and place the applications
-
-for archive in test-resources/*.tar.gz
-do
-    extract $archive test-resources
-done
-
 # Assemble everything for bosh ...
 
 tar xzf testbrain-1.0.0+2.g53f98c2.master-linux-amd64.tgz
@@ -73,5 +66,4 @@ cp -r test-resources ${BOSH_INSTALL_TARGET}
 
 # Drop a few superfluous things
 rm \
-    ${BOSH_INSTALL_TARGET}/test-resources/resources.csv \
-    ${BOSH_INSTALL_TARGET}/test-resources/*.tar.gz
+    ${BOSH_INSTALL_TARGET}/test-resources/resources.csv

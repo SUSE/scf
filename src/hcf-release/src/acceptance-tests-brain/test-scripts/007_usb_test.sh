@@ -49,7 +49,7 @@ cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
     -k -c '{"display_name":"hsm_passtrough"}'
 
 # push an app
-cd ${DIR}/../test-resources/php-mysql-master
+cd ${DIR}/../test-resources/php-mysql
 cf push ${APP_NAME}
 
 # create & bind service
