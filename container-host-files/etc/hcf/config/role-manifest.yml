@@ -2091,7 +2091,7 @@ configuration:
     properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.acceptance_tests.api: '"https://api.((DOMAIN))"'
+    properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
