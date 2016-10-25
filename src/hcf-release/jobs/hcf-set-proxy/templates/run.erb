@@ -79,6 +79,6 @@ cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shelle
 end %>
 
 echo "Remove temporary users"
-/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "$CF_SKIP" "$API_ENDPOINT"
+/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
 echo "Setting of external proxies complete."

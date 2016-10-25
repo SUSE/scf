@@ -16,35 +16,36 @@ CF_CONFIG_PATH = File.expand_path('~/.cf/config.json')
 api_endpoint, skip_ssl = ARGV.take(2)
 
 if [api_endpoint].any? { |x| x.nil? || x.empty? }
-  fail "Invalid arguments; usage: $0 <UAA endpoint> [--insecure]"
+  raise 'Invalid arguments; usage: $0 <CF endpoint> [--insecure]'
 end
 
-def capture2(client_auth, *args)
+def capture2(*args)
   args.reject!(&:empty?)
   output, status = Open3.capture2(*args)
-  fail "Failed running `#{args}` with #{status.exitstatus}" unless status.success?
+  raise "Failed running `#{args}` with #{status.exitstatus}" unless status.success?
   output
 end
 
 cf_config = open(CF_CONFIG_PATH, 'r') { |f| JSON.load(f) }
 puts "Getting users from #{api_endpoint}..."
 
-users = JSON.load(capture2("curl", "--fail", "#{skip_ssl}",
-                           "--header", "Accept: application/json",
-                           "--header", "Authorization: #{cf_config['AccessToken']}",
-                           "#{api_endpoint}/v2/users"))
+users = JSON.load(capture2('curl', '--fail', skip_ssl.to_s,
+                           '--header', 'Accept: application/json',
+                           '--header', "Authorization: #{cf_config['AccessToken']}",
+                           "#{api_endpoint}/v2/users"))['resources']
 guid_p = /\A[-a-zA-Z0-9]{36}\z/
 puts "Read #{users.size} user entries"
 users.each do |user|
-  guid = user["metadata"]["guid"]
-  if !guid_p.match(guid) && !user["entity"].has_key?("username")
-    $stderr.puts("Eliminating user #{guid}")
-    res = capture2("curl", "-s" ,"--fail", "#{skip_ssl}",
-                   "--header", "Accept: application/json",
-                   "--header", "Content-type: application/x-www-form-urlencoded",
-                   "--header", "Authorization: #{cf_config['AccessToken']}",
-                   "-X", "DELETE",
-                   "#{api_endpoint}/v2/users/#{guid}")
-    $stderr.puts("Attempt to delete user #{guid}: #{res}")
-  end
+  puts user['metadata']
+  puts user['metadata']['guid']
+  guid = user['metadata']['guid']
+  next if guid_p.match(guid) || user['entity'].key?('username')
+  $stderr.puts("Eliminating user #{guid}")
+  res = capture2('curl', '-s', '--fail', skip_ssl.to_s,
+                 '--header', 'Accept: application/json',
+                 '--header', 'Content-type: application/x-www-form-urlencoded',
+                 '--header', "Authorization: #{cf_config['AccessToken']}",
+                 '-X', 'DELETE',
+                 "#{api_endpoint}/v2/users/#{guid}")
+  $stderr.puts("Attempt to delete user #{guid}: #{res}")
 end

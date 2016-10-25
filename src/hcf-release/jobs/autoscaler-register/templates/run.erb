@@ -82,6 +82,6 @@ echo "Registering Autoscaler service broker..."
 register_service "$AS_SERVICE" "$AS_USER" "$AS_PASS" "$AS_ENDPOINT/servicebroker"
 
 echo "Remove temporary users"
-/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "$CF_SKIP" "$API_ENDPOINT"
+/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
 echo "Registration of Autoscaler complete."
