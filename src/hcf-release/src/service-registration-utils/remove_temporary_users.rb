@@ -6,7 +6,7 @@
 # AND
 # No entity:username assigned
 #
-# Usage: $0 <CF-API endpoint> [--skip-ssl]
+# Usage: $0 <CF-API endpoint> [--insecure]
 
 require 'json'
 require 'open3'
