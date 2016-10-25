@@ -43,3 +43,6 @@
 [submodule "src/hcf-release/src/github.com/hpcloud/hcf-demophon"]
 	path = src/hcf-release/src/github.com/hpcloud/hcf-demophon
 	url = git@github.com:hpcloud/hcf-demophon.git
+[submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
+	path = src/hcf-release/src/github.com/hpcloud/testbrain
+	url = git@github.com:hpcloud/testbrain.git

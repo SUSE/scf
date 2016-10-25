@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e -x
 
 # # ## ### ##### ######## support
@@ -50,8 +51,6 @@ done
 
 # Assemble everything for bosh ...
 
-tar xzf testbrain-1.0.0+2.g53f98c2.master-linux-amd64.tgz
-
 BIN_DIR=${BOSH_INSTALL_TARGET}/bin
 SCRIPTS_DIR=${BOSH_INSTALL_TARGET}/test-scripts
 RESOURCES_DIR=${BOSH_INSTALL_TARGET}/test-resources
@@ -60,10 +59,23 @@ mkdir -p ${BIN_DIR}
 mkdir -p ${SCRIPTS_DIR}
 mkdir -p ${RESOURCES_DIR}
 
-cp testbrain ${BIN_DIR}
 cp -r test-scripts ${BOSH_INSTALL_TARGET}
 cp -r test-resources ${BOSH_INSTALL_TARGET}
 
 # Drop a few superfluous things
 rm \
     ${BOSH_INSTALL_TARGET}/test-resources/resources.csv
+
+# # ## ### ##### ######## test brain itself
+
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.6)
+export GOPATH=${BOSH_COMPILE_TARGET}
+export PATH=$GOROOT/bin:$PATH
+
+# BOSH copies files in without the `src` directory; put it back.
+# We can't use a symlink because go doesn't like those
+mkdir -p "${BOSH_COMPILE_TARGET}/src"
+mv "${BOSH_COMPILE_TARGET}/github.com" "${BOSH_COMPILE_TARGET}/src/github.com"
+
+# We currently have no way of getting a valid version number, as we have no git repo
+GOBIN="${BIN_DIR}" go install -ldflags="-X main.version=0.0.0" github.com/hpcloud/testbrain
