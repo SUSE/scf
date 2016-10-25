@@ -41,7 +41,7 @@ users.each do |user|
   guid = user['metadata']['guid']
   next if guid_p.match(guid) || user['entity'].key?('username')
   $stderr.puts("Eliminating user #{guid}")
-  res = capture2('curl', '-s', '--fail', skip_ssl.to_s,
+  res = capture2('curl', '--silent', '--fail', skip_ssl.to_s,
                  '--header', 'Accept: application/json',
                  '--header', 'Content-type: application/x-www-form-urlencoded',
                  '--header', "Authorization: #{cf_config['AccessToken']}",
