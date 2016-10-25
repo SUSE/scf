@@ -1,4 +1,5 @@
 #!/bin/bash
+## # # ## ### Tracing and common configuration ### ## # #
 
 set -o errexit
 set -o xtrace
@@ -8,25 +9,48 @@ CF_ORG=${CF_ORG:-org}-$(random_suffix)
 CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 
-# where do i live ?
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-TMP=$(mktemp -dt 007_usb.XXXXXX)
+## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
-APP_NAME=php-mysql-$(random_suffix)
+function login_cleanup() {
+    cf delete-space -f ${CF_SPACE}
+    cf delete-org -f ${CF_ORG}
+}
+trap login_cleanup EXIT ERR
 
-HSM_SERVICE_INSTANCE=hsm-service
-
-# login
+# target, login, create work org and space
 cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
 
-# create organization
 cf create-org ${CF_ORG}
 cf target -o ${CF_ORG}
 
-# create space
 cf create-space ${CF_SPACE}
 cf target -s ${CF_SPACE}
+
+## # # ## ### Test-specific configuration ### ## # #
+
+# Location of the test script. All other assets will be found relative
+# to this.
+SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TMP=$(mktemp -dt 007_usb.XXXXXX)
+APP_NAME=php-mysql-$(random_suffix)
+HSM_SERVICE_INSTANCE=hsm-service
+
+## # # ## ### Test-specific code ### ## # #
+
+function test_cleanup() {
+    rm -rf ${TMP}
+    cf unbind-service ${APP_NAME} srv${HSM_SERVICE_INSTANCE}
+    cf delete -f ${APP_NAME}
+    cf delete-service -f srv${HSM_SERVICE_INSTANCE}
+    yes | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
+    cf delete-shared-domain -f ${CF_TCP_DOMAIN}
+
+    # delete hsm_passthrough
+    cf delete -f ${HSM_SERVICE_INSTANCE}
+    login_cleanup
+}
+trap test_cleanup EXIT ERR
 
 # allow tcp routing
 cf create-shared-domain ${CF_TCP_DOMAIN} --router-group default-tcp
@@ -48,40 +72,11 @@ cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
     https://${CF_TCP_DOMAIN}:${port} string_empty \
     -k -c '{"display_name":"hsm_passtrough"}'
 
-# push an app
-cd ${DIR}/../test-resources/php-mysql
+# push an app for the service to bind to
+cd ${SELFDIR}/../test-resources/php-mysql
 cf push ${APP_NAME}
 
-# create & bind service
 cf create-service de${HSM_SERVICE_INSTANCE} default srv${HSM_SERVICE_INSTANCE} \
     -c '{"display":"hsm_passtrough_acctests_service"}'
 cf bind-service ${APP_NAME} srv${HSM_SERVICE_INSTANCE}
-
-# restage app
 cf restage ${APP_NAME}
-
-# unbind service
-cf unbind-service ${APP_NAME} srv${HSM_SERVICE_INSTANCE}
-
-# delete app
-cf delete -f ${APP_NAME}
-
-# delete the service
-cf delete-service -f srv${HSM_SERVICE_INSTANCE}
-
-#delete driver endpoint
-yes | cf usb delete-driver-endpoint de${HSM_SERVICE_INSTANCE}
-
-# delete shared domain
-cf delete-shared-domain -f ${CF_TCP_DOMAIN}
-
-# delete hsm_passtrough
-cf delete -f ${HSM_SERVICE_INSTANCE}
-
-# delete space
-cf delete-space -f ${CF_SPACE}
-
-# delete org
-cf delete-org -f ${CF_ORG}
-
-rm -rf ${TMP}
