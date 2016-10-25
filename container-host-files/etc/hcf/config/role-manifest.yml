@@ -331,6 +331,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/router_internal_host_names.sh
+  - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -355,7 +356,7 @@ roles:
     scaling:
       min: 1
       max: 3
-    capabilities: ['ALL']
+    capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 256
