@@ -30,7 +30,8 @@ done
 
 echo "Running Acceptance Tests Brain..."
 
-testbrain run --verbose "${SCRIPTS_FOLDER}" ; EXITSTATUS=$?
+EXITSTATUS=0
+testbrain run --verbose "${SCRIPTS_FOLDER}" || EXITSTATUS=$?
 
 echo "Acceptance Tests Brain Complete; exit status: ${EXITSTATUS}"
 exit "${EXITSTATUS}"
