@@ -80,6 +80,6 @@ echo "Registering SSO Routing service broker..."
 register_service sso-routing "$SSO_USER" "$SSO_PASS" "$SSO_ENDPOINT"
 
 echo "Remove temporary users"
-/var/vcap/packages/service-registration-utils/remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
 echo "Registration of SSO Routing complete."
