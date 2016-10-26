@@ -81,6 +81,11 @@ $env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
 $env:ETCD_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
 $env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CRT'
 $env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
+
+$env:METRON_CA_CRT = $hcfSettings.'METRON_CA_CRT'
+$env:METRON_CLIENT_CRT =  $hcfSettings.'METRON_CLIENT_CRT'
+$env:METRON_CLIENT_KEY =  $hcfSettings.'METRON_CLIENT_KEY'
+
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
 $env:LOGGRAGATOR_INDEX = 0
@@ -106,7 +111,7 @@ function CheckService
 		if ($rez.Status.ToString().ToLower() -eq "running"){
 			write-host "INFO: Service $serviceName is running"
 		}else{
-			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+			write-warning "Service $serviceName is not running. Its status is $($rez.Status)"
 		}
 
 	}else{

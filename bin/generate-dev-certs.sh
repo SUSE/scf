@@ -115,6 +115,13 @@ certstrap --depot-path "${internal_certs_dir}" sign bbsServer --CA internalCA --
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsClient" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbsClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
+#generate DOPPLER server certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name doppler --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign doppler --CA internalCA --passphrase "${signing_key_passphrase}"
+
+#generate METRON server certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name metron --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate SSO routing certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso-int")" --passphrase ""
@@ -202,6 +209,10 @@ BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbsServer.ke
 BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbsClient.key")
 BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbsServer.crt")
 BBS_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbsClient.crt")
+DOPPLER_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.crt")
+DOPPLER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.key")
+METRON_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
+METRON_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
@@ -238,6 +249,10 @@ BBS_SERVER_KEY=${BBS_SERVER_KEY}
 BBS_CLIENT_KEY=${BBS_CLIENT_KEY}
 BBS_SERVER_CRT=${BBS_SERVER_CRT}
 BBS_CLIENT_CRT=${BBS_CLIENT_CRT}
+METRON_CLIENT_CRT=${METRON_CLIENT_CRT}
+METRON_CLIENT_KEY=${METRON_CLIENT_KEY}
+DOPPLER_SERVER_CRT=${DOPPLER_SERVER_CRT}
+DOPPLER_SERVER_KEY=${DOPPLER_SERVER_KEY}
 SSH_KEY=${SSH_KEY}
 APP_SSH_HOST_KEY_FINGERPRINT=${APP_SSH_HOST_KEY_FINGERPRINT}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
