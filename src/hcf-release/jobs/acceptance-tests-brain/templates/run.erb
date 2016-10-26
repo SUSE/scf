@@ -2,9 +2,6 @@
 
 set -o errexit
 
-export GOROOT="$(readlink -nf /var/vcap/packages/golang1.6)"
-export PATH="${GOROOT}/bin:${PATH}"
-
 export PATH="/var/vcap/packages/cli/bin:${PATH}" # put the cli on the path
 export PATH="/var/vcap/packages/acceptance-tests-brain/bin:${PATH}" # put testbrain on the path
 
@@ -16,7 +13,6 @@ export BRAIN=/var/vcap/packages/acceptance-tests-brain
 export ASSETS="${BRAIN}/test-resources"
 export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
 
-go version
 echo "SCRIPTS_FOLDER=${SCRIPTS_FOLDER}"
 echo "CF_API=${CF_API}"
 

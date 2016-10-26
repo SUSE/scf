@@ -4,7 +4,6 @@ name: acceptance-tests-brain
 description: This job will run the testbrain CLI, running all acceptance test scripts in src/testbrain/test-scripts
 
 packages:
-  - golang1.6
   - cli
   - acceptance-tests-brain
 
