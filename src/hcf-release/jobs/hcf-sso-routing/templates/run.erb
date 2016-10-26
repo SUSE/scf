@@ -79,4 +79,7 @@ insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.client
 echo "Registering SSO Routing service broker..."
 register_service sso-routing "$SSO_USER" "$SSO_PASS" "$SSO_ENDPOINT"
 
+echo "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+
 echo "Registration of SSO Routing complete."

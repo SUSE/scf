@@ -81,4 +81,7 @@ insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.client
 echo "Registering Autoscaler service broker..."
 register_service "$AS_SERVICE" "$AS_USER" "$AS_PASS" "$AS_ENDPOINT/servicebroker"
 
+echo "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+
 echo "Registration of Autoscaler complete."

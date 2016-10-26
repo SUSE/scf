@@ -5,6 +5,10 @@
 # designed to be used via an OAuth user).
 #
 # Usage: $0 <UAA endpoint> <client id>:<client secret> [--insecure]
+#
+# NOTE: remove_temporary_users.rb must be called after the client credentials
+# are not longer needed to prevent the client id from appearing in the CC's
+# user list.
 
 require 'json'
 require 'open3'
