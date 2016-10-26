@@ -2,7 +2,8 @@
 name: acceptance-tests-brain
 dependencies:
   - cli
+  - golang1.6
 files:
-  - acceptance-tests-brain/testbrain-*.tgz
   - acceptance-tests-brain/test-scripts/*
   - acceptance-tests-brain/test-resources/**/*
+  - github.com/hpcloud/testbrain/**/*
