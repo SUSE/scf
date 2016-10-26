@@ -111,6 +111,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/create_mysql_data_tmp.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/forward_logfiles.sh
   jobs:
