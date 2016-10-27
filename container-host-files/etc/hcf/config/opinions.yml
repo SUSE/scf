@@ -169,9 +169,10 @@ properties:
         client: cf-usb
   cf_mysql:
     mysql:
-      bootstrap_endpoint:
-        username: 'bootstrap_user'
       database_startup_timeout: 300
+      galera_healthcheck:
+        endpoint_username: 'galera_healthcheck_bootstrap_user'
+      max_open_files: 1500
     proxy:
       api_force_https: false
       api_username: 'mysql_proxy'
@@ -255,7 +256,6 @@ properties:
   nats:
     port: 4222
     user: nats
-  network_name: 'default'
   nfs_server:
     address: 0.0.0.3
   router:
