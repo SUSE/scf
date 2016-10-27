@@ -485,6 +485,7 @@ roles:
   scripts:
   - scripts/perform_nfs_test.sh
   - scripts/patches/fix_buildpack_install.sh
+  - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
