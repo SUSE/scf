@@ -88,7 +88,7 @@ $env:METRON_CLIENT_KEY =  $hcfSettings.'METRON_CLIENT_KEY'
 
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
-$env:LOGGRAGATOR_INDEX = 0
+$env:LOGGRAGATOR_INDEX = [guid]::NewGuid().ToString()
 
 
 UninstallGardenWindows
