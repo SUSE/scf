@@ -589,6 +589,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_chown_blobstore_packages.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
