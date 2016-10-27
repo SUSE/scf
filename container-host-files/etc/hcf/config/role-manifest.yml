@@ -1084,7 +1084,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 65535
+      max: 254
     capabilities: ['ALL']
     persistent-volumes:
     - path: '/var/vcap/data/garden'
