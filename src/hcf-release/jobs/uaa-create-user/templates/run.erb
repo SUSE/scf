@@ -74,7 +74,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     fi
 
     status "Creating groups..."
-    <% p('hcf.uaa.authorities', []).each do |group_name| %>
+    <% p('uaa.user.authorities', []).each do |group_name| %>
         if ! uaac --zone "${UAA_ZONE_ID}" group get '<%= group_name %>' ; then
             uaac --zone "${UAA_ZONE_ID}" group add '<%= group_name %>'
         fi
@@ -85,7 +85,6 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
         if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
             uaac --zone "${UAA_ZONE_ID}" client add '<%= client_id %>' \
                 --no-interactive \
-                --name '<%= client_id %>' \
                 <%
                     %w(scope authorized-grant-types authorities access-token-validity refresh-token-validity redirect-uri secret).each do |key|
                         if client_data.key? key
@@ -101,6 +100,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
                     end
                 %>
         fi
+        uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
     <% end %>
 else
     # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
@@ -142,6 +142,7 @@ else
               exit 1
             fi
           fi
+        uaac secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
     <% end %>
 
     # Re-enable after dealing with uaac client update
@@ -156,7 +157,7 @@ uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
 uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
 
 <% secret      = '/etc/secrets/cluster-admin-password'
-   username    = properties.uaa.scim.users.first.split('|').first.shellescape
+   username    = properties.uaa.scim.users.first["name"].shellescape
    authorities = ENV['CLUSTER_ADMIN_AUTHORITIES'].split(',')
    if File.exist?(secret)
        password = File.read(secret).shellescape

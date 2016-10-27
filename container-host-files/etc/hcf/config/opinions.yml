@@ -11,6 +11,10 @@ properties:
     include_services: true
     cf_push_timeout: 300
     default_timeout: 300
+  acceptance_tests_brain:
+    user: 'admin'
+    org: test-brain-org
+    space: test-brain-space
   autoscaler_api:
     internal_auth:
       username: 'admin'
@@ -164,7 +168,14 @@ properties:
       uaa:
         client: cf-usb
   cf_mysql:
+    mysql:
+      database_startup_timeout: 300
+      galera_healthcheck:
+        endpoint_username: 'galera_healthcheck_bootstrap_user'
+      max_open_files: 1500
     proxy:
+      api_force_https: false
+      api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
   consul:
     agent:
@@ -198,6 +209,8 @@ properties:
     ssh_proxy:
       enable_cf_auth: true
   doppler:
+    tls:
+      enable: true
     locked_memory_limit: kernel
     port: 4443
   etcd:
@@ -220,7 +233,7 @@ properties:
       port: 2289
     uaa:
       root-zone:
-        url: 'https://uaa-int.hcf:8443' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
+        url: 'https://uaa-int.hcf.svc:8443' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
   hcf_sso:
     username: 'username'
   hcf_versions:
@@ -236,9 +249,9 @@ properties:
     logout:
       redirect:
         url: /login?template=openstack
-    signups_enabled: null
   metron_agent:
     deployment: hcf-deployment
+    protocols: ["tls"]
   name: HCF
   nats:
     port: 4222

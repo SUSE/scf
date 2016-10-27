@@ -20,7 +20,7 @@ curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  https://down
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x86.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x64.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
 
-$gardenVersion = "v0.153"
+$gardenVersion = "v0.154"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 

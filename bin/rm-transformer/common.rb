@@ -108,10 +108,10 @@ class Common
         exit 1
       end
       env_files.each do |env_file|
-        File.readlines(env_file).each_with_index do |line, i|
-          next if /^($|\s*#)/ =~ line  # Skip empty lines and comments
-          name, value = line.strip.split('=', 2)
-
+        File.readlines(env_file, encoding:'UTF-8').each_with_index do |line, i|
+          line.strip!
+          next if line.empty? || line.start_with?('#')
+          name, value = line.split('=', 2)
           if value.nil?
             match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
             if match

@@ -6,7 +6,7 @@ param (
     [Parameter(Mandatory=$true)]
     [Security.SecureString]$CloudFoundryAdminPassword,
     [Parameter(Mandatory=$false)]
-    [switch]$SkipCertificateValidation = $false
+    [switch]$SkipSslValidation = $false
 )
 
 $CloudFoundryAdminPasswordClear = (New-Object System.Management.AUtomation.PSCredential('dummy',$CloudFoundryAdminPassword)).GetNetworkCredential().password
@@ -50,7 +50,7 @@ ConfigureCellLocalwall "$wd\localwall.exe"
 
 ## HCF setting
 
-$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipCertificateValidation
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipSslValidation
 
 ## Note: All the hosts already come with HCP_SERVICE_DOMAIN_SUFFIX,
 ##       see 'properties.hcf.demophon.config' in the role manifest.
@@ -75,10 +75,20 @@ $env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
 $env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
-$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$etcdScheme = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'http://'} else {'https://'}
+$env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
+# Use INTERNAL_CA_CERT for ETCD_CA_CRT when it will be available. $env:ETCD_CA_CRT = $hcfSettings.'INTERNAL_CA_CERT'
+$env:ETCD_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
+$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CRT'
+$env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
+
+$env:METRON_CA_CRT = $hcfSettings.'METRON_CA_CRT'
+$env:METRON_CLIENT_CRT =  $hcfSettings.'METRON_CLIENT_CRT'
+$env:METRON_CLIENT_KEY =  $hcfSettings.'METRON_CLIENT_KEY'
+
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
-$env:LOGGRAGATOR_INDEX = 0
+$env:LOGGRAGATOR_INDEX = [guid]::NewGuid().ToString()
 
 
 UninstallGardenWindows
@@ -101,7 +111,7 @@ function CheckService
 		if ($rez.Status.ToString().ToLower() -eq "running"){
 			write-host "INFO: Service $serviceName is running"
 		}else{
-			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+			write-warning "Service $serviceName is not running. Its status is $($rez.Status)"
 		}
 
 	}else{

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+set -x
+
+IMAGE=$(fissile show image | grep fissile-acceptance-tests-brain)
+TMP=$(mktemp -dt brainz.XXXX)
+
+cp "$@" ${TMP}
+
+docker run -it --rm \
+       -v ${TMP}:/var/vcap/packages/acceptance-tests-brain/test-scripts \
+       -e DOMAIN=192.168.77.77.nip.io \
+       -e CLUSTER_ADMIN_PASSWORD=changeme \
+       ${IMAGE}
+
+rm -rf ${TMP}

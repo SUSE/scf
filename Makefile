@@ -65,7 +65,7 @@ garden-release:
 	${GIT_ROOT}/make/bosh-release src/garden-linux-release
 
 mysql-release:
-	${GIT_ROOT}/make/bosh-release src/cf-mysql-release
+	RUBY_VERSION=2.3.1 ${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 
 cflinuxfs2-rootfs-release:
 	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
@@ -247,3 +247,17 @@ mpc-terraform-tests:
 
 aws-terraform-tests:
 	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
+
+########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
+
+hcf-pipeline-ruby-bosh:
+	${GIT_ROOT}/make/pipeline-ruby-bosh build tag push --version 2.3.1
+
+build-hcf-pipeline-ruby-bosh:
+	${GIT_ROOT}/make/pipeline-ruby-bosh --build
+
+tag-hcf-pipeline-ruby-bosh:
+	${GIT_ROOT}/make/pipeline-ruby-bosh --tag --version 2.3.1
+
+push-hcf-pipeline-ruby-bosh:
+	${GIT_ROOT}/make/pipeline-ruby-bosh --push --version 2.3.1

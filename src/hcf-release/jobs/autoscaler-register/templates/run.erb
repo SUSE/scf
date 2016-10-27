@@ -64,7 +64,7 @@ AS_SERVICE="<%= p("autoscaler_api.scaling_service.name") %>"
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 AS_ENDPOINT="http://${AUTOSCALER_SERVICE_BROKER_HOST}.${HCP_SERVICE_DOMAIN_SUFFIX}:$AS_PORT"
-API_ENDPOINT="api-int.${HCP_SERVICE_DOMAIN_SUFFIX}:9022"
+API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
 
 echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
 retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
@@ -80,5 +80,8 @@ insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.client
 
 echo "Registering Autoscaler service broker..."
 register_service "$AS_SERVICE" "$AS_USER" "$AS_PASS" "$AS_ENDPOINT/servicebroker"
+
+echo "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
 echo "Registration of Autoscaler complete."

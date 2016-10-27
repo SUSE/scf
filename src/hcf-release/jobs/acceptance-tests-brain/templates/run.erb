@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -o errexit
+
+export PATH="/var/vcap/packages/cli/bin:${PATH}" # put the cli on the path
+export PATH="/var/vcap/packages/acceptance-tests-brain/bin:${PATH}" # put testbrain on the path
+
+echo "Creating environment variables..."
+export ENVVARS=/var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
+source ${ENVVARS}
+
+export BRAIN=/var/vcap/packages/acceptance-tests-brain
+export ASSETS="${BRAIN}/test-resources"
+export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
+
+echo "SCRIPTS_FOLDER=${SCRIPTS_FOLDER}"
+echo "CF_API=${CF_API}"
+
+echo "Installing the required plugins..."
+
+for i in "${ASSETS}/plugins/"*;
+do
+    cf install-plugin -f "$i"
+    # -f forces install without requiring confirmation.
+done
+
+echo "Running Acceptance Tests Brain..."
+
+EXITSTATUS=0
+testbrain run --verbose "${SCRIPTS_FOLDER}" || EXITSTATUS=$?
+
+echo "Acceptance Tests Brain Complete; exit status: ${EXITSTATUS}"
+exit "${EXITSTATUS}"

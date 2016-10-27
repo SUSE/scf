@@ -275,6 +275,8 @@ $env:FLANNEL_ETCD_KEYFILE = $etcdKeyfile
 $env:FLANNEL_ETCD_CERTFILE = $etcdCertFile
 $env:FLANNEL_ETCD_CAFILE = $etcdCaFile
 
+net user flannel /delete /y
+
 Write-Output @"
 Installing flannel using:
     FLANNEL_ETCD_ENDPOINTS=$($env:FLANNEL_ETCD_ENDPOINTS)
@@ -311,7 +313,7 @@ function CheckService
 		if ($rez.Status.ToString().ToLower() -eq "running"){
 			write-host "INFO: Service $serviceName is running"
 		}else{
-			write-warning "Service $serviceName is not running. Its status is $rez.Status"
+			write-warning "Service $serviceName is not running. Its status is $($rez.Status.ToString())"
       Write-Output "Please look in the logs C:\$serviceName\logs for a possible reason."
 		}
 

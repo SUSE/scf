@@ -6,11 +6,14 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/versioning
 
-echo "Branch           = '${GIT_BRANCH}'"
-echo "Tag              = '${GIT_TAG}'"
-echo "Commits          = '${GIT_COMMITS}'"
-echo "SHA              = '${GIT_SHA}'"
-echo "Describe         = '${GIT_DESCRIBE}'"
-echo "Artifact Name    = '${ARTIFACT_NAME}'"
-echo "App Version      = '${APP_VERSION}'"
-
+cat <<-EOF
+Branch             = ${GIT_BRANCH}
+Tag                = ${GIT_TAG}
+Prerel             = ${GIT_PREREL}
+Commits            = ${GIT_COMMITS}
+SHA                = ${GIT_SHA}
+Describe           = ${GIT_DESCRIBE}
+Artifact Name      = ${ARTIFACT_NAME}
+App Version        = ${APP_VERSION}
+Docker App Version = ${DOCKER_APP_VERSION}
+EOF

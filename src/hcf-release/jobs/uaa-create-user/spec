@@ -11,8 +11,6 @@ templates:
   run.erb: bin/run
 
 properties:
-  hcf.uaa.authorities:
-    description: List of user authorities to create in the HCF zone
   hcf.uaa.internal-url:
     description: The URL of the HCF UAA zone
     example: https://hcf.uaa.example.com
@@ -34,3 +32,5 @@ properties:
     description: A list of users to be bootstrapped with authorities.
   uaa.url:
     description: The base url of the UAA with the correct zone id
+  uaa.user.authorities:
+    description: List of user authorities to create in the HCF zone

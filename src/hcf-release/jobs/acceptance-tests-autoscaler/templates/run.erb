@@ -11,13 +11,13 @@ set -e
 <% end %>
 
 <% userinfo = properties.uaa.scim.users.first
-   if !userinfo.include? 'cloud_controller.admin'
+   if !userinfo["groups"].include? 'cloud_controller.admin'
 %>
      echo "Aborting. Configured admin user is not cloud_controller.admin (<%= userinfo %>)"
      exit 1
 <% end
 
-   username = userinfo.split('|').first
+   username = userinfo["name"]
    secret   = '/etc/secrets/cluster-admin-password'
 
    if File.exist?(secret)
