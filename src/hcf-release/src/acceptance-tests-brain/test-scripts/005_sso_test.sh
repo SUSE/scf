@@ -11,8 +11,13 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 
@@ -36,10 +41,15 @@ TMP=$(mktemp -dt 005_sso.XXXXXX)
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     rm -rf ${TMP}
     cf unbind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} -f --hostname ${DOCKERAPP}
     cf delete-service -f ${DOCKERSERVICE}
     cf delete -f ${DOCKERAPP}
+
+    set -o errexit
     login_cleanup
 }
 trap test_cleanup EXIT ERR

@@ -12,8 +12,13 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 ## # # ## ### Test-specific code ### ## # #
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 

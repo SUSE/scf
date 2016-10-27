@@ -24,9 +24,14 @@ SGJ=${SELFDIR}/../test-resources/secgroup.json
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     # unbind security groups from containers that stage and run apps
     cf unbind-staging-security-group internal-services-workaround
     cf unbind-running-security-group internal-services-workaround
+
+    set -o errexit
 }
 trap test_cleanup EXIT ERR
 

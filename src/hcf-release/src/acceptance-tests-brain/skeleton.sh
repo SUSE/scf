@@ -14,8 +14,13 @@ CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 ## Remove operations not relevant to the test
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 
@@ -41,7 +46,12 @@ SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ## function, and chain to login_cleanup inside. Remove if not needed.
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     # ... custom cleanup
+
+    set -o errexit
     login_cleanup
 }
 trap test_cleanup EXIT ERR

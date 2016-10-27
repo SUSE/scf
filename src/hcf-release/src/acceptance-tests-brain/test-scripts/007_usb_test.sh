@@ -12,8 +12,13 @@ CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 
@@ -39,6 +44,9 @@ HSM_SERVICE_INSTANCE=hsm-service
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     rm -rf ${TMP}
     cf unbind-service ${APP_NAME} srv${HSM_SERVICE_INSTANCE}
     cf delete -f ${APP_NAME}
@@ -48,6 +56,8 @@ function test_cleanup() {
 
     # delete hsm_passthrough
     cf delete -f ${HSM_SERVICE_INSTANCE}
+
+    set -o errexit
     login_cleanup
 }
 trap test_cleanup EXIT ERR

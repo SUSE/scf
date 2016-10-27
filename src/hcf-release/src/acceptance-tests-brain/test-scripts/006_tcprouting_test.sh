@@ -12,8 +12,13 @@ CF_TCP_DOMAIN=${CF_TCP_DOMAIN:-tcp-$(random_suffix).${CF_DOMAIN}}
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 
@@ -39,10 +44,15 @@ TMP=$(mktemp -dt 006_tcprouting.XXXXXX)
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     rm -rf ${TMP}
     cf unmap-route ${APP_NAME} ${CF_TCP_DOMAIN} --port ${port}
     cf delete-shared-domain -f ${CF_TCP_DOMAIN}
     cf delete -f ${APP_NAME}
+
+    set -o errexit
     login_cleanup
 }
 trap test_cleanup EXIT ERR

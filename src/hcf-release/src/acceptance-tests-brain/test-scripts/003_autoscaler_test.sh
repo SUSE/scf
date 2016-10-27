@@ -11,8 +11,13 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
 function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf delete-space -f ${CF_SPACE}
     cf delete-org -f ${CF_ORG}
+
+    set -o errexit
 }
 trap login_cleanup EXIT ERR
 
@@ -39,9 +44,14 @@ SCALESERVICE=scale-test-service
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
     cf unbind-service ${APP_NAME} ${SCALESERVICE}
     cf delete-service -f ${SCALESERVICE}
     cf delete -f ${APP_NAME}
+
+    set -o errexit
     login_cleanup
 }
 trap test_cleanup EXIT ERR
