@@ -22,7 +22,7 @@ read -r -d '' setup_patch_pre_start <<'PATCH' || true
    mkdir -p $data
    mkdir -p $tmp_dir
 -  chown -R vcap:vcap $run_dir $log_dir $data $tmp_dir $nginx_webdav_dir "${nginx_webdav_dir}/.."
-+  chown -R vcap:vcap $run_dir $log_dir $data $tmp_dir $packages_dir
++  chown -R -L vcap:vcap $run_dir $log_dir $data $tmp_dir $packages_dir
  }
  
  setup_blobstore_directories
