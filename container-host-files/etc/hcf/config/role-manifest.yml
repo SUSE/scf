@@ -1273,6 +1273,7 @@ roles:
   type: bosh-task
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/cf_acceptance_tests_suites.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1289,6 +1290,9 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+  configuration:
+    templates:
+      hcf.cats-suites: '"((CATS_SUITES))"'
 - name: acceptance-tests-brain
   type: bosh-task
   scripts:

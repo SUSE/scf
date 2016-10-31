@@ -332,6 +332,22 @@ Name    | Effect | Notes |
   It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
   as it expects direct access to the other roles in the cluster.
 
+#### How do I run a subset of Cloud Foundry acceptance tests?
+
+  Use the following command to specify the changes to the test suites to run:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env CATS_SUITES=-suite,+suite
+  ```
+
+  Each suite is separated by a comma.  The modifiers apply until the next
+  modifier is seen, and have the following meanings:
+
+  Modifier | Meaning
+  --- | ---
+  `+` | Enable the following suites
+  `-` | Disable the following suites
+  `=` | Disable all suites, and enable the following suites
+
 ### `fissile` refuses to create images that already exist. How do I recreate images?
 
   On the Vagrant box, run the following commands:

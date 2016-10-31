@@ -9,6 +9,10 @@ packages:
 
 properties:
 
+  hcf.cats-suites:
+    description: The list of Cloud Foundry acceptance test suites to run
+    example: =override,suites -ignore,suite +additional,suite
+
   hcf.internal-ca-cert:
     description: "Internal CA certificate for use across the cluster"
 

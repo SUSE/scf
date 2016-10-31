@@ -203,6 +203,7 @@ class Common
     # Detect env var keys that are special (they are used, but not defined in the role manifest).
     return true if key.start_with? 'HCP_'
     %w(
+      CATS_SUITES
       CONSUL_HCF_CLUSTER_IPS
       DNS_RECORD_NAME
       DONT_SKIP_CERT_VERIFY_INTERNAL
