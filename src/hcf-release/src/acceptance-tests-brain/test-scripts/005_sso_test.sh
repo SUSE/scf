@@ -44,7 +44,7 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
-    rm -rf ${TMP}
+    rm -rf "${TMP}"
     cf unbind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} -f --hostname ${DOCKERAPP}
     cf delete-service -f ${DOCKERSERVICE}
     cf delete -f ${DOCKERAPP}

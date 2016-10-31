@@ -31,6 +31,8 @@ function test_cleanup() {
     cf unbind-staging-security-group internal-services-workaround
     cf unbind-running-security-group internal-services-workaround
 
+    cf delete-security-group -f internal-services-workaround
+
     set -o errexit
 }
 trap test_cleanup EXIT ERR

@@ -47,7 +47,7 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
-    rm -rf ${TMP}
+    rm -rf "${TMP}"
     cf unbind-service ${APP_NAME} srv${HSM_SERVICE_INSTANCE}
     cf delete -f ${APP_NAME}
     cf delete-service -f srv${HSM_SERVICE_INSTANCE}

@@ -73,6 +73,6 @@ instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
 if [ ${instances} -le 1 ];
 then
   echo "ERROR autoscaling app"
-  echo "Autoscaling failed, only ${instances} instance(s)"
+  echo "Autoscaling failed, only ${instances} instance(s), expected at least 2"
   exit 1
 fi

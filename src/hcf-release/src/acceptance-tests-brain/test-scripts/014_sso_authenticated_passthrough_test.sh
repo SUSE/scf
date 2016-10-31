@@ -52,7 +52,7 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
-    rm -rf ${TMP}
+    rm -rf "${TMP}"
     # unbind route
     if test -n "${hostname:-}" ; then
         cf unbind-route-service ${CF_DOMAIN} ${SSO_SERVICE} -f --hostname ${hostname}

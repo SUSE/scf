@@ -47,7 +47,7 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
-    rm -rf ${TMP}
+    rm -rf "${TMP}"
     cf unmap-route ${APP_NAME} ${CF_TCP_DOMAIN} --port ${port}
     cf delete-shared-domain -f ${CF_TCP_DOMAIN}
     cf delete -f ${APP_NAME}
