@@ -34,7 +34,7 @@ cf update-quota default --reserved-route-ports -1
 
 # run hsm passthrough docker
 cf push ${HSM_SERVICE_INSTANCE} \
-    -o docker-registry.helion.space:443/rohcf/sidecar-acctests:latest \
+    -o 'helioncf/hcf-usb-sidecar-test' \
     -d ${CF_TCP_DOMAIN} --random-route \
     --no-start | tee ${TMP}/log
 cf set-env ${HSM_SERVICE_INSTANCE} SIDECAR_API_KEY string_empty
