@@ -67,6 +67,7 @@ cf create-shared-domain ${CF_TCP_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
 # run hsm passthrough docker
+cf enable-feature-flag diego_docker
 cf push ${HSM_SERVICE_INSTANCE} \
     -o 'helioncf/hcf-usb-sidecar-test' \
     -d ${CF_TCP_DOMAIN} --random-route \
