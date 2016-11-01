@@ -39,12 +39,19 @@ SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR=node-env
 APP_NAME=${APP_DIR}-$(random_suffix)
 UPSINAME=upsi-$(random_suffix)
+TMP=$(mktemp -t 015_rollback.XXXXXX)
+APP_TMP=$(mktemp -dt 015_rollback_app.XXXXXX)
+INDEX="${SELFDIR}/../test-resources/${APP_DIR}/index.html"
 
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
+
+    cd ;# get of the APP_TMP working directory for clean deletion.
+    rm -rf "${APP_TMP}"
+    rm "${TMP}"
 
     cf delete -f ${APP_NAME}
     cf delete-service -f ${UPSINAME}
@@ -60,10 +67,10 @@ verify() {
     curl ${APP_NAME}.${CF_DOMAIN} | grep "$name"
 
     # verify user environment
-    cf env ${APP_NAME} > /tmp/env
-    grep "TEST1: FOO" /tmp/env
-    grep "FOO: BAR"   /tmp/env
-    grep "BAR: SLOW"  /tmp/env
+    cf env ${APP_NAME} > ${TMP}
+    grep "TEST1: FOO" ${TMP}
+    grep "FOO: BAR"   ${TMP}
+    grep "BAR: SLOW"  ${TMP}
 
     # verify memory
     cf app ${APP_NAME} | grep "usage: 32M"
@@ -82,19 +89,16 @@ flip() {
 # helper service for check that rollback does not service bindings
 cf create-user-provided-service ${UPSINAME}
 
-cd ${SELFDIR}/../test-resources/${APP_DIR}
+# Save application code, we will modify it.
+cp -rf ${SELFDIR}/../test-resources/${APP_DIR} ${APP_TMP}
+cd ${APP_TMP}/${APP_DIR}
 
 # push an app to version
 # do it 5 times, each different (change visible title).
-# on first push defer start to setup the bound service and envrionment
-# variables.
-# save index.html and generate the actual index.html from that. it
-# makes making the changes easier, having them all start from the
-# saved state.
+# on first push defer start so that we can setup the bound service and
+# the environment variables.
 
-cp index.html index.html.orig
-
-sed 's/HPE Helion Stackato/Test Brain 1/' < index.html.orig > index.html
+sed 's/HPE Helion Stackato/Test Brain 1/' < ${INDEX} > index.html
 cf push ${APP_NAME} --no-start
 cf bind-service ${APP_NAME} ${UPSINAME}
 cf set-env ${APP_NAME} TEST1 FOO
@@ -102,16 +106,16 @@ cf set-env ${APP_NAME} FOO   BAR
 cf set-env ${APP_NAME} BAR   SLOW
 cf start ${APP_NAME}
 
-sed 's/HPE Helion Stackato/Test Rollback A/' < index.html.orig > index.html
+sed 's/HPE Helion Stackato/Test Rollback A/' < ${INDEX} > index.html
 cf push ${APP_NAME}
 
-sed 's/HPE Helion Stackato/Test Version 3/' < index.html.orig > index.html
+sed 's/HPE Helion Stackato/Test Version 3/' < ${INDEX} > index.html
 cf push ${APP_NAME}
 
-sed 's/HPE Helion Stackato/Test Modulo B/' < index.html.orig > index.html
+sed 's/HPE Helion Stackato/Test Modulo B/' < ${INDEX} > index.html
 cf push ${APP_NAME}
 
-sed 's/HPE Helion Stackato/Test Gonzo =/' < index.html.orig > index.html
+sed 's/HPE Helion Stackato/Test Gonzo =/' < ${INDEX} > index.html
 cf push ${APP_NAME}
 
 # After the setup the revision pushed last should be running
