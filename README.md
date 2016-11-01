@@ -640,7 +640,8 @@ Name    | Effect | Notes |
     make dist
     cp output/configgin*.tgz ~/tools/configgin.tgz
     docker rmi -f $(fissile show image) fissile-role-base fissile-role-base:<TAB>
-    make image-base images
+    fissile build layer stemcell
+    make images
     ```
 
 ## How do I add a new version of Ruby to the build system?
