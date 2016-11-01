@@ -602,8 +602,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: cf
-  post_config_scripts:
-  - /var/vcap/jobs/blobstore/bin/pre-start
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
