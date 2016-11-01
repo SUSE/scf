@@ -38,6 +38,7 @@ cf target -s ${CF_SPACE}
 SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR=node-env
 APP_NAME=${APP_DIR}-$(random_suffix)
+APP_TMP=$(mktemp -dt 008_appversion.XXXXXX)
 
 ## # # ## ### Test-specific code ### ## # #
 
@@ -45,6 +46,8 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
+    cd ;# get of the APP_TMP working directory for clean deletion.
+    rm -rf "${APP_TMP}"
     cf delete -f ${APP_NAME}
 
     set -o errexit
@@ -52,8 +55,11 @@ function test_cleanup() {
 }
 trap test_cleanup EXIT ERR
 
+# Save application code, we will modify it.
+cp -rf ${SELFDIR}/../test-resources/${APP_DIR} ${APP_TMP}
+cd ${APP_TMP}/${APP_DIR}
+
 # push an app to version
-cd ${SELFDIR}/../test-resources/${APP_DIR}
 cf push ${APP_NAME}
 
 # verify it is the unmodified version
