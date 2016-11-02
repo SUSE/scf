@@ -469,6 +469,32 @@ Name    | Effect | Notes |
     make images run
     ```
 
+### When does `fissile` decide to rebuild a role image?
+
+  `fissile` does track changes to some components, namely the jobs for each role, hashes of the jobs' packages, the properties for each job, and the scripts associated with each role. When a change is made to any of these, `make images` will rebuild the affected roles, but you'll still need to manually restart the affected roles.
+
+  For example:
+
+  ```bash
+  make images
+  ...
+  Skipping build of role image nats because it exists
+  Building docker image of api in /home/vagrant/.fissile/dockerfiles/role-api333911855/ ...
+  ...
+  docker stop api-int # and other rebuilt images
+  make run
+  ```
+
+  To avoid manual steps:
+  ```bash
+  tmpfile=$(mktemp hcf.XXXXXX)
+  trap "rm $tmpfile" 0 1
+  make images 2>&1 | tee $tmpfile
+  awk '/^Building docker image of/ {print $5}' $tmpfile |
+     xargs -n 1 -i@ docker stop @-int
+  make run
+  ```
+
 ### How do I bump the submodules for the various releases?
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
