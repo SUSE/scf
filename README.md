@@ -492,7 +492,7 @@ Name    | Effect | Notes |
   make images 2>&1 | tee $tmpfile
   awk '/^Building docker image of/ {print $5}' $tmpfile |
      xargs -n 1 -i@ docker stop @-int
-  make run
+  grep --quiet '^Building docker image of' $tmpfile && make run
   ```
 
 ### How do I bump the submodules for the various releases?
