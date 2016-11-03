@@ -21,15 +21,15 @@ load_all_roles
 col_len=$(echo ${role_names[@]} | awk 'BEGIN { RS="[ \t\n]" } { print length($0); }' | sort -nr | head -n1)
 
 # Define the format of a row
-rowfmt="%${col_len}b%b%12b%b%7b%b%11b%11b${txtrst}\n"
-#       │           │ │   │ │  │ │   │  │
-#       │           │ │   │ │  │ │   │  └─────────────────────────────────┐
-#       │           │ │   │ │  │ │   └──────────────────────────┐         │
-#       │           │ │   │ │  │ └───────────────────┐          │         │
-#       │           │ │   │ │  └──────────────┐      │          │         │
-#       │    ┌──────┘ │   │ └──────────┐      │      │          │         │
-# ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │         │
-# <role name><COLOR><containers><COLOR><monit><COLOR><processes><memusage><COLOR RESET>
+rowfmt="%${col_len}b%b%12b%b%7b%b%11b${txtrst}%11b\n"
+#       │           │ │   │ │  │ │   │        │
+#       │           │ │   │ │  │ │   │        └──────────────────────────────┐
+#       │           │ │   │ │  │ │   └──────────────────────────┐            │
+#       │           │ │   │ │  │ └───────────────────┐          │            │
+#       │           │ │   │ │  └──────────────┐      │          │            │
+#       │    ┌──────┘ │   │ └──────────┐      │      │          │            │
+# ┌─────┘    │      ┌─┘   └─────┐      │      │      │          │            │
+# <role name><COLOR><containers><COLOR><monit><COLOR><processes><COLOR RESET><memusage>
 
 if [ -z "${SILENT}" ]; then
   # Print a table header
