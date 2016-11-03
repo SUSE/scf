@@ -76,4 +76,5 @@ if [ -z "${port}" ]; then
 fi
 
 # check that the application works
+sleep 5
 curl ${CF_TCP_DOMAIN}:${port}
