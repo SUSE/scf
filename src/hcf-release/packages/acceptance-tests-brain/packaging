@@ -19,9 +19,9 @@ function extract()
 
 
     case "$type" in
-    "zip") unzip $1 -d $2 ;;
-    "tgz") tar zxvf $1 -C $2 ;;
-    "gz") gunzip $1 ; mv `echo $1|rev|cut -f 2- -d "."|rev` $2 ;;
+    "zip")  unzip $1 -d $2 ;;
+    "tgz")  tar zxvf $1 -C $2 ;;
+    "gz")   gunzip $1 ; mv `echo $1|rev|cut -f 2- -d "."|rev` $2 ;;
     "bzip") tar jxvf $1 -C $2 ;;
     esac
 }
@@ -48,6 +48,15 @@ do
     extract $name test-resources/plugins
     rm $name
 done
+
+# NOTE: autoscaler, versions, and backup now extract to
+# subdirectories. cleanup and sanitize
+# NOTE 2: cf-plugin-usb does not
+rm -f test-resources/plugins/*/*.txt
+mv    test-resources/plugins/*/* test-resources/plugins/
+rmdir test-resources/plugins/cf-plugin-autoscale
+rmdir test-resources/plugins/cf-plugin-backup
+rmdir test-resources/plugins/cf-plugin-versions
 
 # Assemble everything for bosh ...
 
