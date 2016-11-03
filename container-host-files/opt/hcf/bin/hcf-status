@@ -101,7 +101,7 @@ function mem_used_from_docker_role {
     if [[ ! -f ${memory_file} ]] ; then
       echo "n/a"
     else
-      numfmt --to=iec --suffix=B $(cat ${memory_file})
+      numfmt --to-unit=$((1024*1024)) --suffix=MB $(cat ${memory_file})
     fi
 }
 
