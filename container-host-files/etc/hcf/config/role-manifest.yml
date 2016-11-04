@@ -2225,7 +2225,7 @@ configuration:
     properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
-    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
+    properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
