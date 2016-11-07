@@ -1,4 +1,4 @@
 cf-plugin-usb.tgz,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/cf-usb/cf-plugin-usb-0.1.0-d1244f25-linux-amd64.tgz
-cf-plugin-autoscaler.tgz,https://s3-us-west-2.amazonaws.com/concourse-hpe/cf-plugin-autoscale-1.1.0%2B0.g1750331.master-linux-amd64.tgz
-cf-plugin-versions.tar.gz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-versions-1.1.2%2B0.g619bf7a.develop-linux-amd64.tgz
-cf-plugin-backup.tgz,https://s3-us-west-2.amazonaws.com/concourse-hpe/cf-plugin-backup-0.0.1%2B82.g6bc894b.master-linux-amd64.tgz
+cf-plugin-autoscaler.tgz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-autoscale-1.1.0%2B4.g05a5e66.linux-amd64.tgz
+cf-plugin-versions.tar.gz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-versions-1.1.5%2B1.gbd904ed.linux-amd64.tgz
+cf-plugin-backup.tgz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-backup-1.0.1%2B1.ga960f71.linux-amd64.tgz
