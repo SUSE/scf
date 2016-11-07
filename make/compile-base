@@ -6,6 +6,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/fissile
 
-UBUNTU_IMAGE=${UBUNTU_IMAGE:-'hpe-license-on-ubuntu:14.04'}
+FISSILE_VERSION=$(fissile version | sed 's/+/-/g')
 
-FISSILE_FROM=${UBUNTU_IMAGE} fissile build layer compilation
+docker pull fissile/fissile-cbase:${FISSILE_VERSION}
+docker tag fissile/fissile-cbase:${FISSILE_VERSION} fissile-cbase:${FISSILE_VERSION}
