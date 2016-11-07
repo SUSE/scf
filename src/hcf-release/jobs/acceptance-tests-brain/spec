@@ -26,3 +26,11 @@ properties:
     description: The Elastic Runtime organization name to use when running tests
   acceptance_tests_brain.space:
     description: The Elastic Runtime space name to use when running tests
+  acceptance_tests_brain.hcp_domain:
+    description: The domain of HCP
+  acceptance_tests_brain.hcp_user:
+    description: The username for HCP
+  acceptance_tests_brain.hcp_password:
+    description: The password for HCP
+  acceptance_tests_brain.hcf_instance:
+    description: The instance name of HCF
