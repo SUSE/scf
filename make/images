@@ -45,8 +45,14 @@ for ROLE in ${ROLES}; do
             docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         publish)
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION} | cat
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH} | cat
+            # Redirect stdout so that docker doesn't print download progress data
+            # (using pipefail isn't cross platform)
+            echo "Publishing docker image: ${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}"
+            exec 6>&1
+            exec > /dev/null
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
+            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+            exec 1>&6 6>&-
             ;;
         clean)
             case ${TARGET} in
