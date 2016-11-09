@@ -7,4 +7,6 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 BOSH_RELEASE_PATH=${BOSH_RELEASE_PATH:-${1}}
 BOSH_RELEASE_NAME=${BOSH_RELEASE_NAME:-${2:-$(basename ${BOSH_RELEASE_PATH} -release)}}
 
+stampy ${GIT_ROOT}/hcf_metrics.csv bosh-release ${BOSH_RELEASE_NAME}-start
 ${GIT_ROOT}/bin/create-release.sh ${BOSH_RELEASE_PATH} ${BOSH_RELEASE_NAME}
+stampy ${GIT_ROOT}/hcf_metrics.csv bosh-release ${BOSH_RELEASE_NAME}-done

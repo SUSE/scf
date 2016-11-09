@@ -17,6 +17,8 @@ if [ ! -d "$setup_dir" ]; then
     exit 1
 fi
 
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-start
+
 # Check for the filter helper file created for us by either 'make run'
 # or 'run-all-roles.sh'. If it is missing create it ourselves
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
@@ -36,6 +38,7 @@ fi
 
 SELFDIR="$(readlink -f "$(cd "$(dirname "$0")" && pwd)")"
 
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-setup-start
 . "${SELFDIR}/common.sh"
 
 HCF_RUN_STORE="${HCF_RUN_STORE:-$HOME/.run/store}"
@@ -45,7 +48,14 @@ store_dir=$HCF_RUN_STORE
 log_dir=$HCF_RUN_LOG_DIRECTORY
 
 load_all_roles
+
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-setup-done
+
 # (Re)start the specified role
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-up-start
 handle_restart "$role_name" "${setup_dir}" "$@"
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-up-done
 
 rm -f $CLEAN
+
+stampy ${ROOT}/hcf_metrics.csv run run-role-${role_name}-done
