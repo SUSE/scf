@@ -1075,11 +1075,14 @@ roles:
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: cf
+  - name: localdriver
+    release_name: local-volume
   processes:
   - name: metron_agent
   - name: consul_agent
   - name: rep
   - name: garden
+  - name: localdriver
   run:
     scaling:
       min: 1
@@ -1089,10 +1092,16 @@ roles:
     - path: '/var/vcap/data/garden'
       tag: garden-graph
       size: 50
-    shared-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs'
+      size: 100
+      tag: 'local-volume-service'
     memory: 4096
     virtual-cpus: 4
     exposed-ports: []
+  configuration:
+    templates:
+      properties.localdriver.cell_mount_path: /var/vcap/nfs/localdriver
 - name: sclr-api
   type: bosh
   environment_scripts:
@@ -1524,6 +1533,45 @@ roles:
         external: 8443
         internal: 8443
         public: false
+- name: local-volume-broker
+  environment_scripts:
+  - scripts/inverted_skip_ssl.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: localbroker
+    release_name: local-volume
+  - name: localdriver
+    release_name: local-volume
+  processes:
+  - name: localbroker
+  - name: localdriver
+  configuration:
+    templates:
+      properties.localdriver.cell_mount_path: /var/vcap/nfs/localdriver
+      properties.localbroker.data-dir: /var/vcap/nfs/localbroker
+      properties.localbroker.localdriver-url: "http://localhost:9089"
+  run:
+    scaling:
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs'
+      size: 100
+      tag: 'local-volume-service'
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'local-volume-broker'
+        protocol: 'TCP'
+        external: 8999
+        internal: 8999
+        public: false
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -1681,6 +1729,11 @@ configuration:
     description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
     secret: false
     required: false
+  - name: LOCAL_VOLUME_BROKER_PASSWORD
+    secret: true
+    generator:
+      type: Password
+    description: The password for access to the local volume service broker.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     generator:
@@ -2361,6 +2414,7 @@ configuration:
     properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.localbroker.password: '"((LOCAL_VOLUME_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL

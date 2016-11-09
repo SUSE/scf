@@ -18,6 +18,8 @@ properties:
   couchdb:
     password: couchdb_password
   domain: example.com
+  localbroker:
+    password: admin
   loggregator:
     uaa:
       client_secret: doppler_secret
