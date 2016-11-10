@@ -4,8 +4,8 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-stampy ${GIT_ROOT}/hcf_metrics.csv make-validate start
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 start
 
 ${GIT_ROOT}/bin/validation.sh
 
-stampy ${GIT_ROOT}/hcf_metrics.csv make-validate start
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 start

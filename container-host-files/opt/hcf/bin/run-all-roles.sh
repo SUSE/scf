@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" start
+
 # Check for the filter helper file created for us by 'make run'.
 # If it is missing create it ourselves
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
@@ -12,7 +14,7 @@ fi
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
-stampy ${ROOT}/hcf_metrics.csv run all-roles-setup-start
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" setup::start
 
 . "${BINDIR}/common.sh"
 
@@ -26,7 +28,7 @@ if [[ -z "${setup_dir}" ]] ; then
     exit 1
 fi
 
-stampy ${ROOT}/hcf_metrics.csv run all-roles-setup-done
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" setup::done
 
 # Start pre-flight roles
 echo -e "${txtgrn}Starting pre-flight roles...${txtrst}"
@@ -36,9 +38,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-start
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-done
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::done
 done
 
 # Start flight roles
@@ -49,9 +51,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-start
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-done
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::done
 done
 
 # Start post-flight roles
@@ -62,9 +64,11 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-start
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv run all-roles-${role}-done
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" role::${role}::done
 done
 
 rm -f $CLEAN
+
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" done

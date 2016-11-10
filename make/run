@@ -2,14 +2,18 @@
 
 set -o errexit -o nounset
 
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 start
+
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-stampy ${GIT_ROOT}/hcf_metrics.csv run vagrant.json-start
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 vagrant.json::start
 ${GIT_ROOT}/make/generate vagrant
-stampy ${GIT_ROOT}/hcf_metrics.csv run vagrant.json-done
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 vagrant.json::done
 
-stampy ${GIT_ROOT}/hcf_metrics.csv run start
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 run::start
 ${GIT_ROOT}/bin/run.sh
-stampy ${GIT_ROOT}/hcf_metrics.csv run done
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 run::done
 
 rm ${GIT_ROOT}/vagrant.json
+
+stampy ${GIT_ROOT}/hcf_metrics.csv $0 done
