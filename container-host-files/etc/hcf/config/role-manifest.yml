@@ -2473,5 +2473,4 @@ auth:
       authorities: routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
   authorities:
-    - uaa.user
     - routing.router_groups.read
