@@ -6,7 +6,7 @@ bin_dir="${bin_dir:-/home/vagrant/bin}"
 tools_dir="${tools_dir:-/home/vagrant/tools}"
 fissile_url="${fissile_url:-https://concourse-hpe.s3.amazonaws.com/fissile-2.0.2%2B71.g608c02c.develop-linux.amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
-stampy_url="${sampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B4.gf876033.master-linux.amd64.tgz}"
+stampy_url="${stampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B7.g4d305fa.master-linux.amd64.tgz}"
 
 
 mkdir -p $bin_dir

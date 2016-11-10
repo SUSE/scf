@@ -3,10 +3,8 @@ set -e
 
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"`
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" start
 "${ROOT}/container-host-files/opt/hcf/bin/run-all-roles.sh" "${ROOT}/bin/settings"
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" report::start
 . "${ROOT}/container-host-files/opt/hcf/bin/common.sh"
 
 set_colors
@@ -28,6 +26,4 @@ It may take some time for everything to come online.
 You can use ${bldcyn}hcf-status${txtrst} or ${bldcyn}hcf-status-watch${txtrst} to check if everything is up and running.
 "
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" report::done
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" done
 exit 0
