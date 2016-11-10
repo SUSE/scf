@@ -2473,18 +2473,4 @@ auth:
       authorities: routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
   authorities:
-    - openid
-    - scim.me
-    - cloud_controller.read
-    - cloud_controller.write
-    - cloud_controller_service_permissions.read
-    - password.write
-    - uaa.user
-    - approvals.me
-    - oauth.approvals
-    - notification_preferences.read
-    - notification_preferences.write
-    - profile
-    - roles
-    - user_attributes
     - routing.router_groups.read
