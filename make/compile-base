@@ -17,14 +17,6 @@ if docker pull "fissile/${IMAGE_NAME}" ; then
     docker tag "fissile/${IMAGE_NAME}" "${IMAGE_NAME}"
 else
     FISSILE_FROM="${UBUNTU_IMAGE:-hpe-license-on-ubuntu:14.04}"
-    if test -z "$(docker images --format '{{.}}' "${FISSILE_FROM}")" ; then
-        # We don't have the base image with the license; create it
-        UBUNTU_BASE="ubuntu:14.04"
-        LICENSE_URL="https://concourse-hpe.s3.amazonaws.com/fissile-container-LICENSE.txt"
-        LICENSE_PATH="/usr/share/doc/stackato/LICENSE.txt"
-        printf "FROM %s\n ADD %s %s" "${UBUNTU_BASE}" "${LICENSE_URL}" "${LICENSE_PATH}" | \
-            docker build --tag "${FISSILE_FROM}" -
-    fi
     export FISSILE_FROM
     fissile build layer compilation
 fi
