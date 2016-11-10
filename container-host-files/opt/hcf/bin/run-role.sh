@@ -22,7 +22,7 @@ fi
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
 CLEAN=""
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::${role_name} start
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::${role_name} start
 
 if test ! -f $ROOT/vagrant.json ; then
     ( cd $ROOT ; make/generate vagrant )
@@ -39,7 +39,7 @@ fi
 
 SELFDIR="$(readlink -f "$(cd "$(dirname "$0")" && pwd)")"
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::setup::${role_name} start
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::setup::${role_name} start
 . "${SELFDIR}/common.sh"
 
 HCF_RUN_STORE="${HCF_RUN_STORE:-$HOME/.run/store}"
@@ -50,13 +50,13 @@ log_dir=$HCF_RUN_LOG_DIRECTORY
 
 load_all_roles
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::setup::${role_name} done
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::setup::${role_name} done
 
 # (Re)start the specified role
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::docker::${role_name} start
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::docker::${role_name} start
 handle_restart "$role_name" "${setup_dir}" "$@"
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::docker::${role_name} done
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::docker::${role_name} done
 
 rm -f $CLEAN
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run::${role_name} done
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::${role_name} done
