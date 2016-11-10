@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall start
+
 # Check for the filter helper file created for us by 'make run'.
 # If it is missing create it ourselves
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
@@ -11,6 +13,8 @@ if test ! -f $ROOT/vagrant.json ; then
 fi
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
+
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::setup start
 
 . "${BINDIR}/common.sh"
 
@@ -24,6 +28,8 @@ if [[ -z "${setup_dir}" ]] ; then
     exit 1
 fi
 
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::setup done
+
 # Start pre-flight roles
 echo -e "${txtgrn}Starting pre-flight roles...${txtrst}"
 for role in $(list_roles_by_flight_stage pre-flight)
@@ -32,7 +38,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
     fi
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 # Start flight roles
@@ -43,7 +51,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
     fi
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 # Start post-flight roles
@@ -54,7 +64,11 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
     fi
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
+    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 rm -f $CLEAN
+
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall done
