@@ -113,6 +113,9 @@ compile-base:
 copy-compile-cache:
 	${GIT_ROOT}/make/compile restore
 
+clean-compile-cache:
+	${GIT_ROOT}/make/compile clean
+
 compile:
 	${GIT_ROOT}/make/compile
 

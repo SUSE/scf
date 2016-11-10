@@ -69,7 +69,9 @@ restore() {
     echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
 }
 
-# Removes any compilation pieces that we don't need
+# Removes any compilation pieces that we don't need.
+# This affects both cache on the host, and local cache
+
 clean() {
     if test -z "$(echo "${HCF_PACKAGE_COMPILATION_CACHE}" | tr -d ./)" ; then
         echo "HCF_PACKAGE_COMPILATION_CACHE is empty; bailing to prevent wiping your disk" >&2
@@ -90,6 +92,9 @@ clean() {
         echo "Removing ${unneeded_package}"
         rm -rf "${HCF_PACKAGE_COMPILATION_CACHE}/${unneeded_package}"
     done
+
+    # And now the local cache. Same as above, just baked into of fissile.
+    fissile build cleancache
 }
 
 COMMAND=${1:-''}
