@@ -314,6 +314,7 @@ Name    | Effect | Notes |
 
   ```bash
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
@@ -326,11 +327,36 @@ Name    | Effect | Notes |
   with a `DOMAIN` override:
   ```bash
   run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests --env DOMAIN=hcf.hcp.example.com
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env DOMAIN=hcf.hcp.example.com
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env DOMAIN=hcf.hcp.example.com
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-autoscaler --env DOMAIN=hcf.hcp.example.com
   ```
   It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
   as it expects direct access to the other roles in the cluster.
+
+#### How do I run a subset of HCF acceptance tests?
+
+  Use the following command to specify additional include/exclude patterns for test filenames:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env INCLUDE=pattern --env EXCLUDE=pattern
+  ```
+
+  For example to run just `005_sso_test.sh` and `014_sso_authenticated_passthrough_test.sh`:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env INCLUDE=sso
+  ```
+
+  It is also possible to run custom tests by mounting them at the `/tests` mountpoint inside the container.
+  The mounted tests will be combined with the bundled tests. To exclude the bundled tests match against
+  names starting with 3 digits followed by an underscore:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env 'EXCLUDE=\b\d{3}_' -v /tmp/tests:/tests
+  ```
+
+  Or explicitly select only the mounted tests with:
+  ```bash
+  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env 'INCLUDE=^/tests/' -v /tmp/tests:/tests
+  ```
 
 #### How do I run a subset of Cloud Foundry acceptance tests?
 
