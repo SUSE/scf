@@ -41,7 +41,8 @@ touch "${SENTINEL}"
 # mean we may get some data loss in the event of failure of node 0 (to be
 # tested).
 if [ "${HCP_COMPONENT_INDEX}" == "0" ]; then
-  if [ -f "/var/vcap/store/consul_agent/raft/peers.info" ]; then
+  if [ -d "/var/vcap/store/consul_agent/raft" ]; then
+    touch /var/vcap/store/consul_agent/raft/peers.info
     echo "[\"$IP_ADDRESS:8300\"]" > /var/vcap/store/consul_agent/raft/peers.json
   fi
 fi
