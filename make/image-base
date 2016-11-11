@@ -18,5 +18,6 @@ if docker pull "fissile/${IMAGE_NAME}" ; then
 else
     FISSILE_FROM="fissile/${UBUNTU_IMAGE:-hpe-license-on-ubuntu:14.04}"
     export FISSILE_FROM
+    docker pull "${FISSILE_FROM}"
     fissile build layer stemcell
 fi
