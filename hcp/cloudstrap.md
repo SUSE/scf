@@ -127,8 +127,8 @@
 
 * Checkout HCF, go to branch B.
 
-* Edit the `DOMAIN` in bin/settings/network.env, and disable the `unset
-  DOMAIN` commands in `bin/settings/hcp/hosts.env` and
+* Edit the `DOMAIN` in `bin/settings/network.env`, and disable the
+  `unset DOMAIN` commands in `bin/settings/hcp/hosts.env` and
   `bin/settings/hcp/network.env`
 
   Using the (HCPDomain) for `DOMAIN` should be ok.
