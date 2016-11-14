@@ -11,6 +11,7 @@ password
 !.fissile/.bosh/.gitkeep
 .fissile/*
 .vagrant
+.bash_history
 *.box
 *.vmdk
 /hcf_metrics.csv
