@@ -205,6 +205,8 @@ Vagrant.configure(2) do |config|
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
+
+    ln -s /home/vagrant/hcf/.bash_history
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
