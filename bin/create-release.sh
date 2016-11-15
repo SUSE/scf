@@ -36,7 +36,7 @@ docker run \
     --volume $ROOT/:$ROOT/ \
     --env RBENV_VERSION="${RUBY_VERSION:-2.2.3}" \
     helioncf/hcf-pipeline-ruby-bosh \
-    bash -l -c "echo echo nothing to commit > /usr/local/bin/git && chmod +x /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
+    bash -l -c "cp $ROOT/bin/dev/fake-git /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::docker::${release_name} done
 
 # Convert YAML to JSON to escape strings nicely so the commit hashes don't get confused as floats
