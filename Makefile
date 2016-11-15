@@ -88,21 +88,23 @@ windows-runtime-release:
 open-autoscaler-release:
 	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 
-releases: \
-	cf-release \
-	usb-release \
-	diego-release \
-	etcd-release \
-	garden-release \
-	mysql-release \
-	cflinuxfs2-rootfs-release \
-	routing-release \
-	hcf-release \
-	windows-runtime-release \
-	hcf-sso-release \
-	hcf-versions-release \
-	open-autoscaler-release \
-	${NULL}
+releases:
+	${MAKE} \
+		$(or ${MAKEFLAGS}, -j$(or ${J},4)) \
+		cf-release \
+		usb-release \
+		diego-release \
+		etcd-release \
+		garden-release \
+		mysql-release \
+		cflinuxfs2-rootfs-release \
+		routing-release \
+		hcf-release \
+		windows-runtime-release \
+		hcf-sso-release \
+		hcf-versions-release \
+		open-autoscaler-release \
+		${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
 
