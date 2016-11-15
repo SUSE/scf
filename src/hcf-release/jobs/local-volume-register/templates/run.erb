@@ -1,0 +1,86 @@
+#!/bin/bash
+
+set -o errexit -o nounset
+
+# put the cli on the path
+export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
+
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    i=0
+    shift 2
+
+    while test ${i} -lt ${max} ; do
+        if "$@" ; then
+            break
+        fi
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
+    done
+}
+
+function select_action () {
+    SERVICE="$1"
+
+    # Check if the broker is known already or not. Depending on the
+    # result we simply update the existing broker, or create a new one.
+
+    action=create
+    if cf service-brokers 2>/dev/null | grep --quiet "$SERVICE" ; then
+	action=update
+    fi
+    echo $action
+}
+
+function register_service () {
+    SERVICE="$1"
+    USER="$2"
+    PASS="$3"
+    ENDPOINT="$4"
+
+    cf $(select_action "$SERVICE")-service-broker "$SERVICE" "$USER" "$PASS" "$ENDPOINT"
+
+    # Make the broker available to all orgs and their spaces
+    # This is the equivalent of `cf enable-service-access $SERVICE`, but that requires a refresh token
+    printf "Enabling access to all plans of service %s for all orgs...\n", "$SERVICE"
+    service_guid=$(cf curl "/v2/services?q=label:${SERVICE}" | ruby-query.rb 'resources.first.metadata.guid')
+    plan_guids="$(cf curl "/v2/service_plans?q=service_guid:${service_guid}" | ruby-query.rb 'resources.map { |x| x.metadata.guid }')"
+    for plan_guid in ${plan_guids} ; do
+        cf curl -X PUT -d '{"public": true}' "/v2/service_plans/${plan_guid}"
+        echo
+    done
+}
+
+CF_SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
+
+LOCALVOLUME_PORT="<%= p("localbroker.port") %>"
+LOCALVOLUME_USER="<%= p("localbroker.username") %>"
+LOCALVOLUME_PASS="<%= p("localbroker.password") %>"
+
+UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
+LOCALVOLUME_ENDPOINT="http://volume-broker-int.${HCP_SERVICE_DOMAIN_SUFFIX}:${LOCALVOLUME_PORT}"
+API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
+
+echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
+retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
+
+echo "Waiting for UAA... $CURL_SKIP $UAA_ENDPOINT"
+retry 240 30s curl --fail --silent --header 'Accept: application/json' $UAA_ENDPOINT/info
+
+echo "Waiting for localvolume service broker..."
+retry 240 30s curl -u ${LOCALVOLUME_USER}:${LOCALVOLUME_PASS} --fail --silent --insecure "${LOCALVOLUME_ENDPOINT}/v2/catalog" >/dev/null 2>&1
+
+echo "Logging in to $UAA_ENDPOINT..."
+insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.clients.hcf_auto_config.secret").shellescape %> ${CURL_SKIP}
+
+echo "Registering localvolume service broker..."
+register_service localvolume "$LOCALVOLUME_USER" "$LOCALVOLUME_PASS" "$LOCALVOLUME_ENDPOINT"
+
+echo "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+
+echo "Registration of localvolume complete."

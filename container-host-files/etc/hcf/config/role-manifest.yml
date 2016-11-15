@@ -1095,7 +1095,7 @@ roles:
     shared-volumes:
     - path: '/var/vcap/nfs'
       size: 100
-      tag: 'local-volume-service'
+      tag: 'volume-service'
     memory: 4096
     virtual-cpus: 4
     exposed-ports: []
@@ -1429,6 +1429,27 @@ roles:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
+- name: volume-register
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: volume-register
+    release_name: hcf
+  processes: []
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: post-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 1
+    exposed-ports: []
 - name: hcf-sso
   environment_scripts:
   - scripts/authorize_internal_ca.sh
@@ -1533,7 +1554,7 @@ roles:
         external: 8443
         internal: 8443
         public: false
-- name: local-volume-broker
+- name: volume-broker
   environment_scripts:
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -1563,11 +1584,11 @@ roles:
     shared-volumes:
     - path: '/var/vcap/nfs'
       size: 100
-      tag: 'local-volume-service'
+      tag: 'volume-service'
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'local-volume-broker'
+      - name: 'volume-broker'
         protocol: 'TCP'
         external: 8999
         internal: 8999
