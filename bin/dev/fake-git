@@ -2,5 +2,5 @@
 
 case $1 in
   status) echo nothing to commit ;;
-  *) /usr/bin/git "$@" ;;
+  *) exec /usr/bin/git "$@" ;;
 esac
