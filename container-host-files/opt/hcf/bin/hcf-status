@@ -97,7 +97,7 @@ function status_job_bosh() {
 function mem_used_from_docker_role {
     local role=${1}
     role_id=$(docker inspect ${role}-int | jq --raw-output '.[0].Id')
-    memory_file=/sys/fs/cgroup/memory/docker/${role_id}/memory.max_usage_in_bytes
+    memory_file=/sys/fs/cgroup/memory/docker/${role_id}/memory.usage_in_bytes
     if [[ ! -f ${memory_file} ]] ; then
       echo "n/a"
     else
