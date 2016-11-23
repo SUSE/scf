@@ -13,5 +13,10 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y linux-generic-lts-xenial 
 # Load aufs at boot time
 echo "aufs" | sudo tee -a /etc/modules
 
+# We need to enable memory and swap accounting so that garden-runc works
+# properly
+sudo sed -i -e 's/^GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"/' /etc/default/grub
+sudo update-grub
+
 sudo reboot now
 sleep 60

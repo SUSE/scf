@@ -4,9 +4,6 @@
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = git@github.com:hpcloud/cf-usb.git
-[submodule "src/garden-linux-release"]
-	path = src/garden-linux-release
-	url = https://github.com/cloudfoundry-incubator/garden-linux-release.git
 [submodule "src/diego-release"]
 	path = src/diego-release
 	url = https://github.com/cloudfoundry-incubator/diego-release.git
@@ -46,3 +43,6 @@
 [submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
 	path = src/hcf-release/src/github.com/hpcloud/testbrain
 	url = git@github.com:hpcloud/testbrain.git
+[submodule "src/garden-runc-release"]
+	path = src/garden-runc-release
+	url = https://github.com/cloudfoundry/garden-runc-release.git

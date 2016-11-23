@@ -1060,7 +1060,6 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
-  - scripts/prevent_apparmor_disable.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
@@ -1072,7 +1071,7 @@ roles:
   - name: consul_agent
     release_name: cf
   - name: garden
-    release_name: garden-linux
+    release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
@@ -2226,7 +2225,7 @@ configuration:
     properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
-    properties.garden.dns_servers: '["((GARDEN_LINUX_DNS_SERVER))"]'
+    properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
