@@ -1093,15 +1093,12 @@ roles:
       tag: garden-graph
       size: 50
     shared-volumes:
-    - path: '/var/vcap/nfs'
+    - path: '/var/vcap/persistore'
       size: 100
-      tag: 'volume-service'
+      tag: 'persistore'
     memory: 4096
     virtual-cpus: 4
     exposed-ports: []
-  configuration:
-    templates:
-      properties.localdriver.cell_mount_path: /var/vcap/nfs/localdriver
 - name: sclr-api
   type: bosh
   environment_scripts:
@@ -1429,14 +1426,14 @@ roles:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
-- name: volume-register
+- name: persi-create-service
   type: bosh-task
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
-  - name: volume-register
+  - name: persi-create-service
     release_name: hcf
   processes: []
   run:
@@ -1570,11 +1567,6 @@ roles:
   processes:
   - name: localbroker
   - name: localdriver
-  configuration:
-    templates:
-      properties.localdriver.cell_mount_path: /var/vcap/nfs/localdriver
-      properties.localbroker.data-dir: /var/vcap/nfs/localbroker
-      properties.localbroker.localdriver-url: "http://localhost:9089"
   run:
     scaling:
       min: 1
@@ -1582,9 +1574,9 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes:
-    - path: '/var/vcap/nfs'
+    - path: '/var/vcap/persistore'
       size: 100
-      tag: 'volume-service'
+      tag: 'persistore'
     memory: 256
     virtual-cpus: 2
     exposed-ports:
@@ -1750,11 +1742,11 @@ configuration:
     description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
     secret: false
     required: false
-  - name: LOCAL_VOLUME_BROKER_PASSWORD
+  - name: PERSI_BROKER_PASSWORD
     secret: true
     generator:
       type: Password
-    description: The password for access to the local volume service broker.
+    description: The password for access to the Persi service broker.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     generator:
@@ -2435,7 +2427,7 @@ configuration:
     properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.localbroker.password: '"((LOCAL_VOLUME_BROKER_PASSWORD))"'
+    properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
