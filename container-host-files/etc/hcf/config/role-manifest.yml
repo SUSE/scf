@@ -1551,7 +1551,7 @@ roles:
         external: 8443
         internal: 8443
         public: false
-- name: volume-broker
+- name: persi-broker
   environment_scripts:
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -1560,13 +1560,16 @@ roles:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
-  - name: localbroker
-    release_name: local-volume
   - name: localdriver
     release_name: local-volume
+  - name: localbroker
+    release_name: local-volume
+  - name: haproxy
+    release_name: cf
   processes:
-  - name: localbroker
   - name: localdriver
+  - name: localbroker
+  - name: haproxy
   run:
     scaling:
       min: 1
@@ -1580,11 +1583,19 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'volume-broker'
+      - name: 'persi-broker'
         protocol: 'TCP'
-        external: 8999
-        internal: 8999
+        external: 443
+        internal: 443
         public: false
+  configuration:
+    templates:
+      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.servers: '["127.0.0.1"]'
+      properties.router.port: 8999
+      properties.ha_proxy.disable_http: true
+      properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
+      properties.cc.allow_app_ssh_access: false
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -2131,6 +2142,13 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key.
+  - name: PERSI_BROKER_TLS_CERT_KEY
+    secret: true
+    generator:
+      id: "persi_broker_cert"
+      type: Certificate
+      value_type: cert_private_key
+    description: TLS certificate and key (PEM file).
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
     example: false

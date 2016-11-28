@@ -55,7 +55,7 @@ signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
-  buildCertstrap=$(docker run -d golang:1.6 bash -c "go get github.com/square/certstrap")
+  buildCertstrap=$(docker run -d golang:1.7 bash -c "go get github.com/square/certstrap")
   docker wait "${buildCertstrap}"
   docker cp "${buildCertstrap}:/go/bin/certstrap" /home/vagrant/bin/
   docker rm "${buildCertstrap}"
@@ -196,6 +196,13 @@ certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internal
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
 
+server_cn=persi_broker_tls
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker-int")"
+certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
+mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.key"
+mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"
+cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" > "${certs_path}/persi_broker_tls.pem"
+
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
 INTERNAL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/internalCA.crt")
@@ -231,7 +238,7 @@ SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
 CF_USB_BROKER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.key")
 CF_USB_BROKER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.crt")
-
+PERSI_BROKER_TLS_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/persi_broker_tls.pem")
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
@@ -272,6 +279,7 @@ SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 CF_USB_BROKER_SERVER_KEY=${CF_USB_BROKER_SERVER_KEY}
 CF_USB_BROKER_SERVER_CERT=${CF_USB_BROKER_SERVER_CERT}
+PERSI_BROKER_TLS_CERT_KEY=${PERSI_BROKER_TLS_CERT_KEY}
 ENVS
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"
