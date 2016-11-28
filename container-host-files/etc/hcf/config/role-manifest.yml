@@ -1591,9 +1591,9 @@ configuration:
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabyte. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
-  - name: MAX_DISK_SIZE
+  - name: MAX_APP_DISK_IN_MB
     default: 2048
-    description: The maximum amount of disk a user can request, in MB.
+    description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
@@ -2218,7 +2218,7 @@ configuration:
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.cc.maximum_app_disk_in_mb: '((MAX_DISK_SIZE))'
+    properties.cc.maximum_app_disk_in_mb: '((MAX_APP_DISK_IN_MB))'
     properties.cc.maximum_health_check_timeout: '((MAX_HEALTH_CHECK_TIMEOUT))'
     properties.cc.nginx_error_log_level: '"((LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
