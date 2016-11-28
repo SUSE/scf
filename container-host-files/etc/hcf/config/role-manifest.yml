@@ -1588,9 +1588,9 @@ configuration:
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
-  - name: MAX_BODY_SIZE
-    default: 1536M
-    description: Maximum body size for nginx bits uploads.
+  - name: NGINX_MAX_REQUEST_BODY_SIZE
+    default: 1536
+    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabyte. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
   - name: MAX_DISK_SIZE
     default: 2048
     description: The maximum amount of disk a user can request, in MB.
@@ -2197,7 +2197,7 @@ configuration:
     properties.capi.tps.traffic_controller_url: "ws://loggregator-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8081"
     properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
     properties.cc.allowed_cors_domains: '[((ALLOWED_CORS_DOMAINS))]'
-    properties.cc.app_bits_max_body_size: '((MAX_BODY_SIZE))'
+    properties.cc.app_bits_max_body_size: '((NGINX_MAX_REQUEST_BODY_SIZE))M'
     properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
