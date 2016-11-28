@@ -1553,9 +1553,6 @@ configuration:
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
-  - name: DEA_USE_HTTPS
-    default: false
-    description: Enable ssl for communication with DEAs.
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
     description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
@@ -2209,7 +2206,6 @@ configuration:
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.db_logging_level: '"((LOG_LEVEL))"'
-    properties.cc.dea_use_https: '((DEA_USE_HTTPS))'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
