@@ -1601,8 +1601,8 @@ configuration:
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
   - name: MAX_UPLOAD_SIZE
-    default: 5000m
-    description: Maximal allowed file size for upload.
+    default: 5000
+    description: Maximal allowed file size for upload, in megabyte.
   - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
@@ -1946,7 +1946,7 @@ configuration:
     description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
-    description: Certficates to add to the rootfs trust store. Plain text, not a list.
+    description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_SERVICES_SECRET
     secret: true
     generator:
@@ -2162,7 +2162,7 @@ configuration:
     properties.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
-    properties.blobstore.max_upload_size: '((MAX_UPLOAD_SIZE))'
+    properties.blobstore.max_upload_size: '((MAX_UPLOAD_SIZE))m'
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
