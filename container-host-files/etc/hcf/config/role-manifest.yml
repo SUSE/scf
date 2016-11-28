@@ -1561,10 +1561,10 @@ configuration:
     description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
   - name: DIEGO_PRIVILEGED_CONTAINERS
     default: false
-    description: Whether or not to use privileged containers for  buildpack based LRPs and tasks. Containers with a docker-image-based rootfs will continue to always be unprivileged and cannot be changed.
+    description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
   - name: DISABLE_CUSTOM_BUILDPACKS
     default: false
-    description: Disable external (i.e. git) buildpacks (Admin buildpacks and system buildpacks only.)
+    description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
     description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
@@ -1579,9 +1579,9 @@ configuration:
     description: The host to ping for confirmation of DNS resolution.
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
     default: false
-    description: Enables setting X-Forwarded-Proto header if SSL termination happened upstream and incorrectly set the header value. When this property is set to true gorouter sets the header X-Forwarded-Proto to https. When this value set to false, gorouter set the header X-Forwarded-Proto to the protocol of the incoming request.
+    description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
   - name: GARDEN_DOCKER_REGISTRY
-    description: URL pointing to the Docker registry to use to fetch Docker images. If not set, this will default to the Docker default.
+    description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
     default: []
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
@@ -1599,7 +1599,7 @@ configuration:
     description: The maximum amount of disk a user can request, in MB.
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
-    description: Maximum health check timeout that can be set for the app, in seconds.
+    description: Maximum health check timeout that can be set for an app, in seconds.
   - name: MAX_UPLOAD_SIZE
     default: 5000m
     description: Maximal allowed file size for upload.
@@ -2111,7 +2111,7 @@ configuration:
     description: Whether or not to use privileged containers for staging tasks.
   - name: STAGING_TIMEOUT
     default: 900
-    description: Timeout for staging a droplet, in seconds.
+    description: Timeout for staging an app, in seconds.
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
