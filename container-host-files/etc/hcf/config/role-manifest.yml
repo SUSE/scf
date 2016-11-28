@@ -2137,7 +2137,7 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the Autoscaler.
-  - name: UPLOAD_GRACE_PERIOD
+  - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
   templates:
@@ -2201,7 +2201,7 @@ configuration:
     properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
     properties.cc.allowed_cors_domains: '[((ALLOWED_CORS_DOMAINS))]'
     properties.cc.app_bits_max_body_size: '((MAX_BODY_SIZE))'
-    properties.cc.app_bits_upload_grace_period_in_seconds: '((UPLOAD_GRACE_PERIOD))'
+    properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.buildpacks.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
