@@ -4,3 +4,5 @@ cf-plugin-versions.tar.gz,https://s3.amazonaws.com/helion-developers/aarondl/cf-
 cf-plugin-backup.tgz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-backup-1.0.1%2B1.ga960f71.linux-amd64.tgz
 hcp-binary.tar.gz,https://release.stackato.com/downloads/hcp/cli/dist/hcp-1.0.17-linux-amd64.tar.gz
 jq,https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+hsm-binary.tar.gz,https://release.stackato.com/downloads/hsm/cli/dist/1.0.37/hsm-1.0.37-linux-amd64.tar.gz
+cf-plugin-hsm.tar.gz,https://release.stackato.com/downloads/hsm/cf-plugin/1.0.37/cf-hsm-plugin-1.0.37-linux-amd64.tar.gz

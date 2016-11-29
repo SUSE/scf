@@ -34,3 +34,9 @@ properties:
     description: The password for HCP
   acceptance_tests_brain.hcf_instance:
     description: The instance name of HCF
+  acceptance_tests_brain.hsm_domain:
+    description: The domain of HSM
+  acceptance_tests_brain.hcf_product_version:
+    description: Upgrade HCF to this product version
+  acceptance_tests_brain.hcf_sdl_version:
+    description: Upgrade HCF to this sdl version
