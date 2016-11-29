@@ -15,6 +15,9 @@ PATCH
 
 if [ -z "${1}" ]; then echo "${usage}"; exit 1; else VOLUME=$1; fi
 
+# Get global environment (http proxy information, etc)
+. /etc/environment
+
 # Setup an overlay ext4 filesystem using logical volume management
 # We're using lvm so we can easily resize in the future
 
@@ -44,15 +47,15 @@ dopts="$dopts --insecure-registry=192.168.0.0/16"
 # Limit log file size; don't bother rotating because `docker logs` only uses the current log
 dopts="$dopts --log-opt max-file=1 --log-opt max-size=50m"
 
+echo ___ Insert
+
 for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
   if test -n "${!var}" ; then
-    echo "export ${var}=${!var}" >> /etc/default/docker
+    echo "export ${var}=${!var}" | tee -a /etc/default/docker
   fi
 done
 
-echo ___ Insert
 echo DOCKER_OPTS=\"$dopts\" | tee -a /etc/default/docker
 
 # Activate the now-configured system
-
 service docker start
