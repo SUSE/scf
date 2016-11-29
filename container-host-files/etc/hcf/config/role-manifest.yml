@@ -1609,6 +1609,42 @@ configuration:
     example: tcp.my-hcf-cluster.com
     required: false
     description: TCP routing domain of the HCF cluster.
+  - name: HSM_DOMAIN
+    example: hsm.my-hcf-cluster.com
+    required: false
+    description: HSM domain.
+  - name: HCP_DOMAIN
+    example: hcp.my-hcf-cluster.com
+    required: false
+    description: HCP domain.
+  - name: HCP_USERNAME
+    example: admin
+    required: false
+    description: Username for HCP.
+  - name: HCP_PASSWORD
+    example: mysecretpassword
+    required: false
+    description: Password for HCP user.
+  - name: CF_USERNAME
+    example: admin
+    required: false
+    description: Username for HCF.
+  - name: CF_PASSWORD
+    example: mysecretpassword
+    required: false
+    description: Password for HCF.
+  - name: HCF_INSTANCE
+    example: hcf
+    required: false
+    description: HCF instance name.
+  - name: HCF_PRODUCT_VERSION
+    example: 4.0.1
+    required: false
+    description: HCF product version.
+  - name: HCF_SDL_VERSION
+    example: git_commit
+    required: false
+    description: HCF sdl version.
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:
@@ -2079,6 +2115,13 @@ configuration:
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.acceptance_tests_brain.hcp_domain: 'hcp.((DOMAIN))'
+    properties.acceptance_tests_brain.hsm_domain: '"hsm.((DOMAIN))"'
+    properties.acceptance_tests_brain.hcp_username: '((HCP_USERNAME))'
+    properties.acceptance_tests_brain.hcp_password: '((HCP_PASSWORD))'
+    properties.acceptance_tests_brain.hcf_instance: '((HCF_INSTANCE))'
+    properties.acceptance_tests_brain.hcf_product_version: '"((HCF_PRODUCT_VERSION))"'
+    properties.acceptance_tests_brain.hcf_sdl_version: '"((HCF_SDL_VERSION))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"sclr-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
@@ -2336,6 +2379,7 @@ configuration:
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaadb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+
 auth:
   # This maps to properties.uaa.clients / properties.uaa.user.authorities;
   # there is no mustache expansion here.
