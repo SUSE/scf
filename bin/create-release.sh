@@ -36,19 +36,57 @@ proxies=
 MO=
 for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
   if test -n "${!var}" ; then
-      proxies="$proxies --env ${var}=http://${!var}"
+
+      # Notes
+      # - Accept only http and https as schemata. And if there is no
+      #   schema, then we add http back in.
+      # - Without a port, use the default 80/443 for http/https
+      # - Strip trailing slash
+
+      proxyspec=${!var}
+
+      case ${proxyspec} in
+	  http://*)
+	      pproto=http
+	      proxyspec=${proxyspec##http://}
+	      ;;
+	  https://*)
+	      pproto=https
+	      proxyspec=${proxyspec##https://}
+	      ;;
+	  *://*)
+	      echo Found unsupported proxy protocol in $proxyspec
+	      false
+	      ;;
+	  *)
+	      # No protocol, default to http
+	      pproto=http
+	      ;;
+      esac
+      proxyspec=${proxyspec%%/}
+      proxies="${proxies} --env ${var}=${pproto}://${proxyspec}"
 
       # Non-standard work for java/maven. Extract host/port
-      # information and reassemble.
-      val=${!var}
-      pport=${val##*:}
-      phost=${val%%:*}
-      case $var in
+      # information and reassemble. This code assumes that schema and
+      # trailing slash were stripped, see above.
+
+      phost=${proxyspec%%:*}
+      pport=${proxyspec##*:}
+
+      if [ "${pport}" == "${proxyspec}" ] ; then
+	  # No port found, use protocol-specific default
+	  case ${pproto} in
+	      https) pport=443 ;;
+	      http)  pport=80 ;;
+	  esac
+      fi
+
+      case ${var} in
 	  http_*|HTTP_*)
-	  MO="$MO -Dhttp.proxyHost=$phost -Dhttp.proxyPort=$pport"
+	  MO="${MO} -Dhttp.proxyHost=${phost} -Dhttp.proxyPort=${pport} -Dhttp.proxyProtocol=${pproto}"
 	  ;;
 	  https_*|HTTPS_*)
-	  MO="$MO -Dhttps.proxyHost=$phost -Dhttps.proxyPort=$pport"
+	  MO="${MO} -Dhttps.proxyHost=${phost} -Dhttps.proxyPort=${pport} -Dhttp.proxyProtocol=${pproto}"
 	  ;;
       esac
   fi
