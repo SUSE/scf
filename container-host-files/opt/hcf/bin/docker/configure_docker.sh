@@ -16,7 +16,8 @@ PATCH
 if [ -z "${1}" ]; then echo "${usage}"; exit 1; else VOLUME=$1; fi
 
 # Get global environment (http proxy information, etc)
-. /etc/environment
+source /etc/environment
+export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
 # Setup an overlay ext4 filesystem using logical volume management
 # We're using lvm so we can easily resize in the future

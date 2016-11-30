@@ -1,4 +1,3 @@
-
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -146,28 +145,28 @@ Vagrant.configure(2) do |config|
     SHELL
   end
 
-  config.vm.provision "shell", privileged: false, env: {
-    "no_proxy"    => "#{ENV['no_proxy']}",
-    "http_proxy"  => "#{ENV['http_proxy']}",
-    "https_proxy" => "#{ENV['https_proxy']}",
-    "NO_PROXY"    => "#{ENV['NO_PROXY']}",
-    "HTTP_PROXY"  => "#{ENV['HTTP_PROXY']}",
-    "HTTPS_PROXY" => "#{ENV['HTTPS_PROXY']}"
+  config.vm.provision "shell", privileged: true, env: ENV.select { |e|
+    %w(http_proxy https_proxy no_proxy).include? e.downcase
   }, inline: <<-SHELL
     set -e
     echo Proxy setup of the host, saved ...
     for var in no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY ; do
        if test -n "${!var}" ; then
-          echo "export ${var}=${!var}" | sudo tee -a /etc/environment
+          echo "${var}=${!var}" | tee -a /etc/environment
        fi
     done
+  SHELL
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -e
 
     # Configure Docker things
     sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
 
     # Get proxy configuration here
-    . /etc/environment
+    source /etc/environment
+    export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
