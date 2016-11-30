@@ -29,14 +29,46 @@ stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::docker::${rel
 # bosh create release calls `git status` (twice), but hcf doesn't need to know if the
 # repo is dirty, so stub it out.
 
+# import proxy information, if any, what there is.
+# Note, the http:// schema prefix is intentional.
+# Most of our bosh releases apparently do not understand the form without it.
+proxies=
+MO=
+for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
+  if test -n "${!var}" ; then
+      proxies="$proxies --env ${var}=http://${!var}"
+
+      # Non-standard work for java/maven. Extract host/port
+      # information and reassemble.
+      val=${!var}
+      pport=${val##*:}
+      phost=${val%%:*}
+      case $var in
+	  http_*|HTTP_*)
+	  MO="$MO -Dhttp.proxyHost=$phost -Dhttp.proxyPort=$pport"
+	  ;;
+	  https_*|HTTPS_*)
+	  MO="$MO -Dhttps.proxyHost=$phost -Dhttps.proxyPort=$pport"
+	  ;;
+      esac
+  fi
+done
+
+# Notes
+# - JAVA_OPTS  - cf-release
+# - MAVEN_OPTS - open-autoscaler-release
+
 docker run \
     --interactive \
     --rm \
     --volume ${HOME}/.bosh:/root/.bosh \
     --volume $ROOT/:$ROOT/ \
     --env RBENV_VERSION="${RUBY_VERSION:-2.2.3}" \
+    ${proxies} \
+    --env MAVEN_OPTS="$MO" \
+    --env JAVA_OPTS="$MO" \
     helioncf/hcf-pipeline-ruby-bosh \
-    bash -l -c "cp $ROOT/bin/dev/fake-git /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
+    bash -l -c "env | grep -i proxy | sort |sed -e 's/^/PROXY SETUP: /' ; cp $ROOT/bin/dev/fake-git /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::docker::${release_name} done
 
 # Convert YAML to JSON to escape strings nicely so the commit hashes don't get confused as floats
