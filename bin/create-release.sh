@@ -69,8 +69,12 @@ for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
       # Non-standard work for java/maven. Extract host/port
       # information and reassemble. This code assumes that schema and
       # trailing slash were stripped, see above.
+      #
+      # Notes: As the host part may contain colons (ipv6) host is
+      # extracted by removing shortest string to colon from end, and
+      # port is by removing longest string to colon from beginning.
 
-      phost=${proxyspec%%:*}
+      phost=${proxyspec%:*}
       pport=${proxyspec##*:}
 
       if [ "${pport}" == "${proxyspec}" ] ; then
