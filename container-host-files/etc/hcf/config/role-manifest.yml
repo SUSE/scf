@@ -1272,6 +1272,7 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/cf_acceptance_tests_suites.sh
+  - scripts/patches/cherry_pick_acceptance_test_routing_fix.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
