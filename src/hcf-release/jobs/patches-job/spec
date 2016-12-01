@@ -25,10 +25,3 @@ properties:
   routing_api.port:
     description: "Used to patch the router's configuration for the routing api"
     default: 3000
-
-  # These two are here because autoscaler_api uses them but doesn't define them in its spec
-  autoscaler_server.internal_auth.username:
-        description: the autoscaler-server's username
-
-  autoscaler_server.internal_auth.password:
-        description: the autoscaler-server's password

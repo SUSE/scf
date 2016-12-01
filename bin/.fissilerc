@@ -98,3 +98,6 @@ export FISSILE_CONFIG_PREFIX=hcf
 
 # Default version label for the created images
 # export FISSILE_VERSION=
+
+# Default value for --patch-properties-release
+export FISSILE_PATCH_PROPERTIES_RELEASE="hcf/patch-properties"
