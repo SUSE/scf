@@ -53,29 +53,6 @@ PATCH
   touch "${SENTINEL}"
   fi
 
-NETWORK_DIAGNOSTICS_SENTINEL="${PATCH_DIR}/${0##*/}.network_diagnostics.sentinel"
-
-if [ ! -f "${NETWORK_DIAGNOSTICS_SENTINEL}" ]; then
-
-  read -r -d '' setup_patch_etcd_network_diagnostics_run <<'PATCH' || true
---- etcd_network_diagnostics_run.sh.erb.orig
-+++ etcd_network_diagnostics_run.sh.erb
-@@ -45,7 +45,7 @@ function main() {
-     echo " "
- 
-     <%
--        if p("etcd.require_ssl") || p("etcd.peer_require_ssl")
-+        if p("etcd.cluster")
-           cluster_members = p("etcd.cluster").map do |zone|
-             result = []
-             for i in 0..zone["instances"]-1
-PATCH
-  
-  echo -e "${setup_patch_etcd_network_diagnostics_run}" | patch --force
-  
-  touch "${NETWORK_DIAGNOSTICS_SENTINEL}"
-fi
-
 METRICS_PATCH_DIR="/var/vcap/jobs-src/etcd_metrics_server/templates"
 METRICS_SENTINEL="${METRICS_PATCH_DIR}/${0##*/}.sentinel"
 
