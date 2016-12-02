@@ -77,7 +77,7 @@ cd wats
 
 cat > scripts/wats_hcf_config.json <<EOL
 {
-  "api": "api.cf-dev.op",
+  "api": "api.cf-dev.io",
   "admin_user": "admin",
   "admin_password": "changeme",
   "apps_domain": "cf-dev.io",
