@@ -1943,36 +1943,51 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
-  - name: DOPPLER_SERVER_CERT
+  - name: DOPPLER_CERT
     secret: true
     generator:
-      id: "doppler_server_cert"
+      id: "doppler_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded server certificate
-  - name: DOPPLER_SERVER_KEY
+    description: PEM-encoded certificate.
+  - name: DOPPLER_KEY
     secret: true
     generator:
-      id: "doppler_server_cert"
+      id: "doppler_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded server key
-  - name: METRON_CLIENT_KEY
+    description: PEM-encoded key.
+  - name: METRON_KEY
     secret: true
     generator:
-      id: "metron_client_cert"
+      id: "metron_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded client key
-  - name: METRON_CLIENT_CERT
+    description: PEM-encoded key.
+  - name: METRON_CERT
     secret: true
     generator:
-      id: "metron_client_cert"
+      id: "metron_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded client certificate.
+    description: PEM-encoded certificate.
+  - name: TRAFFICCONTROLLER_CERT
+    secret: true
+    generator:
+      id: "trafficcontroller_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: TRAFFICCONTROLLER_KEY
+    secret: true
+    generator:
+      id: "trafficcontroller_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key.
   - name: BBS_SERVER_KEY
     secret: true
     generator:
@@ -2380,8 +2395,6 @@ configuration:
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CERT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.doppler.tls.server_cert: '"((DOPPLER_SERVER_CERT))"'
-    properties.doppler.tls.server_key: '"((DOPPLER_SERVER_KEY))"'
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
@@ -2420,7 +2433,7 @@ configuration:
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CERT","value":"((BBS_CLIENT_CERT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CLIENT_CERT","value":"((METRON_CLIENT_CERT))"},{"name":"METRON_CLIENT_KEY","value":"((METRON_CLIENT_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"etcd-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CLIENT_CERT","value":"((ETCD_CLIENT_CERT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"}]'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CERT","value":"((BBS_CLIENT_CERT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"etcd-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CLIENT_CERT","value":"((ETCD_CLIENT_CERT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"}]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
@@ -2451,13 +2464,17 @@ configuration:
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.loggregator.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
+    properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
+    properties.loggregator.tls.metron.cert: '"((METRON_CERT))"'
+    properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
+    properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
+    properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CERT))"'
     properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.metron_agent.tls.client_cert: '"((METRON_CLIENT_CERT))"'
-    properties.metron_agent.tls.client_key: '"((METRON_CLIENT_KEY))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: '((CLUSTER_NAME))'

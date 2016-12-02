@@ -115,13 +115,17 @@ certstrap --depot-path "${internal_certs_dir}" sign bbsServer --CA internalCA --
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "bbsClient" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbsClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
-#generate DOPPLER server certs
+# generate DOPPLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name doppler --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign doppler --CA internalCA --passphrase "${signing_key_passphrase}"
 
-#generate METRON server certs
+# generate METRON certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name metron --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate TRAFFICCONTROLLER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign trafficcontroller --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate SSO routing certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso-int")" --passphrase ""
@@ -217,8 +221,8 @@ CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.c
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.key")
 DEMOPHON_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.crt")
 DEMOPHON_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.key")
-DOPPLER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.crt")
-DOPPLER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.key")
+DOPPLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.crt")
+DOPPLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.key")
 ETCD_CLIENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdClient.crt")
 ETCD_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdClient.key")
 ETCD_PEER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdPeer.crt")
@@ -229,14 +233,16 @@ HAPROXY_SSL_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ha_proxy.pem")
 INTERNAL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/internalCA.crt")
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
-METRON_CLIENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
-METRON_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
+METRON_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
+METRON_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
 PERSI_BROKER_TLS_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/persi_broker_tls.pem")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
+TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
+TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.key")
 UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
 UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 
@@ -258,8 +264,8 @@ CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
 DEMOPHON_SERVER_CERT=${DEMOPHON_SERVER_CERT}
 DEMOPHON_SERVER_KEY=${DEMOPHON_SERVER_KEY}
-DOPPLER_SERVER_CERT=${DOPPLER_SERVER_CERT}
-DOPPLER_SERVER_KEY=${DOPPLER_SERVER_KEY}
+DOPPLER_CERT=${DOPPLER_CERT}
+DOPPLER_KEY=${DOPPLER_KEY}
 ETCD_CLIENT_CERT=${ETCD_CLIENT_CERT}
 ETCD_CLIENT_KEY=${ETCD_CLIENT_KEY}
 ETCD_PEER_CERT=${ETCD_PEER_CERT}
@@ -270,14 +276,16 @@ HAPROXY_SSL_CERT_KEY=${HAPROXY_SSL_CERT_KEY}
 INTERNAL_CA_CERT=${INTERNAL_CA_CERT}
 JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
 JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
-METRON_CLIENT_CERT=${METRON_CLIENT_CERT}
-METRON_CLIENT_KEY=${METRON_CLIENT_KEY}
-ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
+METRON_CERT=${METRON_CERT}
+METRON_KEY=${METRON_KEY}
 PERSI_BROKER_TLS_CERT_KEY=${PERSI_BROKER_TLS_CERT_KEY}
+ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
 SSH_KEY=${SSH_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
+TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
+TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
 UAA_CERTIFICATE=${UAA_CERTIFICATE}
 UAA_PRIVATE_KEY=${UAA_PRIVATE_KEY}
 ENVS
