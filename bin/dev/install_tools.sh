@@ -4,9 +4,7 @@ set -e
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-/home/vagrant/bin}"
 tools_dir="${tools_dir:-/home/vagrant/tools}"
-fissile_url="${fissile_url:-https://concourse-hpe.s3.amazonaws.com/fissile-3.0.1%2B15.gdd0129e.linux-amd64.tgz}"
-#TODO: Switch to fissile 4.0.0 once it's in the pipeline.
-# fissile_url="${fissile_url:-https://concourse-hpe.s3.amazonaws.com/fissile-4.0.0%2b0.gefbeea1.linux-amd64.tgz}"
+fissile_url="${fissile_url:-https://concourse-hpe.s3.amazonaws.com/fissile-4.0.0%2b25.g04a5f07.linux-amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
 stampy_url="${stampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B7.g4d305fa.master-linux.amd64.tgz}"
 
