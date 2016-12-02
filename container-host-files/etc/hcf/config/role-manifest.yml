@@ -1958,6 +1958,51 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+  - name: AUCTIONEER_REP_CERT
+    secret: true
+    generator:
+      id: "auctioneer_rep_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: AUCTIONEER_REP_KEY
+    secret: true
+    generator:
+      id: "auctioneer_rep_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: BBS_REP_CERT
+    secret: true
+    generator:
+      id: "bbs_rep_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: BBS_REP_KEY
+    secret: true
+    generator:
+      id: "bbs_rep_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: REP_SERVER_CERT
+    secret: true
+    generator:
+      id: "rep_server_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server certificate
+  - name: REP_SERVER_KEY
+    secret: true
+    generator:
+      id: "rep_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded server key
   - name: METRON_KEY
     secret: true
     generator:
@@ -2357,6 +2402,10 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CERT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.auctioneer.log_level: '"((LOG_LEVEL))"'
+    properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
+    properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
+    properties.diego.auctioneer.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.bbs.auctioneer.api_url: 'http://diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
@@ -2364,15 +2413,24 @@ configuration:
     properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CERT))"'
     properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.diego.bbs.log_level: '"((LOG_LEVEL))"'
+    properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
+    properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
+    properties.diego.bbs.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CERT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-int.{{HCP_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.file_server.log_level: '"((LOG_LEVEL))"'
+    properties.diego.rep.advertise_domain: '((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.diego.rep.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CERT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
+    properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
     properties.diego.route_emitter.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
