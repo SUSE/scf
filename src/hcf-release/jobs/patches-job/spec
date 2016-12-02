@@ -12,11 +12,16 @@ properties:
   cf_mysql.mysql.advertise_host:
     description: "Used to patch mysql's advertising mechanism"
 
-  routing_api.uri:
-    description: "Used to patch the router's configuration for the routing api"
-
   uaa.token_endpoint:
     description: "Used to patch the router's configuration"
 
   etcd.bootstrap_node:
     description: "Used to patch etcd server bootstrap"
+
+  # These two are here for routing-api and routing-ha-proxy
+  routing_api.uri:
+    description: "Used to patch the router's configuration for the routing api"
+
+  routing_api.port:
+    description: "Used to patch the router's configuration for the routing api"
+    default: 3000
