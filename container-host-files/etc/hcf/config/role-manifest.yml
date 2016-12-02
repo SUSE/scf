@@ -1532,6 +1532,9 @@ configuration:
   - name: ALLOW_APP_SSH_ACCESS
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
+  - name: BLOBSTORE_MAX_UPLOAD_SIZE
+    default: 5000
+    description: Maximal allowed file size for upload to blobstore, in megabytes.
   - name: BLOBSTORE_PASSWORD
     secret: true
     generator:
@@ -1590,16 +1593,13 @@ configuration:
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
-    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabyte. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
+    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
   - name: MAX_APP_DISK_IN_MB
     default: 2048
     description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
-  - name: MAX_UPLOAD_SIZE
-    default: 5000
-    description: Maximal allowed file size for upload, in megabyte.
   - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
@@ -2159,7 +2159,7 @@ configuration:
     properties.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
-    properties.blobstore.max_upload_size: '((MAX_UPLOAD_SIZE))m'
+    properties.blobstore.max_upload_size: '((BLOBSTORE_MAX_UPLOAD_SIZE))m'
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
