@@ -27,7 +27,6 @@ properties:
     name: 'app-autoscaler'
     auth:
       username: 'admin'
-  build: 4.0.0
   capi:
     nsync:
       lifecycle_bundles:
@@ -188,7 +187,6 @@ properties:
     metric_prefix: couchdb-scalingmetric
     port: 5984
     username: admin
-  description: HPE Helion Cloud Foundry
   diego:
     bbs:
       active_key_label: active
@@ -255,7 +253,6 @@ properties:
   metron_agent:
     deployment: hcf-deployment
     protocols: ["tls"]
-  name: HCF
   nats:
     port: 4222
     user: nats
@@ -286,7 +283,6 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  support_address: stackato-support@hpe.com
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
@@ -320,4 +316,3 @@ properties:
       tag: uaa
     db_scheme: mysql
     port: 3306
-  version: 2
