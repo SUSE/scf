@@ -1625,6 +1625,34 @@ configuration:
     example: tcp.my-hcf-cluster.com
     required: false
     description: TCP routing domain of the HCF cluster.
+  - name: HSM_DOMAIN
+    example: hsm.my-hcf-cluster.com
+    required: false
+    description: HSM domain.
+  - name: HCP_DOMAIN
+    example: hcp.my-hcf-cluster.com
+    required: false
+    description: HCP domain.
+  - name: HCP_USERNAME
+    example: admin
+    required: false
+    description: Username for HCP.
+  - name: HCP_PASSWORD
+    example: mysecretpassword
+    required: false
+    description: Password for HCP user.
+  - name: CF_USERNAME
+    example: admin
+    required: false
+    description: Username for HCF.
+  - name: CF_PASSWORD
+    example: mysecretpassword
+    required: false
+    description: Password for HCF.
+  - name: HCF_INSTANCE
+    example: hcf
+    required: false
+    description: HCF instance name.
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:

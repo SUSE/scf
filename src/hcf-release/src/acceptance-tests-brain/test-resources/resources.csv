@@ -2,3 +2,7 @@ cf-plugin-usb.tgz,https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-
 cf-plugin-autoscaler.tgz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-autoscale-1.1.0%2B4.g05a5e66.linux-amd64.tgz
 cf-plugin-versions.tar.gz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-versions-1.1.5%2B1.gbd904ed.linux-amd64.tgz
 cf-plugin-backup.tgz,https://s3.amazonaws.com/helion-developers/aarondl/cf-plugin-backup-1.0.1%2B1.ga960f71.linux-amd64.tgz
+hcp-binary.tar.gz,https://release.stackato.com/downloads/hcp/cli/dist/hcp-1.0.17-linux-amd64.tar.gz
+jq,https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+hsm-binary.tar.gz,https://release.stackato.com/downloads/hsm/cli/dist/1.0.37/hsm-1.0.37-linux-amd64.tar.gz
+cf-plugin-hsm.tar.gz,https://release.stackato.com/downloads/hsm/cf-plugin/1.0.37/cf-hsm-plugin-1.0.37-linux-amd64.tar.gz
