@@ -68,7 +68,6 @@ class ToHCP < Common
     # DEF.components[].vendor				/string
     # DEF.components[].image				/string	(*7)
     # DEF.components[].min_RAM_mb			/int32
-    # DEF.components[].min_disk_gb			/int32
     # DEF.components[].min_VCPU				/int32
     # DEF.components[].platform				/string	(*3)
     # DEF.components[].capabilities[]			/string (*1)
@@ -78,7 +77,6 @@ class ToHCP < Common
     # DEF.components[].depends_on[].version		/string \
     # DEF.components[].depends_on[].vendor		/string \
     # DEF.components[].affinity[]			/string
-    # DEF.components[].labels[]				/string
     # DEF.components[].min_instances			/int
     # DEF.components[].max_instances			/int
     # DEF.components[].service_ports[].name		/string
@@ -209,8 +207,6 @@ class ToHCP < Common
     bname = role['name']
     iname = "#{@hcf_prefix}-#{bname}"
 
-    labels = [ bname ]
-
     runtime = role['run']
     scaling = runtime['scaling']
     min     = scaling['min']
@@ -225,13 +221,11 @@ class ToHCP < Common
       'image'         => iname,
       'tag'           => @hcf_tag,
       'min_RAM_mb'    => runtime['memory'],
-      'min_disk_gb'   => 1, 	# Out of thin air
       'min_VCPU'      => cpu_fraction(runtime['virtual-cpus']),
       'platform'      => 'linux-x86_64',
       'capabilities'  => runtime['capabilities'],
       'depends_on'    => [],	  # No dependency info in the RM
       'affinity'      => [],	  # No affinity info in the RM
-      'labels'        => labels,  # TODO: Maybe also label with the jobs ?
       'min_instances' => min,     # See above for the calculation for the
       'max_instances' => max,     # component and its clones.
       'service_ports' => [],	  # Fill from role runtime config, see below
