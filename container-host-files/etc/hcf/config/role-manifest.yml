@@ -285,6 +285,7 @@ roles:
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -336,6 +337,7 @@ roles:
   - scripts/patches/router_internal_host_names.sh
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -385,6 +387,7 @@ roles:
   scripts:
   - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -430,6 +433,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_uaa_failure_to_interpolate.sh
   jobs:
@@ -487,6 +491,7 @@ roles:
   - scripts/perform_nfs_test.sh
   - scripts/patches/fix_buildpack_install.sh
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -560,6 +565,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -640,6 +646,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1100,7 +1107,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1135,7 +1142,7 @@ roles:
   type: bosh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1167,7 +1174,7 @@ roles:
   type: bosh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
