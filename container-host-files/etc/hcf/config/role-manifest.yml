@@ -485,7 +485,6 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/perform_nfs_test.sh
-  - scripts/patches/fix_buildpack_install.sh
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
   jobs:
