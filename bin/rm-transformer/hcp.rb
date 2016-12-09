@@ -55,7 +55,7 @@ class ToHCP < Common
     # Generated structure
     ##
     # DEF.name						/string
-    # DEF.version					/string
+    # DEF.sdl_version					/string
     # DEF.vendor					/string
     # DEF.preflight[].					(*9)
     # DEF.postflight[].					(*9)
@@ -64,8 +64,6 @@ class ToHCP < Common
     # DEF.volumes[].filesystem				/string (*2)
     # DEF.volumes[].shared				/bool
     # DEF.components[].name				/string
-    # DEF.components[].version				/string
-    # DEF.components[].vendor				/string
     # DEF.components[].image				/string	(*7)
     # DEF.components[].min_RAM_mb			/int32
     # DEF.components[].min_VCPU				/int32
@@ -73,10 +71,6 @@ class ToHCP < Common
     # DEF.components[].capabilities[]			/string (*1)
     # DEF.components[].workload_type			/string (*4)
     # DEF.components[].entrypoint[]			/string (*5)
-    # DEF.components[].depends_on[].name		/string \(*8)
-    # DEF.components[].depends_on[].version		/string \
-    # DEF.components[].depends_on[].vendor		/string \
-    # DEF.components[].affinity[]			/string
     # DEF.components[].min_instances			/int
     # DEF.components[].max_instances			/int
     # DEF.components[].service_ports[].name		/string
@@ -214,8 +208,6 @@ class ToHCP < Common
 
     the_comp = {
       'name'          => bname,
-      'version'       => '0.0.0', # See also toplevel version
-      'vendor'        => 'HPE',	  # See also toplevel vendor
       'repository'    => @dtr,
       'organization'  => @dtr_org,
       'image'         => iname,
@@ -224,8 +216,6 @@ class ToHCP < Common
       'min_VCPU'      => cpu_fraction(runtime['virtual-cpus']),
       'platform'      => 'linux-x86_64',
       'capabilities'  => runtime['capabilities'],
-      'depends_on'    => [],	  # No dependency info in the RM
-      'affinity'      => [],	  # No affinity info in the RM
       'min_instances' => min,     # See above for the calculation for the
       'max_instances' => max,     # component and its clones.
       'service_ports' => [],	  # Fill from role runtime config, see below
