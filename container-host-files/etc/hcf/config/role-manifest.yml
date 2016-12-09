@@ -1757,6 +1757,9 @@ configuration:
     example: tcp.my-hcf-cluster.com
     required: false
     description: TCP routing domain of the HCF cluster.
+  - name: RESERVABLE_PORTS
+    default: "20000-20008"
+    description: Modifying this value will break TCP port forwarding.
   - name: HCF_SSO_PASSWORD
     secret: true
     generator:
@@ -2580,6 +2583,7 @@ configuration:
     properties.routing_api.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.routing_api.etcd.servers: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.routing_api.log_level: '"((LOG_LEVEL))"'
+    properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://routing-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))
     properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
