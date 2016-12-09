@@ -18,11 +18,11 @@ read -r -d '' setup_patch_galera <<'PATCH' || true
  Monit:
 -  User: 'vcap'
 -  Password: 'random-password'
-+  User: '<%= p('hcf.monit.user') %>'
++  User: 'admin'
 +  Password: '<%= p('hcf.monit.password') %>'
    Host: 'localhost'
 -  Port: 2822
-+  Port: <%= p('hcf.monit.port') %>
++  Port: 2289
    MysqlStateFilePath: '/var/vcap/store/mysql/state.txt'
    ServiceName: 'mariadb_ctrl'
    BootstrapFilePath: '/var/vcap/jobs/mysql/bin/pre-start-execution'
