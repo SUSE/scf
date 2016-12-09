@@ -115,6 +115,7 @@ roles:
   - scripts/create_mysql_data_tmp.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
