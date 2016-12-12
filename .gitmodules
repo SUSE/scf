@@ -46,3 +46,6 @@
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
+[submodule "src/local-volume-release"]
+	path = src/local-volume-release
+	url = https://github.com/cloudfoundry-incubator/local-volume-release

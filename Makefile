@@ -88,6 +88,9 @@ windows-runtime-release:
 open-autoscaler-release:
 	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 
+local-volume-release:
+	${GIT_ROOT}/make/bosh-release src/local-volume-release
+
 releases:
 	${MAKE} \
 		$(or ${MAKEFLAGS}, -j$(or ${J},4)) \
@@ -104,6 +107,7 @@ releases:
 		hcf-sso-release \
 		hcf-versions-release \
 		open-autoscaler-release \
+		local-volume-release \
 		${NULL}
 
 ########## FISSILE BUILD TARGETS ##########

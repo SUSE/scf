@@ -24,6 +24,7 @@ for RELEASE in $(echo '
       hcf-versions/hcf-versions-release
       windows-runtime-release
       open-Autoscaler/bosh-release
+      local-volume-release
       '); do
     FISSILE_RELEASE="${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE}"
 done
