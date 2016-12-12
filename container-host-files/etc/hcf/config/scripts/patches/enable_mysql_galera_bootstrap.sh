@@ -30,6 +30,26 @@ PATCH
 
 echo -e "${setup_patch_galera}" | patch --force
 
+PATCH_DIR=$(dirname "$(ls /var/vcap/packages-src/*/bin/wsrep_sst_xtrabackup-v2)")
+
+cd "$PATCH_DIR"
+
+read -r -d '' setup_patch_wsrep_sst_xtrabackup <<'PATCH' || true
+--- wsrep_sst_xtrabackup-v2.bak     2016-12-07 21:58:30.500216163 +0000
++++ wsrep_sst_xtrabackup-v2 2016-12-07 22:34:40.346273223 +0000
+@@ -877,7 +877,7 @@
+     if [ ! -r "${STATDIR}/${IST_FILE}" ]
+     then
+
+-        if [ ${DISABLE_SST:=0} -eq 1 ]
++        if [ ${DISABLE_SST:=0} -eq 1 ] && ! grep -q "uuid:    00000000-0000-0000-0000-000000000000" /var/vcap/store/mysql/grastate.dat
+         then
+             wsrep_log_error "##############################################################################"
+             wsrep_log_error "SST disabled due to danger of data loss. Verify data and bootstrap the cluster"
+PATCH
+
+echo -e "${setup_patch_wsrep_sst_xtrabackup}" | patch --force
+
 touch "${SENTINEL}"
 
 exit 0
