@@ -287,10 +287,6 @@ properties:
       user: router_user
   routing_api:
     enabled: true
-    router_groups:
-    - name: default-tcp
-      type: tcp
-      reservable_ports: 20000-20008
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
