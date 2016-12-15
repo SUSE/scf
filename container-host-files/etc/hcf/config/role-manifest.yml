@@ -1681,7 +1681,7 @@ configuration:
     default: []
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
   - name: LOG_LEVEL
-    default: debug
+    default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
