@@ -10,12 +10,13 @@ fi
 read -r -d '' setup_patch_mariadb_ctl_config <<'PATCH' || true
 --- mariadb_ctl_config.yml.erb	2016-03-15 22:17:31.000000000 +0000
 +++ mariadb_ctl_config_patched.yml.erb	2016-04-23 02:17:12.000000000 +0000
-@@ -58,4 +58,4 @@ Manager:
+@@ -58,5 +58,5 @@ Manager:
    <% cluster_ips.each do |ip| %>
    - <%= ip %>
    <% end %>
 -  MyIP: <%= network_ip %>
 +  MyIP: <%= p('cf_mysql.mysql.advertise_host') || network_ip %>
+   ConnectionTimeout: 600
 PATCH
 
 read -r -d '' setup_patch_my_cnf <<'PATCH' || true
