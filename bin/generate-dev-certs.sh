@@ -114,6 +114,14 @@ certstrap --depot-path "${internal_certs_dir}" init --common-name "internalCA" -
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name auctioneer_rep --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign auctioneer_rep --CA internalCA --passphrase "${signing_key_passphrase}"
 
+# generate AUCTIONEER_SERVER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name auctioneer_server --domain "$(make_domains "diego-brain-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign auctioneer_server --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate BBS_AUCTIONEER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_auctioneer --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign bbs_auctioneer --CA internalCA --passphrase "${signing_key_passphrase}"
+
 # generate BBS_CLIENT certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_client --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbs_client --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -137,6 +145,10 @@ certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --pas
 # generate REP_SERVER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_domains "diego-cell-int")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate SERVICEPROVIDER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name serviceprovider --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate TRAFFICCONTROLLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
@@ -224,6 +236,10 @@ cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" >
 
 AUCTIONEER_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.crt")
 AUCTIONEER_REP_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.key")
+AUCTIONEER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_server.crt")
+AUCTIONEER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_server.key")
+BBS_AUCTIONEER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_auctioneer.crt")
+BBS_AUCTIONEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_auctioneer.key")
 BBS_CLIENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_client.crt")
 BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_client.key")
 BBS_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_rep.crt")
@@ -259,6 +275,8 @@ REP_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.
 REP_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.key")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
+SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/serviceprovider.crt")
+SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/serviceprovider.key")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
@@ -273,6 +291,10 @@ cat <<ENVS > ${output_path}
 APP_SSH_HOST_KEY_FINGERPRINT=${APP_SSH_HOST_KEY_FINGERPRINT}
 AUCTIONEER_REP_CERT=${AUCTIONEER_REP_CERT}
 AUCTIONEER_REP_KEY=${AUCTIONEER_REP_KEY}
+AUCTIONEER_SERVER_CERT=${AUCTIONEER_SERVER_CERT}
+AUCTIONEER_SERVER_KEY=${AUCTIONEER_SERVER_KEY}
+BBS_AUCTIONEER_CERT=${BBS_AUCTIONEER_CERT}
+BBS_AUCTIONEER_KEY=${BBS_AUCTIONEER_KEY}
 BBS_CLIENT_CERT=${BBS_CLIENT_CERT}
 BBS_CLIENT_KEY=${BBS_CLIENT_KEY}
 BBS_REP_CERT=${BBS_REP_CERT}
@@ -308,6 +330,8 @@ REP_SERVER_CERT=${REP_SERVER_CERT}
 REP_SERVER_KEY=${REP_SERVER_KEY}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
+SERVICEPROVIDER_CERT=${SERVICEPROVIDER_CERT}
+SERVICEPROVIDER_KEY=${SERVICEPROVIDER_KEY}
 SSH_KEY=${SSH_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
