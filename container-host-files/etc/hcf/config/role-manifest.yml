@@ -2367,7 +2367,7 @@ configuration:
     properties.capi.tps.log_level: '"((LOG_LEVEL))"'
     properties.capi.tps.traffic_controller_url: "ws://loggregator-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8081"
     properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
-    properties.cc.allowed_cors_domains: '[((ALLOWED_CORS_DOMAINS))]'
+    properties.cc.allowed_cors_domains: '((ALLOWED_CORS_DOMAINS))'
     properties.cc.app_bits_max_body_size: '((NGINX_MAX_REQUEST_BODY_SIZE))M'
     properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
