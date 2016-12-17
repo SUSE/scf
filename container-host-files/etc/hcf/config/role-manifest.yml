@@ -2375,7 +2375,6 @@ configuration:
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
-    properties.cc.db_logging_level: '"((LOG_LEVEL))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
