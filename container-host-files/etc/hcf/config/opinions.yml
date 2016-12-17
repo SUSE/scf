@@ -47,7 +47,6 @@ properties:
       webdav_config:
         username: 'blobstore_user'
     client_max_body_size: 15M
-    db_logging_level: 'debug2'
     default_running_security_groups:
     - public_networks
     - dns
