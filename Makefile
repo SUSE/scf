@@ -93,7 +93,7 @@ local-volume-release:
 
 releases:
 	${MAKE} \
-		$(or ${MAKEFLAGS}, -j$(or ${J},4)) \
+		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
 		cf-release \
 		usb-release \
 		diego-release \
