@@ -82,7 +82,6 @@ properties:
     jobs:
       generic:
         number_of_workers: null
-    logging_level: debug2
     newrelic:
       environment_name: null
       transaction_tracer:
@@ -182,7 +181,6 @@ properties:
       healthcheck_timeout_millis: 30000
   consul:
     agent:
-      log_level: null
       domain: hcf
   couchdb:
     metric_prefix: couchdb-scalingmetric
@@ -201,11 +199,9 @@ properties:
       static_directory: /var/vcap/packages/
     rep:
       evacuation_timeout_in_seconds: 60
-      log_level: debug
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
     route_emitter:
-      log_level: debug
       nats:
         user: nats
     ssh_proxy:
@@ -226,7 +222,6 @@ properties:
     graph_cleanup_threshold_in_mb: 0
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
   hcf:
