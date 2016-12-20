@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall start
-
 # Check for the filter helper file created for us by 'make run'.
 # If it is missing create it ourselves
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
@@ -14,6 +12,7 @@ fi
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
+stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall start
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::setup start
 
 . "${BINDIR}/common.sh"

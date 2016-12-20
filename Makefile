@@ -62,7 +62,7 @@ etcd-release:
 	${GIT_ROOT}/make/bosh-release src/etcd-release
 
 garden-release:
-	${GIT_ROOT}/make/bosh-release src/garden-linux-release
+	${GIT_ROOT}/make/bosh-release src/garden-runc-release
 
 mysql-release:
 	RUBY_VERSION=2.3.1 ${GIT_ROOT}/make/bosh-release src/cf-mysql-release
@@ -88,21 +88,27 @@ windows-runtime-release:
 open-autoscaler-release:
 	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
 
-releases: \
-	cf-release \
-	usb-release \
-	diego-release \
-	etcd-release \
-	garden-release \
-	mysql-release \
-	cflinuxfs2-rootfs-release \
-	routing-release \
-	hcf-release \
-	windows-runtime-release \
-	hcf-sso-release \
-	hcf-versions-release \
-	open-autoscaler-release \
-	${NULL}
+local-volume-release:
+	${GIT_ROOT}/make/bosh-release src/local-volume-release
+
+releases:
+	${MAKE} \
+		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
+		cf-release \
+		usb-release \
+		diego-release \
+		etcd-release \
+		garden-release \
+		mysql-release \
+		cflinuxfs2-rootfs-release \
+		routing-release \
+		hcf-release \
+		windows-runtime-release \
+		hcf-sso-release \
+		hcf-versions-release \
+		open-autoscaler-release \
+		local-volume-release \
+		${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
 

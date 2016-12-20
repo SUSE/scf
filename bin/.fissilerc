@@ -15,7 +15,7 @@ for RELEASE in $(echo '
       cf-usb/cf-usb-release
       diego-release
       etcd-release
-      garden-linux-release
+      garden-runc-release
       cf-mysql-release
       cflinuxfs2-rootfs-release
       routing-release
@@ -24,6 +24,7 @@ for RELEASE in $(echo '
       hcf-versions/hcf-versions-release
       windows-runtime-release
       open-Autoscaler/bosh-release
+      local-volume-release
       '); do
     FISSILE_RELEASE="${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE}"
 done
@@ -99,4 +100,5 @@ export FISSILE_CONFIG_PREFIX=hcf
 # Default version label for the created images
 # export FISSILE_VERSION=
 
-
+# Default value for --patch-properties-release
+export FISSILE_PATCH_PROPERTIES_RELEASE="hcf/patch-properties"

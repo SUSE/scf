@@ -1,4 +1,4 @@
-FROM andyshinn/dnsmasq:2.75
+FROM andyshinn/dnsmasq:2.76
 
 LABEL role=dev-dns
 

@@ -20,6 +20,10 @@ mkdir -p ${BOSH_INSTALL_TARGET}/config/
 cp acceptance-tests-flight-recorder/check.sh ${BOSH_INSTALL_TARGET}/bin/
 cp hcf-config/role-manifest.yml ${BOSH_INSTALL_TARGET}/config/
 
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 #compute source_to_check.txt
 /var/vcap/packages/ruby-2.3/bin/ruby acceptance-tests-flight-recorder/generate_check_roles.rb
 

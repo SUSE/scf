@@ -1,4 +1,3 @@
-
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -26,7 +25,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.12.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -40,7 +39,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.12.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -65,7 +64,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_workstation" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.12.box"
+    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = "8192"
@@ -87,7 +86,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.12.box"
+    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.13.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
@@ -146,12 +145,28 @@ Vagrant.configure(2) do |config|
     SHELL
   end
 
+  config.vm.provision "shell", privileged: true, env: ENV.select { |e|
+    %w(http_proxy https_proxy no_proxy).include? e.downcase
+  }, inline: <<-SHELL
+    set -e
+    echo Proxy setup of the host, saved ...
+    for var in no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY ; do
+       if test -n "${!var}" ; then
+          echo "${var}=${!var}" | tee -a /etc/environment
+       fi
+    done
+  SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
 
     # Configure Docker things
     sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
     /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
+
+    # Get proxy configuration here
+    source /etc/environment
+    export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
     # Install development tools
     /home/vagrant/hcf/bin/dev/install_tools.sh
@@ -205,6 +220,8 @@ Vagrant.configure(2) do |config|
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
+
+    ln -s /home/vagrant/hcf/.bash_history
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL

@@ -10,9 +10,9 @@ VERSION_INFO=$("${GIT_ROOT}/bin/get-cf-versions.sh" "${RELEASE}")
 
 CF_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"cf-release-commit-sha\"])
 ETCD_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"etcd-release-version\"])
-GARDEN_LINUX_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"garden-linux-release-version\"])
 DIEGO_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"diego-release-version\"])
 CFLINUXFS2_ROOTFS_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"cflinuxfs2-rootfs-release-version\"])
+GARDEN_RUNC_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"garden-runc-release-version\"])
 
 update_submodule () {
 	release_name=${1}
@@ -27,7 +27,7 @@ update_submodule () {
 	git submodule update --init --recursive
 }
 
-for release_name in cf-release diego-release etcd-release garden-linux-release
+for release_name in cf-release diego-release etcd-release garden-runc-release
 do
 	clone_dir=${GIT_ROOT}/src/${release_name}-clone
 	if test -e "${clone_dir}"
@@ -40,5 +40,5 @@ done
 update_submodule cf-release "${CF_RELEASE}"
 update_submodule diego-release "${DIEGO_RELEASE}"
 update_submodule etcd-release "${ETCD_RELEASE}"
-update_submodule garden-linux-release "${GARDEN_LINUX_RELEASE}"
 update_submodule cflinuxfs2-rootfs-release "${CFLINUXFS2_ROOTFS_RELEASE}"
+update_submodule garden-runc-release "${GARDEN_RUNC_RELEASE}"

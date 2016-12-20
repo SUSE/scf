@@ -27,7 +27,6 @@ properties:
     name: 'app-autoscaler'
     auth:
       username: 'admin'
-  build: 4.0.0
   capi:
     nsync:
       lifecycle_bundles:
@@ -65,7 +64,7 @@ properties:
     - name: staticfile_buildpack
       package: staticfile-buildpack
     - name: java_buildpack
-      package: buildpack_java
+      package: java-buildpack
     - name: ruby_buildpack
       package: ruby-buildpack
     - name: nodejs_buildpack
@@ -83,7 +82,6 @@ properties:
     jobs:
       generic:
         number_of_workers: null
-    logging_level: debug2
     newrelic:
       environment_name: null
       transaction_tracer:
@@ -155,6 +153,7 @@ properties:
         restart_if_above_mb: null
         restart_if_consistently_above_mb: null
     core_file_pattern: false
+    volume_services_enabled: true
   ccdb:
     databases:
     - name: ccdb
@@ -182,13 +181,11 @@ properties:
       healthcheck_timeout_millis: 30000
   consul:
     agent:
-      log_level: null
       domain: hcf
   couchdb:
     metric_prefix: couchdb-scalingmetric
     port: 5984
     username: admin
-  description: HPE Helion Cloud Foundry
   diego:
     bbs:
       active_key_label: active
@@ -202,11 +199,9 @@ properties:
       static_directory: /var/vcap/packages/
     rep:
       evacuation_timeout_in_seconds: 60
-      log_level: debug
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
     route_emitter:
-      log_level: debug
       nats:
         user: nats
     ssh_proxy:
@@ -227,7 +222,6 @@ properties:
     graph_cleanup_threshold_in_mb: 0
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    log_level: debug
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
   hcf:
@@ -245,6 +239,18 @@ properties:
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
+  localbroker:
+    service-name: 'shared-volume'
+    service-id: '3b640186-6429-4cbb-b346-bf96acba3fb9'
+    plan-name: 'default'
+    plan-id: '8ea4a4f1-ab4a-4bbb-a4a6-810d46713449'
+    plan-desc: 'Default service plan'
+    data-dir: /var/vcap/persistore/brokerdata
+    localdriver-url: "http://localhost:9089"
+  localdriver:
+    listen_addr: "127.0.0.1:9089"
+    debug_addr: ""
+    cell_mount_path: /var/vcap/persistore/servicevolumes
   logger_endpoint:
     port: 4443
   login:
@@ -255,7 +261,6 @@ properties:
   metron_agent:
     deployment: hcf-deployment
     protocols: ["tls"]
-  name: HCF
   nats:
     port: 4222
     user: nats
@@ -277,16 +282,11 @@ properties:
       user: router_user
   routing_api:
     enabled: true
-    router_groups:
-    - name: default-tcp
-      type: tcp
-      reservable_ports: 20000-20008
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  support_address: stackato-support@hpe.com
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
@@ -320,4 +320,3 @@ properties:
       tag: uaa
     db_scheme: mysql
     port: 3306
-  version: 2
