@@ -146,9 +146,9 @@ certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --pas
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_domains "diego-cell-int")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
-# generate SERVICEPROVIDER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name serviceprovider --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
+# generate SAML_SERVICEPROVIDER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name saml_serviceprovider --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign saml_serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate TRAFFICCONTROLLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
@@ -275,8 +275,8 @@ REP_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.
 REP_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.key")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
-SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/serviceprovider.crt")
-SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/serviceprovider.key")
+SAML_SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.crt")
+SAML_SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.key")
 SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
@@ -330,8 +330,8 @@ REP_SERVER_CERT=${REP_SERVER_CERT}
 REP_SERVER_KEY=${REP_SERVER_KEY}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
-SERVICEPROVIDER_CERT=${SERVICEPROVIDER_CERT}
-SERVICEPROVIDER_KEY=${SERVICEPROVIDER_KEY}
+SAML_SERVICEPROVIDER_CERT=${SAML_SERVICEPROVIDER_CERT}
+SAML_SERVICEPROVIDER_KEY=${SAML_SERVICEPROVIDER_KEY}
 SSH_KEY=${SSH_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}

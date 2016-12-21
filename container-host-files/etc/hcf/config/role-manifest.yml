@@ -2074,17 +2074,17 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
-  - name: SERVICEPROVIDER_CERT
+  - name: SAML_SERVICEPROVIDER_CERT
     secret: true
     generator:
-      id: "serviceprovider_cert"
+      id: "saml_serviceprovider_cert"
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
-  - name: SERVICEPROVIDER_KEY
+  - name: SAML_SERVICEPROVIDER_KEY
     secret: true
     generator:
-      id: "serviceprovider_cert"
+      id: "saml_serviceprovider_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2607,8 +2607,8 @@ configuration:
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
-    properties.login.saml.serviceProviderCertificate: '"((SERVICEPROVIDER_CERT))"'
-    properties.login.saml.serviceProviderKey: '"((SERVICEPROVIDER_KEY))"'
+    properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
+    properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
