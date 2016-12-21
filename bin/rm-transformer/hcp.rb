@@ -85,6 +85,7 @@ class ToHCP < Common
     # DEF.parameters[].description			/string, !empty
     # DEF.parameters[].default				/string
     # DEF.parameters[].example				/string, !empty
+    # DEF.parameters[].immutable			/bool
     # DEF.parameters[].required				/bool
     # DEF.parameters[].secret				/bool
     # DEF.features.auth[].auth_zone			/string
@@ -509,6 +510,10 @@ class ToHCP < Common
 
     unless var['generator'].nil?
       parameter['generator'] = convert_parameter_generator(var, vname)
+    end
+
+    unless var['immutable'].nil?
+      parameter['immutable'] = var['immutable']
     end
 
     return parameter

@@ -1621,16 +1621,19 @@ configuration:
     description: Maximal allowed file size for upload to blobstore, in megabytes.
   - name: BLOBSTORE_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: BLOBSTORE_SECURE_LINK
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
   - name: AUTOSCALER_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
@@ -1693,16 +1696,19 @@ configuration:
     description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
   - name: BULK_API_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the bulk api.
   - name: CCDB_ROLE_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
   - name: CF_USB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     example: password
@@ -1712,6 +1718,7 @@ configuration:
     description: The Oauth2 authorities available to the cluster administrator.
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
+    immutable: true
     description: The password for the cluster administrator.
   - name: CLUSTER_BUILD
     default: 4.0.1
@@ -1730,12 +1737,14 @@ configuration:
     description: "Support contact information for the cluster"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
+    immutable: true
     generator:
       type: Password
     description: 'Part of: A list of passphrases that will be converted into encryption
       keys, the first key in the list is the active one.'
   - name: DB_ENCRYPTION_KEY
     secret: true
+    immutable: true
     generator:
       type: Password
     description: key for encrypting sensitive values in the Cloud Controller database.
@@ -1752,6 +1761,7 @@ configuration:
     description: Modifying this value will break TCP port forwarding.
   - name: HCF_SSO_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the HCF SSO service broker.
@@ -1771,31 +1781,37 @@ configuration:
     required: false
   - name: PERSI_BROKER_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the Persi service broker.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Shared secret used to verify cryptographically signed dropsonde messages.
   - name: MONIT_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Password used for the monit API.
   - name: NATS_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to NATS.
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
   - name: INTERNAL_API_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
@@ -1804,106 +1820,127 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
   - name: UAA_CC_CLIENT_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
   - name: UAA_CLIENTS_HCF_SSO_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The OAuth client secret for SSO; defaults to a randomly generated value
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Used for generating SSO clients for service brokers.
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Universal Service Broker.
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
   - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the cluster logger health user.
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password used to contact the sidecar endpoints via Basic Auth.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
   - name: UAADB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the UAA database.
@@ -1916,6 +1953,7 @@ configuration:
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
+    immutable: true
     generator:
       id: "etcd_peer_cert"
       type: Certificate
@@ -1924,6 +1962,7 @@ configuration:
     description: PEM-encoded peer key.
   - name: ETCD_PEER_CERT
     secret: true
+    immutable: true
     generator:
       id: "etcd_peer_cert"
       type: Certificate
@@ -1931,6 +1970,7 @@ configuration:
     description: PEM-encoded peer certificate.
   - name: ETCD_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "etcd_server_cert"
       type: Certificate
@@ -1939,6 +1979,7 @@ configuration:
     description: PEM-encoded server key.
   - name: ETCD_CLIENT_KEY
     secret: true
+    immutable: true
     generator:
       id: "etcd_client_cert"
       type: Certificate
@@ -1947,6 +1988,7 @@ configuration:
     description: PEM-encoded client key.
   - name: ETCD_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "etcd_server_cert"
       type: Certificate
@@ -1954,6 +1996,7 @@ configuration:
     description: PEM-encoded server certificate.
   - name: ETCD_CLIENT_CERT
     secret: true
+    immutable: true
     generator:
       id: "etcd_client_cert"
       type: Certificate
@@ -1961,6 +2004,7 @@ configuration:
     description: PEM-encoded client certificate.
   - name: DOPPLER_CERT
     secret: true
+    immutable: true
     generator:
       id: "doppler_cert"
       type: Certificate
@@ -1968,6 +2012,7 @@ configuration:
     description: PEM-encoded certificate.
   - name: DOPPLER_KEY
     secret: true
+    immutable: true
     generator:
       id: "doppler_cert"
       type: Certificate
@@ -1991,6 +2036,7 @@ configuration:
     description: PEM-encoded server key
   - name: AUCTIONEER_REP_CERT
     secret: true
+    immutable: true
     generator:
       id: "auctioneer_rep_cert"
       type: Certificate
@@ -1998,6 +2044,7 @@ configuration:
     description: PEM-encoded certificate
   - name: AUCTIONEER_REP_KEY
     secret: true
+    immutable: true
     generator:
       id: "auctioneer_rep_cert"
       type: Certificate
@@ -2021,6 +2068,7 @@ configuration:
     description: PEM-encoded key
   - name: BBS_REP_CERT
     secret: true
+    immutable: true
     generator:
       id: "bbs_rep_cert"
       type: Certificate
@@ -2028,6 +2076,7 @@ configuration:
     description: PEM-encoded certificate
   - name: BBS_REP_KEY
     secret: true
+    immutable: true
     generator:
       id: "bbs_rep_cert"
       type: Certificate
@@ -2036,6 +2085,7 @@ configuration:
     description: PEM-encoded key
   - name: REP_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "rep_server_cert"
       type: Certificate
@@ -2043,6 +2093,7 @@ configuration:
     description: PEM-encoded server certificate
   - name: REP_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "rep_server_cert"
       type: Certificate
@@ -2051,6 +2102,7 @@ configuration:
     description: PEM-encoded server key
   - name: METRON_KEY
     secret: true
+    immutable: true
     generator:
       id: "metron_cert"
       type: Certificate
@@ -2059,6 +2111,7 @@ configuration:
     description: PEM-encoded key.
   - name: METRON_CERT
     secret: true
+    immutable: true
     generator:
       id: "metron_cert"
       type: Certificate
@@ -2081,6 +2134,7 @@ configuration:
     description: PEM-encoded key.
   - name: TRAFFICCONTROLLER_CERT
     secret: true
+    immutable: true
     generator:
       id: "trafficcontroller_cert"
       type: Certificate
@@ -2088,6 +2142,7 @@ configuration:
     description: PEM-encoded certificate
   - name: TRAFFICCONTROLLER_KEY
     secret: true
+    immutable: true
     generator:
       id: "trafficcontroller_cert"
       type: Certificate
@@ -2096,6 +2151,7 @@ configuration:
     description: PEM-encoded key.
   - name: BBS_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "bbs_server_cert"
       type: Certificate
@@ -2104,6 +2160,7 @@ configuration:
     description: PEM-encoded client key.
   - name: BBS_CLIENT_KEY
     secret: true
+    immutable: true
     generator:
       id: "bbs_client_cert"
       type: Certificate
@@ -2112,6 +2169,7 @@ configuration:
     description: PEM-encoded client key.
   - name: BBS_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "bbs_server_cert"
       type: Certificate
@@ -2119,6 +2177,7 @@ configuration:
     description: PEM-encoded client certificate.
   - name: BBS_CLIENT_CERT
     secret: true
+    immutable: true
     generator:
       id: "bbs_client_cert"
       type: Certificate
@@ -2126,6 +2185,7 @@ configuration:
     description: PEM-encoded client certificate.
   - name: SSH_KEY
     secret: true
+    immutable: true
     generator:
       id: "app_ssh"
       type: SSH
@@ -2134,6 +2194,7 @@ configuration:
     description: PEM encoded RSA private key used to identify host.
   - name: APP_SSH_HOST_KEY_FINGERPRINT
     secret: true
+    immutable: true
     generator:
       id: "app_ssh"
       type: SSH
@@ -2144,11 +2205,13 @@ configuration:
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_SERVICES_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
   - name: ROUTER_SSL_CERT
     secret: true
+    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2162,6 +2225,7 @@ configuration:
     description: The public ssl cert for ssl termination.
   - name: ROUTER_SSL_KEY
     secret: true
+    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2169,6 +2233,7 @@ configuration:
     description: The private ssl key for ssl termination.
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
+    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2176,12 +2241,14 @@ configuration:
     description: SSL certificate (PEM file).
   - name: ROUTER_STATUS_PASSWORD
     secret: true
+    immutable: true
     generator:
       id: "router_status_password"
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
   - name: UAA_PRIVATE_KEY
     secret: true
+    immutable: true
     generator:
       id: "uaa_cert"
       type: Certificate
@@ -2190,6 +2257,7 @@ configuration:
     description: The server's ssl private key. Only passphrase-less keys are supported.
   - name: UAA_CERTIFICATE
     secret: true
+    immutable: true
     generator:
       id: "uaa_cert"
       type: Certificate
@@ -2197,6 +2265,7 @@ configuration:
     description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
   - name: BLOBSTORE_TLS_CERT
     secret: true
+    immutable: true
     generator:
       id: "blobstore_cert"
       type: Certificate
@@ -2210,6 +2279,7 @@ configuration:
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
   - name: BLOBSTORE_TLS_KEY
     secret: true
+    immutable: true
     generator:
       id: "blobstore_cert"
       type: Certificate
@@ -2217,6 +2287,7 @@ configuration:
     description: The PEM-encoded private key for signing TLS/SSL traffic.
   - name: CONSUL_AGENT_CERT
     secret: true
+    immutable: true
     generator:
       id: "consul_agent_cert"
       type: Certificate
@@ -2225,6 +2296,7 @@ configuration:
     description: PEM-encoded agent certificate.
   - name: CONSUL_AGENT_KEY
     secret: true
+    immutable: true
     generator:
       id: "consul_agent_cert"
       type: Certificate
@@ -2232,6 +2304,7 @@ configuration:
     description: PEM-encoded client key.
   - name: CONSUL_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "consul_server_cert"
       type: Certificate
@@ -2243,6 +2316,7 @@ configuration:
     description: PEM-encoded server certificate.
   - name: CONSUL_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "consul_server_cert"
       type: Certificate
@@ -2250,6 +2324,7 @@ configuration:
     description: PEM-encoded server key.
   - name: DEMOPHON_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "demophon_server_cert"
       type: Certificate
@@ -2258,6 +2333,7 @@ configuration:
     description: PEM-encoded server certificate.
   - name: DEMOPHON_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "demophon_server_cert"
       type: Certificate
@@ -2265,6 +2341,7 @@ configuration:
     description: PEM-encoded server key.
   - name: PERSI_BROKER_TLS_CERT_KEY
     secret: true
+    immutable: true
     generator:
       id: "persi_broker_cert"
       type: Certificate
@@ -2282,6 +2359,7 @@ configuration:
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
+    immutable: true
     generator:
       id: "cacert"
       type: CACertificate
@@ -2289,6 +2367,7 @@ configuration:
     description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
+    immutable: true
     generator:
       id: "sso_cert"
       type: Certificate
@@ -2297,6 +2376,7 @@ configuration:
     description: Certificate for the SSO service.
   - name: SSO_ROUTE_KEY
     secret: true
+    immutable: true
     generator:
       id: "sso_cert"
       type: Certificate
@@ -2316,6 +2396,7 @@ configuration:
     description: Timeout for staging an app, in seconds.
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
+    immutable: true
     generator:
       id: "usb_broker_server_cert"
       type: Certificate
@@ -2324,6 +2405,7 @@ configuration:
     description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
+    immutable: true
     generator:
       id: "usb_broker_server_cert"
       type: Certificate
@@ -2331,11 +2413,13 @@ configuration:
     description: PEM-encoded broker server key.
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: the password.
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Autoscaler.
