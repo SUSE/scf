@@ -1769,6 +1769,7 @@ configuration:
     description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
     required: false
   - name: HCF_SSO_OAUTH_ID
+    immutable: true
     default: hcf-sso
     description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
     required: false
