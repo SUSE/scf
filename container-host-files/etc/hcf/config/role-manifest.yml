@@ -757,7 +757,7 @@ roles:
         internal: 3456
         public: false
       - name: 'dropsnode-in'
-        protocol: 'TCP'
+        protocol: 'UDP'
         external: 3457
         internal: 3457
         public: false
@@ -846,6 +846,7 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
   run:
     scaling:
       min: 1
@@ -1298,7 +1299,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/cf_acceptance_tests_suites.sh
-  - scripts/patches/cherry_pick_acceptance_test_routing_fix.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1985,6 +1985,21 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+  - name: AUCTIONEER_SERVER_CERT
+    secret: true
+    generator:
+      id: "auctioneer_server_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server certificate
+  - name: AUCTIONEER_SERVER_KEY
+    secret: true
+    generator:
+      id: "auctioneer_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded server key
   - name: AUCTIONEER_REP_CERT
     secret: true
     generator:
@@ -1996,6 +2011,21 @@ configuration:
     secret: true
     generator:
       id: "auctioneer_rep_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: BBS_AUCTIONEER_CERT
+    secret: true
+    generator:
+      id: "bbs_auctioneer_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: BBS_AUCTIONEER_KEY
+    secret: true
+    generator:
+      id: "bbs_auctioneer_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2045,6 +2075,21 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
+  - name: SAML_SERVICEPROVIDER_CERT
+    secret: true
+    generator:
+      id: "saml_serviceprovider_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: SAML_SERVICEPROVIDER_KEY
+    secret: true
+    generator:
+      id: "saml_serviceprovider_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key.
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -2429,12 +2474,19 @@ configuration:
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CERT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.log_level: '"((LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
     properties.diego.auctioneer.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
-    properties.diego.bbs.auctioneer.api_url: 'http://diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016'
+    properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
+    properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
+    properties.diego.bbs.auctioneer.api_location: 'diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016'
+    properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
+    properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
+    properties.diego.bbs.auctioneer.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2560,6 +2612,8 @@ configuration:
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
+    properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
+    properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
