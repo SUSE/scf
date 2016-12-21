@@ -756,7 +756,7 @@ roles:
         internal: 3456
         public: false
       - name: 'dropsnode-in'
-        protocol: 'TCP'
+        protocol: 'UDP'
         external: 3457
         internal: 3457
         public: false
