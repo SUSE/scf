@@ -267,7 +267,6 @@ properties:
       serviceProviderKeyPassword: ""
   metron_agent:
     deployment: hcf-deployment
-    protocols: ["tls"]
   nats:
     port: 4222
     user: nats
