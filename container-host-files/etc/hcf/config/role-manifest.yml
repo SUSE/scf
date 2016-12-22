@@ -287,14 +287,11 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
-  - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: patch-properties
     release_name: hcf
   - name: gorouter
     release_name: routing
@@ -331,14 +328,13 @@ roles:
       external: 4443
       internal: 443
       public: true
-- name: routing-ha-proxy
-  # XXX This might be able to co-locate with one of the others
+- name: tcp-router
+  # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
-  - scripts/patches/router_internal_host_names.sh
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -346,21 +342,16 @@ roles:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
-  - name: patch-properties
-    release_name: hcf
-  - name: haproxy
+  - name: tcp_router
     release_name: routing
   - name: consul_agent
     release_name: cf
   - name: metron_agent
     release_name: cf
-  - name: router_configurer
-    release_name: routing
   processes:
-  - name: haproxy
+  - name: tcp_router
   - name: metron_agent
   - name: consul_agent
-  - name: router_configurer
   run:
     scaling:
       min: 1
@@ -389,14 +380,11 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
-  - scripts/patches/router_internal_host_names.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: patch-properties
     release_name: hcf
   - name: consul_agent
     release_name: cf
@@ -2634,8 +2622,6 @@ configuration:
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
-    properties.router_configurer.log_level: '"((LOG_LEVEL))"'
-    properties.router_configurer.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CERT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2660,6 +2646,8 @@ configuration:
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.tcp_emitter.log_level: '"((LOG_LEVEL))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.tcp_router.log_level: '"((LOG_LEVEL))"'
+    properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.tomcat.http.autoscaler_api.route: '"sclr-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.tomcat.http.autoscaler_server.route: '"sclr-server-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CERT))"'
