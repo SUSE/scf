@@ -1676,6 +1676,7 @@ configuration:
     default: false
     description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
   - name: GARDEN_DOCKER_REGISTRY
+    default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
     default: []
