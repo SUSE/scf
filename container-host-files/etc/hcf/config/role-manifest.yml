@@ -1621,16 +1621,19 @@ configuration:
     description: Maximal allowed file size for upload to blobstore, in megabytes.
   - name: BLOBSTORE_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
   - name: BLOBSTORE_SECURE_LINK
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
   - name: AUTOSCALER_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
@@ -1693,16 +1696,19 @@ configuration:
     description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
   - name: BULK_API_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the bulk api.
   - name: CCDB_ROLE_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
   - name: CF_USB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     example: password
@@ -1712,6 +1718,7 @@ configuration:
     description: The Oauth2 authorities available to the cluster administrator.
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
+    immutable: true
     description: The password for the cluster administrator.
   - name: CLUSTER_BUILD
     default: 4.0.1
@@ -1730,12 +1737,14 @@ configuration:
     description: "Support contact information for the cluster"
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
+    immutable: true
     generator:
       type: Password
     description: 'Part of: A list of passphrases that will be converted into encryption
       keys, the first key in the list is the active one.'
   - name: DB_ENCRYPTION_KEY
     secret: true
+    immutable: true
     generator:
       type: Password
     description: key for encrypting sensitive values in the Cloud Controller database.
@@ -1752,6 +1761,7 @@ configuration:
     description: Modifying this value will break TCP port forwarding.
   - name: HCF_SSO_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the HCF SSO service broker.
@@ -1759,6 +1769,7 @@ configuration:
     description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
     required: false
   - name: HCF_SSO_OAUTH_ID
+    immutable: true
     default: hcf-sso
     description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
     required: false
@@ -1771,31 +1782,37 @@ configuration:
     required: false
   - name: PERSI_BROKER_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the Persi service broker.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Shared secret used to verify cryptographically signed dropsonde messages.
   - name: MONIT_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Password used for the monit API.
   - name: NATS_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to NATS.
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
   - name: INTERNAL_API_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
@@ -1804,106 +1821,127 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
   - name: UAA_CC_CLIENT_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
   - name: UAA_CLIENTS_HCF_SSO_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The OAuth client secret for SSO; defaults to a randomly generated value
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Used for generating SSO clients for service brokers.
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Universal Service Broker.
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
   - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for the cluster logger health user.
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password used to contact the sidecar endpoints via Basic Auth.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
   - name: UAADB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the UAA database.
@@ -2124,7 +2162,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
-  - name: SSH_KEY
+  - name: APP_SSH_KEY
     secret: true
     generator:
       id: "app_ssh"
@@ -2132,7 +2170,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM encoded RSA private key used to identify host.
-  - name: APP_SSH_HOST_KEY_FINGERPRINT
+  - name: APP_SSH_KEY_FINGERPRINT
     secret: true
     generator:
       id: "app_ssh"
@@ -2144,6 +2182,7 @@ configuration:
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_SERVICES_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
@@ -2176,11 +2215,12 @@ configuration:
     description: SSL certificate (PEM file).
   - name: ROUTER_STATUS_PASSWORD
     secret: true
+    immutable: true
     generator:
       id: "router_status_password"
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
-  - name: UAA_PRIVATE_KEY
+  - name: UAA_SERVER_KEY
     secret: true
     generator:
       id: "uaa_cert"
@@ -2188,7 +2228,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: The server's ssl private key. Only passphrase-less keys are supported.
-  - name: UAA_CERTIFICATE
+  - name: UAA_SERVER_CERT
     secret: true
     generator:
       id: "uaa_cert"
@@ -2331,11 +2371,13 @@ configuration:
     description: PEM-encoded broker server key.
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     description: the password.
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Autoscaler.
@@ -2353,7 +2395,7 @@ configuration:
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
-    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_HOST_KEY_FINGERPRINT))"'
+    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.autoscaler_api.host: '"sclr-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.autoscaler.autoscaler_server.host: '"sclr-server-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.autoscaler.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
@@ -2516,7 +2558,7 @@ configuration:
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CERT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.ssh_proxy.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.diego.ssh_proxy.host_key: '"((SSH_KEY))"'
+    properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
@@ -2674,8 +2716,8 @@ configuration:
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))
-    properties.uaa.sslCertificate: '"((UAA_CERTIFICATE))"'
-    properties.uaa.sslPrivateKey: '"((UAA_PRIVATE_KEY))"'
+    properties.uaa.sslCertificate: '"((UAA_SERVER_CERT))"'
+    properties.uaa.sslPrivateKey: '"((UAA_SERVER_KEY))"'
     properties.uaa.tls_port: '"((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))"'
     properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
