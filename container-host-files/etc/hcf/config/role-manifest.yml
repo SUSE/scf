@@ -1954,7 +1954,6 @@ configuration:
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
-    immutable: true
     generator:
       id: "etcd_peer_cert"
       type: Certificate
@@ -1963,7 +1962,6 @@ configuration:
     description: PEM-encoded peer key.
   - name: ETCD_PEER_CERT
     secret: true
-    immutable: true
     generator:
       id: "etcd_peer_cert"
       type: Certificate
@@ -1971,7 +1969,6 @@ configuration:
     description: PEM-encoded peer certificate.
   - name: ETCD_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "etcd_server_cert"
       type: Certificate
@@ -1980,7 +1977,6 @@ configuration:
     description: PEM-encoded server key.
   - name: ETCD_CLIENT_KEY
     secret: true
-    immutable: true
     generator:
       id: "etcd_client_cert"
       type: Certificate
@@ -1989,7 +1985,6 @@ configuration:
     description: PEM-encoded client key.
   - name: ETCD_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "etcd_server_cert"
       type: Certificate
@@ -1997,7 +1992,6 @@ configuration:
     description: PEM-encoded server certificate.
   - name: ETCD_CLIENT_CERT
     secret: true
-    immutable: true
     generator:
       id: "etcd_client_cert"
       type: Certificate
@@ -2005,7 +1999,6 @@ configuration:
     description: PEM-encoded client certificate.
   - name: DOPPLER_CERT
     secret: true
-    immutable: true
     generator:
       id: "doppler_cert"
       type: Certificate
@@ -2013,7 +2006,6 @@ configuration:
     description: PEM-encoded certificate.
   - name: DOPPLER_KEY
     secret: true
-    immutable: true
     generator:
       id: "doppler_cert"
       type: Certificate
@@ -2037,7 +2029,6 @@ configuration:
     description: PEM-encoded server key
   - name: AUCTIONEER_REP_CERT
     secret: true
-    immutable: true
     generator:
       id: "auctioneer_rep_cert"
       type: Certificate
@@ -2045,7 +2036,6 @@ configuration:
     description: PEM-encoded certificate
   - name: AUCTIONEER_REP_KEY
     secret: true
-    immutable: true
     generator:
       id: "auctioneer_rep_cert"
       type: Certificate
@@ -2069,7 +2059,6 @@ configuration:
     description: PEM-encoded key
   - name: BBS_REP_CERT
     secret: true
-    immutable: true
     generator:
       id: "bbs_rep_cert"
       type: Certificate
@@ -2077,7 +2066,6 @@ configuration:
     description: PEM-encoded certificate
   - name: BBS_REP_KEY
     secret: true
-    immutable: true
     generator:
       id: "bbs_rep_cert"
       type: Certificate
@@ -2086,7 +2074,6 @@ configuration:
     description: PEM-encoded key
   - name: REP_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "rep_server_cert"
       type: Certificate
@@ -2094,7 +2081,6 @@ configuration:
     description: PEM-encoded server certificate
   - name: REP_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "rep_server_cert"
       type: Certificate
@@ -2103,7 +2089,6 @@ configuration:
     description: PEM-encoded server key
   - name: METRON_KEY
     secret: true
-    immutable: true
     generator:
       id: "metron_cert"
       type: Certificate
@@ -2112,7 +2097,6 @@ configuration:
     description: PEM-encoded key.
   - name: METRON_CERT
     secret: true
-    immutable: true
     generator:
       id: "metron_cert"
       type: Certificate
@@ -2135,7 +2119,6 @@ configuration:
     description: PEM-encoded key.
   - name: TRAFFICCONTROLLER_CERT
     secret: true
-    immutable: true
     generator:
       id: "trafficcontroller_cert"
       type: Certificate
@@ -2143,7 +2126,6 @@ configuration:
     description: PEM-encoded certificate
   - name: TRAFFICCONTROLLER_KEY
     secret: true
-    immutable: true
     generator:
       id: "trafficcontroller_cert"
       type: Certificate
@@ -2152,7 +2134,6 @@ configuration:
     description: PEM-encoded key.
   - name: BBS_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "bbs_server_cert"
       type: Certificate
@@ -2161,7 +2142,6 @@ configuration:
     description: PEM-encoded client key.
   - name: BBS_CLIENT_KEY
     secret: true
-    immutable: true
     generator:
       id: "bbs_client_cert"
       type: Certificate
@@ -2170,7 +2150,6 @@ configuration:
     description: PEM-encoded client key.
   - name: BBS_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "bbs_server_cert"
       type: Certificate
@@ -2178,7 +2157,6 @@ configuration:
     description: PEM-encoded client certificate.
   - name: BBS_CLIENT_CERT
     secret: true
-    immutable: true
     generator:
       id: "bbs_client_cert"
       type: Certificate
@@ -2212,7 +2190,6 @@ configuration:
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
   - name: ROUTER_SSL_CERT
     secret: true
-    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2226,7 +2203,6 @@ configuration:
     description: The public ssl cert for ssl termination.
   - name: ROUTER_SSL_KEY
     secret: true
-    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2234,7 +2210,6 @@ configuration:
     description: The private ssl key for ssl termination.
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
-    immutable: true
     generator:
       id: "router_cert"
       type: Certificate
@@ -2249,7 +2224,6 @@ configuration:
     description: Password for HTTP basic auth to the varz/status endpoint.
   - name: UAA_PRIVATE_KEY
     secret: true
-    immutable: true
     generator:
       id: "uaa_cert"
       type: Certificate
@@ -2266,7 +2240,6 @@ configuration:
     description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
   - name: BLOBSTORE_TLS_CERT
     secret: true
-    immutable: true
     generator:
       id: "blobstore_cert"
       type: Certificate
@@ -2280,7 +2253,6 @@ configuration:
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
   - name: BLOBSTORE_TLS_KEY
     secret: true
-    immutable: true
     generator:
       id: "blobstore_cert"
       type: Certificate
@@ -2288,7 +2260,6 @@ configuration:
     description: The PEM-encoded private key for signing TLS/SSL traffic.
   - name: CONSUL_AGENT_CERT
     secret: true
-    immutable: true
     generator:
       id: "consul_agent_cert"
       type: Certificate
@@ -2297,7 +2268,6 @@ configuration:
     description: PEM-encoded agent certificate.
   - name: CONSUL_AGENT_KEY
     secret: true
-    immutable: true
     generator:
       id: "consul_agent_cert"
       type: Certificate
@@ -2305,7 +2275,6 @@ configuration:
     description: PEM-encoded client key.
   - name: CONSUL_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "consul_server_cert"
       type: Certificate
@@ -2317,7 +2286,6 @@ configuration:
     description: PEM-encoded server certificate.
   - name: CONSUL_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "consul_server_cert"
       type: Certificate
@@ -2325,7 +2293,6 @@ configuration:
     description: PEM-encoded server key.
   - name: DEMOPHON_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "demophon_server_cert"
       type: Certificate
@@ -2334,7 +2301,6 @@ configuration:
     description: PEM-encoded server certificate.
   - name: DEMOPHON_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "demophon_server_cert"
       type: Certificate
@@ -2342,7 +2308,6 @@ configuration:
     description: PEM-encoded server key.
   - name: PERSI_BROKER_TLS_CERT_KEY
     secret: true
-    immutable: true
     generator:
       id: "persi_broker_cert"
       type: Certificate
@@ -2360,7 +2325,6 @@ configuration:
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
-    immutable: true
     generator:
       id: "cacert"
       type: CACertificate
@@ -2368,7 +2332,6 @@ configuration:
     description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
-    immutable: true
     generator:
       id: "sso_cert"
       type: Certificate
@@ -2377,7 +2340,6 @@ configuration:
     description: Certificate for the SSO service.
   - name: SSO_ROUTE_KEY
     secret: true
-    immutable: true
     generator:
       id: "sso_cert"
       type: Certificate
@@ -2397,7 +2359,6 @@ configuration:
     description: Timeout for staging an app, in seconds.
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
-    immutable: true
     generator:
       id: "usb_broker_server_cert"
       type: Certificate
@@ -2406,7 +2367,6 @@ configuration:
     description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
-    immutable: true
     generator:
       id: "usb_broker_server_cert"
       type: Certificate
