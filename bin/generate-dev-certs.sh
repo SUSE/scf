@@ -282,8 +282,8 @@ SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
 TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
 TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.key")
-UAA_CERTIFICATE=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/uaa_ca.crt")
-UAA_PRIVATE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
+UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
+UAA_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 
 APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 
@@ -337,8 +337,8 @@ SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
 TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
-UAA_CERTIFICATE=${UAA_CERTIFICATE}
-UAA_PRIVATE_KEY=${UAA_PRIVATE_KEY}
+UAA_SERVER_CERT=${UAA_SERVER_CERT}
+UAA_SERVER_KEY=${UAA_SERVER_KEY}
 ENVS
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"
