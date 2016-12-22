@@ -194,9 +194,9 @@ mv -f ${internal_certs_dir}/consul_agent.key ${internal_certs_dir}/agent.key
 mv -f ${internal_certs_dir}/consul_agent.csr ${internal_certs_dir}/agent.csr
 mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 
-# generate SSH Host certs
-ssh-keygen -b 4096 -t rsa -f "${certs_path}/ssh_key" -q -N "" -C hcf-ssh-key
-app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/ssh_key" | awk '{print $2}')
+# generate APP_SSH SSH key
+ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
+app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/app_ssh_key" | awk '{print $2}')
 
 # generate USB Broker certs
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb-int")" --passphrase ""
@@ -234,6 +234,8 @@ mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.k
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"
 cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" > "${certs_path}/persi_broker_tls.pem"
 
+APP_SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/app_ssh_key")"
+APP_SSH_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 AUCTIONEER_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.crt")
 AUCTIONEER_REP_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.key")
 AUCTIONEER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_server.crt")
@@ -277,7 +279,6 @@ ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
 SAML_SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.crt")
 SAML_SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.key")
-SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ssh_key")"
 SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
 SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
 TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
@@ -285,10 +286,9 @@ TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/traff
 UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
 UAA_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 
-APP_SSH_HOST_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
-
 cat <<ENVS > ${output_path}
-APP_SSH_HOST_KEY_FINGERPRINT=${APP_SSH_HOST_KEY_FINGERPRINT}
+APP_SSH_KEY=${APP_SSH_KEY}
+APP_SSH_KEY_FINGERPRINT=${APP_SSH_KEY_FINGERPRINT}
 AUCTIONEER_REP_CERT=${AUCTIONEER_REP_CERT}
 AUCTIONEER_REP_KEY=${AUCTIONEER_REP_KEY}
 AUCTIONEER_SERVER_CERT=${AUCTIONEER_SERVER_CERT}
@@ -332,7 +332,6 @@ ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
 SAML_SERVICEPROVIDER_CERT=${SAML_SERVICEPROVIDER_CERT}
 SAML_SERVICEPROVIDER_KEY=${SAML_SERVICEPROVIDER_KEY}
-SSH_KEY=${SSH_KEY}
 SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
 SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
