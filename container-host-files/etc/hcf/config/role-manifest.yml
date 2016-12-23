@@ -1108,7 +1108,12 @@ roles:
       tag: 'persistore'
     memory: 4096
     virtual-cpus: 4
-    exposed-ports: []
+    exposed-ports:
+      - name: 'rep-server'
+        protocol: 'TCP'
+        external: 1801
+        internal: 1801
+        public: false
 - name: sclr-api
   type: bosh
   environment_scripts:
