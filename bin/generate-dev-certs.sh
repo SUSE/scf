@@ -143,7 +143,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name metron
 certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate REP_SERVER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_domains "diego-cell-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_ha_domains "diego-cell-int")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate SAML_SERVICEPROVIDER certs
