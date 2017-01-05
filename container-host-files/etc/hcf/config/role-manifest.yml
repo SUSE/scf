@@ -1621,6 +1621,9 @@ configuration:
   - name: ALLOW_APP_SSH_ACCESS
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
+  - name: BLOBSTORE_ACCESS_RULES
+    default:  'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
+    description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
   - name: BLOBSTORE_MAX_UPLOAD_SIZE
     default: 5000
     description: Maximal allowed file size for upload to blobstore, in megabytes.
@@ -1676,7 +1679,7 @@ configuration:
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
-    default: []
+    default: ''
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
   - name: LOG_LEVEL
     default: info
@@ -2351,8 +2354,10 @@ configuration:
     default: docker-registry.service.cf.internal:8080
     description: Address of the Docker Registry used for image caching.
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
-    default: []
-    description: An array of insecure Docker registries in the form of <HOSTNAME|IP>:PORT.
+    default: ''
+    description: >
+      A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
+      Each registry must be quoted separately.
   - name: USE_STAGER_PRIVILEGED_CONTAINERS
     default: false
     description: Whether or not to use privileged containers for staging tasks.
@@ -2411,6 +2416,7 @@ configuration:
     properties.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: '((BLOBSTORE_MAX_UPLOAD_SIZE))m'
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
