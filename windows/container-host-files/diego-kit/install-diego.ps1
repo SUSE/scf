@@ -8,7 +8,7 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-32-2016-10-27_13-26-03/diego-installer.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-35-2017-01-04_11-18-38/diego-installer.exe -Verbose
 
 ## Setup Vagrant HCF networking
 
@@ -57,21 +57,33 @@ $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "8192" # "auto"
 
+$env:REP_REQUIRE_TLS = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'false'} else {'true'}
+$env:REP_CA_CRT = $hcfSettings.'REP_CA_CERT'
+$env:REP_SERVER_CRT = $hcfSettings.'REP_SERVER_CERT'
+$env:REP_SERVER_KEY = $hcfSettings.'REP_SERVER_KEY'
+
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
 $env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
 $env:CONSUL_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
 $env:CONSUL_AGENT_CRT = $hcfSettings.'CONSUL_AGENT_CERT'
 $env:CONSUL_AGENT_KEY = $hcfSettings.'CONSUL_AGENT_KEY'
 
-$env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CRT'
-$env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
+$env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CERT'
+$env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CERT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
 $env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
-$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$etcdScheme = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'http://'} else {'https://'}
+$env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
+$env:ETCD_CA_CRT = $hcfSettings.'ETCD_CA_CERT'
+$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CERT'
+$env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
+
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
 $env:LOGGRAGATOR_INDEX = 0
+$env:METRON_PROTOCOLS = "udp"
+
 
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"
