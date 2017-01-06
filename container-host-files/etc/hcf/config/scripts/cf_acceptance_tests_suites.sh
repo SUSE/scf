@@ -10,6 +10,8 @@ ALL_SUITES='
     backend_compatibility
     container_networking
     detect
+    diego_docker
+    diego_ssh
     docker
     internet_dependent
     privileged_container_support
