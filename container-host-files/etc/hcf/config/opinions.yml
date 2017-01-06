@@ -4,11 +4,28 @@ properties:
     admin_user: admin
     skip_ssl_validation: true
     backend: diego
-    include_ssh: true
-    include_docker: true
-    include_security_groups: true
+    # We can't use these right now because of a workaround in the acceptance
+    # tests config.json.erb for diego_ssh -> ssh and diego_docker -> docker;
+    # include_ssh/docker aren't in the acceptance_tests spec file
+    # include_ssh: true
+    # include_docker: true
+    include_apps: true
+    include_detect: true
+    include_diego_docker: true
+    include_diego_ssh: true
     include_internet_dependent: true
+    include_routing: true
+    include_security_groups: true
     include_services: true
+    include_sso: true
+    include_tasks: true
+    include_v3: true
+    # Not working
+    # include_privileged_container_support: true
+    # include_zipkin: true
+    # include_route_services: true
+    # Don't use as we don't have simultaneous Diego and DEA
+    include_backend_compatibility: false
     cf_push_timeout: 300
     default_timeout: 300
   acceptance_tests_brain:
