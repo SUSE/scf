@@ -63,7 +63,7 @@
         "min_instances": 1
       },
       {
-        "component": "routing-ha-proxy",
+        "component": "tcp-router",
         "min_instances": 3
       },
       {
