@@ -4,8 +4,8 @@ properties:
     admin_user: admin
     skip_ssl_validation: true
     backend: diego
-    include_diego_ssh: true
-    include_diego_docker: true
+    include_ssh: true
+    include_docker: true
     include_security_groups: true
     include_internet_dependent: true
     include_services: true
