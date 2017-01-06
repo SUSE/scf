@@ -35,10 +35,6 @@ start -Wait "vc2015\vc_redist.x64.exe"  -ArgumentList "/install /passive /norest
 
 IntalledRequiredWindowsFeatures
 
-EnableDiskQuota
-ConfigureCellWindowsFirewall
-ConfigureCellLocalwall "$wd\localwall.exe"
-
 
 ## Prepare configs
 
@@ -46,6 +42,11 @@ $hcfCoreIpAddress = "192.168.77.77"
 $advertisedMachineIp = (Find-NetRoute -RemoteIPAddress $hcfCoreIpAddress)[0].IPAddress
 echo "The machine IP dicovered that will be used for Diego and CloudFoundry is: $advertisedMachineIp"
 
+## System Config
+
+EnableDiskQuota
+ConfigureCellWindowsFirewall
+ConfigureCellLocalwall "$wd\localwall.exe" $advertisedMachineIp
 
 ## Install the msi
 

@@ -1,7 +1,8 @@
 
 function ConfigureCellLocalwall {
   param(
-    [string]$LocalwallExePath = "localwall.exe"
+    [string]$LocalwallExePath = "localwall.exe",
+    [string]$machineIp
   )
 
   Write-Output "Configuring WFP localhost filtering rules with $LocalwallExePath"
@@ -16,6 +17,7 @@ function ConfigureCellLocalwall {
   & $LocalwallExePath add $machineIp 32 6061 Administrators # Metron rule
 
   & $LocalwallExePath add $machineIp 32 1800 Administrators # Rep rule
+  & $LocalwallExePath add $machineIp 32 1801 Administrators # Rep rule
 
   & $LocalwallExePath add 127.0.0.1  8  9241 Administrators # Garden rule
 

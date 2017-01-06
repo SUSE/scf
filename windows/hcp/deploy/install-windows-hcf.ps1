@@ -46,11 +46,26 @@ IntalledRequiredWindowsFeatures
 EnableDiskQuota
 DisableNegativeDnsClientCache
 ConfigureCellWindowsFirewall
-ConfigureCellLocalwall "$wd\localwall.exe"
+ConfigureCellLocalwall "$wd\localwall.exe" $advertisedMachineIp
 
 ## HCF setting
 
 $hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipSslValidation
+
+## Generate REP Cert
+
+rm -Force -Recurse -ErrorAction SilentlyContinue .\out
+Write-Output $hcfSettings.REP_SERVER_KEY | Out-File rep.key -Encoding ascii -Force
+
+& "$wd\certstrap.exe" init --common-name repCA --key rep.key --years 1000  --passphrase '""'
+& "$wd\certstrap.exe" request-cert --ip $advertisedMachineIp --passphrase '""'
+& "$wd\certstrap.exe" sign --years 1000  --CA repCA  --passphrase '""' $advertisedMachineIp
+
+$repCACert = $hcfSettings.'REP_CA_CERT' + "`n" + (cat .\out\repCA.crt -Raw)
+$repServerCert = cat .\out\$advertisedMachineIp.crt -Raw
+$repServerKey = cat .\out\$advertisedMachineIp.key -Raw
+
+rm -Force -Recurse .\out
 
 ## Note: All the hosts already come with HCP_SERVICE_DOMAIN_SUFFIX,
 ##       see 'properties.hcf.demophon.config' in the role manifest.
@@ -58,11 +73,16 @@ $hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Passw
 $env:DIEGO_INSTALL_DIR = "c:\diego"
 $env:DIEGO_USER_PASSWORD = "changeme1234!"
 
-$env:REP_CELL_ID = $env:COMPUTERNAME
+$env:REP_CELL_ID = $advertisedMachineIp
 $env:DIEGO_CELL_IP = $advertisedMachineIp
 $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "auto"
+
+$env:REP_REQUIRE_TLS = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'false'} else {'true'}
+$env:REP_CA_CRT = $repCACert
+$env:REP_SERVER_CRT = $repServerCert 
+$env:REP_SERVER_KEY = $repServerKey
 
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
 $env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
@@ -70,20 +90,19 @@ $env:CONSUL_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
 $env:CONSUL_AGENT_CRT = $hcfSettings.'CONSUL_AGENT_CERT'
 $env:CONSUL_AGENT_KEY = $hcfSettings.'CONSUL_AGENT_KEY'
 
-$env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CRT'
-$env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
+$env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CERT'
+$env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CERT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
 $env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
 $etcdScheme = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'http://'} else {'https://'}
 $env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
-# Use INTERNAL_CA_CERT for ETCD_CA_CRT when it will be available. $env:ETCD_CA_CRT = $hcfSettings.'INTERNAL_CA_CERT'
-$env:ETCD_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
-$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CRT'
+$env:ETCD_CA_CRT = $hcfSettings.'ETCD_CA_CERT'
+$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CERT'
 $env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
 
-$env:METRON_CA_CRT = $hcfSettings.'METRON_CA_CRT'
-$env:METRON_CLIENT_CRT =  $hcfSettings.'METRON_CLIENT_CRT'
+$env:METRON_CA_CRT = $hcfSettings.'METRON_CA_CERT'
+$env:METRON_CLIENT_CRT =  $hcfSettings.'METRON_CLIENT_CERT'
 $env:METRON_CLIENT_KEY =  $hcfSettings.'METRON_CLIENT_KEY'
 
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
