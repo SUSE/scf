@@ -66,6 +66,7 @@ echo "Configuring WFP localhost filtering rules"
 & "$wd\localwall.exe" add $machineIp 32 6061 Administrators # Metron rule
 
 & "$wd\localwall.exe" add $machineIp 32 1800 Administrators # Rep rule
+& "$wd\localwall.exe" add $machineIp 32 1801 Administrators # Rep rule
 
 & "$wd\localwall.exe" add 127.0.0.1  8  9241 Administrators # Garden rule
 
