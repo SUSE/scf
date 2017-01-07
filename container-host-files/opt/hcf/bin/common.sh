@@ -99,6 +99,10 @@ function start_role {
         # The variable starts and ends with a single quote; strip it
         evalue="${evalue:1:-1}"
       fi
+      # We intentionally only strip single quotes so that if we need to persist
+      # quoting through two layers of YAML we can do so using double quotes.
+      # Also, this would hopefully reduce the expectation of (shell-style)
+      # variable expansion in the *.env files.
       the_env+=("--env=${ename}=${evalue}")
   done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 

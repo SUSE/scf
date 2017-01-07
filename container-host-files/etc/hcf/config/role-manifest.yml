@@ -1622,7 +1622,7 @@ configuration:
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
   - name: BLOBSTORE_ACCESS_RULES
-    default:  'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
+    default: 'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
     description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
   - name: BLOBSTORE_MAX_UPLOAD_SIZE
     default: 5000
@@ -2355,6 +2355,7 @@ configuration:
     description: Address of the Docker Registry used for image caching.
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
+    example: '"docker-registry.example.com:80", "hello.example.org:443"'
     description: >
       A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
       Each registry must be quoted separately.
