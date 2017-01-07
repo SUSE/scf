@@ -84,11 +84,26 @@ function start_role {
   # Load the map that details which vars are allowed for which role
   role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
 
+  local edef ename evalue
   local the_env=()
   # Iterate through all env vars that match the ones used by the role
   while read -r edef
   do
-      the_env+=("--env=${edef}")
+      if test "${edef:0:1}" == "#" -o -z "${edef}" ; then
+        # Skip comments
+        continue
+      fi
+      ename="${edef%%=*}"
+      evalue="${edef#*=}"
+      if test "${evalue:0:1}${evalue: -1}" == "''" ; then
+        # The variable starts and ends with a single quote; strip it
+        evalue="${evalue:1:-1}"
+      fi
+      # We intentionally only strip single quotes so that if we need to persist
+      # quoting through two layers of YAML we can do so using double quotes.
+      # Also, this would hopefully reduce the expectation of (shell-style)
+      # variable expansion in the *.env files.
+      the_env+=("--env=${ename}=${evalue}")
   done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 
   domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
