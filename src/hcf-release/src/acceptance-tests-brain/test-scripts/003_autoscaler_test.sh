@@ -66,11 +66,22 @@ cf bind-service ${APP_NAME} ${SCALESERVICE}
 cf restage ${APP_NAME}
 cf autoscale set-policy ${APP_NAME} ${POL}
 
-sleep 60
-instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
-[ -z "${instances}" ] && instances=0
+trials=30 ;# * 10 seconds/round = 300 seconds = 5 minutes
+while [ $trials -gt 0 ]
+do
+    echo Count $trials
+    sleep 10
+    instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
+    [ -z "${instances}" ] && instances=0
+    if [ ${instances} -gt 1 ]
+    then
+	echo Count $trials OK
+	break
+    fi
+    trials=$(expr $trials - 1)
+done
 
-if [ ${instances} -le 1 ];
+if [ ${instances} -le 1 ]
 then
   echo "ERROR autoscaling app"
   echo "Autoscaling failed, only ${instances} instance(s), expected at least 2"
