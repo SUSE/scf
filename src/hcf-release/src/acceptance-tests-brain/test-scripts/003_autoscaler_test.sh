@@ -23,7 +23,7 @@ trap login_cleanup EXIT ERR
 
 # Set an overall 5 minute deadline if none was supplied by the test
 # brain.
-DEADLINE=${TESTBRAIN_DEADLINE:-$(expr $(date +%s) + ${TESTBRAIN_TIMEOUT:-300})}
+DEADLINE=$(expr $(date +%s) + ${TESTBRAIN_TIMEOUT:-300})
 
 # target, login, create work org and space
 cf api --skip-ssl-validation api.${CF_DOMAIN}
