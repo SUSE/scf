@@ -21,6 +21,10 @@ function login_cleanup() {
 }
 trap login_cleanup EXIT ERR
 
+# Set an overall 5 minute deadline if none was supplied by the test
+# brain.
+DEADLINE=$(expr $(date +%s) + ${TESTBRAIN_TIMEOUT:-300})
+
 # target, login, create work org and space
 cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
@@ -66,11 +70,28 @@ cf bind-service ${APP_NAME} ${SCALESERVICE}
 cf restage ${APP_NAME}
 cf autoscale set-policy ${APP_NAME} ${POL}
 
-sleep 60
-instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
-[ -z "${instances}" ] && instances=0
+# Check for successful scaling until we got it or we have only about
+# 30 seconds left on the deadline. In the latter case stop, fail and
+# run the cleanup in the remaining time. Note, if the setup left us
+# with less than 30 seconds anyway we fail directly instead of
+# entering the loop.
+trials=1
+instances=0
+while [ $(expr $DEADLINE - $(date +%s)) -gt 30 ]
+do
+    echo Check $trials
+    instances=$(cf apps|grep ${APP_NAME}|awk '{print $3}'|cut -f 1 -d /)
+    [ -z "${instances}" ] && instances=0
+    if [ ${instances} -gt 1 ]
+    then
+	echo Check $trials OK
+	break
+    fi
+    trials=$(expr $trials + 1)
+    sleep 10
+done
 
-if [ ${instances} -le 1 ];
+if [ ${instances} -le 1 ]
 then
   echo "ERROR autoscaling app"
   echo "Autoscaling failed, only ${instances} instance(s), expected at least 2"
