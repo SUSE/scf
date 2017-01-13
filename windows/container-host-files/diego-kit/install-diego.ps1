@@ -8,7 +8,8 @@ cd $wd
 
 
 ## Download installers
-curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-32-2016-10-27_13-26-03/diego-installer.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\diego-installer.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/hcf-windows-release-artifacts/babysitter-38-2017-01-09_11-47-44/diego-installer.exe -Verbose
+curl -UseBasicParsing -OutFile $wd\certstrap.exe https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/certstrap/certstrap.exe -Verbose
 
 ## Setup Vagrant HCF networking
 
@@ -46,16 +47,34 @@ while(-not (Resolve-DnsName -DnsOnly "demophon-int" -ErrorAction SilentlyContinu
 
 $hcfSettings = GetConfigFromDemophon -Username "admin" -Password "changeme" -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $true
 
+## Generate REP Cert
+
+rm -Force -Recurse -ErrorAction SilentlyContinue .\out
+Write-Output $hcfSettings.REP_SERVER_KEY | Out-File rep.key -Encoding ascii -Force
+
+.\certstrap init --common-name repCA --key rep.key --years 1000  --passphrase '""'
+.\certstrap request-cert --ip $ipaddr --passphrase '""'
+.\certstrap sign --years 1000  --CA repCA  --passphrase '""' $ipaddr
+
+$repCACert = $hcfSettings.'REP_CA_CERT' + "`n" + (cat .\out\repCA.crt -Raw)
+$repServerCert = cat .\out\$ipaddr.crt -Raw
+$repServerKey = cat .\out\$ipaddr.key -Raw
+
 ## Prepare diego configs parameters
 
 $env:DIEGO_INSTALL_DIR = "c:\diego"
 $env:DIEGO_USER_PASSWORD = "changeme1234!"
 
-$env:REP_CELL_ID = $env:COMPUTERNAME
+$env:REP_CELL_ID = $ipaddr
 $env:DIEGO_CELL_IP = $ipaddr
 $env:STACKS = "win2012r2;windows2012R2"
 $env:REP_ZONE = "windows"
 $env:REP_MEMORY_MB = "8192" # "auto"
+
+$env:REP_REQUIRE_TLS = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'false'} else {'true'}
+$env:REP_CA_CRT = $repCACert
+$env:REP_SERVER_CRT = $repServerCert 
+$env:REP_SERVER_KEY = $repServerKey
 
 $env:CONSUL_SERVER_IP = $hcfSettings.'CONSUL_HOST'
 $env:CONSUL_ENCRYPT_KEY = $hcfSettings.'CONSUL_ENCRYPTION_KEYS'
@@ -63,15 +82,22 @@ $env:CONSUL_CA_CRT = $hcfSettings.'CONSUL_CA_CERT'
 $env:CONSUL_AGENT_CRT = $hcfSettings.'CONSUL_AGENT_CERT'
 $env:CONSUL_AGENT_KEY = $hcfSettings.'CONSUL_AGENT_KEY'
 
+$env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 $env:BBS_CA_CRT = $hcfSettings.'BBS_CA_CRT'
 $env:BBS_CLIENT_CRT = $hcfSettings.'BBS_CLIENT_CRT'
 $env:BBS_CLIENT_KEY = $hcfSettings.'BBS_CLIENT_KEY'
-$env:BBS_ADDRESS = 'https://' + $hcfSettings.'DIEGO_DATABASE_HOST' + ':8889'
 
-$env:ETCD_CLUSTER = 'http://' + $hcfSettings.'ETCD_HOST' + ':4001'
+$etcdScheme = if ($hcfSettings.'SKIP_CERT_VERIFY_INTERNAL' -ieq "true") {'http://'} else {'https://'}
+$env:ETCD_CLUSTER = $etcdScheme + $hcfSettings.'ETCD_HOST' + ':4001'
+$env:ETCD_CA_CRT = $hcfSettings.'ETCD_CA_CRT'
+$env:ETCD_CLIENT_CRT =  $hcfSettings.'ETCD_CLIENT_CRT'
+$env:ETCD_CLIENT_KEY =  $hcfSettings.'ETCD_CLIENT_KEY'
+
 $env:LOGGRAGATOR_SHARED_SECRET = $hcfSettings.'LOGGREGATOR_SHARED_SECRET'
 $env:LOGGREGATOR_JOB = $env:COMPUTERNAME
-$env:LOGGRAGATOR_INDEX = 0
+$env:LOGGRAGATOR_INDEX = [guid]::NewGuid().ToString()
+$env:METRON_PROTOCOLS = "udp"
+
 
 echo "Installing Diego-Windows"
 cmd /c "$wd\diego-installer.exe /Q"

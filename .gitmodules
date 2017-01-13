@@ -49,3 +49,6 @@
 [submodule "src/local-volume-release"]
 	path = src/local-volume-release
 	url = https://github.com/cloudfoundry-incubator/local-volume-release
+[submodule "src/hcf-release/src/certstrap"]
+	path = src/hcf-release/src/certstrap
+	url = https://github.com/hpcloud/certstrap

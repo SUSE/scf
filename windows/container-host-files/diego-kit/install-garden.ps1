@@ -20,7 +20,7 @@ curl -Verbose -UseBasicParsing  -OutFile "vc2013\vcredist_x64.exe"  https://down
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x86.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
 curl -Verbose -UseBasicParsing  -OutFile "vc2015\vc_redist.x64.exe"  https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
 
-$gardenVersion = "v0.154"
+$gardenVersion = "v0.199"
 echo "Downloading GardenWindows.msi $gardenVersion"
 curl  -UseBasicParsing  -Verbose  -OutFile $wd\GardenWindows.msi  https://github.com/cloudfoundry/garden-windows-release/releases/download/$gardenVersion/GardenWindows.msi
 
@@ -35,10 +35,6 @@ start -Wait "vc2015\vc_redist.x64.exe"  -ArgumentList "/install /passive /norest
 
 IntalledRequiredWindowsFeatures
 
-EnableDiskQuota
-ConfigureCellWindowsFirewall
-ConfigureCellLocalwall "$wd\localwall.exe"
-
 
 ## Prepare configs
 
@@ -46,6 +42,11 @@ $hcfCoreIpAddress = "192.168.77.77"
 $advertisedMachineIp = (Find-NetRoute -RemoteIPAddress $hcfCoreIpAddress)[0].IPAddress
 echo "The machine IP dicovered that will be used for Diego and CloudFoundry is: $advertisedMachineIp"
 
+## System Config
+
+EnableDiskQuota
+ConfigureCellWindowsFirewall
+ConfigureCellLocalwall "$wd\localwall.exe" $advertisedMachineIp
 
 ## Install the msi
 
