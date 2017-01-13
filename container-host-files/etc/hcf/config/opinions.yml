@@ -101,9 +101,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-    # We turn run_prestart_migrations off so that the container containing api#0
-    # can avoid pointlessly restarting until postgres comes online
-    run_prestart_migrations: false
     security_event_logging:
       enabled: null
     security_group_definitions:
