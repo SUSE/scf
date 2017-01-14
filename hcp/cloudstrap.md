@@ -29,128 +29,72 @@
 * Cloudstrap is a helper tool to automate the whole bootstrap process
   for HCP, starting from setting up the k8 cluster to initializing it
   and starting HCP/HSM.  
-  For more information, you can find [its github repo here](https://github.com/hpe-cloud-garage/cloudstrap),
+
+  For more information, you can find
+  [its github repo here](https://github.com/hpe-cloud-garage/cloudstrap),
   but you do not need to clone it.  
-  As of this guide, latest version is `0.37.6.pre`.
+
+  As of this guide, latest version is `0.48.0.pre`.
 
 * Install the cloudstrap gem: `gem install --pre cloudstrap`
 
-* Create a `config.yaml` in the checkout directory. Contents should be
+  The installed commands are
+
+  |-|-|
+  |cloudstrap		|Create a cluster|
+  |cloudstrap-config	|Show the complete configuration|
+  |cloudstrap-cache	|Show the AWS parts cloudstrap knows about|
+  |cloudstrap-dns	|Checks the DNS setup|
+  |cloudstrap-env	|Shows the bootstrap configuration
+  |cloudstrap-teardown	|Tears a cloudstrap config down|
+  |cloudstrap-versions	|Show current vs latest versions of cloudstrap and related tools|
+
+* If `cloudstrap-versions` does not show the latest versions of `hcp`,
+  `hsm`, etc. in use it is time to update. See the
+      [HCP Release Notes](https://github.com/hpcloud/cnap/wiki/HCP-Release-Notes)
+  and [HSM Release Notes](https://github.com/hpcloud/cnap/wiki/HSM-Release-Notes)
+  for the relevant links and instructions.
+
+
+
+
+* Create a `config.yaml` in the cluster management directory. Contents should look similar to
 
   ```
 	---
+	domain_name: x.from-the.cloud
 	region: us-east-1
-	hdp_bootstrap_origin: https://s3-us-west-2.amazonaws.com/hcp-concourse
-	hdp_bootstrap_version: 1.2.52+master.24b7b25.20160920215359
-	properties_seed_url: '-'
+	hcp_bootstrap_package_url: https://dev.stackato.com/downloads/hcp/bootstrap/hcp-bootstrap_0.10.17-0-g00c31fc_amd64.deb
+
+	minimum_availability_zones: 1
+	maximum_availability_zones: 1
+
+	master_count:  1
+	node_count:    3
+	gluster_count: 2
   ```
 
   Do not change the region. That is the region __dev__ is allowed to use.
 
-  The `hdp_bootstrap_version` entry determines the version of HCP
-  getting installed and initialized. This must be changed as needed.  
-  
-  You might also need to change the `hdp_bootstrap_origin` url if you are
-  using an internal release. The `hdp_bootstrap_origin` and `hdp_bootstrap_version`
-  entries combine to create the download link of HCP. In the above example:  
-  `https://s3-us-west-2.amazonaws.com/hcp-concourse/hcp-bootstrap_1.2.52+master.24b7b25.20160920215359_amd64.deb`  
-  Check out the [HCP Release Notes](https://github.com/hpcloud/cnap/wiki/HCP-Release-Notes)
-  to find the download link for the version you want.
+  The domain name has to be your host zone (see previous points).
 
-  The `properties_seed_url` is an URL to your `bootstrap.properties` seed file.
-  If you have a local `bootstrap.properties` file in your working directory, cloudstrap
-  will ignore this URL and use your local file. However, it still cannot be omitted
-  or an empty string. Putting a bogus value is fine. (`-`)
+  Keep the `hcp_bootstrap_package_url` in sync with your `hcp`.
+  See above for the link to the HCP release notes which has the link to use.
 
-* Get a `bootstrap.properties` file, place it next to the
+  Increment the `maximum_availability_zones` for multi-AZ setup.
+
+* Get a `bootstrap.properties` file, and place it next to the
   `config.yaml`. That is actually a template Cloudstrap will fill in,
   for use by the HCP bootstrap process.
-  
-  Although cloudstrap does not read the values of this `bootstrap.properties`,
-  as of `0.37.6.pre`, it is still required.
 
-  Here is a good one from Eric:
-  
-  ```
-  Provider=AWS
-  NodeCount=2
-  AWS.AccessKey=
-  AWS.SecretKey=
-  AWS.Region=us-east-1
-  AWS.AvailabilityZones=us-east-1e
-  AWS.MasterInstanceType=t2.medium
-  AWS.NodeInstanceType=m4.xlarge
-  AWS.GlusterFSInstanceType=t2.medium
-  AWS.Windows2012R2InstanceType=m4.xlarge
-  AWS.LinuxAMI=ami-8fe79998
-  AWS.Windows2012R2AMI=ami-8d0acfed
-  AWS.KeyFileContents=
-  AWS.KeypairFile=/home/ubuntu/.ssh/id_rsa
-  AWS.Keypair=
-  AWS.JumpboxCIDR=0.0.0.0/0
-  AWS.VPCID=vpc-ba3d01dd
-  AWS.PublicSubnetIDsAndAZ=subnet-7727da4b:us-east-1e
-  AWS.PrivateSubnetIDsAndAZ=subnet-7327da4f:us-east-1e
-  OpenStack.CACertFile=<<Path to PEM formatted CACert used to authenticate the OpenStack APIs>>
-  OpenStack.AuthURL=<<OpenStack Keystone URL e.g. https://MyHelionCloud.example.com:5000/v3>>
-  OpenStack.Username=<<OpenStack Keystone Username>>
-  OpenStack.Password=<<OpenStack Keystone Password>>
-  OpenStack.DomainID=<<OpenStack Keystone Domain ID>>
-  OpenStack.DomainName=<<OpenStack Keystone Domain Name>>
-  OpenStack.TenantID=<<OpenStack Keystone Project ID>>
-  OpenStack.TenantName=<<OpenStack Keystone Project Name>>
-  OpenStack.RegionName=<<OpenStack Keystone Region to use>>
-  OpenStack.AvailabilityZone=<<OpenStack Nova availability zone to use>>
-  OpenStack.LinuxImageID=<<OpenStack Glance Image ID for Ubuntu 14.04>>
-  OpenStack.Windows2012R2ImageID=<<OpenStack Glance Image ID for Microsoft Windows Server 2012R2>>
-  OpenStack.MasterFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.NodeFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.GlusterFSFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.Windows2012R2FlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.Keypair=<<OpenStack Nova Keypair Name (must exist in Nova)>>
-  OpenStack.KeypairFile=<<Path to PEM formatted private key, matching the keypair provided to Nova>>
-  OpenStack.JumpboxCIDR=<<IP OF M/C RUNNING COMMAND FROM>>/32
-  OpenStack.NetworkID=<<OpenStack Neutron network ID to use>>
-  OpenStack.SubnetID=<<OpenStack Neutron subnet ID to use>>
-  OpenStack.PoolName=<<OpenStack Neutron external network name to use>>
-  OpenStack.PoolID=<<OpenStack Neutron external network ID to use>>
-  VSphere.Username=
-  VSphere.Password=
-  VSphere.Server=
-  VSphere.Insecure=
-  VSphere.NetworkName=
-  VSphere.LBVIPAllocationStart=
-  VSphere.LBVIPAllocationEnd=
-  VSphere.LBVirtualRouterID=
-  VSphere.CIDataISO=
-  VS phere.Datastore=
-  VSphere.Datacenters=
-  VSphere.Cluster=
-  VSphere.KeypairFile=
-  VSphere.LinuxVMDKSource=
-  VSphere.Windows2012R2VMDKSource=
-  VSphere.DiskType=<<eager_zeroed, lazy, or thin>>
-  VSphere.MasterNumVCPUs=
-  VSphere.MasterMemoryMB=
-  VSphere.NodeNumVCPUs=
-  VSphere.NodeMemoryMB=
-  VSphere.GlusterFSNumVCPUs=
-  VSphere.GlusterFSMemoryMB=
-  VSphere.Windows2012R2NumVCPUs=
-  VSphere.Windows2012R2MemoryMB=
-  HCPDomainName=hcf.yourname.stacktest.io
-  LDAP.URI=ldap://52.87.217.102
-  LDAP.BindUserDN=cn=admin,ou=Users,dc=test,dc=com
-  LDAP.BindPassword=afbcc51d-0cd2-4e73-bff6-1d1958103ab7
-  LDAP.UserSearchBase=ou=Users,dc=test,dc=com
-  LDAP.UserSearchFilter=cn={0}
-  LDAP.GroupSearchBase=ou=scopes,dc=test,dc=com
-  LDAP.GroupSearchFilter=member={0}
-  LDAP.ProviderName=arthur
-  ```
+  This means that the original blank template should be saved, and
+  whenever a new cluster is made start from that blank file.
 
-  I'm not sure if cloudstrap actually needs it, but for safety, I would set 
-  the __HCPDomainName__ to your chosen domain name.
+  A good source of a proper blank template is the file
+  `cmd/bootstrap/sample_bootstrap.properties` in the repository
+  `hpcloud/hdp-resource-manager`.
+
+  No editing is needed, just copy this file to `bootstrap.properties`.
 
 * Run `cloudstrap`. Be sure to use your __dev__ account.
 
@@ -159,33 +103,25 @@
   of the CWD. Each run will check that cache and reuse the
   already-made parts.
 
-  Errors to expect on the first runs are
+  The command `cloudstrap-cache` prints the contents of this cache in
+  a readable format. While normally some fancy formatting is used this
+  can be disabled by directing the output into a file or pipe.
 
-  ```
-  The (entity) ID '(bla)' does not exist
-  ```
-  
-  or 
- 
-  ```
-  Your Jumpbox is in a state other than running
-  ```
+* By setting the environment variable
+  `BOOTSTRAP_WITHOUT_HUMAN_OVERSIGHT` to `true` before invoking
+  cloudstrap, cloudstrap will run the HCP bootstrap by itself.
 
-  This looks to be a race condition, where Cloudstrap is faster than
-  AWS, i.e. it provisions X and then does something else with X, but
-  AWS has not completed creating X yet.  
-  Try again after a couple minutes and it should work.
+  Without that variable cloudstrap will only setup and configure the
+  jumpbox and then tell the user how to run bootstrap themselves.
 
-  Another error to ignore is
+* Note, when bootstrap fails a simple redo via cloudstrap is not
+  possible.  It is necessary to tear the partial cluster down (see
+  later section) before re-starting the setup.
 
-  ```
-  bootstrap_agent.rb:356:in `map': undefined method `public_ip' for nil:NilClass (NoMethodError)
-  ```
-  
-* When cloudstrap is done read the log (you have redirected the output
-  into a `|tee LOG`, have you?!) to find the IP address of the __jump
-  box__. Look near the end, for a line containing `ubuntu@IP-ADDRESS`.
-  The `IP-ADDRESS` is what we want.
+* After the setup completed (including bootstrap) read the log (you
+  have redirected the output into a `|tee LOG`, have you?!) to find
+  the IP address of the __jump box__. Look near the end, for a line
+  containing `ubuntu@IP-ADDRESS`.  The `IP-ADDRESS` is what we want.
 
 * `export JUMPBOX_IP=<IP-ADDRESS>` just for convenience.
 
@@ -205,6 +141,37 @@
 * You can now run `cloudstrap-dns`, which will set the DNS entries automatically.
   As of this version, it doesn't read the region from config.yaml so you'll need to
   add it as an environment variable: `export AWS_REGION=us-east-1`
+
+## Teardown
+
+* To tear a cluster down run the tool `cloudstrap-teardown` with the
+  name of the VPC created during setup.
+
+  This name can be found via `cloudstrap-cache`. For example
+
+  ```
+	vpc=$(bin/cloudstrap-cache | awk '/vpc_id/ { print $2 }')
+	cloudstrap-teardown $vpc
+  ```
+
+* __Note!__
+
+  * I am told that it is necessary to manually delete the ELBs before
+    invoking the tool. They are found under `EC2 / Load Balancing /
+    Load Balancers`
+
+  * The tool may fail to delete the VPC (possibly due to timeouts).
+
+    If that happens it is necessary to manually delete the instances
+    of the cluster, and possibly the VPC itself before invoking the
+    tool again.
+
+* After `cloudstrap-teardown` was run successfully delete either the
+  entire cluster directory, or just the `.ssh` and `.cache`
+  sub-directories.
+
+* We are now ready to setup a new cluster. See previous section.
+
 
 ## HCP
 
