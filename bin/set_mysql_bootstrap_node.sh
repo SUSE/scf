@@ -43,6 +43,8 @@ set_pod_as_bootstrap() {
 main() {
   local pods=($(get_mysql_pods))
 
+  echo "Shutting down mysql processes"
+
   for pod in "${pods[@]}"
   do
     stop_mysql_processes "${pod}"
@@ -54,6 +56,8 @@ main() {
   local latest=0
   local latest_index=0
 
+  echo "Finding MySQL cluster sequence values"
+  
   # Find the pod with the highest sequence number  
   for idx in $(seq 0 $((${#pods[@]} - 1)))
   do
