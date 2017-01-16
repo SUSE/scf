@@ -51,14 +51,18 @@ main() {
   # Once the processes are stopped, the sequences are written to disk  
   local sequences=($(get_sequences "${pods[@]}"))
  
-  # seqno is -1 on a pod that hasn't joined the cluster so start
-  # counting at -2.
-  local latest=-2
+  local latest=0
   local latest_index=0
 
   # Find the pod with the highest sequence number  
   for idx in $(seq 0 $((${#pods[@]} - 1)))
   do
+    if [[ "${sequences[idx]}" -eq "-1" ]]; then
+      echo "${pods[idx]} has a sequence of -1"
+      echo "MySQL nodes need manual intervention before upgrading"
+      exit 1
+    fi
+
     if [[ "${sequences[idx]}" -gt "${latest}" ]]; then
       latest="${sequences[idx]}"
       latest_index="${idx}"
