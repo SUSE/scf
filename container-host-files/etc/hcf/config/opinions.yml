@@ -20,9 +20,10 @@ properties:
     include_sso: true
     include_tasks: true
     include_v3: true
+    # Requires `router.tracing.enable_zipkin: true` and `include_routing: true`
+    # include_zipkin: true
     # Not working
     # include_privileged_container_support: true
-    # include_zipkin: true
     # include_route_services: true
     # Don't use as we don't have simultaneous Diego and DEA
     include_backend_compatibility: false
