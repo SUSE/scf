@@ -61,6 +61,8 @@ cd ${APP}
 cf push ${APP_NAME}
 
 # set up tcp routing
+cf delete-shared-domain -f ${CF_TCP_DOMAIN} || true
+
 cf create-shared-domain ${CF_TCP_DOMAIN} --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
