@@ -15,7 +15,12 @@ get_mysql_pods() {
 
 stop_mysql_processes() {
   local pod=$1
+  local x=0
   kubectl exec --namespace hcf "${pod}" monit stop all
+  while [ "$x" -lt 60 ] && kubectl exec --namespace hcf "${pod}" -- test -e /var/vcap/sys/run/mysql/mysql.pid; do
+	  x=$((x+1))
+	  sleep 1
+  done
 }
 
 get_sequences() {
