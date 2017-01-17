@@ -479,6 +479,7 @@ roles:
       properties.uaa.zones.internal.hostnames: '["uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
+  - scripts/load-hcp-env.sh
   - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
@@ -556,6 +557,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   environment_scripts:
+  - scripts/load-hcp-env.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -638,6 +640,7 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   environment_scripts:
+  - scripts/load-hcp-env.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -1361,6 +1364,8 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
+  environment_scripts:
+  - scripts/load-hcp-env.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -2411,7 +2416,7 @@ configuration:
     description: Extra token expiry time while uploading big apps, in seconds.
   templates:
     index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((HCP_HOSTNAME_SUFFIX))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
@@ -2514,7 +2519,7 @@ configuration:
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf-usb.mysql_address: 'mysql-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))((HCP_HOSTNAME_SUFFIX)).((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-int.((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.log_level: '"((LOG_LEVEL))"'
