@@ -2377,9 +2377,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: Key for the SSO service.
-  - name: STAGER_DOCKER_REGISTRY
-    default: docker-registry.service.cf.internal:8080
-    description: Address of the Docker Registry used for image caching.
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
     required: false
@@ -2469,7 +2466,6 @@ configuration:
     properties.capi.stager.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9090"
     properties.capi.stager.diego_privileged_containers: '((USE_STAGER_PRIVILEGED_CONTAINERS))'
-    properties.capi.stager.docker_registry_address: '"((STAGER_DOCKER_REGISTRY))"'
     properties.capi.stager.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((LOG_LEVEL))"'
