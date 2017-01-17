@@ -1683,6 +1683,9 @@ configuration:
   - name: DEFAULT_APP_MEMORY
     default: 1024
     description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+  - name: DEFAULT_APP_SSH_ACCESS
+    default: true
+    description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
@@ -2490,6 +2493,7 @@ configuration:
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
+    properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
     properties.cc.diego.stager_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
     properties.cc.diego.tps_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):1518"
