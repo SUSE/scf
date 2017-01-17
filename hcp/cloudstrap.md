@@ -55,9 +55,6 @@
   and [HSM Release Notes](https://github.com/hpcloud/cnap/wiki/HSM-Release-Notes)
   for the relevant links and instructions.
 
-
-
-
 * Create a `config.yaml` in the cluster management directory. Contents should look similar to
 
   ```
@@ -118,14 +115,23 @@
   possible.  It is necessary to tear the partial cluster down (see
   later section) before re-starting the setup.
 
-* After the setup completed (including bootstrap) read the log (you
-  have redirected the output into a `|tee LOG`, have you?!) to find
-  the IP address of the __jump box__. Look near the end, for a line
-  containing `ubuntu@IP-ADDRESS`.  The `IP-ADDRESS` is what we want.
+* After the setup completed (including bootstrap) 
+  use the command
+
+  ```
+	cloudstrap-cache | awk '/jumpbox_ip/ { print $2 }'
+  ```
+
+  to determine the IP-address of the jumpbox.
 
 * `export JUMPBOX_IP=<IP-ADDRESS>` just for convenience.
 
-* Run the command `scp -i .ssh/*/!(*.pub) ubuntu@$JUMPBOX_IP:bootstrap-*.log`
+* Then run the commands
+
+  ```
+	keyfile=$(ls .ssh/*/* | grep -v '\.pub')
+	scp -i "$keyfile" ubuntu@${jip}:bootstrap-*.log bootstrap.log
+  ```
 
   The directory `.ssh` contains the ssh key-pair created by Cloudstrap
   for access to the jump box. Two files, one ending in `.pub`. We want
@@ -135,8 +141,12 @@
   to make the above command a bit easier (*.key, or some such))
 
 * The log file the previous step pulled from the jump box contains the username
-  and password of the HCP instance. Look for lines containing `password`.  
-  (It also contains information about DNS entries if you need to create them manually.)
+  and password of the HCP instance. Look for lines containing `password`. For
+  convenience use
+
+  ```
+	grep -i password bootstrap.log |grep -v false
+  ```
 
 * You can now run `cloudstrap-dns`, which will set the DNS entries automatically.
   As of this version, it doesn't read the region from config.yaml so you'll need to
@@ -207,7 +217,10 @@ Do you want an instance of a released HCF version, or of your own branch?
   
   Make sure to set the parameters of the `instance.json`. Set `DOMAIN` to `hcf.<HCP Domain>` 
   and the cluster admin password to what you want.
-  
+
+  Further set a toplevel "instance_id", to avoid HCP generating a
+  cryptic one for you. A good value would be "hcf".
+
 * `hsm create-instance stackato.hpe.hcf <product version> -i instance.json --sdl-version <sdl version>`
 
 * `hsm list-instances` to check the name and the status of your instance
@@ -223,7 +236,7 @@ Do you want an instance of a released HCF version, or of your own branch?
   `*.hcf.<HCP domain name>. CNAME <router location URL>`
   
 * Give it a minute to update the DNS records, then you should be able to connect to your HCF instance:  
-  `cf api https://api.hcf.williamg.stacktest.io --skip-ssl-validation`
+  `cf api https://api.hcf.<HCP domain name> --skip-ssl-validation`
   
 
 ### Getting the SDL and IDL of a custom branch:
@@ -257,3 +270,110 @@ Do you want an instance of a released HCF version, or of your own branch?
 
 * __...__ TODO: Upload the service definition, create an instance,
   play with the resulting HCF.
+
+## Smoking CATs and HATs
+
+To run the various acceptance test suites we presume to have `docker`
+installed on the local host. With that simply run:
+
+```
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       --env TCP_DOMAIN=tcp.(HCPDomain) \
+       stackatodev/hcf-smoke-tests:<tag>
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       --env TCP_DOMAIN=tcp.(HCPDomain) \
+       stackatodev/hcf-acceptance-tests-brain:<tag>
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       --env TCP_DOMAIN=tcp.(HCPDomain) \
+       stackatodev/cf-acceptance-tests:<tag>
+```
+
+with domain, password and tag suitably set.
+
+The password must be it was chosen for the instance.
+
+The tag has to match the SDL version of the HCF instance.
+See the output of `hsm list-instances` for that information.
+
+__Note__ that the order of execution in the above script fragment is important.
+The HATs enable a few feature-flags which are not on by default, and
+are required by the CATs.
+
+Also, __make sure__ to map the `tcp.(HCPDomain)` and
+`ssh.hcf.(HCPDomain)` subdomains to their ELBs __before__ running the
+tests. The ELB for `tcp` is provided by role `tcp-router`, and `ssh`
+by role `diego-access`.
+
+In other words, more CNAME DNS entries to set in the HZ.
+
+Note how the `ssh` host contains `hcf` in its name. It must be a
+subdomain of the HCF domain, not of HCP itself. For `tcp` it simply
+must match how the script invokes the testsuites.
+
+## Accessing the HCF components
+
+* First, get on the jump box, via
+
+  ```
+	jump_ip=$(cloudstrap-cache | awk '/jumpbox_ip/ { print $2 }')
+	keyfile=$(ls .ssh/*/* | grep -v '\.pub')
+
+	ssh -i "$keyfile" ubuntu@${jump_ip} "$@"
+
+  ```
+
+* On the jump box, determine the IP of the kubernetes master.
+  Run
+
+  ```
+	grep 'aws_instance\.hcp_kubernetes_master' bootstrap-*.log
+  ```
+
+  and find the IP address in the last line.
+
+* A simple
+
+  ```
+	ssh <IP>
+  ```
+
+  using the IP address from the previous step then puts us on that master node.
+
+* On the master node `kubectl` grants full access to the entire system.
+
+  Due to various pain points it is however recommend to install the
+  `k` wrapper and use that instead.
+
+  ```
+	mkdir bin
+	cd bin
+	wget https://s3.amazonaws.com/helion-developers/aarondl/k
+	chmod u+x k
+  ```
+
+* Assuming that `k` is installed, get the list of all pods via
+
+  ```
+	k get pods :
+  ```
+
+
+* To enter the container for a specific HCF role, for example `api-0`, do
+
+  ```
+	k ssh hcf:^api-0
+  ```
+
+Some explanations: A pattern `foo:bar` refers to namespaces matching
+the regex `foo`, and pods matching the regex `bar` in these
+namespaces. A plain ':' is effectively a wildcard for both namespace
+and pod.
+
+In a HCF cluster the active namespaces to expect are `kube-system`,
+`hcp` and `hcf`. Core kubernetes, control plane, and PaaS.
