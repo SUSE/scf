@@ -5,23 +5,23 @@ SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ ! -f "${SENTINEL}" ]; then
 
-  read -r -d '' setup_patch_rep_as_vcap <<'PATCH' || true
---- rep_as_vcap.erb.orig
-+++ rep_as_vcap.erb
-@@ -71,7 +71,7 @@ exec /var/vcap/packages/rep/bin/rep ${bbs_sec_flags} ${rep_sec_flags} \
-   <%= p("diego.rep.rootfs_providers").map { |provider| "-rootFSProvider #{provider}" }.join(" ") %> \
-   <%= p("diego.rep.placement_tags").map { |tag| "-placementTag #{Shellwords.shellescape(tag)}" }.join(" ") %> \
-   <%= p("diego.rep.optional_placement_tags").map { |tag| "-optionalPlacementTag #{Shellwords.shellescape(tag)}" }.join(" ") %> \
--  -cellID=<%= spec.job.name %>-<%= spec.index %>-<%= spec.id %> \
-+  -cellID=<%= p("diego.rep.cell_id", "#{spec.job.name}-#{spec.index}-#{spec.id}") %> \
-   -zone="${zone}" \
-   -pollingInterval=<%= "#{p("diego.rep.polling_interval_in_seconds")}s" %> \
-   -evacuationPollingInterval=<%= "#{p("diego.rep.evacuation_polling_interval_in_seconds")}s" %> \
+  read -r -d '' setup_patch_rep_json <<'PATCH' || true
+--- a/jobs/rep/templates/rep.json.erb
++++ b/jobs/rep/templates/rep.json.erb
+@@ -16,7 +16,7 @@ config = {
+  "supported_providers" => p("diego.rep.rootfs_providers"),
+  "placement_tags" => p("diego.rep.placement_tags"),
+  "optional_placement_tags" => p("diego.rep.optional_placement_tags"),
+- "cell_id" => "#{spec.job.name}-#{spec.index}-#{spec.id}",
++ "cell_id" => p("diego.rep.cell_id", "#{spec.job.name}-#{spec.index}-#{spec.id}"),
+  "zone" => spec.az || p("diego.rep.zone"),
+  "polling_interval" => "#{p("diego.rep.polling_interval_in_seconds")}s",
+  "evacuation_polling_interval" => "#{p("diego.rep.evacuation_polling_interval_in_seconds")}s",
 PATCH
 
   cd "$PATCH_DIR"
 
-  echo -e "${setup_patch_rep_as_vcap}" | patch --force
+  echo -e "${setup_patch_rep_json}" | patch --force
 
   touch "${SENTINEL}"
 fi
