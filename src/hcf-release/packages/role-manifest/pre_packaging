@@ -1,0 +1,26 @@
+# abort script on any command that exits with a non zero value
+set -e -x
+
+# Run some ruby to extract whatever information we require from the role
+# manifest. We don't want to include the entire role manifest in the images,
+# just the required information. We shouldn't process build-time things at
+# run-time.
+/usr/bin/env ruby <<-EORUBY
+  require 'yaml'
+  require 'json'
+
+  rm = YAML.load_file('hcf-config/role-manifest.yml')
+
+  File.open('uaa_clients.json', 'w') do |f|
+    f.write(rm['auth']['clients'].to_json)
+  end
+
+  File.open('uaa_authorities.json', 'w') do |f|
+    f.write(rm['auth']['authorities'].to_json)
+  end
+EORUBY
+
+# Remove all traces of the role manifest and other scripts, we don't want them
+# included in our package (they would change the signature of the package and
+# cause things to recompile even though we don't use the information)
+rm -rf hcf-config

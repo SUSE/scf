@@ -227,11 +227,6 @@ class ToHCP < Common
 
     the_comp['retry_count'] = retrycount if retrycount > 0
 
-    unless role['type'] == 'docker'
-      the_comp['entrypoint'] = build_entrypoint(runtime: runtime,
-                                                role_manifest: role_manifest)
-    end
-
     # Record persistent and shared volumes, ports
     pv = runtime['persistent-volumes']
     sv = runtime['shared-volumes']
@@ -278,27 +273,6 @@ class ToHCP < Common
       map[var['name']] = vname
     end
     map
-  end
-
-  def build_entrypoint(options)
-    entrypoint = ["/usr/bin/env"]
-
-    exposed_ports = options[:runtime]['exposed-ports']
-    unless exposed_ports.any? {|port| port['public']}
-      entrypoint << 'HCP_HOSTNAME_SUFFIX=-int'
-    end
-
-    auth_info = options[:role_manifest]['auth'] || {}
-    if auth_info['clients']
-      entrypoint << "UAA_CLIENTS=#{auth_info['clients'].to_json}"
-    end
-    if auth_info['authorities']
-      entrypoint << "UAA_USER_AUTHORITIES=#{auth_info['authorities'].to_json}"
-    end
-
-    entrypoint << '/opt/hcf/run.sh'
-
-    entrypoint
   end
 
   def add_volumes(fs, component, volumes, shared_fs)

@@ -6,6 +6,7 @@ templates:
   run.erb: bin/run
 
 packages:
+  - role-manifest
 
 properties:
 
