@@ -4,6 +4,8 @@
 set -o errexit
 set -o xtrace
 
+DEADLINE=$(expr $(date +%s) + ${TESTBRAIN_TIMEOUT:-300})
+
 function random_suffix { head -c2 /dev/urandom | hexdump -e '"%04x"'; }
 CF_ORG=${CF_ORG:-org}-$(random_suffix)
 CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
@@ -63,12 +65,18 @@ cf bind-service ${DOCKERAPP} ${DOCKERSERVICE}
 
 cf restage ${DOCKERAPP}
 
+while [ $(expr $DEADLINE - $(date +%s)) -gt 30 ]; do
+    RUNNING=$(cf app ${DOCKERAPP} | grep -E '^#[0-9]+ +running' | wc -l)
+    if [ ${RUNNING} -eq 2 ]; then
+        break
+    fi
+    sleep 10
+done
+
 PERSI_SERVICE_GUID=$(cf service ${DOCKERSERVICE} --guid)
 
 # Write a file to persi data store from instance 0 of the app
 cf ssh -i 0 ${DOCKERAPP} -c "echo dataOnPersiStore > /var/vcap/data/$PERSI_SERVICE_GUID/fileOnPersiStore"
 
-# Read the file from persi data store 
+# Read the file from persi data store
 cf ssh -i 1 ${DOCKERAPP} -c "cat /var/vcap/data/$PERSI_SERVICE_GUID/fileOnPersiStore" | grep dataOnPersiStore
-
-
