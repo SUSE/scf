@@ -1692,6 +1692,7 @@ configuration:
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
+    required: false
     default: ''
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
   - name: LOG_LEVEL
