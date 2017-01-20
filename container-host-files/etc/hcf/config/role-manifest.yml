@@ -2207,6 +2207,7 @@ configuration:
     description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
+    required: false
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_SERVICES_SECRET
     secret: true
@@ -2347,6 +2348,7 @@ configuration:
     description: Skip TLS verification when communicating with UAA system domain.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
+    required: false
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
@@ -2375,6 +2377,7 @@ configuration:
     description: Address of the Docker Registry used for image caching.
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
+    required: false
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
     description: >
       A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
