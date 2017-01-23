@@ -38,6 +38,7 @@ cf target -s ${CF_SPACE}
 SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR=node-env
 APP_NAME=${APP_DIR}-$(random_suffix)
+TMP=$(mktemp -dt 013_versions_list.XXXXXX)
 
 ## # # ## ### Test-specific code ### ## # #
 
@@ -45,6 +46,7 @@ function test_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
+    rm -rf "${TMP}"
     cf delete -f ${APP_NAME}
 
     set -o errexit
@@ -64,13 +66,21 @@ trap test_cleanup EXIT ERR
 
 # 123456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 
+list_versions() {
+    cf list-versions ${APP_NAME} > ${TMP}/versions
+}
+
+get_versions() {
+    cat ${TMP}/versions
+}
+
 # Get the droplet hash of the given version id
 get_droplet_hash() {
-    cf list-versions ${APP_NAME} | awk "/^${1} /"'{ print $2 }'
+    get_versions | awk "/^${1} /"'{ print $2 }'
 }
 # Get the time stamp (as a number) of the given version id
 get_timestamp() {
-    date --date="$(cf list-versions ${APP_NAME} | awk "/^${1} /"'{ print substr($_, 45) }')" +%s
+    date --date="$(get_versions | awk "/^${1} /"'{ print substr($_, 45) }')" +%s
 }
 
 # push an app 5 times
@@ -79,9 +89,11 @@ for (( i = 0 ; i < 5 ; i ++ )) ; do
     cf push ${APP_NAME}
 done
 
+list_versions
+get_versions
+
 # Check that we have 5 versions
 for (( i = 0 ; i < 5 ; i ++ )) ; do
-    cf list-versions ${APP_NAME}
     droplet_hash="$(get_droplet_hash ${i})"
     printf "Got droplet hash %s for version %s\n" "${droplet_hash}" "${i}"
     test -n "${droplet_hash}"
