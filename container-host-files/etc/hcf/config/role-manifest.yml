@@ -1737,6 +1737,7 @@ configuration:
     description: The password for access to the Universal Service Broker.
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
+    immutable: true
     generator:
       type: Password
     example: password
