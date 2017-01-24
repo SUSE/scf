@@ -70,20 +70,30 @@ cf update-quota default --reserved-route-ports -1
 
 # run hsm passthrough docker
 cf enable-feature-flag diego_docker
-cf push ${HSM_SERVICE_INSTANCE} \
+cf push "${HSM_SERVICE_INSTANCE}" \
     -o 'helioncf/hcf-usb-sidecar-test' \
-    -d ${CF_TCP_DOMAIN} --random-route \
-    --no-start | tee ${TMP}/log
-cf set-env ${HSM_SERVICE_INSTANCE} SIDECAR_API_KEY string_empty
-cf restart ${HSM_SERVICE_INSTANCE}
+    -d "${CF_TCP_DOMAIN}" --random-route \
+    --no-start | tee "${TMP}/log"
+cf set-env "${HSM_SERVICE_INSTANCE}" SIDECAR_API_KEY string_empty
+cf restart "${HSM_SERVICE_INSTANCE}"
 
 # get the random port assigned
-port=$(awk "/Binding .* to ${HSM_SERVICE_INSTANCE}/ {print \$2}" < ${TMP}/log | cut -f 2 -d ':')
+port=$(awk "/Binding .* to ${HSM_SERVICE_INSTANCE}/ {print \$2}" < "${TMP}/log" | cut -f 2 -d ':')
 
 # add service
 cf usb create-driver-endpoint de${HSM_SERVICE_INSTANCE} \
     https://${CF_TCP_DOMAIN}:${port} string_empty \
-    -k -c '{"display_name":"hsm_passtrough"}'
+    -k -c '{"display_name":"hsm_passtrough"}' \
+    | tee "${TMP}/log"
+
+# Wait until the service is responding correctly
+workspace_id=$(awk -F: '/New driver endpoint created. ID/ { print $2 }' < "${TMP}/log")
+for (( i = 0 ; i < 12 ; i ++ )) ; do
+    if curl --fail --silent --header 'X-Sidecar-Token: string_empty' "https://${CF_TCP_DOMAIN}:${port}/workspaces/${workspace_id}" ; then
+        break
+    fi
+    sleep 5
+done
 
 # push an app for the service to bind to
 cd ${SELFDIR}/../test-resources/php-mysql
