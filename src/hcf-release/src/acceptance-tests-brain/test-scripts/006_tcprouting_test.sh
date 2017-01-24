@@ -77,6 +77,14 @@ if [ -z "${port}" ]; then
   exit 1
 fi
 
+# Wait until the application itself is ready
+for (( i = 0; i < 12 ; i++ )) ; do
+    if curl --fail -s -o /dev/null ${APP_NAME}.${CF_DOMAIN} ; then
+        break
+    fi
+    sleep 5
+done
+
 # check that the application works
 sleep 5
 curl ${CF_TCP_DOMAIN}:${port}
