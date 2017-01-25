@@ -63,7 +63,6 @@ cf bind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
 
 # Check if the redirect works
 url=$(grep urls ${TMP}/log | cut -f 2- -d " " | head -n 1)
-
 loginpage=${TMP}/loginpage
 cookies=${TMP}/cookies.txt
 
@@ -80,10 +79,10 @@ curl -b ${cookies} -c ${cookies} -L -v ${login} \
     > ${TMP}/sso.url \
     2>&1
 
-# # ## ### ##### ######## show entire curl to ease diagnosis i ncase of trouble
+# # ## ### ##### ######## show entire curl to ease diagnosis in case of trouble
 cat ${TMP}/sso.url | sed -e 's/^/XXX SSO /'
 # # ## ### ##### ########
 
 # Failure to find the expected patterns aborts due to 'set -o errexit'
-cookie="$(grep "Cookie: ssoCookie" ${TMP}/sso.url)"
-httpcode="$(grep "200 OK" ${TMP}/sso.url)"
+grep "Cookie: ssoCookie" ${TMP}/sso.url
+grep "200 OK" ${TMP}/sso.url
