@@ -83,10 +83,7 @@ talk with, restarting the pod fixed the issue (though restarting consul
 would also fix it).
 EOF
 
-# mysql pod /var/vcap/sys/log/mysql/mysql.err.log
-lookfor <<EOF
-[ERROR] WSREP: SST failed: 1 (Operation not permitted)
-
+read -d '' MSG <<EOF || true
 SST has happened twice and should only ever happen once. Probably missing the
 IST patch. If that patch is in place then full recovery of MySQL required:
 
@@ -98,15 +95,16 @@ EOF
 
 # mysql pod /var/vcap/sys/log/mysql/mysql.err.log
 lookfor <<EOF
+[ERROR] WSREP: SST failed: 1 (Operation not permitted)
+
+${MSG}
+EOF
+
+# mysql pod /var/vcap/sys/log/mysql/mysql.err.log
+lookfor <<EOF
 [Warning] InnoDB: Cannot open table mysql/gtid_slave_pos from the internal data dictionary of InnoDB
 
-SST has happened twice and should only ever happen once. Probably missing the
-IST patch. If that patch is in place then full recovery of MySQL required:
-
-monit stop all # Check for lingering processes and kill them
-rm -rf /var/vcap/store/mysql/
-/var/vcap/jobs/mysql/bin/pre-start
-monit start all
+${MSG}
 EOF
 
 # mysql pod /var/vcap/sys/log/mysql/mysql.err.log
@@ -134,10 +132,7 @@ rm -rf /var/vcap/store/mysql/
 monit start all
 EOF
 
-# etcd pod /var/vcap/sys/log/etcd/etcd_ctl.err.log
-lookfor <<EOF
-Error:  cannot sync with the cluster using endpoints https://etcd-
-
+read -d '' MSG <<EOF || true
 These point to an etcd that came up in a weird way and thinks there
 are other nodes when there are none. Restoration was done by:
 monit stop all
@@ -145,17 +140,19 @@ rm -rf /var/vcap/store/etcd
 # Restart the pod using kubectl
 EOF
 
+# etcd pod /var/vcap/sys/log/etcd/etcd_ctl.err.log
+lookfor <<EOF
+Error:  cannot sync with the cluster using endpoints https://etcd-
+
+${MSG}
+EOF
 
 # etcd pod /var/vcap/sys/log/etcd/etcd.stderr.log
 # duplicate of previous error?
 lookfor <<EOF
 etcdserver: publish error: etcdserver: request timed out
 
-These point to an etcd that came up in a weird way and thinks there
-are other nodes when there are none. Restoration was done by:
-monit stop all
-rm -rf /var/vcap/store/etcd
-# Restart the pod using kubectl
+${MSG}
 EOF
 
 # mysql pods /var/vcap/sys/log/mysql/mysql.err.log
