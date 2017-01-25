@@ -6,7 +6,7 @@ KLOG=${HOME}/klog
 
 if [ "$1" == "-h" ]; then
     cat <<EOF
-usage: $0 [-f] [-v] [INSTANCe_ID]
+usage: $0 [-f] [-v] [INSTANCE_ID]
 
   -f  forces fetching of all logs even if a cache already exists
   -v  prints verbose output
@@ -22,7 +22,7 @@ if [ "$1" == "-f" ]; then
     FORCE=1
 fi
 
-VErBOSE=0
+VERBOSE=0
 if [ "$1" == "-v" ]; then
     shift
     VERBOSE=1
