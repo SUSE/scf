@@ -61,10 +61,6 @@
       {
         "component": "tcp-router",
         "min_instances": 3
-      },
-      {
-        "component": "routing-api",
-        "min_instances": 3
       }
     ]
 }
