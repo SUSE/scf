@@ -1083,6 +1083,7 @@ roles:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   - scripts/patches/fix_rep_cell_id.sh
+  - scripts/patches/fix_persi_localdriver_permissions.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
