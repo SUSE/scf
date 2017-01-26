@@ -1083,6 +1083,7 @@ roles:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   - scripts/patches/fix_rep_cell_id.sh
+  - scripts/patches/fix_persi_localdriver_permissions.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1114,7 +1115,7 @@ roles:
       tag: garden-graph
       size: 50
     shared-volumes:
-    - path: '/var/vcap/persistore'
+    - path: '/var/vcap/persistore/servicevolumes/_volumes'
       size: 100
       tag: 'persistore'
     memory: 4096
@@ -1605,9 +1606,12 @@ roles:
       min: 1
       max: 1
     capabilities: []
-    persistent-volumes: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag:  persibroker-data
+      size: 1
     shared-volumes:
-    - path: '/var/vcap/persistore'
+    - path: '/var/vcap/persistore/servicevolumes/_volumes'
       size: 100
       tag: 'persistore'
     memory: 256

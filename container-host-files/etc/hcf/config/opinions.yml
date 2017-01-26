@@ -245,7 +245,7 @@ properties:
     plan-name: 'default'
     plan-id: '8ea4a4f1-ab4a-4bbb-a4a6-810d46713449'
     plan-desc: 'Default service plan'
-    data-dir: /var/vcap/persistore/brokerdata
+    data-dir: /var/vcap/store/persibroker
     localdriver-url: "http://localhost:9089"
   localdriver:
     listen_addr: "127.0.0.1:9089"
