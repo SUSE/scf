@@ -88,7 +88,7 @@
   whenever a new cluster is made start from that blank file.
 
   A good source of a proper blank template is the file
-  `cmd/bootstrap/sample_bootstrap.properties` in the repository
+  `[cmd/bootstrap/sample_bootstrap.properties](https://github.com/hpcloud/hdp-resource-manager/blob/develop/cmd/bootstrap/sample_bootstrap.properties)` in the repository
   `hpcloud/hdp-resource-manager`.
 
   No editing is needed, just copy this file to `bootstrap.properties`.
@@ -175,6 +175,23 @@
     If that happens it is necessary to manually delete the instances
     of the cluster, and possibly the VPC itself before invoking the
     tool again.
+
+    Jan and I have different experiences here. Quoting Jan:
+
+    ```
+	It will fail the first time, but re-running it after 3-5min normally
+	finishes the job. It will often display some final message including
+	Aws::EmptyStructure. That also seems to indicate success. :) Running
+	it again will then no longer find the VPC, confirming that it is gone.
+    ```
+
+    My experience is that I delete the ELBs, then run
+    `cloudstrap-teardown` multiple times (3-6), waiting 5 minutes
+    before each iteration. At the end it always claims that `The vpc
+    <NAME> has dependencies and cannot be deleted.`
+
+    After that I go and delete the instances manually, and then the
+    VPC manually.
 
 * After `cloudstrap-teardown` was run successfully delete either the
   entire cluster directory, or just the `.ssh` and `.cache`
@@ -280,7 +297,6 @@ installed on the local host. With that simply run:
 docker run --rm \
        --env DOMAIN=hcf.(HCPDomain) \
        --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
-       --env TCP_DOMAIN=tcp.(HCPDomain) \
        stackatodev/hcf-smoke-tests:<tag>
 docker run --rm \
        --env DOMAIN=hcf.(HCPDomain) \
@@ -290,7 +306,6 @@ docker run --rm \
 docker run --rm \
        --env DOMAIN=hcf.(HCPDomain) \
        --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
-       --env TCP_DOMAIN=tcp.(HCPDomain) \
        stackatodev/cf-acceptance-tests:<tag>
 ```
 
@@ -301,9 +316,20 @@ The password must be it was chosen for the instance.
 The tag has to match the SDL version of the HCF instance.
 See the output of `hsm list-instances` for that information.
 
-__Note__ that the order of execution in the above script fragment is important.
-The HATs enable a few feature-flags which are not on by default, and
-are required by the CATs.
+Then running the HATs additional envirnment variables can be used to
+run specific tests, or exclude specific tests. Examples:
+
+```
+--env INCLUDE=016
+```
+
+```
+--env EXCLUDE=016
+```
+
+__Note__ that the order of execution in the above script fragment is
+important.  The smoke tests enable a few feature-flags which are not
+on by default, and are required by the CATs. The HATs do the same.
 
 Also, __make sure__ to map the `tcp.(HCPDomain)` and
 `ssh.hcf.(HCPDomain)` subdomains to their ELBs __before__ running the
@@ -311,6 +337,7 @@ tests. The ELB for `tcp` is provided by role `tcp-router`, and `ssh`
 by role `diego-access`.
 
 In other words, more CNAME DNS entries to set in the HZ.
+Apparently A entries with ALIAS flag set work as well.
 
 Note how the `ssh` host contains `hcf` in its name. It must be a
 subdomain of the HCF domain, not of HCP itself. For `tcp` it simply
