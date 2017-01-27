@@ -87,13 +87,6 @@ get_filename() {
 list_buildpacks
 get_buildpacks
 
-#
-lines=$(get_buildpacks | wc -l)
-packs=$(expr $lines - 3)
-
-# Check that we have (at least) 9 buildpacks
-test $packs -ge 9
-
 # Check that the (nine) standard buildpacks are present
 for pack in \
     binary \
@@ -109,6 +102,9 @@ for pack in \
 do
     get_buildpacks | grep ^${pack}_buildpack
 done
+
+lines=$(get_buildpacks | wc -l)
+packs=$(expr $lines - 3)
 
 # Check that all buildpacks have a name and a filename
 for (( i = 1 ; i <= $packs ; i ++ )) ; do
