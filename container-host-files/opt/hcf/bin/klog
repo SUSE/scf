@@ -22,12 +22,6 @@ if [ "$1" == "-f" ]; then
     FORCE=1
 fi
 
-VERBOSE=0
-if [ "$1" == "-v" ]; then
-    shift
-    VERBOSE=1
-fi
-
 NS=${1-hcf}
 DONE=${KLOG}/${NS}/done
 
@@ -62,10 +56,8 @@ function lookfor {
         NEWLINE=1
 
         echo ">>> ${PATTERN}"
-        if [ "${VERBOSE}" == "1" ]; then
-            echo
-            grep -v :0$ .grep
-        fi
+        echo
+        grep -v :0$ .grep
 
         while read INFO; do
             echo ${INFO}
