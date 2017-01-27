@@ -109,12 +109,12 @@ main() {
   set_pod_as_bootstrap "${pods[${latest_index}]}"
 }
 
-if [ $# -eq 0 ]
+if [ "${#}" -eq 0 ]
 then
-  echo "Usage: set_mysql_bootstrap_node.sh <namespace>"
+  echo "Usage: ${0} <namespace>"
   exit 1
 fi
 
-NAMESPACE=$1
+NAMESPACE="${1}"
 
 main
