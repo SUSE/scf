@@ -77,10 +77,10 @@ cd wats
 
 cat > scripts/wats_hcf_config.json <<EOL
 {
-  "api": "api.192.168.77.77.nip.io",
+  "api": "api.cf-dev.io",
   "admin_user": "admin",
   "admin_password": "changeme",
-  "apps_domain": "192.168.77.77.nip.io",
+  "apps_domain": "cf-dev.io",
   "secure_address": "192.168.77.77:80",
   "skip_ssl_validation": true
 }

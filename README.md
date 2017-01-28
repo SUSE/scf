@@ -406,7 +406,7 @@ Name    | Effect | Notes |
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
-  You can target the cluster on the hardcoded `192.168.77.77.nip.io` address assigned to a host-only network adapter.
+  You can target the cluster on the hardcoded `cf-dev.io` address assigned to a host-only network adapter.
   You can access any URL or endpoint that references this address from your host.
 
 
