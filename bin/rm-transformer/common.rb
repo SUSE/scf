@@ -222,6 +222,14 @@ class Common
     ).include? key
   end
 
+  def self.special_use(key)
+    # Detect env var keys that are special (they are defined, but not
+    # used in the role-manifest. They are needed and used in scripts).
+    %w(
+      HCF_LOG_PROTOCOL
+    ).include? key
+  end
+
   def product_version
     return @product_version if @product_version
     product_version = open("#{@hcf_root_dir}/VERSION").read.strip

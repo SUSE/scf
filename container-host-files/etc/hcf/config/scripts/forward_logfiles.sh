@@ -60,13 +60,26 @@ fi
 #create the file that will forward all messages to flight recorder
 function initialConfig {
 
+	case ${HCF_LOG_PROTOCOL} in
+	    udp)
+		HCF_LOG_PREFIX=
+		;;
+	    tcp)
+		HCF_LOG_PREFIX=@
+		;;
+	    *)
+                echo "Rsyslog forwarder: Bad protocol ${...}, could not create $MAIN_CONFIG in $RSYSLOG_CONF_DIR" >> $PB_OUT
+                exit 0
+		;;
+	esac
+
         if ! cat <<-EOF | sed 's@^\s*@@' >$RSYSLOG_CONF_DIR/$MAIN_CONFIG ; then
                 module(load="imfile" mode="polling")
                 \$template RFC5424Format,"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n"
                 \$ActionFileDefaultTemplate RFC5424Format
                 \$RepeatedMsgReduction on
                 \$ActionQueueType LinkedList
-                *.* @${HCP_FLIGHTRECORDER_HOST}:${HCP_FLIGHTRECORDER_PORT}
+                *.* @${HCF_LOG_PREFIX}${HCP_FLIGHTRECORDER_HOST}:${HCP_FLIGHTRECORDER_PORT}
                 :app-name, contains, "vcap" ${HOME}
 	EOF
                 echo "Rsyslog forwarder: Could not create $MAIN_CONFIG in $RSYSLOG_CONF_DIR" >> $PB_OUT

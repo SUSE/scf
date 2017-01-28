@@ -1792,6 +1792,9 @@ configuration:
   - name: RESERVABLE_PORTS
     default: "20000-20008"
     description: Modifying this value will break TCP port forwarding.
+  - name: HCF_LOG_PROTOCOL
+    default: tcp
+    description: The protocol used by rsyslog to talk to flightrecorder, or other log destination. The allowed values are tcp, and udp.
   - name: HCF_SSO_PASSWORD
     secret: true
     immutable: true
