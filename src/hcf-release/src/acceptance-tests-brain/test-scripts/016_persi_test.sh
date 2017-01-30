@@ -58,7 +58,7 @@ trap test_cleanup EXIT ERR
 
 # Push a docker app
 cf enable-feature-flag diego_docker
-cf push ${DOCKERAPP} -o viovanov/node-env-tiny -i 2
+cf push ${DOCKERAPP} -o "${TESTBRAIN_DOCKER_REGISTRY:+${TESTBRAIN_DOCKER_REGISTRY%/}/}viovanov/node-env-tiny" -i 2
 
 cf create-service shared-volume default ${DOCKERSERVICE}
 cf bind-service ${DOCKERAPP} ${DOCKERSERVICE}

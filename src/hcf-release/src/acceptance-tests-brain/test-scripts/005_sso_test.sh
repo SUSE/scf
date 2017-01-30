@@ -56,7 +56,7 @@ trap test_cleanup EXIT ERR
 
 # Push a docker app to redirect
 cf enable-feature-flag diego_docker
-cf push ${DOCKERAPP} -o viovanov/node-env-tiny
+cf push ${DOCKERAPP} -o "${TESTBRAIN_DOCKER_REGISTRY:+${TESTBRAIN_DOCKER_REGISTRY%/}/}viovanov/node-env-tiny"
 
 cf create-service sso-routing default ${DOCKERSERVICE}
 cf bind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
