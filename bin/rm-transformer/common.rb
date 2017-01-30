@@ -226,6 +226,8 @@ class Common
     # Detect env var keys that are special (they are defined, but not
     # used in the role-manifest. They are needed and used in scripts).
     %w(
+      HCF_LOG_HOST
+      HCF_LOG_PORT
       HCF_LOG_PROTOCOL
     ).include? key
   end
