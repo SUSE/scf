@@ -24,7 +24,6 @@ release_name=$2
 # to older ones
 
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} start
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::docker::${release_name} start
 
 # bosh create release calls `git status` (twice), but hcf doesn't need to know if the
 # repo is dirty, so stub it out.
@@ -111,16 +110,5 @@ docker run \
     --env JAVA_OPTS="$MO" \
     helioncf/hcf-pipeline-ruby-bosh \
     bash -l -c "env | grep -i proxy | sort |sed -e 's/^/PROXY SETUP: /' ; cp $ROOT/bin/dev/fake-git /usr/local/bin/git && rm -rf ${ROOT}/${release_path}/dev_releases && bosh --parallel 10 create release --dir ${ROOT}/${release_path} --force --name ${release_name}"
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::docker::${release_name} done
 
-# Convert YAML to JSON to escape strings nicely so the commit hashes don't get confused as floats
-# The resulting JSON files are able to be loaded as YAML files by the go-yaml library
-
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::y2j::${release_name} start
-find "${ROOT}/${release_path}/dev_releases/${release_name}" -name \*.yml \
-    -exec mv {} /tmp/tmp-yaml-to-json \; \
-    -exec sh -c "y2j < /tmp/tmp-yaml-to-json > {}" \; \
-    -exec rm /tmp/tmp-yaml-to-json \;
-
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::y2j::${release_name} done
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done
