@@ -1466,7 +1466,7 @@ roles:
   processes: []
   run:
     scaling:
-      min: 1
+      min: 0
       max: 1
     flight-stage: post-flight
     capabilities: []
@@ -1603,7 +1603,7 @@ roles:
   - name: haproxy
   run:
     scaling:
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes:
