@@ -226,6 +226,7 @@ properties:
       enable: true
     locked_memory_limit: kernel
     port: 4443
+    zone: doppler-int
   etcd:
     bootstrap_node: etcd-0
   garden:
@@ -280,6 +281,7 @@ properties:
       serviceProviderKeyPassword: ""
   metron_agent:
     deployment: hcf-deployment
+    zone: doppler-int
   nats:
     port: 4222
     user: nats

@@ -104,7 +104,7 @@ function start_role {
       # Also, this would hopefully reduce the expectation of (shell-style)
       # variable expansion in the *.env files.
       the_env+=("--env=${ename}=${evalue}")
-  done < <(echo "${env_file_contents}" | grep -w "${role_params}")
+  done < <(echo "${env_file_contents}" | grep -w "${role_params}\|HCF_LOG_PROTOCOL")
 
   domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
 
