@@ -761,6 +761,16 @@ roles:
         external: 3458
         internal: 3458
         public: false
+      - name: 'doppler-ws'
+        protocol: 'TCP'
+        external: 8081
+        internal: 8081
+        public: false
+      - name: 'doppler-grpc'
+        protocol: 'TCP'
+        external: 8082
+        internal: 8082
+        public: false
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1081,9 +1091,8 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
-  - scripts/patches/fix_rep_cell_id.sh
   - scripts/patches/fix_persi_localdriver_permissions.sh
+  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1478,7 +1487,6 @@ roles:
 - name: hcf-sso
   environment_scripts:
   - scripts/authorize_internal_ca.sh
-  - scripts/configure-HA-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -1550,7 +1558,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: demophon
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -1683,6 +1690,9 @@ configuration:
   - name: DEFAULT_APP_MEMORY
     default: 1024
     description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+  - name: DEFAULT_APP_SSH_ACCESS
+    default: true
+    description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
@@ -2380,9 +2390,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: Key for the SSO service.
-  - name: STAGER_DOCKER_REGISTRY
-    default: docker-registry.service.cf.internal:8080
-    description: Address of the Docker Registry used for image caching.
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
     required: false
@@ -2427,6 +2434,8 @@ configuration:
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
   templates:
+    az: '"((HCP_AZ))"'
+    id: '"((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'
     index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
@@ -2472,7 +2481,6 @@ configuration:
     properties.capi.stager.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9090"
     properties.capi.stager.diego_privileged_containers: '((USE_STAGER_PRIVILEGED_CONTAINERS))'
-    properties.capi.stager.docker_registry_address: '"((STAGER_DOCKER_REGISTRY))"'
     properties.capi.stager.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((LOG_LEVEL))"'
@@ -2497,6 +2505,7 @@ configuration:
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
+    properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
     properties.cc.diego.stager_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
     properties.cc.diego.tps_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):1518"
@@ -2520,6 +2529,7 @@ configuration:
     properties.cc.srv_api_uri: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.cc.staging_timeout_in_seconds: '((STAGING_TIMEOUT))'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
+    properties.cc.uaa.internal_url: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.ccdb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-usb.broker.external_url: '"https://cf-usb-int.((HCP_SERVICE_DOMAIN_SUFFIX)):24054"'
@@ -2584,7 +2594,6 @@ configuration:
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.cell_id: '"diego-cell((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'
     properties.diego.rep.log_level: '"((LOG_LEVEL))"'
     properties.diego.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
@@ -2609,10 +2618,10 @@ configuration:
     properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
+    properties.doppler.addr: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2693,9 +2702,6 @@ configuration:
     properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
     properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.metron_agent.zone: '"((HCP_AZ))"'
-    properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: '((CLUSTER_NAME))'
@@ -2726,7 +2732,6 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
-    properties.statsd_injector.log_level: '"((LOG_LEVEL))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
