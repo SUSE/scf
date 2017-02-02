@@ -83,6 +83,9 @@ function start_role {
   env_file_contents=$(cat ${env_files})
   # Load the map that details which vars are allowed for which role
   role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
+  role_params="${role_params}\|HCF_LOG_PROTOCOL"
+  role_params="${role_params}\|HCF_LOG_HOST"
+  role_params="${role_params}\|HCF_LOG_PORT"
 
   local edef ename evalue
   local the_env=()

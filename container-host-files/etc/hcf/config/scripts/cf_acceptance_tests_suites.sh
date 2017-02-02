@@ -7,17 +7,23 @@
 
 ALL_SUITES='
     apps
-    sso
     backend_compatibility
+    container_networking
     detect
     diego_docker
+    diego_ssh
+    docker
     internet_dependent
+    privileged_container_support
     route_services
     routing
     security_groups
     services
-    diego_ssh
+    ssh
+    sso
+    tasks
     v3
+    zipkin
 '
 
 declare -A suites

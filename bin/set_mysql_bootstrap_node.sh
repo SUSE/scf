@@ -10,14 +10,14 @@
 set -euf -o pipefail
 
 get_mysql_pods() {
-  kubectl get pods --namespace hcf | awk '/^mysql-[0-9]+-/{print $1}'
+  kubectl get pods --namespace "${NAMESPACE}" | awk '/^mysql-[0-9]+-/{print $1}'
 }
 
 stop_mysql_processes() {
   local pod=$1
   local x=0
-  kubectl exec --namespace hcf "${pod}" monit stop all
-  while [ "$x" -lt 60 ] && kubectl exec --namespace hcf "${pod}" -- test -e /var/vcap/sys/run/mysql/mysql.pid; do
+  kubectl exec --namespace "${NAMESPACE}" "${pod}" monit stop all
+  while [ "$x" -lt 60 ] && kubectl exec --namespace "${NAMESPACE}" "${pod}" -- test -e /var/vcap/sys/run/mysql/mysql.pid; do
           x=$((x+1))
           sleep 1
   done
@@ -26,8 +26,8 @@ stop_mysql_processes() {
 recover_crashed_node() {
   local pod=$1
 
-  kubectl exec --namespace hcf "${pod}" -- /var/vcap/packages/mariadb/bin/mysqld --wsrep-recover &> /dev/null
-  kubectl exec --namespace hcf "${pod}" -- grep "Recovered position" /var/vcap/sys/log/mysql/mysql.err.log | tail -n 1 | awk '{print $8}' | cut -d : -f 2
+  kubectl exec --namespace "${NAMESPACE}" "${pod}" -- /var/vcap/packages/mariadb/bin/mysqld --wsrep-recover &> /dev/null
+  kubectl exec --namespace "${NAMESPACE}" "${pod}" -- grep "Recovered position" /var/vcap/sys/log/mysql/mysql.err.log | tail -n 1 | awk '{print $8}' | cut -d : -f 2
 }
 
 get_sequences() {
@@ -36,7 +36,7 @@ get_sequences() {
 
   for pod in ${pods}
   do
-    sequences+=($(kubectl exec --namespace hcf "${pod}" -- awk '/^seqno/{print $2}' /var/vcap/store/mysql/grastate.dat))
+    sequences+=($(kubectl exec --namespace "${NAMESPACE}" "${pod}" -- awk '/^seqno/{print $2}' /var/vcap/store/mysql/grastate.dat))
   done
 
   echo "${sequences[@]}"
@@ -48,7 +48,7 @@ get_uuids() {
 
   for pod in ${pods}
   do
-    uuids+=($(kubectl exec --namespace hcf "${pod}" -- awk '/^uuid/{print $2}' /var/vcap/store/mysql/grastate.dat))
+    uuids+=($(kubectl exec --namespace "${NAMESPACE}" "${pod}" -- awk '/^uuid/{print $2}' /var/vcap/store/mysql/grastate.dat))
   done
 
   echo "${uuids[@]}"
@@ -56,7 +56,7 @@ get_uuids() {
 
 set_pod_as_bootstrap() {
   local pod=$1
-  kubectl exec --namespace hcf "${pod}" -- sh -c "echo NEEDS_BOOTSTRAP > /var/vcap/store/mysql/state.txt"
+  kubectl exec --namespace "${NAMESPACE}" "${pod}" -- sh -c "echo NEEDS_BOOTSTRAP > /var/vcap/store/mysql/state.txt"
 }
 
 main() {
@@ -108,5 +108,13 @@ main() {
   echo "Bootstrap pod: ${pods[${latest_index}]}"
   set_pod_as_bootstrap "${pods[${latest_index}]}"
 }
+
+if [ "${#}" -eq 0 ]
+then
+  echo "Usage: ${0} <namespace>"
+  exit 1
+fi
+
+NAMESPACE="${1}"
 
 main

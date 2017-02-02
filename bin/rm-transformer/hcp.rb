@@ -427,6 +427,8 @@ class ToHCP < Common
         end
       end
 
+      env_var_names += ['HCF_LOG_PROTOCOL', 'HCF_LOG_HOST', 'HCF_LOG_PORT']
+
       # At this point, `env_var_names` is the list of all environment variables
       # that are used in the role.  Some of them, such as `UAA_CLIENTS`, may
       # not actually come from the SDL; we need to reject those.  We also need
