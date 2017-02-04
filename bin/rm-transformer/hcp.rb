@@ -25,6 +25,7 @@ class ToHCP < Common
     # This is created in "determine_component_parameters" (if @property)
     # and used by "component_parameters" (if @component_parameters)
     @component_parameters = nil
+    @rmorigin = @options[:rm_origin]
   end
 
   # Public API
@@ -142,9 +143,7 @@ class ToHCP < Common
         collect_parameters(gparam, sdl_names, role['configuration']['variables'])
       end
     end
-    if role_manifest['auth']
-      definition['features']['auth'] = [generate_auth_definition(role_manifest)]
-    end
+    definition['features']['auth'] = [generate_auth_definition(role_manifest)]
   end
 
   def collect_global_parameters(role_manifest, sdl_names, definition)
@@ -583,10 +582,11 @@ class ToHCP < Common
   # Generate the features.auth element
   def generate_auth_definition(role_manifest)
     properties = role_manifest['configuration']['templates']
-    auth_configs = role_manifest['auth']
+    opinion_file = "#{File.dirname(@rmorigin)}/opinions.yml"
+    auth_configs = YAML.load_file(opinion_file)['properties']['uaa']
     {
       auth_zone: 'self',
-      user_authorities: auth_configs['authorities'],
+      user_authorities: auth_configs['user']['authorities'],
       clients: auth_configs['clients'].map{|client_id, client_config|
         config = {
           id: client_id,
