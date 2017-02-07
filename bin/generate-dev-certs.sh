@@ -81,14 +81,14 @@ openssl genrsa -out hcf.key 4096
 openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 
-# Given a host name (e.g. "api-int"), produce variations based on:
-# - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-int", "api-int.hcf")
-# - Wildcard and not ("api-int", "*.api-int")
-# - Include "COMPONENT-int.*.svc", "COMPONENT.*.svc.cluster", "COMPONENT.*.svc.cluster.hcp"
+# Given a host name (e.g. "api-0"), produce variations based on:
+# - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api-0", "api-0.hcf")
+# - Wildcard and not ("api-0", "*.api-0")
+# - Include "COMPONENT-0.*.svc", "COMPONENT.*.svc.cluster", "COMPONENT.*.svc.cluster.hcp"
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
 make_domains() {
     local host_name="$1"
-    local result="${host_name},*.${host_name},${host_name}.hcf.svc,${host_name}.hcf.svc.cluster.hcp,${host_name}.hcf1.svc,${host_name}.hcf1.svc.cluster.hcp,${host_name}.hcf2.svc,${host_name}.hcf2.svc.cluster.hcp,${host_name}.hcf3.svc,${host_name}.hcf3.svc.cluster.hcp,${host_name}.hcf4.svc,${host_name}.hcf4.svc.cluster.hcp,${host_name}.hcf5.svc,${host_name}.hcf5.svc.cluster.hcp"
+    local result="${host_name}-0.${host_name}-pod,${host_name}-0,${host_name},*.${host_name},${host_name}.hcf.svc,${host_name}.hcf.svc.cluster.hcp,${host_name}.hcf1.svc,${host_name}.hcf1.svc.cluster.hcp,${host_name}.hcf2.svc,${host_name}.hcf2.svc.cluster.hcp,${host_name}.hcf3.svc,${host_name}.hcf3.svc.cluster.hcp,${host_name}.hcf4.svc,${host_name}.hcf4.svc.cluster.hcp,${host_name}.hcf5.svc,${host_name}.hcf5.svc.cluster.hcp"
     if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
         result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
     fi
@@ -97,7 +97,7 @@ make_domains() {
 
 make_ha_domains() {
     local host_base="$1"
-    local result="${host_base}-int.hcf.svc,${host_base}-int.hcf.svc.cluster.hcp,${host_base}-int.hcf1.svc,${host_base}-int.hcf1.svc.cluster.hcp,${host_base}-int.hcf2.svc,${host_base}-int.hcf2.svc.cluster.hcp,${host_base}-int.hcf3.svc,${host_base}-int.hcf3.svc.cluster.hcp,${host_base}-int.hcf4.svc,${host_base}-int.hcf4.svc.cluster.hcp,${host_base}-int.hcf5.svc,${host_base}-int.hcf5.svc.cluster.hcp,${host_base}-int,${host_base}-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc}"
+    local result="${host_base}-0.${host_base}-pod,${host_base}-0.hcf.svc,${host_base}-0.hcf.svc.cluster.hcp,${host_base}-0.hcf1.svc,${host_base}-0.hcf1.svc.cluster.hcp,${host_base}-0.hcf2.svc,${host_base}-0.hcf2.svc.cluster.hcp,${host_base}-0.hcf3.svc,${host_base}-0.hcf3.svc.cluster.hcp,${host_base}-0.hcf4.svc,${host_base}-0.hcf4.svc.cluster.hcp,${host_base}-0.hcf5.svc,${host_base}-0.hcf5.svc.cluster.hcp,${host_base}-0,${host_base}-0.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc}"
     echo "${result}"
 }
 
@@ -115,7 +115,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name auctio
 certstrap --depot-path "${internal_certs_dir}" sign auctioneer_rep --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate AUCTIONEER_SERVER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name auctioneer_server --domain "$(make_domains "diego-brain-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name auctioneer_server --domain "$(make_domains "diego-brain-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign auctioneer_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate BBS_AUCTIONEER certs
@@ -131,7 +131,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_re
 certstrap --depot-path "${internal_certs_dir}" sign bbs_rep --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate BBS_SERVER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_server --domain "$(make_domains "diego-database-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_server --domain "$(make_domains "diego-database-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbs_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate DOPPLER certs
@@ -143,7 +143,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name metron
 certstrap --depot-path "${internal_certs_dir}" sign metron --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate REP_SERVER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_ha_domains "diego-cell-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_server --domain "$(make_ha_domains "diego-cell-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate SAML_SERVICEPROVIDER certs
@@ -155,7 +155,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name traffi
 certstrap --depot-path "${internal_certs_dir}" sign trafficcontroller --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate SSO routing certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign hcf-sso --CA internalCA --passphrase "${signing_key_passphrase}"
 cat ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/hcf-sso.key > ${internal_certs_dir}/sso_routing.key
 cp ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/sso_routing.crt
@@ -180,7 +180,7 @@ mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/server.csr
 mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/server.crt
 
 # Server certificate for the demophon component
-server_cn=demophon-int
+server_cn=demophon-0
 certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name ${server_cn}
 certstrap --depot-path ${internal_certs_dir} sign ${server_cn} --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/demophon_server.key
@@ -199,7 +199,7 @@ ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/app_ssh_key" | awk '{print $2}')
 
 # generate USB Broker certs
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 
@@ -207,7 +207,7 @@ certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA inte
 uaa_server_key="${certs_path}/uaa_private_key.pem"
 uaa_server_crt="${certs_path}/uaa_ca.crt"
 
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "$(make_domains "uaa-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "$(make_domains "uaa-0")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --passphrase "${signing_key_passphrase}"
 cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
 cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
@@ -215,20 +215,20 @@ cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_ser
 # We include hcf.uaa.${DOMAIN} / hcf.login.${DOMAIN} because it's not covered by
 # *.${DOMAIN} and it's required by the dev UAA server
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router-int,router-int.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},hcf.uaa.${DOMAIN},hcf.login.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router-0,router-0.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},hcf.uaa.${DOMAIN},hcf.login.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
 cat "${certs_path}/router_ssl.cert" "${certs_path}/router_ssl.key" > "${certs_path}/ha_proxy.pem"
 
 server_cn=blobstore_tls
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "blobstore-int")"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "blobstore-0")"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
 
 server_cn=persi_broker_tls
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker-int")"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker-0")"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"

@@ -17,30 +17,30 @@ find_cluster_ha_hosts() {
     # Fall back to simple hostname
 
     if test -z "${HCP_INSTANCE_ID:-}" ; then
-        echo "[\"${component_name}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\"]"
+        echo "[\"${component_name}-0\"]"
         return 0
     fi
-
-    # We are on HCP, loop over the environment to locate the component
-    # name variables.
-
-    local hosts=''
-    local i=0
-
-    while test "${i}" -lt 100 ; do
-        local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
-        # !varname => Double deref of the variable.
-        if test -z "${!varname:-}" ; then
-            break
-        fi
-
-        # Note: The varname deref gives us an IP address. We want the
-        # actual host name, and construct it.
-        hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
-        i="$(expr "${i}" + 1)"
-    done
-    # Return the result, with [] around the hostnames, removing the leading comma
-    echo "[${hosts#,}]"
+    #
+    # # We are on HCP, loop over the environment to locate the component
+    # # name variables.
+    #
+    # local hosts=''
+    # local i=0
+    #
+    # while test "${i}" -lt 100 ; do
+    #     local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
+    #     # !varname => Double deref of the variable.
+    #     if test -z "${!varname:-}" ; then
+    #         break
+    #     fi
+    #
+    #     # Note: The varname deref gives us an IP address. We want the
+    #     # actual host name, and construct it.
+    #     hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
+    #     i="$(expr "${i}" + 1)"
+    # done
+    # # Return the result, with [] around the hostnames, removing the leading comma
+    # echo "[${hosts#,}]"
 }
 
 export CONSUL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"

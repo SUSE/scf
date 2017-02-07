@@ -20,6 +20,7 @@ roles:
   - name: metron_agent
   - name: nats
   - name: nats_stream_forwarder
+  tags: ['clustered']
   run:
     scaling:
       min: 1
@@ -67,7 +68,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: consul-data
-        size: 5
+        size: 1
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
@@ -137,7 +138,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: mysql-data
-        size: 10
+        size: 2
     shared-volumes: []
     memory: 3072
     virtual-cpus: 2
@@ -176,7 +177,7 @@ roles:
     templates:
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-0"]'
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
@@ -225,7 +226,7 @@ roles:
   configuration:
     templates:
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-0"]'
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
       properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
@@ -263,7 +264,7 @@ roles:
     persistent-volumes:
       - path: /var/vcap/store
         tag: diego-database-data
-        size: 10
+        size: 2
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
@@ -373,8 +374,8 @@ roles:
       public: true
     - name: 'tcp-routing'
       protocol: TCP
-      external: "20000-20008"
-      internal: "20000-20008"
+      external: 20000
+      internal: 20000
       public: true
   configuration:
     templates:
@@ -468,7 +469,7 @@ roles:
         external: 8443
         internal: 8443
         public: false
-    docker-args: ['--network-alias', 'hcf.uaa-int.hcf.svc']
+    docker-args: ['--network-alias', 'hcf.uaa-0.hcf.svc']
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -476,7 +477,7 @@ roles:
       properties.login.url: '"https://login.((DOMAIN))"'
       properties.uaa.clients: '{"default_zone_admin": {"secret": "((UAA_ADMIN_CLIENT_SECRET))", "authorized-grant-types": "client_credentials", "scope": "uaa.admin", "authorities": "uaa.admin"}}'
       properties.uaa.url: '"https://uaa.((DOMAIN))"'
-      properties.uaa.zones.internal.hostnames: '["uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
+      properties.uaa.zones.internal.hostnames: '["uaa-0","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
   - scripts/load-hcp-env.sh
@@ -535,10 +536,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs/shared'
-      tag: api-data
-      size: 100
+    shared-volumes: []
     memory: 2560
     virtual-cpus: 4
     exposed-ports:
@@ -583,10 +581,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs/shared'
-      size: 100
-      tag: 'api-data'
+    shared-volumes: []
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
@@ -620,7 +615,7 @@ roles:
     persistent-volumes:
     - path: /var/vcap/store
       tag: blobstore-data
-      size: 100
+      size: 5
     shared-volumes: []
     memory: 1536
     virtual-cpus: 2
@@ -630,7 +625,7 @@ roles:
       external: 8080
       internal: 8080
       public: false
-    - name: 'blobstore-int'
+    - name: 'blobstore-0'
       protocol: 'TCP'
       external: 4443
       internal: 4443
@@ -696,10 +691,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs'
-      size: 10
-      tag: 'cf-usb-data'
+    shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
@@ -793,7 +785,7 @@ roles:
     capabilities: []
     persistent-volumes:
       - path: /var/vcap/store
-        size: 10
+        size: 2
         tag: cf-etcd-data
     shared-volumes: []
     memory: 256
@@ -841,7 +833,7 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
-      properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+      properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-0:8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
   run:
     scaling:
       min: 1
@@ -1113,11 +1105,8 @@ roles:
     persistent-volumes:
     - path: '/var/vcap/data/garden'
       tag: garden-graph
-      size: 50
-    shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
-      size: 100
-      tag: 'persistore'
+      size: 5
+    shared-volumes: []
     memory: 4096
     virtual-cpus: 4
     exposed-ports:
@@ -2425,7 +2414,7 @@ configuration:
     description: Extra token expiry time while uploading big apps, in seconds.
   templates:
     index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-0((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
@@ -2435,14 +2424,14 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-    properties.autoscaler.autoscaler_api.host: '"sclr-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.autoscaler.autoscaler_server.host: '"sclr-server-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.autoscaler.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.autoscaler.autoscaler_api.host: '"sclr-api-0"'
+    properties.autoscaler.autoscaler_server.host: '"sclr-server-0"'
+    properties.autoscaler.couchdb.host: '"couchdb-0"'
     properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
-    properties.autoscaler_servicebroker.host: '"sclr-broker-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.autoscaler_servicebroker.host: '"sclr-broker-0"'
+    properties.bbs.api_location: 'diego-database-0:8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
@@ -2452,83 +2441,83 @@ configuration:
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
     properties.capi.cc_uploader.log_level: '"((LOG_LEVEL))"'
-    properties.capi.nsync.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.capi.nsync.bbs.api_location: 'diego-database-0:8889'
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.capi.nsync.cc.base_url: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
+    properties.capi.nsync.cc.base_url: '"http://api-0:9022"'
     properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.nsync.diego_privileged_containers: '((USE_DIEGO_PRIVILEGED_CONTAINERS))'
-    properties.capi.nsync.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
+    properties.capi.nsync.file_server_url: "http://diego-access-0:8080"
     properties.capi.nsync.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.capi.stager.bbs.api_location: 'diego-database-0:8889'
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.capi.stager.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9090"
+    properties.capi.stager.cc.internal_service_hostname: '"api-0"'
+    properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge-0:9090"
     properties.capi.stager.diego_privileged_containers: '((USE_STAGER_PRIVILEGED_CONTAINERS))'
     properties.capi.stager.docker_registry_address: '"((STAGER_DOCKER_REGISTRY))"'
-    properties.capi.stager.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
+    properties.capi.stager.file_server_url: "http://diego-access-0:8080"
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.staging_task_callback_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
-    properties.capi.tps.bbs.api_location: '"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889"'
+    properties.capi.stager.staging_task_callback_url: "http://diego-cc-bridge-0:8888"
+    properties.capi.tps.bbs.api_location: '"diego-database-0:8889"'
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.capi.tps.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.capi.tps.cc.internal_service_hostname: '"api-0"'
     properties.capi.tps.log_level: '"((LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: "ws://loggregator-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8081"
+    properties.capi.tps.traffic_controller_url: "ws://loggregator-0:8081"
     properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
     properties.cc.allowed_cors_domains: '((ALLOWED_CORS_DOMAINS))'
     properties.cc.app_bits_max_body_size: '((NGINX_MAX_REQUEST_BODY_SIZE))M'
     properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://blobstore-0:4443"'
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
-    properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
-    properties.cc.diego.stager_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
-    properties.cc.diego.tps_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):1518"
+    properties.cc.diego.nsync_url: "http://diego-cc-bridge-0:8787"
+    properties.cc.diego.stager_url: "http://diego-cc-bridge-0:8888"
+    properties.cc.diego.tps_url: "http://diego-cc-bridge-0:1518"
     properties.cc.disable_custom_buildpacks: '((DISABLE_CUSTOM_BUILDPACKS))'
     properties.cc.droplets.max_staged_droplets_stored: '((DROPLET_MAX_STAGED_STORED))'
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
+    properties.cc.droplets.webdav_config.private_endpoint: '"https://blobstore-0:4443"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.cc.internal_service_hostname: '"api-0"'
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: '((MAX_APP_DISK_IN_MB))'
     properties.cc.maximum_health_check_timeout: '((MAX_HEALTH_CHECK_TIMEOUT))'
     properties.cc.nginx_error_log_level: '"((LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
+    properties.cc.packages.webdav_config.private_endpoint: '"https://blobstore-0:4443"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://blobstore-0:4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
-    properties.cc.srv_api_uri: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
+    properties.cc.srv_api_uri: '"http://api-0:9022"'
     properties.cc.staging_timeout_in_seconds: '((STAGING_TIMEOUT))'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.ccdb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.ccdb.address: 'mysql-proxy-0'
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
-    properties.cf-usb.broker.external_url: '"https://cf-usb-int.((HCP_SERVICE_DOMAIN_SUFFIX)):24054"'
+    properties.cf-usb.broker.external_url: '"https://cf-usb-0:24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
-    properties.cf-usb.mysql_address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.cf-usb.mysql_address: 'mysql-proxy-0'
     properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-int.((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-0"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.log_level: '"((LOG_LEVEL))"'
@@ -2539,11 +2528,11 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.couchdb.host: '"couchdb-0"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: '((CLUSTER_DESCRIPTION))'
-    properties.diego.auctioneer.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.auctioneer.bbs.api_location: 'diego-database-0:8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2555,7 +2544,7 @@ configuration:
     properties.diego.auctioneer.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.auctioneer.api_location: 'diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016'
+    properties.diego.bbs.auctioneer.api_location: 'diego-brain-0:9016'
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
@@ -2572,16 +2561,16 @@ configuration:
     properties.diego.bbs.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy-int.{{HCP_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
+    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy-0:3306)/diego{{=(( ))=}}"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.file_server.log_level: '"((LOG_LEVEL))"'
-    properties.diego.rep.advertise_domain: '((HCP_SERVICE_DOMAIN_SUFFIX))'
-    properties.diego.rep.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.rep.advertise_domain: 'cell-pod'
+    properties.diego.rep.bbs.api_location: 'diego-database-0:8889'
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.cell_id: '"diego-cell((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'
+    properties.diego.rep.cell_id: '"diego-cell((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-0"'
     properties.diego.rep.log_level: '"((LOG_LEVEL))"'
     properties.diego.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
@@ -2589,21 +2578,21 @@ configuration:
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
     properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
-    properties.diego.route_emitter.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.route_emitter.bbs.api_location: 'diego-database-0:8889'
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.ssh_proxy.bbs.api_location: 'diego-database-0:8889'
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.ssh_proxy.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.diego.ssh_proxy.cc.internal_service_hostname: '"api-0"'
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
+    properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-0:8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
@@ -2611,7 +2600,7 @@ configuration:
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
-    properties.etcd.advertise_urls_dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.etcd.advertise_urls_dns_suffix: '"etcd-pod"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2621,9 +2610,9 @@ configuration:
     properties.garden.log_level: '"((LOG_LEVEL))"'
     properties.garden.docker_registry_endpoint: '((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))'
     properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
-    properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST))"'
     properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
-    properties.hcf.hcp_service_domain_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.hcf.hcp_service_domain_suffix: ''
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
@@ -2635,7 +2624,7 @@ configuration:
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.etcd_metrics_server.etcd.dns_suffix: '"etcd-pod"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
@@ -2648,11 +2637,11 @@ configuration:
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"etcd-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-0"},{"name":"ETCD_HOST","value":"etcd-0"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
-    properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-0:8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.hcf.skip_cert_verify_external: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2660,7 +2649,7 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.host: '"hcf-sso-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.hcf_sso.host: '"hcf-sso-0"'
     properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.login.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/authorize((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
     properties.hcf_sso.oauth.id: '"((HCF_SSO_OAUTH_ID))"'
     properties.hcf_sso.oauth.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
@@ -2671,7 +2660,7 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
+    properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-0:4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
@@ -2702,7 +2691,7 @@ configuration:
     properties.router.force_forwarded_proto_https: '((FORCE_FORWARDED_PROTO_AS_HTTPS))'
     properties.router.logging_level: '"((LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
-    properties.router.servers: '["router-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+    properties.router.servers: '["router-0"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
@@ -2716,7 +2705,7 @@ configuration:
     properties.routing_api.log_level: '"((LOG_LEVEL))"'
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: http://routing-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))
+    properties.routing_api.uri: http://routing-api-0
     properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
@@ -2733,8 +2722,8 @@ configuration:
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.tomcat.http.autoscaler_api.route: '"sclr-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.tomcat.http.autoscaler_server.route: '"sclr-server-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.tomcat.http.autoscaler_api.route: '"sclr-api-0"'
+    properties.tomcat.http.autoscaler_server.route: '"sclr-server-0"'
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
@@ -2762,10 +2751,10 @@ configuration:
     properties.uaa.sslCertificate: '"((UAA_SERVER_CERT))"'
     properties.uaa.sslPrivateKey: '"((UAA_SERVER_KEY))"'
     properties.uaa.tls_port: '"((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))"'
-    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-0((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
-    properties.uaadb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.uaadb.address: 'mysql-proxy-0'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
     properties.version: '"((CLUSTER_VERSION))"'
 auth:
