@@ -17,7 +17,7 @@ find_cluster_ha_hosts() {
     # Fall back to simple hostname
 
     if test -z "${HCP_INSTANCE_ID:-}" ; then
-        echo "[\"${component_name}-0\"]"
+        echo "[\"${component_name}-0.${component_name}-pod\"]"
         return 0
     fi
     #
