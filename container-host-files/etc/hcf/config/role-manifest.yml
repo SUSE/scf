@@ -475,14 +475,11 @@ roles:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
       # This is only used to create the custom zone and populate it
       properties.login.url: '"https://login.((DOMAIN))"'
-      properties.uaa.clients: '{"default_zone_admin": {"secret": "((UAA_ADMIN_CLIENT_SECRET))", "authorized-grant-types": "client_credentials", "scope": "uaa.admin", "authorities": "uaa.admin"}}'
       properties.uaa.url: '"https://uaa.((DOMAIN))"'
       properties.uaa.zones.internal.hostnames: '["uaa","uaa.((DOMAIN))"]'
 - name: api
   environment_scripts:
-  - scripts/load-hcp-env.sh
   - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -555,7 +552,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: api-worker
   environment_scripts:
-  - scripts/load-hcp-env.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -635,7 +631,6 @@ roles:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: clock-global
   environment_scripts:
-  - scripts/load-hcp-env.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -668,7 +663,6 @@ roles:
 - name: cf-usb
   environment_scripts:
   - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1355,7 +1349,6 @@ roles:
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
-  - scripts/load-hcp-env.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -1468,7 +1461,6 @@ roles:
   environment_scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/configure-HA-hosts.sh
-  - scripts/fetch_uaa_verification_key.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -2412,6 +2404,9 @@ configuration:
   - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
+
+  - name: JWT_SIGNING_PEM
+  - name: JWT_SIGNING_PUB
   templates:
     index: "0"
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
@@ -2729,7 +2724,6 @@ configuration:
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
-    properties.uaa.clients: ((UAA_CLIENTS))((^UAA_CLIENTS)){}((/UAA_CLIENTS)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
@@ -2748,13 +2742,12 @@ configuration:
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
-    properties.uaa.ssl.port: ((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))
+    properties.uaa.ssl.port: '8443'
     properties.uaa.sslCertificate: '"((UAA_SERVER_CERT))"'
     properties.uaa.sslPrivateKey: '"((UAA_SERVER_KEY))"'
-    properties.uaa.tls_port: '"((HCP_IDENTITY_EXTERNAL_PORT))((^HCP_IDENTITY_EXTERNAL_PORT))8443((/HCP_IDENTITY_EXTERNAL_PORT))"'
-    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))uaa((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.uaa.tls_port: '"8443"'
+    properties.uaa.token_endpoint: '"uaa"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
-    properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
     properties.uaadb.address: 'mysql-proxy'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
     properties.version: '"((CLUSTER_VERSION))"'
