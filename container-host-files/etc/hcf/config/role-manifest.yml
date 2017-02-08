@@ -692,6 +692,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
+    shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
