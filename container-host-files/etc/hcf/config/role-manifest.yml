@@ -2560,7 +2560,7 @@ configuration:
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.file_server.log_level: '"((LOG_LEVEL))"'
-    properties.diego.rep.advertise_domain: 'cell-pod'
+    properties.diego.rep.advertise_domain: 'diego-cell-pod'
     properties.diego.rep.bbs.api_location: 'diego-database:8889'
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
