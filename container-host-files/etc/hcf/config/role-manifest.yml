@@ -485,7 +485,6 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
-  - scripts/perform_nfs_test.sh
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
@@ -535,10 +534,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs/shared'
-      tag: api-data
-      size: 100
+    shared-volumes: []
     memory: 2560
     virtual-cpus: 4
     exposed-ports:
@@ -696,10 +692,7 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes:
-    - path: '/var/vcap/nfs'
-      size: 10
-      tag: 'cf-usb-data'
+    shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
