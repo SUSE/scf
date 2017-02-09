@@ -51,7 +51,7 @@ def main
 
   STDOUT.puts "\nNo duplicates must exist between role manifest and opinions".cyan
   templates.each do |label, defs|
-    check(defs,light)
+    check_overridden_opinions(defs, light, label == '__global__')
   end
 
   STDOUT.puts "\nAll properties must be defined in a BOSH release".cyan
@@ -503,32 +503,35 @@ def dark_unexposed(light,dark)
   end
 end
 
-def check(defs,light)
+def check_overridden_opinions(defs, light, check_conflicts)
   # Templates in the role manifest should not have anything in the opinions.
   # If the values are identical it should just be in opinions.
   # If they are different, then the opinions are superflous.
 
-  sep = false
+  duplicates = []
+  conflicts = []
 
-  defs.each do |property, value|
+  defs.sort.each do |property, value|
     next unless light[property]
     if value.to_s == light[property].to_s
-      STDOUT.puts "duplicated #{property.red}"
-      @has_errors += 1
-      sep = true
+      duplicates << property
+    elsif check_conflicts
+      conflicts << property
     end
   end
 
-  STDOUT.puts "" if sep
+  duplicates.each do |property|
+    STDOUT.puts "duplicated #{property.red}"
+    @has_errors += 1
+  end
 
-  defs.each do |property, value|
-    next unless light[property]
-    if value.to_s != light[property].to_s
-      @has_errors += 1
-      STDOUT.puts "conflict for #{property.red}"
-      STDOUT.puts "  manifest: |#{value}|"
-      STDOUT.puts "  opinion:  |#{light[property]}|"
-    end
+  STDOUT.puts "" unless duplicates.empty? || conflicts.empty?
+
+  conflicts.each do |property|
+    STDOUT.puts "conflict for #{property.red}"
+    STDOUT.puts "  manifest: |#{defs[property]}|"
+    STDOUT.puts "  opinion:  |#{light[property]}|"
+    @has_errors += 1
   end
 end
 
