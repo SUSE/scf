@@ -1800,9 +1800,11 @@ configuration:
     description: Modifying this value will break TCP port forwarding.
   - name: HCF_LOG_HOST
     default: ''
+    required: false
     description: The log destination to talk to. If not set it defaults to flightrecorder.
   - name: HCF_LOG_PORT
     default: ''
+    required: false
     description: The port used by rsyslog to talk to the log destination. If not set it defaults to the flightrecorder port. If that is not set we fall back to 514, the standard port of syslog.
   - name: HCF_LOG_PROTOCOL
     default: tcp
