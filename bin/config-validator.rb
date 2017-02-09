@@ -82,6 +82,9 @@ def main
   STDOUT.puts "\nAll role manifest params must be used".cyan
   check_rm_variables(manifest)
 
+  STDOUT.puts "\nAll role manifest params must be sorted".cyan
+  check_sort manifest['configuration']['variables'].map { |v| v['name'] }, "variables"
+
   STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
   check_rm_templates(templates, manifest, global_variables)
 
