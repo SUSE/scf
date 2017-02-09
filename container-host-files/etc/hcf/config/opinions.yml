@@ -424,6 +424,10 @@ properties:
         access_token_validity: 3600
         authorized-grant-types: authorization_code
         scope: scim.me
+      hcf_auto_config:
+        access-token-validity: 600
+        authorities: scim.read,scim.write,clients.admin,cloud_controller.admin
+        authorized-grant-types: client_credentials
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
         authorized-grant-types: authorization_code,client_credentials,refresh_token
