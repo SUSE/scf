@@ -21,7 +21,7 @@ function retry () {
         i="$(expr ${i} + 1)"
     done
 
-    printf "%bFailed to run comment %b%s%b\n" "\e[0m" "\e[1;31m" "\e[0m"
+    printf "%bFailed to run command %b%s%b\n" "\e[0m" "\e[1;31m" "${*}" "\e[0m"
 }
 
 function select_action () {
