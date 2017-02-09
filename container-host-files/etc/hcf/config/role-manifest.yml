@@ -175,14 +175,14 @@ roles:
         public: false
   configuration:
     templates:
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
 - name: mysql-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -225,12 +225,12 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -472,9 +472,9 @@ roles:
     docker-args: ['--network-alias', 'hcf.uaa.hcf.svc']
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
-      # This is only used to create the custom zone and populate it
       properties.login.url: '"https://login.((DOMAIN))"'
+      # This is only used to create the custom zone and populate it
+      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
       properties.uaa.url: '"https://uaa.((DOMAIN))"'
       properties.uaa.zones.internal.hostnames: '["uaa","uaa.((DOMAIN))"]'
 - name: api
@@ -1605,12 +1605,12 @@ roles:
         public: false
   configuration:
     templates:
-      properties.localbroker.listen-addr: "127.0.0.1:8999"
-      properties.router.servers: '["127.0.0.1"]'
-      properties.router.port: 8999
+      properties.cc.allow_app_ssh_access: false
       properties.ha_proxy.disable_http: true
       properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
-      properties.cc.allow_app_ssh_access: false
+      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.port: 8999
+      properties.router.servers: '["127.0.0.1"]'
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -2537,10 +2537,10 @@ configuration:
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
-    properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2577,18 +2577,18 @@ configuration:
     properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: '((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))'
-    properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
-    properties.garden.log_level: '"((LOG_LEVEL))"'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
+    properties.garden.log_level: '"((LOG_LEVEL))"'
     properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0.consul-pod"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd-0.etcd-pod"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0.consul-pod"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd-0.etcd-pod"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST))"'
     properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
@@ -2625,13 +2625,13 @@ configuration:
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
+    properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
     properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
     properties.login.url: '"https://uaa.((DOMAIN))"'
-    properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: '((CLUSTER_NAME))'
@@ -2659,8 +2659,8 @@ configuration:
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.statsd_injector.log_level: '"((LOG_LEVEL))"'
+    properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
@@ -2683,12 +2683,12 @@ configuration:
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
     properties.uaa.clients.hcf-sso.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
+    properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
