@@ -12,39 +12,68 @@ properties:
     cf_push_timeout: 300
     default_timeout: 300
   acceptance_tests_brain:
-    user: 'admin'
+    user: admin
     org: test-brain-org
     space: test-brain-space
+  autoscaler:
+    autoscaler_api:
+      host: sclr-api
+    autoscaler_server:
+      host: sclr-server
+    couchdb:
+      host: couchdb
   autoscaler_api:
     internal_auth:
-      username: 'admin'
+      username: admin
     scaling_service:
-      name: 'app-autoscaler'
+      name: app-autoscaler
   autoscaler_server:
     internal_auth:
-      username: 'admin'
+      username: admin
   autoscaler_servicebroker:
-    name: 'app-autoscaler'
     auth:
-      username: 'admin'
+      username: admin
+    host: sclr-broker
+    name: app-autoscaler
+  bbs:
+    api_location: diego-database:8889
   capi:
     nsync:
+      bbs:
+        api_location: diego-database:8889
+      cc:
+        base_url: http://api:9022
+      file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
+      bbs:
+        api_location: diego-database:8889
+      cc:
+        internal_service_hostname: api
+      cc_uploader_url: http://diego-cc-bridge:9090
+      file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
+      staging_task_callback_url: http://diego-cc-bridge:8888
+    tps:
+      bbs:
+        api_location: diego-database:8889
+      cc:
+        internal_service_hostname: api
+      traffic_controller_url: ws://loggregator:8081
   cc:
     broker_client_timeout_seconds: 70
     buildpacks:
       blobstore_type: webdav
       webdav_config:
+        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     client_max_body_size: 15M
     default_running_security_groups:
@@ -54,10 +83,15 @@ properties:
     - public_networks
     - dns
     default_to_diego_backend: true
+    diego:
+      nsync_url: http://diego-cc-bridge:8787
+      stager_url: http://diego-cc-bridge:8888
+      tps_url: http://diego-cc-bridge:1518
     droplets:
       blobstore_type: webdav
       droplet_directory_key: cc-droplets
       webdav_config:
+        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     external_protocol: http
     install_buildpacks:
@@ -79,6 +113,7 @@ properties:
       package: binary-buildpack
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
+    internal_service_hostname: api
     jobs:
       generic:
         number_of_workers: null
@@ -90,6 +125,7 @@ properties:
     packages:
       blobstore_type: webdav
       webdav_config:
+        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     quota_definitions:
       default:
@@ -100,6 +136,7 @@ properties:
     resource_pool:
       blobstore_type: webdav
       webdav_config:
+        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     security_event_logging:
       enabled: null
@@ -124,6 +161,7 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
+    srv_api_uri: http://api:9022
     stacks:
     - name: cflinuxfs2
       description: Cloud Foundry Linux-based filesystem
@@ -152,6 +190,7 @@ properties:
     core_file_pattern: false
     volume_services_enabled: true
   ccdb:
+    address: mysql-proxy
     databases:
     - name: ccdb
       tag: cc
@@ -159,6 +198,7 @@ properties:
     port: 3306
   cf-usb:
     broker:
+      external_url: https://cf-usb:24054
       username: broker-admin
       port: 24054
     management:
@@ -166,8 +206,10 @@ properties:
       port: 24053
       uaa:
         client: cf-usb
+    mysql_address: mysql-proxy
   cf_mysql:
     mysql:
+      advertise_host: mysql-0.mysql-pod # TODO: fix this for HA
       database_startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
@@ -180,12 +222,19 @@ properties:
     agent:
       domain: hcf
   couchdb:
+    host: couchdb
     metric_prefix: couchdb-scalingmetric
     port: 5984
     username: admin
   diego:
+    auctioneer:
+      bbs:
+        api_location: diego-database:8889
     bbs:
       active_key_label: active
+      advertisement_base_hostname: diego-database-pod
+      auctioneer:
+        api_location: diego-brain:9016
       etcd:
         machines: []
     executor:
@@ -195,21 +244,36 @@ properties:
     file_server:
       static_directory: /var/vcap/packages/
     rep:
+      advertise_domain: diego-cell-pod
+      bbs:
+        api_location: diego-database:8889
+      cell_id: diego-cell-0 # TODO: fix this for HA
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
     route_emitter:
+      bbs:
+        api_location: diego-database:8889
       nats:
         user: nats
     ssh_proxy:
+      bbs:
+        api_location: diego-database:8889
+      cc:
+        internal_service_hostname: api
       enable_cf_auth: true
+      uaa_token_url: https://uaa:8443/oauth/token # TODO: fix for UAA zones
   doppler:
     tls:
       enable: true
     locked_memory_limit: kernel
     port: 4443
   etcd:
+    advertise_urls_dns_suffix: etcd-pod
     bootstrap_node: etcd-0
+  etcd_metrics_server:
+    etcd:
+      dns_suffix: etcd-pod
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
@@ -225,16 +289,20 @@ properties:
     persistent_image_list:
     - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
   hcf:
+    hcp_service_domain_suffix: ''
     monit:
       user: "admin"
       port: 2289
     uaa:
+      internal-url: https://uaa:8443
       root-zone:
         url: 'https://uaa:8443' # Not used in HCP; this is the UAA zone to bootrap the HCF-specific zone.
   hcf_sso:
+    host: hcf-sso
     username: 'username'
   hcf_versions:
     blobstore:
+      private_endpoint: https://blobstore:4443
       username: 'blobstore_user'
   hm9000:
     # Used in cc_ng and cc_worker
@@ -278,11 +346,14 @@ properties:
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
+    servers:
+    - router
     ssl_skip_validation: null
     status:
       user: router_user
   routing_api:
     enabled: true
+    uri: http://routing-api
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
@@ -298,8 +369,10 @@ properties:
   tomcat:
     http:
       autoscaler_api:
+        route: sclr-api
         port: 28861
       autoscaler_server:
+        route: sclr-server
         port: 28862
       autoscaler_servicebroker:
         port: 28863
@@ -356,7 +429,6 @@ properties:
         authorized-grant-types: authorization_code,client_credentials,refresh_token
         autoapprove: true
         override: true
-        redirect-uri: https://login.example.com
         scope: openid,oauth.approvals
       notifications:
         authorities: cloud_controller.admin,scim.read
@@ -378,6 +450,10 @@ properties:
       remove_abandoned: true
     issuer: https://uaa.example.com
     require_https: null
+    ssl:
+      port: 8443
+    tls_port: 8443
+    token_endpoint: uaa
     user:
       authorities:
       - openid
@@ -396,6 +472,7 @@ properties:
       - user_attributes
       - routing.router_groups.read
   uaadb:
+    address: mysql-proxy
     databases:
     - name: uaadb
       tag: uaa

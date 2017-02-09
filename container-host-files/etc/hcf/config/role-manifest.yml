@@ -175,14 +175,14 @@ roles:
         public: false
   configuration:
     templates:
+      properties.cf_mysql.external_host: "((DOMAIN))"
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
 - name: mysql-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -225,12 +225,12 @@ roles:
         public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
+      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
+      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy"]'
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -472,9 +472,9 @@ roles:
     docker-args: ['--network-alias', 'hcf.uaa.hcf.svc']
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
-      # This is only used to create the custom zone and populate it
       properties.login.url: '"https://login.((DOMAIN))"'
+      # This is only used to create the custom zone and populate it
+      properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
       properties.uaa.url: '"https://uaa.((DOMAIN))"'
       properties.uaa.zones.internal.hostnames: '["uaa","uaa.((DOMAIN))"]'
 - name: api
@@ -1605,12 +1605,12 @@ roles:
         public: false
   configuration:
     templates:
-      properties.localbroker.listen-addr: "127.0.0.1:8999"
-      properties.router.servers: '["127.0.0.1"]'
-      properties.router.port: 8999
+      properties.cc.allow_app_ssh_access: false
       properties.ha_proxy.disable_http: true
       properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
-      properties.cc.allow_app_ssh_access: false
+      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.port: 8999
+      properties.router.servers: '["127.0.0.1"]'
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -1619,6 +1619,132 @@ configuration:
   - name: ALLOW_APP_SSH_ACCESS
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
+  - name: APP_SSH_KEY
+    secret: true
+    generator:
+      id: "app_ssh"
+      type: SSH
+      value_type: private_key
+      key_length: 4096
+    description: PEM encoded RSA private key used to identify host.
+  - name: APP_SSH_KEY_FINGERPRINT
+    secret: true
+    generator:
+      id: "app_ssh"
+      type: SSH
+      value_type: fingerprint
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
+  - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
+    default: 1200
+    description: Extra token expiry time while uploading big apps, in seconds.
+  - name: AUCTIONEER_REP_CERT
+    secret: true
+    generator:
+      id: "auctioneer_rep_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: AUCTIONEER_REP_KEY
+    secret: true
+    generator:
+      id: "auctioneer_rep_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: AUCTIONEER_SERVER_CERT
+    secret: true
+    generator:
+      id: "auctioneer_server_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server certificate
+  - name: AUCTIONEER_SERVER_KEY
+    secret: true
+    generator:
+      id: "auctioneer_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded server key
+  - name: AUTOSCALER_COUCHDB_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: the password.
+  - name: AUTOSCALER_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
+  - name: BBS_ACTIVE_KEY_PASSPHRASE
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the diego BBS database.
+  - name: BBS_AUCTIONEER_CERT
+    secret: true
+    generator:
+      id: "bbs_auctioneer_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: BBS_AUCTIONEER_KEY
+    secret: true
+    generator:
+      id: "bbs_auctioneer_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: BBS_CLIENT_CRT
+    secret: true
+    generator:
+      id: "bbs_client_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate.
+  - name: BBS_CLIENT_KEY
+    secret: true
+    generator:
+      id: "bbs_client_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded client key.
+  - name: BBS_REP_CERT
+    secret: true
+    generator:
+      id: "bbs_rep_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: BBS_REP_KEY
+    secret: true
+    generator:
+      id: "bbs_rep_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key
+  - name: BBS_SERVER_CRT
+    secret: true
+    generator:
+      id: "bbs_server_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate.
+  - name: BBS_SERVER_KEY
+    secret: true
+    generator:
+      id: "bbs_server_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded client key.
   - name: BLOBSTORE_ACCESS_RULES
     default: 'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
     description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
@@ -1637,70 +1763,26 @@ configuration:
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
-  - name: AUTOSCALER_PASSWORD
+  - name: BLOBSTORE_TLS_CERT
     secret: true
-    immutable: true
     generator:
-      type: Password
-    description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
-  - name: CDN_URI
-    default: "''"
-    description: URI for a CDN to use for buildpack downloads.
-  - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
-    default: 0
-    description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
-  - name: DIEGO_CELL_MEMORY_CAPACITY_MB
-    default: auto
-    description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
-  - name: USE_DIEGO_PRIVILEGED_CONTAINERS
-    default: false
-    description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
-  - name: DISABLE_CUSTOM_BUILDPACKS
-    default: false
-    description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
-  - name: DEFAULT_APP_DISK_IN_MB
-    default: 1024
-    description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
-  - name: DEFAULT_APP_MEMORY
-    default: 1024
-    description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
-  - name: DROPLET_MAX_STAGED_STORED
-    default: 5
-    description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
-  - name: DNS_HEALTH_CHECK_HOST
-    default: "127.0.0.1"
-    description: The host to ping for confirmation of DNS resolution.
-  - name: FORCE_FORWARDED_PROTO_AS_HTTPS
-    default: false
-    description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
-  - name: GARDEN_DOCKER_REGISTRY
-    default: registry-1.docker.io
-    description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
-  - name: GARDEN_INSECURE_DOCKER_REGISTRIES
-    required: false
-    default: ''
-    description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
-  - name: LOG_LEVEL
-    default: info
-    description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
-  - name: NATS_HCF_CLUSTER_CONFIG_REVISION
-    default: 0
-    description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
-  - name: NGINX_MAX_REQUEST_BODY_SIZE
-    default: 1536
-    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
-  - name: MAX_APP_DISK_IN_MB
-    default: 2048
-    description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
-  - name: MAX_HEALTH_CHECK_TIMEOUT
-    default: 180
-    description: Maximum health check timeout that can be set for an app, in seconds.
-  - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
-    default: 0
-    description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
-  - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
-    default: 0
-    description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
+      id: "blobstore_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+      subject_alt_names:
+        - parameter: DOMAIN
+          wildcard: false
+        - parameter: DOMAIN
+          wildcard: true
+    description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
+  - name: BLOBSTORE_TLS_KEY
+    secret: true
+    generator:
+      id: "blobstore_cert"
+      type: Certificate
+      value_type: private_key
+    description: The PEM-encoded private key for signing TLS/SSL traffic.
   - name: BULK_API_PASSWORD
     secret: true
     immutable: true
@@ -1713,6 +1795,24 @@ configuration:
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
+  - name: CDN_URI
+    default: "''"
+    description: URI for a CDN to use for buildpack downloads.
+  - name: CF_USB_BROKER_SERVER_CERT
+    secret: true
+    generator:
+      id: "usb_broker_server_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+    description: PEM-encoded broker server certificate.
+  - name: CF_USB_BROKER_SERVER_KEY
+    secret: true
+    generator:
+      id: "usb_broker_server_cert"
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded broker server key.
   - name: CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -1720,13 +1820,6 @@ configuration:
       type: Password
     example: password
     description: The password for access to the Universal Service Broker.
-  - name: MYSQL_CF_USB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    example: password
-    description: The password for access to the usb config database.
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
     description: The Oauth2 authorities available to the cluster administrator.
@@ -1746,9 +1839,21 @@ configuration:
   - name: CLUSTER_VERSION
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
-  - name: SUPPORT_ADDRESS
-    default: stackato-support@hpe.com
-    description: "Support contact information for the cluster"
+  - name: CONSUL_AGENT_CERT
+    secret: true
+    generator:
+      id: "consul_agent_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+    description: PEM-encoded agent certificate.
+  - name: CONSUL_AGENT_KEY
+    secret: true
+    generator:
+      id: "consul_agent_cert"
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded client key.
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
     immutable: true
@@ -1756,261 +1861,73 @@ configuration:
       type: Password
     description: 'Part of: A list of passphrases that will be converted into encryption
       keys, the first key in the list is the active one.'
+  - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
+    description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
+  - name: CONSUL_SERVER_CERT
+    secret: true
+    generator:
+      id: "consul_server_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+      subject_alt_names:
+        - static: server.dc1.hcf
+          wildcard: false
+    description: PEM-encoded server certificate.
+  - name: CONSUL_SERVER_KEY
+    secret: true
+    generator:
+      id: "consul_server_cert"
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key.
   - name: DB_ENCRYPTION_KEY
     secret: true
     immutable: true
     generator:
       type: Password
     description: key for encrypting sensitive values in the Cloud Controller database.
+  - name: DEFAULT_APP_DISK_IN_MB
+    default: 1024
+    description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+  - name: DEFAULT_APP_MEMORY
+    default: 1024
+    description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+  - name: DEMOPHON_SERVER_CERT
+    secret: true
+    generator:
+      id: "demophon_server_cert"
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+    description: PEM-encoded server certificate.
+  - name: DEMOPHON_SERVER_KEY
+    secret: true
+    generator:
+      id: "demophon_server_cert"
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key.
+  - name: DIEGO_CELL_MEMORY_CAPACITY_MB
+    default: auto
+    description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
+  - name: DIEGO_CELL_NETWORK_MTU
+    default: "1400"
+    description: Maximum network transmission unit length in bytes for application containers.
+  - name: DIEGO_CELL_SUBNET
+    default: 10.38.0.0/16
+    description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
+  - name: DISABLE_CUSTOM_BUILDPACKS
+    default: false
+    description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
+  - name: DNS_HEALTH_CHECK_HOST
+    default: "127.0.0.1"
+    description: The host to ping for confirmation of DNS resolution.
   - name: DOMAIN
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
-  - name: TCP_DOMAIN
-    example: tcp.my-hcf-cluster.com
-    required: false
-    description: TCP routing domain of the HCF cluster.
-  - name: RESERVABLE_PORTS
-    default: "20000-20008"
-    description: Modifying this value will break TCP port forwarding.
-  - name: HCF_SSO_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the HCF SSO service broker.
-  - name: HCF_SSO_OAUTH_AUTHORIZE_URL
-    description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
-    required: false
-  - name: HCF_SSO_OAUTH_ID
-    immutable: true
-    default: hcf-sso
-    description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
-    required: false
-  - name: HCF_SSO_OAUTH_TOKEN_URL
-    description: The OAuth token URL for SSO; defaults to using the same UAA as HCF
-    required: false
-  - name: HCF_SSO_OAUTH_VERIFICATION_KEY
-    description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
-    secret: false
-    required: false
-  - name: PERSI_BROKER_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the Persi service broker.
-  - name: LOGGREGATOR_SHARED_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Shared secret used to verify cryptographically signed dropsonde messages.
-  - name: MONIT_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Password used for the monit API.
-  - name: NATS_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to NATS.
-  - name: STAGING_UPLOAD_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the uploader of staged droplets.
-  - name: INTERNAL_API_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Basic auth password for access to the Cloud Controller's internal API.
-  - name: TRUSTED_CERTS
-    required: false
-    description: Concatenation of trusted CA certificates to be made available on the cell.
-  - name: UAA_ADMIN_CLIENT_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password of the admin client - a client named admin with uaa.admin as an authority.
-  - name: UAA_CC_CLIENT_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Cloud Controller.
-  - name: UAA_CLIENTS_DOPPLER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by doppler.
-  - name: UAA_CLIENTS_GOROUTER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the gorouter.
-  - name: UAA_CLIENTS_HCF_SSO_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The OAuth client secret for SSO; defaults to a randomly generated value
-  - name: UAA_CLIENTS_LOGIN_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the login client.
-  - name: UAA_CLIENTS_CC_ROUTING_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Routing API.
-  - name: UAA_CLIENTS_CC_SERVICE_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Used for generating SSO clients for service brokers.
-  - name: UAA_CLIENTS_CF_USB_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Universal Service Broker.
-  - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the SSH proxy.
-  - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the task creating the cluster administrator user
-  - name: UAA_CLIENTS_TCP_EMITTER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the TCP emitter.
-  - name: UAA_CLIENTS_TCP_ROUTER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the TCP router.
-  - name: BBS_ACTIVE_KEY_PASSPHRASE
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the diego BBS database.
-  - name: MYSQL_ADMIN_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for the MySQL server admin user.
-  - name: MYSQL_CLUSTER_HEALTH_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for the cluster logger health user.
-  - name: MYSQL_PROXY_ADMIN_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for Basic Auth used to secure the MySQL proxy API.
-  - name: MYSQL_DIEGO_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to MySQL by diego.
-  - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password used to contact the sidecar endpoints via Basic Auth.
-  - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Cloud Controller for fetching usernames.
-  - name: UAADB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the UAA database.
-  - name: DIEGO_CELL_SUBNET
-    default: 10.38.0.0/16
-    description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
-  - name: DIEGO_CELL_NETWORK_MTU
-    default: "1400"
-    description: Maximum network transmission unit length in bytes for application containers.
-  # Certificates
-  - name: ETCD_PEER_KEY
-    secret: true
-    generator:
-      id: "etcd_peer_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded peer key.
-  - name: ETCD_PEER_CRT
-    secret: true
-    generator:
-      id: "etcd_peer_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded peer certificate.
-  - name: ETCD_SERVER_KEY
-    secret: true
-    generator:
-      id: "etcd_server_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded server key.
-  - name: ETCD_CLIENT_KEY
-    secret: true
-    generator:
-      id: "etcd_client_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded client key.
-  - name: ETCD_SERVER_CRT
-    secret: true
-    generator:
-      id: "etcd_server_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded server certificate.
-  - name: ETCD_CLIENT_CRT
-    secret: true
-    generator:
-      id: "etcd_client_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate.
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -2026,66 +1943,215 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
-  - name: AUCTIONEER_SERVER_CERT
+  - name: DROPLET_MAX_STAGED_STORED
+    default: 5
+    description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
+  - name: ETCD_CLIENT_CRT
     secret: true
     generator:
-      id: "auctioneer_server_cert"
+      id: "etcd_client_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded server certificate
-  - name: AUCTIONEER_SERVER_KEY
+    description: PEM-encoded client certificate.
+  - name: ETCD_CLIENT_KEY
     secret: true
     generator:
-      id: "auctioneer_server_cert"
+      id: "etcd_client_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded server key
-  - name: AUCTIONEER_REP_CERT
+    description: PEM-encoded client key.
+  - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
+    description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
+  - name: ETCD_PEER_CRT
     secret: true
     generator:
-      id: "auctioneer_rep_cert"
+      id: "etcd_peer_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded certificate
-  - name: AUCTIONEER_REP_KEY
+    description: PEM-encoded peer certificate.
+  - name: ETCD_PEER_KEY
     secret: true
     generator:
-      id: "auctioneer_rep_cert"
+      id: "etcd_peer_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded key
-  - name: BBS_AUCTIONEER_CERT
+    description: PEM-encoded peer key.
+  - name: ETCD_SERVER_CRT
     secret: true
     generator:
-      id: "bbs_auctioneer_cert"
+      id: "etcd_server_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded certificate
-  - name: BBS_AUCTIONEER_KEY
+    description: PEM-encoded server certificate.
+  - name: ETCD_SERVER_KEY
     secret: true
     generator:
-      id: "bbs_auctioneer_cert"
+      id: "etcd_server_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded key
-  - name: BBS_REP_CERT
+    description: PEM-encoded server key.
+  - name: FORCE_FORWARDED_PROTO_AS_HTTPS
+    default: false
+    description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
+  - name: GARDEN_DOCKER_REGISTRY
+    default: registry-1.docker.io
+    description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
+  - name: GARDEN_INSECURE_DOCKER_REGISTRIES
+    required: false
+    default: ''
+    description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
+  - name: GARDEN_LINUX_DNS_SERVER
+    default: ""
+    required: false
+    description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
+  - name: HAPROXY_SSL_CERT_KEY
     secret: true
     generator:
-      id: "bbs_rep_cert"
+      id: "router_cert"
+      type: Certificate
+      value_type: cert_private_key
+    description: SSL certificate (PEM file).
+  - name: HCF_SSO_OAUTH_AUTHORIZE_URL
+    description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
+    required: false
+  - name: HCF_SSO_OAUTH_ID
+    immutable: true
+    default: hcf-sso
+    description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
+    required: false
+  - name: HCF_SSO_OAUTH_TOKEN_URL
+    description: The OAuth token URL for SSO; defaults to using the same UAA as HCF
+    required: false
+  - name: HCF_SSO_OAUTH_VERIFICATION_KEY
+    description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
+    secret: false
+    required: false
+  - name: HCF_SSO_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the HCF SSO service broker.
+  - name: INTERNAL_API_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Basic auth password for access to the Cloud Controller's internal API.
+  - name: INTERNAL_CA_CERT
+    secret: true
+    generator:
+      id: "cacert"
+      type: CACertificate
+      value_type: certificate
+    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
+  - name: JWT_SIGNING_PEM
+  - name: JWT_SIGNING_PUB
+  - name: LOGGREGATOR_SHARED_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Shared secret used to verify cryptographically signed dropsonde messages.
+  - name: LOG_LEVEL
+    default: info
+    description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
+  - name: MAX_APP_DISK_IN_MB
+    default: 2048
+    description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
+  - name: MAX_HEALTH_CHECK_TIMEOUT
+    default: 180
+    description: Maximum health check timeout that can be set for an app, in seconds.
+  - name: METRON_CERT
+    secret: true
+    generator:
+      id: "metron_cert"
       type: Certificate
       value_type: certificate
-    description: PEM-encoded certificate
-  - name: BBS_REP_KEY
+    description: PEM-encoded certificate.
+  - name: METRON_KEY
     secret: true
     generator:
-      id: "bbs_rep_cert"
+      id: "metron_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded key
+    description: PEM-encoded key.
+  - name: MONIT_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Password used for the monit API.
+  - name: MYSQL_ADMIN_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for the MySQL server admin user.
+  - name: MYSQL_CF_USB_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    example: password
+    description: The password for access to the usb config database.
+  - name: MYSQL_CLUSTER_HEALTH_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for the cluster logger health user.
+  - name: MYSQL_DIEGO_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to MySQL by diego.
+  - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password used to contact the sidecar endpoints via Basic Auth.
+  - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
+    description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
+  - name: MYSQL_PROXY_ADMIN_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for Basic Auth used to secure the MySQL proxy API.
+  - name: NATS_HCF_CLUSTER_CONFIG_REVISION
+    default: 0
+    description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
+  - name: NATS_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to NATS.
+  - name: NGINX_MAX_REQUEST_BODY_SIZE
+    default: 1536
+    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
+  - name: PERSI_BROKER_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the Persi service broker.
+  - name: PERSI_BROKER_TLS_CERT_KEY
+    secret: true
+    generator:
+      id: "persi_broker_cert"
+      type: Certificate
+      value_type: cert_private_key
+    description: TLS certificate and key (PEM file).
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -2101,96 +2167,9 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded server key
-  - name: METRON_KEY
-    secret: true
-    generator:
-      id: "metron_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded key.
-  - name: METRON_CERT
-    secret: true
-    generator:
-      id: "metron_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate.
-  - name: SAML_SERVICEPROVIDER_CERT
-    secret: true
-    generator:
-      id: "saml_serviceprovider_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-  - name: SAML_SERVICEPROVIDER_KEY
-    secret: true
-    generator:
-      id: "saml_serviceprovider_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded key.
-  - name: TRAFFICCONTROLLER_CERT
-    secret: true
-    generator:
-      id: "trafficcontroller_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-  - name: TRAFFICCONTROLLER_KEY
-    secret: true
-    generator:
-      id: "trafficcontroller_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded key.
-  - name: BBS_SERVER_KEY
-    secret: true
-    generator:
-      id: "bbs_server_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded client key.
-  - name: BBS_CLIENT_KEY
-    secret: true
-    generator:
-      id: "bbs_client_cert"
-      type: Certificate
-      value_type: private_key
-      key_length: 4096
-    description: PEM-encoded client key.
-  - name: BBS_SERVER_CRT
-    secret: true
-    generator:
-      id: "bbs_server_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate.
-  - name: BBS_CLIENT_CRT
-    secret: true
-    generator:
-      id: "bbs_client_cert"
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate.
-  - name: APP_SSH_KEY
-    secret: true
-    generator:
-      id: "app_ssh"
-      type: SSH
-      value_type: private_key
-      key_length: 4096
-    description: PEM encoded RSA private key used to identify host.
-  - name: APP_SSH_KEY_FINGERPRINT
-    secret: true
-    generator:
-      id: "app_ssh"
-      type: SSH
-      value_type: fingerprint
-    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
+  - name: RESERVABLE_PORTS
+    default: "20000-20008"
+    description: Modifying this value will break TCP port forwarding.
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
     required: false
@@ -2221,13 +2200,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The private ssl key for ssl termination.
-  - name: HAPROXY_SSL_CERT_KEY
-    secret: true
-    generator:
-      id: "router_cert"
-      type: Certificate
-      value_type: cert_private_key
-    description: SSL certificate (PEM file).
   - name: ROUTER_STATUS_PASSWORD
     secret: true
     immutable: true
@@ -2235,114 +2207,28 @@ configuration:
       id: "router_status_password"
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
-  - name: UAA_SERVER_KEY
+  - name: SAML_SERVICEPROVIDER_CERT
     secret: true
     generator:
-      id: "uaa_cert"
+      id: "saml_serviceprovider_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: SAML_SERVICEPROVIDER_KEY
+    secret: true
+    generator:
+      id: "saml_serviceprovider_cert"
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: The server's ssl private key. Only passphrase-less keys are supported.
-  - name: UAA_SERVER_CERT
-    secret: true
-    generator:
-      id: "uaa_cert"
-      type: Certificate
-      value_type: certificate
-    description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
-  - name: BLOBSTORE_TLS_CERT
-    secret: true
-    generator:
-      id: "blobstore_cert"
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-        - parameter: DOMAIN
-          wildcard: false
-        - parameter: DOMAIN
-          wildcard: true
-    description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
-  - name: BLOBSTORE_TLS_KEY
-    secret: true
-    generator:
-      id: "blobstore_cert"
-      type: Certificate
-      value_type: private_key
-    description: The PEM-encoded private key for signing TLS/SSL traffic.
-  - name: CONSUL_AGENT_CERT
-    secret: true
-    generator:
-      id: "consul_agent_cert"
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: PEM-encoded agent certificate.
-  - name: CONSUL_AGENT_KEY
-    secret: true
-    generator:
-      id: "consul_agent_cert"
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key.
-  - name: CONSUL_SERVER_CERT
-    secret: true
-    generator:
-      id: "consul_server_cert"
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-        - static: server.dc1.hcf
-          wildcard: false
-    description: PEM-encoded server certificate.
-  - name: CONSUL_SERVER_KEY
-    secret: true
-    generator:
-      id: "consul_server_cert"
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key.
-  - name: DEMOPHON_SERVER_CERT
-    secret: true
-    generator:
-      id: "demophon_server_cert"
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: PEM-encoded server certificate.
-  - name: DEMOPHON_SERVER_KEY
-    secret: true
-    generator:
-      id: "demophon_server_cert"
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key.
-  - name: PERSI_BROKER_TLS_CERT_KEY
-    secret: true
-    generator:
-      id: "persi_broker_cert"
-      type: Certificate
-      value_type: cert_private_key
-    description: TLS certificate and key (PEM file).
+    description: PEM-encoded key.
+  - name: SKIP_CERT_VERIFY_EXTERNAL
+    default: false
+    description: Skip TLS verification when communicating with UAA system domain.
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
     example: false
     description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
-  - name: SKIP_CERT_VERIFY_EXTERNAL
-    default: false
-    description: Skip TLS verification when communicating with UAA system domain.
-  - name: GARDEN_LINUX_DNS_SERVER
-    default: ""
-    required: false
-    description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
-  - name: INTERNAL_CA_CERT
-    secret: true
-    generator:
-      id: "cacert"
-      type: CACertificate
-      value_type: certificate
-    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
@@ -2368,47 +2254,160 @@ configuration:
     description: >
       A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
       Each registry must be quoted separately.
-  - name: USE_STAGER_PRIVILEGED_CONTAINERS
-    default: false
-    description: Whether or not to use privileged containers for staging tasks.
   - name: STAGING_TIMEOUT
     default: 900
     description: Timeout for staging an app, in seconds.
-  - name: CF_USB_BROKER_SERVER_CERT
-    secret: true
-    generator:
-      id: "usb_broker_server_cert"
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: PEM-encoded broker server certificate.
-  - name: CF_USB_BROKER_SERVER_KEY
-    secret: true
-    generator:
-      id: "usb_broker_server_cert"
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded broker server key.
-  - name: AUTOSCALER_COUCHDB_PASSWORD
+  - name: STAGING_UPLOAD_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
-    description: the password.
+    description: The password for access to the uploader of staged droplets.
+  - name: SUPPORT_ADDRESS
+    default: stackato-support@hpe.com
+    description: "Support contact information for the cluster"
+  - name: TCP_DOMAIN
+    example: tcp.my-hcf-cluster.com
+    required: false
+    description: TCP routing domain of the HCF cluster.
+  - name: TRAFFICCONTROLLER_CERT
+    secret: true
+    generator:
+      id: "trafficcontroller_cert"
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+  - name: TRAFFICCONTROLLER_KEY
+    secret: true
+    generator:
+      id: "trafficcontroller_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key.
+  - name: TRUSTED_CERTS
+    required: false
+    description: Concatenation of trusted CA certificates to be made available on the cell.
+  - name: UAADB_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the UAA database.
+  - name: UAA_ADMIN_CLIENT_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password of the admin client - a client named admin with uaa.admin as an authority.
+  - name: UAA_CC_CLIENT_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the Cloud Controller.
+  - name: UAA_CLIENTS_CC_ROUTING_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the Routing API.
+  - name: UAA_CLIENTS_CC_SERVICE_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Used for generating SSO clients for service brokers.
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Autoscaler.
-  - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
-    default: 1200
-    description: Extra token expiry time while uploading big apps, in seconds.
+  - name: UAA_CLIENTS_CF_USB_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the Universal Service Broker.
+  - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the Cloud Controller for fetching usernames.
+  - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the SSH proxy.
+  - name: UAA_CLIENTS_DOPPLER_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by doppler.
+  - name: UAA_CLIENTS_GOROUTER_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the gorouter.
+  - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the task creating the cluster administrator user
+  - name: UAA_CLIENTS_HCF_SSO_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The OAuth client secret for SSO; defaults to a randomly generated value
+  - name: UAA_CLIENTS_LOGIN_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the login client.
+  - name: UAA_CLIENTS_TCP_EMITTER_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the TCP emitter.
+  - name: UAA_CLIENTS_TCP_ROUTER_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the TCP router.
+  - name: UAA_SERVER_CERT
+    secret: true
+    generator:
+      id: "uaa_cert"
+      type: Certificate
+      value_type: certificate
+    description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
+  - name: UAA_SERVER_KEY
+    secret: true
+    generator:
+      id: "uaa_cert"
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: The server's ssl private key. Only passphrase-less keys are supported.
+  - name: USE_DIEGO_PRIVILEGED_CONTAINERS
+    default: false
+    description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
+  - name: USE_STAGER_PRIVILEGED_CONTAINERS
+    default: false
+    description: Whether or not to use privileged containers for staging tasks.
 
-  - name: JWT_SIGNING_PEM
-  - name: JWT_SIGNING_PUB
   templates:
-    index: "0"
+    index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -2419,14 +2418,9 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-    properties.autoscaler.autoscaler_api.host: '"sclr-api"'
-    properties.autoscaler.autoscaler_server.host: '"sclr-server"'
-    properties.autoscaler.couchdb.host: '"couchdb"'
     properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
-    properties.autoscaler_servicebroker.host: '"sclr-broker"'
-    properties.bbs.api_location: 'diego-database:8889'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
@@ -2436,83 +2430,59 @@ configuration:
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
     properties.capi.cc_uploader.log_level: '"((LOG_LEVEL))"'
-    properties.capi.nsync.bbs.api_location: 'diego-database:8889'
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.capi.nsync.cc.base_url: '"http://api:9022"'
     properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.nsync.diego_privileged_containers: '((USE_DIEGO_PRIVILEGED_CONTAINERS))'
-    properties.capi.nsync.file_server_url: "http://diego-access:8080"
     properties.capi.nsync.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.bbs.api_location: 'diego-database:8889'
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.capi.stager.cc.internal_service_hostname: '"api"'
-    properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge:9090"
     properties.capi.stager.diego_privileged_containers: '((USE_STAGER_PRIVILEGED_CONTAINERS))'
     properties.capi.stager.docker_registry_address: '"((STAGER_DOCKER_REGISTRY))"'
-    properties.capi.stager.file_server_url: "http://diego-access:8080"
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.staging_task_callback_url: "http://diego-cc-bridge:8888"
-    properties.capi.tps.bbs.api_location: '"diego-database:8889"'
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.capi.tps.cc.internal_service_hostname: '"api"'
     properties.capi.tps.log_level: '"((LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: "ws://loggregator:8081"
     properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
     properties.cc.allowed_cors_domains: '((ALLOWED_CORS_DOMAINS))'
     properties.cc.app_bits_max_body_size: '((NGINX_MAX_REQUEST_BODY_SIZE))M'
     properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: '"https://blobstore-0.blobstore-pod:4443"'
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
-    properties.cc.diego.nsync_url: "http://diego-cc-bridge:8787"
-    properties.cc.diego.stager_url: "http://diego-cc-bridge:8888"
-    properties.cc.diego.tps_url: "http://diego-cc-bridge:1518"
     properties.cc.disable_custom_buildpacks: '((DISABLE_CUSTOM_BUILDPACKS))'
     properties.cc.droplets.max_staged_droplets_stored: '((DROPLET_MAX_STAGED_STORED))'
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: '"https://blobstore-0.blobstore-pod:4443"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.cc.internal_service_hostname: '"api"'
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: '((MAX_APP_DISK_IN_MB))'
     properties.cc.maximum_health_check_timeout: '((MAX_HEALTH_CHECK_TIMEOUT))'
     properties.cc.nginx_error_log_level: '"((LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: '"https://blobstore-0.blobstore-pod:4443"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: '"https://blobstore-0.blobstore-pod:4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
-    properties.cc.srv_api_uri: '"http://api:9022"'
     properties.cc.staging_timeout_in_seconds: '((STAGING_TIMEOUT))'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.ccdb.address: 'mysql-proxy'
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
-    properties.cf-usb.broker.external_url: '"https://cf-usb:24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
-    properties.cf-usb.mysql_address: 'mysql-proxy'
     properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.cf_mysql.mysql.advertise_host: 'mysql-0.mysql-pod'
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.log_level: '"((LOG_LEVEL))"'
@@ -2523,11 +2493,9 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.host: '"couchdb"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: '((CLUSTER_DESCRIPTION))'
-    properties.diego.auctioneer.bbs.api_location: 'diego-database:8889'
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2539,8 +2507,6 @@ configuration:
     properties.diego.auctioneer.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.advertisement_base_hostname: 'diego-database-pod'
-    properties.diego.bbs.auctioneer.api_location: 'diego-brain:9016'
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
@@ -2560,35 +2526,28 @@ configuration:
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
     properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
     properties.diego.file_server.log_level: '"((LOG_LEVEL))"'
-    properties.diego.rep.advertise_domain: 'diego-cell-pod'
-    properties.diego.rep.bbs.api_location: 'diego-database:8889'
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.cell_id: '"diego-cell-0"'
     properties.diego.rep.log_level: '"((LOG_LEVEL))"'
     properties.diego.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
-    properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
-    properties.diego.route_emitter.bbs.api_location: 'diego-database:8889'
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.bbs.api_location: 'diego-database:8889'
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.ssh_proxy.cc.internal_service_hostname: '"api"'
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: '"https://uaa:8443/oauth/token"'
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
@@ -2596,19 +2555,12 @@ configuration:
     properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
-    properties.etcd.advertise_urls_dns_suffix: '"etcd-pod"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
     properties.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.garden.log_level: '"((LOG_LEVEL))"'
-    properties.garden.docker_registry_endpoint: '((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))'
-    properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
-    properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST))"'
-    properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
-    properties.hcf.hcp_service_domain_suffix: ''
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
@@ -2620,24 +2572,27 @@ configuration:
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.etcd_metrics_server.etcd.dns_suffix: '"etcd-pod"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
+    properties.garden.docker_registry_endpoint: '((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
+    properties.garden.log_level: '"((LOG_LEVEL))"'
     properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0.consul-pod"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd-0.etcd-pod"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0.consul-pod"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd-0.etcd-pod"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
+    properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST))"'
+    properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
-    properties.hcf.uaa.internal-url: '"https://uaa:8443"'
     properties.hcf.skip_cert_verify_external: '((SKIP_CERT_VERIFY_EXTERNAL))'
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2645,7 +2600,6 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.host: '"hcf-sso"'
     properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))"'
     properties.hcf_sso.oauth.id: '"((HCF_SSO_OAUTH_ID))"'
     properties.hcf_sso.oauth.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
@@ -2656,7 +2610,6 @@ configuration:
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
     properties.hcf_sso.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-0.blobstore-pod:4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
@@ -2671,13 +2624,13 @@ configuration:
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
+    properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
     properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
     properties.login.url: '"https://uaa.((DOMAIN))"'
-    properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.metron_agent.zone: '"((HCP_AZ))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: '((CLUSTER_NAME))'
@@ -2687,7 +2640,6 @@ configuration:
     properties.router.force_forwarded_proto_https: '((FORCE_FORWARDED_PROTO_AS_HTTPS))'
     properties.router.logging_level: '"((LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
-    properties.router.servers: '["router"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
     properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
@@ -2701,14 +2653,13 @@ configuration:
     properties.routing_api.log_level: '"((LOG_LEVEL))"'
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: http://routing-api
     properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.statsd_injector.log_level: '"((LOG_LEVEL))"'
+    properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
@@ -2718,8 +2669,6 @@ configuration:
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.tomcat.http.autoscaler_api.route: '"sclr-api"'
-    properties.tomcat.http.autoscaler_server.route: '"sclr-server"'
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
@@ -2733,22 +2682,18 @@ configuration:
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
     properties.uaa.clients.hcf-sso.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
+    properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.jwt.signing_key: '"((JWT_SIGNING_PEM))"'
     properties.uaa.jwt.verification_key: '"((JWT_SIGNING_PUB))"'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
-    properties.uaa.ssl.port: '8443'
     properties.uaa.sslCertificate: '"((UAA_SERVER_CERT))"'
     properties.uaa.sslPrivateKey: '"((UAA_SERVER_KEY))"'
-    properties.uaa.tls_port: '"8443"'
-    properties.uaa.token_endpoint: '"uaa"'
     properties.uaa.url: '"https://uaa.((DOMAIN))"'
-    properties.uaadb.address: 'mysql-proxy'
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
     properties.version: '"((CLUSTER_VERSION))"'
 auth:
