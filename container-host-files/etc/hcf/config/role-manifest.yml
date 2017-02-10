@@ -1638,106 +1638,133 @@ configuration:
   - name: ALLOWED_CORS_DOMAINS
     default: []
     description: List of domains (including scheme) from which Cross-Origin requests will be accepted, a * can be used as a wildcard for any part of a domain.
+    required: true
   - name: ALLOW_APP_SSH_ACCESS
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
+    required: true
   - name: BLOBSTORE_ACCESS_RULES
     default: 'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
     description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
+    required: true
   - name: BLOBSTORE_MAX_UPLOAD_SIZE
     default: 5000
     description: Maximal allowed file size for upload to blobstore, in megabytes.
+    required: true
   - name: BLOBSTORE_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
+    required: true
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     immutable: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
+    required: true
   - name: AUTOSCALER_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
+    required: true
   - name: CDN_URI
     default: "''"
     description: URI for a CDN to use for buildpack downloads.
+    required: true
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
+    required: true
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
     description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
+    required: true
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
     default: false
     description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
+    required: true
   - name: DISABLE_CUSTOM_BUILDPACKS
     default: false
     description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
+    required: true
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
     description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+    required: true
   - name: DEFAULT_APP_MEMORY
     default: 1024
     description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
+    required: true
   - name: DEFAULT_APP_SSH_ACCESS
     default: true
     description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
+    required: true
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
+    required: true
   - name: DNS_HEALTH_CHECK_HOST
     default: "127.0.0.1"
     description: The host to ping for confirmation of DNS resolution.
+    required: true
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
     default: false
     description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
+    required: true
   - name: GARDEN_DOCKER_REGISTRY
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
+    required: true
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
-    required: false
     default: ''
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
+    required: true
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
+    required: true
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
+    required: true
   - name: MAX_APP_DISK_IN_MB
     default: 2048
     description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
+    required: true
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
+    required: true
   - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
+    required: true
   - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
+    required: true
   - name: BULK_API_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for the bulk api.
+    required: true
   - name: CCDB_ROLE_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
+    required: true
   - name: CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -1745,6 +1772,7 @@ configuration:
       type: Password
     example: password
     description: The password for access to the Universal Service Broker.
+    required: true
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -1752,28 +1780,36 @@ configuration:
       type: Password
     example: password
     description: The password for access to the usb config database.
+    required: true
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
     description: The Oauth2 authorities available to the cluster administrator.
+    required: true
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
     immutable: true
     description: The password for the cluster administrator.
+    required: true
   - name: CLUSTER_BUILD
     default: 4.0.1
     description: "'build' attribute in the /v2/info endpoint"
+    required: true
   - name: CLUSTER_DESCRIPTION
     default: HPE Helion Cloud Foundry
     description: "'description' attribute in the /v2/info endpoint"
+    required: true
   - name: CLUSTER_NAME
     default: HCF
     description: "'name' attribute in the /v2/info endpoint"
+    required: true
   - name: CLUSTER_VERSION
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
+    required: true
   - name: SUPPORT_ADDRESS
     default: stackato-support@hpe.com
     description: "Support contact information for the cluster"
+    required: true
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
     immutable: true
@@ -1781,93 +1817,96 @@ configuration:
       type: Password
     description: 'Part of: A list of passphrases that will be converted into encryption
       keys, the first key in the list is the active one.'
+    required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
     immutable: true
     generator:
       type: Password
     description: key for encrypting sensitive values in the Cloud Controller database.
+    required: true
   - name: DOMAIN
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
-    required: false
     description: TCP routing domain of the HCF cluster.
   - name: RESERVABLE_PORTS
     default: "20000-20008"
     description: Modifying this value will break TCP port forwarding.
+    required: true
   - name: HCF_LOG_HOST
     default: ''
-    required: false
     description: The log destination to talk to. If not set it defaults to flightrecorder.
   - name: HCF_LOG_PORT
     default: ''
-    required: false
     description: The port used by rsyslog to talk to the log destination. If not set it defaults to the flightrecorder port. If that is not set we fall back to 514, the standard port of syslog.
   - name: HCF_LOG_PROTOCOL
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
+    required: true
   - name: HCF_SSO_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the HCF SSO service broker.
+    required: true
   - name: HCF_SSO_OAUTH_AUTHORIZE_URL
     description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
-    required: false
   - name: HCF_SSO_OAUTH_ID
     immutable: true
     default: hcf-sso
     description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
-    required: false
   - name: HCF_SSO_OAUTH_TOKEN_URL
     description: The OAuth token URL for SSO; defaults to using the same UAA as HCF
-    required: false
   - name: HCF_SSO_OAUTH_VERIFICATION_KEY
     description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
     secret: false
-    required: false
   - name: PERSI_BROKER_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the Persi service broker.
+    required: true
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: Shared secret used to verify cryptographically signed dropsonde messages.
+    required: true
   - name: MONIT_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: Password used for the monit API.
+    required: true
   - name: NATS_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to NATS.
+    required: true
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
+    required: true
   - name: INTERNAL_API_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
+    required: true
   - name: TRUSTED_CERTS
-    required: false
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
@@ -1875,132 +1914,155 @@ configuration:
     generator:
       type: Password
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
+    required: true
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
+    required: true
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
+    required: true
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
+    required: true
   - name: UAA_CLIENTS_HCF_SSO_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The OAuth client secret for SSO; defaults to a randomly generated value
+    required: true
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
+    required: true
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
+    required: true
   - name: UAA_CLIENTS_CC_SERVICE_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: Used for generating SSO clients for service brokers.
+    required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Universal Service Broker.
+    required: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
+    required: true
   - name: UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
+    required: true
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
+    required: true
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
+    required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
+    required: true
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
+    required: true
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for the cluster logger health user.
+    required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
+    required: true
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
+    required: true
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password used to contact the sidecar endpoints via Basic Auth.
+    required: true
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
+    required: true
   - name: UAADB_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for access to the UAA database.
+    required: true
   - name: DIEGO_CELL_SUBNET
     default: 10.38.0.0/16
     description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
+    required: true
   - name: DIEGO_CELL_NETWORK_MTU
     default: "1400"
     description: Maximum network transmission unit length in bytes for application containers.
+    required: true
   # Certificates
   - name: ETCD_PEER_KEY
     secret: true
@@ -2010,6 +2072,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded peer key.
+    required: true
   - name: ETCD_PEER_CRT
     secret: true
     generator:
@@ -2017,6 +2080,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded peer certificate.
+    required: true
   - name: ETCD_SERVER_KEY
     secret: true
     generator:
@@ -2025,6 +2089,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded server key.
+    required: true
   - name: ETCD_CLIENT_KEY
     secret: true
     generator:
@@ -2033,6 +2098,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded client key.
+    required: true
   - name: ETCD_SERVER_CRT
     secret: true
     generator:
@@ -2040,6 +2106,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate.
+    required: true
   - name: ETCD_CLIENT_CRT
     secret: true
     generator:
@@ -2047,6 +2114,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
+    required: true
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -2054,6 +2122,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
+    required: true
   - name: DOPPLER_KEY
     secret: true
     generator:
@@ -2062,6 +2131,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+    required: true
   - name: AUCTIONEER_SERVER_CERT
     secret: true
     generator:
@@ -2069,6 +2139,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate
+    required: true
   - name: AUCTIONEER_SERVER_KEY
     secret: true
     generator:
@@ -2077,6 +2148,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded server key
+    required: true
   - name: AUCTIONEER_REP_CERT
     secret: true
     generator:
@@ -2084,6 +2156,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
+    required: true
   - name: AUCTIONEER_REP_KEY
     secret: true
     generator:
@@ -2092,6 +2165,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key
+    required: true
   - name: BBS_AUCTIONEER_CERT
     secret: true
     generator:
@@ -2099,6 +2173,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
+    required: true
   - name: BBS_AUCTIONEER_KEY
     secret: true
     generator:
@@ -2107,6 +2182,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key
+    required: true
   - name: BBS_REP_CERT
     secret: true
     generator:
@@ -2114,6 +2190,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
+    required: true
   - name: BBS_REP_KEY
     secret: true
     generator:
@@ -2122,6 +2199,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key
+    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -2129,6 +2207,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate
+    required: true
   - name: REP_SERVER_KEY
     secret: true
     generator:
@@ -2137,6 +2216,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded server key
+    required: true
   - name: METRON_KEY
     secret: true
     generator:
@@ -2145,6 +2225,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+    required: true
   - name: METRON_CERT
     secret: true
     generator:
@@ -2152,6 +2233,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
+    required: true
   - name: SAML_SERVICEPROVIDER_CERT
     secret: true
     generator:
@@ -2159,6 +2241,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
+    required: true
   - name: SAML_SERVICEPROVIDER_KEY
     secret: true
     generator:
@@ -2167,6 +2250,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+    required: true
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -2174,6 +2258,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
+    required: true
   - name: TRAFFICCONTROLLER_KEY
     secret: true
     generator:
@@ -2182,6 +2267,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded key.
+    required: true
   - name: BBS_SERVER_KEY
     secret: true
     generator:
@@ -2190,6 +2276,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded client key.
+    required: true
   - name: BBS_CLIENT_KEY
     secret: true
     generator:
@@ -2198,6 +2285,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded client key.
+    required: true
   - name: BBS_SERVER_CRT
     secret: true
     generator:
@@ -2205,6 +2293,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
+    required: true
   - name: BBS_CLIENT_CRT
     secret: true
     generator:
@@ -2212,6 +2301,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
+    required: true
   - name: APP_SSH_KEY
     secret: true
     generator:
@@ -2220,6 +2310,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM encoded RSA private key used to identify host.
+    required: true
   - name: APP_SSH_KEY_FINGERPRINT
     secret: true
     generator:
@@ -2227,9 +2318,9 @@ configuration:
       type: SSH
       value_type: fingerprint
     description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
+    required: true
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
-    required: false
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_SERVICES_SECRET
     secret: true
@@ -2237,6 +2328,7 @@ configuration:
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
+    required: true
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
@@ -2250,6 +2342,7 @@ configuration:
         - parameter: DOMAIN
           wildcard: true
     description: The public ssl cert for ssl termination.
+    required: true
   - name: ROUTER_SSL_KEY
     secret: true
     generator:
@@ -2257,6 +2350,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The private ssl key for ssl termination.
+    required: true
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
     generator:
@@ -2264,6 +2358,7 @@ configuration:
       type: Certificate
       value_type: cert_private_key
     description: SSL certificate (PEM file).
+    required: true
   - name: ROUTER_STATUS_PASSWORD
     secret: true
     immutable: true
@@ -2271,6 +2366,7 @@ configuration:
       id: "router_status_password"
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
+    required: true
   - name: UAA_SERVER_KEY
     secret: true
     generator:
@@ -2279,6 +2375,7 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: The server's ssl private key. Only passphrase-less keys are supported.
+    required: true
   - name: UAA_SERVER_CERT
     secret: true
     generator:
@@ -2286,6 +2383,7 @@ configuration:
       type: Certificate
       value_type: certificate
     description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
+    required: true
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
@@ -2299,6 +2397,7 @@ configuration:
         - parameter: DOMAIN
           wildcard: true
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
+    required: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
@@ -2306,6 +2405,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
+    required: true
   - name: CONSUL_AGENT_CERT
     secret: true
     generator:
@@ -2314,6 +2414,7 @@ configuration:
       value_type: certificate
       key_length: 4096
     description: PEM-encoded agent certificate.
+    required: true
   - name: CONSUL_AGENT_KEY
     secret: true
     generator:
@@ -2321,6 +2422,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key.
+    required: true
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
@@ -2332,6 +2434,7 @@ configuration:
         - static: server.dc1.hcf
           wildcard: false
     description: PEM-encoded server certificate.
+    required: true
   - name: CONSUL_SERVER_KEY
     secret: true
     generator:
@@ -2339,6 +2442,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key.
+    required: true
   - name: DEMOPHON_SERVER_CERT
     secret: true
     generator:
@@ -2347,6 +2451,7 @@ configuration:
       value_type: certificate
       key_length: 4096
     description: PEM-encoded server certificate.
+    required: true
   - name: DEMOPHON_SERVER_KEY
     secret: true
     generator:
@@ -2354,6 +2459,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key.
+    required: true
   - name: PERSI_BROKER_TLS_CERT_KEY
     secret: true
     generator:
@@ -2361,16 +2467,18 @@ configuration:
       type: Certificate
       value_type: cert_private_key
     description: TLS certificate and key (PEM file).
+    required: true
   - name: SKIP_CERT_VERIFY_INTERNAL
     default: false
     example: false
     description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
+    required: true
   - name: SKIP_CERT_VERIFY_EXTERNAL
     default: false
     description: Skip TLS verification when communicating with UAA system domain.
+    required: true
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
-    required: false
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: INTERNAL_CA_CERT
     secret: true
@@ -2379,6 +2487,7 @@ configuration:
       type: CACertificate
       value_type: certificate
     description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
+    required: true
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
@@ -2387,6 +2496,7 @@ configuration:
       value_type: certificate
       key_length: 4096
     description: Certificate for the SSO service.
+    required: true
   - name: SSO_ROUTE_KEY
     secret: true
     generator:
@@ -2394,9 +2504,9 @@ configuration:
       type: Certificate
       value_type: private_key
     description: Key for the SSO service.
+    required: true
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
-    required: false
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
     description: >
       A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
@@ -2404,9 +2514,11 @@ configuration:
   - name: USE_STAGER_PRIVILEGED_CONTAINERS
     default: false
     description: Whether or not to use privileged containers for staging tasks.
+    required: true
   - name: STAGING_TIMEOUT
     default: 900
     description: Timeout for staging an app, in seconds.
+    required: true
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
@@ -2415,6 +2527,7 @@ configuration:
       value_type: certificate
       key_length: 4096
     description: PEM-encoded broker server certificate.
+    required: true
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
     generator:
@@ -2422,21 +2535,25 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded broker server key.
+    required: true
   - name: AUTOSCALER_COUCHDB_PASSWORD
     secret: true
     immutable: true
     generator:
       type: Password
     description: the password.
+    required: true
   - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
     secret: true
     immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Autoscaler.
+    required: true
   - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
+    required: true
   templates:
     az: '"((HCP_AZ))"'
     id: '"((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'

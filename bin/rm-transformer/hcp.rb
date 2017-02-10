@@ -463,7 +463,7 @@ class ToHCP < Common
 
   def convert_parameter(var, sdl_names)
     vname     = var['name']
-    vrequired = var.has_key?("required") ? var['required'] : true
+    vrequired = var.has_key?("required") ? var['required'] : false
     vsecret   = var.has_key?("secret") ? var['secret'] : false
     vexample  = (var['example'] || var['default']).to_s
     vexample  = 'unknown' if vexample == ''
