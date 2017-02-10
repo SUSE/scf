@@ -174,14 +174,14 @@ roles:
       public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
+      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
+      properties.cf_mysql.mysql.cluster_ips: ((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))
       properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.external_host: ((DOMAIN))
+      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
 - name: mysql-proxy
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -224,12 +224,12 @@ roles:
       public: false
   configuration:
     templates:
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
+      properties.cf_mysql.mysql.cluster_ips: ((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))
       properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
-      properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-      properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.proxy.api_password: "((MYSQL_PROXY_ADMIN_PASSWORD))"
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
+      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.external_host: ((DOMAIN))
+      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1644,7 +1644,7 @@ configuration:
     description: Allow users to change the value of the app-level allow_ssh attribute.
     required: true
   - name: BLOBSTORE_ACCESS_RULES
-    default: 'allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;'
+    default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
     description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
     required: true
   - name: BLOBSTORE_MAX_UPLOAD_SIZE
@@ -1808,7 +1808,7 @@ configuration:
     required: true
   - name: SUPPORT_ADDRESS
     default: stackato-support@hpe.com
-    description: "Support contact information for the cluster"
+    description: Support contact information for the cluster
     required: true
   - name: CONSUL_ENCRYPTION_KEYS
     secret: true
@@ -1833,7 +1833,7 @@ configuration:
     example: tcp.my-hcf-cluster.com
     description: TCP routing domain of the HCF cluster.
   - name: RESERVABLE_PORTS
-    default: "20000-20008"
+    default: 20000-20008
     description: Modifying this value will break TCP port forwarding.
     required: true
   - name: HCF_LOG_HOST
@@ -2060,7 +2060,7 @@ configuration:
     description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
     required: true
   - name: DIEGO_CELL_NETWORK_MTU
-    default: "1400"
+    default: '1400'
     description: Maximum network transmission unit length in bytes for application containers.
     required: true
   # Certificates
@@ -2479,7 +2479,7 @@ configuration:
     required: true
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
-    description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
+    description: Override DNS servers to be used in containers; defaults to the same as the host.
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
@@ -2557,7 +2557,7 @@ configuration:
   templates:
     az: '"((HCP_AZ))"'
     id: '"((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'
-    index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
+    index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -2575,37 +2575,37 @@ configuration:
     properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.autoscaler_servicebroker.host: '"sclr-broker-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
-    properties.blobstore.max_upload_size: '((BLOBSTORE_MAX_UPLOAD_SIZE))m'
+    properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
     properties.capi.cc_uploader.log_level: '"((LOG_LEVEL))"'
-    properties.capi.nsync.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.capi.nsync.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.nsync.cc.base_url: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.capi.nsync.diego_privileged_containers: '((USE_DIEGO_PRIVILEGED_CONTAINERS))'
-    properties.capi.nsync.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
+    properties.capi.nsync.diego_privileged_containers: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
+    properties.capi.nsync.file_server_url: http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080
     properties.capi.nsync.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.capi.stager.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.stager.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.capi.stager.cc_uploader_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9090"
-    properties.capi.stager.diego_privileged_containers: '((USE_STAGER_PRIVILEGED_CONTAINERS))'
-    properties.capi.stager.file_server_url: "http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080"
+    properties.capi.stager.cc_uploader_url: http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9090
+    properties.capi.stager.diego_privileged_containers: ((USE_STAGER_PRIVILEGED_CONTAINERS))
+    properties.capi.stager.file_server_url: http://diego-access-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8080
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((LOG_LEVEL))"'
-    properties.capi.stager.staging_task_callback_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
+    properties.capi.stager.staging_task_callback_url: http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888
     properties.capi.tps.bbs.api_location: '"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889"'
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2613,11 +2613,11 @@ configuration:
     properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.tps.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.capi.tps.log_level: '"((LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: "ws://loggregator-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8081"
-    properties.cc.allow_app_ssh_access: '((ALLOW_APP_SSH_ACCESS))'
-    properties.cc.allowed_cors_domains: '((ALLOWED_CORS_DOMAINS))'
-    properties.cc.app_bits_max_body_size: '((NGINX_MAX_REQUEST_BODY_SIZE))M'
-    properties.cc.app_bits_upload_grace_period_in_seconds: '((APP_TOKEN_UPLOAD_GRACE_PERIOD))'
+    properties.capi.tps.traffic_controller_url: ws://loggregator-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8081
+    properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
+    properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
+    properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
+    properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.buildpacks.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
@@ -2627,19 +2627,19 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
-    properties.cc.diego.nsync_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787"
-    properties.cc.diego.stager_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888"
-    properties.cc.diego.tps_url: "http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):1518"
-    properties.cc.disable_custom_buildpacks: '((DISABLE_CUSTOM_BUILDPACKS))'
-    properties.cc.droplets.max_staged_droplets_stored: '((DROPLET_MAX_STAGED_STORED))'
+    properties.cc.diego.nsync_url: http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8787
+    properties.cc.diego.stager_url: http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8888
+    properties.cc.diego.tps_url: http://diego-cc-bridge-int.((HCP_SERVICE_DOMAIN_SUFFIX)):1518
+    properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
+    properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.droplets.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: '"api-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.maximum_app_disk_in_mb: '((MAX_APP_DISK_IN_MB))'
-    properties.cc.maximum_health_check_timeout: '((MAX_HEALTH_CHECK_TIMEOUT))'
+    properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
+    properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.nginx_error_log_level: '"((LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
@@ -2648,10 +2648,10 @@ configuration:
     properties.cc.resource_pool.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.srv_api_uri: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
-    properties.cc.staging_timeout_in_seconds: '((STAGING_TIMEOUT))'
+    properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
-    properties.ccdb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.ccdb.address: mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-usb.broker.external_url: '"https://cf-usb-int.((HCP_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
@@ -2659,14 +2659,14 @@ configuration:
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
-    properties.cf-usb.mysql_address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
-    properties.cf.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
-    properties.cf_mysql.mysql.advertise_host: '((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-int.((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))'
+    properties.cf-usb.mysql_password: ((MYSQL_CF_USB_PASSWORD))
+    properties.cf-usb.mysql_address: mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))
+    properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
+    properties.cf_mysql.mysql.advertise_host: ((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-int.((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.log_level: '"((LOG_LEVEL))"'
-    properties.consul.agent.servers.lan: '((CONSUL_HCF_CLUSTER_IPS))((#CONSUL_HCF_CLUSTER_CONFIG_REVISION))((/CONSUL_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.consul.agent.servers.lan: ((CONSUL_HCF_CLUSTER_IPS))((#CONSUL_HCF_CLUSTER_CONFIG_REVISION))((/CONSUL_HCF_CLUSTER_CONFIG_REVISION))
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
     properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
     properties.consul.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2676,8 +2676,8 @@ configuration:
     properties.couchdb.host: '"couchdb-int.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
-    properties.description: '((CLUSTER_DESCRIPTION))'
-    properties.diego.auctioneer.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.description: ((CLUSTER_DESCRIPTION))
+    properties.diego.auctioneer.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2686,14 +2686,14 @@ configuration:
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
-    properties.diego.auctioneer.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.auctioneer.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.auctioneer.api_location: 'diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016'
+    properties.diego.bbs.auctioneer.api_location: diego-brain-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
-    properties.diego.bbs.auctioneer.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.bbs.auctioneer.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2703,32 +2703,32 @@ configuration:
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
-    properties.diego.bbs.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.bbs.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy-int.{{HCP_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
-    properties.diego.executor.memory_capacity_mb: '((DIEGO_CELL_MEMORY_CAPACITY_MB))'
+    properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((LOG_LEVEL))"'
-    properties.diego.rep.advertise_domain: '((HCP_SERVICE_DOMAIN_SUFFIX))'
-    properties.diego.rep.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.rep.advertise_domain: ((HCP_SERVICE_DOMAIN_SUFFIX))
+    properties.diego.rep.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.log_level: '"((LOG_LEVEL))"'
-    properties.diego.rep.require_tls: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
     properties.diego.route_emitter.log_level: '"((LOG_LEVEL))"'
-    properties.diego.route_emitter.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.route_emitter.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.route_emitter.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.diego.route_emitter.nats.machines: ((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.bbs.api_location: 'diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889'
+    properties.diego.ssh_proxy.bbs.api_location: diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2737,22 +2737,22 @@ configuration:
     properties.diego.ssh_proxy.log_level: '"((LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
-    properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.diego.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.doppler.syslog_skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.doppler.syslog_skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.advertise_urls_dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-    properties.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.etcd.machines: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.garden.log_level: '"((LOG_LEVEL))"'
-    properties.garden.docker_registry_endpoint: '((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))'
+    properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
@@ -2760,9 +2760,9 @@ configuration:
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
-    properties.etcd.peer_require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd.peer_require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
-    properties.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2770,23 +2770,23 @@ configuration:
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd_metrics_server.etcd.dns_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
-    properties.etcd_metrics_server.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
-    properties.garden.network_mtu: '((DIEGO_CELL_NETWORK_MTU))'
+    properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
-    properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.hcf.demophon.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"ETCD_HOST","value":"etcd-int.((HCP_SERVICE_DOMAIN_SUFFIX))"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
-    properties.hcf.skip_cert_verify_external: '((SKIP_CERT_VERIFY_EXTERNAL))'
+    properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
@@ -2802,16 +2802,16 @@ configuration:
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
     properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
-    properties.hcf_sso.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.hcf_sso.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
     properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
-    properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
-    properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.hcf_versions.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
+    properties.hcf_versions.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.loggregator.etcd.machines: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
-    properties.loggregator.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
+    properties.loggregator.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
@@ -2825,33 +2825,33 @@ configuration:
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
-    properties.name: '((CLUSTER_NAME))'
-    properties.nats.machines: '((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.name: ((CLUSTER_NAME))
+    properties.nats.machines: ((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-    properties.router.force_forwarded_proto_https: '((FORCE_FORWARDED_PROTO_AS_HTTPS))'
+    properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.logging_level: '"((LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.servers: '["router-int.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    properties.router.ssl_skip_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.router.ssl_skip_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
-    properties.routing_api.etcd.require_ssl: '((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))'
-    properties.routing_api.etcd.servers: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'
+    properties.routing_api.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
+    properties.routing_api.etcd.servers: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.routing_api.log_level: '"((LOG_LEVEL))"'
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: http://routing-api-int.((HCP_SERVICE_DOMAIN_SUFFIX))
-    properties.skip_ssl_validation: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2873,7 +2873,7 @@ configuration:
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.uaa.clients.cloud_controller.secret: "((UAA_CC_CLIENT_SECRET))"
+    properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
@@ -2894,7 +2894,7 @@ configuration:
     properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
     properties.uaa.user.authorities: ((UAA_USER_AUTHORITIES)) # This is _not_ quoted to let the JSON expand in configgin
-    properties.uaadb.address: 'mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.uaadb.address: mysql-proxy-int.((HCP_SERVICE_DOMAIN_SUFFIX))
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
     properties.version: '"((CLUSTER_VERSION))"'
 auth:
