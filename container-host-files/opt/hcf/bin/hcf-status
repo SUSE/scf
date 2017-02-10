@@ -151,7 +151,7 @@ function status_task() {
     running|created)    color=${bldpur};;
     *)                  color=${bldred};;
   esac
-  mem_used=$(mem_used_from_docker_role ${role})
+  mem_used=$(mem_used_from_container ${container})
   printf ${rowfmt} ${role} ${txtgrn} 1 ${txtgrn} n/a ${color} ${process_state} ${mem_used}
 }
 
