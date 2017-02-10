@@ -30,16 +30,16 @@ roles:
     memory: 256
     virtual-cpus: 4
     exposed-ports:
-      - name: 'nats'
-        protocol: 'TCP'
-        external: 4222
-        internal: 4222
-        public: false
-      - name: 'nats-routes'
-        protocol: 'TCP'
-        external: 4223
-        internal: 4223
-        public: false
+    - name: nats
+      protocol: TCP
+      external: 4222
+      internal: 4222
+      public: false
+    - name: nats-routes
+      protocol: TCP
+      external: 4223
+      internal: 4223
+      public: false
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -65,48 +65,48 @@ roles:
       max: 3
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store
-        tag: consul-data
-        size: 5
+    - path: /var/vcap/store
+      tag: consul-data
+      size: 5
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'server-rpc'
-        protocol: 'TCP'
-        external: 8300
-        internal: 8300
-        public: false
-      - name: 'serf-lan-tcp'
-        protocol: 'TCP'
-        external: 8301
-        internal: 8301
-        public: false
-      - name: 'serf-lan-udp'
-        protocol: 'UDP'
-        external: 8301
-        internal: 8301
-        public: false
-      - name: 'serf-wan-tcp'
-        protocol: 'TCP'
-        external: 8302
-        internal: 8302
-        public: false
-      - name: 'serf-wan-udp'
-        protocol: 'UDP'
-        external: 8302
-        internal: 8302
-        public: false
-      - name: 'cli-rpc'
-        protocol: 'TCP'
-        external: 8400
-        internal: 8400
-        public: false
-      - name: 'http-api'
-        protocol: 'TCP'
-        external: 8500
-        internal: 8500
-        public: false
+    - name: server-rpc
+      protocol: TCP
+      external: 8300
+      internal: 8300
+      public: false
+    - name: serf-lan-tcp
+      protocol: TCP
+      external: 8301
+      internal: 8301
+      public: false
+    - name: serf-lan-udp
+      protocol: UDP
+      external: 8301
+      internal: 8301
+      public: false
+    - name: serf-wan-tcp
+      protocol: TCP
+      external: 8302
+      internal: 8302
+      public: false
+    - name: serf-wan-udp
+      protocol: UDP
+      external: 8302
+      internal: 8302
+      public: false
+    - name: cli-rpc
+      protocol: TCP
+      external: 8400
+      internal: 8400
+      public: false
+    - name: http-api
+      protocol: TCP
+      external: 8500
+      internal: 8500
+      public: false
   configuration:
     templates:
       properties.consul.agent.mode: '"server"'
@@ -135,43 +135,43 @@ roles:
       max: 3
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store
-        tag: mysql-data
-        size: 10
+    - path: /var/vcap/store
+      tag: mysql-data
+      size: 10
     shared-volumes: []
     memory: 3072
     virtual-cpus: 2
     exposed-ports:
-      - name: 'mysql'
-        protocol: 'TCP'
-        external: 3306
-        internal: 3306
-        public: false
-      - name: 'galera-tcp'
-        protocol: 'TCP'
-        external: 4567
-        internal: 4567
-        public: false
-      - name: 'galera-udp'
-        protocol: 'UDP'
-        external: 4567
-        internal: 4567
-        public: false
-      - name: 'galera-ist'
-        protocol: 'TCP'
-        external: 4568
-        internal: 4568
-        public: false
-      - name: 'healthcheck'
-        protocol: 'tcp'
-        external: 9200
-        internal: 9200
-        public: false
-      - name: 'xtrabackup'
-        protocol: 'tcp'
-        external: 4444
-        internal: 4444
-        public: false
+    - name: mysql
+      protocol: TCP
+      external: 3306
+      internal: 3306
+      public: false
+    - name: galera-tcp
+      protocol: TCP
+      external: 4567
+      internal: 4567
+      public: false
+    - name: galera-udp
+      protocol: UDP
+      external: 4567
+      internal: 4567
+      public: false
+    - name: galera-ist
+      protocol: TCP
+      external: 4568
+      internal: 4568
+      public: false
+    - name: healthcheck
+      protocol: tcp
+      external: 9200
+      internal: 9200
+      public: false
+    - name: xtrabackup
+      protocol: tcp
+      external: 4444
+      internal: 4444
+      public: false
   configuration:
     templates:
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
@@ -207,21 +207,21 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'mysql-proxy'
-        protocol: 'TCP'
-        external: 3306
-        internal: 3306
-        public: false
-      - name: 'api'
-        protocol: 'TCP'
-        external: 80
-        internal: 80
-        public: false
-      - name: 'healthcheck'
-        protocol: 'TCP'
-        external: 1936
-        internal: 1936
-        public: false
+    - name: mysql-proxy
+      protocol: TCP
+      external: 3306
+      internal: 3306
+      public: false
+    - name: api
+      protocol: TCP
+      external: 80
+      internal: 80
+      public: false
+    - name: healthcheck
+      protocol: TCP
+      external: 1936
+      internal: 1936
+      public: false
   configuration:
     templates:
       properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
@@ -261,28 +261,28 @@ roles:
       max: 1
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store
-        tag: diego-database-data
-        size: 10
+    - path: /var/vcap/store
+      tag: diego-database-data
+      size: 10
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'cell-metrics'
-        protocol: 'TCP'
-        external: 5678
-        internal: 5678
-        public: false
-      - name: 'cell-bbs-api'
-        protocol: 'TCP'
-        external: 8889
-        internal: 8889
-        public: false
-      - name: 'cell-bbs-dbg'
-        protocol: 'TCP'
-        external: 17017
-        internal: 17017
-        public: false
+    - name: cell-metrics
+      protocol: TCP
+      external: 5678
+      internal: 5678
+      public: false
+    - name: cell-bbs-api
+      protocol: TCP
+      external: 8889
+      internal: 8889
+      public: false
+    - name: cell-bbs-dbg
+      protocol: TCP
+      external: 17017
+      internal: 17017
+      public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -317,18 +317,18 @@ roles:
     memory: 256
     virtual-cpus: 4
     exposed-ports:
-    - name: 'router'
-      protocol: 'TCP'
+    - name: router
+      protocol: TCP
       external: 80
       internal: 80
       public: true
-    - name: 'router2'
-      protocol: 'TCP'
+    - name: router2
+      protocol: TCP
       external: 443
       internal: 443
       public: true
-    - name: 'router3'
-      protocol: 'TCP'
+    - name: router3
+      protocol: TCP
       external: 4443
       internal: 443
       public: true
@@ -366,15 +366,15 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-    - name: 'healthcheck'
+    - name: healthcheck
       protocol: TCP
       external: 2341
       internal: 80
       public: true
-    - name: 'tcp-routing'
+    - name: tcp-routing
       protocol: TCP
-      external: "20000-20008"
-      internal: "20000-20008"
+      external: 20000-20008
+      internal: 20000-20008
       public: true
   configuration:
     templates:
@@ -414,16 +414,16 @@ roles:
     memory: 512
     virtual-cpus: 4
     exposed-ports:
-      - name: routing-api
-        protocol: TCP
-        external: 3000
-        internal: 3000
-        public: false
+    - name: routing-api
+      protocol: TCP
+      external: 3000
+      internal: 3000
+      public: false
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: uaa
-  tags: ['dev-only']
+  tags: [dev-only]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
@@ -458,17 +458,17 @@ roles:
     memory: 2048
     virtual-cpus: 2
     exposed-ports:
-      - name: 'uaa'
-        protocol: 'TCP'
-        external: 8080
-        internal: 8080
-        public: false
-      - name: 'uaa-ssl'
-        protocol: 'TCP'
-        external: 8443
-        internal: 8443
-        public: false
-    docker-args: ['--network-alias', 'hcf.uaa-int.hcf.svc']
+    - name: uaa
+      protocol: TCP
+      external: 8080
+      internal: 8080
+      public: false
+    - name: uaa-ssl
+      protocol: TCP
+      external: 8443
+      internal: 8443
+      public: false
+    docker-args: [--network-alias, hcf.uaa-int.hcf.svc]
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"uaa", "port": 8080, "tags":{"component":"uaa"}, "uris":["uaa.((DOMAIN))", "*.uaa.((DOMAIN))", "login.((DOMAIN))", "*.login.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -538,16 +538,16 @@ roles:
     memory: 2560
     virtual-cpus: 4
     exposed-ports:
-      - name: 'api'
-        protocol: 'TCP'
-        external: 9022
-        internal: 9022
-        public: false
-      - name: 'statsd'
-        protocol: 'TCP'
-        external: 8125
-        internal: 8125
-        public: false
+    - name: api
+      protocol: TCP
+      external: 9022
+      internal: 9022
+      public: false
+    - name: statsd
+      protocol: TCP
+      external: 8125
+      internal: 8125
+      public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -580,9 +580,9 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes:
-    - path: '/var/vcap/nfs/shared'
+    - path: /var/vcap/nfs/shared
       size: 100
-      tag: 'api-data'
+      tag: api-data
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
@@ -621,13 +621,13 @@ roles:
     memory: 1536
     virtual-cpus: 2
     exposed-ports:
-    - name: 'blobstore-ext'
-      protocol: 'TCP'
+    - name: blobstore-ext
+      protocol: TCP
       external: 8080
       internal: 8080
       public: false
-    - name: 'blobstore-int'
-      protocol: 'TCP'
+    - name: blobstore-int
+      protocol: TCP
       external: 4443
       internal: 4443
       public: false
@@ -696,16 +696,16 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'usb'
-        protocol: 'TCP'
-        external: 24054
-        internal: 24054
-        public: false
-      - name: 'usb2'
-        protocol: 'TCP'
-        external: 24053
-        internal: 24053
-        public: false
+    - name: usb
+      protocol: TCP
+      external: 24054
+      internal: 24054
+      public: false
+    - name: usb2
+      protocol: TCP
+      external: 24053
+      internal: 24053
+      public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -739,31 +739,31 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'doppler-in'
-        protocol: 'TCP'
-        external: 3456
-        internal: 3456
-        public: false
-      - name: 'dropsnode-in'
-        protocol: 'UDP'
-        external: 3457
-        internal: 3457
-        public: false
-      - name: 'doppler-tls'
-        protocol: 'TCP'
-        external: 3458
-        internal: 3458
-        public: false
-      - name: 'doppler-ws'
-        protocol: 'TCP'
-        external: 8081
-        internal: 8081
-        public: false
-      - name: 'doppler-grpc'
-        protocol: 'TCP'
-        external: 8082
-        internal: 8082
-        public: false
+    - name: doppler-in
+      protocol: TCP
+      external: 3456
+      internal: 3456
+      public: false
+    - name: dropsnode-in
+      protocol: UDP
+      external: 3457
+      internal: 3457
+      public: false
+    - name: doppler-tls
+      protocol: TCP
+      external: 3458
+      internal: 3458
+      public: false
+    - name: doppler-ws
+      protocol: TCP
+      external: 8081
+      internal: 8081
+      public: false
+    - name: doppler-grpc
+      protocol: TCP
+      external: 8082
+      internal: 8082
+      public: false
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -795,23 +795,23 @@ roles:
       max: 3
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store
-        size: 10
-        tag: cf-etcd-data
+    - path: /var/vcap/store
+      size: 10
+      tag: cf-etcd-data
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'etcd-client'
-        protocol: 'TCP'
-        external: 4001
-        internal: 4001
-        public: false
-      - name: 'etcd-peer'
-        protocol: 'TCP'
-        external: 7001
-        internal: 7001
-        public: false
+    - name: etcd-client
+      protocol: TCP
+      external: 4001
+      internal: 4001
+      public: false
+    - name: etcd-peer
+      protocol: TCP
+      external: 7001
+      internal: 7001
+      public: false
   configuration:
     templates:
       # The default of null in the bosh release does not seem to
@@ -855,16 +855,16 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'loggregator'
-        protocol: 'TCP'
-        external: 8080
-        internal: 8080
-        public: false
-      - name: 'loggregator-ws'
-        protocol: 'TCP'
-        external: 8081
-        internal: 8081
-        public: false
+    - name: loggregator
+      protocol: TCP
+      external: 8080
+      internal: 8080
+      public: false
+    - name: loggregator-ws
+      protocol: TCP
+      external: 8081
+      internal: 8081
+      public: false
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -900,11 +900,11 @@ roles:
     memory: 256
     virtual-cpus: 4
     exposed-ports:
-      - name: 'diego-auction'
-        protocol: 'TCP'
-        external: 9016
-        internal: 9016
-        public: false
+    - name: diego-auction
+      protocol: TCP
+      external: 9016
+      internal: 9016
+      public: false
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -947,56 +947,56 @@ roles:
     memory: 512
     virtual-cpus: 4
     exposed-ports:
-      - name: 'nsync-listen'
-        protocol: 'TCP'
-        external: 8787
-        internal: 8787
-        public: false
-      - name: 'nsync-dbg-l'
-        protocol: 'TCP'
-        external: 17006
-        internal: 17006
-        public: false
-      - name: 'nsync-dbg-b'
-        protocol: 'TCP'
-        external: 17007
-        internal: 17007
-        public: false
-      - name: 'stager-dbg'
-        protocol: 'TCP'
-        external: 17011
-        internal: 17011
-        public: false
-      - name: 'stager-listen'
-        protocol: 'TCP'
-        external: 8888
-        internal: 8888
-        public: false
-      - name: 'tps-listen'
-        protocol: 'TCP'
-        external: 1518
-        internal: 1518
-        public: false
-      - name: 'tps-dbg-l'
-        protocol: 'TCP'
-        external: 17014
-        internal: 17014
-        public: false
-      - name: 'tps-dbg-w'
-        protocol: 'TCP'
-        external: 17015
-        internal: 17015
-        public: false
-      - name: 'cc-up-listen'
-        protocol: 'TCP'
-        external: 9090
-        internal: 9090
-        public: false
-      - name: 'cc-up-dbg'
-        protocol: 'TCP'
-        external: 17018
-        internal: 17018
-        public: false
+    - name: nsync-listen
+      protocol: TCP
+      external: 8787
+      internal: 8787
+      public: false
+    - name: nsync-dbg-l
+      protocol: TCP
+      external: 17006
+      internal: 17006
+      public: false
+    - name: nsync-dbg-b
+      protocol: TCP
+      external: 17007
+      internal: 17007
+      public: false
+    - name: stager-dbg
+      protocol: TCP
+      external: 17011
+      internal: 17011
+      public: false
+    - name: stager-listen
+      protocol: TCP
+      external: 8888
+      internal: 8888
+      public: false
+    - name: tps-listen
+      protocol: TCP
+      external: 1518
+      internal: 1518
+      public: false
+    - name: tps-dbg-l
+      protocol: TCP
+      external: 17014
+      internal: 17014
+      public: false
+    - name: tps-dbg-w
+      protocol: TCP
+      external: 17015
+      internal: 17015
+      public: false
+    - name: cc-up-listen
+      protocol: TCP
+      external: 9090
+      internal: 9090
+      public: false
+    - name: cc-up-dbg
+      protocol: TCP
+      external: 17018
+      internal: 17018
+      public: false
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1064,16 +1064,16 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'diego-ssh'
-        protocol: 'TCP'
-        external: 2222
-        internal: 2222
-        public: true
-      - name: 'diego-files'
-        protocol: 'TCP'
-        external: 8080
-        internal: 8080
-        public: false
+    - name: diego-ssh
+      protocol: TCP
+      external: 2222
+      internal: 2222
+      public: true
+    - name: diego-files
+      protocol: TCP
+      external: 8080
+      internal: 8080
+      public: false
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1111,23 +1111,23 @@ roles:
     scaling:
       min: 1
       max: 254
-    capabilities: ['ALL']
+    capabilities: [ALL]
     persistent-volumes:
-    - path: '/var/vcap/data/garden'
+    - path: /var/vcap/data/garden
       tag: garden-graph
       size: 50
     shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
+    - path: /var/vcap/persistore/servicevolumes/_volumes
       size: 100
-      tag: 'persistore'
+      tag: persistore
     memory: 4096
     virtual-cpus: 4
     exposed-ports:
-      - name: 'rep-server'
-        protocol: 'TCP'
-        external: 1801
-        internal: 1801
-        public: false
+    - name: rep-server
+      protocol: TCP
+      external: 1801
+      internal: 1801
+      public: false
 - name: sclr-api
   type: bosh
   environment_scripts:
@@ -1157,11 +1157,11 @@ roles:
     memory: 1536
     virtual-cpus: 1
     exposed-ports:
-      - name: 'api'
-        protocol: 'TCP'
-        external: 28861
-        internal: 28861
-        public: false
+    - name: api
+      protocol: TCP
+      external: 28861
+      internal: 28861
+      public: false
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1189,11 +1189,11 @@ roles:
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'server'
-        protocol: 'TCP'
-        external: 28862
-        internal: 28862
-        public: false
+    - name: server
+      protocol: TCP
+      external: 28862
+      internal: 28862
+      public: false
   configuration:
     templates:
       properties.couchdb.dbname: '"couchdb-scaling"'
@@ -1221,11 +1221,11 @@ roles:
     memory: 1536
     virtual-cpus: 1
     exposed-ports:
-      - name: 'broker'
-        protocol: 'TCP'
-        external: 28863
-        internal: 28863
-        public: false
+    - name: broker
+      protocol: TCP
+      external: 28863
+      internal: 28863
+      public: false
   configuration:
     templates:
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
@@ -1247,18 +1247,18 @@ roles:
       max: 3
     capabilities: []
     persistent-volumes:
-      - path: /var/vcap/store
-        tag: couchdb-data
-        size: 5
+    - path: /var/vcap/store
+      tag: couchdb-data
+      size: 5
     shared-volumes: []
     memory: 256
     virtual-cpus: 1
     exposed-ports:
-      - name: 'couchdb'
-        protocol: 'TCP'
-        external: 5984
-        internal: 5984
-        public: false
+    - name: couchdb
+      protocol: TCP
+      external: 5984
+      internal: 5984
+      public: false
 - name: acceptance-tests-autoscaler
   type: bosh-task
   scripts:
@@ -1299,11 +1299,11 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports:
-      - name: 'acceptanceflightrecorder'
-        protocol: 'TCP'
-        source: 10514
-        target: 10514
-        public: false
+    - name: acceptanceflightrecorder
+      protocol: TCP
+      source: 10514
+      target: 10514
+      public: false
 - name: acceptance-tests
   type: bosh-task
   scripts:
@@ -1395,28 +1395,28 @@ roles:
     exposed-ports: []
 - name: dev-dns
   type: docker
-  tags: ['dev-only']
+  tags: [dev-only]
   run:
     env: []
     scaling:
       min: 1
       max: 1
-    capabilities: ['NET_ADMIN']
+    capabilities: [NET_ADMIN]
     persistent-volumes: []
     shared-volumes: []
     memory: 1024
     virtual-cpus: 1
     exposed-ports:
-      - name: 'dev-dns'
-        protocol: 'UDP'
-        external: 53
-        internal: 8600
-        public: true
-      - name: 'dev-dns-tcp'
-        protocol: 'TCP'
-        external: 53
-        internal: 8600
-        public: true
+    - name: dev-dns
+      protocol: UDP
+      external: 53
+      internal: 8600
+      public: true
+    - name: dev-dns-tcp
+      protocol: TCP
+      external: 53
+      internal: 8600
+      public: true
 - name: sso-create-service
   type: bosh-task
   scripts:
@@ -1544,7 +1544,7 @@ roles:
     memory: 128
     virtual-cpus: 1
     exposed-ports:
-    - name: 'hcf-versions-api'
+    - name: hcf-versions-api
       protocol: TCP
       external: 3000
       internal: 3000
@@ -1580,11 +1580,11 @@ roles:
     memory: 128
     virtual-cpus: 2
     exposed-ports:
-      - name: 'demophon'
-        protocol: 'TCP'
-        external: 8443
-        internal: 8443
-        public: false
+    - name: demophon
+      protocol: TCP
+      external: 8443
+      internal: 8443
+      public: false
 - name: persi-broker
   environment_scripts:
   - scripts/inverted_skip_ssl.sh
@@ -1611,23 +1611,23 @@ roles:
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
-      tag:  persibroker-data
+      tag: persibroker-data
       size: 1
     shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
+    - path: /var/vcap/persistore/servicevolumes/_volumes
       size: 100
-      tag: 'persistore'
+      tag: persistore
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'persi-broker'
-        protocol: 'TCP'
-        external: 443
-        internal: 443
-        public: false
+    - name: persi-broker
+      protocol: TCP
+      external: 443
+      internal: 443
+      public: false
   configuration:
     templates:
-      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.localbroker.listen-addr: 127.0.0.1:8999
       properties.router.servers: '["127.0.0.1"]'
       properties.router.port: 8999
       properties.ha_proxy.disable_http: true
@@ -1709,7 +1709,7 @@ configuration:
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
     required: true
   - name: DNS_HEALTH_CHECK_HOST
-    default: "127.0.0.1"
+    default: 127.0.0.1
     description: The host to ping for confirmation of DNS resolution.
     required: true
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
@@ -2067,7 +2067,7 @@ configuration:
   - name: ETCD_PEER_KEY
     secret: true
     generator:
-      id: "etcd_peer_cert"
+      id: etcd_peer_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2076,7 +2076,7 @@ configuration:
   - name: ETCD_PEER_CRT
     secret: true
     generator:
-      id: "etcd_peer_cert"
+      id: etcd_peer_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded peer certificate.
@@ -2084,7 +2084,7 @@ configuration:
   - name: ETCD_SERVER_KEY
     secret: true
     generator:
-      id: "etcd_server_cert"
+      id: etcd_server_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2093,7 +2093,7 @@ configuration:
   - name: ETCD_CLIENT_KEY
     secret: true
     generator:
-      id: "etcd_client_cert"
+      id: etcd_client_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2102,7 +2102,7 @@ configuration:
   - name: ETCD_SERVER_CRT
     secret: true
     generator:
-      id: "etcd_server_cert"
+      id: etcd_server_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate.
@@ -2110,7 +2110,7 @@ configuration:
   - name: ETCD_CLIENT_CRT
     secret: true
     generator:
-      id: "etcd_client_cert"
+      id: etcd_client_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
@@ -2118,7 +2118,7 @@ configuration:
   - name: DOPPLER_CERT
     secret: true
     generator:
-      id: "doppler_cert"
+      id: doppler_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
@@ -2126,7 +2126,7 @@ configuration:
   - name: DOPPLER_KEY
     secret: true
     generator:
-      id: "doppler_cert"
+      id: doppler_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2135,7 +2135,7 @@ configuration:
   - name: AUCTIONEER_SERVER_CERT
     secret: true
     generator:
-      id: "auctioneer_server_cert"
+      id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate
@@ -2143,7 +2143,7 @@ configuration:
   - name: AUCTIONEER_SERVER_KEY
     secret: true
     generator:
-      id: "auctioneer_server_cert"
+      id: auctioneer_server_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2152,7 +2152,7 @@ configuration:
   - name: AUCTIONEER_REP_CERT
     secret: true
     generator:
-      id: "auctioneer_rep_cert"
+      id: auctioneer_rep_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
@@ -2160,7 +2160,7 @@ configuration:
   - name: AUCTIONEER_REP_KEY
     secret: true
     generator:
-      id: "auctioneer_rep_cert"
+      id: auctioneer_rep_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2169,7 +2169,7 @@ configuration:
   - name: BBS_AUCTIONEER_CERT
     secret: true
     generator:
-      id: "bbs_auctioneer_cert"
+      id: bbs_auctioneer_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
@@ -2177,7 +2177,7 @@ configuration:
   - name: BBS_AUCTIONEER_KEY
     secret: true
     generator:
-      id: "bbs_auctioneer_cert"
+      id: bbs_auctioneer_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2186,7 +2186,7 @@ configuration:
   - name: BBS_REP_CERT
     secret: true
     generator:
-      id: "bbs_rep_cert"
+      id: bbs_rep_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
@@ -2194,7 +2194,7 @@ configuration:
   - name: BBS_REP_KEY
     secret: true
     generator:
-      id: "bbs_rep_cert"
+      id: bbs_rep_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2203,7 +2203,7 @@ configuration:
   - name: REP_SERVER_CERT
     secret: true
     generator:
-      id: "rep_server_cert"
+      id: rep_server_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded server certificate
@@ -2211,7 +2211,7 @@ configuration:
   - name: REP_SERVER_KEY
     secret: true
     generator:
-      id: "rep_server_cert"
+      id: rep_server_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2220,7 +2220,7 @@ configuration:
   - name: METRON_KEY
     secret: true
     generator:
-      id: "metron_cert"
+      id: metron_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2229,7 +2229,7 @@ configuration:
   - name: METRON_CERT
     secret: true
     generator:
-      id: "metron_cert"
+      id: metron_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate.
@@ -2237,7 +2237,7 @@ configuration:
   - name: SAML_SERVICEPROVIDER_CERT
     secret: true
     generator:
-      id: "saml_serviceprovider_cert"
+      id: saml_serviceprovider_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
@@ -2245,7 +2245,7 @@ configuration:
   - name: SAML_SERVICEPROVIDER_KEY
     secret: true
     generator:
-      id: "saml_serviceprovider_cert"
+      id: saml_serviceprovider_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2254,7 +2254,7 @@ configuration:
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
-      id: "trafficcontroller_cert"
+      id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
@@ -2262,7 +2262,7 @@ configuration:
   - name: TRAFFICCONTROLLER_KEY
     secret: true
     generator:
-      id: "trafficcontroller_cert"
+      id: trafficcontroller_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2271,7 +2271,7 @@ configuration:
   - name: BBS_SERVER_KEY
     secret: true
     generator:
-      id: "bbs_server_cert"
+      id: bbs_server_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2280,7 +2280,7 @@ configuration:
   - name: BBS_CLIENT_KEY
     secret: true
     generator:
-      id: "bbs_client_cert"
+      id: bbs_client_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2289,7 +2289,7 @@ configuration:
   - name: BBS_SERVER_CRT
     secret: true
     generator:
-      id: "bbs_server_cert"
+      id: bbs_server_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
@@ -2297,7 +2297,7 @@ configuration:
   - name: BBS_CLIENT_CRT
     secret: true
     generator:
-      id: "bbs_client_cert"
+      id: bbs_client_cert
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
@@ -2305,7 +2305,7 @@ configuration:
   - name: APP_SSH_KEY
     secret: true
     generator:
-      id: "app_ssh"
+      id: app_ssh
       type: SSH
       value_type: private_key
       key_length: 4096
@@ -2314,7 +2314,7 @@ configuration:
   - name: APP_SSH_KEY_FINGERPRINT
     secret: true
     generator:
-      id: "app_ssh"
+      id: app_ssh
       type: SSH
       value_type: fingerprint
     description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
@@ -2332,21 +2332,21 @@ configuration:
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
-      id: "router_cert"
+      id: router_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
       subject_alt_names:
-        - parameter: DOMAIN
-          wildcard: false
-        - parameter: DOMAIN
-          wildcard: true
+      - parameter: DOMAIN
+        wildcard: false
+      - parameter: DOMAIN
+        wildcard: true
     description: The public ssl cert for ssl termination.
     required: true
   - name: ROUTER_SSL_KEY
     secret: true
     generator:
-      id: "router_cert"
+      id: router_cert
       type: Certificate
       value_type: private_key
     description: The private ssl key for ssl termination.
@@ -2354,7 +2354,7 @@ configuration:
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
     generator:
-      id: "router_cert"
+      id: router_cert
       type: Certificate
       value_type: cert_private_key
     description: SSL certificate (PEM file).
@@ -2363,14 +2363,14 @@ configuration:
     secret: true
     immutable: true
     generator:
-      id: "router_status_password"
+      id: router_status_password
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
     required: true
   - name: UAA_SERVER_KEY
     secret: true
     generator:
-      id: "uaa_cert"
+      id: uaa_cert
       type: Certificate
       value_type: private_key
       key_length: 4096
@@ -2379,7 +2379,7 @@ configuration:
   - name: UAA_SERVER_CERT
     secret: true
     generator:
-      id: "uaa_cert"
+      id: uaa_cert
       type: Certificate
       value_type: certificate
     description: The server's ssl certificate. The default is a self-signed certificate and should always be replaced for production deployments.
@@ -2387,21 +2387,21 @@ configuration:
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
-      id: "blobstore_cert"
+      id: blobstore_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
       subject_alt_names:
-        - parameter: DOMAIN
-          wildcard: false
-        - parameter: DOMAIN
-          wildcard: true
+      - parameter: DOMAIN
+        wildcard: false
+      - parameter: DOMAIN
+        wildcard: true
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
     required: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
-      id: "blobstore_cert"
+      id: blobstore_cert
       type: Certificate
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
@@ -2409,7 +2409,7 @@ configuration:
   - name: CONSUL_AGENT_CERT
     secret: true
     generator:
-      id: "consul_agent_cert"
+      id: consul_agent_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
@@ -2418,7 +2418,7 @@ configuration:
   - name: CONSUL_AGENT_KEY
     secret: true
     generator:
-      id: "consul_agent_cert"
+      id: consul_agent_cert
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key.
@@ -2426,19 +2426,19 @@ configuration:
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
-      id: "consul_server_cert"
+      id: consul_server_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
       subject_alt_names:
-        - static: server.dc1.hcf
-          wildcard: false
+      - static: server.dc1.hcf
+        wildcard: false
     description: PEM-encoded server certificate.
     required: true
   - name: CONSUL_SERVER_KEY
     secret: true
     generator:
-      id: "consul_server_cert"
+      id: consul_server_cert
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key.
@@ -2446,7 +2446,7 @@ configuration:
   - name: DEMOPHON_SERVER_CERT
     secret: true
     generator:
-      id: "demophon_server_cert"
+      id: demophon_server_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
@@ -2455,7 +2455,7 @@ configuration:
   - name: DEMOPHON_SERVER_KEY
     secret: true
     generator:
-      id: "demophon_server_cert"
+      id: demophon_server_cert
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key.
@@ -2463,7 +2463,7 @@ configuration:
   - name: PERSI_BROKER_TLS_CERT_KEY
     secret: true
     generator:
-      id: "persi_broker_cert"
+      id: persi_broker_cert
       type: Certificate
       value_type: cert_private_key
     description: TLS certificate and key (PEM file).
@@ -2483,7 +2483,7 @@ configuration:
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
-      id: "cacert"
+      id: cacert
       type: CACertificate
       value_type: certificate
     description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
@@ -2491,7 +2491,7 @@ configuration:
   - name: SSO_ROUTE_CERT
     secret: true
     generator:
-      id: "sso_cert"
+      id: sso_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
@@ -2500,7 +2500,7 @@ configuration:
   - name: SSO_ROUTE_KEY
     secret: true
     generator:
-      id: "sso_cert"
+      id: sso_cert
       type: Certificate
       value_type: private_key
     description: Key for the SSO service.
@@ -2522,7 +2522,7 @@ configuration:
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
-      id: "usb_broker_server_cert"
+      id: usb_broker_server_cert
       type: Certificate
       value_type: certificate
       key_length: 4096
@@ -2531,7 +2531,7 @@ configuration:
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
     generator:
-      id: "usb_broker_server_cert"
+      id: usb_broker_server_cert
       type: Certificate
       value_type: private_key
     description: PEM-encoded broker server key.
@@ -2973,18 +2973,18 @@ auth:
       authorities: routing.routes.read
       authorized-grant-types: client_credentials,refresh_token
   authorities:
-    - openid
-    - scim.me
-    - cloud_controller.read
-    - cloud_controller.write
-    - cloud_controller_service_permissions.read
-    - password.write
-    - uaa.user
-    - approvals.me
-    - oauth.approvals
-    - notification_preferences.read
-    - notification_preferences.write
-    - profile
-    - roles
-    - user_attributes
-    - routing.router_groups.read
+  - openid
+  - scim.me
+  - cloud_controller.read
+  - cloud_controller.write
+  - cloud_controller_service_permissions.read
+  - password.write
+  - uaa.user
+  - approvals.me
+  - oauth.approvals
+  - notification_preferences.read
+  - notification_preferences.write
+  - profile
+  - roles
+  - user_attributes
+  - routing.router_groups.read
