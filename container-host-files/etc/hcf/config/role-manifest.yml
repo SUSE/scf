@@ -732,7 +732,7 @@ roles:
         external: 3457
         internal: 3457
         public: false
-      - name: dropsnode-tcp
+      - name: dropsonde-tcp
         protocol: TCP
         external: 3458
         internal: 3458
