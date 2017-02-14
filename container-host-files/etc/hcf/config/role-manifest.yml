@@ -269,18 +269,13 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'cell-metrics'
-        protocol: 'TCP'
-        external: 5678
-        internal: 5678
-        public: false
-      - name: 'cell-bbs-api'
-        protocol: 'TCP'
+      - name: cell-bbs-api
+        protocol: TCP
         external: 8889
         internal: 8889
         public: false
-      - name: 'cell-bbs-dbg'
-        protocol: 'TCP'
+      - name: cell-bbs-dbg
+        protocol: TCP
         external: 17017
         internal: 17017
         public: false
@@ -732,20 +727,20 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'doppler-in'
-        protocol: 'TCP'
-        external: 3456
-        internal: 3456
-        public: false
-      - name: 'dropsnode-in'
-        protocol: 'UDP'
+      - name: dropsonde-udp
+        protocol: UDP
         external: 3457
         internal: 3457
         public: false
-      - name: 'doppler-tls'
-        protocol: 'TCP'
+      - name: dropsonde-tcp
+        protocol: TCP
         external: 3458
         internal: 3458
+        public: false
+      - name: doppler-tls
+        protocol: TCP
+        external: 3459
+        internal: 3459
         public: false
 - name: etcd
   environment_scripts:
@@ -838,15 +833,15 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'loggregator'
-        protocol: 'TCP'
-        external: 8080
-        internal: 8080
-        public: false
-      - name: 'loggregator-ws'
-        protocol: 'TCP'
+      - name: dropsonde
+        protocol: TCP
         external: 8081
         internal: 8081
+        public: false
+      - name: grpc
+        protocol: TCP
+        external: 8082
+        internal: 8082
         public: false
 - name: diego-brain
   environment_scripts:
@@ -2600,10 +2595,10 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))"'
+    properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))https://uaa.((DOMAIN))/oauth/authorize((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
     properties.hcf_sso.oauth.id: '"((HCF_SSO_OAUTH_ID))"'
     properties.hcf_sso.oauth.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
-    properties.hcf_sso.oauth.token_url: '"((HCF_SSO_OAUTH_TOKEN_URL))"'
+    properties.hcf_sso.oauth.token_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))https://uaa.((DOMAIN))/oauth/token((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
     properties.hcf_sso.oauth.verification_key: '"((HCF_SSO_OAUTH_VERIFICATION_KEY))((^HCF_SSO_OAUTH_VERIFICATION_KEY))((JWT_SIGNING_PUB))((/HCF_SSO_OAUTH_VERIFICATION_KEY))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
