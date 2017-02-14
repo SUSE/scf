@@ -88,17 +88,34 @@ openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
 make_domains() {
     local host_name="$1"
-    local result="${host_name}-0.${host_name}-pod,${host_name}-0,${host_name},*.${host_name},${host_name}.hcf.svc,${host_name}.hcf.svc.cluster.hcp,${host_name}.hcf1.svc,${host_name}.hcf1.svc.cluster.hcp,${host_name}.hcf2.svc,${host_name}.hcf2.svc.cluster.hcp,${host_name}.hcf3.svc,${host_name}.hcf3.svc.cluster.hcp,${host_name}.hcf4.svc,${host_name}.hcf4.svc.cluster.hcp,${host_name}.hcf5.svc,${host_name}.hcf5.svc.cluster.hcp"
+    local result="${host_name},*.${host_name}"
+    local i
+    for (( i = 0; i < 10; i++ )) ; do
+        result="${result},${host_name}-${i}.${host_name}-pod"
+    done
+    local cluster_name
+    for cluster_name in "" .cluster.local .cluster.hcp ; do
+        local instance_name
+        for instance_name in hcf hcf1 hcf2 hcf3 hcf4 hcf5 ; do
+            result="${result},${host_name}.${instance_name}.svc${cluster_name}"
+            result="${result},*.${host_name}.${instance_name}.svc${cluster_name}"
+            for (( i = 0; i < 10; i++ )) ; do
+                result="${result},${host_name}-${i}.${host_name}-pod.${instance_name}.svc${cluster_name}"
+            done
+        done
+    done
     if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
-        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+        result="${result},$(tr -d '[[:space:]]' <<EOF
+        ${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},
+        *.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}
+EOF
+    )"
     fi
     echo "${result}"
 }
 
 make_ha_domains() {
-    local host_base="$1"
-    local result="${host_base},${host_base}-0.${host_base}-pod,${host_base}-0.hcf.svc,${host_base}-0.hcf.svc.cluster.hcp,${host_base}-0.hcf1.svc,${host_base}-0.hcf1.svc.cluster.hcp,${host_base}-0.hcf2.svc,${host_base}-0.hcf2.svc.cluster.hcp,${host_base}-0.hcf3.svc,${host_base}-0.hcf3.svc.cluster.hcp,${host_base}-0.hcf4.svc,${host_base}-0.hcf4.svc.cluster.hcp,${host_base}-0.hcf5.svc,${host_base}-0.hcf5.svc.cluster.hcp,${host_base}-0,${host_base}-0.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc},*.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf.svc}"
-    echo "${result}"
+    make_domains "$1"
 }
 
 # generate JWT certs
