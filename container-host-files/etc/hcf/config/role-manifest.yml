@@ -517,6 +517,8 @@ roles:
     release_name: cf
   - name: java-buildpack
     release_name: cf
+  - name: java-offline-buildpack
+    release_name: cf
   - name: cf_iis_buildpack
     release_name: windows-runtime-release
   processes:
