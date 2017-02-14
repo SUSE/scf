@@ -63,10 +63,10 @@ properties:
     install_buildpacks:
     - name: staticfile_buildpack
       package: staticfile-buildpack
-    - name: java_offline_buildpack
-      package: java-offline-buildpack
     - name: java_buildpack
       package: java-buildpack
+    - name: java_offline_buildpack
+      package: java-offline-buildpack
     - name: ruby_buildpack
       package: ruby-buildpack
     - name: nodejs_buildpack
