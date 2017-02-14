@@ -88,7 +88,7 @@
   whenever a new cluster is made start from that blank file.
 
   A good source of a proper blank template is the file
-  `[cmd/bootstrap/sample_bootstrap.properties](https://github.com/hpcloud/hdp-resource-manager/blob/develop/cmd/bootstrap/sample_bootstrap.properties)` in the repository
+  [cmd/bootstrap/sample_bootstrap.properties](https://github.com/hpcloud/hdp-resource-manager/blob/develop/cmd/bootstrap/sample_bootstrap.properties) in the repository
   `hpcloud/hdp-resource-manager`.
 
   No editing is needed, just copy this file to `bootstrap.properties`.
