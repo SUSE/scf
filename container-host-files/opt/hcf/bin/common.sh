@@ -120,7 +120,6 @@ function start_role {
         --label=hcf_role=${role} \
         --hostname=${role}-int.${domain_suffix} \
         ${restart} \
-        ${uaa_env_overrides[@]} \
         ${hcp_compat_env} \
         "${the_env[@]}" \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
@@ -268,7 +267,6 @@ function load_all_roles() {
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
-    declare -g  'uaa_env_overrides'
     declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
@@ -295,11 +293,6 @@ function load_all_roles() {
       role_run=$(printf '%s' "${role_block}" | jq --raw-output --compact-output '.run')
       role_manifest_run["${role_name}"]=$role_run
     done < <(printf '%s' "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
-
-    uaa_env_overrides=(
-      "--env=UAA_CLIENTS=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.clients)"
-      "--env=UAA_USER_AUTHORITIES=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.authorities)"
-    )
   fi
 }
 

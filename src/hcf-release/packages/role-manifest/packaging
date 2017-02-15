@@ -1,4 +1,0 @@
-set -e -x
-
-cp -a uaa_clients.json ${BOSH_INSTALL_TARGET}
-cp -a uaa_authorities.json ${BOSH_INSTALL_TARGET}

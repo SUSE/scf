@@ -1,7 +1,0 @@
----
-name: role-manifest
-
-description: Contains various artifacts derived directly from HCF's role-manifest
-
-files:
-  - hcf-config/role-manifest.yml
