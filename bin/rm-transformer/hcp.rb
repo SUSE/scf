@@ -463,7 +463,7 @@ class ToHCP < Common
 
   def convert_parameter(var, sdl_names)
     vname     = var['name']
-    vrequired = var.has_key?("required") ? var['required'] : true
+    vrequired = var.has_key?("required") ? var['required'] : false
     vsecret   = var.has_key?("secret") ? var['secret'] : false
     vexample  = (var['example'] || var['default']).to_s
     vexample  = 'unknown' if vexample == ''
@@ -481,6 +481,9 @@ class ToHCP < Common
 
     default_value = (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     unless default_value.nil?
+      if default_value == '' && vrequired && var['generator'].nil?
+        raise "Parameter: #{vname} is required, has an empty default, and is not generate-able. A value must be supplied."
+      end
       parameter['default'] = default_value
     end
 
