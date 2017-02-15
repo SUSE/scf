@@ -173,8 +173,8 @@ roles:
         external: 4444
         internal: 4444
         public: false
-    readiness-probe:
-      url: http://localhost:9200/
+    healthcheck:
+      url: http://container-ip:9200/
   configuration:
     templates:
       properties.cf_mysql.external_host: "((DOMAIN))"
@@ -225,8 +225,8 @@ roles:
         external: 1936
         internal: 1936
         public: false
-    readiness-probe:
-      url: http://localhost:1936/
+    healthcheck:
+      url: http://container-ip:1936/
   configuration:
     templates:
       properties.cf_mysql.external_host: "((DOMAIN))"
@@ -283,7 +283,7 @@ roles:
         external: 17017
         internal: 17017
         public: false
-    readiness-probe:
+    healthcheck:
       command:
         - /usr/bin/curl
         - --data
@@ -347,8 +347,8 @@ roles:
       external: 4443
       internal: 443
       public: true
-    readiness-probe:
-      url: http://localhost:8080/health
+    healthcheck:
+      url: http://container-ip:8080/health
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -393,8 +393,8 @@ roles:
       external: 20000
       internal: 20000
       public: true
-    readiness-probe:
-      url: http://localhost/health
+    healthcheck:
+      url: http://container-ip/health
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -489,8 +489,8 @@ roles:
         internal: 8443
         public: false
     docker-args: ['--network-alias', 'hcf.uaa.hcf.svc']
-    readiness-probe:
-      url: https://localhost:8443/info
+    healthcheck:
+      url: https://container-ip:8443/info
       headers:
         host: uaa
         accept: application/json
@@ -571,8 +571,8 @@ roles:
         external: 8125
         internal: 8125
         public: false
-    readiness-probe:
-      url: http://localhost:9022/v2/info
+    healthcheck:
+      url: http://container-ip:9022/v2/info
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -821,7 +821,7 @@ roles:
         external: 7001
         internal: 7001
         public: false
-    readiness-probe:
+    healthcheck:
       command:
         - /usr/bin/curl
         - --fail
@@ -885,8 +885,8 @@ roles:
         external: 8082
         internal: 8082
         public: false
-    readiness-probe:
-      url: http://localhost:8081/set-cookie
+    healthcheck:
+      url: http://container-ip:8081/set-cookie
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1019,8 +1019,8 @@ roles:
         external: 17018
         internal: 17018
         public: false
-    readiness-probe:
-      url: http://localhost:1518/v1/bulk_actual_lrp_status?guids=1
+    healthcheck:
+      url: http://container-ip:1518/v1/bulk_actual_lrp_status?guids=1
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1098,8 +1098,8 @@ roles:
         external: 8080
         internal: 8080
         public: false
-    readiness-probe:
-      url: http://localhost:8080/v1/static/
+    healthcheck:
+      url: http://container-ip:8080/v1/static/
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1152,8 +1152,8 @@ roles:
         external: 1801
         internal: 1801
         public: false
-    readiness-probe:
-      url: http://localhost:7777/ping # garden TCP listener
+    healthcheck:
+      url: http://container-ip:7777/ping # garden TCP listener
 - name: sclr-api
   type: bosh
   environment_scripts:
@@ -1188,8 +1188,8 @@ roles:
         external: 28861
         internal: 28861
         public: false
-    readiness-probe:
-      url: http://localhost:28861/
+    healthcheck:
+      url: http://container-ip:28861/
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1222,8 +1222,8 @@ roles:
         external: 28862
         internal: 28862
         public: false
-    readiness-probe:
-      url: http://localhost:28862
+    healthcheck:
+      url: http://container-ip:28862
   configuration:
     templates:
       properties.couchdb.dbname: '"couchdb-scaling"'
@@ -1256,8 +1256,8 @@ roles:
         external: 28863
         internal: 28863
         public: false
-    readiness-probe:
-      url: http://localhost:28863
+    healthcheck:
+      url: http://container-ip:28863
   configuration:
     templates:
       properties.couchdb.dbname: '"couchdb-scalingbroker"'
@@ -1288,8 +1288,8 @@ roles:
         external: 5984
         internal: 5984
         public: false
-    readiness-probe:
-      url: http://localhost:5984/_uuids
+    healthcheck:
+      url: http://container-ip:5984/_uuids
 - name: acceptance-tests-autoscaler
   type: bosh-task
   scripts:
@@ -1543,8 +1543,8 @@ roles:
       external: 3000
       internal: 3000
       public: false
-    readiness-probe:
-      url: https://localhost:3000/ping
+    healthcheck:
+      url: https://container-ip:3000/ping
 - name: hcf-versions
   environment_scripts:
   - scripts/configure-HA-hosts.sh
