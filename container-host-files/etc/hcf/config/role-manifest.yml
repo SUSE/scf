@@ -1468,7 +1468,7 @@ roles:
   processes: []
   run:
     scaling:
-      min: 1
+      min: 0
       max: 1
     flight-stage: post-flight
     capabilities: []
@@ -1603,7 +1603,7 @@ roles:
   - name: haproxy
   run:
     scaling:
-      min: 1
+      min: 0
       max: 1
     capabilities: []
     persistent-volumes:
@@ -1827,6 +1827,9 @@ configuration:
     description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
     secret: false
     required: false
+  - name: PERSI_BROKER_DISABLED
+    description: Flag to disable the Persi service broker.
+    default: false
   - name: PERSI_BROKER_PASSWORD
     secret: true
     immutable: true
@@ -2687,6 +2690,7 @@ configuration:
     properties.hcf_versions.blobstore.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.hcf_versions.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
     properties.hcf_versions.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
+    properties.localbroker.disabled: '((PERSI_BROKER_DISABLED))'
     properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: '((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))'

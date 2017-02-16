@@ -22,6 +22,9 @@ properties:
   localbroker.port:
     description: "The port number that persi service broker listens on"
     default: 443
+  localbroker.disabled:
+    description: "Flag to disable the local volume broker for this cluster"
+    default: false
   hcf.uaa.internal-url:
     description: "URL to UAA that can be accessed before the cluster's domain is setup"
   ssl.skip_cert_verify:

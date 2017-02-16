@@ -2,6 +2,11 @@
 
 set -o errexit -o nounset
 
+<% if p("localbroker.disabled") %>
+echo "Registration of persi service broker has been disabled"
+exit
+<% end %>
+
 # put the cli on the path
 export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
 
