@@ -12,7 +12,7 @@ cd "$PATCH_DIR"
 read -r -d '' setup_patch_cc_yaml <<'PATCH' || true
 --- cloud_controller_api.yml.erb
 +++ cloud_controller_api.yml.erb
-@@ -209,6 +209,7 @@ hm9000:
+@@ -215,6 +215,7 @@ hm9000:
 
  <% if p("routing_api.enabled") %>
  routing_api:
@@ -31,15 +31,15 @@ cd "$PATCH_DIR"
 read -r -d '' setup_patch_routing_api_endpoint <<'PATCH' || true
 --- dependency_locator.rb
 +++ dependency_locator.rb
-@@ -221,7 +221,7 @@ module CloudController
-       uaa_target = @config[:uaa][:url]
-       token_issuer = CF::UAA::TokenIssuer.new(uaa_target, client_id, secret, { skip_ssl_validation: skip_cert_verify })
- 
--      routing_api_url = @config[:routing_api] && @config[:routing_api][:url]
-+      routing_api_url = @config[:routing_api] && @config[:routing_api][:private_endpoint]
-       RoutingApi::Client.new(routing_api_url, token_issuer, skip_cert_verify)
+@@ -240,7 +240,7 @@ module CloudController
+       )
+
+       skip_cert_verify = @config[:skip_cert_verify]
+-      routing_api_url  = HashUtils.dig(@config, :routing_api, :url)
++      routing_api_url  = HashUtils.dig(@config, :routing_api, :private_endpoint)
+       RoutingApi::Client.new(routing_api_url, uaa_client, skip_cert_verify)
      end
- 
+
 PATCH
 
 echo -e "${setup_patch_routing_api_endpoint}" | patch --force
