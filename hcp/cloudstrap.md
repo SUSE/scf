@@ -40,14 +40,15 @@
 
   The installed commands are
 
-  |-|-|
-  |cloudstrap		|Create a cluster|
-  |cloudstrap-config	|Show the complete configuration|
-  |cloudstrap-cache	|Show the AWS parts cloudstrap knows about|
-  |cloudstrap-dns	|Checks the DNS setup|
-  |cloudstrap-env	|Shows the bootstrap configuration
-  |cloudstrap-teardown	|Tears a cloudstrap config down|
-  |cloudstrap-versions	|Show current vs latest versions of cloudstrap and related tools|
+  | Command | Description |
+  | --- | --- |
+  |cloudstrap           | Create a cluster|
+  |cloudstrap-config    | Show the complete configuration|
+  |cloudstrap-cache     | Show the AWS parts cloudstrap knows about|
+  |cloudstrap-dns       | Checks the DNS setup|
+  |cloudstrap-env       | Shows the bootstrap configuration
+  |cloudstrap-teardown  | Tears a cloudstrap config down|
+  |cloudstrap-versions  | Show current vs latest versions of cloudstrap and related tools|
 
 * If `cloudstrap-versions` does not show the latest versions of `hcp`,
   `hsm`, etc. in use it is time to update. See the
