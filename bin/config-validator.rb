@@ -51,7 +51,7 @@ def main
 
   STDOUT.puts "\nNo duplicates must exist between role manifest and opinions".cyan
   templates.each do |label, defs|
-    check(defs,light)
+    check_overridden_opinions(defs, light, label == '__global__')
   end
 
   STDOUT.puts "\nAll properties must be defined in a BOSH release".cyan
@@ -82,8 +82,17 @@ def main
   STDOUT.puts "\nAll role manifest params must be used".cyan
   check_rm_variables(manifest)
 
+  STDOUT.puts "\nAll role manifest params must be sorted".cyan
+  check_sort manifest['configuration']['variables'].map { |v| v['name'] }, "variables"
+
   STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
   check_rm_templates(templates, manifest, global_variables)
+
+  STDOUT.puts "\nAll role manifest templates must be sorted".cyan
+  check_sort manifest['configuration']['templates'], 'global templates'
+  templates.each_pair do |scope, template|
+    check_sort template, "#{scope} templates" unless scope == '__global__'
+  end
 
   STDOUT.puts "\nThe role manifest must not contain any constants in the global section".cyan
   check_non_templates(manifest)
@@ -503,32 +512,51 @@ def dark_unexposed(light,dark)
   end
 end
 
-def check(defs,light)
+def check_overridden_opinions(defs, light, check_conflicts)
   # Templates in the role manifest should not have anything in the opinions.
   # If the values are identical it should just be in opinions.
   # If they are different, then the opinions are superflous.
 
-  sep = false
+  duplicates = []
+  conflicts = []
 
-  defs.each do |property, value|
+  defs.sort.each do |property, value|
     next unless light[property]
     if value.to_s == light[property].to_s
-      STDOUT.puts "duplicated #{property.red}"
-      @has_errors += 1
-      sep = true
+      duplicates << property
+    elsif check_conflicts
+      conflicts << property
     end
   end
 
-  STDOUT.puts "" if sep
+  duplicates.each do |property|
+    STDOUT.puts "duplicated #{property.red}"
+    @has_errors += 1
+  end
 
-  defs.each do |property, value|
-    next unless light[property]
-    if value.to_s != light[property].to_s
-      @has_errors += 1
-      STDOUT.puts "conflict for #{property.red}"
-      STDOUT.puts "  manifest: |#{value}|"
-      STDOUT.puts "  opinion:  |#{light[property]}|"
+  STDOUT.puts "" unless duplicates.empty? || conflicts.empty?
+
+  conflicts.each do |property|
+    STDOUT.puts "conflict for #{property.red}"
+    STDOUT.puts "  manifest: |#{defs[property]}|"
+    STDOUT.puts "  opinion:  |#{light[property]}|"
+    @has_errors += 1
+  end
+end
+
+def check_sort(container, scope)
+  if container.respond_to? :keys
+    container = container.keys
+  end
+  found_issues = false
+  container[0...-1].each_with_index do |key, i|
+    next if key < container[i + 1]
+    unless found_issues
+      found_issues = true
+      STDOUT.puts "At scope #{scope.yellow}:"
     end
+    STDOUT.puts "  #{key.red} does not sort before #{container[i + 1].red}"
+    @has_errors += 1
   end
 end
 
