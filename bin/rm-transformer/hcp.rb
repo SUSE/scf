@@ -480,6 +480,10 @@ class ToHCP < Common
 
     default_value = (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     unless default_value.nil?
+      # HCP/HSM cannot use an empty default with a required parameter
+      if default_value == '' && parameter['required'] && var['generator'].nil?
+        raise "Parameter: #{vname} is required and has no default and is not generate-able. A value must be supplied."
+      end
       parameter['default'] = default_value
     end
 
