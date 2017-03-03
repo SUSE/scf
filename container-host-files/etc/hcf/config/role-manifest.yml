@@ -44,6 +44,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -234,6 +235,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -290,6 +292,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -338,6 +341,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
@@ -383,6 +387,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -427,6 +432,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -483,6 +489,7 @@ roles:
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
@@ -559,6 +566,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -641,6 +649,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -673,6 +682,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -871,6 +881,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -911,6 +922,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1003,6 +1015,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1034,6 +1047,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -1081,6 +1095,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
   - scripts/inverted_skip_ssl.sh
+  - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
@@ -2664,7 +2679,7 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: ((#HCP_COMPONENT_NAME))"((HCP_COMPONENT_NAME))-((HCP_COMPONENT_INDEX))-int.((HCP_SERVICE_DOMAIN_SUFFIX))"((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))nil((/HCP_COMPONENT_NAME))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
-    properties.consul.agent.log_level: '"((LOG_LEVEL))"'
+    properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.consul.agent.servers.lan: ((CONSUL_HCF_CLUSTER_IPS))((#CONSUL_HCF_CLUSTER_CONFIG_REVISION))((/CONSUL_HCF_CLUSTER_CONFIG_REVISION))
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
     properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
