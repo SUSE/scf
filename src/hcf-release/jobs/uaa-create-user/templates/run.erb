@@ -7,9 +7,6 @@
 
 set -o errexit -o nounset
 
-echo "TODO: Disabled for testing"
-exit 0
-
 <% if properties.uaa.scim.users.empty? %>
      echo "Aborting. No admin user configured."
      exit 1
