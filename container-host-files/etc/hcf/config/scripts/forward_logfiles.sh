@@ -54,6 +54,8 @@ function appendToCron {
         echo "export HCP_FLIGHTRECORDER_PORT=$HCP_FLIGHTRECORDER_PORT" >> $SCRIPT_FILE
         echo "export HCF_LOG_HOST=$HCF_LOG_HOST" >> $SCRIPT_FILE
         echo "export HCF_LOG_PORT=$HCF_LOG_PORT" >> $SCRIPT_FILE
+        echo "export HCF_LOG_PREFIX=$HCF_LOG_PREFIX" >> $SCRIPT_FILE
+        echo "export HCF_LOG_PROTOCOL=$HCF_LOG_PROTOCOL" >> $SCRIPT_FILE
         cat $0 >> $SCRIPT_FILE
         echo "*/1 * * * * bash $SCRIPT_FILE >> /dev/null 2>&1" >> tempcrontab
         crontab tempcrontab
