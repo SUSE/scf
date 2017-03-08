@@ -50,6 +50,10 @@ function appendToCron {
         crontab -l > tempcrontab
         echo "export _HCF_LOG_CONFIG=$HCF_LOG_CONFIG" >> $SCRIPT_FILE
         echo "export RSYSLOG_FORWARDER_WATCH_DIR=$RSYSLOG_FORWARDER_WATCH_DIR" >> $SCRIPT_FILE
+        echo "export HCP_FLIGHTRECORDER_HOST=$HCP_FLIGHTRECORDER_HOST" >> $SCRIPT_FILE
+        echo "export HCP_FLIGHTRECORDER_PORT=$HCP_FLIGHTRECORDER_PORT" >> $SCRIPT_FILE
+        echo "export HCF_LOG_HOST=$HCF_LOG_HOST" >> $SCRIPT_FILE
+        echo "export HCF_LOG_PORT=$HCF_LOG_PORT" >> $SCRIPT_FILE
         cat $0 >> $SCRIPT_FILE
         echo "*/1 * * * * bash $SCRIPT_FILE >> /dev/null 2>&1" >> tempcrontab
         crontab tempcrontab
