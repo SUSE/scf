@@ -267,11 +267,7 @@ properties:
     locked_memory_limit: kernel
     port: 4443
   etcd:
-    advertise_urls_dns_suffix: etcd-pod
     bootstrap_node: etcd-0
-  etcd_metrics_server:
-    etcd:
-      dns_suffix: etcd-pod
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the

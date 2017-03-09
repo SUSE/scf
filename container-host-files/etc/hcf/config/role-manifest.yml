@@ -304,6 +304,7 @@ roles:
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -354,6 +355,7 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
@@ -401,6 +403,7 @@ roles:
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -488,7 +491,7 @@ roles:
         external: 8443
         internal: 8443
         public: false
-    docker-args: ['--network-alias', 'hcf.uaa-int.hcf.svc']
+    docker-args: ['--network-alias', 'hcf.uaa-int.hcf.svc', '--publish', '8443:8443/tcp']
     healthcheck:
       url: https://container-ip:8443/info
       headers:
@@ -505,6 +508,7 @@ roles:
 - name: api
   environment_scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
@@ -581,6 +585,7 @@ roles:
 - name: api-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -660,6 +665,7 @@ roles:
 - name: clock-global
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -691,6 +697,7 @@ roles:
 - name: cf-usb
   environment_scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -842,10 +849,13 @@ roles:
       # property, with a value of null. Note, placement in the
       # opinions is blocked by the configuration validator,
       # complaining about it 'matching the default'. So, here it is.
+      properties.etcd.advertise_urls_dns_suffix: '"((#KUBERNETES_NAMESPACE))etcd-pod((/KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))((HCP_SERVICE_DOMAIN_SUFFIX))((/KUBERNETES_NAMESPACE))"'
       properties.etcd.cluster: null
+      properties.etcd_metrics_server.etcd.dns_suffix: '"((#KUBERNETES_NAMESPACE))etcd-pod((/KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))((HCP_SERVICE_DOMAIN_SUFFIX))((/KUBERNETES_NAMESPACE))"'
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -867,7 +877,7 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
-      properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+      properties.uaa.url: ((HCF_UAA_EXTERNAL_URL))
   run:
     scaling:
       min: 1
@@ -1058,6 +1068,7 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -1157,6 +1168,9 @@ roles:
         public: false
     healthcheck:
       url: http://container-ip:7777/ping # garden TCP listener
+  configuration:
+    templates:
+      properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-pod((/KUBE_POD_SERVICE))
 - name: sclr-api
   type: bosh
   environment_scripts:
@@ -1405,6 +1419,7 @@ roles:
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
+  - scripts/configure-uaa-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -1455,6 +1470,8 @@ roles:
         public: true
 - name: sso-create-service
   type: bosh-task
+  environment_scripts:
+  - scripts/configure-uaa-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -1476,6 +1493,8 @@ roles:
     exposed-ports: []
 - name: autoscaler-create-service
   type: bosh-task
+  environment_scripts:
+  - scripts/configure-uaa-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -1497,6 +1516,8 @@ roles:
     exposed-ports: []
 - name: persi-create-service
   type: bosh-task
+  environment_scripts:
+  - scripts/configure-uaa-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -2097,6 +2118,9 @@ configuration:
     generator:
       type: Password
     description: The password for access to the HCF SSO service broker.
+  - name: HCF_UAA_EXTERNAL_URL
+  - name: HCF_UAA_INTERNAL_HOSTNAME
+  - name: HCF_UAA_INTERNAL_URL
   - name: HCF_UAA_ROOT_ZONE_URL
     immutable: true
     default: https://uaa-int:8443
@@ -2106,9 +2130,6 @@ configuration:
     immutable: true
     description: >
       (Not used on HCP) The CA certificate to use.  Only used for development.
-  - name: HCP_IDENTITY_EXTERNAL_HOST
-  - name: HCP_IDENTITY_EXTERNAL_PORT
-  - name: HCP_IDENTITY_SCHEME
   - name: HCP_INSTANCE_ID
   - name: HCP_SERVICE_DOMAIN_SUFFIX
   - name: INTERNAL_API_PASSWORD
@@ -2127,6 +2148,7 @@ configuration:
   - name: JWT_SIGNING_PEM
   - name: JWT_SIGNING_PUB
   - name: KUBERNETES_NAMESPACE
+  - name: KUBE_POD_SERVICE
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     immutable: true
@@ -2483,8 +2505,10 @@ configuration:
     description: Whether or not to use privileged containers for staging tasks.
 
   templates:
+    az: '"((HCP_AZ))"'
+    id: '"((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))-int"'
     index: "((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))"
-    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
+    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
@@ -2625,7 +2649,7 @@ configuration:
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((#HCP_INSTANCE_ID))((HCP_INSTANCE_ID))((/HCP_INSTANCE_ID))((^HCP_INSTANCE_ID))((KUBERNETES_NAMESPACE))((/HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))/oauth/token"'
+    properties.diego.ssh_proxy.uaa_token_url: ((HCF_UAA_INTERNAL_URL))/oauth/token
     properties.diego.ssl.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
@@ -2662,7 +2686,7 @@ configuration:
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-0.consul-pod"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd-0.etcd-pod"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
+    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul-int"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database-int"},{"name":"ETCD_HOST","value":"etcd-int"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
     properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
     properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
     properties.hcf.demophon.skip_cert_verify: '((SKIP_CERT_VERIFY_INTERNAL))'
@@ -2672,7 +2696,7 @@ configuration:
     properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.skip_cert_verify_external: '((SKIP_CERT_VERIFY_EXTERNAL))'
-    properties.hcf.uaa.internal-url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((#HCP_INSTANCE_ID))((HCP_INSTANCE_ID))((/HCP_INSTANCE_ID))((^HCP_INSTANCE_ID))((KUBERNETES_NAMESPACE))((/HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX)):8443((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.hcf.uaa.internal-url: ((HCF_UAA_INTERNAL_URL))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
@@ -2706,7 +2730,7 @@ configuration:
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
     properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_KEY))"'
-    properties.login.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((#HCP_INSTANCE_ID))((HCP_INSTANCE_ID))((/HCP_INSTANCE_ID))((^HCP_INSTANCE_ID))((KUBERNETES_NAMESPACE))((/HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.login.url: ((HCF_UAA_EXTERNAL_URL))
     properties.metron_agent.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.metron_agent.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.metron_agent.zone: '"((HCP_AZ))"'
@@ -2772,8 +2796,8 @@ configuration:
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.sslCertificate: '"((UAA_SERVER_CERT))"'
     properties.uaa.sslPrivateKey: '"((UAA_SERVER_KEY))"'
-    properties.uaa.token_endpoint: '"((#HCP_IDENTITY_EXTERNAL_HOST))((#HCP_INSTANCE_ID))((HCP_INSTANCE_ID))((/HCP_INSTANCE_ID))((^HCP_INSTANCE_ID))((KUBERNETES_NAMESPACE))((/HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa-int.((HCP_SERVICE_DOMAIN_SUFFIX))((/HCP_IDENTITY_EXTERNAL_HOST))"'
-    properties.uaa.url: '"((HCP_IDENTITY_SCHEME))://((#HCP_IDENTITY_EXTERNAL_HOST))((#HCP_INSTANCE_ID))((HCP_INSTANCE_ID))((/HCP_INSTANCE_ID))((^HCP_INSTANCE_ID))((KUBERNETES_NAMESPACE))((/HCP_INSTANCE_ID)).((HCP_IDENTITY_EXTERNAL_HOST)):((HCP_IDENTITY_EXTERNAL_PORT))((/HCP_IDENTITY_EXTERNAL_HOST))((^HCP_IDENTITY_EXTERNAL_HOST))hcf.uaa.((DOMAIN))((/HCP_IDENTITY_EXTERNAL_HOST))"'
+    properties.uaa.token_endpoint: ((HCF_UAA_INTERNAL_HOSTNAME))
+    properties.uaa.url: ((HCF_UAA_EXTERNAL_URL))
     properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
     properties.version: '"((CLUSTER_VERSION))"'
 auth:
