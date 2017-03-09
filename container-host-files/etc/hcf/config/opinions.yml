@@ -12,8 +12,11 @@ properties:
     include_internet_dependent: true
     include_routing: true
     include_services: true
-    cf_push_timeout: 300
+    async_service_operation_timeout: 5
+    broker_start_timeout: 10
+    cf_push_timeout: 5
     default_timeout: 300
+    long_curl_timeout: 5
   acceptance_tests_brain:
     user: 'admin'
     org: test-brain-org
