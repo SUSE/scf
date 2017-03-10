@@ -297,6 +297,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
@@ -348,6 +349,7 @@ roles:
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
@@ -394,6 +396,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
@@ -439,6 +442,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_uaa_failure_to_interpolate.sh
   - scripts/patches/fix_loggregator.sh
@@ -497,6 +501,7 @@ roles:
   - scripts/nginx_log_level.sh
   scripts:
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
@@ -574,6 +579,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
@@ -657,6 +663,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
@@ -1162,7 +1169,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1197,7 +1204,7 @@ roles:
   type: bosh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1229,7 +1236,7 @@ roles:
   type: bosh
   scripts:
   - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
+  - scripts/wait_for_deps.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
