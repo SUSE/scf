@@ -392,8 +392,8 @@ roles:
       public: true
     - name: 'tcp-routing'
       protocol: TCP
-      external: 20000
-      internal: 20000
+      external: 20000-20008
+      internal: 20000-20008
       public: true
     healthcheck:
       url: http://container-ip/health
