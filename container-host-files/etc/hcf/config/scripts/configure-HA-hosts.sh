@@ -21,21 +21,32 @@ find_cluster_ha_hosts() {
 
     local this_component="${HOSTNAME%-*}"
     if test "${this_component}" != "${component_name}" ; then
-        echo "[\"${component_name}\"]"
+        echo "[\"${component_name}-int\"]"
         return 0
     fi
 
-    # We don't have the k8s namespace available, but it _is_ in resolv.conf
-    local domain="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
-    # Loop over the environment to locate the component name variables.
-    local hosts=''
-    local name
-    for name in $(dig "${component_name}.${domain}" -t SRV | awk '/IN A/ { print $1 }') ; do
-        hosts="${hosts},\"${name%.}\""
-    done
-    # Return the result, with [] around the hostnames, removing the leading comma
-    echo "[${hosts#,}]"
+    if test -n "${KUBERNETES_NAMESPACE:-}" ; then
+        # This is running on raw Kubernetes
+
+        # Loop over the environment to locate the component name variables.
+        local hosts=''
+        local name
+        for name in $(dig "${component_name}-int.${HCP_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }') ; do
+            hosts="${hosts},\"${name%.}\""
+        done
+        # Return the result, with [] around the hostnames, removing the leading comma
+        echo "[${hosts#,}]"
+    else
+        echo "FIXME: I busted HCP" >&2
+        exit 1
+    fi
 }
+
+if test -n "${KUBERNETES_NAMESPACE:-}" ; then
+    # We're on raw Kubernetes; do some HCP-compatibility work
+    # We don't have the k8s namespace available, but it _is_ in resolv.conf
+    export HCP_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
+fi
 
 export CONSUL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
 export NATS_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
