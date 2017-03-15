@@ -1540,6 +1540,7 @@ roles:
 - name: hcf-sso
   environment_scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/configure-uaa-hosts.sh
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -2703,10 +2704,10 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))https://uaa.((DOMAIN))/oauth/authorize((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
+    properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))((HCF_UAA_EXTERNAL_URL))/oauth/authorize((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
     properties.hcf_sso.oauth.id: '"((HCF_SSO_OAUTH_ID))"'
     properties.hcf_sso.oauth.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
-    properties.hcf_sso.oauth.token_url: '"((HCF_SSO_OAUTH_TOKEN_URL))((^HCF_SSO_OAUTH_TOKEN_URL))https://uaa.((DOMAIN))/oauth/token((/HCF_SSO_OAUTH_TOKEN_URL))"'
+    properties.hcf_sso.oauth.token_url: '"((HCF_SSO_OAUTH_TOKEN_URL))((^HCF_SSO_OAUTH_TOKEN_URL))((HCF_UAA_EXTERNAL_URL))/oauth/token((/HCF_SSO_OAUTH_TOKEN_URL))"'
     properties.hcf_sso.oauth.verification_key: '"((HCF_SSO_OAUTH_VERIFICATION_KEY))((^HCF_SSO_OAUTH_VERIFICATION_KEY))((JWT_SIGNING_PUB))((/HCF_SSO_OAUTH_VERIFICATION_KEY))"'
     properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
     properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
