@@ -31,13 +31,17 @@ Build fissile using the `kube` branch: https://github.com/hpcloud/fissile/tree/k
 We build HCF as described in the README.
 That will generate Docker images we'll want to deploy on Kube.
 
+Build the [standalone UAA](https://github.com/hpcloud/uaa-fissile-release) (we need the certificates from there).
+
+Pick up the UAA CA certificate following `bin/settings/kube/ca.sh` (it assumes checkouts parallel to HCF.git).
+
 Next, we'll use a new fissile command that generates kubernetes configuration
 files:
 
 ```
 fissile build kube \
   -k ./kube \
-  -D bin/settings/certs.env,bin/settings/settings.env,bin/settings/network.env \
+  -D $(echo bin/settings/{,kube/}*.env | tr ' ' ,) \
   --use-memory-limits=false
 ```
 
@@ -95,6 +99,8 @@ parameters:
 ```
 kubectl create -f storage-class.yml
 ```
+
+Deploy UAA following instructions in the [uaa-fissile-release](https://github.com/hpcloud/uaa-fissile-release) repository.
 
 Next, create a namespace for all the objects we're about to create:
 
