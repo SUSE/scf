@@ -231,7 +231,6 @@ properties:
         api_location: diego-database-int:8889
     bbs:
       active_key_label: active
-      advertisement_base_hostname: diego-database-pod
       auctioneer:
         api_location: diego-brain-int:9016
       etcd:
@@ -243,7 +242,6 @@ properties:
     file_server:
       static_directory: /var/vcap/packages/
     rep:
-      advertise_domain: diego-cell-pod
       bbs:
         api_location: diego-database-int:8889
       cell_id: diego-cell-0 # TODO: fix this for HA
