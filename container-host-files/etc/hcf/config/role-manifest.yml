@@ -188,12 +188,15 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/mysql_bootstrap_errand.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: patch-properties
     release_name: hcf
   - name: proxy
+    release_name: cf-mysql
+  - name: bootstrap
     release_name: cf-mysql
   processes:
   - name: cf-mysql-route-registrar
