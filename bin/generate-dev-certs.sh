@@ -93,6 +93,8 @@ make_domains() {
     for (( i = 0; i < 10; i++ )) ; do
         result="${result},${host_name}-${i}.${host_name}-pod"
     done
+    # For faking out HA on vagrant
+    result="${result},${host_name}-0.hcf.svc,*.${host_name}-0.hcf.svc"
     local cluster_name
     for cluster_name in "" .cluster.local .cluster.hcp ; do
         local instance_name
@@ -104,6 +106,9 @@ make_domains() {
             done
         done
     done
+    if test -n "${DOMAIN:-}" ; then
+        result="${result},${host_name}.${DOMAIN},*.${host_name}.${DOMAIN}"
+    fi
     if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
         result="${result},$(tr -d '[[:space:]]' <<EOF
         ${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},

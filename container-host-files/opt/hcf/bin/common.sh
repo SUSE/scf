@@ -83,6 +83,7 @@ function start_role {
   env_file_contents=$(cat ${env_files})
   # Load the map that details which vars are allowed for which role
   role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
+  role_params="^HCP_[^=]+|${role_params//\\|/|}"
 
   local edef ename evalue
   local the_env=()
@@ -104,7 +105,7 @@ function start_role {
       # Also, this would hopefully reduce the expectation of (shell-style)
       # variable expansion in the *.env files.
       the_env+=("--env=${ename}=${evalue}")
-  done < <(echo "${env_file_contents}" | grep -w "${role_params}")
+  done < <(echo "${env_file_contents}" | grep -wE "${role_params}")
 
   domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
 
@@ -197,10 +198,13 @@ function setup_role() {
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
   local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
+  # Alias the container to <component>-0
+  local network_alias="--network-alias ${role}-0.hcf.svc"
+
   # Add arbitrary docker arguments
   local docker_args=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-args" // []) | join(" ")')
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${docker_args}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${network_alias//$'\n'/ } ${docker_args}"
 }
 
 # gets the role name from a docker image name
