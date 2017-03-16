@@ -66,7 +66,7 @@ properties:
       bbs:
         api_location: diego-database-int:8889
       cc:
-        internal_service_hostname: api
+        internal_service_hostname: api-int
       traffic_controller_url: ws://loggregator-int:8081
   cc:
     broker_client_timeout_seconds: 70
