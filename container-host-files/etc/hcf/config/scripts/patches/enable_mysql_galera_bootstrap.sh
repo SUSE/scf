@@ -18,8 +18,8 @@ read -r -d '' setup_patch_galera <<'PATCH' || true
  Monit:
 -  User: 'vcap'
 -  Password: 'random-password'
-+  User: 'admin'
-+  Password: '<%= p('hcf.monit.password') %>'
++  User: '<%= p('hcf.monit.admin_user') %>'
++  Password: '<%= p('hcf.monit.admin_password') %>'
    Host: 'localhost'
 -  Port: 2822
 +  Port: 2289

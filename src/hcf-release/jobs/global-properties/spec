@@ -37,3 +37,9 @@ properties:
 
   hcf.monit.user:
     description: "Username for the monit API"
+
+  hcf.monit.admin_user:
+    description: "Admin username for the monit API"
+
+  hcf.monit.admin_password:
+    description: "Admin user password for the monit API"
