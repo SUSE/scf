@@ -52,3 +52,27 @@
 [submodule "src/capi-release"]
 	path = src/capi-release
 	url = git@github.com:cloudfoundry/capi-release.git
+[submodule "src/buildpacks/go-buildpack-release"]
+	path = src/buildpacks/go-buildpack-release
+	url = git@github.com:cloudfoundry/go-buildpack-release.git
+[submodule "src/buildpacks/binary-buildpack-release"]
+	path = src/buildpacks/binary-buildpack-release
+	url = git@github.com:cloudfoundry/binary-buildpack-release.git
+[submodule "src/buildpacks/nodejs-buildpack-release"]
+	path = src/buildpacks/nodejs-buildpack-release
+	url = git@github.com:cloudfoundry/nodejs-buildpack-release.git
+[submodule "src/buildpacks/ruby-buildpack-release"]
+	path = src/buildpacks/ruby-buildpack-release
+	url = git@github.com:cloudfoundry/ruby-buildpack-release.git
+[submodule "src/buildpacks/php-buildpack-release"]
+	path = src/buildpacks/php-buildpack-release
+	url = git@github.com:cloudfoundry/php-buildpack-release.git
+[submodule "src/buildpacks/python-buildpack-release"]
+	path = src/buildpacks/python-buildpack-release
+	url = git@github.com:cloudfoundry/python-buildpack-release.git
+[submodule "src/buildpacks/staticfile-buildpack-release"]
+	path = src/buildpacks/staticfile-buildpack-release
+	url = git@github.com:cloudfoundry/staticfile-buildpack-release.git
+[submodule "src/buildpacks/java-buildpack-release"]
+	path = src/buildpacks/java-buildpack-release
+	url = git@github.com:cloudfoundry/java-buildpack-release.git
