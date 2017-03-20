@@ -46,3 +46,6 @@
 [submodule "src/consul-release"]
 	path = src/consul-release
 	url = git@github.com:cloudfoundry-incubator/consul-release.git
+[submodule "src/loggregator"]
+	path = src/loggregator
+	url = git@github.com:cloudfoundry/loggregator.git
