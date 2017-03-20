@@ -43,3 +43,6 @@
 [submodule "src/nats-release"]
 	path = src/nats-release
 	url = git@github.com:cloudfoundry/nats-release.git
+[submodule "src/consul-release"]
+	path = src/consul-release
+	url = git@github.com:cloudfoundry-incubator/consul-release.git
