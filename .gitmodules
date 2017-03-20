@@ -49,3 +49,6 @@
 [submodule "src/loggregator"]
 	path = src/loggregator
 	url = git@github.com:cloudfoundry/loggregator.git
+[submodule "src/capi-release"]
+	path = src/capi-release
+	url = git@github.com:cloudfoundry/capi-release.git
