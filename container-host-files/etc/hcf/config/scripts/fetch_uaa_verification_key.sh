@@ -7,11 +7,19 @@
 
 # Note that this is *sourced* into run.sh, so we can't exit the shell.
 
-if test -n "${HCP_INSTANCE_ID:-}" ; then
-    export JWT_SIGNING_PUB="$(\
-        { curl --fail $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)\
-            "${HCP_IDENTITY_SCHEME}://${HCP_IDENTITY_EXTERNAL_HOST}:${HCP_IDENTITY_EXTERNAL_PORT}/token_key" \
-            || exit 1 \
-        ; } \
-        | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"
-fi
+# Wait for UAA
+while true ; do
+    if curl --fail \
+        $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi) \
+        "${HCF_UAA_INTERNAL_URL}/token_key"
+    then
+        break
+    fi
+    sleep 10
+done
+export JWT_SIGNING_PUB="$(\
+    { curl --fail $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)\
+        "${HCF_UAA_INTERNAL_URL}/token_key" \
+        || exit 1 \
+    ; } \
+    | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"

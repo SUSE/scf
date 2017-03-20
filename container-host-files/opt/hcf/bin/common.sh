@@ -199,10 +199,13 @@ function setup_role() {
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
   local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
+  # Alias the container to <component>-0
+  local network_alias="--network-alias ${role}-0.hcf.svc"
+
   # Add arbitrary docker arguments
   local docker_args=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-args" // []) | join(" ")')
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${docker_args}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${network_alias//$'\n'/ } ${docker_args}"
 }
 
 # gets the role name from a docker image name

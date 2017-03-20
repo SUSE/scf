@@ -90,14 +90,14 @@ function status_job_bosh() {
     *)                processes_color=${bldpur};;
   esac
 
-  mem_used=$(mem_used_from_docker_role ${role})
+  mem_used=$(mem_used_from_container ${containers[0]})
   printf ${rowfmt} ${role} ${txtgrn} ${#containers[@]} ${txtgrn} "up" ${processes_color} "${ok_processes}/${#processes[@]}" ${mem_used}
 }
 
-function mem_used_from_docker_role {
-    local role=${1}
-    role_id=$(docker inspect ${role}-int | jq --raw-output '.[0].Id')
-    memory_file=/sys/fs/cgroup/memory/docker/${role_id}/memory.usage_in_bytes
+function mem_used_from_container {
+    local container=${1}
+    long_id=$(docker inspect ${container} | jq --raw-output '.[0].Id')
+    memory_file=/sys/fs/cgroup/memory/docker/${long_id}/memory.usage_in_bytes
     if [[ ! -f ${memory_file} ]] ; then
       echo "n/a"
     else
@@ -151,7 +151,7 @@ function status_task() {
     running|created)    color=${bldpur};;
     *)                  color=${bldred};;
   esac
-  mem_used=$(mem_used_from_docker_role ${role})
+  mem_used=$(mem_used_from_container ${container})
   printf ${rowfmt} ${role} ${txtgrn} 1 ${txtgrn} n/a ${color} ${process_state} ${mem_used}
 }
 

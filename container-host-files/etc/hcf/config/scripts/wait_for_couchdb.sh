@@ -11,6 +11,11 @@ function retry () {
     done
 }
 
-echo "Waiting for couchdb to come online..."
+COUCH_SERVER=couchdb-int
+if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
+    COUCH_SERVER="${COUCH_SERVER}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+fi
 
-retry 240 30s curl -s couchdb-int.$HCP_SERVICE_DOMAIN_SUFFIX:5984
+echo "Waiting for couchdb to come online on ${COUCH_SERVER}..."
+
+retry 240 30s curl -s "${COUCH_SERVER}:5984"
