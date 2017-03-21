@@ -880,7 +880,8 @@ roles:
         - https://etcd-int:4001/v2/stats/leader
   configuration:
     templates:
-      properties.etcd.advertise_urls_dns_suffix: '"((#KUBERNETES_NAMESPACE))etcd-pod((/KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))((HCP_SERVICE_DOMAIN_SUFFIX))((/KUBERNETES_NAMESPACE))"'
+      # On k8s, we want the FQDN: etcd-pod.hcf.svc.cluster.local
+      properties.etcd.advertise_urls_dns_suffix: '"((#KUBERNETES_NAMESPACE))etcd-pod.((/KUBERNETES_NAMESPACE))((HCP_SERVICE_DOMAIN_SUFFIX))"'
       # The default of null in the bosh release does not seem to
       # define the property properly. Setting it here does define the
       # property, with a value of null. Note, placement in the
@@ -1397,8 +1398,8 @@ roles:
     exposed-ports:
     - name: acceptanceflightrecorder
       protocol: TCP
-      source: 10514
-      target: 10514
+      external: 10514
+      internal: 10514
       public: false
 - name: acceptance-tests
   type: bosh-task
@@ -2281,6 +2282,7 @@ configuration:
   - name: JWT_SIGNING_PEM
   - name: JWT_SIGNING_PUB
   - name: KUBERNETES_NAMESPACE
+  - name: KUBERNETES_POD_NAME
   - name: KUBE_POD_SERVICE
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
@@ -2695,7 +2697,7 @@ configuration:
     required: true
   templates:
     az: '"((HCP_AZ))"'
-    id: '"((HCP_COMPONENT_NAME))-int((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))"'
+    id: '"((#KUBERNETES_POD_NAME))((KUBERNETES_POD_NAME))((/KUBERNETES_POD_NAME))((^KUBERNETES_POD_NAME))((HCP_COMPONENT_NAME))-int((/KUBERNETES_POD_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))"'
     index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))-int((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
