@@ -301,6 +301,7 @@ def check_rm_variables(manifest)
   end
 
   manifest['configuration']['variables'].each do |variable|
+    next if Common.special_use(variable['name'])
     found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
     end

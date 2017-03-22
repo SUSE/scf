@@ -45,6 +45,8 @@ APP_NAME=${APP_DIR}-$(random_suffix)
 DESIRED_STRING="INSTANCE_INDEX=0"
 SSO_SERVICE="sso-service-test-brain"
 TMP=$(mktemp -dt 014_sso.XXXXXX)
+RED="\033[1;31m"
+NORMAL="\033[0m"
 
 ## # # ## ### Test-specific code ### ## # #
 
@@ -83,6 +85,7 @@ cf bind-route-service ${CF_DOMAIN} ${SSO_SERVICE} --hostname ${hostname}
 
 # SSO only applies after restaging
 cf restage ${APP_NAME}
+cf start ${APP_NAME}  # Only useful if restage failed to tail the logs
 
 # Check that the output is correct
 oauth_token="$(cf oauth-token | cut -d ' ' -f 2-)" # Drop the "bearer" prefix
@@ -91,7 +94,7 @@ curl --dump-header ${TMP}/headers  \
     "${url}/env" > ${TMP}/app_log
 
 if ! grep ${DESIRED_STRING} ${TMP}/app_log ; then
-    printf "%bERROR%b SSO failed to have expected output" "${RED}" "${NORMAL}"
+    printf "%bERROR%b SSO failed to have expected output\n" "${RED}" "${NORMAL}"
     command="${me} curl --cookie ssoCookie=${oauth_token:0:8}... ${url}/env"
     echo "SSO failed to have expected output"
     echo "${command} headers:"

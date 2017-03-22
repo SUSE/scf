@@ -25,6 +25,7 @@ class ToHCP < Common
     # This is created in "determine_component_parameters" (if @property)
     # and used by "component_parameters" (if @component_parameters)
     @component_parameters = nil
+    @rmorigin = @options[:rm_origin]
   end
 
   # Public API
@@ -142,9 +143,7 @@ class ToHCP < Common
         collect_parameters(gparam, sdl_names, role['configuration']['variables'])
       end
     end
-    if role_manifest['auth']
-      definition['features']['auth'] = [generate_auth_definition(role_manifest)]
-    end
+    definition['features']['auth'] = [generate_auth_definition(role_manifest)]
   end
 
   def collect_global_parameters(role_manifest, sdl_names, definition)
@@ -427,6 +426,8 @@ class ToHCP < Common
         end
       end
 
+      env_var_names += ['HCF_LOG_PROTOCOL', 'HCF_LOG_HOST', 'HCF_LOG_PORT']
+
       # At this point, `env_var_names` is the list of all environment variables
       # that are used in the role.  Some of them, such as `UAA_CLIENTS`, may
       # not actually come from the SDL; we need to reject those.  We also need
@@ -461,7 +462,7 @@ class ToHCP < Common
 
   def convert_parameter(var, sdl_names)
     vname     = var['name']
-    vrequired = var.has_key?("required") ? var['required'] : true
+    vrequired = var.has_key?("required") ? var['required'] : false
     vsecret   = var.has_key?("secret") ? var['secret'] : false
     vexample  = (var['example'] || var['default']).to_s
     vexample  = 'unknown' if vexample == ''
@@ -479,6 +480,9 @@ class ToHCP < Common
 
     default_value = (var['default'].nil? || vsecret) ? nil : var['default'].to_s
     unless default_value.nil?
+      if default_value == '' && vrequired && var['generator'].nil?
+        raise "Parameter: #{vname} is required, has an empty default, and is not generate-able. A value must be supplied."
+      end
       parameter['default'] = default_value
     end
 
@@ -581,10 +585,11 @@ class ToHCP < Common
   # Generate the features.auth element
   def generate_auth_definition(role_manifest)
     properties = role_manifest['configuration']['templates']
-    auth_configs = role_manifest['auth']
+    opinion_file = "#{File.dirname(@rmorigin)}/opinions.yml"
+    auth_configs = YAML.load_file(opinion_file)['properties']['uaa']
     {
       auth_zone: 'self',
-      user_authorities: auth_configs['authorities'],
+      user_authorities: auth_configs['user']['authorities'],
       clients: auth_configs['clients'].map{|client_id, client_config|
         config = {
           id: client_id,

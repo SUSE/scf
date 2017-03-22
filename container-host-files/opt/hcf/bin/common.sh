@@ -83,7 +83,9 @@ function start_role {
   env_file_contents=$(cat ${env_files})
   # Load the map that details which vars are allowed for which role
   role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
-  role_params="^HCP_[^=]+|${role_params//\\|/|}"
+  role_params="${role_params}\|HCF_LOG_PROTOCOL"
+  role_params="${role_params}\|HCF_LOG_HOST"
+  role_params="${role_params}\|HCF_LOG_PORT"
 
   local edef ename evalue
   local the_env=()
@@ -105,7 +107,7 @@ function start_role {
       # Also, this would hopefully reduce the expectation of (shell-style)
       # variable expansion in the *.env files.
       the_env+=("--env=${ename}=${evalue}")
-  done < <(echo "${env_file_contents}" | grep -wE "${role_params}")
+  done < <(echo "${env_file_contents}" | grep -w "${role_params}")
 
   domain_suffix=$(echo "${env_file_contents}" | awk -F= '/^HCP_SERVICE_DOMAIN_SUFFIX=/ { print $2 }')
 
@@ -118,7 +120,6 @@ function start_role {
         --label=hcf_role=${role} \
         --hostname=${role}-int.${domain_suffix} \
         ${restart} \
-        ${uaa_env_overrides[@]} \
         ${hcp_compat_env} \
         "${the_env[@]}" \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
@@ -269,7 +270,6 @@ function load_all_roles() {
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
-    declare -g  'uaa_env_overrides'
     declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
@@ -296,11 +296,6 @@ function load_all_roles() {
       role_run=$(printf '%s' "${role_block}" | jq --raw-output --compact-output '.run')
       role_manifest_run["${role_name}"]=$role_run
     done < <(printf '%s' "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
-
-    uaa_env_overrides=(
-      "--env=UAA_CLIENTS=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.clients)"
-      "--env=UAA_USER_AUTHORITIES=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.authorities)"
-    )
   fi
 }
 

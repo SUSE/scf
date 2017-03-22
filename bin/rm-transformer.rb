@@ -45,7 +45,8 @@ def main
     hcf_root_dir: nil,
     manual:      false,
     propmap:     nil,
-    hcp_cpu_num: 6
+    hcp_cpu_num: 6,
+    rm_origin:   nil
   }
 
   op = OptionParser.new do |opts|
@@ -110,6 +111,7 @@ def main
   end
 
   origin = ARGV[0]
+  options[:rm_origin] = origin
 
   role_manifest = Common.load_role_manifest(origin)
   check_roles role_manifest['roles']

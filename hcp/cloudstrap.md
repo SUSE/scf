@@ -29,128 +29,70 @@
 * Cloudstrap is a helper tool to automate the whole bootstrap process
   for HCP, starting from setting up the k8 cluster to initializing it
   and starting HCP/HSM.  
-  For more information, you can find [its github repo here](https://github.com/hpe-cloud-garage/cloudstrap),
+
+  For more information, you can find
+  [its github repo here](https://github.com/hpe-cloud-garage/cloudstrap),
   but you do not need to clone it.  
-  As of this guide, latest version is `0.37.6.pre`.
+
+  As of this guide, latest version is `0.48.0.pre`.
 
 * Install the cloudstrap gem: `gem install --pre cloudstrap`
 
-* Create a `config.yaml` in the checkout directory. Contents should be
+  The installed commands are
+
+  | Command | Description |
+  | --- | --- |
+  |cloudstrap           | Create a cluster|
+  |cloudstrap-config    | Show the complete configuration|
+  |cloudstrap-cache     | Show the AWS parts cloudstrap knows about|
+  |cloudstrap-dns       | Checks the DNS setup|
+  |cloudstrap-env       | Shows the bootstrap configuration
+  |cloudstrap-teardown  | Tears a cloudstrap config down|
+  |cloudstrap-versions  | Show current vs latest versions of cloudstrap and related tools|
+
+* If `cloudstrap-versions` does not show the latest versions of `hcp`,
+  `hsm`, etc. in use it is time to update. See the
+      [HCP Release Notes](https://github.com/hpcloud/cnap/wiki/HCP-Release-Notes)
+  and [HSM Release Notes](https://github.com/hpcloud/cnap/wiki/HSM-Release-Notes)
+  for the relevant links and instructions.
+
+* Create a `config.yaml` in the cluster management directory. Contents should look similar to
 
   ```
 	---
+	domain_name: x.from-the.cloud
 	region: us-east-1
-	hdp_bootstrap_origin: https://s3-us-west-2.amazonaws.com/hcp-concourse
-	hdp_bootstrap_version: 1.2.52+master.24b7b25.20160920215359
-	properties_seed_url: '-'
+	hcp_bootstrap_package_url: https://dev.stackato.com/downloads/hcp/bootstrap/hcp-bootstrap_0.10.17-0-g00c31fc_amd64.deb
+
+	minimum_availability_zones: 1
+	maximum_availability_zones: 1
+
+	master_count:  1
+	node_count:    3
+	gluster_count: 2
   ```
 
   Do not change the region. That is the region __dev__ is allowed to use.
 
-  The `hdp_bootstrap_version` entry determines the version of HCP
-  getting installed and initialized. This must be changed as needed.  
-  
-  You might also need to change the `hdp_bootstrap_origin` url if you are
-  using an internal release. The `hdp_bootstrap_origin` and `hdp_bootstrap_version`
-  entries combine to create the download link of HCP. In the above example:  
-  `https://s3-us-west-2.amazonaws.com/hcp-concourse/hcp-bootstrap_1.2.52+master.24b7b25.20160920215359_amd64.deb`  
-  Check out the [HCP Release Notes](https://github.com/hpcloud/cnap/wiki/HCP-Release-Notes)
-  to find the download link for the version you want.
+  The domain name has to be your host zone (see previous points).
 
-  The `properties_seed_url` is an URL to your `bootstrap.properties` seed file.
-  If you have a local `bootstrap.properties` file in your working directory, cloudstrap
-  will ignore this URL and use your local file. However, it still cannot be omitted
-  or an empty string. Putting a bogus value is fine. (`-`)
+  Keep the `hcp_bootstrap_package_url` in sync with your `hcp`.
+  See above for the link to the HCP release notes which has the link to use.
 
-* Get a `bootstrap.properties` file, place it next to the
+  Increment the `maximum_availability_zones` for multi-AZ setup.
+
+* Get a `bootstrap.properties` file, and place it next to the
   `config.yaml`. That is actually a template Cloudstrap will fill in,
   for use by the HCP bootstrap process.
-  
-  Although cloudstrap does not read the values of this `bootstrap.properties`,
-  as of `0.37.6.pre`, it is still required.
 
-  Here is a good one from Eric:
-  
-  ```
-  Provider=AWS
-  NodeCount=2
-  AWS.AccessKey=
-  AWS.SecretKey=
-  AWS.Region=us-east-1
-  AWS.AvailabilityZones=us-east-1e
-  AWS.MasterInstanceType=t2.medium
-  AWS.NodeInstanceType=m4.xlarge
-  AWS.GlusterFSInstanceType=t2.medium
-  AWS.Windows2012R2InstanceType=m4.xlarge
-  AWS.LinuxAMI=ami-8fe79998
-  AWS.Windows2012R2AMI=ami-8d0acfed
-  AWS.KeyFileContents=
-  AWS.KeypairFile=/home/ubuntu/.ssh/id_rsa
-  AWS.Keypair=
-  AWS.JumpboxCIDR=0.0.0.0/0
-  AWS.VPCID=vpc-ba3d01dd
-  AWS.PublicSubnetIDsAndAZ=subnet-7727da4b:us-east-1e
-  AWS.PrivateSubnetIDsAndAZ=subnet-7327da4f:us-east-1e
-  OpenStack.CACertFile=<<Path to PEM formatted CACert used to authenticate the OpenStack APIs>>
-  OpenStack.AuthURL=<<OpenStack Keystone URL e.g. https://MyHelionCloud.example.com:5000/v3>>
-  OpenStack.Username=<<OpenStack Keystone Username>>
-  OpenStack.Password=<<OpenStack Keystone Password>>
-  OpenStack.DomainID=<<OpenStack Keystone Domain ID>>
-  OpenStack.DomainName=<<OpenStack Keystone Domain Name>>
-  OpenStack.TenantID=<<OpenStack Keystone Project ID>>
-  OpenStack.TenantName=<<OpenStack Keystone Project Name>>
-  OpenStack.RegionName=<<OpenStack Keystone Region to use>>
-  OpenStack.AvailabilityZone=<<OpenStack Nova availability zone to use>>
-  OpenStack.LinuxImageID=<<OpenStack Glance Image ID for Ubuntu 14.04>>
-  OpenStack.Windows2012R2ImageID=<<OpenStack Glance Image ID for Microsoft Windows Server 2012R2>>
-  OpenStack.MasterFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.NodeFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.GlusterFSFlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.Windows2012R2FlavorID=<<OpenStack Nova Flavor ID to use>>
-  OpenStack.Keypair=<<OpenStack Nova Keypair Name (must exist in Nova)>>
-  OpenStack.KeypairFile=<<Path to PEM formatted private key, matching the keypair provided to Nova>>
-  OpenStack.JumpboxCIDR=<<IP OF M/C RUNNING COMMAND FROM>>/32
-  OpenStack.NetworkID=<<OpenStack Neutron network ID to use>>
-  OpenStack.SubnetID=<<OpenStack Neutron subnet ID to use>>
-  OpenStack.PoolName=<<OpenStack Neutron external network name to use>>
-  OpenStack.PoolID=<<OpenStack Neutron external network ID to use>>
-  VSphere.Username=
-  VSphere.Password=
-  VSphere.Server=
-  VSphere.Insecure=
-  VSphere.NetworkName=
-  VSphere.LBVIPAllocationStart=
-  VSphere.LBVIPAllocationEnd=
-  VSphere.LBVirtualRouterID=
-  VSphere.CIDataISO=
-  VS phere.Datastore=
-  VSphere.Datacenters=
-  VSphere.Cluster=
-  VSphere.KeypairFile=
-  VSphere.LinuxVMDKSource=
-  VSphere.Windows2012R2VMDKSource=
-  VSphere.DiskType=<<eager_zeroed, lazy, or thin>>
-  VSphere.MasterNumVCPUs=
-  VSphere.MasterMemoryMB=
-  VSphere.NodeNumVCPUs=
-  VSphere.NodeMemoryMB=
-  VSphere.GlusterFSNumVCPUs=
-  VSphere.GlusterFSMemoryMB=
-  VSphere.Windows2012R2NumVCPUs=
-  VSphere.Windows2012R2MemoryMB=
-  HCPDomainName=hcf.yourname.stacktest.io
-  LDAP.URI=ldap://52.87.217.102
-  LDAP.BindUserDN=cn=admin,ou=Users,dc=test,dc=com
-  LDAP.BindPassword=afbcc51d-0cd2-4e73-bff6-1d1958103ab7
-  LDAP.UserSearchBase=ou=Users,dc=test,dc=com
-  LDAP.UserSearchFilter=cn={0}
-  LDAP.GroupSearchBase=ou=scopes,dc=test,dc=com
-  LDAP.GroupSearchFilter=member={0}
-  LDAP.ProviderName=arthur
-  ```
+  This means that the original blank template should be saved, and
+  whenever a new cluster is made start from that blank file.
 
-  I'm not sure if cloudstrap actually needs it, but for safety, I would set 
-  the __HCPDomainName__ to your chosen domain name.
+  A good source of a proper blank template is the file
+  [cmd/bootstrap/sample_bootstrap.properties](https://github.com/hpcloud/hdp-resource-manager/blob/develop/cmd/bootstrap/sample_bootstrap.properties) in the repository
+  `hpcloud/hdp-resource-manager`.
+
+  No editing is needed, just copy this file to `bootstrap.properties`.
 
 * Run `cloudstrap`. Be sure to use your __dev__ account.
 
@@ -159,37 +101,38 @@
   of the CWD. Each run will check that cache and reuse the
   already-made parts.
 
-  Errors to expect on the first runs are
+  The command `cloudstrap-cache` prints the contents of this cache in
+  a readable format. While normally some fancy formatting is used this
+  can be disabled by directing the output into a file or pipe.
+
+* By setting the environment variable
+  `BOOTSTRAP_WITHOUT_HUMAN_OVERSIGHT` to `true` before invoking
+  cloudstrap, cloudstrap will run the HCP bootstrap by itself.
+
+  Without that variable cloudstrap will only setup and configure the
+  jumpbox and then tell the user how to run bootstrap themselves.
+
+* Note, when bootstrap fails a simple redo via cloudstrap is not
+  possible.  It is necessary to tear the partial cluster down (see
+  later section) before re-starting the setup.
+
+* After the setup completed (including bootstrap) 
+  use the command
 
   ```
-  The (entity) ID '(bla)' does not exist
-  ```
-  
-  or 
- 
-  ```
-  Your Jumpbox is in a state other than running
+	cloudstrap-cache | awk '/jumpbox_ip/ { print $2 }'
   ```
 
-  This looks to be a race condition, where Cloudstrap is faster than
-  AWS, i.e. it provisions X and then does something else with X, but
-  AWS has not completed creating X yet.  
-  Try again after a couple minutes and it should work.
-
-  Another error to ignore is
-
-  ```
-  bootstrap_agent.rb:356:in `map': undefined method `public_ip' for nil:NilClass (NoMethodError)
-  ```
-  
-* When cloudstrap is done read the log (you have redirected the output
-  into a `|tee LOG`, have you?!) to find the IP address of the __jump
-  box__. Look near the end, for a line containing `ubuntu@IP-ADDRESS`.
-  The `IP-ADDRESS` is what we want.
+  to determine the IP-address of the jumpbox.
 
 * `export JUMPBOX_IP=<IP-ADDRESS>` just for convenience.
 
-* Run the command `scp -i .ssh/*/!(*.pub) ubuntu@$JUMPBOX_IP:bootstrap-*.log`
+* Then run the commands
+
+  ```
+	keyfile=$(ls .ssh/*/* | grep -v '\.pub')
+	scp -i "$keyfile" ubuntu@${jip}:bootstrap-*.log bootstrap.log
+  ```
 
   The directory `.ssh` contains the ssh key-pair created by Cloudstrap
   for access to the jump box. Two files, one ending in `.pub`. We want
@@ -199,12 +142,64 @@
   to make the above command a bit easier (*.key, or some such))
 
 * The log file the previous step pulled from the jump box contains the username
-  and password of the HCP instance. Look for lines containing `password`.  
-  (It also contains information about DNS entries if you need to create them manually.)
+  and password of the HCP instance. Look for lines containing `password`. For
+  convenience use
+
+  ```
+	grep -i password bootstrap.log |grep -v false
+  ```
 
 * You can now run `cloudstrap-dns`, which will set the DNS entries automatically.
   As of this version, it doesn't read the region from config.yaml so you'll need to
   add it as an environment variable: `export AWS_REGION=us-east-1`
+
+## Teardown
+
+* To tear a cluster down run the tool `cloudstrap-teardown` with the
+  name of the VPC created during setup.
+
+  This name can be found via `cloudstrap-cache`. For example
+
+  ```
+	vpc=$(bin/cloudstrap-cache | awk '/vpc_id/ { print $2 }')
+	cloudstrap-teardown $vpc
+  ```
+
+* __Note!__
+
+  * I am told that it is necessary to manually delete the ELBs before
+    invoking the tool. They are found under `EC2 / Load Balancing /
+    Load Balancers`
+
+  * The tool may fail to delete the VPC (possibly due to timeouts).
+
+    If that happens it is necessary to manually delete the instances
+    of the cluster, and possibly the VPC itself before invoking the
+    tool again.
+
+    Jan and I have different experiences here. Quoting Jan:
+
+    ```
+	It will fail the first time, but re-running it after 3-5min normally
+	finishes the job. It will often display some final message including
+	Aws::EmptyStructure. That also seems to indicate success. :) Running
+	it again will then no longer find the VPC, confirming that it is gone.
+    ```
+
+    My experience is that I delete the ELBs, then run
+    `cloudstrap-teardown` multiple times (3-6), waiting 5 minutes
+    before each iteration. At the end it always claims that `The vpc
+    <NAME> has dependencies and cannot be deleted.`
+
+    After that I go and delete the instances manually, and then the
+    VPC manually.
+
+* After `cloudstrap-teardown` was run successfully delete either the
+  entire cluster directory, or just the `.ssh` and `.cache`
+  sub-directories.
+
+* We are now ready to setup a new cluster. See previous section.
+
 
 ## HCP
 
@@ -240,7 +235,10 @@ Do you want an instance of a released HCF version, or of your own branch?
   
   Make sure to set the parameters of the `instance.json`. Set `DOMAIN` to `hcf.<HCP Domain>` 
   and the cluster admin password to what you want.
-  
+
+  Further set a toplevel "instance_id", to avoid HCP generating a
+  cryptic one for you. A good value would be "hcf".
+
 * `hsm create-instance stackato.hpe.hcf <product version> -i instance.json --sdl-version <sdl version>`
 
 * `hsm list-instances` to check the name and the status of your instance
@@ -256,7 +254,7 @@ Do you want an instance of a released HCF version, or of your own branch?
   `*.hcf.<HCP domain name>. CNAME <router location URL>`
   
 * Give it a minute to update the DNS records, then you should be able to connect to your HCF instance:  
-  `cf api https://api.hcf.williamg.stacktest.io --skip-ssl-validation`
+  `cf api https://api.hcf.<HCP domain name> --skip-ssl-validation`
   
 
 ### Getting the SDL and IDL of a custom branch:
@@ -290,3 +288,120 @@ Do you want an instance of a released HCF version, or of your own branch?
 
 * __...__ TODO: Upload the service definition, create an instance,
   play with the resulting HCF.
+
+## Smoking CATs and HATs
+
+To run the various acceptance test suites we presume to have `docker`
+installed on the local host. With that simply run:
+
+```
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       stackatodev/hcf-smoke-tests:<tag>
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       --env TCP_DOMAIN=tcp.(HCPDomain) \
+       stackatodev/hcf-acceptance-tests-brain:<tag>
+docker run --rm \
+       --env DOMAIN=hcf.(HCPDomain) \
+       --env CLUSTER_ADMIN_PASSWORD=<yourpassword> \
+       stackatodev/cf-acceptance-tests:<tag>
+```
+
+with domain, password and tag suitably set.
+
+The password must be it was chosen for the instance.
+
+The tag has to match the SDL version of the HCF instance.
+See the output of `hsm list-instances` for that information.
+
+Then running the HATs additional envirnment variables can be used to
+run specific tests, or exclude specific tests. Examples:
+
+```
+--env INCLUDE=016
+```
+
+```
+--env EXCLUDE=016
+```
+
+__Note__ that the order of execution in the above script fragment is
+important.  The smoke tests enable a few feature-flags which are not
+on by default, and are required by the CATs. The HATs do the same.
+
+Also, __make sure__ to map the `tcp.(HCPDomain)` and
+`ssh.hcf.(HCPDomain)` subdomains to their ELBs __before__ running the
+tests. The ELB for `tcp` is provided by role `tcp-router`, and `ssh`
+by role `diego-access`.
+
+In other words, more CNAME DNS entries to set in the HZ.
+Apparently A entries with ALIAS flag set work as well.
+
+Note how the `ssh` host contains `hcf` in its name. It must be a
+subdomain of the HCF domain, not of HCP itself. For `tcp` it simply
+must match how the script invokes the testsuites.
+
+## Accessing the HCF components
+
+* First, get on the jump box, via
+
+  ```
+	jump_ip=$(cloudstrap-cache | awk '/jumpbox_ip/ { print $2 }')
+	keyfile=$(ls .ssh/*/* | grep -v '\.pub')
+
+	ssh -i "$keyfile" ubuntu@${jump_ip} "$@"
+
+  ```
+
+* On the jump box, determine the IP of the kubernetes master.
+  Run
+
+  ```
+	grep 'aws_instance\.hcp_kubernetes_master' bootstrap-*.log
+  ```
+
+  and find the IP address in the last line.
+
+* A simple
+
+  ```
+	ssh <IP>
+  ```
+
+  using the IP address from the previous step then puts us on that master node.
+
+* On the master node `kubectl` grants full access to the entire system.
+
+  Due to various pain points it is however recommend to install the
+  `k` wrapper and use that instead.
+
+  ```
+	mkdir bin
+	cd bin
+	wget https://s3.amazonaws.com/helion-developers/aarondl/k
+	chmod u+x k
+  ```
+
+* Assuming that `k` is installed, get the list of all pods via
+
+  ```
+	k get pods :
+  ```
+
+
+* To enter the container for a specific HCF role, for example `api-0`, do
+
+  ```
+	k ssh hcf:^api-0
+  ```
+
+Some explanations: A pattern `foo:bar` refers to namespaces matching
+the regex `foo`, and pods matching the regex `bar` in these
+namespaces. A plain ':' is effectively a wildcard for both namespace
+and pod.
+
+In a HCF cluster the active namespaces to expect are `kube-system`,
+`hcp` and `hcf`. Core kubernetes, control plane, and PaaS.
