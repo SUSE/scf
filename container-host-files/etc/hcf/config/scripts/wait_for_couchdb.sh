@@ -11,7 +11,7 @@ function retry () {
     done
 }
 
-COUCH_SERVER=couchdb-int
+COUCH_SERVER=couchdb
 if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
     COUCH_SERVER="${COUCH_SERVER}.${HCP_SERVICE_DOMAIN_SUFFIX}"
 fi

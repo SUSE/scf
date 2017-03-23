@@ -43,9 +43,9 @@ DisableNegativeDnsClientCache
 
 ## Read HCF Settings
 
-while(-not (Resolve-DnsName -DnsOnly "demophon-int" -ErrorAction SilentlyContinue)) {start-sleep 2; echo "Trying to resolve demophon-int hostname"} # Wait for HCF DNS-based service dicovery to work
+while(-not (Resolve-DnsName -DnsOnly "demophon" -ErrorAction SilentlyContinue)) {start-sleep 2; echo "Trying to resolve demophon hostname"} # Wait for HCF DNS-based service dicovery to work
 
-$hcfSettings = GetConfigFromDemophon -Username "admin" -Password "changeme" -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $true
+$hcfSettings = GetConfigFromDemophon -Username "admin" -Password "changeme" -DemaphonEndpoint "https://demophon:8443" -SkipCertificateValidation $true
 
 ## Generate REP Cert
 

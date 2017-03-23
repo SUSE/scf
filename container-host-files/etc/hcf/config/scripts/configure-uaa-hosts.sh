@@ -20,7 +20,7 @@ else
     # Legacy vagrant
     export HCP_IDENTITY_INTERNAL_PORT=8443
     export HCP_IDENTITY_EXTERNAL_PORT=8443
-    export HCF_UAA_INTERNAL_HOSTNAME="hcf.uaa-int.hcf.svc"
+    export HCF_UAA_INTERNAL_HOSTNAME="hcf.uaa.hcf.svc"
     export HCF_UAA_EXTERNAL_URL="https://hcf.uaa.cf-dev.io:${HCP_IDENTITY_EXTERNAL_PORT}"
     export HCF_UAA_INTERNAL_URL="${HCP_IDENTITY_SCHEME:-https}://${HCF_UAA_INTERNAL_HOSTNAME}:${HCP_IDENTITY_INTERNAL_PORT:-8443}"
 fi

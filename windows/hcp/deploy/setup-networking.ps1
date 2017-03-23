@@ -69,7 +69,7 @@ param(
 
 if ($flannelUserPassword -eq "") {
     Write-Output "Flannel windows user password was not supplied. Generating a random password ..."
-    [Reflection.Assembly]::LoadWithPartialName(“System.Web”) | Out-Null
+    [Reflection.Assembly]::LoadWithPartialName(ï¿½System.Webï¿½) | Out-Null
     $flannelUserPassword = [System.Web.Security.Membership]::GeneratePassword(12,1)
 }
 
@@ -173,8 +173,8 @@ if (($httpProxy -ne "") -and ($httpsProxy -ne "")) {
         }
     }
 
-    if (!($bypassList -contains "demophon-int")){
-        $bypassList += "demophon-int"
+    if (!($bypassList -contains "demophon")){
+        $bypassList += "demophon"
     }
 
     $proxyOverride = $bypassList -join ";"

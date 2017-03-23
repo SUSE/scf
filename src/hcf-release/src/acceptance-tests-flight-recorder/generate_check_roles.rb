@@ -7,7 +7,7 @@ file.each  do |key, item|
   if key == "roles"
      item.each do |role|
         if (role["run"]["flight-stage"] != "manual") && (role["type"] != "bosh-task") && (role["type"] != "docker")
-        roles_to_monit << role["name"] + "-int"
+        roles_to_monit << role["name"]
         end
      end
      break

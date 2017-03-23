@@ -88,7 +88,7 @@ openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
 make_domains() {
     local host_name="$1"
-    local result="${host_name}-int,*.${host_name}-int"
+    local result="${host_name},*.${host_name}"
     local i
     for (( i = 0; i < 10; i++ )) ; do
         result="${result},${host_name}-${i}.${host_name}-pod"
@@ -99,8 +99,8 @@ make_domains() {
     for cluster_name in "" .cluster.local .cluster.hcp ; do
         local instance_name
         for instance_name in hcf hcf1 hcf2 hcf3 hcf4 hcf5 ; do
-            result="${result},${host_name}-int.${instance_name}.svc${cluster_name}"
-            result="${result},*.${host_name}-int.${instance_name}.svc${cluster_name}"
+            result="${result},${host_name}.${instance_name}.svc${cluster_name}"
+            result="${result},*.${host_name}.${instance_name}.svc${cluster_name}"
             for (( i = 0; i < 10; i++ )) ; do
                 result="${result},${host_name}-${i}.${host_name}-pod.${instance_name}.svc${cluster_name}"
             done

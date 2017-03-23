@@ -63,7 +63,7 @@ SSO_USER="<%= p("hcf_sso.username") %>"
 SSO_PASS="<%= p("hcf_sso.password") %>"
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
-SSO_ENDPOINT="https://hcf-sso-int:${SSO_PORT}"
+SSO_ENDPOINT="https://hcf-sso:${SSO_PORT}"
 API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
 
 echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
