@@ -69,7 +69,7 @@ param(
 
 if ($flannelUserPassword -eq "") {
     Write-Output "Flannel windows user password was not supplied. Generating a random password ..."
-    [Reflection.Assembly]::LoadWithPartialName(�System.Web�) | Out-Null
+    [Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
     $flannelUserPassword = [System.Web.Security.Membership]::GeneratePassword(12,1)
 }
 
