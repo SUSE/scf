@@ -2203,12 +2203,10 @@ configuration:
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
     required: true
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
-    required: false
     default: ''
     description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
-    required: false
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: HAPROXY_SSL_CERT_KEY
     secret: true
@@ -2230,19 +2228,15 @@ configuration:
     required: true
   - name: HCF_SSO_OAUTH_AUTHORIZE_URL
     description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
-    required: false
   - name: HCF_SSO_OAUTH_ID
     immutable: true
     default: hcf-sso
     description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
-    required: false
   - name: HCF_SSO_OAUTH_TOKEN_URL
     description: The OAuth token URL for SSO; defaults to using the same UAA as HCF
-    required: false
   - name: HCF_SSO_OAUTH_VERIFICATION_KEY
     description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
     secret: false
-    required: false
   - name: HCF_SSO_PASSWORD
     secret: true
     immutable: true
@@ -2427,7 +2421,6 @@ configuration:
     required: true
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
-    required: false
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
   - name: ROUTER_BALANCING_ALGORITHM
     default: 'round-robin'
@@ -2514,7 +2507,6 @@ configuration:
     required: true
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
-    required: false
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
     description: >
       A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
@@ -2536,7 +2528,6 @@ configuration:
     required: true
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
-    required: false
     description: TCP routing domain of the HCF cluster.
   - name: TRAFFICCONTROLLER_CERT
     secret: true
@@ -2556,7 +2547,6 @@ configuration:
     description: PEM-encoded key.
     required: true
   - name: TRUSTED_CERTS
-    required: false
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAADB_PASSWORD
     secret: true
