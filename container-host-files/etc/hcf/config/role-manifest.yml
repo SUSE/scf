@@ -517,7 +517,6 @@ roles:
       properties.uaa.clients.default_zone_admin.authorized-grant-types: client_credentials
       properties.uaa.clients.default_zone_admin.scope: uaa.admin
       properties.uaa.clients.default_zone_admin.secret: ((UAA_ADMIN_CLIENT_SECRET))
-      #properties.uaa.clients: '{"default_zone_admin": {"secret": "((UAA_ADMIN_CLIENT_SECRET))", "authorized-grant-types": "client_credentials", "scope": "uaa.admin", "authorities": "uaa.admin"}}'
       properties.uaa.clients.login.redirect-uri: '"https://login.((DOMAIN))"'
       properties.uaa.url: '"https://uaa.((DOMAIN))"'
       properties.uaa.zones.internal.hostnames: '["uaa","uaa.((HCP_SERVICE_DOMAIN_SUFFIX))","uaa.((DOMAIN))"]'
