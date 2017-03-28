@@ -5,7 +5,7 @@ description: Dummy BOSH job used to host global parameters that are required to 
 templates:
   run.erb: bin/run
 
-packages:
+packages: []
 
 properties:
 

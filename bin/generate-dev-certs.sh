@@ -257,13 +257,6 @@ certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internal
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
 
-server_cn=persi_broker_tls
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker")"
-certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
-mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.key"
-mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"
-cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" > "${certs_path}/persi_broker_tls.pem"
-
 APP_SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/app_ssh_key")"
 APP_SSH_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
 AUCTIONEER_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.crt")
@@ -302,7 +295,6 @@ JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
 METRON_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
 METRON_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
-PERSI_BROKER_TLS_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/persi_broker_tls.pem")
 REP_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.crt")
 REP_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.key")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
@@ -355,7 +347,6 @@ JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
 JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
 METRON_CERT=${METRON_CERT}
 METRON_KEY=${METRON_KEY}
-PERSI_BROKER_TLS_CERT_KEY=${PERSI_BROKER_TLS_CERT_KEY}
 REP_SERVER_CERT=${REP_SERVER_CERT}
 REP_SERVER_KEY=${REP_SERVER_KEY}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
