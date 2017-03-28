@@ -76,3 +76,6 @@
 [submodule "src/buildpacks/java-buildpack-release"]
 	path = src/buildpacks/java-buildpack-release
 	url = git@github.com:cloudfoundry/java-buildpack-release.git
+[submodule "src/grootfs-release"]
+	path = src/grootfs-release
+	url = git@github.com:cloudfoundry/grootfs-release.git

@@ -49,9 +49,6 @@ registry:
 
 ########## BOSH RELEASE TARGETS ##########
 
-cf-release:
-	${GIT_ROOT}/make/bosh-release src/cf-release
-
 usb-release:
 	${GIT_ROOT}/make/bosh-release src/cf-usb/cf-usb-release
 
@@ -79,22 +76,48 @@ hcf-release:
 hcf-sso-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-sso/hcf-sso-release
 
-hcf-versions-release:
-	${GIT_ROOT}/make/bosh-release src/hcf-versions/hcf-versions-release
+capi-release:
+	${GIT_ROOT}/make/bosh-release src/capi-release
 
-windows-runtime-release:
-	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
+grootfs-release:
+	${GIT_ROOT}/make/bosh-release src/grootfs-release
 
-open-autoscaler-release:
-	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
+loggregator-release:
+	${GIT_ROOT}/make/bosh-release src/loggregator
 
-local-volume-release:
-	${GIT_ROOT}/make/bosh-release src/local-volume-release
+nats-release:
+	${GIT_ROOT}/make/bosh-release src/nats-release
+
+consul-release:
+	${GIT_ROOT}/make/bosh-release src/consul-release
+
+binary-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/binary-buildpack-release
+
+go-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/go-buildpack-release
+
+java-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/java-buildpack-release
+
+nodejs-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/nodejs-buildpack-release
+
+php-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/php-buildpack-release
+
+python-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/python-buildpack-release
+
+ruby-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/ruby-buildpack-release
+
+staticfile-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/staticfile-buildpack-release
 
 releases:
 	${MAKE} \
 		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
-		cf-release \
 		usb-release \
 		diego-release \
 		etcd-release \
@@ -103,11 +126,20 @@ releases:
 		cflinuxfs2-rootfs-release \
 		routing-release \
 		hcf-release \
-		windows-runtime-release \
 		hcf-sso-release \
-		hcf-versions-release \
-		open-autoscaler-release \
-		local-volume-release \
+		capi-release \
+		loggregator-release \
+		nats-release \
+		consul-release \
+		binary-buildpack-release \
+		go-buildpack-release \
+		java-buildpack-release \
+		nodejs-buildpack-release \
+		php-buildpack-release \
+		python-buildpack-release \
+		ruby-buildpack-release \
+		staticfile-buildpack-release \
+		grootfs-release \
 		${NULL}
 
 ########## FISSILE BUILD TARGETS ##########

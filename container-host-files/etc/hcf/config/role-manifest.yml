@@ -11,11 +11,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: nats
-    release_name: cf
+    release_name: nats
   - name: nats_stream_forwarder
-    release_name: cf
+    release_name: nats
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: metron_agent
   - name: nats
@@ -55,9 +55,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -256,9 +256,9 @@ roles:
   - name: bbs
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: bbs
   - name: metron_agent
@@ -322,9 +322,9 @@ roles:
   - name: gorouter
     release_name: routing
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: gorouter
   - name: metron_agent
@@ -376,9 +376,9 @@ roles:
   - name: tcp_router
     release_name: routing
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: tcp_router
   - name: metron_agent
@@ -423,9 +423,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: routing-api
     release_name: routing
   - name: tcp_emitter
@@ -540,35 +540,35 @@ roles:
   - name: patch-properties
     release_name: hcf
   - name: cloud_controller_ng
-    release_name: cf
+    release_name: capi
   - name: statsd-injector
-    release_name: cf
+    release_name: loggregator
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   - name: go-buildpack
-    release_name: cf
+    release_name: go-buildpack
   - name: binary-buildpack
-    release_name: cf
+    release_name: binary-buildpack
   - name: nodejs-buildpack
-    release_name: cf
+    release_name: nodejs-buildpack
   - name: ruby-buildpack
-    release_name: cf
+    release_name: ruby-buildpack
   - name: php-buildpack
-    release_name: cf
+    release_name: php-buildpack
   - name: python-buildpack
-    release_name: cf
+    release_name: python-buildpack
   - name: staticfile-buildpack
-    release_name: cf
+    release_name: staticfile-buildpack
   - name: java-buildpack
     release_name: cf
   - name: java-offline-buildpack
     release_name: cf
   - name: cf_iis_buildpack
-    release_name: windows-runtime-release
+    release_name: java-buildpack
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -617,11 +617,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: cloud_controller_worker
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -648,11 +648,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: blobstore
-    release_name: cf
+    release_name: capi
   - name: route_registrar
     release_name: routing
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
@@ -698,11 +698,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: cloud_controller_clock
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -733,7 +733,7 @@ roles:
   - name: cf-usb
     release_name: cf-usb
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: route_registrar
     release_name: routing
   processes:
@@ -774,11 +774,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: doppler
-    release_name: cf
+    release_name: loggregator
   - name: syslog_drain_binder
-    release_name: cf
+    release_name: loggregator
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: doppler
   - name: metron_agent
@@ -834,11 +834,11 @@ roles:
   - name: patch-properties
     release_name: hcf
   - name: etcd
-    release_name: cf
+    release_name: etcd
   - name: etcd_metrics_server
-    release_name: cf
+    release_name: etcd
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -901,9 +901,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: loggregator_trafficcontroller
-    release_name: cf
+    release_name: loggregator
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   processes:
@@ -952,13 +952,13 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: rep-certstrap
     release_name: hcf
   - name: auctioneer
     release_name: diego
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: auctioneer
   - name: metron_agent
@@ -992,17 +992,17 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: stager
-    release_name: cf
+    release_name: capi
   - name: nsync
-    release_name: cf
+    release_name: capi
   - name: tps
-    release_name: cf
+    release_name: capi
   - name: cc_uploader
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cc_uploader
   - name: stager
@@ -1090,9 +1090,9 @@ roles:
   - name: route_emitter
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -1124,9 +1124,9 @@ roles:
   - name: ssh_proxy
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: file_server
     release_name: diego
   - name: windows_buildpack_app_lifecycle
@@ -1178,14 +1178,14 @@ roles:
   - name: rep
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: garden
     release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: cf
-  - name: localdriver
+    release_name: loggregator
     release_name: local-volume
   processes:
   - name: metron_agent
@@ -1298,9 +1298,7 @@ roles:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
-  - name: autoscaler_servicebroker
-    release_name: cf-open-autoscaler
-  processes:
+  processes: []
   - name: tomcat
   run:
     flight-stage: flight
