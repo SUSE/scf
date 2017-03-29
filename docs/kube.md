@@ -26,8 +26,6 @@ A list of items to guide this effort:
 
 ## Building
 
-Build fissile using the `kube` branch: https://github.com/hpcloud/fissile/tree/kube.
-
 We build HCF as described in the README.
 That will generate Docker images we'll want to deploy on Kube.
 
