@@ -52,7 +52,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     # Running in vagrant / AWS, and managing our own UAA
     # We need to create the zone and populate it the way HCP would have done.
 
-    UAA_ZONE_ID="hcf"
+    UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-hcf}"
 
     status "Waiting for root UAA to be available..."
     retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
@@ -148,7 +148,7 @@ else
     set -o errexit
 fi
 
-status "Waiting for UAA to be availabile..."
+status "Waiting for UAA to be availabile at %s..." '<%= p("hcf.uaa.internal-url") %>'
 retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
 status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
