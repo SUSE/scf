@@ -15,7 +15,7 @@ A list of items to guide this effort:
 - [ ] Spike on a better way to manage hostname configurations
 - [ ] Improve certificate generation
 - [x] Spike on removing the need for setcap
-- [ ] Merge the fissile work back to "upstream"
+- [x] Merge the fissile work back to "upstream"
 - [ ] Implement validation for RM/opinions/vars/etc. in fissile
 - [ ] Makefile targets for publishing images and dist-ing the kube configs
 - [ ] BUG: env vars are not detected properly for pods - it looks like the pods get more than they need
@@ -23,6 +23,7 @@ A list of items to guide this effort:
 - [ ] Spike on using parameter references in kube to reduce the number of exposed variables
 - [ ] Spike on using grootfs and newer runc to eliminate hard requirements for the kernel (AUFS and cgroup memory and swap accounting)
 - [ ] HA Configurations
+- [ ] Fix persi
 
 ## Building
 
@@ -33,81 +34,52 @@ Build the [standalone UAA](https://github.com/hpcloud/uaa-fissile-release) (we n
 
 Pick up the UAA CA certificate following `bin/settings/kube/ca.sh` (it assumes checkouts parallel to HCF.git).
 
-Next, we'll use a new fissile command that generates kubernetes configuration
-files:
+Run `bin/generate-dev-certs.sh <k8s namespace> bin/settings/certs.env` to ensure
+your certificates match the environment.  For this guide we use `cf` as the
+Kubernetes namespace.
 
-```
-fissile build kube \
-  -k ./kube \
-  -D $(echo bin/settings/{,kube/}*.env | tr ' ' ,) \
-  --use-memory-limits=false
-```
-
-This will generate kubernetes configuration files in `./kube`.
-The settings in those files will have defaults based on the `.env` files specified
-in the command above.
-We don't use memory limits because the plan is to run everything locally.
+Run `make kube` to generate kubernetes configuration files in the `kube`
+directory.
 
 ## Running
 
 ### Running hyperkube in the Vagrant VM
 
-Install the kubectl cli by following [these steps](https://coreos.com/kubernetes/docs/latest/configure-kubectl.html#download-the-kubectl-executable).
+The `kubectl` CLI is already pre-installed in the vagrant VM.  To run hyperkube,
+run `make hyperkube` in the HCF source directory.  It creates a `host-path`
+storage class by default in order to automatically provision volumes.
 
-Run hyperkube:
-
-```
-sudo mkdir -p /var/lib/kubelet
-sudo mount --bind /var/lib/kubelet /var/lib/kubelet
-sudo mount --make-shared /var/lib/kubelet
-
-docker run -d \
-    --volume=/sys:/sys:rw \
-    --volume=/var/lib/docker/:/var/lib/docker:rw \
-    --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
-    --volume=/var/run:/var/run:rw \
-    --net=host \
-    --pid=host \
-    --privileged \
-    --name=kubelet \
-    viovanov/hyperkube:v1.5.2 \
-    /hyperkube kubelet \
-        --hostname-override=127.0.0.1 \
-        --api-servers=http://localhost:8080 \
-        --config=/etc/kubernetes/manifests \
-        --cluster-dns=10.0.0.10 \
-        --cluster-domain=cluster.local \
-        --allow-privileged --v=2
-```
-
-Create a `host-path` storage class (will be used to automatically provision volumes).
-
-- Write the following to a file `storage-class.yml`:
-```
----
-kind: StorageClass
-apiVersion: storage.k8s.io/v1beta1
-metadata:
-  name: persistent
-provisioner: kubernetes.io/host-path
-parameters:
-```
-
-- Then run:
-```
-kubectl create -f storage-class.yml
-```
-
-Deploy UAA following instructions in the [uaa-fissile-release](https://github.com/hpcloud/uaa-fissile-release) repository.
+After starting hyperkube, deploy UAA following instructions in the
+[uaa-fissile-release](https://github.com/hpcloud/uaa-fissile-release) repository.
 
 Next, create a namespace for all the objects we're about to create:
 
-```
+```sh
+# The namespace must match what you used to generate the dev certs with
 kubectl create namespace cf
 ```
 
 Finally, create everything:
 
+```sh
+# -n <namespace> should match the namespace above
+kubectl create -n cf -f ./kube/bosh
+kubectl create -n cf -f ./kube/bosh-task/post-deployment-setup.yml
+kubectl create -n cf -f ./kube/bosh-task/autoscaler-create-service.yml
+kubectl create -n cf -f ./kube/bosh-task/sso-create-service.yml
 ```
-kubectl create -f ./kube/bosh
+
+## Stopping
+
+To delete a deployed instance, run `kubectl delete`:
+```sh
+# -n <namespace> should match the namespace above
+kubectl delete -n cf -f ./kube/bosh
+kubectl delete -n cf -f ./kube/bosh-task/post-deployment-setup.yml
+kubectl delete -n cf -f ./kube/bosh-task/autoscaler-create-service.yml
+kubectl delete -n cf -f ./kube/bosh-task/sso-create-service.yml
+```
+You must also delete the persistent volume claims manually:
+```sh
+kubectl delete -n cf pvc --all
 ```
