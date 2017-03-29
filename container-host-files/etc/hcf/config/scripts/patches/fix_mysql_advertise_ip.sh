@@ -16,7 +16,7 @@ read -r -d '' setup_patch_mariadb_ctl_config <<'PATCH' || true
    <% end %>
 -  MyIP: <%= network_ip %>
 +  MyIP: <%= p('cf_mysql.mysql.advertise_host') || network_ip %>
-   ConnectionTimeout: 600
+   ConnectionTimeout: <%= p('cf_mysql.mysql.database_startup_timeout')%>
 PATCH
 
 read -r -d '' setup_patch_my_cnf <<'PATCH' || true

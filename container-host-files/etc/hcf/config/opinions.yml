@@ -173,7 +173,6 @@ properties:
         client: cf-usb
   cf_mysql:
     mysql:
-      database_startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
       max_open_files: 1500
