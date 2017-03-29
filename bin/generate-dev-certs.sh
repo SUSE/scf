@@ -30,20 +30,28 @@ done
 
 shift $((OPTIND - 1))
 
-if [[ "${1:-}" == "--help" ]]; then
-cat <<EOL
-Usage: generate_dev_certs.sh <OUTPUT_PATH>
+usage() {
+    cat <<'EOL'
+Usage: "${0:-generate_dev_certs.sh}" [NAMESPACE] <OUTPUT_PATH>
+Namespace defaults to `hcf`
 EOL
-exit 0
+}
+
+if [[ "${1:-}" == "--help" ]]; then
+    usage
+    exit 0
 fi
 
-output_path="${1:-}"
+namespace="${1:-}"
+output_path="${2:-}"
+if test -z "${output_path}" ; then
+    output_path="${namespace}"
+    namespace="hcf"
+fi
 
 if test -z "${output_path}" ; then
-  cat <<EOL
-  Usage: generate_dev_certs.sh <OUTPUT_PATH>
-EOL
-  exit 1
+    usage
+    exit 1
 fi
 
 if test "${has_env}" = "no" ; then
@@ -94,11 +102,11 @@ make_domains() {
         result="${result},${host_name}-${i}.${host_name}-pod"
     done
     # For faking out HA on vagrant
-    result="${result},${host_name}-0.hcf.svc,*.${host_name}-0.hcf.svc"
+    result="${result},${host_name}-0.${namespace}.svc,*.${host_name}-0.${namespace}.svc"
     local cluster_name
     for cluster_name in "" .cluster.local .cluster.hcp ; do
         local instance_name
-        for instance_name in hcf hcf1 hcf2 hcf3 hcf4 hcf5 ; do
+        for instance_name in ${namespace} ${namespace}1 ${namespace}2 ${namespace}3 ${namespace}4 ${namespace}5 ; do
             result="${result},${host_name}.${instance_name}.svc${cluster_name}"
             result="${result},*.${host_name}.${instance_name}.svc${cluster_name}"
             for (( i = 0; i < 10; i++ )) ; do
@@ -194,7 +202,7 @@ certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer --CA internalCA --
 
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
 # Server certificate to share across the consul cluster
-server_cn=server.dc1.hcf
+server_cn=server.dc1.${namespace}
 certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name ${server_cn}
 certstrap --depot-path ${internal_certs_dir} sign ${server_cn} --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/server.key
@@ -237,7 +245,7 @@ cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_ser
 # We include hcf.uaa.${DOMAIN} / hcf.login.${DOMAIN} because it's not covered by
 # *.${DOMAIN} and it's required by the dev UAA server
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},hcf.uaa.${DOMAIN},hcf.login.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},${namespace}.uaa.${DOMAIN},${namespace}.login.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
