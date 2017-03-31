@@ -28,7 +28,7 @@ REG add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" /v AppendToMulti
 Restart-Service Dnscache
 Clear-DnsClientCache
 
-$hcfCompoentHostname = "consul-int"
+$hcfCompoentHostname = "consul"
 $hcfCompoentIpAddress = (Resolve-DnsName -Name $hcfCompoentHostname -Type A)[0].IpAddress
 $hcfCompoentRoute = (Find-NetRoute -RemoteIPAddress $hcfCompoentIpAddress)[0]
 $advertisedMachineIp = $hcfCompoentRoute.IPAddress
@@ -50,7 +50,7 @@ ConfigureCellLocalwall "$wd\localwall.exe" $advertisedMachineIp
 
 ## HCF setting
 
-$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon-int:8443" -SkipCertificateValidation $SkipSslValidation
+$hcfSettings = GetConfigFromDemophon -Username $CloudFoundryAdminUsername -Password $CloudFoundryAdminPasswordClear -DemaphonEndpoint "https://demophon:8443" -SkipCertificateValidation $SkipSslValidation
 
 ## Generate REP Cert
 

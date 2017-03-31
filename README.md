@@ -482,7 +482,7 @@ Name    | Effect | Notes |
   5. Rebuild the role images that need this new setting:
 
     ```bash
-    docker stop <role>-int
+    docker stop <role>
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```

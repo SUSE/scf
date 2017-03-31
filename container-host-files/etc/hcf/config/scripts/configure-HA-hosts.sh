@@ -12,36 +12,41 @@
 
 find_cluster_ha_hosts() {
     local component_name="${1}"
-
-    # on Vagrant / AWS ; HA is not supported
-    # Fall back to simple hostname
-
-    if test -z "${HCP_INSTANCE_ID:-}" ; then
-        echo "[\"${component_name}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\"]"
+    if test -z "${KUBERNETES_SERVICE_HOST:-}" ; then
+        # on Vagrant / AWS ; HA is not supported
+        # Fall back to simple hostname
+        echo "[\"${component_name}\"]"
         return 0
     fi
 
-    # We are on HCP, loop over the environment to locate the component
-    # name variables.
+    local this_component="${HOSTNAME%-*}"
+    if test "${this_component}" != "${component_name}" ; then
+        echo "[\"${component_name}\"]"
+        return 0
+    fi
 
-    local hosts=''
-    local i=0
+    if test -n "${KUBERNETES_NAMESPACE:-}" ; then
+        # This is running on raw Kubernetes
 
-    while test "${i}" -lt 100 ; do
-        local varname="${component_name^^}_${i}_INT_SERVICE_HOST";
-        # !varname => Double deref of the variable.
-        if test -z "${!varname:-}" ; then
-            break
-        fi
-
-        # Note: The varname deref gives us an IP address. We want the
-        # actual host name, and construct it.
-        hosts="${hosts},\"${component_name}-${i}-int.${HCP_SERVICE_DOMAIN_SUFFIX}\""
-        i="$(expr "${i}" + 1)"
-    done
-    # Return the result, with [] around the hostnames, removing the leading comma
-    echo "[${hosts#,}]"
+        # Loop over the environment to locate the component name variables.
+        local hosts=''
+        local name
+        for name in $(dig "${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }') ; do
+            hosts="${hosts},\"${name%.}\""
+        done
+        # Return the result, with [] around the hostnames, removing the leading comma
+        echo "[${hosts#,}]"
+    else
+        echo "FIXME: I busted HCP" >&2
+        exit 1
+    fi
 }
+
+if test -n "${KUBERNETES_NAMESPACE:-}" ; then
+    # We're on raw Kubernetes; do some HCP-compatibility work
+    # We don't have the k8s namespace available, but it _is_ in resolv.conf
+    export HCP_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
+fi
 
 export CONSUL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
 export NATS_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"

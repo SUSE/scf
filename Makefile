@@ -180,6 +180,15 @@ show-docker-setup:
 show-versions:
 	${GIT_ROOT}/make/show-versions
 
+########## KUBERNETES TARGETS ##########
+kube:
+	${GIT_ROOT}/make/kube
+.PHONY: kube
+
+hyperkube:
+	${GIT_ROOT}/make/hyperkube
+.PHONY: hyperkube
+
 ########## CONFIGURATION TARGETS ##########
 
 generate: \

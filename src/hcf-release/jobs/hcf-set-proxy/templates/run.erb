@@ -73,7 +73,7 @@ insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.client
 
 <%
 %W{staging running}.each do |runtime|
-  if env[runtime] %>
+  if env[runtime] && !env[runtime].empty? %>
 cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
 <%end
 end %>

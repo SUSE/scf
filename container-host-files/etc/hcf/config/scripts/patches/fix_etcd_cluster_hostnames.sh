@@ -39,8 +39,8 @@ if [ ! -f "${SENTINEL}" ]; then
  <% else %>
 -advertise_peer_url="http://<%= my_ip %>:7001"
 -advertise_client_url="http://<%= my_ip %>:4001"
-+advertise_peer_url="${peer_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/').<%= p("etcd.advertise_urls_dns_suffix") %>:7001"
-+advertise_client_url="${client_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/').<%= p("etcd.advertise_urls_dns_suffix") %>:4001"
++advertise_peer_url="${peer_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1/').<%= p("etcd.advertise_urls_dns_suffix") %>:7001"
++advertise_client_url="${client_protocol}://$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1/').<%= p("etcd.advertise_urls_dns_suffix") %>:4001"
  <% end %>
 
  listen_client_url="${client_protocol}://0.0.0.0:4001"
@@ -66,7 +66,7 @@ if [ ! -f "${METRICS_SENTINEL}" ]; then
  function start_etcd_metrics_server() {
    local node_name
 -  node_name="<%= name.gsub('_', '-') %>-<%= spec.index %>"
-+  node_name="$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1-int/')"
++  node_name="$(hostname -s | sed 's/\(etcd-[0-9]\+\)-.*/\1/')"
  
    /var/vcap/packages/etcd_metrics_server/bin/etcd-metrics-server \
        -index=<%= spec.index %> \

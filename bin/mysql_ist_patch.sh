@@ -27,8 +27,8 @@ read -r -d '' setup_patch_my_cnf <<PATCH || true
 -wsrep_provider_options="gcache.size=${GCACHE_SIZE}M;pc.recovery=TRUE;pc.checksum=TRUE"
 +wsrep_provider_options="gcache.size=${GCACHE_SIZE}M;pc.recovery=TRUE;pc.checksum=TRUE;ist.recv_addr=${IP_ADDRESS}:4568"
 +wsrep_sst_receive_address='${IP_ADDRESS}:4444'
- wsrep_cluster_address="gcomm://mysql-0-int.${INSTANCE_ID}.svc,mysql-1-int.${INSTANCE_ID}.svc,mysql-2-int.${INSTANCE_ID}.svc"
- wsrep_node_address='mysql-1-int.${INSTANCE_ID}.svc:4567'
+ wsrep_cluster_address="gcomm://mysql-0.${INSTANCE_ID}.svc,mysql-1.${INSTANCE_ID}.svc,mysql-2.${INSTANCE_ID}.svc"
+ wsrep_node_address='mysql-1.${INSTANCE_ID}.svc:4567'
  wsrep_node_name='mysql/1'
 PATCH
 
