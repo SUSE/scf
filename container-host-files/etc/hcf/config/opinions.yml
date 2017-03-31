@@ -225,9 +225,6 @@ properties:
       api_force_https: false
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
-  consul:
-    agent:
-      domain: hcf
   couchdb:
     host: couchdb
     metric_prefix: couchdb-scalingmetric

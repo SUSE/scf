@@ -58,6 +58,9 @@ if test "${has_env}" = "no" ; then
     load_env "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
 fi
 
+# Replace the stubbed-out namespace info
+HCP_SERVICE_DOMAIN_SUFFIX="${HCP_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
+
 # Generate a random signing key passphrase
 signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
@@ -118,11 +121,8 @@ make_domains() {
         result="${result},${host_name}.${DOMAIN},*.${host_name}.${DOMAIN}"
     fi
     if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
-        result="${result},$(tr -d '[[:space:]]' <<EOF
-        ${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX},
-        *.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}
-EOF
-    )"
+        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+        result="${result},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
     fi
     echo "${result}"
 }
