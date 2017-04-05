@@ -34,8 +34,9 @@ Vagrant.configure(2) do |config|
     # vb.gui = true
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    override.vm.synced_folder ".", "/home/vagrant/hcf"
+    # https://github.com/mitchellh/vagrant/issues/351
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
