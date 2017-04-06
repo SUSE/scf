@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo '# ../../LOCATE | tee ../../LOCATIONS.txt'
+while read line
+do
+    #echo $line
+    case "$line" in
+	\#\#*)
+	    # skip
+	    ;;
+	\#*)
+	    # pass
+	    echo $line
+	    ;;
+	*)
+	    # search
+	    echo $line ...
+	    F-GREP -l "$line" | sed -e 's/^/	/'
+	    ;;
+    esac
+done < MODDED

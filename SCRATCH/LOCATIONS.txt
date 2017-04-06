@@ -1,0 +1,407 @@
+## ../../LOCATE | tee ../../LOCATIONS.txt
+##
+## + manual edit to enter detail information
+#
+# dropped - cf
+#
+capi.tps.cc.basic_auth_password ...
+capi.tps.cc.basic_auth_username ...
+cf.tps.capi.tps.cc.basic_auth_password ...
+cf.tps.capi.tps.cc.basic_auth_username ...
+#
+# added - cf
+#
+capi.tps.cc.ca_cert ...
+	./cf-release-clone-252/src/capi-release/docs/tls-configuration.md
+	./cf-release-clone-252/src/capi-release/jobs/tps/templates/cc_ca.crt.erb
+	./cf-release-clone-252/src/capi-release/jobs/tps/spec
+
+    description: "PEM-encoded CA certificate"
+    [1]
+    NEW secret => dark opinion, generate-cert
+
+capi.tps.cc.client_cert ...
+	./cf-release-clone-252/src/capi-release/docs/tls-configuration.md
+	./cf-release-clone-252/src/capi-release/jobs/tps/templates/cc_client.crt.erb
+	./cf-release-clone-252/src/capi-release/jobs/tps/spec
+
+    description: "PEM-encoded client certificate"
+    [1]
+    NEW secret => dark opinion, generate-cert
+
+capi.tps.cc.client_key ...
+	./cf-release-clone-252/src/capi-release/docs/tls-configuration.md
+	./cf-release-clone-252/src/capi-release/jobs/tps/templates/cc_client.key.erb
+	./cf-release-clone-252/src/capi-release/jobs/tps/spec
+
+    description: "PEM-encoded client key"
+    [1]
+    NEW secret => dark opinion, generate-cert
+
+capi.tps.listener_enabled ...
+	./cf-release-clone-252/src/capi-release/jobs/tps/spec
+	./cf-release-clone-252/src/capi-release/jobs/tps/monit
+
+    description: "Flag to enable TPS listener. Listener functionality has be absorbed into modern CC"
+    default: true
+    [1]
+    Nothing to do, keep to default
+
+cc.diego.pid_limit ...
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/cloud_controller_worker.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/cloud_controller_api.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+
+    description: "Maximum pid limit for containerized work running user-provided code"
+    default: 1024
+    [2]
+    Do we have an opinion here?
+    For a quick thing, keep to default
+
+cc.diego.temporary_local_tps ...
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/cloud_controller_worker.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/cloud_controller_api.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+
+    description: "Temporary flag to manage app state directly to the bbs from cc"
+    default: false
+    [2]
+    Do we have an opinion here?
+    For a quick thing, keep to default
+
+cc.loggregator.internal_url ...
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/cloud_controller_worker.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/cloud_controller_api.yml.erb
+	./cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+
+    description: "Internal url used to communicate with traffic_controller"
+    default: "http://loggregator-trafficcontroller.service.cf.internal:8081"
+    [2]
+    Nothing to do, keep to default
+
+cf.cloud_controller_ng.cc.diego.pid_limit ...
+cf.cloud_controller_ng.cc.diego.temporary_local_tps ...
+cf.cloud_controller_ng.cc.loggregator.internal_url ...
+
+	Same as ref [2] ?
+
+cf.cloud_controller_worker.cc.diego.pid_limit ...
+cf.cloud_controller_worker.cc.diego.temporary_local_tps ...
+cf.cloud_controller_worker.cc.loggregator.internal_url ...
+
+	Same as ref [2] ?
+
+cf.consul_agent.consul.agent.ports.dns ...
+cf.doppler.metron_endpoint.grpc_port ...
+cf.gorouter.router.max_idle_connections ...
+cf.metron_agent.metron_agent.disable_udp ...
+cf.metron_agent.metron_agent.grpc_port ...
+cf.metron_agent_windows.metron_agent.disable_udp ...
+cf.metron_agent_windows.metron_agent.grpc_port ...
+cf.postgres.databases.monit_timeout ...
+
+	Same as ref [3] ?
+
+cf.tps.capi.tps.cc.ca_cert ...
+cf.tps.capi.tps.cc.client_cert ...
+cf.tps.capi.tps.cc.client_key ...
+cf.tps.capi.tps.listener_enabled ...
+
+	Same as ref [1] ?
+
+consul.agent.ports.dns ...
+	./cf-release-clone-252/src/consul-release/src/confab/config/consul_config_definer_test.go
+	./cf-release-clone-252/src/consul-release/jobs/consul_agent/spec
+
+      description: "DNS server port"
+      default: 53
+      [3]
+    Nothing to do, keep to default
+
+databases.monit_timeout ...
+	./cf-release-clone-252/src/postgres-release/README.md
+	./cf-release-clone-252/src/postgres-release/jobs/postgres/spec
+	./cf-release-clone-252/src/postgres-release/jobs/postgres/monit
+
+    description: "Monit timout in seconds for the postgres job
+    		  start. If not specified, no timeout statement will
+    		  be added so that the global monit timeout applies."
+    [3]
+    Nothing to do, keep to default
+
+metron_agent.disable_udp ...
+	./cf-release-clone-252/src/loggregator/README.md
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/templates/metron_agent.json.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/spec
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/templates/metron_agent.json.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/spec
+
+    description: "Disable incoming UDP"
+    default: false
+    [3]
+    Nothing to do, keep to default
+
+metron_agent.grpc_port ...
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/templates/metron_agent.json.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/spec
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/templates/metron_agent.json.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/spec
+
+    description: "Port the metron agent is listening on to receive gRPC log envelopes"
+    default: 3458
+    [3]
+    Nothing to do, keep to default
+
+metron_endpoint.grpc_port ...
+	./cf-release-clone-252/src/loggregator/jobs/doppler/templates/doppler.json.erb
+	./cf-release-clone-252/src/loggregator/jobs/doppler/spec
+
+    description: "The port used to emit grpc messages to the Metron agent"
+    default: 3458
+    [3]
+    Nothing to do, keep to default
+
+router.max_idle_connections ...
+	./cf-release-clone-252/src/routing-release/jobs/gorouter/templates/gorouter.yml.erb
+	./cf-release-clone-252/src/routing-release/jobs/gorouter/spec
+
+    description: "Maximum total idle keepalive connections to
+    		 backends. When 0, support for keepalive connections
+    		 is disabled. Maximum idle connections per backend is
+    		 100."
+    default: 0
+    [3]
+    Nothing to do, keep to default
+
+#
+# changed - cf
+#
+cf.cloud_controller_clock.system_domain_organization ...
+cf.cloud_controller_clock.uaa.ssl.port ...
+cf.cloud_controller_ng.cc.diego.lifecycle_bundles ...
+
+cf.cloud_controller_ng.cc.mutual_tls.ca_cert ...
+cf.cloud_controller_ng.cc.mutual_tls.private_key ...
+cf.cloud_controller_ng.cc.mutual_tls.public_cert ...
+
+	./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/mutual_tls_ca.crt.erb
+	./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+	./src/CLONES/cf-release-clone-252/src/capi-release/docs/tls-configuration.md
+
+	./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/mutual_tls_ca.crt.erb
+	./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/nginx.conf.erb
+	./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+
+
+cf.cloud_controller_ng.system_domain_organization ...
+cf.cloud_controller_ng.uaa.ssl.port ...
+cf.cloud_controller_worker.cc.diego.lifecycle_bundles ...
+
+cf.cloud_controller_worker.cc.mutual_tls.ca_cert ...
+cf.cloud_controller_worker.cc.mutual_tls.private_key ...
+cf.cloud_controller_worker.cc.mutual_tls.public_cert ...
+
+	./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/mutual_tls_ca.crt.erb
+	./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+
+	./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/mutual_tls_ca.crt.erb
+	./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+
+cf.cloud_controller_worker.system_domain_organization ...
+cf.cloud_controller_worker.uaa.ssl.port ...
+cf.dea_next.dea_next.stacks ...
+cf.metron_agent.syslog_daemon_config.address ...
+cf.metron_agent.syslog_daemon_config.port ...
+cf.metron_agent.syslog_daemon_config.transport ...
+cf.metron_agent_windows.syslog_daemon_config.address ...
+cf.metron_agent_windows.syslog_daemon_config.port ...
+cf.metron_agent_windows.syslog_daemon_config.transport ...
+cf.tps.capi.tps.cc.external_port ...
+cf.uaa.login.saml.serviceProviderKeyPassword ...
+login.saml.serviceProviderKeyPassword ...
+	./cf-release-clone-252/src/uaa-release/spec/uaa-release.erb_spec.rb
+	./cf-release-clone-252/src/uaa-release/jobs/uaa/templates/uaa.yml.erb
+	./cf-release-clone-252/src/uaa-release/jobs/uaa/templates/login.yml.erb
+	./cf-release-clone-252/src/uaa-release/jobs/uaa/spec
+
+    description: "Passphrase for the service provider private key."
+    example: ""
+    default: ""
+
+syslog_daemon_config.port ...
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep_windows/monit
+	./diego-release-clone-252/jobs/route_emitter_windows/spec
+	./diego-release-clone-252/jobs/route_emitter_windows/monit
+
+    description: "Syslog port"
+    default: ""
+
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/spec
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/monit
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/templates/syslog_forwarder.conf.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/spec
+	./cf-release-clone-252/src/consul-release/jobs/consul_agent_windows/spec
+	./cf-release-clone-252/src/consul-release/jobs/consul_agent_windows/monit
+
+    description: "Port of syslog aggregator"
+    default: ""
+
+syslog_daemon_config.trans ...
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep_windows/monit
+	./diego-release-clone-252/jobs/route_emitter_windows/spec
+	./diego-release-clone-252/jobs/route_emitter_windows/monit
+
+  syslog_daemon_config.transport ?
+    description: "Syslog transport protocol (tcp or udp)"
+    default: "udp"
+
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/spec
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent_windows/monit
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/templates/syslog_forwarder.conf.erb
+	./cf-release-clone-252/src/loggregator/jobs/metron_agent/spec
+	./cf-release-clone-252/src/consul-release/jobs/consul_agent_windows/spec
+	./cf-release-clone-252/src/consul-release/jobs/consul_agent_windows/monit
+
+  syslog_daemon_config.transport ??
+    description: "Transport to be used when forwarding logs (tcp|udp)."
+    default: "udp"
+
+#
+# added - diego
+#
+diego.auctioneer.diego.auctioneer.starting_container_count_maximum ...
+diego.auctioneer.starting_container_count_maximum ...
+	./diego-release-clone-252/jobs/auctioneer/templates/auctioneer.json.erb
+	./diego-release-clone-252/jobs/auctioneer/spec
+
+    description: "Maximum number of inflight container starts allowed globally. Value of 0 or less indicates no limit."
+    default: 0
+
+    Nothing to do, keep to default
+
+diego.bbs.diego.bbs.sql.max_idle_connections ...
+diego.bbs.sql.max_idle_connections ...
+	./diego-release-clone-252/jobs/bbs/templates/bbs.json.erb
+	./diego-release-clone-252/jobs/bbs/spec
+
+    description: "Maximum number of idle connections to the SQL database"
+
+diego.rep.consul.ca_cert ...
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_ca.crt.erb
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep/templates/consul_ca.crt.erb
+	./diego-release-clone-252/jobs/rep/spec
+
+    description: "PEM-encoded CA certificate"
+    [4]
+    NEW secret => dark opinion, generate-cert
+
+diego.rep.consul.client_cert ...
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_client.crt.erb
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep/templates/consul_client.crt.erb
+	./diego-release-clone-252/jobs/rep/spec
+
+    description: "PEM-encoded client certificate"
+    [4]
+    NEW secret => dark opinion, generate-cert
+
+diego.rep.consul.client_key ...
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_client.key.erb
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep/templates/consul_client.key.erb
+	./diego-release-clone-252/jobs/rep/spec
+
+    description: "PEM-encoded client key"
+    [4]
+    NEW secret => dark opinion, generate-cert
+
+diego.rep.consul.require_tls ...
+	./diego-release-clone-252/jobs/rep_windows/templates/rep.json.erb
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_client.crt.erb
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_client.key.erb
+	./diego-release-clone-252/jobs/rep_windows/templates/consul_ca.crt.erb
+	./diego-release-clone-252/jobs/rep_windows/spec
+	./diego-release-clone-252/jobs/rep/templates/rep.json.erb
+	./diego-release-clone-252/jobs/rep/templates/consul_client.crt.erb
+	./diego-release-clone-252/jobs/rep/templates/consul_client.key.erb
+	./diego-release-clone-252/jobs/rep/templates/consul_ca.crt.erb
+	./diego-release-clone-252/jobs/rep/spec
+
+    description: "Require mutual TLS to talk to the local consul API"
+    default: false
+    [4]
+    Keep to default
+
+diego.rep.diego.rep.consul.ca_cert ...
+diego.rep.diego.rep.consul.client_cert ...
+diego.rep.diego.rep.consul.client_key ...
+diego.rep.diego.rep.consul.require_tls ...
+
+	See ref [4] ?
+
+diego.rep_windows.diego.rep.consul.ca_cert ...
+diego.rep_windows.diego.rep.consul.client_cert ...
+diego.rep_windows.diego.rep.consul.client_key ...
+diego.rep_windows.diego.rep.consul.require_tls ...
+
+	See ref [4] ?
+
+diego.route_emitter.diego.route_emitter.job_name ...
+diego.route_emitter.job_name ...
+	./diego-release-clone-252/jobs/route_emitter_windows/templates/route_emitter.json.erb
+	./diego-release-clone-252/jobs/route_emitter_windows/spec
+	./diego-release-clone-252/jobs/route_emitter/templates/route_emitter.json.erb
+	./diego-release-clone-252/jobs/route_emitter/spec
+
+    description: "The name of the Diego job referenced by this spec (DO NOT override)"
+    default: "route_emitter"
+
+    Keep to default
+
+diego.route_emitter_windows.diego.route_emitter.bbs.api_location ...
+diego.route_emitter_windows.diego.route_emitter.bbs.ca_cert ...
+diego.route_emitter_windows.diego.route_emitter.bbs.client_cert ...
+diego.route_emitter_windows.diego.route_emitter.bbs.client_key ...
+diego.route_emitter_windows.diego.route_emitter.bbs.client_session_cache_size ...
+diego.route_emitter_windows.diego.route_emitter.bbs.max_idle_conns_per_host ...
+diego.route_emitter_windows.diego.route_emitter.bbs.require_ssl ...
+diego.route_emitter_windows.diego.route_emitter.debug_addr ...
+diego.route_emitter_windows.diego.route_emitter.dropsonde_port ...
+diego.route_emitter_windows.diego.route_emitter.job_name ...
+diego.route_emitter_windows.diego.route_emitter.local_mode ...
+diego.route_emitter_windows.diego.route_emitter.log_level ...
+diego.route_emitter_windows.diego.route_emitter.nats.machines ...
+diego.route_emitter_windows.diego.route_emitter.nats.password ...
+diego.route_emitter_windows.diego.route_emitter.nats.port ...
+diego.route_emitter_windows.diego.route_emitter.nats.user ...
+diego.route_emitter_windows.diego.route_emitter.sync_interval_in_seconds ...
+diego.route_emitter_windows.syslog_daemon_config.address ...
+diego.route_emitter_windows.syslog_daemon_config.port ...
+diego.route_emitter_windows.syslog_daemon_config.transport ...
+#
+# changed - diego
+#
+diego.bbs.auctioneer.api_location ...
+	./diego-release-clone-252/jobs/bbs/templates/bbs.json.erb
+	./diego-release-clone-252/jobs/bbs/spec
+
+    description: "Hostname and port of the auctioneer API, without URI scheme. Recommended in favor of api_url."
+    example: "auctioneer.service.cf.internal:9016"
+
+    Description changed, nothing to do
+
+
+diego.bbs.auctioneer.api_url ...
+	./diego-release-clone-252/jobs/bbs/templates/bbs.json.erb
+	./diego-release-clone-252/jobs/bbs/spec
+
+    description: "URL of the auctioneer API. Deprecated in favor of api_location, but in use through Diego v1."
+    default: "http://auctioneer.service.cf.internal:9016"
+
+    Description changed, nothing to do

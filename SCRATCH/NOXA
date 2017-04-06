@@ -1,0 +1,12 @@
+Cloud Controller now requires SSL configuration with the following
+properties, the CA cert should match the diego bbs ca cert and that ca
+cert should be used to sign the newly required public cert:
+
+cc.mutual_tls.ca_cert: PEM-encoded CA certificate for secure, mutually authenticated TLS communication
+cc.mutual_tls.public_cert: PEM-encoded certificate for secure, mutually authenticated TLS communication
+cc.mutual_tls.private_key: PEM-encoded key for secure, mutually authenticated TLS communication
+
+
+cc.mutual_tls.ca_cert
+cc.mutual_tls.public_cert
+cc.mutual_tls.private_key

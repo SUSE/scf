@@ -1,0 +1,4 @@
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec

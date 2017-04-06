@@ -190,6 +190,18 @@ certstrap --depot-path "${internal_certs_dir}" sign hcf-sso --CA internalCA --pa
 cat ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/hcf-sso.key > ${internal_certs_dir}/sso_routing.key
 cp ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/sso_routing.crt
 
+# generate REP_CONSUL certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_consul --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign rep_consul --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate TPS_CC_CLIENT certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name tps_cc_client --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign tps_cc_client --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate CC_MUTUAL_TLS certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name cc_mutual_tls --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign cc_mutual_tls --CA internalCA --passphrase "${signing_key_passphrase}"
+
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_ha_domains "etcd")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdServer --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -316,6 +328,14 @@ TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/traff
 UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
 UAA_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
 
+# CF v252
+CAPI_TPS_CC_CLIENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tps_cc_client.crt")
+CAPI_TPS_CC_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tps_cc_client.key")
+CC_MUTUAL_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cc_mutual_tls.crt")
+CC_MUTUAL_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cc_mutual_tls.key")
+DIEGO_REP_CONSUL_CLIENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_consul.crt")
+DIEGO_REP_CONSUL_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_consul.key")
+
 cat <<ENVS > ${output_path}
 APP_SSH_KEY=${APP_SSH_KEY}
 APP_SSH_KEY_FINGERPRINT=${APP_SSH_KEY_FINGERPRINT}
@@ -368,6 +388,13 @@ TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
 TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
 UAA_SERVER_CERT=${UAA_SERVER_CERT}
 UAA_SERVER_KEY=${UAA_SERVER_KEY}
+# CF v252
+CAPI_TPS_CC_CLIENT_CERT=${CAPI_TPS_CC_CLIENT_CERT}
+CAPI_TPS_CC_CLIENT_KEY=${CAPI_TPS_CC_CLIENT_KEY}
+CC_MUTUAL_TLS_KEY=${CC_MUTUAL_TLS_KEY}
+CC_MUTUAL_TLS_CERT=${CC_MUTUAL_TLS_CERT}
+DIEGO_REP_CONSUL_CLIENT_CERT=${DIEGO_REP_CONSUL_CLIENT_CERT}
+DIEGO_REP_CONSUL_CLIENT_KEY=${DIEGO_REP_CONSUL_CLIENT_KEY}
 ENVS
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"

@@ -2684,6 +2684,54 @@ configuration:
     default: false
     description: Whether or not to use privileged containers for staging tasks.
     required: true
+  - name: CAPI_TPS_CC_CLIENT_CERT
+    secret: true
+    generator:
+      id: tps_cc_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server certificate
+    required: true
+  - name: CAPI_TPS_CC_CLIENT_KEY
+    secret: true
+    generator:
+      id: tps_cc_client_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key
+    required: true
+  - name: CC_MUTUAL_TLS_CERT
+    secret: true
+    generator:
+      id: cc_mutual_tls_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server key certificate
+    required: true
+  - name: CC_MUTUAL_TLS_KEY
+    secret: true
+    generator:
+      id: cc_mutual_tls_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key
+    required: true
+  - name: DIEGO_REP_CONSUL_CLIENT_CERT
+    secret: true
+    generator:
+      id: rep_consul_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded server certificate
+    required: true
+  - name: DIEGO_REP_CONSUL_CLIENT_KEY
+    secret: true
+    generator:
+      id: rep_consul_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key
+    required: true
   templates:
     az: '"((HCP_AZ))"'
     id: ((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((HOSTNAME))((/HCP_COMPONENT_NAME))
@@ -2726,7 +2774,9 @@ configuration:
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.tps.cc.client_cert: '"((CAPI_TPS_CC_CLIENT_CERT))"'
+    properties.capi.tps.cc.client_key: '"((CAPI_TPS_CC_CLIENT_KEY))"'
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2748,6 +2798,9 @@ configuration:
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
+    properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.cc.mutual_tls.private_key: '"((CC_MUTUAL_TLS_KEY))"'
+    properties.cc.mutual_tls.public_cert: '"((CC_MUTUAL_TLS_CERT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2813,6 +2866,9 @@ configuration:
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.rep.consul.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.rep.consul.client_cert: '"((DIEGO_REP_CONSUL_CLIENT_CERT))"'
+    properties.diego.rep.consul.client_key: '"((DIEGO_REP_CONSUL_CLIENT_KEY))"'
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
