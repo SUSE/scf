@@ -1,56 +1,212 @@
-# SUSE Cloud Foundry
+# Helion Cloud Foundry
 
-  * [Overview](#overview)
-  * [Directory Structure](#directory-structure)
-  * [Deployment](#deployment)
-    * [To deploy a vagrant VM on openSUSE for running SCF on hyperkube:](#to-deploy-a-vagrant-vm-on-opensuse-for-running-scf-on-hyperkube)
-  * [Makefile targets](#makefile-targets)
-    * [Vagrant VM Targets](#vagrant-vm-targets)
-    * [BOSH Release Targets](#bosh-release-targets)
-    * [Fissile Build Targets](#fissile-build-targets)
-    * [Distribution Targets](#distribution-targets)
-  * [Development FAQ (on the vagrant box)](#development-faq-on-the-vagrant-box)
-  * [Build Dependencies](#build-dependencies)
+This repository integrates all HCF components.
 
-# Overview
+# Preparing to Deploy HCF
 
-SUSE Cloud Foundry is a CF distribution targeting deployment on Kubernetes/CaaSP. It leverages several SUSE and Cloud Foundry projects through submodules, and [fissile](https://github.com/hpcloud/fissile) for building docker images and kubernetes manifests for these components. The tree for the upstream cf-release can be found at `src/cf-release`
+__Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
 
-# Directory Structure
+## Manually testing a branch on Jenkins
 
+1. Login to [Jenkins](https://jenkins.issueses.io)
+2. Lookup the `hcf-vagrant-in-cloud-develop` job
+3. Use the `Build with Parameters` link to start a build
+4. Specify the branch you want built and start
+
+## To Deploy HCF with Vagrant
+
+_NOTE:_ These are the common instructions that are shared between all providers, some providers have different requirements, make sure that you read the appropriate section for your provider.
+
+1. Install Vagrant (version 1.7.4 and higher).
+
+2. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
+
+  ```bash
+  git clone git@github.com:hpcloud/hcf
+  cd hcf
+  git submodule update --init --recursive
+  ```
+
+  __Important:__ Ensure you do not have uncommitted changes in any submodules.
+
+3. Bring the VM online and `ssh` into it:
+
+  ```bash
+  # Replace X with one of: vmware_fusion, vmware_workstation, virtualbox
+  vagrant up --provider X
+  vagrant ssh
+  ```
+
+  __Note:__ The virtualbox provider is unstable and we've had many problems with HCF on it, try to use vmware when possible.
+
+4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  ```bash
+  cd hcf
+  make vagrant-prep
+  ```
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+5. On the VM, start HCF using the `make run` command.
+
+  ```bash
+  make run
+  ```
+
+## To Deploy HCF on OS X Using VMWare Fusion
+
+1. Install VMware Fusion 7 and Vagrant (version `1.7.4` and higher).
+
+  __Note:__ To get a license for VMware Fusion 7, use your HPE email address to send a message to hp@vmware.com with the subject `Fusion license request`.
+
+2. Install the Vagrant Fusion provider plugin:
+
+  ```bash
+  vagrant plugin install vagrant-vmware-fusion
+  ```
+
+**Note** `vagrant-vmware-fusion` version 4.0.9 or greater is required.
+
+3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
+
+  ```bash
+  vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
+  ```
+
+4. Follow the common instructions in the section above
+
+## To Deploy HCF on Ubuntu Using `libvirt`
+
+1. Install Vagrant (version `1.7.4` and higher) and the `libvirt` dependencies and allow non-`root` access to `libvirt`:
+
+  ```bash
+  sudo apt-get install libvirt-bin libvirt-dev qemu-utils qemu-kvm nfs-kernel-server
+  ```
+
+2. Allow non-`root` access to `libvirt`:
+
+  ```bash
+  sudo usermod -G libvirtd -a <username>
+  ```
+
+3. Log out, log in, and then install the `libvirt` plugin:
+
+  ```bash
+  vagrant plugin install vagrant-libvirt
+  ```
+
+4. Follow the common instructions above
+
+  __Important:__ The VM may not come online during your first attempt.
+
+## To Deploy HCF on Fedora using `libvirt`
+
+1. Install Vagrant (version `1.7.4` and higher) and enable NFS over UDP:
+
+  ```bash
+  sudo firewall-cmd --zone FedoraWorkstation --change-interface vboxnet0
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service nfs
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service rpc-bind
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-service mountd
+  sudo firewall-cmd --permanent --zone FedoraWorkstation --add-port 2049/udp
+  sudo firewall-cmd --reload
+  sudo systemctl enable nfs-server.service
+  sudo systemctl start nfs-server.service
+  ```
+
+2. Install `libvirt` dependencies, allow non-`root` access to `libvirt`, and create a group for the `libvirt` user:
+
+  ```bash
+  sudo dnf install libvirt-daemon-kvm libvirt-devel
+  sudo usermod -G libvirt -a <username>
+  newgrp libvirt
+  ```
+
+3. Install `fog-libvirt` 0.0.3 and the `libvirt` plugins:
+
+  ```bash
+  # Workaround for https://github.com/fog/fog-libvirt/issues/16
+  vagrant plugin install --plugin-version 0.0.3 fog-libvirt
+  vagrant plugin install vagrant-libvirt
+  ```
+
+4. To set the `libvert` daemon user to your username/group, edit `/etc/libvirt/qemu.conf` as follows:
+
+  ```
+  user = "<username>"
+  group = "<username>"
+  ```
+
+5. Follow the common instructions above
+
+  __Important:__ The VM may not come online during your first attempt.
+
+## To Deploy HCF on Windows Using VirtualBox
+
+__Important:__ Working on a Windows host is __significantly more complicated__ because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
+
+1. Ensure that line endings are handled correctly.
+
+  ```bash
+  git config --global core.autocrlf input
+  ```
+
+2. Clone the repository, bring the VM online, and `ssh` into it:
+
+  __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
+
+  ```bash
+  vagrant up --provider virtualbox
+  vagrant ssh
+  ```
+
+3. Configure symlinks and initialize submodules:
+
+  ```bash
+  cd ~/hcf
+  git config --global core.symlinks true
+  git config core.symlinks true
+  git submodule update --init --recursive
+  ```
+
+4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+
+  ```bash
+  cd hcf
+  make vagrant-prep
+  ```
+
+  __Note:__ You need to run this command only after initially creating the VM.
+
+5. On the VM, start HCF
+
+  ```bash
+  make run
+  ```
+
+6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
+
+  __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
+
+## To Deploy HCF on Amazon AWS Using Terraform
+
+* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist`
+  to generate the archive populated with development defaults and secrets.
+
+* Extract the newly created .zip file to a temporary working dir:
+```bash
+mkdir /tmp/hcf-aws
+cd /tmp/hcf-aws
+unzip $OLDPWD/aws-???.zip
+cd aws
 ```
-.
-├── .fissile                      # Used by fissile for storing build data and assets
-├── container-host-files          # data for k8s and docker deployment
-├── docker-images
-├── docs                          # Additional documentation
-├── make                          # 'make' will call scripts in this directory
-├── packer                        # information for building vagrant boxes
-├── src                           # upstream submodules
-├── Vagrantfile                   # used for vagrant deployment
-└── vendor                        # git-notary, used for versioning tag management
-```
 
-# Deployment
+* Follow the instructions in README-aws.md
 
-## To deploy a vagrant VM on openSUSE for running SCF on hyperkube:
-- Disable system firewall: `sudo /usr/sbin/SuSEfirewall2 stop`. Or see [deprecated docs](docs/deprecated#to-deploy-hcf-on-fedora-using-libvirt) for more granular instructions
-- Install libvirt packages: `sudo zypper in libvirt libvirt-devel libvirt-client libvirt-daemon gcc`
-- Add user to libvirt group: `sudo usermod -aG ${USER} libvirt`
-- Install Vagrant 1.9.3 from the [Centos RPM](https://releases.hashicorp.com/vagrant/1.9.3/vagrant_1.9.3_x86_64.rpm):
-```
-sudo zypper in https://releases.hashicorp.com/vagrant/1.9.3/vagrant_1.9.3_x86_64.rpm
-```
-- Install libvirt provider vagrant plugin: `vagrant plugin install vagrant-libvirt`
-- Clone SCF: `git clone git@github.com:hpcloud/hcf.git && cd hcf && git submodule update --init --recursive`
-- `vagrant up --provider libvirt`
-- `vagrant ssh`
-- `make vagrant-prep`
-- `make hyperkube`
+## Makefile targets
 
-# Makefile targets
-
-## Vagrant VM Targets
+### Vagrant VM Targets
 
 Name      | Effect |
 --------------- | ---- |
@@ -59,7 +215,7 @@ Name      | Effect |
 `vagrant-box`  | Build the Vagrant box image using `packer` |
 `vagrant-prep`  | Shortcut for building everything needed for `make run` |
 
-## BOSH Release Targets
+### BOSH Release Targets
 
 Name        | Effect |
 ------------------- | ----  |
@@ -74,7 +230,7 @@ Name        | Effect |
 `cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
 `releases`      | Make all of the BOSH releases above |
 
-## Fissile Build Targets
+### Fissile Build Targets
 
 Name            | Effect
 --------------- | ----
@@ -91,7 +247,7 @@ Name            | Effect
 `mpc`           | Generate Terraform MPC definitions for a single-node microcloud
 `aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
-## Distribution Targets
+### Distribution Targets
 
 Name    | Effect | Notes |
 --------------- | ---- | --- |
@@ -102,13 +258,13 @@ Name    | Effect | Notes |
 `aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
 `aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
-# Development FAQ (on the vagrant box)
+## Development FAQ (on the vagrant box)
 
 ### Where do I find logs?
 
   1. To look at entrypoint logs, run the `docker logs <role-name>` command. To follow the logs, run the `docker logs -f <role-name>` command.
 
-  __Note:__ For `bosh` roles, `monit` logs are displayed. For `docker` roles, the `stdout` and `stderr` from the entry point are displayed.
+    __Note:__ For `bosh` roles, `monit` logs are displayed. For `docker` roles, the `stdout` and `stderr` from the entry point are displayed.
 
   2. All logs for all components can be found here on the Vagrant box in `~/.run/log`.
 
@@ -325,19 +481,19 @@ Name    | Effect | Notes |
 
   5. Rebuild the role images that need this new setting:
 
-  ```bash
-  docker stop <role>
-  docker rmi -f fissile-<role>:<tab-for-completion>
-  make images run
-  ```
+    ```bash
+    docker stop <role>
+    docker rmi -f fissile-<role>:<tab-for-completion>
+    make images run
+    ```
 
-  __Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
+    __Tip:__ If you do not know which roles require your new settings, you can use the following catch-all:
 
-  ```bash
-  make stop
-  docker rmi -f $(fissile show image)
-  make images run
-  ```
+    ```bash
+    make stop
+    docker rmi -f $(fissile show image)
+    make images run
+    ```
 
 ### How do I bump the submodules for the various releases?
 
@@ -352,35 +508,35 @@ Name    | Effect | Notes |
 
   1. On the host machine, clone the repository that you want to bump:
 
-  ```bash
+    ```bash
   git clone src/cf-release/ ./src/cf-release-clone --recursive
-  ```
+    ```
 
   2. On the host, bump the clone to the desired version:
 
-  ```bash
-  git checkout v217
-  git submodule update --init --recursive --force
-  ```
+    ```bash
+    git checkout v217
+    git submodule update --init --recursive --force
+    ```
 
   3. Create a release for the cloned repository:
 
-  __Important:__ From this point on, perform all actions on the Vagrant box.
+    __Important:__ From this point on, perform all actions on the Vagrant box.
 
-  ```bash
-  cd ~/hcf
-  ./bin/create-release.sh src/cf-release-clone cf
-  ```
+    ```bash
+    cd ~/hcf
+    ./bin/create-release.sh src/cf-release-clone cf
+    ```
 
   4. Run the `config-diff` command:
 
-  ```bash
-  FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/cf-release,${HOME}/hcf/src/cf-release-clone
-  ```
+    ```bash
+    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/cf-release,${HOME}/hcf/src/cf-release-clone
+    ```
 
   5. Act on configuration changes:
 
-  __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
+    __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
 
     For any configuration changes discovered in step the previous step, you can do one of the following:
 
@@ -445,7 +601,7 @@ Name    | Effect | Notes |
   5. Test using the `make docker-images run` command.
 
 
-### How do I publish HCF and BOSH images?
+## How do I publish HCF and BOSH images?
 
   1. Ensure that the Vagrant box is running.
 
@@ -455,21 +611,21 @@ Name    | Effect | Notes |
 
   4. This target uses the `make` variables listed below to construct the image names and tags:
 
-   |Variable  |Meaning|Default|
-   | ---    | ---  | ---  |
-   |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
-   |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
-   |IMAGE_ORG  | The organization in the image registry |helioncf|
-   |BRANCH    | The tag to use for the images | _Current git branch_ |
+    |Variable  |Meaning|Default|
+    | ---    | ---  | ---  |
+    |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
+    |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
+    |IMAGE_ORG  | The organization in the image registry |helioncf|
+    |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
 
-  ```bash
-  make tag publish IMAGE_REGISTRY=docker.helion.lol/
-  ```
+    ```bash
+    make tag publish IMAGE_REGISTRY=docker.helion.lol/
+    ```
 
 
-### How do I generate HCP service definitions?
+## How do I generate HCP service definitions?
 
   1. Ensure that the Vagrant box is running.
 
@@ -477,11 +633,11 @@ Name    | Effect | Notes |
 
   3. To generate the SDL file that contains HCP service definition for the current set of roles, run the `make hcp` command.
 
-  __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
+    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
   You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
 
-### How do I generate Terraform MPC service definitions?
+## How do I generate Terraform MPC service definitions?
 
   1. Ensure that the Vagrant box is running.
 
@@ -489,10 +645,10 @@ Name    | Effect | Notes |
 
   3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
 
-  __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
+    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
 
-### How do I test a new version of configgin
+## How do I test a new version of configgin
 
 1. Ensure that the Vagrant box is running.
 
@@ -514,16 +670,16 @@ Name    | Effect | Notes |
     make images
     ```
 
-### How do I add a new version of Ruby to the build system?
+## How do I add a new version of Ruby to the build system?
 
 1. Add the version to the last line of `docker-images/hcf-pipeline-ruby-bosh/versions.txt`
 
 2. Edit the `HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGET` section of `Makefile`
 
-    Update the version from 2.3.1 to the desired version.
+   Update the version from 2.3.1 to the desired version.
 
 3. Run `make hcf-pipeline-ruby-bosh`
 
-# Build Dependencies
+## Build Dependencies
 
 [![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)
