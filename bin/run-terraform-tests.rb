@@ -131,31 +131,6 @@ class TerraformTester
   end
 end
 
-class MPCTester < TerraformTester
-  def overrides_keys
-    ({
-        key_file:                    'OS_SSH_KEY_PATH',
-        openstack_keypair:           'OS_SSH_KEYPAIR',
-        openstack_availability_zone: ['OS_AVAILABILITY_ZONE', 'nova'],
-        openstack_network_id:        'OS_NETWORK_ID',
-        openstack_network_name:      'OS_NETWORK_NAME',
-        openstack_region:            'OS_REGION_NAME',
-        docker_username:             'DOCKER_USERNAME',
-        docker_password:             'DOCKER_PASSWORD',
-        docker_email:                'DOCKER_EMAIL',
-        hcf_version:                 ['HCF_VERSION', 'develop']
-    })
-  end
-
-  def ssh_key_path
-    ENV['OS_SSH_KEY_PATH']
-  end
-
-  def environment_prefix
-    'OS_'
-  end
-end
-
 class AWSTester < TerraformTester
   def overrides_keys
     ({
@@ -180,12 +155,11 @@ class AWSTester < TerraformTester
 end
 
 PROVIDERS = {
-  mpc: MPCTester,
   aws: AWSTester,
 }
 
 def main
-  options = {provider: MPCTester}
+  options = {provider: AWSTester}
   OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [options]"
     opts.on('-pPROVIDER', '--provider=PROVIDER', 'IAAS provider to use') do |v|

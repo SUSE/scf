@@ -71,11 +71,8 @@ case ${TARGET} in
         ;;
 esac
 
-# Assemble AWS/MPC terraform from pieces, with variants overriding base definitions.
+# Assemble AWS terraform from pieces, with variants overriding base definitions.
 case ${TARGET} in
-    mpc)
-	cp terraform/mpc.tf ${GIT_ROOT}/
-	;;
     aws*)
 	cp terraform/aws/common/*.tf ${GIT_ROOT}/
 	;;

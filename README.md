@@ -244,7 +244,6 @@ Name            | Effect
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
 `hcp`           | Generate HCP service definitions
-`mpc`           | Generate Terraform MPC definitions for a single-node microcloud
 `aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
 ### Distribution Targets
@@ -252,7 +251,6 @@ Name            | Effect
 Name    | Effect | Notes |
 --------------- | ---- | --- |
 `dist`    | Generate and package various setups |
-`mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
 `aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
 `aws-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud |
 `aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
@@ -637,15 +635,6 @@ Name    | Effect | Notes |
 
   You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
 
-## How do I generate Terraform MPC service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
 ## How do I add a new version of Ruby to the build system?
 

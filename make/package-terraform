@@ -24,11 +24,8 @@ cp -rf \
    terraform/README-${STEM}.md \
    ${WORKDIR}/${TARGET}/
 
-# Assemble AWS/MPC terraform from pieces, with variants overriding base definitions.
+# Assemble AWS terraform from pieces, with variants overriding base definitions.
 case ${TARGET} in
-    mpc)
-	cp terraform/mpc.tf ${WORKDIR}/${TARGET}/
-	;;
     aws*)
 	mkdir ${WORKDIR}/${TARGET}/terraform
 	cp terraform/aws/common/*.tf ${WORKDIR}/${TARGET}/
