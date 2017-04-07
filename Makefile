@@ -49,8 +49,8 @@ registry:
 
 ########## BOSH RELEASE TARGETS ##########
 
-usb-release:
-	${GIT_ROOT}/make/bosh-release src/cf-usb/cf-usb-release
+uaa-release:
+	${GIT_ROOT}/make/bosh-release src/uaa-release
 
 diego-release:
 	${GIT_ROOT}/make/bosh-release src/diego-release
@@ -72,9 +72,6 @@ routing-release:
 
 hcf-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-release
-
-hcf-sso-release:
-	${GIT_ROOT}/make/bosh-release src/hcf-sso/hcf-sso-release
 
 capi-release:
 	${GIT_ROOT}/make/bosh-release src/capi-release
@@ -118,7 +115,6 @@ staticfile-buildpack-release:
 releases:
 	${MAKE} \
 		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
-		usb-release \
 		diego-release \
 		etcd-release \
 		garden-release \
@@ -126,8 +122,8 @@ releases:
 		cflinuxfs2-rootfs-release \
 		routing-release \
 		hcf-release \
-		hcf-sso-release \
 		capi-release \
+		uaa-release \
 		loggregator-release \
 		nats-release \
 		consul-release \

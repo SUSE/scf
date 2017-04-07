@@ -1,46 +1,26 @@
 ---
 properties:
-  acceptance_tests:
-    admin_user: admin
-    skip_ssl_validation: true
-    backend: diego
-    include_apps: true
-    include_detect: true
-    include_diego_ssh: true
-    include_diego_docker: true
-    include_security_groups: true
-    include_internet_dependent: true
-    include_routing: true
-    include_services: true
-    async_service_operation_timeout: 5
-    broker_start_timeout: 10
-    cf_push_timeout: 5
-    default_timeout: 300
-    long_curl_timeout: 5
+  # acceptance_tests:
+  #   admin_user: admin
+  #   skip_ssl_validation: true
+  #   backend: diego
+  #   include_apps: true
+  #   include_detect: true
+  #   include_diego_ssh: true
+  #   include_diego_docker: true
+  #   include_security_groups: true
+  #   include_internet_dependent: true
+  #   include_routing: true
+  #   include_services: true
+  #   async_service_operation_timeout: 5
+  #   broker_start_timeout: 10
+  #   cf_push_timeout: 5
+  #   default_timeout: 300
+  #   long_curl_timeout: 5
   acceptance_tests_brain:
     user: admin
     org: test-brain-org
     space: test-brain-space
-  autoscaler:
-    autoscaler_api:
-      host: sclr-api
-    autoscaler_server:
-      host: sclr-server
-    couchdb:
-      host: couchdb
-  autoscaler_api:
-    internal_auth:
-      username: admin
-    scaling_service:
-      name: app-autoscaler
-  autoscaler_server:
-    internal_auth:
-      username: admin
-  autoscaler_servicebroker:
-    auth:
-      username: admin
-    host: sclr-broker
-    name: app-autoscaler
   bbs:
     api_location: diego-database:8889
   capi:
@@ -95,7 +75,6 @@ properties:
       tps_url: http://diego-cc-bridge:1518
     droplets:
       blobstore_type: webdav
-      droplet_directory_key: cc-droplets
       webdav_config:
         private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
@@ -204,17 +183,6 @@ properties:
       tag: cc
     db_scheme: mysql
     port: 3306
-  cf-usb:
-    broker:
-      external_url: https://cf-usb:24054
-      username: broker-admin
-      port: 24054
-    management:
-      dev_mode: true
-      port: 24053
-      uaa:
-        client: cf-usb
-    mysql_address: mysql-proxy
   cf_mysql:
     mysql:
       database_startup_timeout: 300
@@ -225,11 +193,6 @@ properties:
       api_force_https: false
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
-  couchdb:
-    host: couchdb
-    metric_prefix: couchdb-scalingmetric
-    port: 5984
-    username: admin
   diego:
     auctioneer:
       bbs:
@@ -294,37 +257,9 @@ properties:
     monit:
       user: "admin"
       port: 2289
-  hcf_sso:
-    host: hcf-sso
-    username: 'username'
-  hcf_versions:
-    blobstore:
-      private_endpoint: https://blobstore:4443
-      username: 'blobstore_user'
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
-  localbroker:
-    service-name: 'shared-volume'
-    service-id: '3b640186-6429-4cbb-b346-bf96acba3fb9'
-    plan-name: 'default'
-    plan-id: '8ea4a4f1-ab4a-4bbb-a4a6-810d46713449'
-    plan-desc: 'Default service plan'
-    data-dir: /var/vcap/store/persibroker
-    localdriver-url: "http://localhost:9089"
-  localdriver:
-    listen_addr: "127.0.0.1:9089"
-    debug_addr: ""
-    cell_mount_path: /var/vcap/persistore/servicevolumes
-  logger_endpoint:
-    port: 4443
-  login:
-    asset_base_url: null
-    logout:
-      redirect:
-        url: /login?template=openstack
-    saml:
-      serviceProviderKeyPassword: ""
   metron_agent:
     deployment: hcf-deployment
   nats:
@@ -343,19 +278,17 @@ properties:
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
-    servers:
-    - router
     ssl_skip_validation: null
     status:
       user: router_user
   routing_api:
     enabled: true
     uri: http://routing-api
-  smoke_tests:
-    user: 'admin'
-    org: smoke-test-org
-    space: smoke-test-space
-    skip_ssl_validation: true
+  # smoke_tests:
+  #   user: 'admin'
+  #   org: smoke-test-org
+  #   space: smoke-test-space
+  #   skip_ssl_validation: true
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
@@ -363,16 +296,6 @@ properties:
     debug_address: 0.0.0.0:17003
   traffic_controller:
     locked_memory_limit: kernel
-  tomcat:
-    http:
-      autoscaler_api:
-        route: sclr-api
-        port: 28861
-      autoscaler_server:
-        route: sclr-server
-        port: 28862
-      autoscaler_servicebroker:
-        port: 28863
   uaa:
     authentication:
       policy:
