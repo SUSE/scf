@@ -168,5 +168,3 @@ These roles should have `scaling/min >= 2`, depending on documented recommendati
 
 - ha-proxy
   The HA Proxy role should only be used in development/test scenarios.
-- windows-dns
-  The Windows DNS role is only used to support development/test scenarios.

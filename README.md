@@ -4,8 +4,6 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
-__Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
-
 ## Manually testing a branch on Jenkins
 
 1. Login to [Jenkins](https://jenkins.issueses.io)
@@ -141,53 +139,6 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 5. Follow the common instructions above
 
   __Important:__ The VM may not come online during your first attempt.
-
-## To Deploy HCF on Windows Using VirtualBox
-
-__Important:__ Working on a Windows host is __significantly more complicated__ because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
-
-1. Ensure that line endings are handled correctly.
-
-  ```bash
-  git config --global core.autocrlf input
-  ```
-
-2. Clone the repository, bring the VM online, and `ssh` into it:
-
-  __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
-
-  ```bash
-  vagrant up --provider virtualbox
-  vagrant ssh
-  ```
-
-3. Configure symlinks and initialize submodules:
-
-  ```bash
-  cd ~/hcf
-  git config --global core.symlinks true
-  git config core.symlinks true
-  git submodule update --init --recursive
-  ```
-
-4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  ```bash
-  cd hcf
-  make vagrant-prep
-  ```
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-5. On the VM, start HCF
-
-  ```bash
-  make run
-  ```
-
-6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
-
-  __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
 
 ## Makefile targets
 
