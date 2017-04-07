@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images aws aws-dist hcp
+.PHONY: docker-images hcp
 
 ########## UTILITY TARGETS ##########
 
@@ -228,10 +228,6 @@ generate: \
 	hcp \
 	hcp-instance-basic-dev \
 	hcp-instance-ha-dev \
-	aws \
-	aws-spot \
-	aws-proxy \
-	aws-spot-proxy \
 	${NULL}
 
 hcp:
@@ -243,27 +239,11 @@ hcp-instance-basic-dev:
 hcp-instance-ha-dev:
 	${GIT_ROOT}/make/generate instance-ha-dev
 
-aws:
-	${GIT_ROOT}/make/generate aws
-
-aws-proxy:
-	${GIT_ROOT}/make/generate aws-proxy
-
-aws-spot:
-	${GIT_ROOT}/make/generate aws-spot
-
-aws-spot-proxy:
-	${GIT_ROOT}/make/generate aws-spot-proxy
-
 ########## DISTRIBUTION TARGETS ##########
 
 dist: \
 	kube-dist \
 	hcp-dist \
-	aws-dist \
-	aws-spot-dist \
-	aws-proxy-dist \
-	aws-spot-proxy-dist \
 	${NULL}
 
 kube-dist: kube
@@ -272,25 +252,6 @@ kube-dist: kube
 
 hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
 	${GIT_ROOT}/make/package-hcp
-
-aws-dist: aws
-	${GIT_ROOT}/make/package-terraform aws
-	rm *.tf *.tf.json
-
-aws-spot-dist: aws-spot
-	${GIT_ROOT}/make/package-terraform aws-spot
-	rm *.tf *.tf.json
-
-aws-proxy-dist: aws-proxy
-	${GIT_ROOT}/make/package-terraform aws-proxy
-	rm *.tf *.tf.json
-
-aws-spot-proxy-dist: aws-spot-proxy
-	${GIT_ROOT}/make/package-terraform aws-spot-proxy
-	rm *.tf *.tf.json
-
-aws-terraform-tests:
-	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
 
 ########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
 

@@ -189,21 +189,6 @@ __Important:__ Working on a Windows host is __significantly more complicated__ b
 
   __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
 
-## To Deploy HCF on Amazon AWS Using Terraform
-
-* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist`
-  to generate the archive populated with development defaults and secrets.
-
-* Extract the newly created .zip file to a temporary working dir:
-```bash
-mkdir /tmp/hcf-aws
-cd /tmp/hcf-aws
-unzip $OLDPWD/aws-???.zip
-cd aws
-```
-
-* Follow the instructions in README-aws.md
-
 ## Makefile targets
 
 ### Vagrant VM Targets
@@ -244,17 +229,12 @@ Name            | Effect
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
 `hcp`           | Generate HCP service definitions
-`aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
 ### Distribution Targets
 
 Name    | Effect | Notes |
 --------------- | ---- | --- |
 `dist`    | Generate and package various setups |
-`aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
-`aws-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud |
-`aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
-`aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
 ## Development FAQ (on the vagrant box)
 

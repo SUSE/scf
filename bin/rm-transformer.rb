@@ -50,7 +50,7 @@ def main
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcp-cpu-num N] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|vagrant] role-manifest|-
+    opts.banner = 'Usage: rm-transform [--manual] [--hcp-cpu-num N] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: hcp)
@@ -139,14 +139,6 @@ def provider_constructor
     'tf' => lambda {
       require_relative 'rm-transformer/tf'
       ToTerraform
-    },
-    'tf:aws' => lambda {
-      require_relative 'rm-transformer/tf-aws'
-      ToTerraformAWS
-    },
-    'tf:aws:proxy' => lambda {
-      require_relative 'rm-transformer/tf-aws-proxy'
-      ToTerraformAWSWithProxy
     },
   })
 end

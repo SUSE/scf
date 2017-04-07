@@ -13,7 +13,7 @@
 find_cluster_ha_hosts() {
     local component_name="${1}"
     if test -z "${KUBERNETES_SERVICE_HOST:-}" ; then
-        # on Vagrant / AWS ; HA is not supported
+        # on Vagrant ; HA is not supported
         # Fall back to simple hostname
         echo "[\"${component_name}\"]"
         return 0
