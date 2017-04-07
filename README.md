@@ -228,7 +228,6 @@ Name            | Effect
 `docker-images` | `docker build` in each dir in `./docker-images`
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
-`hcp`           | Generate HCP service definitions
 
 ### Distribution Targets
 
@@ -297,20 +296,6 @@ Name    | Effect | Notes |
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
 
-  To run the tests against a remote machine (e.g. to test a HCP deployment),
-  first make sure that your settings match the deployed configuration; the
-  easiest way to do this is to deploy via the fully-specified instance
-  definition files rather than the minimal ones meant for HSM.  Also remember to
-  enable `diego_docker` as above.  Afterwards, run the tests as normal but
-  with a `DOMAIN` override:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-autoscaler --env DOMAIN=hcf.hcp.example.com
-  ```
-  It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
-  as it expects direct access to the other roles in the cluster.
 
 #### How do I run a subset of HCF acceptance tests?
 
@@ -601,19 +586,6 @@ Name    | Effect | Notes |
     ```bash
     make tag publish IMAGE_REGISTRY=docker.helion.lol/
     ```
-
-
-## How do I generate HCP service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the SDL file that contains HCP service definition for the current set of roles, run the `make hcp` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
-
-  You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
 
 
 ## How do I add a new version of Ruby to the build system?

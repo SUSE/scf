@@ -26,16 +26,6 @@ OPTIONS=$(echo \
 CLEAN=""
 TARGET=${1}
 
-# Blacklist env directories and docker repositories that aren't meant for the target
-case ${TARGET} in
-  hcp|hcp-instance*)
-    if [ `echo ${IMAGE_REGISTRY} | grep '\(potato\.helion\.lol\|docker\.helion\.lol\)'` ]; then
-      printf "\033[0;1;31mPolitely refusing to use credential protected ${IMAGE_REGISTRY} for hcp (did you mean docker-registry.helion.space?)\033[0m\n" >&2
-      exit 1
-    fi
-    ;;
-esac
-
 mkdir -p output
 
 case ${TARGET} in
@@ -48,22 +38,6 @@ case ${TARGET} in
 
         OPTIONS="${OPTIONS} --property-map ${PROPMAP}"
         CLEAN="${CLEAN} ${PROPMAP}"
-        ;;
-    hcp)
-        PROPMAP=$(mktemp -t hcf-hcp-propmap.XXXXXX.yml)
-        OUTFILE=${OUTFILE:-"output/sdl.json"}
-        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
-        OPTIONS="${OPTIONS} --hcp-cpu-num 6"
-
-        fissile show properties --output yaml > ${PROPMAP}
-
-        OPTIONS="${OPTIONS} --property-map ${PROPMAP}"
-        CLEAN="${CLEAN} ${PROPMAP}"
-        ;;
-    instance-basic-dev|instance-ha-dev)
-        OUTFILE=${OUTFILE:-"output/${TARGET}.json"}
-        TEMPLATE="hcp/${TARGET}.template.json"
-        OPTIONS="${OPTIONS} --provider hcp-instance --instance-definition-template ${TEMPLATE}"
         ;;
     *)
         OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}

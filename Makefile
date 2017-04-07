@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images hcp
+.PHONY: docker-images
 
 ########## UTILITY TARGETS ##########
 
@@ -17,7 +17,7 @@ reap:
 
 clean-harder: clean reap
 
-all: images tag terraform
+all: images tag
 
 print-version:
 	@ ${GIT_ROOT}/make/print-version
@@ -225,33 +225,17 @@ hyperkube:
 ########## CONFIGURATION TARGETS ##########
 
 generate: \
-	hcp \
-	hcp-instance-basic-dev \
-	hcp-instance-ha-dev \
 	${NULL}
-
-hcp:
-	${GIT_ROOT}/make/generate hcp
-
-hcp-instance-basic-dev:
-	${GIT_ROOT}/make/generate instance-basic-dev
-
-hcp-instance-ha-dev:
-	${GIT_ROOT}/make/generate instance-ha-dev
 
 ########## DISTRIBUTION TARGETS ##########
 
 dist: \
 	kube-dist \
-	hcp-dist \
 	${NULL}
 
 kube-dist: kube
 	${GIT_ROOT}/make/package-kube
 	rm -rf kube
-
-hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
-	${GIT_ROOT}/make/package-hcp
 
 ########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
 
