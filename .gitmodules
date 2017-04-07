@@ -1,6 +1,3 @@
-[submodule "src/cf-usb"]
-	path = src/cf-usb
-	url = git@github.com:hpcloud/cf-usb.git
 [submodule "src/diego-release"]
 	path = src/diego-release
 	url = https://github.com/cloudfoundry-incubator/diego-release.git
@@ -10,27 +7,12 @@
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
 	url = git@github.com:hpcloud/cf-mysql-release.git
-[submodule "src/hcf-release/src/github.com/hpcloud/cf-plugin-usb"]
-	path = src/hcf-release/src/github.com/hpcloud/cf-plugin-usb
-	url = git@github.com:hpcloud/cf-plugin-usb.git
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
-[submodule "src/hcf-sso"]
-	path = src/hcf-sso
-	url = git@github.com:hpcloud/hcf-sso
 [submodule "src/routing-release"]
 	path = src/routing-release
 	url = https://github.com/hpcloud/routing-release.git
-[submodule "src/hcf-release/src/github.com/hpcloud/hdp-resource-manager"]
-	path = src/hcf-release/src/github.com/hpcloud/hdp-resource-manager
-	url = git@github.com:hpcloud/hdp-resource-manager.git
-[submodule "src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale"]
-	path = src/hcf-release/src/github.com/hpcloud/cf-plugin-autoscale
-	url = git@github.com:hpcloud/cf-plugin-autoscale.git
-[submodule "src/hcf-release/src/github.com/hpcloud/hcf-demophon"]
-	path = src/hcf-release/src/github.com/hpcloud/hcf-demophon
-	url = git@github.com:hpcloud/hcf-demophon.git
 [submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
 	path = src/hcf-release/src/github.com/hpcloud/testbrain
 	url = git@github.com:hpcloud/testbrain.git
@@ -79,3 +61,6 @@
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
 	url = git@github.com:cloudfoundry/grootfs-release.git
+[submodule "src/uaa-release"]
+	path = src/uaa-release
+	url = git@github.com:cloudfoundry/uaa-release.git
