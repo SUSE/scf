@@ -145,9 +145,6 @@ properties:
         ports: "53"
         protocol: udp
     srv_api_uri: http://api:9022
-    stacks:
-    - name: cflinuxfs2
-      description: Cloud Foundry Linux-based filesystem
     staging_upload_user: staging_user
     system_hostnames:
     - api
