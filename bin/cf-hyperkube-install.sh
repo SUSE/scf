@@ -2,9 +2,8 @@
 #!/bin/bash
 set -ex
 
-cd ; cd hcf
-make hyperkube
-cd ; cd uaa-fissile-release/
+make -C ~/hcf hyperkube
+cd ~/uaa-fissile-release/
 #Run UAA
 kubectl create namespace uaa
 kubectl create -n uaa -f kube/bosh/
@@ -12,7 +11,7 @@ kubectl create -n uaa -f kube-test/exposed-ports.yml
 
 #Build CF
 kubectl create namespace cf
-cd ; cd hcf
+cd ~/hcf
 make vagrant-prep
 bash bin/settings/kube/ca.sh
 bin/generate-dev-certs.sh cf bin/settings/certs.env
