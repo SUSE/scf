@@ -46,6 +46,3 @@ fissile build images
 fissile build kube -k kube/ --use-memory-limits=false \
     -D $(echo env/*.env | tr ' ' ',')
 fissile show image | xargs -i@ docker tag @ "${FISSILE_DOCKER_REGISTRY}/@"
-
-#exit from the vagrant box to set env for scf build
-exit
