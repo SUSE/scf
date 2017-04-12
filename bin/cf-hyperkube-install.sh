@@ -6,7 +6,6 @@ cd ; cd hcf
 make hyperkube
 cd ; cd uaa-fissile-release/
 #Run UAA
-kubectl create -f kube-test/storage-class-host-path.yml
 kubectl create namespace uaa
 kubectl create -n uaa -f kube/bosh/
 kubectl create -n uaa -f kube-test/exposed-ports.yml
