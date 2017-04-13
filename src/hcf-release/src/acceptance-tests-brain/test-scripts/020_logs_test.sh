@@ -58,22 +58,15 @@ cf push ${APP_NAME}
 
 curl ${APP_NAME}.${CF_DOMAIN}
 
-time1="$(cf logs --recent 1 ${APP_NAME}|tail -n 1|cut -d \  -f1|sed 's/T/ /; s/+.*//')"
+line1="$(cf logs --recent 1 ${APP_NAME}|tail -n 1)"
 
 curl ${APP_NAME}.${CF_DOMAIN}
 
-time2="$(cf logs --recent 1 ${APP_NAME}|tail -n 1|cut -d \  -f1|sed 's/T/ /; s/+.*//')"
+line2="$(cf logs --recent 1 ${APP_NAME}|tail -n 1)"
 
-t1=$(date -d "$time1" +%s)
-t2=$(date -d "$time2" +%s)
-
-diff=$(($t2 - $t1))
-
-if [ $diff -gt 0 ]; then
-    echo "OK"
-else
+if [ "$line1" == "$line2" ]; then
     echo "FAIL"
     exit 1
+else
+    echo "OK"
 fi
-
-~         
