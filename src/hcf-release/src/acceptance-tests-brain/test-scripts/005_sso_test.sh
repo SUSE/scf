@@ -1,6 +1,11 @@
 #!/bin/bash
 ## # # ## ### Tracing and common configuration ### ## # #
 
+if [ "$CF_AIRGAPPED" = true ]; then
+        echo "Skipping test. This test can only be executed in an online deployment"
+	exit 0
+fi
+
 set -o errexit
 set -o xtrace
 
