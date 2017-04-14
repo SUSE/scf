@@ -26,3 +26,6 @@ properties:
     description: The Elastic Runtime organization name to use when running tests
   acceptance_tests_brain.space:
     description: The Elastic Runtime space name to use when running tests
+  acceptance_tests_brain.airgapped:
+    description: Set to true if the deployment is airgapped
+    default: false
