@@ -229,6 +229,7 @@ aws-spot-proxy:
 ########## DISTRIBUTION TARGETS ##########
 
 dist: \
+	kube-dist \
 	hcp-dist \
 	mpc-dist \
 	aws-dist \
@@ -236,6 +237,10 @@ dist: \
 	aws-proxy-dist \
 	aws-spot-proxy-dist \
 	${NULL}
+
+kube-dist: kube
+	${GIT_ROOT}/make/package-kube
+	rm -rf kube
 
 hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
 	${GIT_ROOT}/make/package-hcp
