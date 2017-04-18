@@ -28,11 +28,11 @@ properties:
   hcf.hcp_flightrecorder_port:
     description: "Port of the HCP flightrecorder"
 
-  hcf.monit.password:
+  fissile.monit.password:
     description: "Password used for the monit API"
 
-  hcf.monit.port:
+  fissile.monit.port:
     description: "Port used for the monit API"
 
-  hcf.monit.user:
+  fissile.monit.user:
     description: "Username for the monit API"

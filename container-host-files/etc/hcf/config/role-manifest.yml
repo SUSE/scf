@@ -1117,7 +1117,6 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_persi_localdriver_permissions.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -2098,6 +2097,10 @@ configuration:
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    # TODO: replace with certs specific for this
+    properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.tps.cc.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.tps.cc.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2119,6 +2122,10 @@ configuration:
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
+    # TODO: replace with certs specific for this
+    properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.cc.mutual_tls.private_key: '"((BBS_CLIENT_KEY))"'
+    properties.cc.mutual_tls.public_cert: '"((BBS_CLIENT_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2223,6 +2230,7 @@ configuration:
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
+    properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
@@ -2233,7 +2241,6 @@ configuration:
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
-    properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))
     properties.hcf.uaa.internal-url: ((HCF_UAA_INTERNAL_URL))
