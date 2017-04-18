@@ -14,8 +14,6 @@ export GOPATH=/home/vagrant/go/
 cd uaa-fissile-release/
 git submodule update --init --recursive
 
-source .envrc
-
 #install ruby
 sudo apt-get install software-properties-common
 sudo apt-add-repository ppa:brightbox/ruby-ng
@@ -33,15 +31,6 @@ sed -i "s/ruby '2\.3\.1'/ruby '2.3.3'/g" ~/uaa-fissile-release/src/cf-mysql-rele
 
 #Build UAA
 go get github.com/square/certstrap
-source generate-certs.sh
-cd ; cd uaa-fissile-release/
-bosh create release --dir src/cf-mysql-release --force --name cf-mysql
-bosh create release --dir src/uaa-release --force --name uaa
-bosh create release --dir src/hcf-release --force --name hcf
-fissile build layer compilation
-fissile build layer stemcell
-fissile build packages
-fissile build images
-fissile build kube -k kube/ --use-memory-limits=false \
-    -D $(echo env/*.env | tr ' ' ',')
-fissile show image | xargs -i@ docker tag @ "${FISSILE_DOCKER_REGISTRY}/@"
+./generate-certs.sh
+make build
+make run
