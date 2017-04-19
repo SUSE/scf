@@ -3,7 +3,7 @@
 set -ex
 
 #install Go
-cd ; curl https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+curl https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 export PATH=$PATH:/usr/local/go/bin:/home/vagrant/go/bin
 
 #set gopath
@@ -12,10 +12,10 @@ export GOPATH=/home/vagrant/go/
 git clone https://github.com/hpcloud/uaa-fissile-release.git
 
 #install ruby
-sudo apt-get install software-properties-common
+sudo apt-get install -y software-properties-common
 sudo apt-add-repository ppa:brightbox/ruby-ng
-sudo apt update
-sudo apt-get install ruby2.3
+sudo apt update -y
+sudo apt-get install -y ruby2.3
 
 #install gems
 sudo gem install bosh_cli
@@ -34,8 +34,7 @@ go get github.com/square/certstrap
 make 
 make kube-configs
 
-make -C ~/hcf hyperkube
-cd ~/uaa-fissile-release/
+make -C ~/hcf hyperkube	
 
 #Run UAA
 kubectl create namespace uaa
