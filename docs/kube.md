@@ -91,6 +91,5 @@ To build and Run SCF on Hyperkube inside scf vagrant box, run the following comm
 ```sh
 vagrant up
 vagrant ssh
-bash hcf/bin/pre-cf-hyperkube-install.sh
 bash hcf/bin/cf-hyperkube-install.sh
 ```
