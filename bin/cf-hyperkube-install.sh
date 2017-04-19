@@ -2,7 +2,7 @@
 #!/bin/bash
 set -ex
 
-#install Go
+#install Go for certstrap
 curl https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 export PATH=$PATH:/usr/local/go/bin:/home/vagrant/go/bin
 
