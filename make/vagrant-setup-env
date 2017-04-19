@@ -14,36 +14,23 @@ ${GIT_ROOT}/bin/validation.sh
 # to be used in the `docker run` command further on, which already has quotes
 # inside quotes... shell really needs a %Q operator or something.
 
+PROPMAP=$(mktemp -t vagrant-propmap.XXXXXX.yml)
 OPTIONS=$(echo \
     --dtr \"${IMAGE_REGISTRY}\" \
     --dtr-org \"${IMAGE_ORG}\" \
     --hcf-prefix \"${IMAGE_PREFIX}\" \
     --hcf-tag \"${DOCKER_APP_VERSION}\" \
     --hcf-version \"${APP_VERSION}\" \
-    --hcf-root-dir \"${GIT_ROOT}\"
+    --hcf-root-dir \"${GIT_ROOT}\" \
+    --provider vagrant \
+    --property-map \"${PROPMAP}\" \
 )
-
-CLEAN=""
-TARGET=${1}
 
 mkdir -p output
 
-case ${TARGET} in
-    vagrant)
-        PROPMAP=$(mktemp -t vagrant-propmap.XXXXXX.yml)
-        OUTFILE=${OUTFILE:-"${TARGET}.json"}
-        OPTIONS="${OPTIONS} --provider \"${TARGET}\""
+OUTFILE="vagrant.json"
 
-        fissile show properties --output yaml > ${PROPMAP}
-
-        OPTIONS="${OPTIONS} --property-map ${PROPMAP}"
-        CLEAN="${CLEAN} ${PROPMAP}"
-        ;;
-    *)
-        OUTFILE=${OUTFILE:-"hcf-${TARGET}.tf.json"}
-        OPTIONS="${OPTIONS} --provider tf:$(echo ${TARGET} | sed -e 's@-spot@@' | tr - :)"
-        ;;
-esac
+fissile show properties --output yaml > ${PROPMAP}
 
 DOCKER_RUNTIME=${DOCKER_RUNTIME:-'helioncf/hcf-pipeline-ruby-bosh'}
 ROLE_MANIFEST=${ROLE_MANIFEST:-'container-host-files/etc/hcf/config/role-manifest.yml'}
@@ -54,9 +41,9 @@ docker run \
        --volume ${PROPMAP}:${PROPMAP}:ro \
        --workdir ${GIT_ROOT} \
        --entrypoint bash \
-       ${DOCKER_RUNTIME} -l -c "bin/rm-transformer.rb ${OPTIONS} ${ROLE_MANIFEST}" \
+       ${DOCKER_RUNTIME} -l -c "bin/vagrant-setup.rb ${OPTIONS} ${ROLE_MANIFEST}" \
     > ${OUTFILE}
 
-rm -f $CLEAN
+rm -f ${PROPMAP}
 
 printf "%bGenerated %s%b\n" "\033[0;32m" "${OUTFILE}" "\033[0m"

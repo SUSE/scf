@@ -7,7 +7,7 @@
 require 'yaml'
 require 'json'
 require 'pathname'
-require_relative 'rm-transformer/common'
+require_relative 'vagrant-setup/common'
 
 def main
   STDOUT.sync = true

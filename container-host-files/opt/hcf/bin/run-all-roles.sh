@@ -6,7 +6,7 @@ set -e
 ROOT=`readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../../../"`
 CLEAN=""
 if test ! -f $ROOT/vagrant.json ; then
-    ( cd $ROOT ; make/generate vagrant )
+    ( cd $ROOT ; make/vagrant-setup-env )
     CLEAN="${CLEAN} $ROOT/vagrant.json"
 fi
 

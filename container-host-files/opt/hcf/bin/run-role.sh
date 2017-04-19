@@ -30,7 +30,7 @@ CLEAN=""
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::${role_name} start
 
 if test ! -f $ROOT/vagrant.json ; then
-    ( cd $ROOT ; make/generate vagrant )
+    ( cd $ROOT ; make/vagrant-setup-env )
     CLEAN="${CLEAN} $ROOT/vagrant.json"
 fi
 

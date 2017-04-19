@@ -8,7 +8,7 @@
 require 'optparse'
 require 'yaml'
 require 'json'
-require_relative 'rm-transformer/common'
+require_relative 'vagrant-setup/common'
 
 def main
   # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
@@ -16,7 +16,7 @@ def main
   # --manual          ~ Include manually started roles in the output
   # --property-map <file> ~ File mapping releases and jobs to the properties they use.
   # --provider <name> ~ Choose the output format.
-  #                     Known: vagrant, tf
+  #                     Known: vagrant
   #                     Default: vagrant
   # --dtr             ~ Location of trusted docker registry
   #                     (Default: empty)
@@ -46,7 +46,7 @@ def main
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider tf|vagrant] role-manifest|-
+    opts.banner = 'Usage: vagrant-setup [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: vagrant)
@@ -110,12 +110,8 @@ end
 def provider_constructor
   ({
     'vagrant' => lambda {
-      require_relative 'rm-transformer/vagrant'
+      require_relative 'vagrant-setup/vagrant'
       ToVAGRANT
-    },
-    'tf' => lambda {
-      require_relative 'rm-transformer/tf'
-      ToTerraform
     },
   })
 end
