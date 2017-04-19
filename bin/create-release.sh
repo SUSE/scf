@@ -4,7 +4,7 @@ set -o nounset
 
 ROOT="$(readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../")"
 
-if [[ $# < 2 || -z "${1:-}" || -z "${2:-}" ]]; then
+if [[ $# -lt 2 || -z "${1:-}" || -z "${2:-}" ]]; then
   cat <<HELP
   Usage: create-release.sh <RELEASE_PATH> <RELEASE_NAME>"
   RELEASE_PATH must be relative to the root of hcf-infrastructure
@@ -28,7 +28,7 @@ mkdir -p "${FISSILE_CACHE_DIR}"
 proxies=
 MO=
 for var in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY ; do
-  if test -n "${!var}" ; then
+  if test -n "${!var:-}" ; then
 
       # Notes
       # - Accept only http and https as schemata. And if there is no
@@ -105,10 +105,10 @@ rm -rf ${ROOT}/${release_path}/dev-releases
 docker run \
     --interactive \
     --rm \
-    --volume ${FISSILE_CACHE_DIR}:/bosh-cache \
-    --volume $ROOT/:$ROOT/ \
-    --volume bin/dev/fake-git:/usr/local/bin/git:ro \
-    --env RBENV_VERSION="${RUBY_VERSION:-2.2.3}" \
+    --volume "${FISSILE_CACHE_DIR}":/bosh-cache \
+    --volume "${ROOT}/:${ROOT}/" \
+    --volume "${ROOT}/bin/dev/fake-git":/usr/local/bin/git:ro \
+    --env RUBY_VERSION="${RUBY_VERSION:-2.2.3}" \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \

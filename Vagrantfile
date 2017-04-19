@@ -172,7 +172,10 @@ Vagrant.configure(2) do |config|
     export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
     # Install development tools
-    ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
+    (
+      cd "${HOME}/hcf"
+      ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
+    )
 
     mkdir -p /home/vagrant/tmp
   SHELL

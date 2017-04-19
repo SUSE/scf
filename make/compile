@@ -2,6 +2,8 @@
 
 set -o errexit -o nounset
 
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
 HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
