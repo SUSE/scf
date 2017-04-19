@@ -1970,13 +1970,6 @@ configuration:
       type: Password
     description: Used for generating SSO clients for service brokers.
     required: true
-  - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Autoscaler.
-    required: true
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     immutable: true
@@ -2310,7 +2303,6 @@ configuration:
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
