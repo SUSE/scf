@@ -13,7 +13,7 @@ git clone https://github.com/hpcloud/uaa-fissile-release.git
 
 #install ruby
 sudo apt-get install -y software-properties-common
-sudo apt-add-repository ppa:brightbox/ruby-ng
+sudo apt-add-repository -y ppa:brightbox/ruby-ng
 sudo apt update -y
 sudo apt-get install -y ruby2.3
 
