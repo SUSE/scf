@@ -31,7 +31,7 @@ sed -i "s/ruby '2\.3\.1'/ruby '~> 2.3'/g" ~/uaa-fissile-release/src/cf-mysql-rel
 
 #Build UAA
 go get github.com/square/certstrap
-make build
+make 
 make kube-configs
 
 make -C ~/hcf hyperkube
