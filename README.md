@@ -647,29 +647,6 @@ Name    | Effect | Notes |
 
     __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
-
-## How do I test a new version of configgin
-
-1. Ensure that the Vagrant box is running.
-
-2. `ssh` into the Vagrant box.
-
-3. Build new configgin binary and install it into all role images
-
-    `configgin` is installed as a binary in `~/tools/configgin.tgz`. In order to test a new version you have to install a new build in that location and recreate first the base image, and then all role images.
-
-    In the `docker rmi` command below use tab-completion to also delete the image tagged with a version string:
-
-    ```bash
-    git clone git@github.com:hpcloud/hcf-configgin.git
-    cd hcf-configgin/
-    make dist
-    cp output/configgin*.tgz ~/tools/configgin.tgz
-    docker rmi -f $(fissile show image) fissile-role-base fissile-role-base:<TAB>
-    fissile build layer stemcell
-    make images
-    ```
-
 ## How do I add a new version of Ruby to the build system?
 
 1. Add the version to the last line of `docker-images/hcf-pipeline-ruby-bosh/versions.txt`

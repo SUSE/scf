@@ -27,9 +27,6 @@ print-version:
 ${FISSILE_BINARY}: bin/dev/install_tools.sh
 	bin/dev/install_tools.sh
 
-${FISSILE_CONFIGGIN}: bin/dev/install_tools.sh
-	bin/dev/install_tools.sh
-
 ########## VAGRANT VM TARGETS ##########
 
 run:
@@ -163,7 +160,7 @@ compile: ${FISSILE_BINARY}
 
 images: bosh-images docker-images
 
-image-base: ${FISSILE_BINARY} ${FISSILE_CONFIGGIN}
+image-base: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/image-base
 
 bosh-images: validate ${FISSILE_BINARY}
