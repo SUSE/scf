@@ -83,3 +83,13 @@ You must also delete the persistent volume claims manually:
 ```sh
 kubectl delete -n cf pvc --all
 ```
+
+## No-brainer to Build and Run SCF on Hyperkube
+
+To build and Run SCF on Hyperkube inside scf vagrant box, run the following commands:
+
+```sh
+vagrant up
+vagrant ssh
+bash hcf/bin/cf-hyperkube-install.sh
+```
