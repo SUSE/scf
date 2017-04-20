@@ -225,6 +225,7 @@ hyperkube:
 ########## CONFIGURATION TARGETS ##########
 
 generate: \
+	kube \
 	${NULL}
 
 ########## DISTRIBUTION TARGETS ##########
