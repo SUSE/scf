@@ -93,7 +93,7 @@ We should keep it for dev/test environments, but we should remove it from HCP.
 
 To properly support HA for `diego-access` and `mysql-proxy`, we need to simulate what HCP does.
 For testing, the solution is ???
-An HA configuration for these components in Vagrant is not be available.
+An HA configuration for these components in Vagrant is not available.
 
 The way to programmatically identify these components is by looking for roles that have public ports exposed.
 
