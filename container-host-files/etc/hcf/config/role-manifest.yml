@@ -463,7 +463,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_uaa_failure_to_interpolate.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1131,6 +1130,8 @@ roles:
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
     release_name: loggregator
+  - name: grootfs
+    release_name: grootfs
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -2233,6 +2234,7 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))

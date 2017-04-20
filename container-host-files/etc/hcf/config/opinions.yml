@@ -215,7 +215,7 @@ properties:
       cell_id: diego-cell-0 # TODO: fix this for HA
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
-        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
+        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
     route_emitter:
       bbs:
         api_location: diego-database:8889
@@ -247,12 +247,16 @@ properties:
     listen_address: 0.0.0.0:7777
     listen_network: tcp
     persistent_image_list:
-    - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
+    - /var/vcap/packages/cflinuxfs2/rootfs.tar
     image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     image_plugin_extra_args: ["--config=/var/vcap/jobs/grootfs/config/grootfs_config.yml"]
     # if you have capi.nsync.diego_privileged_containers and capi.stager.diego_privileged_containers set to true
     privileged_image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     privileged_image_plugin_extra_args: ["--config=/var/vcap/jobs/grootfs/config/privileged_grootfs_config.yml"]
+  grootfs:
+    graph_cleanup_threshold_in_mb: 3000
+    persistent_image_list:
+    - /var/vcap/packages/cflinuxfs2/rootfs.tar
   fissile:
     monit:
       user: "admin"
