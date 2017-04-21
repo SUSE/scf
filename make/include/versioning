@@ -6,7 +6,7 @@ test -n "${XTRACE}" && set -o xtrace
 
 set -o errexit -o nounset
 
-CF_VERSION=$(cat src/cf-release/releases/index.yml | y2j | jq '.builds[].version' | sed -e 's/"//g' | sort -nr | head -1)
+CF_VERSION=$(perl -ne '$v = $1 if /^\s+version: .?(\d+)/; END { print $v }' src/cf-release/releases/index.yml)
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 GIT_DESCRIBE=${GIT_DESCRIBE:-$(git describe --tags --long)}
