@@ -64,3 +64,9 @@
 [submodule "src/uaa-release"]
 	path = src/uaa-release
 	url = git@github.com:cloudfoundry/uaa-release.git
+[submodule "src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
+	path = src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests
+	url = https://github.com/cloudfoundry/cf-acceptance-tests
+[submodule "src/hcf-release/src/smoke-tests"]
+	path = src/hcf-release/src/smoke-tests
+	url = https://github.com/cloudfoundry/cf-smoke-tests.git

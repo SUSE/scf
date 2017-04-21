@@ -1181,50 +1181,50 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
-# - name: acceptance-tests
-#   type: bosh-task
-#   scripts:
-#   - scripts/authorize_internal_ca.sh
-#   - scripts/cf_acceptance_tests_suites.sh
-#   jobs:
-#   - name: global-properties # needs to be first so images use it for processing monit templates
-#     release_name: hcf
-#   - name: acceptance-tests
-#     release_name: cf
-#   run:
-#     scaling:
-#       min: 0
-#       max: 1
-#     flight-stage: manual
-#     capabilities: []
-#     persistent-volumes: []
-#     shared-volumes: []
-#     memory: 1024
-#     virtual-cpus: 2
-#     exposed-ports: []
-#   configuration:
-#     templates:
-#       hcf.cats-suites: '"((CATS_SUITES))"'
-# - name: smoke-tests
-#   type: bosh-task
-#   scripts:
-#   - scripts/authorize_internal_ca.sh
-#   jobs:
-#   - name: global-properties # needs to be first so images use it for processing monit templates
-#     release_name: hcf
-#   - name: smoke-tests
-#     release_name: cf
-#   run:
-#     scaling:
-#       min: 0
-#       max: 1
-#     flight-stage: manual
-#     capabilities: []
-#     persistent-volumes: []
-#     shared-volumes: []
-#     memory: 1024
-#     virtual-cpus: 2
-#     exposed-ports: []
+- name: acceptance-tests
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/cf_acceptance_tests_suites.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: acceptance-tests
+    release_name: hcf
+  run:
+    scaling:
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+  configuration:
+    templates:
+      hcf.cats-suites: '"((CATS_SUITES))"'
+- name: smoke-tests
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: smoke-tests
+    release_name: hcf
+  run:
+    scaling:
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1914,9 +1914,9 @@ configuration:
     default: stackato-support@hpe.com
     description: Support contact information for the cluster
     required: true
-  # - name: TCP_DOMAIN
-  #   example: tcp.my-hcf-cluster.com
-  #   description: TCP routing domain of the HCF cluster.
+  - name: TCP_DOMAIN
+    example: tcp.my-hcf-cluster.com
+    description: TCP routing domain of the HCF cluster; only used for testing;
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -2058,12 +2058,12 @@ configuration:
     index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
-    # properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    # properties.acceptance_tests.api: '"api.((DOMAIN))"'
-    # properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
-    # properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
-    # properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    # properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.acceptance_tests.api: '"api.((DOMAIN))"'
+    properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2285,9 +2285,9 @@ configuration:
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
-    # properties.smoke_tests.api: '"api.((DOMAIN))"'
-    # properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
-    # properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.smoke_tests.api: '"api.((DOMAIN))"'
+    properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
+    properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
