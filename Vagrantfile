@@ -135,16 +135,6 @@ Vagrant.configure(2) do |config|
     fi
   SCRIPT
 
-  unless OS.windows?
-    config.vm.provision "shell", privileged: false, inline: <<-SHELL
-        if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
-          echo "Looks like the cf-release submodule was not initialized" >&2
-          echo "Did you run 'git submodule update --init --recursive'?" >&2
-          exit 1
-        fi
-    SHELL
-  end
-
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
   }, inline: <<-SHELL

@@ -11,8 +11,6 @@ export FISSILE_REPOSITORY=fissile
 
 FISSILE_RELEASE=''
 for RELEASE in $(echo '
-      cf-release
-      cf-usb/cf-usb-release
       diego-release
       etcd-release
       garden-runc-release
@@ -20,11 +18,20 @@ for RELEASE in $(echo '
       cflinuxfs2-rootfs-release
       routing-release
       hcf-release
-      hcf-sso/hcf-sso-release
-      hcf-versions/hcf-versions-release
-      windows-runtime-release
-      open-Autoscaler/bosh-release
-      local-volume-release
+      grootfs-release
+      capi-release
+      uaa-release
+      loggregator
+      nats-release
+      consul-release
+      buildpacks/binary-buildpack-release
+      buildpacks/go-buildpack-release
+      buildpacks/java-buildpack-release
+      buildpacks/nodejs-buildpack-release
+      buildpacks/php-buildpack-release
+      buildpacks/python-buildpack-release
+      buildpacks/ruby-buildpack-release
+      buildpacks/staticfile-buildpack-release
       '); do
     FISSILE_RELEASE="${FISSILE_RELEASE},${GIT_ROOT}/src/${RELEASE}"
 done

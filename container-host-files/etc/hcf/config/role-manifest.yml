@@ -11,11 +11,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: nats
-    release_name: cf
+    release_name: nats
   - name: nats_stream_forwarder
-    release_name: cf
+    release_name: nats
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: metron_agent
   - name: nats
@@ -55,9 +55,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -165,12 +165,12 @@ roles:
       internal: 4568
       public: false
     - name: healthcheck
-      protocol: tcp
+      protocol: TCP
       external: 9200
       internal: 9200
       public: false
     - name: xtrabackup
-      protocol: tcp
+      protocol: TCP
       external: 4444
       internal: 4444
       public: false
@@ -256,9 +256,9 @@ roles:
   - name: bbs
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: bbs
   - name: metron_agent
@@ -304,7 +304,6 @@ roles:
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-pod((/KUBE_POD_SERVICE))
-      properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))",  "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -322,9 +321,9 @@ roles:
   - name: gorouter
     release_name: routing
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: gorouter
   - name: metron_agent
@@ -376,9 +375,9 @@ roles:
   - name: tcp_router
     release_name: routing
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: tcp_router
   - name: metron_agent
@@ -423,9 +422,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: routing-api
     release_name: routing
   - name: tcp_emitter
@@ -464,17 +463,16 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_uaa_failure_to_interpolate.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: uaa
-    release_name: cf
+    release_name: uaa
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   processes:
@@ -540,35 +538,31 @@ roles:
   - name: patch-properties
     release_name: hcf
   - name: cloud_controller_ng
-    release_name: cf
+    release_name: capi
   - name: statsd-injector
-    release_name: cf
+    release_name: loggregator
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   - name: go-buildpack
-    release_name: cf
+    release_name: go-buildpack
   - name: binary-buildpack
-    release_name: cf
+    release_name: binary-buildpack
   - name: nodejs-buildpack
-    release_name: cf
+    release_name: nodejs-buildpack
   - name: ruby-buildpack
-    release_name: cf
+    release_name: ruby-buildpack
   - name: php-buildpack
-    release_name: cf
+    release_name: php-buildpack
   - name: python-buildpack
-    release_name: cf
+    release_name: python-buildpack
   - name: staticfile-buildpack
-    release_name: cf
+    release_name: staticfile-buildpack
   - name: java-buildpack
-    release_name: cf
-  - name: java-offline-buildpack
-    release_name: cf
-  - name: cf_iis_buildpack
-    release_name: windows-runtime-release
+    release_name: java-buildpack
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -617,11 +611,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: cloud_controller_worker
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
@@ -648,11 +642,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: blobstore
-    release_name: cf
+    release_name: capi
   - name: route_registrar
     release_name: routing
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: blobstore_nginx
   - name: blobstore_url_signer
@@ -698,11 +692,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: cloud_controller_clock
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
@@ -717,52 +711,6 @@ roles:
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
-- name: cf-usb
-  environment_scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/configure-uaa-hosts.sh
-  - scripts/fetch_uaa_verification_key.sh
-  - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: cf-usb
-    release_name: cf-usb
-  - name: consul_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: routing
-  processes:
-  - name: usb
-  - name: route_registrar
-  - name: consul_agent
-  run:
-    scaling:
-      min: 1
-      max: 65535
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: usb
-      protocol: TCP
-      external: 24054
-      internal: 24054
-      public: false
-    - name: usb2
-      protocol: TCP
-      external: 24053
-      internal: 24053
-      public: false
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -774,11 +722,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: doppler
-    release_name: cf
+    release_name: loggregator
   - name: syslog_drain_binder
-    release_name: cf
+    release_name: loggregator
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: doppler
   - name: metron_agent
@@ -834,11 +782,11 @@ roles:
   - name: patch-properties
     release_name: hcf
   - name: etcd
-    release_name: cf
+    release_name: etcd
   - name: etcd_metrics_server
-    release_name: cf
+    release_name: etcd
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: etcd_metrics_server
   - name: etcd
@@ -901,9 +849,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: loggregator_trafficcontroller
-    release_name: cf
+    release_name: loggregator
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   processes:
@@ -952,13 +900,13 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: rep-certstrap
     release_name: hcf
   - name: auctioneer
     release_name: diego
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: auctioneer
   - name: metron_agent
@@ -992,17 +940,17 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: stager
-    release_name: cf
+    release_name: capi
   - name: nsync
-    release_name: cf
+    release_name: capi
   - name: tps
-    release_name: cf
+    release_name: capi
   - name: cc_uploader
-    release_name: cf
+    release_name: capi
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: cc_uploader
   - name: stager
@@ -1090,9 +1038,9 @@ roles:
   - name: route_emitter
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   processes:
   - name: route_emitter
   - name: metron_agent
@@ -1124,13 +1072,11 @@ roles:
   - name: ssh_proxy
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: metron_agent
-    release_name: cf
+    release_name: loggregator
   - name: file_server
     release_name: diego
-  - name: windows_buildpack_app_lifecycle
-    release_name: windows-runtime-release
   processes:
   - name: file_server
   - name: metron_agent
@@ -1170,7 +1116,6 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_persi_localdriver_permissions.sh
   - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1178,21 +1123,20 @@ roles:
   - name: rep
     release_name: diego
   - name: consul_agent
-    release_name: cf
+    release_name: consul
   - name: garden
     release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
     release_name: cflinuxfs2-rootfs
   - name: metron_agent
-    release_name: cf
-  - name: localdriver
-    release_name: local-volume
+    release_name: loggregator
+  - name: grootfs
+    release_name: grootfs
   processes:
   - name: metron_agent
   - name: consul_agent
   - name: rep
   - name: garden
-  - name: localdriver
   run:
     scaling:
       min: 1
@@ -1216,214 +1160,6 @@ roles:
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-pod((/KUBE_POD_SERVICE))
-- name: sclr-api
-  type: bosh
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: autoscaler_api
-    release_name: cf-open-autoscaler
-  - name: route_registrar
-    release_name: routing
-  processes:
-  - name: tomcat
-  - name: route_registrar
-  run:
-    flight-stage: flight
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1536
-    virtual-cpus: 1
-    exposed-ports:
-    - name: api
-      protocol: TCP
-      external: 28861
-      internal: 28861
-      public: false
-    healthcheck:
-      url: http://container-ip:28861/
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"autoscaler-api", "port":28861, "uris":["autoscaler-api.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: sclr-server
-  type: bosh
-  scripts:
-  - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: autoscaler_server
-    release_name: cf-open-autoscaler
-  processes:
-  - name: tomcat
-  run:
-    flight-stage: flight
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 1
-    exposed-ports:
-    - name: server
-      protocol: TCP
-      external: 28862
-      internal: 28862
-      public: false
-    healthcheck:
-      url: http://container-ip:28862
-  configuration:
-    templates:
-      properties.couchdb.dbname: '"couchdb-scaling"'
-- name: sclr-broker
-  type: bosh
-  scripts:
-  - scripts/configgin-config-properties.sh
-  - scripts/wait_for_couchdb.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: autoscaler_servicebroker
-    release_name: cf-open-autoscaler
-  processes:
-  - name: tomcat
-  run:
-    flight-stage: flight
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1536
-    virtual-cpus: 1
-    exposed-ports:
-    - name: broker
-      protocol: TCP
-      external: 28863
-      internal: 28863
-      public: false
-    healthcheck:
-      url: http://container-ip:28863
-  configuration:
-    templates:
-      properties.couchdb.dbname: '"couchdb-scalingbroker"'
-- name: couchdb
-  type: bosh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: couchdb
-    release_name: cf-open-autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  processes:
-  - name: couchdb
-  run:
-    flight-stage: flight
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      tag: couchdb-data
-      size: 5
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports:
-    - name: couchdb
-      protocol: TCP
-      external: 5984
-      internal: 5984
-      public: false
-    healthcheck:
-      url: http://container-ip:5984/_uuids
-- name: acceptance-tests-autoscaler
-  type: bosh-task
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: acceptance-tests-autoscaler
-    release_name: hcf
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: manual
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-- name: acceptance-tests-flight-recorder
-  type: bosh-task
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: acceptance-tests-flight-recorder
-    release_name: hcf
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports:
-    - name: acceptanceflightrecorder
-      protocol: TCP
-      external: 10514
-      internal: 10514
-      public: false
-- name: acceptance-tests
-  type: bosh-task
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/cf_acceptance_tests_suites.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: acceptance-tests
-    release_name: cf
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    exposed-ports: []
-  configuration:
-    templates:
-      hcf.cats-suites: '"((CATS_SUITES))"'
 - name: acceptance-tests-brain
   type: bosh-task
   scripts:
@@ -1444,6 +1180,30 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: acceptance-tests
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/cf_acceptance_tests_suites.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: acceptance-tests
+    release_name: hcf
+  run:
+    scaling:
+      min: 0
+      max: 1
+    flight-stage: manual
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 1024
+    virtual-cpus: 2
+    exposed-ports: []
+  configuration:
+    templates:
+      hcf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
   scripts:
@@ -1452,7 +1212,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: smoke-tests
-    release_name: cf
+    release_name: hcf
   run:
     scaling:
       min: 0
@@ -1492,256 +1252,6 @@ roles:
   configuration:
     templates:
       properties.hcf.uaa.root-zone.url: ((HCF_UAA_ROOT_ZONE_URL))
-- name: dev-dns
-  type: docker
-  tags: [dev-only]
-  run:
-    env: []
-    scaling:
-      min: 1
-      max: 1
-    capabilities: [NET_ADMIN]
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 1
-    exposed-ports:
-    - name: dev-dns
-      protocol: UDP
-      external: 53
-      internal: 8600
-      public: true
-    - name: dev-dns-tcp
-      protocol: TCP
-      external: 53
-      internal: 8600
-      public: true
-- name: sso-create-service
-  type: bosh-task
-  environment_scripts:
-  - scripts/configure-uaa-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: sso-create-service
-    release_name: hcf
-  processes: []
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: post-flight
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports: []
-- name: autoscaler-create-service
-  type: bosh-task
-  environment_scripts:
-  - scripts/configure-uaa-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: autoscaler-create-service
-    release_name: hcf
-  processes: []
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: post-flight
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports: []
-- name: persi-create-service
-  type: bosh-task
-  environment_scripts:
-  - scripts/configure-uaa-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: persi-create-service
-    release_name: hcf
-  processes: []
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: post-flight
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports: []
-- name: hcf-sso
-  environment_scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/configure-uaa-hosts.sh
-  - scripts/fetch_uaa_verification_key.sh
-  - scripts/inverted_skip_ssl.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: hcf-sso
-    release_name: hcf-sso
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: hcf-sso
-  - name: metron_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 128
-    virtual-cpus: 1
-    exposed-ports:
-    - name: service-broker
-      protocol: TCP
-      external: 3000
-      internal: 3000
-      public: false
-    healthcheck:
-      url: https://container-ip:3000/ping
-- name: hcf-versions
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: hcf-versions
-    release_name: hcf-versions
-  - name: metron_agent
-    release_name: cf
-  - name: route_registrar
-    release_name: routing
-  processes:
-  - name: hcf-versions
-  - name: metron_agent
-  - name: route_registrar
-  run:
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 128
-    virtual-cpus: 1
-    exposed-ports:
-    - name: hcf-versions-api
-      protocol: TCP
-      external: 3000
-      internal: 3000
-      public: false
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"hcf-versions-api", "port":3000, "uris":["hcf-versions-api.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: demophon
-  environment_scripts:
-  - scripts/inverted_skip_ssl.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  - scripts/setup-demophon-env.sh
-  - scripts/patches/fix_loggregator.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: demophon
-    release_name: hcf
-  - name: metron_agent
-    release_name: cf
-  processes:
-  - name: demophon
-  - name: metron_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 128
-    virtual-cpus: 2
-    exposed-ports:
-    - name: demophon
-      protocol: TCP
-      external: 8443
-      internal: 8443
-      public: false
-- name: persi-broker
-  environment_scripts:
-  - scripts/inverted_skip_ssl.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: localdriver
-    release_name: local-volume
-  - name: localbroker
-    release_name: local-volume
-  - name: haproxy
-    release_name: cf
-  processes:
-  - name: localdriver
-  - name: localbroker
-  - name: haproxy
-  run:
-    scaling:
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      tag: persibroker-data
-      size: 1
-    shared-volumes:
-    - path: /var/vcap/persistore/servicevolumes/_volumes
-      size: 100
-      tag: persistore
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: persi-broker
-      protocol: TCP
-      external: 443
-      internal: 443
-      public: false
-  configuration:
-    templates:
-      properties.cc.allow_app_ssh_access: false
-      properties.ha_proxy.disable_http: true
-      properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
-      properties.localbroker.listen-addr: 127.0.0.1:8999
-      properties.router.port: 8999
-      properties.router.servers: '["127.0.0.1"]'
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -1806,20 +1316,6 @@ configuration:
       value_type: private_key
       key_length: 4096
     description: PEM-encoded server key
-    required: true
-  - name: AUTOSCALER_COUCHDB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: the password.
-    required: true
-  - name: AUTOSCALER_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The Autoscaler API password. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
@@ -1958,31 +1454,6 @@ configuration:
     default: "''"
     description: URI for a CDN to use for buildpack downloads.
     required: true
-  - name: CF_USB_BROKER_SERVER_CERT
-    secret: true
-    generator:
-      id: usb_broker_server_cert
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: PEM-encoded broker server certificate.
-    required: true
-  - name: CF_USB_BROKER_SERVER_KEY
-    secret: true
-    generator:
-      id: usb_broker_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded broker server key.
-    required: true
-  - name: CF_USB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    example: password
-    description: The password for access to the Universal Service Broker.
-    required: true
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
     description: The Oauth2 authorities available to the cluster administrator.
@@ -2075,23 +1546,6 @@ configuration:
   - name: DEFAULT_APP_SSH_ACCESS
     default: true
     description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
-    required: true
-  - name: DEMOPHON_SERVER_CERT
-    secret: true
-    generator:
-      id: demophon_server_cert
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: PEM-encoded server certificate.
-    required: true
-  - name: DEMOPHON_SERVER_KEY
-    secret: true
-    generator:
-      id: demophon_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key.
     required: true
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
@@ -2207,14 +1661,6 @@ configuration:
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
-  - name: HAPROXY_SSL_CERT_KEY
-    secret: true
-    generator:
-      id: router_cert
-      type: Certificate
-      value_type: cert_private_key
-    description: SSL certificate (PEM file).
-    required: true
   - name: HCF_LOG_HOST
     default: ''
     description: The log destination to talk to. If not set it defaults to flightrecorder.
@@ -2224,24 +1670,6 @@ configuration:
   - name: HCF_LOG_PROTOCOL
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
-    required: true
-  - name: HCF_SSO_OAUTH_AUTHORIZE_URL
-    description: The OAuth authorization URL for SSO; defaults to using the same UAA as HCF
-  - name: HCF_SSO_OAUTH_ID
-    immutable: true
-    default: hcf-sso
-    description: The OAuth client id for SSO; defaults to the HCF-built-in client for UAA
-  - name: HCF_SSO_OAUTH_TOKEN_URL
-    description: The OAuth token URL for SSO; defaults to using the same UAA as HCF
-  - name: HCF_SSO_OAUTH_VERIFICATION_KEY
-    description: The OAuth verification key for SSO; defaults to using the same UAA as HCF
-    secret: false
-  - name: HCF_SSO_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the HCF SSO service broker.
     required: true
   - name: HCF_UAA_EXTERNAL_URL
   - name: HCF_UAA_INTERNAL_HOSTNAME
@@ -2327,14 +1755,6 @@ configuration:
       type: Password
     description: The password for the MySQL server admin user.
     required: true
-  - name: MYSQL_CF_USB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    example: password
-    description: The password for access to the usb config database.
-    required: true
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
     immutable: true
@@ -2381,21 +1801,6 @@ configuration:
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
-    required: true
-  - name: PERSI_BROKER_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the Persi service broker.
-    required: true
-  - name: PERSI_BROKER_TLS_CERT_KEY
-    secret: true
-    generator:
-      id: persi_broker_cert
-      type: Certificate
-      value_type: cert_private_key
-    description: TLS certificate and key (PEM file).
     required: true
   - name: REP_SERVER_CERT
     secret: true
@@ -2487,23 +1892,6 @@ configuration:
     example: false
     description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
     required: true
-  - name: SSO_ROUTE_CERT
-    secret: true
-    generator:
-      id: sso_cert
-      type: Certificate
-      value_type: certificate
-      key_length: 4096
-    description: Certificate for the SSO service.
-    required: true
-  - name: SSO_ROUTE_KEY
-    secret: true
-    generator:
-      id: sso_cert
-      type: Certificate
-      value_type: private_key
-    description: Key for the SSO service.
-    required: true
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
@@ -2527,7 +1915,7 @@ configuration:
     required: true
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
-    description: TCP routing domain of the HCF cluster.
+    description: TCP routing domain of the HCF cluster; only used for testing;
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -2582,20 +1970,6 @@ configuration:
       type: Password
     description: Used for generating SSO clients for service brokers.
     required: true
-  - name: UAA_CLIENTS_CF_AUTOSCALER_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Autoscaler.
-    required: true
-  - name: UAA_CLIENTS_CF_USB_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Universal Service Broker.
-    required: true
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
     immutable: true
@@ -2630,13 +2004,6 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
-    required: true
-  - name: UAA_CLIENTS_HCF_SSO_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The OAuth client secret for SSO; defaults to a randomly generated value
     required: true
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
@@ -2698,9 +2065,6 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-    properties.autoscaler_api.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
-    properties.autoscaler_server.internal_auth.password: '"((AUTOSCALER_PASSWORD))"'
-    properties.autoscaler_servicebroker.auth.password: '"((AUTOSCALER_PASSWORD))"'
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
@@ -2726,7 +2090,10 @@ configuration:
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.capi.tps.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    # TODO: replace with certs specific for this
+    properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.tps.cc.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.tps.cc.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2748,6 +2115,10 @@ configuration:
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
+    # TODO: replace with certs specific for this
+    properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.cc.mutual_tls.private_key: '"((BBS_CLIENT_KEY))"'
+    properties.cc.mutual_tls.public_cert: '"((BBS_CLIENT_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2757,15 +2128,9 @@ configuration:
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((HCF_UAA_INTERNAL_HOSTNAME))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
-    properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
-    properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
-    properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
-    properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
-    properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_password: ((MYSQL_CF_USB_PASSWORD))
     properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2776,7 +2141,6 @@ configuration:
     properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
     properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
-    properties.couchdb.password: '"((AUTOSCALER_COUCHDB_PASSWORD))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2859,6 +2223,7 @@ configuration:
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
     properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
+    properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
@@ -2868,16 +2233,8 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.ha_proxy.ssl_pem: '"((HAPROXY_SSL_CERT_KEY))"'
-    properties.hcf.demophon.config: '[{"name":"CONSUL_HOST","value":"consul"},{"name":"CONSUL_ENCRYPTION_KEYS","value":"((CONSUL_ENCRYPTION_KEYS))"},{"name":"CONSUL_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"CONSUL_AGENT_CERT","value":"((CONSUL_AGENT_CERT))"},{"name":"CONSUL_AGENT_KEY","value":"((CONSUL_AGENT_KEY))"},{"name":"BBS_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"BBS_CLIENT_CRT","value":"((BBS_CLIENT_CRT))"},{"name":"BBS_CLIENT_KEY","value":"((BBS_CLIENT_KEY))"},{"name":"METRON_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"METRON_CERT","value":"((METRON_CERT))"},{"name":"METRON_KEY","value":"((METRON_KEY))"},{"name":"DIEGO_DATABASE_HOST","value":"diego-database"},{"name":"ETCD_HOST","value":"etcd"},{"name":"LOGGREGATOR_SHARED_SECRET","value":"((LOGGREGATOR_SHARED_SECRET))"},{"name":"SKIP_CERT_VERIFY_INTERNAL","value":"((SKIP_CERT_VERIFY_INTERNAL))"},{"name":"ETCD_CA_CRT","value":"((INTERNAL_CA_CERT))"},{"name":"ETCD_CLIENT_CRT","value":"((ETCD_CLIENT_CRT))"},{"name":"ETCD_CLIENT_KEY","value":"((ETCD_CLIENT_KEY))"},{"name":"REP_CA_CERT","value":"((INTERNAL_CA_CERT))"},{"name":"REP_SERVER_CERT","value":"((REP_SERVER_CERT))"},{"name":"REP_SERVER_KEY","value":"((REP_SERVER_KEY))"}]'
-    properties.hcf.demophon.server_cert: '"((DEMOPHON_SERVER_CERT))"'
-    properties.hcf.demophon.server_key: '"((DEMOPHON_SERVER_KEY))"'
-    properties.hcf.demophon.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.hcf.hcp_flightrecorder_host: '"((HCP_FLIGHTRECORDER_HOST))"'
-    properties.hcf.hcp_flightrecorder_port: '"((HCP_FLIGHTRECORDER_PORT))"'
-    properties.hcf.hcp_service_domain_suffix: '"((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
-    properties.hcf.monit.password: '"((MONIT_PASSWORD))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))
     properties.hcf.uaa.internal-url: ((HCF_UAA_INTERNAL_URL))
@@ -2887,19 +2244,6 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
-    properties.hcf_sso.oauth.authorize_url: '"((HCF_SSO_OAUTH_AUTHORIZE_URL))((^HCF_SSO_OAUTH_AUTHORIZE_URL))((HCF_UAA_EXTERNAL_URL))/oauth/authorize((/HCF_SSO_OAUTH_AUTHORIZE_URL))"'
-    properties.hcf_sso.oauth.id: '"((HCF_SSO_OAUTH_ID))"'
-    properties.hcf_sso.oauth.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
-    properties.hcf_sso.oauth.token_url: '"((HCF_SSO_OAUTH_TOKEN_URL))((^HCF_SSO_OAUTH_TOKEN_URL))((HCF_UAA_EXTERNAL_URL))/oauth/token((/HCF_SSO_OAUTH_TOKEN_URL))"'
-    properties.hcf_sso.oauth.verification_key: '"((HCF_SSO_OAUTH_VERIFICATION_KEY))((^HCF_SSO_OAUTH_VERIFICATION_KEY))((JWT_SIGNING_PUB))((/HCF_SSO_OAUTH_VERIFICATION_KEY))"'
-    properties.hcf_sso.password: '"((HCF_SSO_PASSWORD))"'
-    properties.hcf_sso.server_cert: '"((SSO_ROUTE_CERT))"'
-    properties.hcf_sso.server_key: '"((SSO_ROUTE_KEY))"'
-    properties.hcf_sso.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.hcf_versions.blobstore.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.hcf_versions.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-    properties.hcf_versions.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
@@ -2960,13 +2304,10 @@ configuration:
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
-    properties.uaa.clients.cf-autoscaler-client.secret: '"((UAA_CLIENTS_CF_AUTOSCALER_SECRET))"'
-    properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
-    properties.uaa.clients.hcf-sso.secret: '"((UAA_CLIENTS_HCF_SSO_SECRET))"'
     properties.uaa.clients.hcf_auto_config.secret: '"((UAA_CLIENTS_HCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.login.redirect-uri: ((HCF_UAA_EXTERNAL_URL))
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'

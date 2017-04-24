@@ -1,7 +1,0 @@
----
-name: cf-plugin-autoscale
-
-files:
-  - github.com/hpcloud/cf-plugin-autoscale/**/*
-dependencies:
-  - golang1.6

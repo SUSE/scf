@@ -21,26 +21,6 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
-  autoscaler:
-    autoscaler_api:
-      host: sclr-api
-    autoscaler_server:
-      host: sclr-server
-    couchdb:
-      host: couchdb
-  autoscaler_api:
-    internal_auth:
-      username: admin
-    scaling_service:
-      name: app-autoscaler
-  autoscaler_server:
-    internal_auth:
-      username: admin
-  autoscaler_servicebroker:
-    auth:
-      username: admin
-    host: sclr-broker
-    name: app-autoscaler
   bbs:
     api_location: diego-database:8889
   capi:
@@ -95,7 +75,6 @@ properties:
       tps_url: http://diego-cc-bridge:1518
     droplets:
       blobstore_type: webdav
-      droplet_directory_key: cc-droplets
       webdav_config:
         private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
@@ -204,17 +183,6 @@ properties:
       tag: cc
     db_scheme: mysql
     port: 3306
-  cf-usb:
-    broker:
-      external_url: https://cf-usb:24054
-      username: broker-admin
-      port: 24054
-    management:
-      dev_mode: true
-      port: 24053
-      uaa:
-        client: cf-usb
-    mysql_address: mysql-proxy
   cf_mysql:
     mysql:
       database_startup_timeout: 300
@@ -225,11 +193,6 @@ properties:
       api_force_https: false
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
-  couchdb:
-    host: couchdb
-    metric_prefix: couchdb-scalingmetric
-    port: 5984
-    username: admin
   diego:
     auctioneer:
       bbs:
@@ -252,7 +215,7 @@ properties:
       cell_id: diego-cell-0 # TODO: fix this for HA
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
-        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs
+        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
     route_emitter:
       bbs:
         api_location: diego-database:8889
@@ -284,42 +247,27 @@ properties:
     listen_address: 0.0.0.0:7777
     listen_network: tcp
     persistent_image_list:
-    - /var/vcap/packages/rootfs_cflinuxfs2/rootfs
-  hcf:
+    - /var/vcap/packages/cflinuxfs2/rootfs.tar
+    image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
+    image_plugin_extra_args:
+    - --config=/var/vcap/jobs/grootfs/config/grootfs_config.yml
+    # if we have capi.nsync.diego_privileged_containers and
+    # capi.stager.diego_privileged_containers set to true, the following 2
+    # properties need to be set
+    privileged_image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
+    privileged_image_plugin_extra_args:
+    - --config=/var/vcap/jobs/grootfs/config/privileged_grootfs_config.yml
+  grootfs:
+    graph_cleanup_threshold_in_mb: 3000
+    persistent_image_list:
+    - /var/vcap/packages/cflinuxfs2/rootfs.tar
+  fissile:
     monit:
       user: "admin"
       port: 2289
-  hcf_sso:
-    host: hcf-sso
-    username: 'username'
-  hcf_versions:
-    blobstore:
-      private_endpoint: https://blobstore:4443
-      username: 'blobstore_user'
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
-  localbroker:
-    service-name: 'shared-volume'
-    service-id: '3b640186-6429-4cbb-b346-bf96acba3fb9'
-    plan-name: 'default'
-    plan-id: '8ea4a4f1-ab4a-4bbb-a4a6-810d46713449'
-    plan-desc: 'Default service plan'
-    data-dir: /var/vcap/store/persibroker
-    localdriver-url: "http://localhost:9089"
-  localdriver:
-    listen_addr: "127.0.0.1:9089"
-    debug_addr: ""
-    cell_mount_path: /var/vcap/persistore/servicevolumes
-  logger_endpoint:
-    port: 4443
-  login:
-    asset_base_url: null
-    logout:
-      redirect:
-        url: /login?template=openstack
-    saml:
-      serviceProviderKeyPassword: ""
   metron_agent:
     deployment: hcf-deployment
   nats:
@@ -338,8 +286,6 @@ properties:
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
-    servers:
-    - router
     ssl_skip_validation: null
     status:
       user: router_user
@@ -358,16 +304,6 @@ properties:
     debug_address: 0.0.0.0:17003
   traffic_controller:
     locked_memory_limit: kernel
-  tomcat:
-    http:
-      autoscaler_api:
-        route: sclr-api
-        port: 28861
-      autoscaler_server:
-        route: sclr-server
-        port: 28862
-      autoscaler_servicebroker:
-        port: 28863
   uaa:
     authentication:
       policy:
@@ -378,13 +314,6 @@ properties:
       # Note that these clients are overridden in the dev-only UAA role; that is
       # instead used to bootstrap the default zone, whereas all of these clients
       # go into the HCF zone.
-      cf-autoscaler-client:
-        authorities: cloud_controller.read,cloud_controller.admin
-        authorized-grant-types: client_credentials
-      cf-usb:
-        authorities: cloud_controller.admin,usb.management.admin
-        authorized-grant-types: client_credentials
-        scope: usb.management.admin
       cc-service-dashboards:
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
@@ -422,11 +351,6 @@ properties:
         # cloud_controller.admin is needed for hcf-release/hcf-set-proxy job
         authorities: scim.read,scim.write,clients.admin,cloud_controller.admin
         authorized-grant-types: client_credentials
-      hcf-sso:
-        access-token-validity: 3600
-        authorized-grant-types: authorization_code
-        autoapprove: true
-        scope: scim.me
       login:
         authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
         authorized-grant-types: authorization_code,client_credentials,refresh_token

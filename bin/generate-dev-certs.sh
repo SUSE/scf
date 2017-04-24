@@ -82,7 +82,6 @@ output_path="$(readlink --canonicalize-missing "${output_path}")"
 rm -rf ${certs_path}
 mkdir -p ${certs_path}
 
-# generate cf ha_proxy certs
 # Source: https://github.com/cloudfoundry/cf-release/blob/master/example_manifests/README.md#dns-configuration
 rm -rf ${hcf_certs_path}
 mkdir -p ${hcf_certs_path}
@@ -184,12 +183,6 @@ certstrap --depot-path "${internal_certs_dir}" sign saml_serviceprovider --CA in
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign trafficcontroller --CA internalCA --passphrase "${signing_key_passphrase}"
 
-# generate SSO routing certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name hcf-sso --domain "$(make_domains "hcf-sso")" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign hcf-sso --CA internalCA --passphrase "${signing_key_passphrase}"
-cat ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/hcf-sso.key > ${internal_certs_dir}/sso_routing.key
-cp ${internal_certs_dir}/hcf-sso.crt ${internal_certs_dir}/sso_routing.crt
-
 # generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_ha_domains "etcd")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdServer --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -209,14 +202,6 @@ mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/server.key
 mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/server.csr
 mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/server.crt
 
-# Server certificate for the demophon component
-server_cn=demophon
-certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name ${server_cn}
-certstrap --depot-path ${internal_certs_dir} sign ${server_cn} --CA internalCA --passphrase "${signing_key_passphrase}"
-mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/demophon_server.key
-mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/demophon_server.csr
-mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/demophon_server.crt
-
 # Agent certificate to distribute to jobs that access consul
 certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name 'consul agent'
 certstrap --depot-path ${internal_certs_dir} sign consul_agent --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -227,11 +212,6 @@ mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 # generate APP_SSH SSH key
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
 app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/app_ssh_key" | awk '{print $2}')
-
-# generate USB Broker certs
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb")" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA internalCA --passphrase "${signing_key_passphrase}"
-
 
 # generate uaa certs
 uaa_server_key="${certs_path}/uaa_private_key.pem"
@@ -249,20 +229,12 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --co
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
-cat "${certs_path}/router_ssl.cert" "${certs_path}/router_ssl.key" > "${certs_path}/ha_proxy.pem"
 
 server_cn=blobstore_tls
 certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "blobstore")"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
-
-server_cn=persi_broker_tls
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker")"
-certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
-mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.key"
-mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"
-cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" > "${certs_path}/persi_broker_tls.pem"
 
 APP_SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/app_ssh_key")"
 APP_SSH_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
@@ -280,14 +252,10 @@ BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.c
 BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.key")
 BLOBSTORE_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.cert")
 BLOBSTORE_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.key")
-CF_USB_BROKER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.crt")
-CF_USB_BROKER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/cfUsbBrokerServer.key")
 CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.crt")
 CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.key")
 CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.crt")
 CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.key")
-DEMOPHON_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.crt")
-DEMOPHON_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/demophon_server.key")
 DOPPLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.crt")
 DOPPLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.key")
 ETCD_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdClient.crt")
@@ -296,21 +264,17 @@ ETCD_PEER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdPeer.crt"
 ETCD_PEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdPeer.key")
 ETCD_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdServer.crt")
 ETCD_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdServer.key")
-HAPROXY_SSL_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/ha_proxy.pem")
 INTERNAL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/internalCA.crt")
 JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
 JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
 METRON_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
 METRON_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
-PERSI_BROKER_TLS_CERT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/persi_broker_tls.pem")
 REP_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.crt")
 REP_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.key")
 ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
 SAML_SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.crt")
 SAML_SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.key")
-SSO_ROUTE_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.crt")
-SSO_ROUTE_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/sso_routing.key")
 TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
 TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.key")
 UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
@@ -333,14 +297,10 @@ BBS_SERVER_CRT=${BBS_SERVER_CRT}
 BBS_SERVER_KEY=${BBS_SERVER_KEY}
 BLOBSTORE_TLS_CERT=${BLOBSTORE_TLS_CERT}
 BLOBSTORE_TLS_KEY=${BLOBSTORE_TLS_KEY}
-CF_USB_BROKER_SERVER_CERT=${CF_USB_BROKER_SERVER_CERT}
-CF_USB_BROKER_SERVER_KEY=${CF_USB_BROKER_SERVER_KEY}
 CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
 CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
 CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
 CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
-DEMOPHON_SERVER_CERT=${DEMOPHON_SERVER_CERT}
-DEMOPHON_SERVER_KEY=${DEMOPHON_SERVER_KEY}
 DOPPLER_CERT=${DOPPLER_CERT}
 DOPPLER_KEY=${DOPPLER_KEY}
 ETCD_CLIENT_CRT=${ETCD_CLIENT_CRT}
@@ -349,21 +309,17 @@ ETCD_PEER_CRT=${ETCD_PEER_CRT}
 ETCD_PEER_KEY=${ETCD_PEER_KEY}
 ETCD_SERVER_CRT=${ETCD_SERVER_CRT}
 ETCD_SERVER_KEY=${ETCD_SERVER_KEY}
-HAPROXY_SSL_CERT_KEY=${HAPROXY_SSL_CERT_KEY}
 INTERNAL_CA_CERT=${INTERNAL_CA_CERT}
 JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
 JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
 METRON_CERT=${METRON_CERT}
 METRON_KEY=${METRON_KEY}
-PERSI_BROKER_TLS_CERT_KEY=${PERSI_BROKER_TLS_CERT_KEY}
 REP_SERVER_CERT=${REP_SERVER_CERT}
 REP_SERVER_KEY=${REP_SERVER_KEY}
 ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
 SAML_SERVICEPROVIDER_CERT=${SAML_SERVICEPROVIDER_CERT}
 SAML_SERVICEPROVIDER_KEY=${SAML_SERVICEPROVIDER_KEY}
-SSO_ROUTE_CERT=${SSO_ROUTE_CERT}
-SSO_ROUTE_KEY=${SSO_ROUTE_KEY}
 TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
 TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
 UAA_SERVER_CERT=${UAA_SERVER_CERT}

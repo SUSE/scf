@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.7)
+export PATH=${GOROOT}/bin:${PATH}
+
+export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
+
+export GOPATH=/var/vcap/packages/smoke-tests
+export PATH=${GOPATH}/bin:${PATH}
+
+cd /var/vcap/packages/smoke-tests/src/github.com/cloudfoundry/cf-smoke-tests
+
+mkdir -p $GOPATH/src/
+cp -r ./vendor/* $GOPATH/src/
+
+go install github.com/onsi/ginkgo/ginkgo
+
+export CONFIG=/var/vcap/jobs/smoke-tests/bin/config.json
+<% if_p("smoke_tests.cf_dial_timeout_in_seconds") do |timeout| %>
+export CF_DIAL_TIMEOUT=<%= timeout %>
+<% end %>
+
+echo '################################################################################################################'
+echo $(go version)
+echo CONFIG=${CONFIG}
+env | sort
+echo '################################################################################################################'
+
+echo "Running smoke tests..."
+
+EXITSTATUS=0
+./bin/test <%= properties.smoke_tests.ginkgo_opts %> || EXITSTATUS=$?
+
+echo "Smoke Tests Complete; exit status: $EXITSTATUS"
+exit $EXITSTATUS
