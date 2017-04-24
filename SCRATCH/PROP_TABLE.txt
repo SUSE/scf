@@ -1,0 +1,36 @@
+# CF
+
+|Property				|Notes		|Actions		|
+|---					|---		|---			|
+|capi.tps.cc.basic_auth_password	|dropped	|check manifest		|
+|capi.tps.cc.basic_auth_username	|s.a		|s.a			|
+|capi.tps.cc.ca_cert			|new secret	|+dark, generate	|
+|capi.tps.cc.client_cert		|s.a 		|s.a			|
+|capi.tps.cc.client_key			|s.a		|s.a			|
+|capi.tps.listener_enabled		|		|nothing, use default	|
+|cc.diego.pid_limit			|		|s.a			|
+|cc.diego.temporary_local_tps		|		|s.a			|
+|cc.loggregator.internal_url		|		|s.a			|
+|consul.agent.ports.dns			|		|s.a			|
+|databases.monit_timeout		|		|s.a			|
+|metron_agent.disable_udp		|		|s.a			|
+|metron_agent.grpc_port			|		|s.a			|
+|metron_endpoint.grpc_port		|		|s.a			|
+|router.max_idle_connections		|		|s.a			|
+|login.saml.serviceProviderKeyPassword	|change		|??????			|
+|syslog_daemon_config.port		|		|nothing, just desc	|
+|syslog_daemon_config.trans		|		|s.a	       		|
+
+# Diego
+
+|Property						|Notes		|Actions		|
+|---							|---		|---			|
+|diego.auctioneer.starting_container_count_maximum	|		|nothing, use default	|
+|diego.bbs.sql.max_idle_connections			|No default	|expose or opinion?	|
+|diego.rep.consul.ca_cert				|new secret	|+dark , generate	|
+|diego.rep.consul.client_cert				|s.a		|s.a			|
+|diego.rep.consul.client_key				|s.a		|s.a			|
+|diego.rep.consul.require_tls				|		|nothing, use default	|
+|diego.route_emitter.job_name				|		|s.a	      		|
+|diego.bbs.auctioneer.api_location			|		|nothing, just desc	|
+|diego.bbs.auctioneer.api_url				|		|nothing, just desc	|

@@ -240,6 +240,8 @@ properties:
         api_location: diego-brain:9016
       etcd:
         machines: []
+      sql:
+        max_idle_connections: null
     executor:
       garden:
         address: 127.0.0.1:7777

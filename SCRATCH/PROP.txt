@@ -1,0 +1,173 @@
+#
+# dropped - cf
+#
+
+capi.tps.cc.basic_auth_password ...
+capi.tps.cc.basic_auth_username ...
+
+TODO:
+	Check manifest, opinions for uses
+	Remove
+	Note affected parameters.
+
+#
+# added - cf
+#
+
+capi.tps.cc.ca_cert ...
+    description: "PEM-encoded CA certificate"
+capi.tps.cc.client_cert ...
+    description: "PEM-encoded client certificate"
+capi.tps.cc.client_key ...
+    description: "PEM-encoded client key"
+
+TODO:
+*	Add to dark
+*	Add to manifest as secret ?
+*	Generate this cert.
+
+capi.tps.listener_enabled ...
+    description: "Flag to enable TPS listener. Listener functionality
+    		  has be absorbed into modern CC"
+    default: true
+TODO:
+	Nothing, keep default
+
+cc.diego.pid_limit ...
+    description: "Maximum pid limit for containerized work running
+    		  user-provided code"
+    default: 1024
+TODO:
+	Nothing, keep default
+
+cc.diego.temporary_local_tps ...
+    description: "Temporary flag to manage app state directly to the
+    		  bbs from cc"
+    default: false
+TODO:
+	Nothing, keep default
+
+cc.loggregator.internal_url ...
+    description: "Internal url used to communicate with
+    		  traffic_controller"
+    default: "http://loggregator-trafficcontroller.service.cf.internal:8081"
+TODO:
+	Nothing, keep default
+
+consul.agent.ports.dns ...
+      description: "DNS server port"
+      default: 53
+TODO:
+	Nothing, keep default
+
+databases.monit_timeout ...
+    description: "Monit timout in seconds for the postgres job
+    		  start. If not specified, no timeout statement will
+    		  be added so that the global monit timeout applies."
+TODO:
+	Nothing, keep default
+
+metron_agent.disable_udp ...
+    description: "Disable incoming UDP"
+    default: false
+TODO:
+	Nothing, keep default
+
+metron_agent.grpc_port ...
+    description: "Port the metron agent is listening on to receive gRPC log envelopes"
+    default: 3458
+TODO:
+	Nothing, keep default
+
+metron_endpoint.grpc_port ...
+    description: "The port used to emit grpc messages to the Metron
+    		  agent"
+    default: 3458
+TODO:
+	Nothing, keep default
+
+router.max_idle_connections ...
+    description: "Maximum total idle keepalive connections to
+    		 backends. When 0, support for keepalive connections
+    		 is disabled. Maximum idle connections per backend is
+    		 100."
+    default: 0
+TODO:
+	Nothing, keep default
+
+#
+# changed - cf
+#
+
+login.saml.serviceProviderKeyPassword ...
+	<nil> =>
+TODO:
+	Unknown
+
+syslog_daemon_config.port ...
+	Description changed.
+TODO:
+	Nothing
+
+syslog_daemon_config.trans ...
+	Description changed.
+TODO:
+	Nothing
+
+#
+# added - diego
+#
+
+diego.auctioneer.starting_container_count_maximum ...
+    description: "Maximum number of inflight container starts allowed
+    		  globally. Value of 0 or less indicates no limit."
+    default: 0
+TODO:
+	Nothing, keep default
+
+diego.bbs.sql.max_idle_connections ...
+    description: "Maximum number of idle connections to the SQL
+    		  database"
+TODO:
+	It seems that we are responsible for setting a value, there is
+	no default.
+
+	Expose to user, or an opinion ?
+
+diego.rep.consul.ca_cert ...
+    description: "PEM-encoded CA certificate"
+diego.rep.consul.client_cert ...
+    description: "PEM-encoded client certificate"
+diego.rep.consul.client_key ...
+    description: "PEM-encoded client key"
+TODO:
+*	Add to dark
+*	Add to manifest as secret ?
+*	Generate this cert.
+
+diego.rep.consul.require_tls ...
+    description: "Require mutual TLS to talk to the local consul API"
+    default: false
+TODO:
+	Nothing, keep default
+
+diego.route_emitter.job_name ...
+    description: "The name of the Diego job referenced by this spec
+    (DO NOT override)"
+    default: "route_emitter"
+TODO:
+	Nothing, keep default
+
+#
+# changed - diego
+#
+
+diego.bbs.auctioneer.api_location ...
+	Description changed.
+TODO:
+	Nothing
+
+diego.bbs.auctioneer.api_url ...
+	Description changed.
+TODO:
+	Nothing

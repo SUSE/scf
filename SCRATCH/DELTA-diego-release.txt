@@ -1,0 +1,57 @@
+Added keys:
+  diego.auctioneer.diego.auctioneer.starting_container_count_maximum
+  diego.auctioneer.starting_container_count_maximum
+
+  diego.bbs.diego.bbs.sql.max_idle_connections
+  diego.bbs.sql.max_idle_connections
+
+  diego.rep.consul.ca_cert
+  diego.rep.consul.client_cert
+  diego.rep.consul.client_key
+  diego.rep.consul.require_tls
+
+  diego.rep.diego.rep.consul.ca_cert
+  diego.rep.diego.rep.consul.client_cert
+  diego.rep.diego.rep.consul.client_key
+  diego.rep.diego.rep.consul.require_tls
+
+  diego.rep_windows.diego.rep.consul.ca_cert
+  diego.rep_windows.diego.rep.consul.client_cert
+  diego.rep_windows.diego.rep.consul.client_key
+  diego.rep_windows.diego.rep.consul.require_tls
+
+  diego.route_emitter.diego.route_emitter.job_name
+  diego.route_emitter.job_name
+
+  diego.route_emitter_windows.diego.route_emitter.bbs.api_location
+  diego.route_emitter_windows.diego.route_emitter.bbs.ca_cert
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_cert
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_key
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_session_cache_size
+  diego.route_emitter_windows.diego.route_emitter.bbs.max_idle_conns_per_host
+  diego.route_emitter_windows.diego.route_emitter.bbs.require_ssl
+  diego.route_emitter_windows.diego.route_emitter.debug_addr
+  diego.route_emitter_windows.diego.route_emitter.dropsonde_port
+  diego.route_emitter_windows.diego.route_emitter.job_name
+  diego.route_emitter_windows.diego.route_emitter.local_mode
+  diego.route_emitter_windows.diego.route_emitter.log_level
+  diego.route_emitter_windows.diego.route_emitter.nats.machines
+  diego.route_emitter_windows.diego.route_emitter.nats.password
+  diego.route_emitter_windows.diego.route_emitter.nats.port
+  diego.route_emitter_windows.diego.route_emitter.nats.user
+  diego.route_emitter_windows.diego.route_emitter.sync_interval_in_seconds
+
+  diego.route_emitter_windows.syslog_daemon_config.address
+  diego.route_emitter_windows.syslog_daemon_config.port
+  diego.route_emitter_windows.syslog_daemon_config.transport
+
+Changed values:
+  diego.bbs.auctioneer.api_location:
+	Hostname and port of the auctioneer API.
+  =>	Hostname and port of the auctioneer API, without URI
+	scheme. Recommended in favor of api_url.
+
+  diego.bbs.auctioneer.api_url:
+	Address of the auctioneer API
+  =>	URL of the auctioneer API. Deprecated in favor of
+	api_location, but in use through Diego v1.

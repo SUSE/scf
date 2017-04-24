@@ -1,0 +1,55 @@
+
+|Property				|Notes		|Actions		|
+|---					|---		|---			|
+|capi.tps.cc.basic_auth_password	|dropped	|check manifest		|
+|capi.tps.cc.basic_auth_username	|s.a		|s.a			|
+|login.saml.serviceProviderKeyPassword	|change		|??????			|
+|diego.bbs.sql.max_idle_connections	|No default	|expose or opinion?	|
+
+ * auth_password - removed
+ * auth_username - was not used, no action taken
+ * serviceProviderKeyPassword - The new default matches our opinio, no action taken
+ * max_idle_connections - Added to opinion with default of <null> (should be ignored
+   			  by the erb (if_p), code has to have hardwired default.
+
+|Property				|Notes		|Actions		|
+|---					|---		|---			|
+|capi.tps.cc.ca_cert			|new secret	|+dark, generate	|
+|capi.tps.cc.client_cert		|s.a 		|s.a			|
+|capi.tps.cc.client_key			|s.a		|s.a			|
+|diego.rep.consul.ca_cert		|s.a		|s.a			|
+|diego.rep.consul.client_cert		|s.a		|s.a			|
+|diego.rep.consul.client_key		|s.a		|s.a			|
+|cc.mutual_tls.ca_cert			|s.a		|s.a			|
+|cc.mutual_tls.public_cert		|s.a		|s.a			|
+|cc.mutual_tls.private_key		|s.a		|s.a			|
+
+Setting up role-manifest entries
+```
+properties.capi.tps.cc.ca_cert: 	 '"((INTERNAL_CA_CERT))"'
+properties.capi.tps.cc.client_cert: 	 '"((CAPI_TPS_CC_CLIENT_CERT))"'
+properties.capi.tps.cc.client_key: 	 '"((CAPI_TPS_CC_CLIENT_KEY))"'
+properties.diego.rep.consul.ca_cert: 	 '"((INTERNAL_CA_CERT))"'
+properties.diego.rep.consul.client_cert: '"((DIEGO_REP_CONSUL_CLIENT_CERT))"'
+properties.diego.rep.consul.client_key:  '"((DIEGO_REP_CONSUL_CLIENT_KEY))"'
+properties.cc.mutual_tls.ca_cert:	 '"((INTERNAL_CA_CERT))"'	 
+properties.cc.mutual_tls.public_cert:	 '"((CC_MUTUAL_TLS_PUBLIC_CERT))"'
+properties.cc.mutual_tls.private_key:	 '"((CC_MUTUAL_TLS_PRIVATE_KEY))"'
+```
+
+Note, regarding the "mutual_tls" properties we have the following text
+in the CF release notes (emphasis mine):
+
+	Cloud Controller now requires SSL configuration with the
+	following properties, __the CA cert should match the diego bbs
+	ca cert and that ca cert should be used to sign the newly
+	required public cert__:
+
+Looking at the role manifest and the certs parameters we currently
+have it seems that ((INTERNAL_CA_CERT)) is the "diego bbs ca
+cert". Its description is __PEM-encoded CA certificate used to sign
+TLS certificate hosted by Diego BBS__
+
+I wonder if it would make sense to use this for the other two new CA
+certs as well.
+

@@ -1,0 +1,173 @@
+# CF release
+
+## Dropped keys:
+
+  capi.tps.cc.basic_auth_password
+  capi.tps.cc.basic_auth_username
+
+  cf.tps.capi.tps.cc.basic_auth_password
+  cf.tps.capi.tps.cc.basic_auth_username
+
+## Added keys:
+
+  capi.tps.cc.ca_cert
+  capi.tps.cc.client_cert
+  capi.tps.cc.client_key
+  capi.tps.listener_enabled
+
+  cc.diego.pid_limit
+  cc.diego.temporary_local_tps
+  cc.loggregator.internal_url
+
+  cf.cloud_controller_ng.cc.diego.pid_limit
+  cf.cloud_controller_ng.cc.diego.temporary_local_tps
+  cf.cloud_controller_ng.cc.loggregator.internal_url
+  cf.cloud_controller_worker.cc.diego.pid_limit
+  cf.cloud_controller_worker.cc.diego.temporary_local_tps
+  cf.cloud_controller_worker.cc.loggregator.internal_url
+
+  cf.consul_agent.consul.agent.ports.dns
+
+  cf.doppler.metron_endpoint.grpc_port
+
+  cf.gorouter.router.max_idle_connections
+
+  cf.metron_agent.metron_agent.disable_udp
+  cf.metron_agent.metron_agent.grpc_port
+  cf.metron_agent_windows.metron_agent.disable_udp
+  cf.metron_agent_windows.metron_agent.grpc_port
+
+  cf.postgres.databases.monit_timeout
+
+  cf.tps.capi.tps.cc.ca_cert
+  cf.tps.capi.tps.cc.client_cert
+  cf.tps.capi.tps.cc.client_key
+  cf.tps.capi.tps.listener_enabled
+
+  consul.agent.ports.dns
+
+  databases.monit_timeout
+
+  metron_agent.disable_udp
+  metron_agent.grpc_port
+  metron_endpoint.grpc_port
+
+  router.max_idle_connections
+
+## Changed values:
+
+  cf.cloud_controller_clock.system_domain_organization:  => system
+  cf.cloud_controller_clock.uaa.ssl.port: <nil> => 8443
+
+  cf.cloud_controller_ng.cc.diego.lifecycle_bundles:
+	map[buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz docker:docker_app_lifecycle/docker_app_lifecycle.tgz]
+  =>	map[docker:docker_app_lifecycle/docker_app_lifecycle.tgz buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz]
+
+  cf.cloud_controller_ng.cc.mutual_tls.ca_cert:  => <nil>
+  cf.cloud_controller_ng.cc.mutual_tls.private_key:  => <nil>
+  cf.cloud_controller_ng.cc.mutual_tls.public_cert:  => <nil>
+
+  cf.cloud_controller_ng.system_domain_organization:  => system
+
+  cf.cloud_controller_ng.uaa.ssl.port: <nil> => 8443
+
+  cf.cloud_controller_worker.cc.diego.lifecycle_bundles:
+	map[buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz docker:docker_app_lifecycle/docker_app_lifecycle.tgz]
+  =>	map[buildpack/windows2012R2:windows_app_lifecycle/windows_app_lifecycle.tgz docker:docker_app_lifecycle/docker_app_lifecycle.tgz buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz]
+
+  cf.cloud_controller_worker.cc.mutual_tls.ca_cert:  => <nil>
+  cf.cloud_controller_worker.cc.mutual_tls.private_key:  => <nil>
+  cf.cloud_controller_worker.cc.mutual_tls.public_cert:  => <nil>
+  cf.cloud_controller_worker.system_domain_organization:  => system
+
+  cf.cloud_controller_worker.uaa.ssl.port: <nil> => 8443
+
+  cf.dea_next.dea_next.stacks:
+	[map[package_path:/var/vcap/packages/rootfs_cflinuxfs2/rootfs name:cflinuxfs2]]
+  =>	[map[name:cflinuxfs2 package_path:/var/vcap/packages/rootfs_cflinuxfs2/rootfs]]
+
+  cf.metron_agent.syslog_daemon_config.address: <nil> => 
+  cf.metron_agent.syslog_daemon_config.port: <nil> => 
+  cf.metron_agent.syslog_daemon_config.transport: tcp => udp
+
+  cf.metron_agent_windows.syslog_daemon_config.address: <nil> => 
+  cf.metron_agent_windows.syslog_daemon_config.port: <nil> => 
+  cf.metron_agent_windows.syslog_daemon_config.transport: tcp => udp
+
+  cf.tps.capi.tps.cc.external_port: 9022 => 9023
+
+  cf.uaa.login.saml.serviceProviderKeyPassword: <nil> => 
+
+  login.saml.serviceProviderKeyPassword:
+	Password to protect the service provider private key.
+  =>	Passphrase for the service provider private key.
+
+  syslog_daemon_config.port:
+	TCP port of syslog aggregator
+  =>	Port of syslog aggregator
+
+  syslog_daemon_config.trans:
+	Transport to be used when forwarding logs (tcp|udp|relp).
+  =>	Transport to be used when forwarding logs (tcp|udp).
+
+# Diego release
+
+## Added keys:
+
+  diego.auctioneer.diego.auctioneer.starting_container_count_maximum
+  diego.auctioneer.starting_container_count_maximum
+
+  diego.bbs.diego.bbs.sql.max_idle_connections
+  diego.bbs.sql.max_idle_connections
+
+  diego.rep.consul.ca_cert
+  diego.rep.consul.client_cert
+  diego.rep.consul.client_key
+  diego.rep.consul.require_tls
+
+  diego.rep.diego.rep.consul.ca_cert
+  diego.rep.diego.rep.consul.client_cert
+  diego.rep.diego.rep.consul.client_key
+  diego.rep.diego.rep.consul.require_tls
+
+  diego.rep_windows.diego.rep.consul.ca_cert
+  diego.rep_windows.diego.rep.consul.client_cert
+  diego.rep_windows.diego.rep.consul.client_key
+  diego.rep_windows.diego.rep.consul.require_tls
+
+  diego.route_emitter.diego.route_emitter.job_name
+  diego.route_emitter.job_name
+
+  diego.route_emitter_windows.diego.route_emitter.bbs.api_location
+  diego.route_emitter_windows.diego.route_emitter.bbs.ca_cert
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_cert
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_key
+  diego.route_emitter_windows.diego.route_emitter.bbs.client_session_cache_size
+  diego.route_emitter_windows.diego.route_emitter.bbs.max_idle_conns_per_host
+  diego.route_emitter_windows.diego.route_emitter.bbs.require_ssl
+  diego.route_emitter_windows.diego.route_emitter.debug_addr
+  diego.route_emitter_windows.diego.route_emitter.dropsonde_port
+  diego.route_emitter_windows.diego.route_emitter.job_name
+  diego.route_emitter_windows.diego.route_emitter.local_mode
+  diego.route_emitter_windows.diego.route_emitter.log_level
+  diego.route_emitter_windows.diego.route_emitter.nats.machines
+  diego.route_emitter_windows.diego.route_emitter.nats.password
+  diego.route_emitter_windows.diego.route_emitter.nats.port
+  diego.route_emitter_windows.diego.route_emitter.nats.user
+  diego.route_emitter_windows.diego.route_emitter.sync_interval_in_seconds
+
+  diego.route_emitter_windows.syslog_daemon_config.address
+  diego.route_emitter_windows.syslog_daemon_config.port
+  diego.route_emitter_windows.syslog_daemon_config.transport
+
+## Changed values:
+
+  diego.bbs.auctioneer.api_location:
+	Hostname and port of the auctioneer API.
+  =>	Hostname and port of the auctioneer API, without URI
+	scheme. Recommended in favor of api_url.
+
+  diego.bbs.auctioneer.api_url:
+	Address of the auctioneer API
+  =>	URL of the auctioneer API. Deprecated in favor of
+	api_location, but in use through Diego v1.

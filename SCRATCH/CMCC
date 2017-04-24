@@ -1,0 +1,14 @@
+./LOCATIONS.txt
+./MODDED
+./DELTA.txt
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/mutual_tls_ca.crt.erb
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/mutual_tls_ca.crt.erb
+./src/CLONES/cf-release-clone-252/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+./src/CLONES/cf-release-clone-252/src/capi-release/docs/tls-configuration.md
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/templates/mutual_tls_ca.crt.erb
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_worker/spec
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/mutual_tls_ca.crt.erb
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/templates/nginx.conf.erb
+./src/cf-release/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+./DELTA-cf-release.txt

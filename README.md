@@ -499,12 +499,33 @@ Name    | Effect | Notes |
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
-  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility)
-  for `cf-release`, `diego-release`, `etcd-release`, and `garden-runc-release`. If you are bumping
-  all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
-  1 and 2 in the example:
+  To determine the currently used CF release run
 
-  The following example is for `cf-release`. You can follow the same steps for other releases.
+    ```bash
+    cat src/cf-release/releases/index.yml | \
+        yaml2json | \
+	jq '.builds[].version' | \
+	sed -e 's/"//g' | \
+	tail -1
+    ```
+
+  The ```yaml2json``` may be replaced with ```y2j```.
+
+  The release notes of each cloudfoundry release can be found at
+
+	https://github.com/cloudfoundry/cf-release/releases/tag/v<version>
+
+  where version is the version number of the release we wish to bump to.
+
+  The section of interest is `Compatible Releases and Stemcells`.
+  It lists all the adjunct releases we need.
+
+  Note, when HCF is more than one release behind the current CF
+  release it is best to incrementally bump forward instead of trying
+  to make a big jump.  Read all the release notes of all
+  intermediates!
+
+  The following example is for `cf-release`. You can follow the same steps for the other releases.
 
   1. On the host machine, clone the repository that you want to bump:
 
@@ -536,27 +557,36 @@ Name    | Effect | Notes |
 
   5. Act on configuration changes:
 
-    __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
+    __Important:__ If you are not sure how to treat a configuration
+    setting, discuss it with the HCF team.
 
-    For any configuration changes discovered in step the previous step, you can do one of the following:
+    For any configuration changes discovered in step the previous
+    step, you can do one of the following:
 
       * Keep the defaults in the new specification.
 
-      * Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`.
+      * Add an opinion (static defaults) to
+        `./container-host-files/etc/hcf/config/opinions.yml`.
 
-      * Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`.
+      * Add a template and an exposed environment variable to
+        `./container-host-files/etc/hcf/config/role-manifest.yml`.
 
-    Define any secrets in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as environment variables.
+    Define any secrets in the dark opinions file
+    `./container-host-files/etc/hcf/config/dark-opinions.yml` and
+    expose them as environment variables.
 
-      * If you need any extra default certificates, add them here: `~/hcf/bin/dev-certs.env`.
+      * If you need any extra default certificates, add them here:
+        `~/hcf/bin/dev-certs.env`.
 
-      * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
+      * Add generation code for the certificates here:
+        `~/hcf/bin/generate-dev-certs.sh`.
 
   6. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
 
-    b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
+    b. If there are any role changes, discuss them with the HCF team,
+       [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
   7. Bump the real submodule:
 
@@ -564,7 +594,8 @@ Name    | Effect | Notes |
 
     b. Remove the clone you used for the release.
 
-  8. Test the release by running the `make <release-name>-release compile images run` command.
+  8. Test the release by running the `make <release-name>-release
+     compile images run` command.
 
 
 ### Can I suspend or resume my vagrant VM?
