@@ -165,12 +165,12 @@ roles:
       internal: 4568
       public: false
     - name: healthcheck
-      protocol: tcp
+      protocol: TCP
       external: 9200
       internal: 9200
       public: false
     - name: xtrabackup
-      protocol: tcp
+      protocol: TCP
       external: 4444
       internal: 4444
       public: false
@@ -1137,7 +1137,6 @@ roles:
   - name: consul_agent
   - name: rep
   - name: garden
-  - name: localdriver
   run:
     scaling:
       min: 1
