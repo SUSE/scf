@@ -22,6 +22,11 @@ all: images tag terraform
 print-version:
 	@ ${GIT_ROOT}/make/print-version
 
+########## TOOL DOWNLOAD TARGETS ##########
+
+${FISSILE_BINARY}: bin/dev/install_tools.sh
+	bin/dev/install_tools.sh
+
 ########## VAGRANT VM TARGETS ##########
 
 run:
@@ -140,7 +145,7 @@ releases:
 
 ########## FISSILE BUILD TARGETS ##########
 
-compile-base:
+compile-base: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile-base
 
 # This is run from the Vagrantfile to copy in the existing compilation cache
@@ -150,15 +155,15 @@ copy-compile-cache:
 clean-compile-cache:
 	${GIT_ROOT}/make/compile clean
 
-compile:
+compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
 images: bosh-images docker-images
 
-image-base:
+image-base: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/image-base
 
-bosh-images: validate
+bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
 docker-images: validate
@@ -169,7 +174,7 @@ build: compile images
 tag: bosh-tag docker-tag
 
 # This rule iterates over all bosh images, and tags them via the wildcard rule
-bosh-tag:
+bosh-tag: ${FISSILE_BINARY}
 	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-tag-${role})
 
 # This rule iterates over all docker images, and tags them via the wildcard rule
@@ -179,7 +184,7 @@ docker-tag:
 publish: bosh-publish docker-publish
 
 # This rule iterates over all bosh images, and publishes them via the wildcard rule
-bosh-publish:
+bosh-publish: ${FISSILE_BINARY}
 	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-publish-${role})
 
 # This rule iterates over all docker images, and publishes them via the wildcard rule
