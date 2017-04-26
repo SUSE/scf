@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 ## ### ##### ########
 # Tool to convert role-manifest.yml into various other forms
-# - HCP definitions
-# - (MPC) Terraform definitions
+# - Vagrant : Use of EV in roles
 # ... more
 
 require 'optparse'
 require 'yaml'
 require 'json'
-require_relative 'rm-transformer/common'
+require_relative 'vagrant-setup/common'
 
 def main
   # Syntax: ?--manual? ?--provider <name>? <roles-manifest.yml>|-
@@ -17,8 +16,8 @@ def main
   # --manual          ~ Include manually started roles in the output
   # --property-map <file> ~ File mapping releases and jobs to the properties they use.
   # --provider <name> ~ Choose the output format.
-  #                     Known: hcp, tf
-  #                     Default: hcp
+  #                     Known: vagrant
+  #                     Default: vagrant
   # --dtr             ~ Location of trusted docker registry
   #                     (Default: empty)
   # --dtr-org         ~ Org to use for images stored to the DTR
@@ -30,12 +29,10 @@ def main
   #                     Used to construct the image names to look for.
   # --hcf-version     ~ Version of the service.
   #                     (Default: 0.0.0)
-  # --hcp-cpu-num     ~ Number of CPUs available to run the service.
-  #                     (Default: 6)
   ##
   # The generated definitions are written to stdout
 
-  provider = 'hcp'
+  provider = 'vagrant'
   options = {
     dtr:         'docker.helion.lol',
     dtr_org:     'helioncf',
@@ -45,15 +42,14 @@ def main
     hcf_root_dir: nil,
     manual:      false,
     propmap:     nil,
-    hcp_cpu_num: 6,
     rm_origin:   nil
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: rm-transform [--manual] [--hcp-cpu-num N] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider hcp|tf|tf:aws|tf:mpc|vagrant] role-manifest|-
+    opts.banner = 'Usage: vagrant-setup [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
-    then transform according to the chosen provider (Default: hcp)
+    then transform according to the chosen provider (Default: vagrant)
     The result is written to stdout.
 
 '
@@ -78,10 +74,6 @@ def main
     opts.on('-V', '--hcf-version text', 'Version to use for the service') do |v|
       options[:hcf_version] = v
     end
-    opts.on('-C', '--hcp-cpu-num text', 'Number of CPUs available') do |v|
-      abort "Bad number of cpus, expecting a value > 0." if v.to_i < 1
-      options[:hcp_cpu_num] = v.to_i
-    end
     opts.on('-T', '--hcf-root-dir text', 'Absolute path of the HCF sources main directory') do |v|
       options[:hcf_root_dir] = v
     end
@@ -95,18 +87,11 @@ def main
       abort "Unknown provider: #{v}" if provider_constructor[v].nil?
       provider = v
     end
-    opts.on('-I', '--instance-definition-template file', 'Template for HCP instance definition') do |v|
-      options[:instance_definition_template] = v
-    end
   end
   op.parse!
 
   if ARGV.length != 1 || provider.nil?
     op.parse!(['--help'])
-    exit 1
-  end
-  if options[:instance_definition_template] != nil && provider != 'hcp-instance'
-    STDERR.puts "Instance definition templates are not supported for provider #{provider}"
     exit 1
   end
 
@@ -125,32 +110,8 @@ end
 def provider_constructor
   ({
     'vagrant' => lambda {
-      require_relative 'rm-transformer/vagrant'
+      require_relative 'vagrant-setup/vagrant'
       ToVAGRANT
-    },
-    'hcp' => lambda {
-      require_relative 'rm-transformer/hcp'
-      ToHCP
-    },
-    'hcp-instance' => lambda {
-      require_relative 'rm-transformer/hcp-instance'
-      ToHCPInstance
-    },
-    'tf' => lambda {
-      require_relative 'rm-transformer/tf'
-      ToTerraform
-    },
-    'tf:aws' => lambda {
-      require_relative 'rm-transformer/tf-aws'
-      ToTerraformAWS
-    },
-    'tf:aws:proxy' => lambda {
-      require_relative 'rm-transformer/tf-aws-proxy'
-      ToTerraformAWSWithProxy
-    },
-    'tf:mpc' => lambda {
-      require_relative 'rm-transformer/tf-mpc'
-      ToTerraformMPC
     },
   })
 end

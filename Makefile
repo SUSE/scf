@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images mpc mpc-dist aws aws-dist hcp
+.PHONY: docker-images
 
 ########## UTILITY TARGETS ##########
 
@@ -17,7 +17,7 @@ reap:
 
 clean-harder: clean reap
 
-all: images tag terraform
+all: images tag
 
 print-version:
 	@ ${GIT_ROOT}/make/print-version
@@ -225,84 +225,18 @@ hyperkube:
 ########## CONFIGURATION TARGETS ##########
 
 generate: \
-	hcp \
-	hcp-instance-basic-dev \
-	hcp-instance-ha-dev \
-	mpc \
-	aws \
-	aws-spot \
-	aws-proxy \
-	aws-spot-proxy \
+	kube \
 	${NULL}
-
-hcp:
-	${GIT_ROOT}/make/generate hcp
-
-hcp-instance-basic-dev:
-	${GIT_ROOT}/make/generate instance-basic-dev
-
-hcp-instance-ha-dev:
-	${GIT_ROOT}/make/generate instance-ha-dev
-
-mpc:
-	${GIT_ROOT}/make/generate mpc
-
-aws:
-	${GIT_ROOT}/make/generate aws
-
-aws-proxy:
-	${GIT_ROOT}/make/generate aws-proxy
-
-aws-spot:
-	${GIT_ROOT}/make/generate aws-spot
-
-aws-spot-proxy:
-	${GIT_ROOT}/make/generate aws-spot-proxy
 
 ########## DISTRIBUTION TARGETS ##########
 
 dist: \
 	kube-dist \
-	hcp-dist \
-	mpc-dist \
-	aws-dist \
-	aws-spot-dist \
-	aws-proxy-dist \
-	aws-spot-proxy-dist \
 	${NULL}
 
 kube-dist: kube
 	${GIT_ROOT}/make/package-kube
 	rm -rf kube
-
-hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
-	${GIT_ROOT}/make/package-hcp
-
-mpc-dist: mpc
-	${GIT_ROOT}/make/package-terraform mpc
-	rm *.tf *.tf.json
-
-aws-dist: aws
-	${GIT_ROOT}/make/package-terraform aws
-	rm *.tf *.tf.json
-
-aws-spot-dist: aws-spot
-	${GIT_ROOT}/make/package-terraform aws-spot
-	rm *.tf *.tf.json
-
-aws-proxy-dist: aws-proxy
-	${GIT_ROOT}/make/package-terraform aws-proxy
-	rm *.tf *.tf.json
-
-aws-spot-proxy-dist: aws-spot-proxy
-	${GIT_ROOT}/make/package-terraform aws-spot-proxy
-	rm *.tf *.tf.json
-
-mpc-terraform-tests:
-	${GIT_ROOT}/make/terraform-tests mpc ${OS_SSH_KEY_PATH}
-
-aws-terraform-tests:
-	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
 
 ########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
 

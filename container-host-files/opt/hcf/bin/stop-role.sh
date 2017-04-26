@@ -9,10 +9,6 @@ else
     role_name="$1"
 fi
 
-# Terraform, in HOS/MPC VM, hcf-infra container support as copied
-# SELF    = /opt/hcf/bin/list-roles.sh
-# SELFDIR = /opt/hcf/bin
-#
 # Vagrant
 # SELF    = PWD/container-host-files/opt/hcf/bin/list-roles.sh
 # SELFDIR = PWD/container-host-files/opt/hcf/bin

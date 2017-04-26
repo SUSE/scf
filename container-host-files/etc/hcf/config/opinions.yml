@@ -32,8 +32,6 @@ properties:
       file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
       bbs:
@@ -44,8 +42,6 @@ properties:
       file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/windows2012R2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
-        - "buildpack/win2012r2:windows_buildpack_app_lifecycle/windows_buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
       staging_task_callback_url: http://diego-cc-bridge:8888
     tps:
@@ -149,13 +145,6 @@ properties:
         ports: "53"
         protocol: udp
     srv_api_uri: http://api:9022
-    stacks:
-    - name: cflinuxfs2
-      description: Cloud Foundry Linux-based filesystem
-    - name: win2012r2
-      description: Windows Server 2012 R2
-    - name: windows2012R2
-      description: Windows Server 2012 R2
     staging_upload_user: staging_user
     system_hostnames:
     - api

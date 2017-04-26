@@ -7,7 +7,7 @@
 require 'yaml'
 require 'json'
 require 'pathname'
-require_relative 'rm-transformer/common'
+require_relative 'vagrant-setup/common'
 
 def main
   STDOUT.sync = true
@@ -157,7 +157,7 @@ end
 def check_docker_run_env(manifest, global_variables)
   # Report all roles with run.env elements which reference unknown
   # parameters, and the bogus parameters themselves.  We ignore the
-  # parameters provided by HCP, and the proxy parts, these are ok.
+  # proxy parts, these are ok.
 
   manifest['roles'].each do |role|
     next unless role['type'] == 'docker'
@@ -324,7 +324,7 @@ end
 def check_rm_templates(templates,manifest,global_variables)
   # Report all templates which contain references to unknown
   # parameters, and the bogus parameters themselves.  We ignore the
-  # parameters provided by HCP, and the proxy parts, these are ok.
+  # proxy parts, these are ok.
 
   templates.each do |label, defs|
     defs.each do |property, template|

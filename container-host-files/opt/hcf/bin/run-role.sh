@@ -30,14 +30,10 @@ CLEAN=""
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::${role_name} start
 
 if test ! -f $ROOT/vagrant.json ; then
-    ( cd $ROOT ; make/generate vagrant )
+    ( cd $ROOT ; make/vagrant-setup-env )
     CLEAN="${CLEAN} $ROOT/vagrant.json"
 fi
 
-# Terraform, in HOS/MPC VM, hcf-infra container support as copied
-# SELF    = /opt/hcf/bin/list-roles.sh
-# SELFDIR = /opt/hcf/bin
-#
 # Vagrant
 # SELF    = PWD/container-host-files/opt/hcf/bin/list-roles.sh
 # SELFDIR = PWD/container-host-files/opt/hcf/bin

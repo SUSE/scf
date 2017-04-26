@@ -4,8 +4,6 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
-__Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
-
 ## Manually testing a branch on Jenkins
 
 1. Login to [Jenkins](https://jenkins.issueses.io)
@@ -142,68 +140,6 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
   __Important:__ The VM may not come online during your first attempt.
 
-## To Deploy HCF on Windows Using VirtualBox
-
-__Important:__ Working on a Windows host is __significantly more complicated__ because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
-
-1. Ensure that line endings are handled correctly.
-
-  ```bash
-  git config --global core.autocrlf input
-  ```
-
-2. Clone the repository, bring the VM online, and `ssh` into it:
-
-  __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
-
-  ```bash
-  vagrant up --provider virtualbox
-  vagrant ssh
-  ```
-
-3. Configure symlinks and initialize submodules:
-
-  ```bash
-  cd ~/hcf
-  git config --global core.symlinks true
-  git config core.symlinks true
-  git submodule update --init --recursive
-  ```
-
-4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  ```bash
-  cd hcf
-  make vagrant-prep
-  ```
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-5. On the VM, start HCF
-
-  ```bash
-  make run
-  ```
-
-6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
-
-  __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
-
-## To Deploy HCF on Amazon AWS Using Terraform
-
-* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist`
-  to generate the archive populated with development defaults and secrets.
-
-* Extract the newly created .zip file to a temporary working dir:
-```bash
-mkdir /tmp/hcf-aws
-cd /tmp/hcf-aws
-unzip $OLDPWD/aws-???.zip
-cd aws
-```
-
-* Follow the instructions in README-aws.md
-
 ## Makefile targets
 
 ### Vagrant VM Targets
@@ -243,20 +179,12 @@ Name            | Effect
 `docker-images` | `docker build` in each dir in `./docker-images`
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
-`hcp`           | Generate HCP service definitions
-`mpc`           | Generate Terraform MPC definitions for a single-node microcloud
-`aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
 ### Distribution Targets
 
 Name    | Effect | Notes |
 --------------- | ---- | --- |
 `dist`    | Generate and package various setups |
-`mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
-`aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
-`aws-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud |
-`aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
-`aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
 ## Development FAQ (on the vagrant box)
 
@@ -319,20 +247,6 @@ Name    | Effect | Notes |
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
 
-  To run the tests against a remote machine (e.g. to test a HCP deployment),
-  first make sure that your settings match the deployed configuration; the
-  easiest way to do this is to deploy via the fully-specified instance
-  definition files rather than the minimal ones meant for HSM.  Also remember to
-  enable `diego_docker` as above.  Afterwards, run the tests as normal but
-  with a `DOMAIN` override:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-autoscaler --env DOMAIN=hcf.hcp.example.com
-  ```
-  It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
-  as it expects direct access to the other roles in the cluster.
 
 #### How do I run a subset of HCF acceptance tests?
 
@@ -624,28 +538,6 @@ Name    | Effect | Notes |
     make tag publish IMAGE_REGISTRY=docker.helion.lol/
     ```
 
-
-## How do I generate HCP service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the SDL file that contains HCP service definition for the current set of roles, run the `make hcp` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
-
-  You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
-
-## How do I generate Terraform MPC service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
 
 ## How do I add a new version of Ruby to the build system?
 
