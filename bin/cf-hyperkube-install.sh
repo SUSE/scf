@@ -22,6 +22,7 @@ sudo gem install bosh_cli
 sudo gem install bundler
 
 cd ~/uaa-fissile-release
+direnv allow
 git submodule update --init --recursive
 
 docker pull ubuntu:14.04 #'fissile build layer compilation' fails without this 
