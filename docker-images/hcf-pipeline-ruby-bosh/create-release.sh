@@ -23,13 +23,17 @@ env | grep -i proxy | sort | sed -e 's/^/PROXY SETUP: /'
 # Add a user in the given group, so we can run `bosh create release` as that user.
 # All this stuff is to make sure that the correct user (the one that ran
 # `make releases` for HCF) will own the files created, instead of root.
-if ! grep --quiet -E ":${gid}:\$" /etc/group ; then
+if ! getent group "${gid}" >/dev/null ; then
     addgroup --gid "${gid}" docker-group
 fi
-group_name="$(awk -F : "/:${gid}:\$/ { print \$1 }" /etc/group)"
-useradd --gid "${gid}" --create-home --uid "${uid}" docker-user
-mkdir ~docker-user/.bosh
-chown "docker-user:${group_name}" ~docker-user/.bosh
-ln -s "${bosh_cache}" ~docker-user/.bosh/cache
-exec sudo -E --user=docker-user --group="${group_name}" --set-home -- \
+group=$(getent group "${gid}" | cut -d: -f1)
+if ! getent passwd "${uid}" >/dev/null ; then
+    useradd --gid "${gid}" --create-home --uid "${uid}" docker-user
+fi
+user=$(getent passwd "${uid}" | cut -d: -f1)
+home=$(getent passwd "${uid}" | cut -d: -f6)
+mkdir "${home}/.bosh"
+chown "${user}:${group}" "${home}/.bosh"
+ln -s "${bosh_cache}" "${home}/.bosh/cache"
+exec sudo -E "--user=${user}" "--group=${group}" --set-home -- \
     bash --login -c "bosh create release $*"
