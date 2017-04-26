@@ -117,31 +117,29 @@ ruby-buildpack-release:
 staticfile-buildpack-release:
 	${GIT_ROOT}/make/bosh-release src/buildpacks/staticfile-buildpack-release
 
-releases:
-	${MAKE} \
-		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
-		diego-release \
-		etcd-release \
-		garden-release \
-		mysql-release \
-		cflinuxfs2-rootfs-release \
-		routing-release \
-		hcf-release \
-		capi-release \
-		uaa-release \
-		loggregator-release \
-		nats-release \
-		consul-release \
-		binary-buildpack-release \
-		go-buildpack-release \
-		java-buildpack-release \
-		nodejs-buildpack-release \
-		php-buildpack-release \
-		python-buildpack-release \
-		ruby-buildpack-release \
-		staticfile-buildpack-release \
-		grootfs-release \
-		${NULL}
+releases: \
+	diego-release \
+	etcd-release \
+	garden-release \
+	mysql-release \
+	cflinuxfs2-rootfs-release \
+	routing-release \
+	hcf-release \
+	capi-release \
+	uaa-release \
+	loggregator-release \
+	nats-release \
+	consul-release \
+	binary-buildpack-release \
+	go-buildpack-release \
+	java-buildpack-release \
+	nodejs-buildpack-release \
+	php-buildpack-release \
+	python-buildpack-release \
+	ruby-buildpack-release \
+	staticfile-buildpack-release \
+	grootfs-release \
+	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
 
