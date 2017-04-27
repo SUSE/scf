@@ -61,21 +61,27 @@ update_submodule garden-runc-release "${GARDEN_RUNC_RELEASE}" src
 
 CF_RELEASE_VERSION_INFO=$(curl --silent "https://api.github.com/repos/cloudfoundry/cf-release/contents/src?ref=${CF_RELEASE}")
 
-GO_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"go-buildpack-release\") | .sha")
-BINARY_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"binary-buildpack-release\") | .sha")
-NODEJS_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"nodejs-buildpack-release\") | .sha")
-RUBY_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"ruby-buildpack-release\") | .sha")
-PHP_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"php-buildpack-release\") | .sha")
-PYTHON_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"python-buildpack-release\") | .sha")
-STATICFILE_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"staticfile-buildpack-release\") | .sha")
-JAVA_BUILDPACK_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"java-buildpack-release\") | .sha")
+get_submodule_ref () {
+	version_info=${1}
+	release=${2}
+	echo "${version_info}" | jq -r ".[] | select(.name == \"${release}\") | .sha"
+}
 
-CAPI_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"capi-release\") | .sha")
-CONSUL_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"consul-release\") | .sha")
-ETCD_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"etcd-release\") | .sha")
-LOGGREGATOR=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"loggergator\") | .sha")
-NATS_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"nats-release\") | .sha")
-UAA_RELEASE=$(echo "${CF_RELEASE_VERSION_INFO}" | jq -r ".[] | select(.name == \"uaa-release\") | .sha")
+GO_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" go-buildpack-release)
+BINARY_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" binary-buildpack-release)
+NODEJS_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nodejs-buildpack-release)
+RUBY_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" ruby-buildpack-release)
+PHP_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" php-buildpack-release)
+PYTHON_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" python-buildpack-release)
+STATICFILE_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" staticfile-buildpack-release)
+JAVA_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" java-buildpack-release)
+
+CAPI_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" capi-release)
+CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
+ETCD_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" etcd-release)
+LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggergator)
+NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
+UAA_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" uaa-release)
 
 update_submodule go-buildpack-release "${GO_BUILDPACK_RELEASE}" src/buildpacks
 update_submodule binary-buildpack-release "${BINARY_BUILDPACK_RELEASE}" src/buildpacks
