@@ -20,6 +20,7 @@ password
 /vagrant.json
 .demos
 src/*-clone
+src/buildpacks/*-clone
 /*.tf
 /*.tf.json
 
