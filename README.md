@@ -155,15 +155,27 @@ Name      | Effect |
 
 Name        | Effect |
 ------------------- | ----  |
-`cf-release`    | `bosh create release` for `cf-release` |
-`usb-release`    | `bosh create release` for `cf-usb-release` |
-`diego-release`    | `bosh create release` for `diego-release` |
-`etcd-release`    | `bosh create release` for `etcd-release` |
-`garden-release`  | `bosh create release` for `garden-runc-release` |
-`cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
-`hcf-sso-release` | `bosh create release` for `hcf-sso-release` |
-`hcf-versions-release` | `bosh create release` for `hcf-versions-release` |
-`cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
+`binary-buildpack-release` | `bosh create release` for `binary-buildpack-release` |
+`capi-release` | `bosh create release` for `capi-release` |
+`cflinuxfs2-rootfs-release` | `bosh create release` for `cflinuxfs2-rootfs-release` |
+`consul-release` | `bosh create release` for `consul-release` |
+`diego-release` | `bosh create release` for `diego-release` |
+`etcd-release` | `bosh create release` for `etcd-release` |
+`garden-release` | `bosh create release` for `garden-release` |
+`go-buildpack-release` | `bosh create release` for `go-buildpack-release` |
+`grootfs-release` | `bosh create release` for `grootfs-release` |
+`hcf-release` | `bosh create release` for `hcf-release` |
+`java-buildpack-release` | `bosh create release` for `java-buildpack-release` |
+`loggregator-release` | `bosh create release` for `loggregator-release` |
+`mysql-release` | `bosh create release` for `mysql-release` |
+`nats-release` | `bosh create release` for `nats-release` |
+`nodejs-buildpack-release` | `bosh create release` for `nodejs-buildpack-release` |
+`php-buildpack-release` | `bosh create release` for `php-buildpack-release` |
+`python-buildpack-release` | `bosh create release` for `python-buildpack-release` |
+`routing-release` | `bosh create release` for `routing-release` |
+`ruby-buildpack-release` | `bosh create release` for `ruby-buildpack-release` |
+`staticfile-buildpack-release` | `bosh create release` for `staticfile-buildpack-release` |
+`uaa-release` | `bosh create release` for `uaa-release` |
 `releases`      | Make all of the BOSH releases above |
 
 ### Fissile Build Targets
@@ -418,12 +430,12 @@ Name    | Effect | Notes |
   all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
   1 and 2 in the example:
 
-  The following example is for `cf-release`. You can follow the same steps for other releases.
+  The following example is for `diego-release`. You can follow the same steps for other releases.
 
   1. On the host machine, clone the repository that you want to bump:
 
     ```bash
-  git clone src/cf-release/ ./src/cf-release-clone --recursive
+  git clone src/diego-release/ ./src/diego-release-clone --recursive
     ```
 
   2. On the host, bump the clone to the desired version:
@@ -439,13 +451,13 @@ Name    | Effect | Notes |
 
     ```bash
     cd ~/hcf
-    ./bin/create-release.sh src/cf-release-clone cf
+    ./bin/create-release.sh src/diego-release-clone diego
     ```
 
   4. Run the `config-diff` command:
 
     ```bash
-    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/cf-release,${HOME}/hcf/src/cf-release-clone
+    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/diego-release,${HOME}/hcf/src/diego-release-clone
     ```
 
   5. Act on configuration changes:
