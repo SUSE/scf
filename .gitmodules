@@ -27,7 +27,7 @@
 	url = https://github.com/cloudfoundry/nats-release.git
 [submodule "src/consul-release"]
 	path = src/consul-release
-	url = https://github.com/cloudfoundry-incubator/consul-release.git
+	url = git@github.com:SUSE/consul-release.git
 [submodule "src/loggregator"]
 	path = src/loggregator
 	url = https://github.com/cloudfoundry/loggregator.git
