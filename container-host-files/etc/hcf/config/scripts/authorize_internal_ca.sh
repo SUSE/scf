@@ -20,15 +20,15 @@ else
 fi
 
 if [ -r /etc/secrets/internal-ca-cert ]; then
-    cp /etc/secrets/internal-ca-cert /usr/local/share/ca-certificates/internalCA.crt
+    cp /etc/secrets/internal-ca-cert /var/lib/ca-certificates/internalCA.crt
 elif [ -n "${INTERNAL_CA_CERT:-}" ]; then
-    printf "%b" "${INTERNAL_CA_CERT}" > /usr/local/share/ca-certificates/internalCA.crt
+    printf "%b" "${INTERNAL_CA_CERT}" > /var/lib/ca-certificates/internalCA.crt
 fi
 
 if [ -n "${HCP_CA_CERT_FILE:-}" -a -r "${HCP_CA_CERT_FILE:-}" ]; then
-    cp "${HCP_CA_CERT_FILE}" /usr/local/share/ca-certificates/hcp-ca-cert.crt
+    cp "${HCP_CA_CERT_FILE}" /var/lib/ca-certificates/hcp-ca-cert.crt
 elif [ -n "${HCP_CA_CERT:-}" ]; then
-    printf "%b" "${HCP_CA_CERT}" > /usr/local/share/ca-certificates/hcp-ca-cert.crt
+    printf "%b" "${HCP_CA_CERT}" > /var/lib/ca-certificates/hcp-ca-cert.crt
 fi
 
 update-ca-certificates
