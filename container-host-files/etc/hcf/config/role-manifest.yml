@@ -1446,6 +1446,28 @@ configuration:
       type: Password
     description: The password for access to the Cloud Controller database.
     required: true
+  - name: CC_SERVER_CRT
+    secret: true
+    generator:
+      id: cc_mutual_cert
+      type: Certificate
+      value_type: certificate
+      key_length: 4096
+      subject_alt_names:
+      - parameter: DOMAIN
+        wildcard: false
+      - parameter: DOMAIN
+        wildcard: true
+    description: The PEM-encoded certificate for internal cloud controller traffic.
+    required: true
+  - name: CC_SERVER_KEY
+    secret: true
+    generator:
+      id: cc_mutual_cert
+      type: Certificate
+      value_type: private_key
+    description: The PEM-encoded private key for internal cloud controller traffic.
+    required: true
   - name: CDN_URI
     default: "''"
     description: URI for a CDN to use for buildpack downloads.
@@ -1912,6 +1934,23 @@ configuration:
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
     description: TCP routing domain of the HCF cluster; only used for testing;
+  - name: TPS_CC_CLIENT_CRT
+    secret: true
+    generator:
+      id: tps_cc_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
+    required: true
+  - name: TPS_CC_CLIENT_KEY
+    secret: true
+    generator:
+      id: tps_cc_client_cert
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded client key for internal communication between the cloud controller and TPS.
+    required: true
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -2086,10 +2125,9 @@ configuration:
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    # TODO: replace with certs specific for this
     properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.capi.tps.cc.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.capi.tps.cc.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.tps.cc.client_cert: '"((TPS_CC_CLIENT_CRT))"'
+    properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_KEY))"'
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2111,10 +2149,9 @@ configuration:
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
-    # TODO: replace with certs specific for this
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.cc.mutual_tls.private_key: '"((BBS_CLIENT_KEY))"'
-    properties.cc.mutual_tls.public_cert: '"((BBS_CLIENT_CRT))"'
+    properties.cc.mutual_tls.private_key: '"((CC_SERVER_KEY))"'
+    properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'

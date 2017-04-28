@@ -163,6 +163,10 @@ certstrap --depot-path "${internal_certs_dir}" sign bbs_rep --CA internalCA --pa
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_server --domain "$(make_domains "diego-database")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbs_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
+# generate CC_SERVER certs (properties.cc.mutual_tls.{private_key,public_cert})
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name api --domain "$(make_domains "api")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign api --CA internalCA --passphrase "${signing_key_passphrase}"
+
 # generate DOPPLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name doppler --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign doppler --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -178,6 +182,10 @@ certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA -
 # generate SAML_SERVICEPROVIDER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name saml_serviceprovider --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign saml_serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate TPS_CC_CLIENT certs (properties.capi.tps.cc.{client_cert,client_key})
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name tpsCCClient --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign tpsCCClient --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate TRAFFICCONTROLLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
@@ -252,6 +260,8 @@ BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.c
 BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.key")
 BLOBSTORE_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.cert")
 BLOBSTORE_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.key")
+CC_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/api.crt")
+CC_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/api.key")
 CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.crt")
 CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.key")
 CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.crt")
@@ -275,6 +285,8 @@ ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
 ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
 SAML_SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.crt")
 SAML_SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.key")
+TPS_CC_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tpsCCClient.crt")
+TPS_CC_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tpsCCClient.key")
 TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
 TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.key")
 UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
@@ -297,6 +309,8 @@ BBS_SERVER_CRT=${BBS_SERVER_CRT}
 BBS_SERVER_KEY=${BBS_SERVER_KEY}
 BLOBSTORE_TLS_CERT=${BLOBSTORE_TLS_CERT}
 BLOBSTORE_TLS_KEY=${BLOBSTORE_TLS_KEY}
+CC_SERVER_CRT=${CC_SERVER_CRT}
+CC_SERVER_KEY=${CC_SERVER_KEY}
 CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
 CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
 CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
@@ -320,6 +334,8 @@ ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
 ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
 SAML_SERVICEPROVIDER_CERT=${SAML_SERVICEPROVIDER_CERT}
 SAML_SERVICEPROVIDER_KEY=${SAML_SERVICEPROVIDER_KEY}
+TPS_CC_CLIENT_CRT=${TPS_CC_CLIENT_CRT}
+TPS_CC_CLIENT_KEY=${TPS_CC_CLIENT_KEY}
 TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
 TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
 UAA_SERVER_CERT=${UAA_SERVER_CERT}
