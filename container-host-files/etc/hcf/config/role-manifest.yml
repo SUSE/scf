@@ -1504,6 +1504,10 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
     required: true
+  - name: CONSUL_HCF_CLUSTER_IPS
+    type: environment
+  - name: CONSUL_LOG_LEVEL
+    type: environment
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
@@ -1567,6 +1571,8 @@ configuration:
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
+  - name: DONT_SKIP_CERT_VERIFY_INTERNAL
+    type: environment
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -1609,6 +1615,8 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
     required: true
+  - name: ETCD_HCF_CLUSTER_IPS
+    type: environment
   - name: ETCD_PEER_CRT
     secret: true
     generator:
@@ -1657,13 +1665,16 @@ configuration:
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
+  - name: GO_LOG_LEVEL
+    type: environment
   - name: HCF_LOG_HOST
-    default: ''
+    internal: true
     description: The log destination to talk to. If not set it defaults to flightrecorder.
   - name: HCF_LOG_PORT
-    default: ''
+    internal: true
     description: The port used by rsyslog to talk to the log destination. If not set it defaults to the flightrecorder port. If that is not set we fall back to 514, the standard port of syslog.
   - name: HCF_LOG_PROTOCOL
+    internal: true
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
     required: true
@@ -1675,13 +1686,24 @@ configuration:
     default: https://uaa:8443
     description: >
       (Not used on HCP) The location of the UAA root zone.  Only used for development.
+  - name: HCP_AZ
+    type: environment
   - name: HCP_CA_CERT
     immutable: true
     description: >
       (Not used on HCP) The CA certificate to use.  Only used for development.
+  - name: HCP_COMPONENT_INDEX
+    type: environment
+  - name: HCP_COMPONENT_NAME
+    type: environment
+  - name: HCP_IDENTITY_EXTERNAL_PORT
+    type: environment
   - name: HCP_INSTANCE_ID
+    type: environment
   - name: HCP_SERVICE_DOMAIN_SUFFIX
   - name: HOSTNAME
+  - name: HTTPS_PROXY
+  - name: HTTP_PROXY
   - name: INTERNAL_API_PASSWORD
     secret: true
     immutable: true
@@ -1776,6 +1798,8 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
     required: true
+  - name: MYSQL_HCF_CLUSTER_IPS
+    type: environment
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
     immutable: true
@@ -1787,6 +1811,8 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
     required: true
+  - name: NATS_HCF_CLUSTER_IPS
+    type: environment
   - name: NATS_PASSWORD
     secret: true
     immutable: true
@@ -1794,10 +1820,13 @@ configuration:
       type: Password
     description: The password for access to NATS.
     required: true
+  - name: NGINX_LOG_LEVEL
+    type: environment
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
+  - name: NO_PROXY
   - name: REP_SERVER_CERT
     secret: true
     generator:
