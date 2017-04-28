@@ -275,7 +275,6 @@ properties:
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
-    ssl_skip_validation: null
     status:
       user: router_user
   routing_api:
@@ -306,7 +305,6 @@ properties:
       cc-service-dashboards:
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
-        scope: openid,cloud_controller_service_permissions.read
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
