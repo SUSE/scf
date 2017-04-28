@@ -3,15 +3,16 @@ set -o errexit -o nounset
 
 # Tool locations
 vanbuckets="http://concourse.van:9000/minio"
+splat="https://splatform.s3.amazonaws.com"
 
 # Tool versions
-thefissile="$(echo "fissile-4.0.0+226.g085e99e" | sed -e 's/+/%2B/')"
+thefissile="$(echo "fissile-4.0.0+223.g59e10c1" | sed -e 's/+/%2B/')"
 
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
 tools_dir="${tools_dir:-output/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
-fissile_url="${fissile_url:-${vanbuckets}/fissile/${thefissile}.linux-amd64.tgz}"
+fissile_url="${fissile_url:-${splat}/${thefissile}.linux-amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
 stampy_url="${stampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B7.g4d305fa.master-linux.amd64.tgz}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v1.5.4/bin/linux/amd64/kubectl}"
