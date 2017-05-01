@@ -2,6 +2,9 @@
 #!/bin/bash
 set -ex
 
+
+eval "$(${HOME}/bin/direnv hook bash)"
+
 #install Go for certstrap
 curl https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 export PATH=$PATH:/usr/local/go/bin:/home/vagrant/go/bin
@@ -32,8 +35,21 @@ sed -i "s/ruby '2\.3\.1'/ruby '~> 2.3'/g" ~/uaa-fissile-release/src/cf-mysql-rel
 
 #Build UAA
 go get github.com/square/certstrap
-make 
-make kube-configs
+./generate-certs.sh
+cd ~/uaa-fissile-release #generate-certs.sh leaves you in /tmp/
+_direnv_hook
+bosh create release --dir src/cf-mysql-release --force --name cf-mysql
+bosh create release --dir src/uaa-release --force --name uaa
+bosh create release --dir src/hcf-release --force --name hcf
+pwd
+echo $PATH
+fissile build layer compilation
+fissile build layer stemcell
+fissile build packages
+fissile build images
+fissile build kube -k kube/ --use-memory-limits=false \
+    -D $(echo env/*.env | tr ' ' ',')
+fissile show image | xargs -i@ docker tag @ "${FISSILE_DOCKER_REGISTRY}/@"
 
 make -C ~/hcf hyperkube	
 
