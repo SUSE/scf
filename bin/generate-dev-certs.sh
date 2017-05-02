@@ -9,6 +9,7 @@ load_env() {
             echo "Invalid environment file ${f}" >&2
             exit 1
         fi
+        # shellcheck disable=SC1090
         source "${f}"
         has_env=yes
     done
@@ -76,16 +77,17 @@ command -v certstrap > /dev/null 2>&1 || {
 certs_path="/tmp/hcf/certs"
 hcf_certs_path="${certs_path}/hcf"
 internal_certs_dir="${certs_path}/internal"
-output_path="$(readlink --canonicalize-missing "${output_path}")"
+# The next line opens the output file, and assigns the fd to ${output_fd}
+exec {output_fd}>"${output_path}"
 
 # prepare directories
-rm -rf ${certs_path}
-mkdir -p ${certs_path}
+rm -rf "${certs_path}"
+mkdir -p "${certs_path}"
 
 # Source: https://github.com/cloudfoundry/cf-release/blob/master/example_manifests/README.md#dns-configuration
-rm -rf ${hcf_certs_path}
-mkdir -p ${hcf_certs_path}
-cd ${hcf_certs_path}
+rm -rf "${hcf_certs_path}"
+mkdir -p "${hcf_certs_path}"
+cd "${hcf_certs_path}"
 
 openssl genrsa -out hcf.key 4096
 openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
@@ -219,7 +221,7 @@ mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 
 # generate APP_SSH SSH key
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
-app_ssh_host_key_fingerprint=$(ssh-keygen -lf "${certs_path}/app_ssh_key" | awk '{print $2}')
+ssh-keygen -lf "${certs_path}/app_ssh_key" | awk '{print $2}' > "${certs_path}/app_ssh_host_key_fingerprint"
 
 # generate uaa certs
 uaa_server_key="${certs_path}/uaa_private_key.pem"
@@ -244,102 +246,68 @@ certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internal
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
 
-APP_SSH_KEY="$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/app_ssh_key")"
-APP_SSH_KEY_FINGERPRINT=${app_ssh_host_key_fingerprint}
-AUCTIONEER_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.crt")
-AUCTIONEER_REP_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_rep.key")
-AUCTIONEER_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_server.crt")
-AUCTIONEER_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/auctioneer_server.key")
-BBS_AUCTIONEER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_auctioneer.crt")
-BBS_AUCTIONEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_auctioneer.key")
-BBS_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_client.crt")
-BBS_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_client.key")
-BBS_REP_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_rep.crt")
-BBS_REP_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_rep.key")
-BBS_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.crt")
-BBS_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/bbs_server.key")
-BLOBSTORE_TLS_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.cert")
-BLOBSTORE_TLS_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/blobstore_tls.key")
-CC_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/api.crt")
-CC_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/api.key")
-CONSUL_AGENT_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.crt")
-CONSUL_AGENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/agent.key")
-CONSUL_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.crt")
-CONSUL_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/server.key")
-DOPPLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.crt")
-DOPPLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/doppler.key")
-ETCD_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdClient.crt")
-ETCD_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdClient.key")
-ETCD_PEER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdPeer.crt")
-ETCD_PEER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdPeer.key")
-ETCD_SERVER_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdServer.crt")
-ETCD_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/etcdServer.key")
-INTERNAL_CA_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/internalCA.crt")
-JWT_SIGNING_PEM=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pem")
-JWT_SIGNING_PUB=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/jwt_signing.pub")
-METRON_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.crt")
-METRON_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/metron.key")
-REP_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.crt")
-REP_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/rep_server.key")
-ROUTER_SSL_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.cert")
-ROUTER_SSL_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${certs_path}/router_ssl.key")
-SAML_SERVICEPROVIDER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.crt")
-SAML_SERVICEPROVIDER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/saml_serviceprovider.key")
-TPS_CC_CLIENT_CRT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tpsCCClient.crt")
-TPS_CC_CLIENT_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/tpsCCClient.key")
-TRAFFICCONTROLLER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.crt")
-TRAFFICCONTROLLER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${internal_certs_dir}/trafficcontroller.key")
-UAA_SERVER_CERT=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_crt}")
-UAA_SERVER_KEY=$(sed '$!{:a;N;s/\n/\\n/;ta}' "${uaa_server_key}")
+# escape_file_contents reads the given file and replaces newlines with the literal string '\n'
+escape_file_contents() {
+    # Add a backslash at the end of each line, then replace the newline with a literal 'n'
+    # (and then remove the new line at the end)
+    sed 's@$@\\@' < "$1" | tr '\n' 'n' | sed 's@\\n$@@'
+}
 
-cat <<ENVS > ${output_path}
-APP_SSH_KEY=${APP_SSH_KEY}
-APP_SSH_KEY_FINGERPRINT=${APP_SSH_KEY_FINGERPRINT}
-AUCTIONEER_REP_CERT=${AUCTIONEER_REP_CERT}
-AUCTIONEER_REP_KEY=${AUCTIONEER_REP_KEY}
-AUCTIONEER_SERVER_CERT=${AUCTIONEER_SERVER_CERT}
-AUCTIONEER_SERVER_KEY=${AUCTIONEER_SERVER_KEY}
-BBS_AUCTIONEER_CERT=${BBS_AUCTIONEER_CERT}
-BBS_AUCTIONEER_KEY=${BBS_AUCTIONEER_KEY}
-BBS_CLIENT_CRT=${BBS_CLIENT_CRT}
-BBS_CLIENT_KEY=${BBS_CLIENT_KEY}
-BBS_REP_CERT=${BBS_REP_CERT}
-BBS_REP_KEY=${BBS_REP_KEY}
-BBS_SERVER_CRT=${BBS_SERVER_CRT}
-BBS_SERVER_KEY=${BBS_SERVER_KEY}
-BLOBSTORE_TLS_CERT=${BLOBSTORE_TLS_CERT}
-BLOBSTORE_TLS_KEY=${BLOBSTORE_TLS_KEY}
-CC_SERVER_CRT=${CC_SERVER_CRT}
-CC_SERVER_KEY=${CC_SERVER_KEY}
-CONSUL_AGENT_CERT=${CONSUL_AGENT_CERT}
-CONSUL_AGENT_KEY=${CONSUL_AGENT_KEY}
-CONSUL_SERVER_CERT=${CONSUL_SERVER_CERT}
-CONSUL_SERVER_KEY=${CONSUL_SERVER_KEY}
-DOPPLER_CERT=${DOPPLER_CERT}
-DOPPLER_KEY=${DOPPLER_KEY}
-ETCD_CLIENT_CRT=${ETCD_CLIENT_CRT}
-ETCD_CLIENT_KEY=${ETCD_CLIENT_KEY}
-ETCD_PEER_CRT=${ETCD_PEER_CRT}
-ETCD_PEER_KEY=${ETCD_PEER_KEY}
-ETCD_SERVER_CRT=${ETCD_SERVER_CRT}
-ETCD_SERVER_KEY=${ETCD_SERVER_KEY}
-INTERNAL_CA_CERT=${INTERNAL_CA_CERT}
-JWT_SIGNING_PEM=${JWT_SIGNING_PEM}
-JWT_SIGNING_PUB=${JWT_SIGNING_PUB}
-METRON_CERT=${METRON_CERT}
-METRON_KEY=${METRON_KEY}
-REP_SERVER_CERT=${REP_SERVER_CERT}
-REP_SERVER_KEY=${REP_SERVER_KEY}
-ROUTER_SSL_CERT=${ROUTER_SSL_CERT}
-ROUTER_SSL_KEY=${ROUTER_SSL_KEY}
-SAML_SERVICEPROVIDER_CERT=${SAML_SERVICEPROVIDER_CERT}
-SAML_SERVICEPROVIDER_KEY=${SAML_SERVICEPROVIDER_KEY}
-TPS_CC_CLIENT_CRT=${TPS_CC_CLIENT_CRT}
-TPS_CC_CLIENT_KEY=${TPS_CC_CLIENT_KEY}
-TRAFFICCONTROLLER_CERT=${TRAFFICCONTROLLER_CERT}
-TRAFFICCONTROLLER_KEY=${TRAFFICCONTROLLER_KEY}
-UAA_SERVER_CERT=${UAA_SERVER_CERT}
-UAA_SERVER_KEY=${UAA_SERVER_KEY}
-ENVS
+# add_env takes the variable name and file path, and adds the corresponding line
+# to the output file
+add_env() {
+    local var_name="${1}"
+    local cert_path="${2}"
+    # Note that this is always an append (because it's into an open fd)
+    echo "${var_name}=$(escape_file_contents "${cert_path}")" >&${output_fd}
+}
+
+add_env APP_SSH_KEY               "${certs_path}/app_ssh_key"
+add_env APP_SSH_KEY_FINGERPRINT   "${certs_path}/app_ssh_host_key_fingerprint"
+add_env AUCTIONEER_REP_CERT       "${internal_certs_dir}/auctioneer_rep.crt"
+add_env AUCTIONEER_REP_KEY        "${internal_certs_dir}/auctioneer_rep.key"
+add_env AUCTIONEER_SERVER_CERT    "${internal_certs_dir}/auctioneer_server.crt"
+add_env AUCTIONEER_SERVER_KEY     "${internal_certs_dir}/auctioneer_server.key"
+add_env BBS_AUCTIONEER_CERT       "${internal_certs_dir}/bbs_auctioneer.crt"
+add_env BBS_AUCTIONEER_KEY        "${internal_certs_dir}/bbs_auctioneer.key"
+add_env BBS_CLIENT_CRT            "${internal_certs_dir}/bbs_client.crt"
+add_env BBS_CLIENT_KEY            "${internal_certs_dir}/bbs_client.key"
+add_env BBS_REP_CERT              "${internal_certs_dir}/bbs_rep.crt"
+add_env BBS_REP_KEY               "${internal_certs_dir}/bbs_rep.key"
+add_env BBS_SERVER_CRT            "${internal_certs_dir}/bbs_server.crt"
+add_env BBS_SERVER_KEY            "${internal_certs_dir}/bbs_server.key"
+add_env BLOBSTORE_TLS_CERT        "${certs_path}/blobstore_tls.cert"
+add_env BLOBSTORE_TLS_KEY         "${certs_path}/blobstore_tls.key"
+add_env CC_SERVER_CRT             "${internal_certs_dir}/api.crt"
+add_env CC_SERVER_KEY             "${internal_certs_dir}/api.key"
+add_env CONSUL_AGENT_CERT         "${internal_certs_dir}/agent.crt"
+add_env CONSUL_AGENT_KEY          "${internal_certs_dir}/agent.key"
+add_env CONSUL_SERVER_CERT        "${internal_certs_dir}/server.crt"
+add_env CONSUL_SERVER_KEY         "${internal_certs_dir}/server.key"
+add_env DOPPLER_CERT              "${internal_certs_dir}/doppler.crt"
+add_env DOPPLER_KEY               "${internal_certs_dir}/doppler.key"
+add_env ETCD_CLIENT_CRT           "${internal_certs_dir}/etcdClient.crt"
+add_env ETCD_CLIENT_KEY           "${internal_certs_dir}/etcdClient.key"
+add_env ETCD_PEER_CRT             "${internal_certs_dir}/etcdPeer.crt"
+add_env ETCD_PEER_KEY             "${internal_certs_dir}/etcdPeer.key"
+add_env ETCD_SERVER_CRT           "${internal_certs_dir}/etcdServer.crt"
+add_env ETCD_SERVER_KEY           "${internal_certs_dir}/etcdServer.key"
+add_env INTERNAL_CA_CERT          "${internal_certs_dir}/internalCA.crt"
+add_env JWT_SIGNING_PEM           "${certs_path}/jwt_signing.pem"
+add_env JWT_SIGNING_PUB           "${certs_path}/jwt_signing.pub"
+add_env METRON_CERT               "${internal_certs_dir}/metron.crt"
+add_env METRON_KEY                "${internal_certs_dir}/metron.key"
+add_env REP_SERVER_CERT           "${internal_certs_dir}/rep_server.crt"
+add_env REP_SERVER_KEY            "${internal_certs_dir}/rep_server.key"
+add_env ROUTER_SSL_CERT           "${certs_path}/router_ssl.cert"
+add_env ROUTER_SSL_KEY            "${certs_path}/router_ssl.key"
+add_env SAML_SERVICEPROVIDER_CERT "${internal_certs_dir}/saml_serviceprovider.crt"
+add_env SAML_SERVICEPROVIDER_KEY  "${internal_certs_dir}/saml_serviceprovider.key"
+add_env TPS_CC_CLIENT_CRT         "${internal_certs_dir}/tpsCCClient.crt"
+add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
+add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
+add_env TRAFFICCONTROLLER_KEY     "${internal_certs_dir}/trafficcontroller.key"
+add_env UAA_SERVER_CERT           "${uaa_server_crt}"
+add_env UAA_SERVER_KEY            "${uaa_server_key}"
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"
