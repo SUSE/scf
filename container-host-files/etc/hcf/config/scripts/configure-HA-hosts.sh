@@ -31,13 +31,18 @@ find_cluster_ha_hosts() {
         # Loop over the environment to locate the component name variables.
         local hosts=''
         local names=()
-        while true ; do
+        local i
+        for (( i = 0 ; i < 60 ; i ++ )) ; do
             names=($(dig "${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }'))
             if test "${#names[@]}" -gt 0 ; then
                 break
             fi
             sleep 1
         done
+        if test "${#names[@]}" -lt 1 ; then
+            echo "No servers found for ${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX} after 60 seconds; should at least have this container" >&2
+            exit 1
+        fi
         local name
         for name in "${names[@]}" ; do
             hosts="${hosts},\"${name%.}\""
