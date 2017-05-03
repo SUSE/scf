@@ -236,16 +236,16 @@ kube-dist: kube
 	${GIT_ROOT}/make/package-kube
 	rm -rf kube
 
-########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
+########## BOSH-CLI DOCKER IMAGE TARGETS ##########
 
-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh build tag push --version 2.3.1
+bosh-cli:
+	${GIT_ROOT}/make/bosh-cli-docker-image build tag push --version 2.3.1
 
-build-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --build
+build-bosh-cli:
+	${GIT_ROOT}/make/bosh-cli-docker-image --build
 
-tag-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --tag --version 2.3.1
+tag-bosh-cli:
+	${GIT_ROOT}/make/bosh-cli-docker-image --tag --version 2.3.1
 
-push-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --push --version 2.3.1
+push-bosh-cli:
+	${GIT_ROOT}/make/bosh-cli-docker-image --push --version 2.3.1

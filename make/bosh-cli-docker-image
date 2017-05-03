@@ -26,10 +26,10 @@ if [ $# -gt 0 ] ; then
     exit 1
 fi
 
-INAME=splatform/hcf-pipeline-ruby-bosh
+INAME=splatform/bosh-cli
 
 if [ $do_build == 1 ] ; then
-    docker build --tag ${INAME} ${GIT_ROOT}/docker-images/hcf-pipeline-ruby-bosh
+    docker build --tag ${INAME} ${GIT_ROOT}/docker-images/bosh-cli
 fi
 
 if [ $do_tag == 1 ] ; then
