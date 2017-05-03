@@ -19,7 +19,7 @@ docker < ${PROPS} run \
     --volume ${FISSILE_CACHE_DIR}:/root/.bosh/cache:ro \
     --volume $ROOT/:$ROOT/:ro \
     --env RUBY_VERSION=2.2.3 \
-    helioncf/hcf-pipeline-ruby-bosh \
+    splatform/hcf-pipeline-ruby-bosh \
     bash --login -c "${ROOT}/bin/config-validator.rb"
 
 stampy "${ROOT}/hcf_metrics.csv" "${BASH_SOURCE[0]}" validation::docker "done"

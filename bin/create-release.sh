@@ -112,7 +112,7 @@ docker run \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
-    helioncf/hcf-pipeline-ruby-bosh \
+    splatform/hcf-pipeline-ruby-bosh \
     /usr/local/bin/create-release.sh \
         "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
 

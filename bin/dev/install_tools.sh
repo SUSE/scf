@@ -44,6 +44,6 @@ chmod a+x "${bin_dir}/kubectl"
 chmod a+x "${bin_dir}/k"
 
 echo "Pulling ruby bosh image ..."
-docker pull helioncf/hcf-pipeline-ruby-bosh
+docker pull splatform/hcf-pipeline-ruby-bosh
 
 echo "Done."

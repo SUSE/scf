@@ -541,7 +541,7 @@ Name    | Effect | Notes |
     | ---    | ---  | ---  |
     |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
     |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
-    |IMAGE_ORG  | The organization in the image registry |helioncf|
+    |IMAGE_ORG  | The organization in the image registry |splatform|
     |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
