@@ -541,7 +541,7 @@ Name    | Effect | Notes |
     | ---    | ---  | ---  |
     |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
     |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
-    |IMAGE_ORG  | The organization in the image registry |helioncf|
+    |IMAGE_ORG  | The organization in the image registry |splatform|
     |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
@@ -553,13 +553,13 @@ Name    | Effect | Notes |
 
 ## How do I add a new version of Ruby to the build system?
 
-1. Add the version to the last line of `docker-images/hcf-pipeline-ruby-bosh/versions.txt`
+1. Add the version to the last line of `docker-images/bosh-cli/versions.txt`
 
-2. Edit the `HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGET` section of `Makefile`
+2. Edit the `BOSH-CLI DOCKER IMAGE TARGET` section of `Makefile`
 
    Update the version from 2.3.1 to the desired version.
 
-3. Run `make hcf-pipeline-ruby-bosh`
+3. Run `make bosh-cli`
 
 ## Build Dependencies
 

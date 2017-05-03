@@ -71,7 +71,7 @@ cf update-quota default --reserved-route-ports -1
 # run hsm passthrough docker
 cf enable-feature-flag diego_docker
 cf push "${HSM_SERVICE_INSTANCE}" \
-    -o "${TESTBRAIN_DOCKER_REGISTRY:+${TESTBRAIN_DOCKER_REGISTRY%/}/}helioncf/hcf-usb-sidecar-test" \
+    -o "${TESTBRAIN_DOCKER_REGISTRY:+${TESTBRAIN_DOCKER_REGISTRY%/}/}splatform/hcf-usb-sidecar-test" \
     -d "${CF_TCP_DOMAIN}" --random-route \
     --no-start | tee "${TMP}/log"
 cf set-env "${HSM_SERVICE_INSTANCE}" SIDECAR_API_KEY string_empty

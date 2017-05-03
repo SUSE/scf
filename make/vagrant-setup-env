@@ -32,7 +32,7 @@ OUTFILE="vagrant.json"
 
 fissile show properties --output yaml > ${PROPMAP}
 
-DOCKER_RUNTIME=${DOCKER_RUNTIME:-'helioncf/hcf-pipeline-ruby-bosh'}
+DOCKER_RUNTIME=${DOCKER_RUNTIME:-'splatform/bosh-cli'}
 ROLE_MANIFEST=${ROLE_MANIFEST:-'container-host-files/etc/hcf/config/role-manifest.yml'}
 
 docker run \
