@@ -235,17 +235,3 @@ dist: \
 kube-dist: kube
 	${GIT_ROOT}/make/package-kube
 	rm -rf kube
-
-########## BOSH-CLI DOCKER IMAGE TARGETS ##########
-
-bosh-cli:
-	${GIT_ROOT}/make/bosh-cli-docker-image build tag push --version 2.3.1
-
-build-bosh-cli:
-	${GIT_ROOT}/make/bosh-cli-docker-image --build
-
-tag-bosh-cli:
-	${GIT_ROOT}/make/bosh-cli-docker-image --tag --version 2.3.1
-
-push-bosh-cli:
-	${GIT_ROOT}/make/bosh-cli-docker-image --push --version 2.3.1

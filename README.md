@@ -551,16 +551,6 @@ Name    | Effect | Notes |
     ```
 
 
-## How do I add a new version of Ruby to the build system?
-
-1. Add the version to the last line of `docker-images/bosh-cli/versions.txt`
-
-2. Edit the `BOSH-CLI DOCKER IMAGE TARGET` section of `Makefile`
-
-   Update the version from 2.3.1 to the desired version.
-
-3. Run `make bosh-cli`
-
 ## Build Dependencies
 
 [![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)
