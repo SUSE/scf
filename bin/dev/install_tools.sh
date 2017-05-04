@@ -6,7 +6,7 @@ vanbuckets="http://concourse.van:9000/minio"
 splat="https://splatform.s3.amazonaws.com"
 
 # Tool versions
-thefissile="$(echo "fissile-4.0.0+223.g59e10c1" | sed -e 's/+/%2B/')"
+thefissile="$(echo "fissile-4.0.0+225.gf51be45" | sed -e 's/+/%2B/')"
 
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
