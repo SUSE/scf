@@ -79,7 +79,7 @@ JAVA_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" java-bui
 CAPI_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" capi-release)
 CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
 ETCD_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" etcd-release)
-LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggergator)
+LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator)
 NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
 UAA_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" uaa-release)
 
