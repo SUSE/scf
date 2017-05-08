@@ -1615,6 +1615,7 @@ configuration:
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
+    internal: true
   - name: DONT_SKIP_CERT_VERIFY_INTERNAL
     type: environment
   - name: DOPPLER_CERT
@@ -1727,8 +1728,11 @@ configuration:
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
     required: true
   - name: HCF_UAA_EXTERNAL_URL
+    type: environment
   - name: HCF_UAA_INTERNAL_HOSTNAME
+    type: environment
   - name: HCF_UAA_INTERNAL_URL
+    type: environment
   - name: HCF_UAA_ROOT_ZONE_URL
     immutable: true
     default: https://uaa:8443
@@ -1737,6 +1741,7 @@ configuration:
   - name: HCP_AZ
     type: environment
   - name: HCP_CA_CERT
+    internal: true
     immutable: true
     description: >
       (Not used on HCP) The CA certificate to use.  Only used for development.
