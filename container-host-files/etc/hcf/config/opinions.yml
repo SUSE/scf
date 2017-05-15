@@ -107,7 +107,7 @@ properties:
       webdav_config:
         username: 'blobstore_user'
     security_event_logging:
-      enabled: null
+      enabled: true
     security_group_definitions:
     - name: public_networks
       rules:
