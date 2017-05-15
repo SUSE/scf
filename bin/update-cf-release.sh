@@ -83,6 +83,9 @@ LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator)
 NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
 UAA_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" uaa-release)
 
+#CFMYSQL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" cf-mysql-release)
+ROUTING_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" routing-release)
+
 update_submodule go-buildpack-release "${GO_BUILDPACK_RELEASE}" src/buildpacks
 update_submodule binary-buildpack-release "${BINARY_BUILDPACK_RELEASE}" src/buildpacks
 update_submodule nodejs-buildpack-release "${NODEJS_BUILDPACK_RELEASE}" src/buildpacks
@@ -98,3 +101,4 @@ update_submodule etcd-release "${ETCD_RELEASE}" src
 update_submodule loggregator "${LOGGREGATOR}" src
 update_submodule nats-release "${NATS_RELEASE}" src
 update_submodule uaa-release "${UAA_RELEASE}" src
+update_submodule routing-release "${ROUTING_RELEASE}" src

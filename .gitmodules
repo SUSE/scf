@@ -12,7 +12,7 @@
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
 [submodule "src/routing-release"]
 	path = src/routing-release
-	url = https://github.com/hpcloud/routing-release.git
+	url = https://github.com/cloudfoundry-incubator/routing-release.git
 [submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
 	path = src/hcf-release/src/github.com/hpcloud/testbrain
 	url = git@github.com:hpcloud/testbrain.git
