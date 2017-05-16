@@ -1770,6 +1770,10 @@ configuration:
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
+  - name: CC_SECURITY_EVENT_LOGGING
+    default: true
+    example: false
+    description: Enable logging of all requests made to the Cloud Controller in CEF format.
   - name: CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -2585,6 +2589,7 @@ configuration:
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: '"https://blobstore-int.((HCP_SERVICE_DOMAIN_SUFFIX)):4443"'
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.security_event_logging.enabled: '((CC_SECURITY_EVENT_LOGGING))'
     properties.cc.srv_api_uri: '"http://api-int.((HCP_SERVICE_DOMAIN_SUFFIX)):9022"'
     properties.cc.staging_timeout_in_seconds: '((STAGING_TIMEOUT))'
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'

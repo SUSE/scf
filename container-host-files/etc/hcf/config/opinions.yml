@@ -106,8 +106,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-    security_event_logging:
-      enabled: null
     security_group_definitions:
     - name: public_networks
       rules:
@@ -293,6 +291,8 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
+  syslog_daemon_config:
+    enable: false
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
