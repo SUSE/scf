@@ -1873,6 +1873,23 @@ configuration:
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
   - name: NO_PROXY
+  - name: REP_CLIENT_CERT
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate
+    required: true
+  - name: REP_CLIENT_KEY
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded client key
+    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -2267,14 +2284,22 @@ configuration:
     properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
+    properties.diego.rep.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.rep.tls.cert: '"((REP_CLIENT_CERT))"'
+    properties.diego.rep.tls.key: '"((REP_cLIENT_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
+    properties.diego.rep_windows.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.rep_windows.tls.cert: '"((REP_CLIENT_CERT))"'
+    properties.diego.rep_windows.tls.key: '"((REP_CLIENT_KEY))"'
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: ((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
+    properties.diego.route_emitter.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.diego.route_emitter_windows.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
