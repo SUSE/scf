@@ -6,7 +6,7 @@
 	url = https://github.com/cloudfoundry-incubator/etcd-release
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
-	url = git@github.com:hpcloud/cf-mysql-release.git
+	url = git@github.com:cloudfoundry/cf-mysql-release.git
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
