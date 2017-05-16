@@ -189,6 +189,10 @@ certstrap --depot-path "${internal_certs_dir}" sign rep_client --CA internalCA -
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name saml_serviceprovider --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign saml_serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
 
+# generate SYSLOGDRAINBINDER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name syslogdrainbinder --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign syslogdrainbinder --CA internalCA --passphrase "${signing_key_passphrase}"
+
 # generate TPS_CC_CLIENT certs (properties.capi.tps.cc.{client_cert,client_key})
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name tpsCCClient --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign tpsCCClient --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -309,6 +313,8 @@ add_env ROUTER_SSL_CERT           "${certs_path}/router_ssl.cert"
 add_env ROUTER_SSL_KEY            "${certs_path}/router_ssl.key"
 add_env SAML_SERVICEPROVIDER_CERT "${internal_certs_dir}/saml_serviceprovider.crt"
 add_env SAML_SERVICEPROVIDER_KEY  "${internal_certs_dir}/saml_serviceprovider.key"
+add_env SYSLOGDRAINBINDER_CERT    "${internal_certs_dir}/syslogdrainbinder.crt"
+add_env SYSLOGDRAINBINDER_KEY     "${internal_certs_dir}/syslogdrainbinder.key"
 add_env TPS_CC_CLIENT_CRT         "${internal_certs_dir}/tpsCCClient.crt"
 add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"

@@ -1991,6 +1991,23 @@ configuration:
     default: stackato-support@hpe.com
     description: Support contact information for the cluster
     required: true
+  - name: SYSLOGDRAINBINDER_CERT
+    secret: true
+    generator:
+      id: syslogdrainbinder_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: SYSLOGDRAINBINDER_KEY
+    secret: true
+    generator:
+      id: syslogdrainbinder_cert
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key.
+    required: true
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
     description: TCP routing domain of the HCF cluster; only used for testing;
@@ -2205,6 +2222,7 @@ configuration:
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.cc.internal_service_hostname: '"cloud-controller-ng.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
@@ -2389,8 +2407,10 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
+    properties.syslog_drain_binder.cert: '"((SYSLOGDRAINBINDER_CRT))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.syslog_drain_binder.key: '"((SYSLOGDRAINBINDER_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
