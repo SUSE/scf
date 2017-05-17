@@ -1487,7 +1487,7 @@ configuration:
     description: URI for a CDN to use for buildpack downloads.
     required: true
   - name: CLUSTER_ADMIN_AUTHORITIES
-    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
+    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
     description: The Oauth2 authorities available to the cluster administrator.
     required: true
   - name: CLUSTER_ADMIN_PASSWORD
@@ -1842,6 +1842,13 @@ configuration:
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
+    required: true
+  - name: MYSQL_ROUTING_API_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to MySQL by the routing-api
     required: true
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
@@ -2240,7 +2247,7 @@ configuration:
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2400,6 +2407,8 @@ configuration:
     properties.routing_api.etcd.servers: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
+    properties.routing_api.sqldb.host: "mysql-proxy.((HCP_SERVICE_DOMAIN_SUFFIX))"
+    properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'

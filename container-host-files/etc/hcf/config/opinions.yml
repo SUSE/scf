@@ -279,6 +279,11 @@ properties:
       user: router_user
   routing_api:
     enabled: true
+    sqldb:
+      type: mysql
+      port: 3306
+      schema: routing-api
+      username: routing-api
     uri: http://routing-api
   smoke_tests:
     user: 'admin'
