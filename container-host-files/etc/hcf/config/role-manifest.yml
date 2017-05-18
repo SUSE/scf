@@ -2300,7 +2300,7 @@ configuration:
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.tls.cert: '"((REP_CLIENT_CERT))"'
-    properties.diego.rep.tls.key: '"((REP_cLIENT_KEY))"'
+    properties.diego.rep.tls.key: '"((REP_CLIENT_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
     properties.diego.rep_windows.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
