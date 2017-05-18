@@ -2229,7 +2229,6 @@ configuration:
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.cc.internal_service_hostname: '"cloud-controller-ng.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
