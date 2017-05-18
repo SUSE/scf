@@ -2298,22 +2298,14 @@ configuration:
     properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.tls.cert: '"((REP_CLIENT_CERT))"'
-    properties.diego.rep.tls.key: '"((REP_CLIENT_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
-    properties.diego.rep_windows.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep_windows.tls.cert: '"((REP_CLIENT_CERT))"'
-    properties.diego.rep_windows.tls.key: '"((REP_CLIENT_KEY))"'
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: ((NATS_HCF_CLUSTER_IPS))((#NATS_HCF_CLUSTER_CONFIG_REVISION))((/NATS_HCF_CLUSTER_CONFIG_REVISION))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.route_emitter.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
-    properties.diego.route_emitter_windows.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2410,6 +2402,7 @@ configuration:
     properties.routing_api.sqldb.host: "mysql-proxy.((HCP_SERVICE_DOMAIN_SUFFIX))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
+    properties.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
@@ -2427,6 +2420,9 @@ configuration:
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.tls.cert: '"((REP_CLIENT_CERT))"'
+    properties.tls.key: '"((REP_CLIENT_KEY))"'
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
