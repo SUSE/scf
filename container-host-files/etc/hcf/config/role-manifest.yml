@@ -2416,7 +2416,7 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
-    properties.syslog_drain_binder.cert: '"((SYSLOGDRAINBINDER_CRT))"'
+    properties.syslog_drain_binder.cert: '"((SYSLOGDRAINBINDER_CERT))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.syslog_drain_binder.key: '"((SYSLOGDRAINBINDER_KEY))"'
