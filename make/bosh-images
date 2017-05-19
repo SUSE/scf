@@ -2,4 +2,4 @@
 
 set -o errexit -o nounset
 
-fissile build images
+fissile build images --stemcell ${FISSILE_STEMCELL}

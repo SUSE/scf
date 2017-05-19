@@ -2,8 +2,4 @@
 
 set -o errexit -o nounset
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-. ${GIT_ROOT}/make/include/stemcell
-
-docker pull ${STEMCELL_IMAGE}
+docker pull ${FISSILE_STEMCELL}
