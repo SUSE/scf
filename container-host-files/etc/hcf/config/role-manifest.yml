@@ -116,6 +116,7 @@ roles:
   scripts:
   - scripts/create_mysql_data_tmp.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
+  - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
@@ -1434,6 +1435,13 @@ configuration:
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
     required: true
+  - name: BULK_API_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for the bulk api.
+    required: true
   - name: CCDB_ROLE_PASSWORD
     secret: true
     immutable: true
@@ -2201,6 +2209,7 @@ configuration:
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
