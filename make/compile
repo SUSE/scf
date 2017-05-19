@@ -4,6 +4,9 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
+. ${GIT_ROOT}/make/include/stemcell
+
+
 HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
@@ -118,7 +121,7 @@ case ${COMMAND} in
         restore
 
         echo Please allow a long time for mariadb to compile
-        fissile build packages
+        fissile build packages --stemcell ${STEMCELL_IMAGE}
 
         cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
         ;;

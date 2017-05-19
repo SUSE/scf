@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+STEMCELL_IMAGE=${STEMCELL_IMAGE:-splatform/fissile-stemcell-opensuse:42.2-0.g58a22c9-28.16}

@@ -2,4 +2,8 @@
 
 set -o errexit -o nounset
 
-fissile build images
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. ${GIT_ROOT}/make/include/stemcell
+
+fissile build images --stemcell ${STEMCELL_IMAGE}
