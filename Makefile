@@ -42,10 +42,8 @@ vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
 
 vagrant-prep: \
-	compile-base \
 	releases \
 	compile \
-	image-base \
 	images \
 	${NULL}
 
