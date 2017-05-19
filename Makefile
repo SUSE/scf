@@ -41,7 +41,11 @@ stop:
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
 
+docker-deps:
+	${GIT_ROOT}/make/docker-deps
+
 vagrant-prep: \
+	docker-deps \
 	releases \
 	compile \
 	images \
