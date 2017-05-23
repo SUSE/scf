@@ -81,7 +81,9 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
 
     status "Populating clients..."
     <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
+        status "- Client <%= client_id %> ..."
         if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
+            status "- Client <%= client_id %> adding ..."
             uaac --zone "${UAA_ZONE_ID}" client add '<%= client_id %>' \
                 --no-interactive \
                 <%
@@ -99,7 +101,9 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
                     end
                 %>
         fi
+        status "- Client <%= client_id %> set secret"
         uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
+        status "- Client <%= client_id %> /done"
     <% end %>
 else
     # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
