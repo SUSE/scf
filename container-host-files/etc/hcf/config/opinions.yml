@@ -265,7 +265,6 @@ properties:
   nfs_server:
     address: 0.0.0.3
   router:
-    cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
