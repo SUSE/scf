@@ -206,6 +206,11 @@ class ToHCP < Common
     scaling = runtime['scaling']
     min     = scaling['min']
     max     = scaling['max']
+    zone    = nil
+    if max == 1
+      zone = "" # disable zone affinity
+    end
+
 
     the_comp = {
       'name'          => bname,
@@ -222,7 +227,8 @@ class ToHCP < Common
       'service_ports' => [],	  # Fill from role runtime config, see below
       'volume_mounts' => [],	  # Ditto
       'parameters'    => [],	  # Fill from role configuration, see below
-      'workload_type' => 'container'
+      'workload_type' => 'container',
+      'zone'          => zone
     }
 
     the_comp['retry_count'] = retrycount if retrycount > 0
