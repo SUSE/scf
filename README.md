@@ -425,46 +425,48 @@ Name    | Effect | Notes |
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
-  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility)
-  for `cf-release`, `diego-release`, `etcd-release`, and `garden-runc-release`. If you are bumping
-  all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
-  1 and 2 in the example:
+  This section describes how to bump all the submodules at the same
+  time. This is the easiest way because we have scripts helping us
+  here.
 
-  The following example is for `diego-release`. You can follow the same steps for other releases.
-
-  1. On the host machine, clone the repository that you want to bump:
+  1. On the host machine run
 
     ```bash
-  git clone src/diego-release/ ./src/diego-release-clone --recursive
+    bin/update-releases.sh <RELEASE>
     ```
 
-  2. On the host, bump the clone to the desired version:
+    to bump to the specified release of CF. This pulls the information
+    about compatible releases, creates clones and bumps them.
+
+  2. Next up, we need the BOSH releases for the cloned and bumped submodules. Run
 
     ```bash
-    git checkout v217
-    git submodule update --init --recursive --force
+    bin/create-clone-releases.sh
     ```
 
-  3. Create a release for the cloned repository:
+    This command will place the log output for the individual releases
+    into the sub directory `LOG/ccr`.
 
-    __Important:__ From this point on, perform all actions on the Vagrant box.
+  3. With this done we can now compare the BOSH releases of originals
+     and clones, telling us what properties have changed (added,
+     removed, changed descriptions and values, ...).
+
+     On the host machine run
 
     ```bash
-    cd ~/hcf
-    ./bin/create-release.sh src/diego-release-clone diego
+    diff-releases.sh
     ```
 
-  4. Run the `config-diff` command:
+    This command will place the log output and differences for the
+    individual releases into the sub directory `LOG/dr`.
 
-    ```bash
-    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/diego-release,${HOME}/hcf/src/diego-release-clone
-    ```
+  4. Act on configuration changes:
 
-  5. Act on configuration changes:
+    __Important:__ If you are not sure how to treat a configuration
+    setting, discuss it with the HCF team.
 
-    __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
-
-    For any configuration changes discovered in step the previous step, you can do one of the following:
+    For any configuration changes discovered in step the previous
+    step, you can do one of the following:
 
       * Keep the defaults in the new specification.
 
@@ -478,19 +480,19 @@ Name    | Effect | Notes |
 
       * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
 
-  6. Evaluate role changes:
+  5. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
 
     b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
-  7. Bump the real submodule:
+  6. Bump the real submodule:
 
     a. Bump the real submodule and begin testing.
 
     b. Remove the clone you used for the release.
 
-  8. Test the release by running the `make <release-name>-release compile images run` command.
+  7. Test the release by running the `make <release-name>-release compile images run` command.
 
 
 ### Can I suspend or resume my vagrant VM?
