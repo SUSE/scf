@@ -15,7 +15,7 @@ read -r -d '' setup_patch_setup_syslog_forwarder <<'PATCH' || true
  cp $CONFIG_DIR/syslog_forwarder.conf /etc/rsyslog.d/00-syslog_forwarder.conf
  
 -/usr/sbin/service rsyslog reload
-+/usr/sbin/service rsyslog force-reload
++/usr/sbin/service rsyslog stop
 PATCH
 
 cd "$PATCH_DIR"
