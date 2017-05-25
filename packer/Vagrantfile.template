@@ -1,0 +1,87 @@
+vm_memory = ENV.fetch('VM_MEMORY', 14 * 1024).to_i
+
+Vagrant.configure('2') do |config|
+  # This IP address is also in install-kubernetes.sh (for cert generation)
+  config.vm.network :private_network, ip: '192.168.88.88'
+  config.ssh.keys_only = true # Don't use ssh-agent
+  # Disable the default synced folder, we don't need it anyway
+  # and this sidesteps synced folders being generally terrible
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provider :libvirt do |libvirt|
+    # We require a secondary disk at /dev/sdb for /var/lib/kubelet
+    # This means the primary must be /dev/sda (to bump the available names)
+    # This stuff was done in packer for VirtualBox
+    libvirt.disk_bus = 'scsi'
+    libvirt.storage :file, :size => '100G', bus: 'scsi', device: 'sdb'
+    libvirt.memory = vm_memory
+
+    if ENV['VAGRANT_LIBVIRT_URI']
+      require 'uri'
+      uri = URI.parse(ENV['VAGRANT_LIBVIRT_URI'])
+      libvirt.connect_via_ssh = true
+      libvirt.host = uri.host
+      libvirt.username = uri.user if uri.user
+      libvirt.password = uri.password if uri.password
+      if ENV['VAGRANT_LIBVIRT_SSH_KEY']
+        # We need to un-freeze the string so vagrant can modify it later
+        libvirt.id_ssh_key_file = ENV['VAGRANT_LIBVIRT_SSH_KEY'].dup
+      end
+      libvirt.socket = case uri.path
+        when '/system' then '/var/run/libvirt/libvirt-sock'
+        # TODO: /session support: needs to figure out XDG_RUNTIME_DIR somehow
+        # when '/session' then '/run/user/1000/libvirt/libvirtd.sock'
+        else uri.path
+      end
+    end
+  end
+
+  config.vm.provider :virtualbox do |vbox|
+    vbox.memory = vm_memory
+  end
+
+  # Format the kubelet / docker disk.  This is here because libvirt needs to
+  # do it on `vagrant up`.
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    set -o errexit -o xtrace
+    parted --script /dev/sdb mklabel gpt
+    parted --script /dev/sdb mkpart kubelet-data btrfs 0% 100%
+    while ! test -e /dev/sdb1 ; do
+      partprobe /dev/sdb
+      sleep 1
+    done
+    mkfs.btrfs /dev/sdb1
+    eval $(blkid -s UUID -o export /dev/sdb1)
+    mount /dev/sdb1 /mnt
+    btrfs subvolume create /mnt/docker
+    btrfs subvolume create /mnt/kubelet
+    btrfs subvolume create /mnt/hostpath
+    chown kube:kube /mnt/hostpath
+    umount /mnt
+    echo "UUID=${UUID} /var/lib/docker btrfs subvol=docker 0 0" >> /etc/fstab
+    echo "UUID=${UUID} /var/lib/kubelet btrfs subvol=kubelet 0 0" >> /etc/fstab
+    echo "UUID=${UUID} /tmp/hostpath_pv btrfs subvol=hostpath 0 0" >> /etc/fstab
+    mkdir -p /var/lib/kubelet
+    mkdir -p /tmp/hostpath_pv
+    chown kube:kube /tmp/hostpath_pv
+    systemctl enable docker.service
+    systemctl enable kubelet.service
+  SHELL
+
+  config.vm.provision :reload # apply filesystem changes
+
+  # Start the DNS addon
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    # Wait for kubernetes to be responsive
+    echo "Waiting for kube-apiserver to be active..."
+    while ! systemctl is-active kube-apiserver.service 2>/dev/null >/dev/null; do
+      sleep 10
+    done
+    echo "Waiting for kubectl to respond..."
+    while ! kubectl get pods --all-namespaces 2>/dev/null ; do
+      sleep 2
+    done
+
+    kubectl create --namespace kube-system --filename /etc/kubernetes/addons/kubedns.yml
+  SHELL
+end
