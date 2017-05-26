@@ -1593,6 +1593,10 @@ configuration:
     default: true
     description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
     required: true
+  - name: DIEGO_CELL_DISK_CAPACITY_MB
+    default: auto
+    description: The container disk capacity the cell should manage. If this capacity is larger than the actual disk quota of the cell component, over-provisioning will occur.
+    required: true
   - name: DIEGO_CELL_MEMORY_CAPACITY_MB
     default: auto
     description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
@@ -2257,6 +2261,7 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
+    properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
