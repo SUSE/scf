@@ -1711,6 +1711,10 @@ configuration:
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
+  - name: GARDEN_ROOTFS_DRIVER
+    default: overlay-xfs
+    description: The filesystem driver to use (btrfs or overlay-xfs).
+    required: true
   - name: GO_LOG_LEVEL
     type: environment
   - name: HCF_LOG_HOST
@@ -2319,6 +2323,7 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.grootfs.driver: '[((GARDEN_ROOTFS_DRIVER))]'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
