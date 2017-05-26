@@ -189,7 +189,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
+  - scripts/patches/fix_mysqlproxy_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
