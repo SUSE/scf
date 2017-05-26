@@ -166,7 +166,9 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_se
 certstrap --depot-path "${internal_certs_dir}" sign bbs_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate CC_SERVER certs (properties.cc.mutual_tls.{private_key,public_cert})
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name api --domain "$(make_domains "api")" --passphrase ""
+# The "cloud-controller-ng.service.cf.internal" is present because the syslog-drain-binder
+# has that name hardwired into it!
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name api --domain "$(make_domains "api"),cloud-controller-ng.service.cf.internal" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign api --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate DOPPLER certs
