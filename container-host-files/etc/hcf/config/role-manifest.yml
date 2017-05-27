@@ -2349,7 +2349,7 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.grootfs.driver: '[((GARDEN_ROOTFS_DRIVER))]'
+    properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
