@@ -291,6 +291,8 @@ properties:
     skip_ssl_validation: true
   syslog_aggregator:
     transport: null
+  syslog_daemon_config:
+    enable: false
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
