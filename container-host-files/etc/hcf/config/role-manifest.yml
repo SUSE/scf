@@ -6,7 +6,6 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -50,7 +49,6 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_consul_server_name.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -118,6 +116,7 @@ roles:
   scripts:
   - scripts/create_mysql_data_tmp.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
+  - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
@@ -190,6 +189,7 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/patches/fix_mysqlproxy_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -245,7 +245,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -312,7 +311,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -366,7 +364,6 @@ roles:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -415,7 +412,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -461,7 +457,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -528,7 +523,6 @@ roles:
   scripts:
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -537,8 +531,6 @@ roles:
     release_name: hcf
   - name: cloud_controller_ng
     release_name: capi
-  - name: statsd-injector
-    release_name: loggregator
   - name: consul_agent
     release_name: consul
   - name: metron_agent
@@ -569,7 +561,6 @@ roles:
   - name: metron_agent
   - name: consul_agent
   - name: nginx_cc
-  - name: statsd-injector
   run:
     scaling:
       min: 1
@@ -604,7 +595,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -635,7 +625,6 @@ roles:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -685,7 +674,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -715,7 +703,6 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -773,7 +760,6 @@ roles:
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -842,7 +828,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -891,7 +876,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -931,7 +915,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1027,7 +1010,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1061,7 +1043,6 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1112,7 +1093,6 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_loggregator.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1497,7 +1477,7 @@ configuration:
     description: URI for a CDN to use for buildpack downloads.
     required: true
   - name: CLUSTER_ADMIN_AUTHORITIES
-    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read
+    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
     description: The Oauth2 authorities available to the cluster administrator.
     required: true
   - name: CLUSTER_ADMIN_PASSWORD
@@ -1853,6 +1833,13 @@ configuration:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
     required: true
+  - name: MYSQL_ROUTING_API_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to MySQL by the routing-api
+    required: true
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
@@ -1873,6 +1860,23 @@ configuration:
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
   - name: NO_PROXY
+  - name: REP_CLIENT_CERT
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate
+    required: true
+  - name: REP_CLIENT_KEY
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded client key
+    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -1983,6 +1987,23 @@ configuration:
   - name: SUPPORT_ADDRESS
     default: stackato-support@hpe.com
     description: Support contact information for the cluster
+    required: true
+  - name: SYSLOGDRAINBINDER_CERT
+    secret: true
+    generator:
+      id: syslogdrainbinder_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: SYSLOGDRAINBINDER_KEY
+    secret: true
+    generator:
+      id: syslogdrainbinder_cert
+      type: Certificate
+      value_type: private_key
+      key_length: 4096
+    description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
@@ -2216,7 +2237,7 @@ configuration:
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"}, {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}, {"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2339,6 +2360,8 @@ configuration:
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
     properties.loggregator.tls.metron.cert: '"((METRON_CERT))"'
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
+    properties.loggregator.tls.syslogdrainbinder.cert: '"((SYSLOGDRAINBINDER_CERT))"'
+    properties.loggregator.tls.syslogdrainbinder.key: '"((SYSLOGDRAINBINDER_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
@@ -2368,6 +2391,8 @@ configuration:
     properties.routing_api.etcd.servers: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
+    properties.routing_api.sqldb.host: "mysql-proxy.((HCP_SERVICE_DOMAIN_SUFFIX))"
+    properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
@@ -2384,6 +2409,9 @@ configuration:
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.tls.cert: '"((REP_CLIENT_CERT))"'
+    properties.tls.key: '"((REP_CLIENT_KEY))"'
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'

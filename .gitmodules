@@ -6,16 +6,16 @@
 	url = https://github.com/cloudfoundry-incubator/etcd-release
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
-	url = git@github.com:hpcloud/cf-mysql-release.git
+	url = https://github.com/cloudfoundry/cf-mysql-release.git
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
 [submodule "src/routing-release"]
 	path = src/routing-release
-	url = https://github.com/hpcloud/routing-release.git
+	url = https://github.com/cloudfoundry-incubator/routing-release.git
 [submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
 	path = src/hcf-release/src/github.com/hpcloud/testbrain
-	url = git@github.com:hpcloud/testbrain.git
+	url = https://github.com/hpcloud/testbrain.git
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
@@ -24,46 +24,46 @@
 	url = https://github.com/hpcloud/certstrap
 [submodule "src/nats-release"]
 	path = src/nats-release
-	url = git@github.com:cloudfoundry/nats-release.git
+	url = https://github.com/cloudfoundry/nats-release.git
 [submodule "src/consul-release"]
 	path = src/consul-release
-	url = git@github.com:cloudfoundry-incubator/consul-release.git
+	url = https://github.com/cloudfoundry-incubator/consul-release.git
 [submodule "src/loggregator"]
 	path = src/loggregator
-	url = git@github.com:cloudfoundry/loggregator.git
+	url = https://github.com/cloudfoundry/loggregator.git
 [submodule "src/capi-release"]
 	path = src/capi-release
-	url = git@github.com:cloudfoundry/capi-release.git
+	url = https://github.com/cloudfoundry/capi-release.git
 [submodule "src/buildpacks/go-buildpack-release"]
 	path = src/buildpacks/go-buildpack-release
-	url = git@github.com:cloudfoundry/go-buildpack-release.git
+	url = https://github.com/cloudfoundry/go-buildpack-release.git
 [submodule "src/buildpacks/binary-buildpack-release"]
 	path = src/buildpacks/binary-buildpack-release
-	url = git@github.com:cloudfoundry/binary-buildpack-release.git
+	url = https://github.com/cloudfoundry/binary-buildpack-release.git
 [submodule "src/buildpacks/nodejs-buildpack-release"]
 	path = src/buildpacks/nodejs-buildpack-release
-	url = git@github.com:cloudfoundry/nodejs-buildpack-release.git
+	url = https://github.com/cloudfoundry/nodejs-buildpack-release.git
 [submodule "src/buildpacks/ruby-buildpack-release"]
 	path = src/buildpacks/ruby-buildpack-release
-	url = git@github.com:cloudfoundry/ruby-buildpack-release.git
+	url = https://github.com/cloudfoundry/ruby-buildpack-release.git
 [submodule "src/buildpacks/php-buildpack-release"]
 	path = src/buildpacks/php-buildpack-release
-	url = git@github.com:cloudfoundry/php-buildpack-release.git
+	url = https://github.com/cloudfoundry/php-buildpack-release.git
 [submodule "src/buildpacks/python-buildpack-release"]
 	path = src/buildpacks/python-buildpack-release
-	url = git@github.com:cloudfoundry/python-buildpack-release.git
+	url = https://github.com/cloudfoundry/python-buildpack-release.git
 [submodule "src/buildpacks/staticfile-buildpack-release"]
 	path = src/buildpacks/staticfile-buildpack-release
-	url = git@github.com:cloudfoundry/staticfile-buildpack-release.git
+	url = https://github.com/cloudfoundry/staticfile-buildpack-release.git
 [submodule "src/buildpacks/java-buildpack-release"]
 	path = src/buildpacks/java-buildpack-release
-	url = git@github.com:cloudfoundry/java-buildpack-release.git
+	url = https://github.com/cloudfoundry/java-buildpack-release.git
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
-	url = git@github.com:cloudfoundry/grootfs-release.git
+	url = https://github.com/cloudfoundry/grootfs-release.git
 [submodule "src/uaa-release"]
 	path = src/uaa-release
-	url = git@github.com:cloudfoundry/uaa-release.git
+	url = https://github.com/cloudfoundry/uaa-release.git
 [submodule "src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests
 	url = https://github.com/cloudfoundry/cf-acceptance-tests

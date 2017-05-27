@@ -174,7 +174,7 @@ properties:
     port: 3306
   cf_mysql:
     mysql:
-      database_startup_timeout: 300
+      startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
       max_open_files: 1500
@@ -265,7 +265,6 @@ properties:
   nfs_server:
     address: 0.0.0.3
   router:
-    cipher_suites: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_128_CBC_SHA
     enable_ssl: true
     extra_headers_to_log: null
     logrotate:
@@ -279,12 +278,19 @@ properties:
       user: router_user
   routing_api:
     enabled: true
+    sqldb:
+      type: mysql
+      port: 3306
+      schema: routing-api
+      username: routing-api
     uri: http://routing-api
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
+  syslog_aggregator:
+    transport: null
   syslog_daemon_config:
     enable: false
   syslog_drain_binder:
