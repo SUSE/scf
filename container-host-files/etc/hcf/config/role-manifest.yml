@@ -1721,7 +1721,7 @@ configuration:
     immutable: true
     description: The password for the cluster administrator.
   - name: CLUSTER_BUILD
-    default: 4.1.1
+    default: 4.1.2
     description: "'build' attribute in the /v2/info endpoint"
   - name: CLUSTER_DESCRIPTION
     default: HPE Helion Cloud Foundry
