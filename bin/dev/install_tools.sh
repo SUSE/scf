@@ -6,9 +6,9 @@ vanbuckets="http://concourse.van:9000/minio"
 minio="https://minio.from-the.cloud:9000/fissile"
 
 # Tool versions
-thefissile="$(echo "fissile-5.0.0+14.g22080c2" | sed -e 's/+/%2B/')"
+thefissile="$(echo "checks/fissile-5.0.0+16.g1ba69d1" | sed -e 's/+/%2B/')"
 
-# Installs tools needed to build and run HCF
+# Installs tools needed to build a`nd run HCF
 bin_dir="${bin_dir:-output/bin}"
 tools_dir="${tools_dir:-output/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
