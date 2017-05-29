@@ -49,6 +49,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_consul_server_name.sh
+  - scripts/patches/fix_consul_pre_start.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
