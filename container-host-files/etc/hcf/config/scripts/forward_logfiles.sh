@@ -1,10 +1,10 @@
 #used for initial config
-MAIN_CONFIG="90-vcap.conf"
+MAIN_CONFIG="10-vcap.conf"
 RSYSLOG_CONF_DIR="/etc/rsyslog.d"
 
 #used for adding individual logs
 BACKUP_WATCH_DIR=/var/vcap/sys/log #in case no ENV variable is set for RSYSLOG_FORWARDER_WATCH_DIR
-RSYSLOG_CONF_PREFIX=91-vcap
+RSYSLOG_CONF_PREFIX=11-vcap
 RSYSLOG_CONF_DIR=/etc/rsyslog.d
 IGNORE_DIR="gocode"
 TARGET_NAME=
@@ -77,6 +77,10 @@ fi
 # destination, flight recorder or other
 function initialConfig {
 
+        # Place to spool logs if the upstream server is down
+        mkdir -p /var/vcap/sys/rsyslog/buffered
+        chown -R syslog:adm /var/vcap/sys/rsyslog/buffered
+
 	case ${HCF_LOG_PROTOCOL} in
 	    udp)
 		HCF_LOG_PREFIX=
@@ -90,13 +94,29 @@ function initialConfig {
 		;;
 	esac
 
+        # rsyslogd config includes https://github.com/cloudfoundry/loggregator/blob/9b8d7b04b79ff9ce46a30def809457436dd674a6/jobs/metron_agent/templates/syslog_forwarder.conf.erb#L2-L14
         if ! cat <<-EOF | sed 's@^\s*@@' >$RSYSLOG_CONF_DIR/$MAIN_CONFIG ; then
                 module(load="imfile" mode="polling")
+
+                :app-name, startswith, "vcap." ~ # Drop all message from metron syslog
+                
                 \$template RFC5424Format,"<%pri%>1 %timestamp:::date-rfc3339% %hostname% %app-name% - - - %msg:::drop-last-lf%"
                 \$RepeatedMsgReduction on
-                \$ActionQueueType LinkedList
+
+                \$MaxMessageSize 4k                      # default is 2k
+                \$WorkDirectory /var/vcap/sys/rsyslog/buffered  # where messages should be buffered on disk
+                \$ActionResumeRetryCount -1              # Try until the server becomes available
+                \$ActionQueueType LinkedList             # Allocate on-demand
+                \$ActionQueueFileName agg_backlog        # Spill to disk if queue is full
+                \$ActionQueueMaxDiskSpace 32m            # Max size for disk queue
+                \$ActionQueueLowWaterMark 2000           # Num messages. Assuming avg size of 512B, this is 1MiB.
+                \$ActionQueueHighWaterMark 8000          # Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached).
+                \$ActionQueueTimeoutEnqueue 0            # Discard messages if the queue + disk is full
+                \$ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog shuts down
+
+
                 :app-name, startswith, "vcap-" @${HCF_LOG_PREFIX}${HCF_LOG_HOST}:${HCF_LOG_PORT};RFC5424Format
-                :app-name, startswith, "vcap-" ~
+                :app-name, startswith, "vcap-" ~ # Stop writing HCF message logs to /var/log
 	EOF
                 echo "Rsyslog forwarder: Could not create $MAIN_CONFIG in $RSYSLOG_CONF_DIR" >> $PB_OUT
                 exit 0
