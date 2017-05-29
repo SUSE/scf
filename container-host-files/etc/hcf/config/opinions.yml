@@ -242,18 +242,6 @@ properties:
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
-  localbroker:
-    service-name: 'shared-volume'
-    service-id: '3b640186-6429-4cbb-b346-bf96acba3fb9'
-    plan-name: 'default'
-    plan-id: '8ea4a4f1-ab4a-4bbb-a4a6-810d46713449'
-    plan-desc: 'Default service plan'
-    data-dir: /var/vcap/store/persibroker
-    localdriver-url: "http://localhost:9089"
-  localdriver:
-    listen_addr: "127.0.0.1:9089"
-    debug_addr: ""
-    cell_mount_path: /var/vcap/persistore/servicevolumes
   logger_endpoint:
     port: 4443
   login:
