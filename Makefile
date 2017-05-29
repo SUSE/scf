@@ -41,11 +41,13 @@ stop:
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
 
+docker-deps:
+	${GIT_ROOT}/make/docker-deps
+
 vagrant-prep: \
-	compile-base \
+	docker-deps \
 	releases \
 	compile \
-	image-base \
 	images \
 	${NULL}
 
@@ -156,7 +158,7 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images docker-images
+images: docker-deps bosh-images docker-images
 
 image-base: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/image-base

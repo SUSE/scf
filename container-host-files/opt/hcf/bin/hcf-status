@@ -71,7 +71,7 @@ function status_job_bosh() {
     local process_status=$(echo -e "${monit_data}" | grep -A 1 "Process '${process}'" | tail -n1 | awk '{print $2}')
 
     # Increase the number of processes that are working ok
-    if [[ "${process_status}" == "Running" ]]; then
+    if [[ "${process_status}" == "Running" ]] || [[ "${process_status}" == "running" ]]; then
       ok_processes=$(($ok_processes + 1))
     fi
   done

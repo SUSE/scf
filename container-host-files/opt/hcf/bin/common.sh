@@ -119,6 +119,7 @@ function start_role {
         --dns-search=${domain_suffix} \
         --label=hcf_role=${role} \
         --hostname=${role}.${domain_suffix} \
+        --ulimit nofile=200000:200000 \
         ${restart} \
         ${hcp_compat_env} \
         "${the_env[@]}" \
