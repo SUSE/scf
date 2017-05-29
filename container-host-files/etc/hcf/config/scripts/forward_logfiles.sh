@@ -92,12 +92,11 @@ function initialConfig {
 
         if ! cat <<-EOF | sed 's@^\s*@@' >$RSYSLOG_CONF_DIR/$MAIN_CONFIG ; then
                 module(load="imfile" mode="polling")
-                \$template RFC5424Format,"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n"
-                \$ActionFileDefaultTemplate RFC5424Format
+                \$template RFC5424Format,"<%pri%>1 %timestamp:::date-rfc3339% %hostname% %app-name% - - - %msg:::drop-last-lf%"
                 \$RepeatedMsgReduction on
                 \$ActionQueueType LinkedList
-                *.* @${HCF_LOG_PREFIX}${HCF_LOG_HOST}:${HCF_LOG_PORT}
-                :app-name, contains, "vcap" ${HOME}
+                :app-name, startswith, "vcap-" @${HCF_LOG_PREFIX}${HCF_LOG_HOST}:${HCF_LOG_PORT};RFC5424Format
+                :app-name, startswith, "vcap-" ~
 	EOF
                 echo "Rsyslog forwarder: Could not create $MAIN_CONFIG in $RSYSLOG_CONF_DIR" >> $PB_OUT
                 exit 0
@@ -152,6 +151,7 @@ function createTargetConf {
             \$InputFileName ${1}
             \$InputFileTag vcap-${TARGET_BASENAME}
             \$InputFileStateFile ${TARGET_BASENAME}_state
+            \$InputFileSeverity info
             \$InputFileFacility local7
             \$InputRunFileMonitor
 	EOF
@@ -179,11 +179,19 @@ else
       echo initial config for forwarding exists
 fi
 
+# Make sure that there is no second copy of rsyslog started via init.d
+# (currently still running in mysql, mysql-proxy and persi-broker containers)
+if test -r /var/run/rsyslogd.pid; then
+        if test -d /proc/$(cat /var/run/rsyslogd.pid); then
+                service rsyslog stop
+        fi
+fi
+
 #make sure that configurations (per log-file) are added to the rsyslog.d folder
 if searchTargetDir $RSYSLOG_FORWARDER_WATCH_DIR; then
-        if test -r /var/run/rsyslog.pid; then
-                if test -d /proc/$(cat /var/run/rsyslog.pid); then
-                        service rsyslog restart
+        if test -r /var/run/rsyslogd.monit.pid; then
+                if test -d /proc/$(cat /var/run/rsyslogd.monit.pid); then
+                        monit restart rsyslogd
                 fi
         fi
 fi
