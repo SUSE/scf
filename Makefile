@@ -158,7 +158,7 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images docker-images
+images: docker-deps bosh-images docker-images
 
 image-base: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/image-base
