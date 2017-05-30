@@ -55,23 +55,22 @@ for ROLE in ${ROLES}; do
             case ${TARGET} in
                 bosh)
                     # For bosh images, there may be images with stale tags we want to delete
-                    WANTED_TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
-                    docker images ${PREFIX}${ROLE} | tail -n +2 | while read REPOSITORY TAG _ ; do
+                    WANTED_TAG=$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" | grep "^${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:" | cut -f 2 -d :)
+                    docker images "${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}" | tail -n +2 | while read REPOSITORY TAG _ ; do
                         if test "${TAG}" != "${WANTED_TAG}" ; then
                             docker rmi "${REPOSITORY}:${TAG}"
                         fi
                     done
                 ;;
-                *)
-                    # For non-bosh images, everything is :latest, no other tags to delete
+                docker)
+                    # For non-bosh images, there may be things tagged for the registry for the wrong branch
+                    docker images ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE} | tail -n +2 | while read REPOSITORY TAG _; do
+                        if test "${TAG}" != "${DOCKER_APP_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
+                            docker rmi "${REPOSITORY}:${TAG}"
+                        fi
+                    done
                 ;;
             esac
-            # For all images, there may be things tagged for the registry for the wrong branch
-            docker images ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE} | tail -n +2 | while read REPOSITORY TAG _; do
-                if test "${TAG}" != "${DOCKER_APP_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
-                    docker rmi "${REPOSITORY}:${TAG}"
-                fi
-            done
             ;;
         print)
             echo ${ROLE}

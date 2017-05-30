@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. "${GIT_ROOT}/make/include/registry"
+
+BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}")}
+
+for image in ${BOSH_IMAGES}; do
+    # Redirect docker stdout to avoid polluting logfiles with progressbar characters
+    docker push "${image}" > /dev/null
+done
