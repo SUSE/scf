@@ -1,5 +1,14 @@
 set -e
 
+# NOTE to developers:
+#   TLDR, this is a local patch for a local problem, and upstreaming
+#   it is contra-indicated.
+#
+#   In a bit more detail, this patch works around our use of k8s style
+#   hostnames (Format <role>-<index>-<random-id>). A vanilla CF
+#   distribution does not use this style of hostnames and therefore
+#   does not need the patch either.
+
 PATCH_DIR="/var/vcap/jobs-src/etcd/templates"
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
