@@ -41,11 +41,13 @@ stop:
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
 
+docker-deps:
+	${GIT_ROOT}/make/docker-deps
+
 vagrant-prep: \
-	compile-base \
+	docker-deps \
 	releases \
 	compile \
-	image-base \
 	images \
 	${NULL}
 
@@ -143,9 +145,6 @@ releases: \
 
 ########## FISSILE BUILD TARGETS ##########
 
-compile-base: ${FISSILE_BINARY}
-	${GIT_ROOT}/make/compile-base
-
 # This is run from the Vagrantfile to copy in the existing compilation cache
 copy-compile-cache:
 	${GIT_ROOT}/make/compile restore
@@ -157,9 +156,6 @@ compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
 images: bosh-images docker-images
-
-image-base: ${FISSILE_BINARY}
-	${GIT_ROOT}/make/image-base
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images

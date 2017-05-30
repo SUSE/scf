@@ -49,6 +49,7 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_consul_server_name.sh
+  - scripts/patches/fix_consul_pre_start.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -243,6 +244,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -309,6 +311,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -362,6 +365,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -410,6 +414,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -455,6 +460,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -522,6 +528,7 @@ roles:
   - scripts/nginx_log_level.sh
   scripts:
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   jobs:
@@ -593,6 +600,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -672,6 +680,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -874,6 +883,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -913,6 +923,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1008,6 +1019,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1041,6 +1053,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -1089,6 +1102,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1691,7 +1705,7 @@ configuration:
     required: true
   - name: GARDEN_INSECURE_DOCKER_REGISTRIES
     default: ''
-    description: Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here.
+    description: "Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here."
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
