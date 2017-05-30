@@ -62,8 +62,7 @@
             ],
             "vboxmanage_post": [
                 [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
-                [ "storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"],
-                [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vmdk" ]
+                [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "2", "--type", "hdd", "--medium", "disk2.vmdk" ]
             ],
             "boot_command": [
                 "<esc><enter><wait>",
@@ -130,9 +129,23 @@
             "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
         },
         {
+            "type": "file",
+            "source": "http/docker.conf",
+            "destination": "/etc/sysconfig/docker"
+        },
+        {
+            "type": "shell",
+            "only": ["virtualbox-iso"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "systemctl enable vboxadd-service.service",
+                "systemctl enable vboxadd.service"
+            ]
+        },
+        {
             "type": "shell",
             "only": ["virtualbox-iso", "vmware-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/compact.sh"
             ],

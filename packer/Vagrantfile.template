@@ -1,11 +1,10 @@
-vm_memory = ENV.fetch('VM_MEMORY', 14 * 1024).to_i
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
 Vagrant.configure('2') do |config|
   # This IP address is also in install-kubernetes.sh (for cert generation)
-  config.vm.network :private_network, ip: '192.168.88.88'
   config.ssh.keys_only = true # Don't use ssh-agent
   # Disable the default synced folder, we don't need it anyway
-  # and this sidesteps synced folders being generally terrible
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider :libvirt do |libvirt|
@@ -14,7 +13,6 @@ Vagrant.configure('2') do |config|
     # This stuff was done in packer for VirtualBox
     libvirt.disk_bus = 'scsi'
     libvirt.storage :file, :size => '100G', bus: 'scsi', device: 'sdb'
-    libvirt.memory = vm_memory
 
     if ENV['VAGRANT_LIBVIRT_URI']
       require 'uri'
@@ -36,16 +34,13 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  config.vm.provider :virtualbox do |vbox|
-    vbox.memory = vm_memory
-  end
-
   # Format the kubelet / docker disk.  This is here because libvirt needs to
   # do it on `vagrant up`.
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
     set -o errexit -o xtrace
     parted --script /dev/sdb mklabel gpt
     parted --script /dev/sdb mkpart kubelet-data btrfs 0% 100%
+    echo "Waiting for new partition to show up..."
     while ! test -e /dev/sdb1 ; do
       partprobe /dev/sdb
       sleep 1

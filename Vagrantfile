@@ -18,6 +18,7 @@ Vagrant.configure(2) do |config|
   # config.vm.network "forwarded_port", guest: 4443, host: 4443
   # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
+  vm_memory = ENV.fetch('VM_MEMORY', 14 * 1024).to_i
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -25,14 +26,13 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.13.box"
+    override.vm.box = "https://minio.from-the.cloud:9000/vagrant-box-images/hcf-virtualbox-v2.0.0.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "10240"
+    vb.memory = vm_memory.to_s
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
-    vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     # https://github.com/mitchellh/vagrant/issues/351
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
@@ -40,10 +40,10 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
+    override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "10240"
+    vb.memory = vm_memory.to_s
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -65,10 +65,10 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_workstation" do |vb, override|
-    override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
+    override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "10240"
+    vb.memory = vm_memory.to_s
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -87,12 +87,12 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-libvirt-v1.0.13.box"
+    override.vm.box = "https://minio.from-the.cloud:9000/vagrant-box-images/hcf-libvirt-v2.0.0.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
-    override.vm.box_download_insecure = true
-    libvirt.memory = 12288
+    libvirt.memory = vm_memory
     libvirt.cpus = 4
+
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
@@ -140,12 +140,12 @@ Vagrant.configure(2) do |config|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
   }, inline: <<-SHELL
     set -e
-    echo Proxy setup of the host, saved ...
     for var in no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY ; do
        if test -n "${!var}" ; then
           echo "${var}=${!var}" | tee -a /etc/environment
        fi
     done
+    echo Proxy setup of the host, saved ...
   SHELL
 
   # set up direnv so we can pick up fissile configuration
@@ -164,10 +164,6 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
 
-    # Configure Docker things
-    sudo /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/configure_docker.sh /dev/sdb 64 4
-    /home/vagrant/hcf/container-host-files/opt/hcf/bin/docker/setup_network.sh "172.20.10.0/24" "172.20.10.1"
-
     # Get proxy configuration here
     source /etc/environment
     export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
@@ -178,39 +174,6 @@ Vagrant.configure(2) do |config|
       ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
     )
 
-    mkdir -p /home/vagrant/tmp
-  SHELL
-
-  config.vm.provision "shell", privileged: true, inline: <<-SHELL
-    ulimit -l unlimited
-
-    # Allowed number of open file descriptors
-    ulimit -n 100000
-
-    # Ephemeral port range
-    echo "1024 65535" > /proc/sys/net/ipv4/ip_local_port_range
-
-    # TCP_FIN_TIMEOUT
-    # This setting determines the time that must elapse before TCP/IP can release a closed connection and reuse
-    # its resources. During this TIME_WAIT state, reopening the connection to the client costs less than establishing
-    # a new connection. By reducing the value of this entry, TCP/IP can release closed connections faster, making more
-    # resources available for new connections. Addjust this in the presense of many connections sitting in the
-    # TIME_WAIT state:
-    echo 5 > /proc/sys/net/ipv4/tcp_fin_timeout
-
-    # TCP_TW_RECYCLE
-    # It enables fast recycling of TIME_WAIT sockets. The default value is 0 (disabled). The sysctl documentation
-    # incorrectly states the default as enabled. It can be changed to 1 (enabled) in many cases. Known to cause some
-    # issues with hoststated (load balancing and fail over) if enabled, should be used with caution.
-    echo 0 > /proc/sys/net/ipv4/tcp_tw_recycle
-
-    # TCP_TW_REUSE
-    # This allows reusing sockets in TIME_WAIT state for new connections when it is safe from protocol viewpoint.
-    # Default value is 0 (disabled). It is generally a safer alternative to tcp_tw_recycle
-    echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
-
-    # Allow a few more queued connections than are allowed by default
-    echo 1024 > /proc/sys/net/core/somaxconn
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -219,8 +182,6 @@ Vagrant.configure(2) do |config|
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
-
-    ln -s /home/vagrant/hcf/.bash_history
 
     direnv exec /home/vagrant/hcf make -C /home/vagrant/hcf copy-compile-cache
 

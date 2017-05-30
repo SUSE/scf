@@ -67,3 +67,6 @@ systemctl stop docker.service
 set -o xtrace +o errexit
 btrfs subvolume list /var/lib/docker | awk '/docker/ { print "/" $NF }' | xargs --no-run-if-empty btrfs subvolume delete -c
 rm -rf /var/lib/docker/* # We'll have a mount point for this afterwards
+
+# Allow the vagrant user use of docker
+usermod --append --groups docker vagrant

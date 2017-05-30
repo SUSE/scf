@@ -105,6 +105,8 @@
     </patterns>
 
     <packages config:type="list">
+      <package>dmidecode</package>
+      <package>make</package>
       <package>open-vm-tools</package>
       <package>openssh</package>
       <package>virtualbox-guest-kmp-default</package>
@@ -128,6 +130,11 @@
         <service>kubelet</service>
         <service>sshd</service>
       </enable>
+      <disable config:type="list">
+        <!-- These error out if we're not running on Virtualbox -->
+        <service>vboxadd-service.service</service>
+        <service>vboxadd.service</service>
+      </disable>
     </services>
   </services-manager>
 
@@ -209,7 +216,7 @@
     </file>
     <file>
       <file_path>/etc/sysconfig/docker</file_path>
-      <file_owner>root.root</file_owner>
+      <file_owner>vagrant.users</file_owner>
       <file_permissions>0644</file_permissions>
       <file_contents>DOCKER_OPTS="--insecure-registry=0.0.0.0/0"</file_contents>
     </file>
