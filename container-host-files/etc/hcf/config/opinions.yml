@@ -32,6 +32,7 @@ properties:
       file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
       bbs:
@@ -42,6 +43,7 @@ properties:
       file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
       staging_task_callback_url: http://diego-cc-bridge:8888
     tps:
@@ -145,6 +147,11 @@ properties:
         ports: "53"
         protocol: udp
     srv_api_uri: http://api:9022
+    stacks:
+    - name: cflinuxfs2
+      description: Cloud Foundry Linux-based filesystem
+    - name: opensuse42
+      description: openSUSE-based filesystem
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -205,6 +212,7 @@ properties:
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
+        - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
     route_emitter:
       bbs:
         api_location: diego-database:8889
@@ -237,6 +245,7 @@ properties:
     listen_network: tcp
     persistent_image_list:
     - /var/vcap/packages/cflinuxfs2/rootfs.tar
+    - /var/vcap/packages/opensuse42/rootfs.tar
     image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     image_plugin_extra_args:
     - --config=/var/vcap/jobs/grootfs/config/grootfs_config.yml
@@ -250,6 +259,7 @@ properties:
     graph_cleanup_threshold_in_mb: 3000
     persistent_image_list:
     - /var/vcap/packages/cflinuxfs2/rootfs.tar
+    - /var/vcap/packages/opensuse42/rootfs.tar
   fissile:
     monit:
       user: "admin"
