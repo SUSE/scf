@@ -51,14 +51,19 @@ Vagrant.configure('2') do |config|
     btrfs subvolume create /mnt/docker
     btrfs subvolume create /mnt/kubelet
     btrfs subvolume create /mnt/hostpath
+    btrfs subvolume create /mnt/fissile
     chown kube:kube /mnt/hostpath
+    chown vagrant:users /mnt/fissile
     umount /mnt
     echo "UUID=${UUID} /var/lib/docker btrfs subvol=docker 0 0" >> /etc/fstab
     echo "UUID=${UUID} /var/lib/kubelet btrfs subvol=kubelet 0 0" >> /etc/fstab
     echo "UUID=${UUID} /tmp/hostpath_pv btrfs subvol=hostpath 0 0" >> /etc/fstab
+    echo "UUID=${UUID} /home/vagrant/.fissile btrfs subvol=fissile 0 0" >> /etc/fstab
     mkdir -p /var/lib/kubelet
     mkdir -p /tmp/hostpath_pv
+    mkdir -p /home/vagrant/.fissile
     chown kube:kube /tmp/hostpath_pv
+    chown vagrant:users /home/vagrant/.fissile
     systemctl enable docker.service
     systemctl enable kubelet.service
   SHELL
