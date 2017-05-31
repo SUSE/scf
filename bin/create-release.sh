@@ -2,7 +2,7 @@
 set -o errexit
 set -o nounset
 
-ROOT="$(readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../")"
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 
 if [[ $# -lt 2 || -z "${1:-}" || -z "${2:-}" ]]; then
   cat <<HELP
