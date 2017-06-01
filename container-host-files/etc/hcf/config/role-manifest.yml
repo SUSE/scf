@@ -1754,8 +1754,8 @@ configuration:
   - name: HCP_CA_CERT
     internal: true
     immutable: true
-    description: >
-      (Not used on HCP) The CA certificate to use.  Only used for development.
+    description: The CA certificate for UAA
+    internal: true
   - name: HCP_COMPONENT_INDEX
     type: environment
   - name: HCP_COMPONENT_NAME
