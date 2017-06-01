@@ -19,6 +19,7 @@ Vagrant.configure(2) do |config|
   # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
   vm_memory = ENV.fetch('VM_MEMORY', 14 * 1024).to_i
+  vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -30,7 +31,7 @@ Vagrant.configure(2) do |config|
 
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
-    vb.cpus = 4
+    vb.cpus = vm_cpus
     # If you need to debug stuff
     # vb.gui = true
 
@@ -44,7 +45,7 @@ Vagrant.configure(2) do |config|
 
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
-    vb.cpus = 4
+    vb.cpus = vm_cpus
     # If you need to debug stuff
     # vb.gui = true
 
@@ -69,7 +70,7 @@ Vagrant.configure(2) do |config|
 
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
-    vb.cpus = 4
+    vb.cpus = vm_cpus
     # If you need to debug stuff
     # vb.gui = true
 
@@ -91,7 +92,7 @@ Vagrant.configure(2) do |config|
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
-    libvirt.cpus = 4
+    libvirt.cpus = vm_cpus
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"

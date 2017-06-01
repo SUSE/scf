@@ -159,13 +159,10 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images docker-images
+images: bosh-images
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
-
-docker-images: validate
-	${GIT_ROOT}/make/images docker build
 
 build: compile images
 

@@ -48,6 +48,7 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_server_name.sh
   - scripts/patches/fix_consul_pre_start.sh
   jobs:
@@ -116,10 +117,12 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/create_mysql_data_tmp.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
+  - scripts/mysql_libbz2_symlink.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -244,6 +247,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -631,6 +635,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
+  - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   jobs:
@@ -766,6 +771,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh

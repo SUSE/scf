@@ -4,11 +4,11 @@
 
 set -o errexit -o xtrace
 
-zypper addrepo --gpgcheck --refresh --priority 120 --check \
+zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
-zypper --gpg-auto-import-keys refresh
-zypper repos --uri # for troubleshooting
-zypper install --no-confirm --from Virtualization:containers \
+zypper --non-interactive --gpg-auto-import-keys refresh
+zypper --non-interactive repos --uri # for troubleshooting
+zypper --non-interactive install --no-confirm --from Virtualization:containers \
     docker \
     etcd \
     kubernetes-client \
