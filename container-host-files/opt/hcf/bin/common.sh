@@ -83,6 +83,9 @@ function start_role {
   env_file_contents=$(cat ${env_files})
   # Load the map that details which vars are allowed for which role
   role_params=$(cat ${ROOT}/vagrant.json | jq -r ".[\"${role}\"]")
+  role_params="${role_params}\|HCF_LOG_PROTOCOL"
+  role_params="${role_params}\|HCF_LOG_HOST"
+  role_params="${role_params}\|HCF_LOG_PORT"
 
   local edef ename evalue
   local the_env=()
@@ -111,13 +114,13 @@ function start_role {
   function _do_start_role() {
     docker run --name ${name} \
         ${detach} \
-        --net-alias=${role}-int.${domain_suffix} \
+        --net-alias=${role}.${domain_suffix} \
         --net=hcf \
         --dns-search=${domain_suffix} \
         --label=hcf_role=${role} \
-        --hostname=${role}-int.${domain_suffix} \
+        --hostname=${role}.${domain_suffix} \
+        --ulimit nofile=200000:200000 \
         ${restart} \
-        ${uaa_env_overrides[@]} \
         ${hcp_compat_env} \
         "${the_env[@]}" \
         -v ${log_dir}/${role}:/var/vcap/sys/log \
@@ -197,16 +200,19 @@ function setup_role() {
   # -v /host/path/1:/container/path/1 -v /host/path/2:/container/path/2
   local docker_volumes=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-volumes" // []) | map("-v " + .host + ":" + .container) | join(" ")')
 
+  # Alias the container to <component>-0
+  local network_alias="--network-alias ${role}-0.hcf.svc"
+
   # Add arbitrary docker arguments
   local docker_args=$(echo "${role_info}" | jq --raw-output --compact-output '(."docker-args" // []) | join(" ")')
 
-  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${docker_args}"
+  echo "${capabilities//$'\n'/ } ${ports//$'\n'/ } ${persistent_volumes//$'\n'/ } ${shared_volumes//$'\n'/ } ${docker_volumes//$'\n'/ } ${network_alias//$'\n'/ } ${docker_args}"
 }
 
 # gets the role name from a docker image name
 # get_container_name <IMAGE_NAME>
 function get_container_name() {
-  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' "$1")-int
+  echo $(docker inspect --format '{{.ContainerConfig.Labels.role}}' "$1")
 }
 
 # gets an image name from a role name
@@ -265,7 +271,6 @@ function load_all_roles() {
 
   if [ "${#role_manifest[@]}" == "0" ]; then
     declare -g  'role_manifest_data'
-    declare -g  'uaa_env_overrides'
     declare -ga 'role_names=()'
     declare -gA 'role_manifest=()'
     declare -gA 'role_manifest_types=()'
@@ -292,11 +297,6 @@ function load_all_roles() {
       role_run=$(printf '%s' "${role_block}" | jq --raw-output --compact-output '.run')
       role_manifest_run["${role_name}"]=$role_run
     done < <(printf '%s' "${role_manifest_data}" | jq --raw-output --compact-output '.roles[] | {name:.name, run:.run}')
-
-    uaa_env_overrides=(
-      "--env=UAA_CLIENTS=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.clients)"
-      "--env=UAA_USER_AUTHORITIES=$(cat ${role_manifest_file} | y2j | jq --compact-output .auth.authorities)"
-    )
   fi
 }
 

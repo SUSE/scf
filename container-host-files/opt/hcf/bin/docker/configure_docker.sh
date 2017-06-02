@@ -58,5 +58,11 @@ done
 
 echo DOCKER_OPTS=\"$dopts\" | tee -a /etc/default/docker
 
+# Explicitly enable ip forwarding to avoid docker to set the default policy for FORWARD chain to DROP
+# This behaviour added in Docker 1.13.0 https://github.com/docker/libnetwork/pull/1526
+echo net.ipv4.ip_forward = 1 >> /etc/sysctl.conf
+sysctl -p /etc/sysctl.conf
+iptables -P FORWARD ACCEPT
+
 # Activate the now-configured system
 service docker start

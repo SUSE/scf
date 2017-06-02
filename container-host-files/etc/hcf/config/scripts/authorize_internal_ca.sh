@@ -8,6 +8,16 @@
 # `fetch_uaa_verification_key.sh`, which itself must be an enviroment script.
 # As such, we need to do things to ensure we have an acceptable environment.
 
+os_type=$(get_os_type)
+if [ "$os_type" == "ubuntu" ]; then
+    ca_path=/usr/local/share/ca-certificates
+elif [ "$os_type" == "opensuse" ]; then
+    ca_path=/etc/pki/trust/anchors
+else
+    printf "Error: unknown operating system '${os_type}'"
+    exit 1
+fi
+
 if test -z "${BASH_SOURCE[1]:-}" ; then
     # This is being run standalone
     set -o errexit -o nounset
@@ -20,15 +30,15 @@ else
 fi
 
 if [ -r /etc/secrets/internal-ca-cert ]; then
-    cp /etc/secrets/internal-ca-cert /usr/local/share/ca-certificates/internalCA.crt
+    cp /etc/secrets/internal-ca-cert "${ca_path}"/internalCA.crt
 elif [ -n "${INTERNAL_CA_CERT:-}" ]; then
-    printf "%b" "${INTERNAL_CA_CERT}" > /usr/local/share/ca-certificates/internalCA.crt
+    printf "%b" "${INTERNAL_CA_CERT}" > "${ca_path}"/internalCA.crt
 fi
 
 if [ -n "${HCP_CA_CERT_FILE:-}" -a -r "${HCP_CA_CERT_FILE:-}" ]; then
-    cp "${HCP_CA_CERT_FILE}" /usr/local/share/ca-certificates/hcp-ca-cert.crt
+    cp "${HCP_CA_CERT_FILE}" "${ca_path}"/hcp-ca-cert.crt
 elif [ -n "${HCP_CA_CERT:-}" ]; then
-    printf "%b" "${HCP_CA_CERT}" > /usr/local/share/ca-certificates/hcp-ca-cert.crt
+    printf "%b" "${HCP_CA_CERT}" > "${ca_path}"/hcp-ca-cert.crt
 fi
 
 update-ca-certificates

@@ -6,7 +6,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run start
 stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json start
-${GIT_ROOT}/make/generate vagrant
+${GIT_ROOT}/make/vagrant-setup-env
 stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json done
 
 stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::do start

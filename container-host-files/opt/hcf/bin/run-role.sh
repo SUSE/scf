@@ -8,6 +8,11 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
+if test -z "${HCF_FORCE_RUN:-}" -a "$(id -un)" != "ubuntu" -a "$(id -un)" != "vagrant" ; then
+    printf "%bERROR%b: Aborting run on host, this breaks due to port issues\n" "\033[0;1;31m" "\033[0m" >&2
+    exit 1
+fi
+
 setup_dir="$1"
 role_name="$2"
 shift 2
@@ -25,14 +30,10 @@ CLEAN=""
 stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" run-role::${role_name} start
 
 if test ! -f $ROOT/vagrant.json ; then
-    ( cd $ROOT ; make/generate vagrant )
+    ( cd $ROOT ; make/vagrant-setup-env )
     CLEAN="${CLEAN} $ROOT/vagrant.json"
 fi
 
-# Terraform, in HOS/MPC VM, hcf-infra container support as copied
-# SELF    = /opt/hcf/bin/list-roles.sh
-# SELFDIR = /opt/hcf/bin
-#
 # Vagrant
 # SELF    = PWD/container-host-files/opt/hcf/bin/list-roles.sh
 # SELFDIR = PWD/container-host-files/opt/hcf/bin

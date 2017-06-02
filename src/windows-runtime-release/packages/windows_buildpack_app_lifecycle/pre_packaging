@@ -1,6 +1,0 @@
-# abort script on any command that exits with a non zero value
-set -e
-
-cd ${BUILD_DIR}
-
-curl -L -o windows_buildpack_app_lifecycle.tgz https://s3-us-west-1.amazonaws.com/clients.als.hpcloud.com/ro-artifacts/windows_app_lifecycle/output/windows_app_lifecycle-5f0c767.tgz

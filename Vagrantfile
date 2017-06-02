@@ -28,21 +28,22 @@ Vagrant.configure(2) do |config|
     override.vm.box = "https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-virtualbox-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh"
-    override.vm.synced_folder ".", "/home/vagrant/hcf"
+    # https://github.com/mitchellh/vagrant/issues/351
+    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
   config.vm.provider "vmware_fusion" do |vb, override|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -67,7 +68,7 @@ Vagrant.configure(2) do |config|
     override.vm.box="https://s3-us-west-2.amazonaws.com/hcf-vagrant-box-images/hcf-vmware-v1.0.13.box"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "8192"
+    vb.memory = "10240"
     vb.cpus = 4
     # If you need to debug stuff
     # vb.gui = true
@@ -90,7 +91,7 @@ Vagrant.configure(2) do |config|
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     override.vm.box_download_insecure = true
-    libvirt.memory = 8192
+    libvirt.memory = 12288
     libvirt.cpus = 4
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
@@ -135,16 +136,6 @@ Vagrant.configure(2) do |config|
     fi
   SCRIPT
 
-  unless OS.windows?
-    config.vm.provision "shell", privileged: false, inline: <<-SHELL
-        if [ ! -e "/home/vagrant/hcf/src/cf-release/.git" ]; then
-          echo "Looks like the cf-release submodule was not initialized" >&2
-          echo "Did you run 'git submodule update --init --recursive'?" >&2
-          exit 1
-        fi
-    SHELL
-  end
-
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
   }, inline: <<-SHELL
@@ -155,6 +146,19 @@ Vagrant.configure(2) do |config|
           echo "${var}=${!var}" | tee -a /etc/environment
        fi
     done
+  SHELL
+
+  # set up direnv so we can pick up fissile configuration
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -o errexit -o nounset
+    mkdir -p ${HOME}/bin
+    wget -O ${HOME}/bin/direnv --no-verbose \
+      https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
+    chmod a+x ${HOME}/bin/direnv
+    echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
+    ln -s ${HOME}/hcf/bin/dev/vagrant-envrc ${HOME}/.envrc
+    ${HOME}/bin/direnv allow ${HOME}
+    ${HOME}/bin/direnv allow ${HOME}/hcf
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -169,15 +173,12 @@ Vagrant.configure(2) do |config|
     export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
 
     # Install development tools
-    /home/vagrant/hcf/bin/dev/install_tools.sh
+    (
+      cd "${HOME}/hcf"
+      ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
+    )
 
     mkdir -p /home/vagrant/tmp
-
-    chown vagrant /home/vagrant/bin
-    chown vagrant /home/vagrant/bin/*
-    chown vagrant /home/vagrant/tools
-    chown vagrant /home/vagrant/tools/*
-    chown vagrant /home/vagrant/tmp
   SHELL
 
   config.vm.provision "shell", privileged: true, inline: <<-SHELL
@@ -214,21 +215,14 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
-    echo 'source ~/hcf/bin/.fissilerc' >> .profile
-    echo 'source ~/hcf/bin/.runrc' >> .profile
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
     echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
     echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
 
     ln -s /home/vagrant/hcf/.bash_history
-  SHELL
 
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    # Start a new shell to pick up .profile changes
-    set -e
-    cd /home/vagrant/hcf
-    make copy-compile-cache
+    direnv exec /home/vagrant/hcf make -C /home/vagrant/hcf copy-compile-cache
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
@@ -260,11 +254,5 @@ module VMwareHacks
     vb.vmx["sharedFolder1.guestName"] = "bosh"
     vb.vmx["sharedFolder1.expiration"] = "never"
     vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
-  end
-end
-
-module OS
-  def OS.windows?
-      (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
   end
 end

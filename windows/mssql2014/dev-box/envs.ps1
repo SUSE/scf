@@ -1,1 +1,0 @@
-$env:MSSQL_SA_PASSWORD = "pass1234_Ab"

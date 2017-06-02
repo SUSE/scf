@@ -1,8 +1,0 @@
----
-name: acceptance-tests-autoscaler
-
-files:
-  - acceptance-tests-autoscaler/*
-
-dependencies:
-  - golang1.6

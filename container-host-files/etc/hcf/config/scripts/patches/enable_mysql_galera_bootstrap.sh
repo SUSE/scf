@@ -19,7 +19,7 @@ read -r -d '' setup_patch_galera <<'PATCH' || true
 -  User: 'vcap'
 -  Password: 'random-password'
 +  User: 'admin'
-+  Password: '<%= p('hcf.monit.password') %>'
++  Password: '<%= p('fissile.monit.password') %>'
    Host: 'localhost'
 -  Port: 2822
 +  Port: 2289

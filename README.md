@@ -4,8 +4,6 @@ This repository integrates all HCF components.
 
 # Preparing to Deploy HCF
 
-__Note:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM. For more information, see [To Deploy HCF on Windows Using VirtualBox](#to-deploy-hcf-on-windows-using-virtualbox).
-
 ## Manually testing a branch on Jenkins
 
 1. Login to [Jenkins](https://jenkins.issueses.io)
@@ -142,68 +140,6 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
   __Important:__ The VM may not come online during your first attempt.
 
-## To Deploy HCF on Windows Using VirtualBox
-
-__Important:__ Working on a Windows host is __significantly more complicated__ because of heavy usage of symlinks. On Windows, only the VirtualBox provider is supported.
-
-1. Ensure that line endings are handled correctly.
-
-  ```bash
-  git config --global core.autocrlf input
-  ```
-
-2. Clone the repository, bring the VM online, and `ssh` into it:
-
-  __Important:__ Do not recursively update submodules. To ensure that symlinks are configured properly, you need to do this on the Vagrant VM. To be able to clone everything within the VM, you will need an `ssh` key within the VM allowed on GitHub.
-
-  ```bash
-  vagrant up --provider virtualbox
-  vagrant ssh
-  ```
-
-3. Configure symlinks and initialize submodules:
-
-  ```bash
-  cd ~/hcf
-  git config --global core.symlinks true
-  git config core.symlinks true
-  git submodule update --init --recursive
-  ```
-
-4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
-
-  ```bash
-  cd hcf
-  make vagrant-prep
-  ```
-
-  __Note:__ You need to run this command only after initially creating the VM.
-
-5. On the VM, start HCF
-
-  ```bash
-  make run
-  ```
-
-6. For the Windows Cell Add-On, see the [Windows Cell Readme](windows/README.md).
-
-  __Important:__ You can run the Windows Cell Add-On on a variety of systems within a Vagrant VM.
-
-## To Deploy HCF on Amazon AWS Using Terraform
-
-* Pick a target, e.g. `aws-spot-dist` and run `make aws-spot-dist`
-  to generate the archive populated with development defaults and secrets.
-
-* Extract the newly created .zip file to a temporary working dir:
-```bash
-mkdir /tmp/hcf-aws
-cd /tmp/hcf-aws
-unzip $OLDPWD/aws-???.zip
-cd aws
-```
-
-* Follow the instructions in README-aws.md
-
 ## Makefile targets
 
 ### Vagrant VM Targets
@@ -219,15 +155,27 @@ Name      | Effect |
 
 Name        | Effect |
 ------------------- | ----  |
-`cf-release`    | `bosh create release` for `cf-release` |
-`usb-release`    | `bosh create release` for `cf-usb-release` |
-`diego-release`    | `bosh create release` for `diego-release` |
-`etcd-release`    | `bosh create release` for `etcd-release` |
-`garden-release`  | `bosh create release` for `garden-runc-release` |
-`cf-mysql-release` | `bosh create release` for `cf-mysql-release` |
-`hcf-sso-release` | `bosh create release` for `hcf-sso-release` |
-`hcf-versions-release` | `bosh create release` for `hcf-versions-release` |
-`cflinuxfs2-rootfs-release`  | `bosh create release` for `cflinuxfs2-rootfs-release` |
+`binary-buildpack-release` | `bosh create release` for `binary-buildpack-release` |
+`capi-release` | `bosh create release` for `capi-release` |
+`cflinuxfs2-rootfs-release` | `bosh create release` for `cflinuxfs2-rootfs-release` |
+`consul-release` | `bosh create release` for `consul-release` |
+`diego-release` | `bosh create release` for `diego-release` |
+`etcd-release` | `bosh create release` for `etcd-release` |
+`garden-release` | `bosh create release` for `garden-release` |
+`go-buildpack-release` | `bosh create release` for `go-buildpack-release` |
+`grootfs-release` | `bosh create release` for `grootfs-release` |
+`hcf-release` | `bosh create release` for `hcf-release` |
+`java-buildpack-release` | `bosh create release` for `java-buildpack-release` |
+`loggregator-release` | `bosh create release` for `loggregator-release` |
+`mysql-release` | `bosh create release` for `mysql-release` |
+`nats-release` | `bosh create release` for `nats-release` |
+`nodejs-buildpack-release` | `bosh create release` for `nodejs-buildpack-release` |
+`php-buildpack-release` | `bosh create release` for `php-buildpack-release` |
+`python-buildpack-release` | `bosh create release` for `python-buildpack-release` |
+`routing-release` | `bosh create release` for `routing-release` |
+`ruby-buildpack-release` | `bosh create release` for `ruby-buildpack-release` |
+`staticfile-buildpack-release` | `bosh create release` for `staticfile-buildpack-release` |
+`uaa-release` | `bosh create release` for `uaa-release` |
 `releases`      | Make all of the BOSH releases above |
 
 ### Fissile Build Targets
@@ -243,20 +191,12 @@ Name            | Effect
 `docker-images` | `docker build` in each dir in `./docker-images`
 `tag`           | Tag HCF images and bosh role images
 `publish`       | Publish HCF images and bosh role images to Docker Hub
-`hcp`           | Generate HCP service definitions
-`mpc`           | Generate Terraform MPC definitions for a single-node microcloud
-`aws`           | Generate Terraform AWS definitions for a single-node microcloud
 
 ### Distribution Targets
 
 Name    | Effect | Notes |
 --------------- | ---- | --- |
 `dist`    | Generate and package various setups |
-`mpc-dist`  | Generate and package Terraform MPC definitions for a single-node microcloud |
-`aws-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud |
-`aws-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud |
-`aws-spot-dist`  | Generate and package Terraform AWS definitions for a single-node microcloud using a spot instance |
-`aws-spot-proxy-dist`  | Generate and package Terraform AWS definitions for a proxied microcloud using spot instances |
 
 ## Development FAQ (on the vagrant box)
 
@@ -319,20 +259,6 @@ Name    | Effect | Notes |
   run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
   ```
 
-  To run the tests against a remote machine (e.g. to test a HCP deployment),
-  first make sure that your settings match the deployed configuration; the
-  easiest way to do this is to deploy via the fully-specified instance
-  definition files rather than the minimal ones meant for HSM.  Also remember to
-  enable `diego_docker` as above.  Afterwards, run the tests as normal but
-  with a `DOMAIN` override:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env DOMAIN=hcf.hcp.example.com
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-autoscaler --env DOMAIN=hcf.hcp.example.com
-  ```
-  It is not currently possible to run `acceptance-tests-flight-recorder` on HCP,
-  as it expects direct access to the other roles in the cluster.
 
 #### How do I run a subset of HCF acceptance tests?
 
@@ -406,7 +332,7 @@ Name    | Effect | Notes |
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
-  You can target the cluster on the hardcoded `192.168.77.77.nip.io` address assigned to a host-only network adapter.
+  You can target the cluster on the hardcoded `cf-dev.io` address assigned to a host-only network adapter.
   You can access any URL or endpoint that references this address from your host.
 
 
@@ -425,7 +351,7 @@ Name    | Effect | Notes |
 
   1. Add a Git submodule to the BOSH release in `./src`.
 
-  2. Mention the new release in `./bin/.fissilerc`
+  2. Mention the new release in `.envrc`
 
   3. Edit the release parameters:
 
@@ -482,7 +408,7 @@ Name    | Effect | Notes |
   5. Rebuild the role images that need this new setting:
 
     ```bash
-    docker stop <role>-int
+    docker stop <role>
     docker rmi -f fissile-<role>:<tab-for-completion>
     make images run
     ```
@@ -499,46 +425,48 @@ Name    | Effect | Notes |
 
   __Note:__ Because this process involves cloning and building a release, it may take a long time.
 
-  Cloud Foundry maintains a [compatibility spreadsheet](https://github.com/cloudfoundry-incubator/diego-cf-compatibility)
-  for `cf-release`, `diego-release`, `etcd-release`, and `garden-runc-release`. If you are bumping
-  all of those modules simultaneously, you can run `bin/update-cf-release.sh <RELEASE>` and skip steps
-  1 and 2 in the example:
+  This section describes how to bump all the submodules at the same
+  time. This is the easiest way because we have scripts helping us
+  here.
 
-  The following example is for `cf-release`. You can follow the same steps for other releases.
-
-  1. On the host machine, clone the repository that you want to bump:
+  1. On the host machine run
 
     ```bash
-  git clone src/cf-release/ ./src/cf-release-clone --recursive
+    bin/update-releases.sh <RELEASE>
     ```
 
-  2. On the host, bump the clone to the desired version:
+    to bump to the specified release of CF. This pulls the information
+    about compatible releases, creates clones and bumps them.
+
+  2. Next up, we need the BOSH releases for the cloned and bumped submodules. Run
 
     ```bash
-    git checkout v217
-    git submodule update --init --recursive --force
+    bin/create-clone-releases.sh
     ```
 
-  3. Create a release for the cloned repository:
+    This command will place the log output for the individual releases
+    into the sub directory `LOG/ccr`.
 
-    __Important:__ From this point on, perform all actions on the Vagrant box.
+  3. With this done we can now compare the BOSH releases of originals
+     and clones, telling us what properties have changed (added,
+     removed, changed descriptions and values, ...).
+
+     On the host machine run
 
     ```bash
-    cd ~/hcf
-    ./bin/create-release.sh src/cf-release-clone cf
+    diff-releases.sh
     ```
 
-  4. Run the `config-diff` command:
+    This command will place the log output and differences for the
+    individual releases into the sub directory `LOG/dr`.
 
-    ```bash
-    FISSILE_RELEASE='' fissile diff --release ${HOME}/hcf/src/cf-release,${HOME}/hcf/src/cf-release-clone
-    ```
+  4. Act on configuration changes:
 
-  5. Act on configuration changes:
+    __Important:__ If you are not sure how to treat a configuration
+    setting, discuss it with the HCF team.
 
-    __Important:__ If you are not sure how to treat a configuration setting, discuss it with the HCF team.
-
-    For any configuration changes discovered in step the previous step, you can do one of the following:
+    For any configuration changes discovered in step the previous
+    step, you can do one of the following:
 
       * Keep the defaults in the new specification.
 
@@ -552,19 +480,19 @@ Name    | Effect | Notes |
 
       * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
 
-  6. Evaluate role changes:
+  5. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
 
     b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
 
-  7. Bump the real submodule:
+  6. Bump the real submodule:
 
     a. Bump the real submodule and begin testing.
 
     b. Remove the clone you used for the release.
 
-  8. Test the release by running the `make <release-name>-release compile images run` command.
+  7. Test the release by running the `make <release-name>-release compile images run` command.
 
 
 ### Can I suspend or resume my vagrant VM?
@@ -615,7 +543,7 @@ Name    | Effect | Notes |
     | ---    | ---  | ---  |
     |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
     |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
-    |IMAGE_ORG  | The organization in the image registry |helioncf|
+    |IMAGE_ORG  | The organization in the image registry |splatform|
     |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
@@ -624,61 +552,6 @@ Name    | Effect | Notes |
     make tag publish IMAGE_REGISTRY=docker.helion.lol/
     ```
 
-
-## How do I generate HCP service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the SDL file that contains HCP service definition for the current set of roles, run the `make hcp` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
-
-  You can also read a step by step tutorial of running [HCF on HCP](hcp/README.md) using Vagrant.
-
-## How do I generate Terraform MPC service definitions?
-
-  1. Ensure that the Vagrant box is running.
-
-  2. `ssh` into the Vagrant box.
-
-  3. To generate the `hcf.tf` file that contains the Terraform definitions for an MPC_based, single-node microcloud, run the `make mpc` command.
-
-    __Note:__ This target takes the same `make` variables as the `tag` and `publish` targets.
-
-
-## How do I test a new version of configgin
-
-1. Ensure that the Vagrant box is running.
-
-2. `ssh` into the Vagrant box.
-
-3. Build new configgin binary and install it into all role images
-
-    `configgin` is installed as a binary in `~/tools/configgin.tgz`. In order to test a new version you have to install a new build in that location and recreate first the base image, and then all role images.
-
-    In the `docker rmi` command below use tab-completion to also delete the image tagged with a version string:
-
-    ```bash
-    git clone git@github.com:hpcloud/hcf-configgin.git
-    cd hcf-configgin/
-    make dist
-    cp output/configgin*.tgz ~/tools/configgin.tgz
-    docker rmi -f $(fissile show image) fissile-role-base fissile-role-base:<TAB>
-    fissile build layer stemcell
-    make images
-    ```
-
-## How do I add a new version of Ruby to the build system?
-
-1. Add the version to the last line of `docker-images/hcf-pipeline-ruby-bosh/versions.txt`
-
-2. Edit the `HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGET` section of `Makefile`
-
-   Update the version from 2.3.1 to the desired version.
-
-3. Run `make hcf-pipeline-ruby-bosh`
 
 ## Build Dependencies
 

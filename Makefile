@@ -5,7 +5,7 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images mpc mpc-dist aws aws-dist hcp
+.PHONY: docker-images
 
 ########## UTILITY TARGETS ##########
 
@@ -17,10 +17,15 @@ reap:
 
 clean-harder: clean reap
 
-all: images tag terraform
+all: images tag
 
 print-version:
 	@ ${GIT_ROOT}/make/print-version
+
+########## TOOL DOWNLOAD TARGETS ##########
+
+${FISSILE_BINARY}: bin/dev/install_tools.sh
+	bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########
 
@@ -36,11 +41,13 @@ stop:
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
 
+docker-deps:
+	${GIT_ROOT}/make/docker-deps
+
 vagrant-prep: \
-	compile-base \
+	docker-deps \
 	releases \
 	compile \
-	image-base \
 	images \
 	${NULL}
 
@@ -49,11 +56,8 @@ registry:
 
 ########## BOSH RELEASE TARGETS ##########
 
-cf-release:
-	${GIT_ROOT}/make/bosh-release src/cf-release
-
-usb-release:
-	${GIT_ROOT}/make/bosh-release src/cf-usb/cf-usb-release
+uaa-release:
+	${GIT_ROOT}/make/bosh-release src/uaa-release
 
 diego-release:
 	${GIT_ROOT}/make/bosh-release src/diego-release
@@ -76,44 +80,70 @@ routing-release:
 hcf-release:
 	${GIT_ROOT}/make/bosh-release src/hcf-release
 
-hcf-sso-release:
-	${GIT_ROOT}/make/bosh-release src/hcf-sso/hcf-sso-release
+capi-release:
+	${GIT_ROOT}/make/bosh-release src/capi-release
 
-hcf-versions-release:
-	${GIT_ROOT}/make/bosh-release src/hcf-versions/hcf-versions-release
+grootfs-release:
+	${GIT_ROOT}/make/bosh-release src/grootfs-release
 
-windows-runtime-release:
-	${GIT_ROOT}/make/bosh-release src/windows-runtime-release windows-runtime-release
+loggregator-release:
+	${GIT_ROOT}/make/bosh-release src/loggregator
 
-open-autoscaler-release:
-	${GIT_ROOT}/make/bosh-release src/open-Autoscaler/bosh-release cf-open-autoscaler
+nats-release:
+	${GIT_ROOT}/make/bosh-release src/nats-release
 
-local-volume-release:
-	${GIT_ROOT}/make/bosh-release src/local-volume-release
+consul-release:
+	${GIT_ROOT}/make/bosh-release src/consul-release
 
-releases:
-	${MAKE} \
-		$(or ${MAKEFLAGS}, -j$(or ${J},1)) \
-		cf-release \
-		usb-release \
-		diego-release \
-		etcd-release \
-		garden-release \
-		mysql-release \
-		cflinuxfs2-rootfs-release \
-		routing-release \
-		hcf-release \
-		windows-runtime-release \
-		hcf-sso-release \
-		hcf-versions-release \
-		open-autoscaler-release \
-		local-volume-release \
-		${NULL}
+binary-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/binary-buildpack-release
+
+go-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/go-buildpack-release
+
+java-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/java-buildpack-release
+
+nodejs-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/nodejs-buildpack-release
+
+php-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/php-buildpack-release
+
+python-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/python-buildpack-release
+
+ruby-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/ruby-buildpack-release
+
+staticfile-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/staticfile-buildpack-release
+
+releases: \
+	diego-release \
+	etcd-release \
+	garden-release \
+	mysql-release \
+	cflinuxfs2-rootfs-release \
+	routing-release \
+	hcf-release \
+	capi-release \
+	uaa-release \
+	loggregator-release \
+	nats-release \
+	consul-release \
+	binary-buildpack-release \
+	go-buildpack-release \
+	java-buildpack-release \
+	nodejs-buildpack-release \
+	php-buildpack-release \
+	python-buildpack-release \
+	ruby-buildpack-release \
+	staticfile-buildpack-release \
+	grootfs-release \
+	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
-
-compile-base:
-	${GIT_ROOT}/make/compile-base
 
 # This is run from the Vagrantfile to copy in the existing compilation cache
 copy-compile-cache:
@@ -122,15 +152,12 @@ copy-compile-cache:
 clean-compile-cache:
 	${GIT_ROOT}/make/compile clean
 
-compile:
+compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
 images: bosh-images docker-images
 
-image-base:
-	${GIT_ROOT}/make/image-base
-
-bosh-images: validate
+bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
 docker-images: validate
@@ -141,7 +168,7 @@ build: compile images
 tag: bosh-tag docker-tag
 
 # This rule iterates over all bosh images, and tags them via the wildcard rule
-bosh-tag:
+bosh-tag: ${FISSILE_BINARY}
 	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-tag-${role})
 
 # This rule iterates over all docker images, and tags them via the wildcard rule
@@ -151,7 +178,7 @@ docker-tag:
 publish: bosh-publish docker-publish
 
 # This rule iterates over all bosh images, and publishes them via the wildcard rule
-bosh-publish:
+bosh-publish: ${FISSILE_BINARY}
 	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-publish-${role})
 
 # This rule iterates over all docker images, and publishes them via the wildcard rule
@@ -180,93 +207,27 @@ show-docker-setup:
 show-versions:
 	${GIT_ROOT}/make/show-versions
 
+########## KUBERNETES TARGETS ##########
+kube:
+	${GIT_ROOT}/make/kube
+.PHONY: kube
+
+hyperkube:
+	${GIT_ROOT}/make/hyperkube
+.PHONY: hyperkube
+
 ########## CONFIGURATION TARGETS ##########
 
 generate: \
-	hcp \
-	hcp-instance-basic-dev \
-	hcp-instance-ha-dev \
-	mpc \
-	aws \
-	aws-spot \
-	aws-proxy \
-	aws-spot-proxy \
+	kube \
 	${NULL}
-
-hcp:
-	${GIT_ROOT}/make/generate hcp
-
-hcp-instance-basic-dev:
-	${GIT_ROOT}/make/generate instance-basic-dev
-
-hcp-instance-ha-dev:
-	${GIT_ROOT}/make/generate instance-ha-dev
-
-mpc:
-	${GIT_ROOT}/make/generate mpc
-
-aws:
-	${GIT_ROOT}/make/generate aws
-
-aws-proxy:
-	${GIT_ROOT}/make/generate aws-proxy
-
-aws-spot:
-	${GIT_ROOT}/make/generate aws-spot
-
-aws-spot-proxy:
-	${GIT_ROOT}/make/generate aws-spot-proxy
 
 ########## DISTRIBUTION TARGETS ##########
 
 dist: \
-	hcp-dist \
-	mpc-dist \
-	aws-dist \
-	aws-spot-dist \
-	aws-proxy-dist \
-	aws-spot-proxy-dist \
+	kube-dist \
 	${NULL}
 
-hcp-dist: hcp hcp-instance-basic-dev hcp-instance-ha-dev
-	${GIT_ROOT}/make/package-hcp
-
-mpc-dist: mpc
-	${GIT_ROOT}/make/package-terraform mpc
-	rm *.tf *.tf.json
-
-aws-dist: aws
-	${GIT_ROOT}/make/package-terraform aws
-	rm *.tf *.tf.json
-
-aws-spot-dist: aws-spot
-	${GIT_ROOT}/make/package-terraform aws-spot
-	rm *.tf *.tf.json
-
-aws-proxy-dist: aws-proxy
-	${GIT_ROOT}/make/package-terraform aws-proxy
-	rm *.tf *.tf.json
-
-aws-spot-proxy-dist: aws-spot-proxy
-	${GIT_ROOT}/make/package-terraform aws-spot-proxy
-	rm *.tf *.tf.json
-
-mpc-terraform-tests:
-	${GIT_ROOT}/make/terraform-tests mpc ${OS_SSH_KEY_PATH}
-
-aws-terraform-tests:
-	${GIT_ROOT}/make/terraform-tests aws ${AWS_PUBLIC_KEY_PATH} ${AWS_PRIVATE_KEY_PATH}
-
-########## HCF-PIPELINE-RUBY-BOSH DOCKER IMAGE TARGETS ##########
-
-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh build tag push --version 2.3.1
-
-build-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --build
-
-tag-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --tag --version 2.3.1
-
-push-hcf-pipeline-ruby-bosh:
-	${GIT_ROOT}/make/pipeline-ruby-bosh --push --version 2.3.1
+kube-dist: kube
+	${GIT_ROOT}/make/package-kube
+	rm -rf kube
