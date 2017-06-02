@@ -1502,15 +1502,15 @@ configuration:
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
-    default: 4.1.1
+    default: 1.0.0
     description: "'build' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_DESCRIPTION
-    default: HPE Helion Cloud Foundry
+    default: SUSE Cloud Foundry
     description: "'description' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_NAME
-    default: HCF
+    default: SCF
     description: "'name' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_VERSION
@@ -2017,7 +2017,7 @@ configuration:
     description: The password for access to the uploader of staged droplets.
     required: true
   - name: SUPPORT_ADDRESS
-    default: stackato-support@hpe.com
+    default: support@example.com
     description: Support contact information for the cluster
     required: true
   - name: SYSLOGDRAINBINDER_CERT

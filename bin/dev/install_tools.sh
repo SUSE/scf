@@ -14,7 +14,7 @@ tools_dir="${tools_dir:-output/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
 fissile_url="${fissile_url:-${minio}/${thefissile}.linux-amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
-stampy_url="${stampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B7.g4d305fa.master-linux.amd64.tgz}"
+stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/0.0.0/stampy-0.0.0.22.gbb93bf3.linux-amd64.tgz}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v1.5.4/bin/linux/amd64/kubectl}"
 k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v0.0.1/kctl-linux-amd64}"
 

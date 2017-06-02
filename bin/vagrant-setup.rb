@@ -18,35 +18,29 @@ def main
   # --provider <name> ~ Choose the output format.
   #                     Known: vagrant
   #                     Default: vagrant
-  # --dtr             ~ Location of trusted docker registry
-  #                     (Default: empty)
-  # --dtr-org         ~ Org to use for images stored to the DTR
-  #                     (Default: splatform)
-  # --hcf-tag         ~ And tag to use for the same
+  # --scf-tag         ~ And tag to use for the same
   #                     (Default: develop)
-  # --hcf-prefix      ~ The prefix used during image generation
-  #                     (Default: hcf)
+  # --scf-prefix      ~ The prefix used during image generation
+  #                     (Default: scf)
   #                     Used to construct the image names to look for.
-  # --hcf-version     ~ Version of the service.
+  # --scf-version     ~ Version of the service.
   #                     (Default: 0.0.0)
   ##
   # The generated definitions are written to stdout
 
   provider = 'vagrant'
   options = {
-    dtr:         'docker.helion.lol',
-    dtr_org:     'splatform',
-    hcf_tag:     'develop',
-    hcf_prefix:  'hcf',
-    hcf_version: '0.0.0',
-    hcf_root_dir: nil,
+    scf_tag:     'develop',
+    scf_prefix:  'scf',
+    scf_version: '0.0.0',
+    scf_root_dir: nil,
     manual:      false,
     propmap:     nil,
     rm_origin:   nil
   }
 
   op = OptionParser.new do |opts|
-    opts.banner = 'Usage: vagrant-setup [--manual] [--hcf-root-dir PATH] [--hcf-version TEXT] [--dtr NAME] [--dtr-org TEXT] [--hcf-tag TEXT] [--provider vagrant] role-manifest|-
+    opts.banner = 'Usage: vagrant-setup [--manual] [--scf-root-dir PATH] [--scf-version TEXT] [--scf-tag TEXT] [--provider vagrant] role-manifest|-
 
     Read the role-manifest from the specified file, or stdin (-),
     then transform according to the chosen provider (Default: vagrant)
@@ -54,28 +48,17 @@ def main
 
 '
 
-    opts.on('-D', '--dtr location', 'Registry to get docker images from') do |v|
-      # The dtr location is canonicalized to have no trailing "/".
-      # If a trailing "/" should be needed by an output it is the provider's
-      # responsibility to add it.
-      v.chomp!("/")
-
-      options[:dtr] = v
+    opts.on('-H', '--scf-tag text', 'Tag to use for docker images') do |v|
+      options[:scf_tag] = v
     end
-    opts.on('-O', '--dtr-org text', 'Organization for docker images') do |v|
-      options[:dtr_org] = v
+    opts.on('-P', '--scf-prefix text', 'Prefix to use in docker images') do |v|
+      options[:scf_prefix] = v
     end
-    opts.on('-H', '--hcf-tag text', 'Tag to use for docker images') do |v|
-      options[:hcf_tag] = v
+    opts.on('-V', '--scf-version text', 'Version to use for the service') do |v|
+      options[:scf_version] = v
     end
-    opts.on('-P', '--hcf-prefix text', 'Prefix to use in docker images') do |v|
-      options[:hcf_prefix] = v
-    end
-    opts.on('-V', '--hcf-version text', 'Version to use for the service') do |v|
-      options[:hcf_version] = v
-    end
-    opts.on('-T', '--hcf-root-dir text', 'Absolute path of the HCF sources main directory') do |v|
-      options[:hcf_root_dir] = v
+    opts.on('-T', '--scf-root-dir text', 'Absolute path of the scf sources main directory') do |v|
+      options[:scf_root_dir] = v
     end
     opts.on('-m', '--manual', 'Include manually started roles in the output') do |v|
       options[:manual] = v
