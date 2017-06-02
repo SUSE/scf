@@ -8,7 +8,7 @@ minio="https://minio.from-the.cloud:9000/fissile"
 # Tool versions
 thefissile="$(echo "fissile-5.0.0+40.g395df0b" | sed -e 's/+/%2B/')"
 
-# Installs tools needed to build a`nd run HCF
+# Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
 tools_dir="${tools_dir:-output/tools}"
 ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
