@@ -8,6 +8,12 @@
     </mode>
   </general>
 
+  <bootloader>
+    <global>
+      <append>cgroup_enable=memory swapaccount=1</append>
+    </global>
+  </bootloader>
+
   <firewall>
     <enable_firewall config:type="boolean">false</enable_firewall>
     <start_firewall config:type="boolean">false</start_firewall>

@@ -54,8 +54,10 @@ update-ca-certificates
 # Turn on host path volume provisioning
 perl -p -i -e 's@^(KUBE_CONTROLLER_MANAGER_ARGS=)"(.*)"@\1"\2 --enable-hostpath-provisioner --root-ca-file=/etc/kubernetes/ca/ca.pem"@' /etc/kubernetes/controller-manager
 
-# Fix the DNS
+# Tell kubelet to use kubedns for DNS, and give it a cluster domain (we don't care which) to have useful /etc/resolv.conf
 perl -p -i -e 's@^(KUBELET_ARGS=)"(.*)"@\1"\2 --cluster-dns=10.254.0.254 --cluster-domain=cluster.local"@' /etc/kubernetes/kubelet
+
+# Pin kubedns to the IP address we gave to kubelet, and give it more RAM so it doesn't fall over repeatedly
 perl -p -i -e '
         s@clusterIP:.*@clusterIP: 10.254.0.254@ ;
         s@170Mi@256Mi@ ;

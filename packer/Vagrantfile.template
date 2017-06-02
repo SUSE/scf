@@ -39,26 +39,24 @@ Vagrant.configure('2') do |config|
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
     set -o errexit -o xtrace
     parted --script /dev/sdb mklabel gpt
-    parted --script /dev/sdb mkpart kubelet-data btrfs 0% 100%
+    parted --script /dev/sdb mkpart kubelet-data ext4 0% 100%
     echo "Waiting for new partition to show up..."
     while ! test -e /dev/sdb1 ; do
       partprobe /dev/sdb
       sleep 1
     done
-    mkfs.btrfs /dev/sdb1
+    mkfs.ext4 /dev/sdb1
     eval $(blkid -s UUID -o export /dev/sdb1)
     mount /dev/sdb1 /mnt
-    btrfs subvolume create /mnt/docker
-    btrfs subvolume create /mnt/kubelet
-    btrfs subvolume create /mnt/hostpath
-    btrfs subvolume create /mnt/fissile
+    mkdir /mnt/{docker,kubelet,hostpath,fissile}
     chown kube:kube /mnt/hostpath
     chown vagrant:users /mnt/fissile
     umount /mnt
-    echo "UUID=${UUID} /var/lib/docker btrfs subvol=docker 0 0" >> /etc/fstab
-    echo "UUID=${UUID} /var/lib/kubelet btrfs subvol=kubelet 0 0" >> /etc/fstab
-    echo "UUID=${UUID} /tmp/hostpath_pv btrfs subvol=hostpath 0 0" >> /etc/fstab
-    echo "UUID=${UUID} /home/vagrant/.fissile btrfs subvol=fissile 0 0" >> /etc/fstab
+    echo "UUID=${UUID}  /mnt                   ext4 defaults 0 0" >> /etc/fstab
+    echo "/mnt/docker   /var/lib/docker        none bind     0 0" >> /etc/fstab
+    echo "/mnt/kubelet  /var/lib/kubelet       none bind     0 0" >> /etc/fstab
+    echo "/mnt/hostpath /tmp/hostpath_pv       none bind     0 0" >> /etc/fstab
+    echo "/mnt/fissile  /home/vagrant/.fissile none bind     0 0" >> /etc/fstab
     mkdir -p /var/lib/kubelet
     mkdir -p /tmp/hostpath_pv
     mkdir -p /home/vagrant/.fissile

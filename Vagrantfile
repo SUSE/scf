@@ -18,7 +18,7 @@ Vagrant.configure(2) do |config|
   # config.vm.network "forwarded_port", guest: 4443, host: 4443
   # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
-  vm_memory = ENV.fetch('VM_MEMORY', 14 * 1024).to_i
+  vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
   # Create a private network, which allows host-only access to the machine
@@ -34,6 +34,7 @@ Vagrant.configure(2) do |config|
     vb.cpus = vm_cpus
     # If you need to debug stuff
     # vb.gui = true
+    vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     # https://github.com/mitchellh/vagrant/issues/351
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
