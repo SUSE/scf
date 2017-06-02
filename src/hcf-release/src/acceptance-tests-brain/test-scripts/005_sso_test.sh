@@ -56,12 +56,11 @@ trap test_cleanup EXIT ERR
 
 # Push a docker app to redirect
 cf enable-feature-flag diego_docker
+
 cf push ${DOCKERAPP} -o "${TESTBRAIN_DOCKER_REGISTRY:+${TESTBRAIN_DOCKER_REGISTRY%/}/}viovanov/node-env-tiny"
 
 cf create-service sso-routing default ${DOCKERSERVICE}
 cf bind-route-service ${CF_DOMAIN} ${DOCKERSERVICE} --hostname ${DOCKERAPP}
-
-cf restage ${DOCKERAPP} | tee ${TMP}/log
 
 # Check if the redirect works
 url=$(grep urls ${TMP}/log | cut -f 2- -d " " | head -n 1)
@@ -81,11 +80,10 @@ curl -b ${cookies} -c ${cookies} -L -v ${login} \
     > ${TMP}/sso.url \
     2>&1
 
-cookie="$(grep "Cookie: ssoCookie" ${TMP}/sso.url)"
-httpcode="$(grep "200 OK" ${TMP}/sso.url)"
+# # ## ### ##### ######## show entire curl to ease diagnosis in case of trouble
+cat ${TMP}/sso.url | sed -e 's/^/XXX SSO /'
+# # ## ### ##### ########
 
-if [ -z "${cookie}" -o -z "${httpcode}" ];
-then
-  echo "ERROR: SSO redirect failed"
-  exit 1
-fi
+# Failure to find the expected patterns aborts due to 'set -o errexit'
+grep "Cookie: ssoCookie" ${TMP}/sso.url
+grep "200 OK" ${TMP}/sso.url
