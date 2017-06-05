@@ -165,11 +165,7 @@ docker-images: validate
 
 build: compile images
 
-tag: bosh-tag docker-tag
-
-# This rule iterates over all bosh images, and tags them via the wildcard rule
-bosh-tag: ${FISSILE_BINARY}
-	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-tag-${role})
+tag: docker-tag
 
 # This rule iterates over all docker images, and tags them via the wildcard rule
 docker-tag:
@@ -177,25 +173,16 @@ docker-tag:
 
 publish: bosh-publish docker-publish
 
-# This rule iterates over all bosh images, and publishes them via the wildcard rule
 bosh-publish: ${FISSILE_BINARY}
-	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images bosh print),bosh-publish-${role})
+	make/bosh-publish
 
 # This rule iterates over all docker images, and publishes them via the wildcard rule
 docker-publish:
 	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images docker print),docker-publish-${role})
 
-# This wildcard rule tags one single bosh image
-bosh-tag-%:
-	make/images bosh tag $(@:bosh-tag-%=%)
-
 # This wildcard rule tags one single docker image
 docker-tag-%:
 	make/images docker tag $(@:docker-tag-%=%)
-
-# This wildcard rule publishes one single bosh image
-bosh-publish-%:
-	make/images bosh publish $(@:bosh-publish-%=%)
 
 # This wildcard rule publishes one single docker image
 docker-publish-%:
