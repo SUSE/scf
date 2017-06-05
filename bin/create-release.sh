@@ -15,7 +15,7 @@ fi
 release_path="$1"
 release_name="$2"
 
-stampy "${ROOT}/hcf_metrics.csv" "${BASH_SOURCE[0]}" "create-release::${release_name}" start
+stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" "create-release::${release_name}" start
 
 mkdir -p "${FISSILE_CACHE_DIR}"
 
@@ -116,4 +116,4 @@ docker run \
     /usr/local/bin/create-release.sh \
         "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done
+stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done

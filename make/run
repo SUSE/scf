@@ -4,15 +4,15 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run start
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json start
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run start
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run::vagrant.json start
 ${GIT_ROOT}/make/vagrant-setup-env
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json done
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run::vagrant.json done
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::do start
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run::do start
 ${GIT_ROOT}/bin/run.sh
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::do done
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run::do done
 
 rm ${GIT_ROOT}/vagrant.json
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run done
+stampy ${GIT_ROOT}/scf_metrics.csv $0 make-run done

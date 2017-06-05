@@ -12,8 +12,8 @@ fi
 
 BINDIR=`readlink -f "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/"`
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall start
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::setup start
+stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall start
+stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::setup start
 
 . "${BINDIR}/common.sh"
 
@@ -27,7 +27,7 @@ if [[ -z "${setup_dir}" ]] ; then
     exit 1
 fi
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::setup done
+stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::setup done
 
 # Start pre-flight roles
 echo -e "${txtgrn}Starting pre-flight roles...${txtrst}"
@@ -37,9 +37,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage pre-flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 # Start flight roles
@@ -50,9 +50,9 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh-task for stage flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 # Start post-flight roles
@@ -63,11 +63,11 @@ do
     then
         echo "${bldred}Role ${role} has invalid type bosh for stage post-flight"
     fi
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} start
     . ${BINDIR}/run-role.sh "${setup_dir}" "$role"
-    stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
+    stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall::${role} done
 done
 
 rm -f $CLEAN
 
-stampy ${ROOT}/hcf_metrics.csv "${BASH_SOURCE[0]}" runall done
+stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" runall done

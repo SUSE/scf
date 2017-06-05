@@ -1,6 +1,6 @@
 # Display Cloud Foundry environment
 
-A simple Go application to display the Stackato environment of the
+A simple Go application to display the environment of the
 instance the app is running on.
 
 # Deploy to Cloud Foundry

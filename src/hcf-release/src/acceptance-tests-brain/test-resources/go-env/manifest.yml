@@ -1,12 +1,5 @@
 applications:
-- name: go-env
-  buildpack: https://github.com/cloudfoundry/go-buildpack#v1.7.0
+- name: goenv
   memory: 32M
-  disk_quota: 100M
-  stackato:
-    env:
-      GOVERSION:
-        default: 1.4.3
-    ignores:
-    - .git
-    - bin
+  env:
+    GOVERSION: go1.7

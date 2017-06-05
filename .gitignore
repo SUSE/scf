@@ -14,9 +14,7 @@ password
 .bash_history
 *.box
 *.vmdk
-/hcf_metrics.csv
-/hcf-hcp.json
-/hcf-hcp-instance.json
+/scf_metrics.csv
 /vagrant.json
 .demos
 src/*-clone
@@ -25,13 +23,6 @@ src/buildpacks/*-clone
 /*.tf.json
 
 # `make dist` output of various forms
-/aws-hcf-*.zip
-/aws-proxy-hcf-*.zip
-/aws-spot-hcf-*.zip
-/aws-spot-proxy-hcf-*.zip
-/hcp-ha-hcf-*.zip
-/hcp-hcf-*.zip
-/mpc-hcf-*.zip
 output/
 /kube/bosh/
 /kube/bosh-task/

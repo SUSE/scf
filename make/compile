@@ -44,7 +44,7 @@ restore() {
     mkdir -p "${FISSILE_WORK_DIR}/compilation/"
     mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
 
-    stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore start
+    stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore start
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
@@ -63,16 +63,16 @@ restore() {
         echo "Extracting ${archive}"
         mkdir -p "${FISSILE_WORK_DIR}/compilation/${package_hash}"
 
-        stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) start
+        stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) start
         rm -rf "${FISSILE_WORK_DIR}/compilation/${package_hash}/compiled"
-        stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) done
+        stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) done
 
-        stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) start
+        stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) start
         tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}"
-        stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) done
+        stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) done
     done
 
-    stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-compile::restore done
+    stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore done
 
     echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
 }
