@@ -124,11 +124,13 @@
 
     <packages config:type="list">
       <package>dmidecode</package>
+      <package>jq</package>
       <package>make</package>
       <package>open-vm-tools</package>
       <package>openssh</package>
       <package>virtualbox-guest-kmp-default</package>
       <package>virtualbox-guest-tools</package>
+      <package>xfsprogs</package>
     </packages>
   </software>
 
@@ -237,6 +239,18 @@
       <file_owner>vagrant.users</file_owner>
       <file_permissions>0644</file_permissions>
       <file_contents>DOCKER_OPTS="--insecure-registry=0.0.0.0/0"</file_contents>
+    </file>
+    <file>
+      <file_path>/etc/security/limits.d/vagrant-nproc.conf</file_path>
+      <file_owner>root.root</file_owner>
+      <file_permissions>644</file_permissions>
+      <file_contents><![CDATA[
+# This overrides /etc/security/limits.conf to allow more processes for the
+# vagrant user (which is where all our processes go)
+
+vagrant hard nproc unlimited
+vagrant soft nproc unlimited
+      ]]></file_contents>
     </file>
   </files>
 </profile>
