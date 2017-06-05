@@ -6,6 +6,9 @@ set -o errexit -o xtrace
 
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
+# Having a newer kernel seems to mitigate issues with crashing
+zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
+    obs://Kernel:stable/standard Kernel:stable
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
@@ -17,8 +20,9 @@ zypper --non-interactive install --no-confirm --from Virtualization:containers \
     kubernetes-node \
     kubernetes-addons-kubedns \
     kubernetes-node-cni \
-    kubernetes-node-image-pause \
-    jq # not kubernetes, but really useful
+    kubernetes-node-image-pause
+zypper --non-interactive install --no-confirm --from Kernel:stable \
+    kernel-default
 
 systemctl enable etcd.service
 systemctl enable kube-apiserver.service
@@ -55,7 +59,7 @@ update-ca-certificates
 perl -p -i -e 's@^(KUBE_CONTROLLER_MANAGER_ARGS=)"(.*)"@\1"\2 --enable-hostpath-provisioner --root-ca-file=/etc/kubernetes/ca/ca.pem"@' /etc/kubernetes/controller-manager
 
 # Tell kubelet to use kubedns for DNS, and give it a cluster domain (we don't care which) to have useful /etc/resolv.conf
-perl -p -i -e 's@^(KUBELET_ARGS=)"(.*)"@\1"\2 --cluster-dns=10.254.0.254 --cluster-domain=cluster.local"@' /etc/kubernetes/kubelet
+perl -p -i -e 's@^(KUBELET_ARGS=)"(.*)"@\1"\2 --cluster-dns=10.254.0.254 --cluster-domain=cluster.local --cgroups-per-qos=false --enforce-node-allocatable='"''"'"@' /etc/kubernetes/kubelet
 
 # Pin kubedns to the IP address we gave to kubelet, and give it more RAM so it doesn't fall over repeatedly
 perl -p -i -e '
