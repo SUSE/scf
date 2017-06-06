@@ -74,6 +74,9 @@ mysql-release:
 cflinuxfs2-rootfs-release:
 	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
 
+cf-opensuse42-release:
+	${GIT_ROOT}/make/bosh-release src/cf-opensuse42-release
+
 routing-release:
 	${GIT_ROOT}/make/bosh-release src/routing-release
 
@@ -125,6 +128,7 @@ releases: \
 	garden-release \
 	mysql-release \
 	cflinuxfs2-rootfs-release \
+	cf-opensuse42-release \
 	routing-release \
 	hcf-release \
 	capi-release \
