@@ -44,7 +44,7 @@ mkdir /run/certstrap
 docker run --rm -v /run/certstrap:/out:rw golang:1.7 /usr/bin/env GOBIN=/out go get github.com/square/certstrap
 export PATH=$PATH:/run/certstrap
 certstrap --depot-path "/run/certstrap" init --common-name "CA.kube.vagrant" --passphrase "" --years 10
-certstrap --depot-path "/run/certstrap" request-cert --common-name "apiserver" --passphrase "" --ip 127.0.0.1,192.168.88.88,172.17.0.1,10.254.0.1 --domain kubernetes.default.svc,kubernetes.default,kubernetes,localhost
+certstrap --depot-path "/run/certstrap" request-cert --common-name "apiserver" --passphrase "" --ip 127.0.0.1,192.168.77.77,172.17.0.1,10.254.0.1 --domain kubernetes.default.svc,kubernetes.default,kubernetes,localhost
 certstrap --depot-path "/run/certstrap" sign "apiserver" --CA "CA.kube.vagrant" --passphrase ""
 certstrap --depot-path "/run/certstrap" request-cert --common-name "kubelet" --passphrase "" --ip 127.0.0.1
 certstrap --depot-path "/run/certstrap" sign "kubelet" --CA "CA.kube.vagrant" --passphrase ""
