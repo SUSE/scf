@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. "${GIT_ROOT}/make/include/registry"
+. "${GIT_ROOT}/src/uaa-fissile-release/.envrc"
+
+IMAGE_REGISTRY="${IMAGE_REGISTRY}" IMAGE_ORG="${IMAGE_ORG}" IMAGE_PREFIX="${IMAGE_PREFIX}" make -C "${GIT_ROOT}/src/uaa-fissile-release" publish

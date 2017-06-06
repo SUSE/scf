@@ -5,8 +5,6 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images
-
 ########## UTILITY TARGETS ##########
 
 clean:
@@ -156,17 +154,23 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images
+images: bosh-images uaa-images
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
+uaa-images: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-images
+
 build: compile images
 
-publish: bosh-publish docker-publish
+publish: bosh-publish docker-publish uaa-publish
 
 bosh-publish: ${FISSILE_BINARY}
 	make/bosh-publish
+
+uaa-publish: ${FISSILE_BINARY}
+	make/uaa-publish
 
 show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
