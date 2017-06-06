@@ -130,6 +130,11 @@
         },
         {
             "type": "file",
+            "source": "http/kubelet-vagrant-overrides.env",
+            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.env"
+        },
+        {
+            "type": "file",
             "source": "http/docker.conf",
             "destination": "/etc/sysconfig/docker"
         },
