@@ -13,9 +13,6 @@
 [submodule "src/routing-release"]
 	path = src/routing-release
 	url = https://github.com/cloudfoundry-incubator/routing-release.git
-[submodule "src/hcf-release/src/github.com/hpcloud/testbrain"]
-	path = src/hcf-release/src/github.com/hpcloud/testbrain
-    url = git@github.com:hpcloud/testbrain.git
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
@@ -73,3 +70,6 @@
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
 	url = https://github.com/SUSE/cf-opensuse42-release.git
+[submodule "src/hcf-release/src/github.com/suse/testbrain"]
+	path = src/hcf-release/src/github.com/suse/testbrain
+	url = git@github.com:suse/testbrain.git
