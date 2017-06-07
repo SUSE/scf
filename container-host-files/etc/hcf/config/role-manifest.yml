@@ -1760,7 +1760,7 @@ configuration:
   - name: HCP_COMPONENT_NAME
     type: environment
   - name: HCP_IDENTITY_EXTERNAL_PORT
-    type: environment
+    default: 2793
   - name: HCP_INSTANCE_ID
     type: environment
   - name: HCP_SERVICE_DOMAIN_SUFFIX
