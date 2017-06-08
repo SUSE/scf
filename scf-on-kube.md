@@ -56,7 +56,7 @@ cp ~/hcf/bin/settings/certs.env ./env/
 ```
 
 ```bash
-cd ~/hcf/.demo/uaa-fissile-release
+cd [UAA FISSILE RELEASE DIR]
 make releases images kube-configs
 ```
 

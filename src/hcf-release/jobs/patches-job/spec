@@ -15,19 +15,13 @@ properties:
   etcd.bootstrap_node:
     description: "Used to patch etcd server bootstrap"
 
-  # These two are here because autoscaler_api uses them but doesn't define them in its spec
-  autoscaler_server.internal_auth.username:
-    description: the autoscaler-server's username
-
-  autoscaler_server.internal_auth.password:
-    description: the autoscaler-server's password
-
   diego.rep.cell_id:
     description: "Name of the diego cell"
 
   routing_api.uri:
     description: "URL where the routing API can be reached internally"
     default: http://routing-api.service.cf.internal
+
   routing_api.port:
     description: "Port on which Routing API is running."
     default: 3000

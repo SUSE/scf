@@ -10,7 +10,10 @@ ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
 
 # TODO: We currently skip memory limits for development purposes
 
+. "${GIT_ROOT}/make/include/registry"
+
+
 fissile build kube \
     --kube-output-dir="${GIT_ROOT}/kube" \
     --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
-    --use-memory-limits=false
+    --use-memory-limits=false --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" --repository "${IMAGE_PREFIX}"  
