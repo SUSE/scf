@@ -534,6 +534,7 @@ roles:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
+  - scripts/patches/cloud_controller_migration_transactional.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
