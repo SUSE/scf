@@ -593,6 +593,8 @@ roles:
       internal: 8125
       public: false
     healthcheck:
+      liveness:
+        timeout: 3000 # pre-start migration can take forever
       url: http://container-ip:9022/v2/info
   configuration:
     templates:
