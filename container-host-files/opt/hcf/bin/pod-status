@@ -1,0 +1,21 @@
+#!/bin/bash
+if test -n "${1:-}" ; then
+    exec watch -c "${0}"
+else
+    kubectl get pods --all-namespaces | gawk -f <(cat <<"EOF"
+    {   
+        if (match($3, /^([0-9]+)\/([0-9]+)$/, capture)) {
+            if (capture[1] == capture[2]) {
+                $3 = "\033[0;32m" $3 "\033[0m"
+            } else {
+                $3 = "\033[0;31m" $3 "\033[0m"
+            }
+        } else {
+            $3 = "\033[0;37m" $3 "\033[0m"
+        }
+        print
+    }
+EOF
+    ) | column -t
+fi
+

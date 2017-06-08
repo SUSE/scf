@@ -29,7 +29,7 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########
 
-run:
+run: kube/bosh-task/post-deployment-setup.yml
 	${GIT_ROOT}/make/run
 
 validate:
@@ -196,7 +196,7 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube:
+kube kube/bosh-task/post-deployment-setup.yml:
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 

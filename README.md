@@ -146,7 +146,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
 Name      | Effect |
 --------------- | ---- |
-`run`      | Set up HCF on the current node (`bin/run.sh`) |
+`run`      | Set up HCF on the current node |
 `stop`      | Stop HCF on the current node |
 `vagrant-box`  | Build the Vagrant box image using `packer` |
 `vagrant-prep`  | Shortcut for building everything needed for `make run` |
