@@ -12,10 +12,7 @@ run:
 clean:
 	${GIT_ROOT}/make/clean
 
-reap:
-	${GIT_ROOT}/make/reap
-
-clean-harder: clean reap
+clean-harder: clean
 
 all: images tag
 
@@ -166,28 +163,10 @@ bosh-images: validate ${FISSILE_BINARY}
 
 build: compile images
 
-tag: docker-tag
-
-# This rule iterates over all docker images, and tags them via the wildcard rule
-docker-tag:
-	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images docker print),docker-tag-${role})
-
 publish: bosh-publish docker-publish
 
 bosh-publish: ${FISSILE_BINARY}
 	make/bosh-publish
-
-# This rule iterates over all docker images, and publishes them via the wildcard rule
-docker-publish:
-	${MAKE} $(foreach role,$(shell ${GIT_ROOT}/make/images docker print),docker-publish-${role})
-
-# This wildcard rule tags one single docker image
-docker-tag-%:
-	make/images docker tag $(@:docker-tag-%=%)
-
-# This wildcard rule publishes one single docker image
-docker-publish-%:
-	make/images docker publish $(@:docker-publish-%=%)
 
 show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
@@ -199,10 +178,6 @@ show-versions:
 kube kube/bosh-task/post-deployment-setup.yml:
 	${GIT_ROOT}/make/kube
 .PHONY: kube
-
-hyperkube:
-	${GIT_ROOT}/make/hyperkube
-.PHONY: hyperkube
 
 ########## CONFIGURATION TARGETS ##########
 

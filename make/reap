@@ -1,3 +1,0 @@
-#!/bin/sh
-
-docker ps --all --quiet --filter name=fissile- | xargs --no-run-if-empty docker rm --force
