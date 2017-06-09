@@ -3,16 +3,32 @@
 set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+NAMESPACE="cf"
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run start
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json start
-${GIT_ROOT}/make/vagrant-setup-env
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::vagrant.json done
+has_namespace() {
+    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
+}
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::do start
-${GIT_ROOT}/bin/run.sh
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run::do done
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run start
 
-rm ${GIT_ROOT}/vagrant.json
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::namespace start
+if has_namespace ; then
+    kubectl delete namespace "${NAMESPACE}"
+fi
 
-stampy ${GIT_ROOT}/hcf_metrics.csv $0 make-run done
+printf "Waiting for namespace %s to be deleted...\n" "${NAMESPACE}"
+while has_namespace ; do
+    sleep 1
+done
+
+kubectl create namespace "${NAMESPACE}"
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::namespace end
+
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::create start
+
+kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh"
+kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/post-deployment-setup.yml"
+
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::create end
+
+stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run 'done'

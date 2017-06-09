@@ -146,7 +146,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
 Name      | Effect |
 --------------- | ---- |
-`run`      | Set up HCF on the current node (`bin/run.sh`) |
+`run`      | Set up HCF on the current node |
 `stop`      | Stop HCF on the current node |
 `vagrant-box`  | Build the Vagrant box image using `packer` |
 `vagrant-prep`  | Shortcut for building everything needed for `make run` |
@@ -244,7 +244,7 @@ Name    | Effect | Notes |
 
 ### How do I run smoke and acceptance tests?
 
-  On the Vagrant box, when `hcf-status` reports all roles are running, enable `diego_docker` support with
+  On the Vagrant box, when `pod-status` reports all roles are running, enable `diego_docker` support with
 
   ```bash
   cf enable-feature-flag diego_docker
@@ -253,46 +253,27 @@ Name    | Effect | Notes |
   and execute the following commands:
 
   ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ smoke-tests
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-flight-recorder
+  kubectl create -n cf -f kube/bosh-task/smoke-tests.yml
+  kubectl create -n cf -f kube/bosh-task/acceptance-tests-brain.yml
+  kubectl create -n cf -f kube/bosh-task/acceptance-tests.yml
   ```
 
 
 #### How do I run a subset of HCF acceptance tests?
 
-  Use the following command to specify additional include/exclude patterns for test filenames:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env INCLUDE=pattern --env EXCLUDE=pattern
-  ```
+  Deploy `acceptance-tests-brain` as above, but first modify the environment to include `INCLUDE=pattern` or
+  `EXCLUDE=pattern`.  For example to run just `005_sso_test.sh` and `014_sso_authenticated_passthrough_test.sh`, you
+  could add `INCLUDE` with a value of `sso`.
 
-  For example to run just `005_sso_test.sh` and `014_sso_authenticated_passthrough_test.sh`:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env INCLUDE=sso
-  ```
-
-  It is also possible to run custom tests by mounting them at the `/tests` mountpoint inside the container.
-  The mounted tests will be combined with the bundled tests. To exclude the bundled tests match against
-  names starting with 3 digits followed by an underscore:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env 'EXCLUDE=\b\d{3}_' -v /tmp/tests:/tests
-  ```
-
-  Or explicitly select only the mounted tests with:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests-brain --env 'INCLUDE=^/tests/' -v /tmp/tests:/tests
-  ```
+  It is also possible to run custom tests by mounting them at the `/tests` mountpoint inside the container.  The
+  mounted tests will be combined with the bundled tests. However, to do so you will need to manually run it via docker.
+  To exclude the bundled tests match against names starting with 3 digits followed by an underscore (as in,
+  `EXCLUDE=\b\d{3}_`) or explicitly select only the mounted tests with `INCLUDE=^/tests/`.
 
 #### How do I run a subset of Cloud Foundry acceptance tests?
 
-  Use the following command to specify the changes to the test suites to run:
-  ```bash
-  run-role.sh /home/vagrant/hcf/bin/settings/ acceptance-tests --env CATS_SUITES=-suite,+suite
-  ```
-
-  Each suite is separated by a comma.  The modifiers apply until the next
-  modifier is seen, and have the following meanings:
+  Deploy `acceptance-tests` after modifying the environment block to include `CATS_SUITES=-suite,+suite`.  Each suite is
+  separated by a comma.  The modifiers apply until the next modifier is seen, and have the following meanings:
 
   Modifier | Meaning
   --- | ---

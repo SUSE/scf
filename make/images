@@ -7,24 +7,13 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 . ${GIT_ROOT}/make/include/registry
 . ${GIT_ROOT}/make/include/versioning
 
-TARGET=${1}
-ACTION=${2}
-ROLES=${3:-}
+ACTION=${1}
+ROLES=${2:-}
 
-case ${TARGET} in
-    docker)
-        if test -z "${ROLES}" ; then
-            ROLES=$(${GIT_ROOT}/container-host-files/opt/hcf/bin/list-docker-roles.sh)
-        fi
-        PREFIX=''
-        ;;
-    bosh)
-        if test -z "${ROLES}" ; then
-            ROLES=$(fissile show image| awk -F : '{ print $1 }' | sed 's/^fissile-//')
-        fi
-        PREFIX='fissile-'
-        ;;
-esac
+if test -z "${ROLES}" ; then
+    ROLES=$(fissile show image| awk -F : '{ print $1 }' | sed 's/^fissile-//')
+fi
+PREFIX='fissile-'
 
 for ROLE in ${ROLES}; do
     case ${ACTION} in
@@ -33,14 +22,7 @@ for ROLE in ${ROLES}; do
             docker build --tag ${ROLE} .
             ;;
         tag)
-            case ${TARGET} in
-                bosh)
-                    TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
-                ;;
-                *)
-                    TAG=latest
-                ;;
-            esac
+            TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
             docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
             docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
@@ -52,28 +34,16 @@ for ROLE in ${ROLES}; do
             docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH} > /dev/null
             ;;
         clean)
-            case ${TARGET} in
-                bosh)
-                    # For bosh images, there may be images with stale tags we want to delete
-                    WANTED_TAG=$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" | grep "^${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:" | cut -f 2 -d :)
-                    docker images "${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}" | tail -n +2 | while read REPOSITORY TAG _ ; do
-                        if test "${TAG}" != "${WANTED_TAG}" ; then
-                            docker rmi "${REPOSITORY}:${TAG}"
-                        fi
-                    done
-                ;;
-                docker)
-                    # For non-bosh images, there may be things tagged for the registry for the wrong branch
-                    docker images ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE} | tail -n +2 | while read REPOSITORY TAG _; do
-                        if test "${TAG}" != "${DOCKER_APP_VERSION}" -a "${TAG}" != "${GIT_BRANCH}" ; then
-                            docker rmi "${REPOSITORY}:${TAG}"
-                        fi
-                    done
-                ;;
-            esac
+            # For bosh images, there may be images with stale tags we want to delete
+            WANTED_TAG=$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" | grep "^${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:" | cut -f 2 -d :)
+            docker images "${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}" | tail -n +2 | while read REPOSITORY TAG _ ; do
+                if test "${TAG}" != "${WANTED_TAG}" ; then
+                    docker rmi "${REPOSITORY}:${TAG}"
+                fi
+            done
             ;;
         print)
-            echo ${ROLE}
+            echo "${ROLE}"
             ;;
     esac
 done
