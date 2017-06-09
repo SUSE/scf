@@ -6,6 +6,6 @@ A simple demo that prints the server's environment variables.
 
     node server.js
 
-## Deploying to HPE Helion Stackato
+## Deploying to Cloud Foundry
 
-    stackato push -n
+    cf push -n

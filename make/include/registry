@@ -4,25 +4,4 @@ set -o errexit -o nounset
 
 IMAGE_ORG=${IMAGE_ORG:-'splatform'}
 IMAGE_PREFIX=${IMAGE_PREFIX:-'scf'}
-
-registry_state() {
-    if test -z ${IMAGE_REGISTRY+nil}; then
-        echo unset
-    else
-        if test -z ${IMAGE_REGISTRY:-''}; then
-            echo empty
-        else
-            echo set
-        fi
-    fi
-}
-
-case $(registry_state) in
-    set|unset)
-        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker.io'}
-        IMAGE_REGISTRY=${IMAGE_REGISTRY%/}/
-        ;;
-    empty)
-        IMAGE_REGISTRY=''
-        ;;
-esac
+IMAGE_REGISTRY="${IMAGE_REGISTRY:+${IMAGE_REGISTRY%/}/}"

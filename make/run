@@ -9,9 +9,9 @@ has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
 }
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run start
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::namespace start
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace start
 if has_namespace ; then
     kubectl delete namespace "${NAMESPACE}"
 fi
@@ -22,13 +22,13 @@ while has_namespace ; do
 done
 
 kubectl create namespace "${NAMESPACE}"
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::namespace end
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace end
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::create start
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create start
 
 kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh"
 kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/post-deployment-setup.yml"
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run::create end
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-run 'done'
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run 'done'

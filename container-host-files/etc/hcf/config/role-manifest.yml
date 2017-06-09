@@ -1510,15 +1510,15 @@ configuration:
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
-    default: 4.1.1
+    default: 1.0.0
     description: "'build' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_DESCRIPTION
-    default: HPE Helion Cloud Foundry
+    default: SUSE Cloud Foundry
     description: "'description' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_NAME
-    default: HCF
+    default: SCF
     description: "'name' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_VERSION
@@ -1552,7 +1552,7 @@ configuration:
     required: true
   - name: CONSUL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
-    description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger HCP component restarts.
+    description: An indicator to increment when changing the number of consul hosts in the cluster, to properly trigger component restarts.
     required: true
   - name: CONSUL_HCF_CLUSTER_IPS
     type: environment
@@ -1671,7 +1671,7 @@ configuration:
     required: true
   - name: ETCD_HCF_CLUSTER_CONFIG_REVISION
     default: 0
-    description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger HCP component restarts.
+    description: An indicator to increment when changing the number of etcd hosts in the cluster, to properly trigger component restarts.
     required: true
   - name: ETCD_HCF_CLUSTER_IPS
     type: environment
@@ -1749,8 +1749,7 @@ configuration:
   - name: HCF_UAA_ROOT_ZONE_URL
     immutable: true
     default: https://uaa:8443
-    description: >
-      (Not used on HCP) The location of the UAA root zone.  Only used for development.
+    description: The location of the UAA root zone. Only used for development.
   - name: HCP_AZ
     type: environment
   - name: HCP_CA_CERT
@@ -1862,7 +1861,7 @@ configuration:
     required: true
   - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
     default: 0
-    description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger HCP component restarts.
+    description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger component restarts.
     required: true
   - name: MYSQL_HCF_CLUSTER_IPS
     type: environment
@@ -1882,7 +1881,7 @@ configuration:
     required: true
   - name: NATS_HCF_CLUSTER_CONFIG_REVISION
     default: 0
-    description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger HCP component restarts.
+    description: An indicator to increment when changing the number of NATS hosts in the cluster, to properly trigger component restarts.
     required: true
   - name: NATS_HCF_CLUSTER_IPS
     type: environment
@@ -2025,7 +2024,7 @@ configuration:
     description: The password for access to the uploader of staged droplets.
     required: true
   - name: SUPPORT_ADDRESS
-    default: stackato-support@hpe.com
+    default: support@example.com
     description: Support contact information for the cluster
     required: true
   - name: SYSLOGDRAINBINDER_CERT
@@ -2362,16 +2361,16 @@ configuration:
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
     properties.etcd.peer_require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
     properties.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
     properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
@@ -2397,7 +2396,7 @@ configuration:
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
     properties.loggregator.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
@@ -2431,7 +2430,7 @@ configuration:
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the HCP SDL
+    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
     properties.routing_api.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.routing_api.etcd.servers: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'

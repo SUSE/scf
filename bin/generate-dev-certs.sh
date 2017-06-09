@@ -96,7 +96,7 @@ openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 # Given a host name (e.g. "api"), produce variations based on:
 # - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api", "api.hcf")
 # - Wildcard and not ("api", "*.api")
-# - Include "COMPONENT.*.svc", "COMPONENT.*.svc.cluster", "COMPONENT.*.svc.cluster.hcp"
+# - Include "COMPONENT.*.svc", "COMPONENT.*.svc.cluster"
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
 make_domains() {
     local host_name="$1"
@@ -108,7 +108,7 @@ make_domains() {
     # For faking out HA on vagrant
     result="${result},${host_name}-0.${namespace}.svc,*.${host_name}-0.${namespace}.svc"
     local cluster_name
-    for cluster_name in "" .cluster.local .cluster.hcp ; do
+    for cluster_name in "" .cluster.local ; do
         local instance_name
         for instance_name in ${namespace} ${namespace}1 ${namespace}2 ${namespace}3 ${namespace}4 ${namespace}5 ; do
             result="${result},${host_name}.${instance_name}.svc${cluster_name}"

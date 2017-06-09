@@ -1,17 +1,10 @@
-# Helion Cloud Foundry
+# SUSE Cloud Foundry
 
-This repository integrates all HCF components.
+This repository integrates all SCF components.
 
-# Preparing to Deploy HCF
+# Preparing to Deploy SCF
 
-## Manually testing a branch on Jenkins
-
-1. Login to [Jenkins](https://jenkins.issueses.io)
-2. Lookup the `hcf-vagrant-in-cloud-develop` job
-3. Use the `Build with Parameters` link to start a build
-4. Specify the branch you want built and start
-
-## To Deploy HCF with Vagrant
+## To Deploy SCF with Vagrant
 
 _NOTE:_ These are the common instructions that are shared between all providers, some providers have different requirements, make sure that you read the appropriate section for your provider.
 
@@ -20,8 +13,8 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 2. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
 
   ```bash
-  git clone git@github.com:hpcloud/hcf
-  cd hcf
+  git clone git@github.com:suse/scf
+  cd scf
   git submodule update --init --recursive
   ```
 
@@ -35,28 +28,26 @@ _NOTE:_ These are the common instructions that are shared between all providers,
   vagrant ssh
   ```
 
-  __Note:__ The virtualbox provider is unstable and we've had many problems with HCF on it, try to use vmware when possible.
+  __Note:__ The virtualbox provider is unstable and we've had many problems with SCF on it, try to use vmware when possible.
 
-4. On the VM, navigate to the `~/hcf` directory and run the `make vagrant-prep` command.
+4. On the VM, navigate to the `~/scf` directory and run the `make vagrant-prep` command.
 
   ```bash
-  cd hcf
+  cd scf
   make vagrant-prep
   ```
 
   __Note:__ You need to run this command only after initially creating the VM.
 
-5. On the VM, start HCF using the `make run` command.
+5. On the VM, start SCF using the `make run` command.
 
   ```bash
   make run
   ```
 
-## To Deploy HCF on OS X Using VMWare Fusion
+## To Deploy SCF on OS X Using VMWare Fusion
 
 1. Install VMware Fusion 7 and Vagrant (version `1.7.4` and higher).
-
-  __Note:__ To get a license for VMware Fusion 7, use your HPE email address to send a message to hp@vmware.com with the subject `Fusion license request`.
 
 2. Install the Vagrant Fusion provider plugin:
 
@@ -66,7 +57,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
 **Note** `vagrant-vmware-fusion` version 4.0.9 or greater is required.
 
-3. [Download the Vagrant Fusion Provider license](https://wiki.hpcloud.net/display/paas/MacBook+Laptop+and+License+Tracking#MacBookLaptopandLicenseTracking-VagrantFusionPlug-InLicense) and install it:
+3. Get a Vagrant Fusion Provider license
 
   ```bash
   vagrant plugin license vagrant-vmware-fusion /path/to/license.lic
@@ -74,7 +65,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
 4. Follow the common instructions in the section above
 
-## To Deploy HCF on Ubuntu Using `libvirt`
+## To Deploy SCF on Ubuntu Using `libvirt`
 
 1. Install Vagrant (version `1.7.4` and higher) and the `libvirt` dependencies and allow non-`root` access to `libvirt`:
 
@@ -98,7 +89,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
   __Important:__ The VM may not come online during your first attempt.
 
-## To Deploy HCF on Fedora using `libvirt`
+## To Deploy SCF on Fedora using `libvirt`
 
 1. Install Vagrant (version `1.7.4` and higher) and enable NFS over UDP:
 
@@ -146,8 +137,8 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 
 Name      | Effect |
 --------------- | ---- |
-`run`      | Set up HCF on the current node |
-`stop`      | Stop HCF on the current node |
+`run`      | Set up SCF on the current node |
+`stop`      | Stop SCF on the current node |
 `vagrant-box`  | Build the Vagrant box image using `packer` |
 `vagrant-prep`  | Shortcut for building everything needed for `make run` |
 
@@ -164,7 +155,7 @@ Name        | Effect |
 `garden-release` | `bosh create release` for `garden-release` |
 `go-buildpack-release` | `bosh create release` for `go-buildpack-release` |
 `grootfs-release` | `bosh create release` for `grootfs-release` |
-`hcf-release` | `bosh create release` for `hcf-release` |
+`scf-release` | `bosh create release` for `scf-release` |
 `java-buildpack-release` | `bosh create release` for `java-buildpack-release` |
 `loggregator-release` | `bosh create release` for `loggregator-release` |
 `mysql-release` | `bosh create release` for `mysql-release` |
@@ -189,8 +180,8 @@ Name            | Effect
 `image-base`    | `fissile build layer stemcell`
 `bosh-images`   | `fissile build images`
 `docker-images` | `docker build` in each dir in `./docker-images`
-`tag`           | Tag HCF images and bosh role images
-`publish`       | Publish HCF images and bosh role images to Docker Hub
+`tag`           | Tag SCF images and bosh role images
+`publish`       | Publish SCF images and bosh role images to Docker Hub
 
 ### Distribution Targets
 
@@ -213,7 +204,7 @@ Name    | Effect | Notes |
   On the Vagrant box, run the following commands:
 
   ```bash
-  cd ~/hcf
+  cd ~/scf
 
   # (There is no need for a graceful stop.)
   docker rm -f $(docker ps -a -q)
@@ -230,7 +221,7 @@ Name    | Effect | Notes |
   On the Vagrant box, run the following commands:
 
   ```bash
-  cd ~/hcf
+  cd ~/scf
 
   # Stop gracefully.
   make stop
@@ -259,7 +250,7 @@ Name    | Effect | Notes |
   ```
 
 
-#### How do I run a subset of HCF acceptance tests?
+#### How do I run a subset of SCF acceptance tests?
 
   Deploy `acceptance-tests-brain` as above, but first modify the environment to include `INCLUDE=pattern` or
   `EXCLUDE=pattern`.  For example to run just `005_sso_test.sh` and `014_sso_authenticated_passthrough_test.sh`, you
@@ -286,7 +277,7 @@ Name    | Effect | Notes |
   On the Vagrant box, run the following commands:
 
   ```bash
-  cd ~/hcf
+  cd ~/scf
 
   # Stop gracefully.
   make stop
@@ -325,10 +316,10 @@ Name    | Effect | Notes |
 
   3. The default username is: `root`.
 
-  4. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/hcf/bin/settings/settings.env` file on the Vagrant box.
+  4. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/scf/bin/settings/settings.env` file on the Vagrant box.
 
 
-### How do I add a new BOSH release to HCF?
+### How do I add a new BOSH release to SCF?
 
   1. Add a Git submodule to the BOSH release in `./src`.
 
@@ -336,19 +327,19 @@ Name    | Effect | Notes |
 
   3. Edit the release parameters:
 
-    a. Add new roles or change existing ones in `./container-host-files/etc/hcf/config/role-manifest.yml`.
+    a. Add new roles or change existing ones in `./container-host-files/etc/scf/config/role-manifest.yml`.
 
     b. Add exposed environment variables (`yaml path: /configuration/variables`).
 
     c. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
 
-    d. Add defaults for your configuration settings to `~/hcf/bin/settings/settings.env`.
+    d. Add defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
 
-    e. If you need any extra default certificates, add them to `~/hcf/bin/settings/certs.env`.
+    e. If you need any extra default certificates, add them to `~/scf/bin/settings/certs.env`.
 
-    f. Add generation code for the certs to `~/hcf/bin/generate-dev-certs.sh`.
+    f. Add generation code for the certs to `~/scf/bin/generate-dev-certs.sh`.
 
-  4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/hcf/config/opinions.yml` and `./container-host-files/etc/hcf/config/dark-opinions.yml`, respectively.
+  4. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
 
   5. Change the `./Makefile` so it builds the new release:
 
@@ -370,7 +361,7 @@ Name    | Effect | Notes |
 
 ### How do I expose new settings via environment variables?
 
-  1. Edit `./container-host-files/etc/hcf/config/role-manifest.yml`:
+  1. Edit `./container-host-files/etc/scf/config/role-manifest.yml`:
 
     a. Add the new exposed environment variables (`yaml path: /configuration/variables`).
 
@@ -380,11 +371,11 @@ Name    | Effect | Notes |
 
         ii. `yaml path: /roles/*/configuration/templates`
 
-  2. Add defaults for your new settings in `~/hcf/bin/settings/settings.env`.
+  2. Add defaults for your new settings in `~/scf/bin/settings/settings.env`.
 
-  3. If you need any extra default certificates, add them to `~/hcf/bin/dev-certs.env`.
+  3. If you need any extra default certificates, add them to `~/scf/bin/dev-certs.env`.
 
-  4. Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`
+  4. Add generation code for the certificates here: `~/scf/bin/generate-dev-certs.sh`
 
   5. Rebuild the role images that need this new setting:
 
@@ -444,28 +435,28 @@ Name    | Effect | Notes |
   4. Act on configuration changes:
 
     __Important:__ If you are not sure how to treat a configuration
-    setting, discuss it with the HCF team.
+    setting, discuss it with the SCF team.
 
     For any configuration changes discovered in step the previous
     step, you can do one of the following:
 
       * Keep the defaults in the new specification.
 
-      * Add an opinion (static defaults) to `./container-host-files/etc/hcf/config/opinions.yml`.
+      * Add an opinion (static defaults) to `./container-host-files/etc/scf/config/opinions.yml`.
 
-      * Add a template and an exposed environment variable to `./container-host-files/etc/hcf/config/role-manifest.yml`.
+      * Add a template and an exposed environment variable to `./container-host-files/etc/scf/config/role-manifest.yml`.
 
-    Define any secrets in the dark opinions file `./container-host-files/etc/hcf/config/dark-opinions.yml` and expose them as environment variables.
+    Define any secrets in the dark opinions file `./container-host-files/etc/scf/config/dark-opinions.yml` and expose them as environment variables.
 
-      * If you need any extra default certificates, add them here: `~/hcf/bin/dev-certs.env`.
+      * If you need any extra default certificates, add them here: `~/scf/bin/dev-certs.env`.
 
-      * Add generation code for the certificates here: `~/hcf/bin/generate-dev-certs.sh`.
+      * Add generation code for the certificates here: `~/scf/bin/generate-dev-certs.sh`.
 
   5. Evaluate role changes:
 
     a. Consult the release notes of the new version of the release.
 
-    b. If there are any role changes, discuss them with the HCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-hcf).
+    b. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
   6. Bump the real submodule:
 
@@ -487,7 +478,7 @@ Name    | Effect | Notes |
 
   * If our submodules are close to the `HEAD` of upstream and no merge conflicts occur, follow [the steps described here](#if-im-working-on-component-x-how-does-my-dev-cycle-look-like).
 
-  * If merge conflicts occur, or if the component is referenced as a submodule, and it is not compatible with the parent release, work with the HCF team to resolve the issue on a case-by-case basis.
+  * If merge conflicts occur, or if the component is referenced as a submodule, and it is not compatible with the parent release, work with the SCF team to resolve the issue on a case-by-case basis.
 
 
 ### What is the difference between a BOSH role and a Docker role?
@@ -497,7 +488,7 @@ Name    | Effect | Notes |
   * You can include both types of role in the role manifest, using the same run information.
 
 
-### How can I add a Docker role to HCF?
+### How can I add a Docker role to SCF?
 
   1. Name your new role.
 
@@ -510,7 +501,7 @@ Name    | Effect | Notes |
   5. Test using the `make docker-images run` command.
 
 
-## How do I publish HCF and BOSH images?
+## How do I publish SCF and BOSH images?
 
   1. Ensure that the Vagrant box is running.
 
@@ -523,17 +514,12 @@ Name    | Effect | Notes |
     |Variable  |Meaning|Default|
     | ---    | ---  | ---  |
     |IMAGE_REGISTRY  | The name of the trusted registry to publish to (include a trailing slash)  | _empty_|
-    |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |hcf|
+    |IMAGE_PREFIX  | The prefix to use for image names (must not be empty) |scf|
     |IMAGE_ORG  | The organization in the image registry |splatform|
     |BRANCH    | The tag to use for the images | _Current git branch_ |
 
   5. To publish to the standard trusted registry run the `make tag publish` command, for example:
 
     ```bash
-    make tag publish IMAGE_REGISTRY=docker.helion.lol/
+    make tag publish IMAGE_REGISTRY=docker.example.com/
     ```
-
-
-## Build Dependencies
-
-[![build-dependency-diagram](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/export/png)](https://docs.google.com/drawings/d/130BRY-lElCWVEczOg4VtMGUSiGgJj8GBBw9Va5B-vLg/edit?usp=sharing)

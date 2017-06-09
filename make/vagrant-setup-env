@@ -16,12 +16,10 @@ ${GIT_ROOT}/bin/validation.sh
 
 PROPMAP=$(mktemp -t vagrant-propmap.XXXXXX.yml)
 OPTIONS=$(echo \
-    --dtr \"${IMAGE_REGISTRY}\" \
-    --dtr-org \"${IMAGE_ORG}\" \
-    --hcf-prefix \"${IMAGE_PREFIX}\" \
-    --hcf-tag \"${DOCKER_APP_VERSION}\" \
-    --hcf-version \"${APP_VERSION}\" \
-    --hcf-root-dir \"${GIT_ROOT}\" \
+    --scf-prefix \"${IMAGE_PREFIX}\" \
+    --scf-tag \"${DOCKER_APP_VERSION}\" \
+    --scf-version \"${APP_VERSION}\" \
+    --scf-root-dir \"${GIT_ROOT}\" \
     --provider vagrant \
     --property-map \"${PROPMAP}\" \
 )
