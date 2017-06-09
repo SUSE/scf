@@ -13,7 +13,7 @@ _NOTE:_ These are the common instructions that are shared between all providers,
 2. Clone the repository and run the following command to allow Vagrant to interact with the mounted submodules:
 
   ```bash
-  git clone git@github.com:suse/scf
+  git clone git@github.com:SUSE/scf
   cd scf
   git submodule update --init --recursive
   ```
