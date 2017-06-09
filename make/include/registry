@@ -3,7 +3,7 @@
 set -o errexit -o nounset
 
 IMAGE_ORG=${IMAGE_ORG:-'splatform'}
-IMAGE_PREFIX=${IMAGE_PREFIX:-'hcf'}
+IMAGE_PREFIX=${IMAGE_PREFIX:-'scf'}
 
 registry_state() {
     if test -z ${IMAGE_REGISTRY+nil}; then
@@ -19,7 +19,7 @@ registry_state() {
 
 case $(registry_state) in
     set|unset)
-        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker-registry.helion.space'}
+        IMAGE_REGISTRY=${IMAGE_REGISTRY:-'docker.io'}
         IMAGE_REGISTRY=${IMAGE_REGISTRY%/}/
         ;;
     empty)

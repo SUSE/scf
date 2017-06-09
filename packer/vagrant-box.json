@@ -1,151 +1,156 @@
 {
     "variables": {
-        "version": "1.0.13",
+        "version": "2.0.0",
         "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
-        "iso_url": "http://old-releases.ubuntu.com/releases/14.04.3/ubuntu-14.04.3-server-amd64.iso",
-        "iso_checksum": "9e5fecc94b3925bededed0fdca1bd417",
-        "iso_checksum_type": "md5",
+        "iso_url": "http://download.opensuse.org/distribution/leap/42.2/iso/openSUSE-Leap-42.2-NET-x86_64.iso",
+        "iso_checksum": "750434ff041b9e7baf31217fcfab41df0560e8e8a39d508c196eb19c151f265c",
+        "iso_checksum_type": "sha256",
         "http_directory": "http",
-        "ssh_wait_timeout": "20m",
+        "ssh_wait_timeout": "60m",
         "shutdown_command": "echo vagrant | sudo -S shutdown -P now"
     },
     "builders": [
         {
-          "type": "vmware-iso",
-          "headless": true,
-          "vm_name": "{{user `vm_name`}}",
-          "guest_os_type": "ubuntu-64",
-          "disk_size": 100000,
-          "disk_additional_size": [100000],
-          "ssh_username": "{{user `ssh_username`}}",
-          "ssh_password": "{{user `ssh_password`}}",
-          "iso_url": "{{user `iso_url`}}",
-          "iso_checksum": "{{user `iso_checksum`}}",
-          "iso_checksum_type": "{{user `iso_checksum_type`}}",
-          "http_directory": "{{user `http_directory`}}",
-          "tools_upload_flavor": "linux",
-          "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
-          "shutdown_command": "{{user `shutdown_command`}}",
-          "boot_command": [
-              "<esc><esc><enter><wait>",
-              "/install/vmlinuz noapic ",
-              "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-              "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-              "hostname=hcf-vagrant ",
-              "fb=false debconf/frontend=noninteractive ",
-              "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
-              "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-              "initrd=/install/initrd.gz -- <enter>"
-          ],
-          "vmx_data": {
-              "memsize": "4096"
-          }
-        },
-        {
-            "type": "virtualbox-iso",
+            "type": "vmware-iso",
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
-            "guest_os_type": "Ubuntu_64",
-            "disk_size": 100000,
+            "guest_os_type": "suse-64",
+            "disk_size": 10240,
+            "disk_additional_size": [102400],
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
             "iso_checksum": "{{user `iso_checksum`}}",
             "iso_checksum_type": "{{user `iso_checksum_type`}}",
             "http_directory": "{{user `http_directory`}}",
-            "virtualbox_version_file": ".vbox_version",
+            "tools_upload_flavor": "linux",
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
+            "boot_command": [
+                "<esc><enter><wait>",
+                "linux lang=en_US textmode=1 ",
+                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "<enter><wait>"
+            ],
+            "vmx_data": {
+                "memsize": "1024"
+            }
+        },
+        {
+            "type": "virtualbox-iso",
+            "headless": true,
+            "vm_name": "{{user `vm_name`}}",
+            "guest_os_type": "OpenSUSE_64",
+            "guest_additions_mode": "disable",
+            "disk_size": 10240,
+            "hard_drive_interface": "sata",
+            "hard_drive_nonrotational": true,
+            "hard_drive_discard": true,
+            "ssh_username": "{{user `ssh_username`}}",
+            "ssh_password": "{{user `ssh_password`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "http_directory": "{{user `http_directory`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "shutdown_command": "{{user `shutdown_command`}}",
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "1024" ]
+            ],
             "vboxmanage_post": [
-              [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
-              [ "storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"],
-              [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vmdk" ]
+                [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
+                [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "2", "--type", "hdd", "--medium", "disk2.vmdk" ]
             ],
             "boot_command": [
-                "<esc><esc><enter><wait>",
-                "/install/vmlinuz noapic ",
-                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-                "hostname=hcf-vagrant ",
-                "fb=false debconf/frontend=noninteractive ",
-                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
-                "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-                "initrd=/install/initrd.gz -- <enter>"
+                "<esc><enter><wait>",
+                "linux lang=en_US textmode=1 ",
+                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "<enter><wait>"
             ]
         },
         {
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
-            "disk_size": 100000,
+            "disk_size": 10240,
             "disk_interface": "scsi",
             "disk_compression": true,
+            "net_device": "virtio-net",
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "iso_url": "{{user `iso_url`}}",
             "iso_checksum": "{{user `iso_checksum`}}",
             "iso_checksum_type": "{{user `iso_checksum_type`}}",
             "http_directory": "{{user `http_directory`}}",
-            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
+            "qemuargs": [
+                [ "-m", "1024M" ]
+            ],
             "boot_command": [
-                "<esc><esc><enter><wait>",
-                "/install/vmlinuz noapic ",
-                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-                "hostname=hcf-vagrant ",
-                "fb=false debconf/frontend=noninteractive ",
-                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
-                "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-                "initrd=/install/initrd.gz -- <enter>"
+                "<esc><enter><wait>",
+                "linux lang=en_US textmode=1 ",
+                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "<enter><wait>"
             ]
         }
     ],
     "provisioners": [
         {
             "type": "shell",
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
-              "../container-host-files/opt/hcf/bin/docker/install_kernel.sh",
-              "scripts/dependencies.sh",
-              "scripts/vagrant.sh",
-              "../container-host-files/opt/hcf/bin/docker/install_docker.sh",
-              "../container-host-files/opt/hcf/bin/tools/install_y2j.sh"
-            ],
-            "start_retry_timeout": "7m"
+                "scripts/install-kubernetes.sh"
+            ]
         },
         {
-            "type": "shell",
-            "only": ["vmware-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-            "scripts": [
-                "scripts/vmware_tools.sh"
-            ],
-            "start_retry_timeout": "7m"
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.env",
+            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env"
+        },
+        {
+            "type": "file",
+            "source": "http/controller-manager-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.env",
+            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.env"
+        },
+        {
+            "type": "file",
+            "source": "http/docker.conf",
+            "destination": "/etc/sysconfig/docker"
         },
         {
             "type": "shell",
             "only": ["virtualbox-iso"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-            "scripts": [
-                "scripts/virtualbox_tools.sh"
-            ],
-            "start_retry_timeout": "7m"
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "systemctl enable vboxadd-service.service",
+                "systemctl enable vboxadd.service"
+            ]
         },
         {
             "type": "shell",
-            "only": ["qemu"],
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-            "scripts": [
-                "scripts/qemu_tools.sh"
-            ],
-            "start_retry_timeout": "7m"
-        },
-        {
-            "type": "shell",
-            "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "only": ["virtualbox-iso", "vmware-iso"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/compact.sh"
             ],
@@ -156,11 +161,7 @@
         {
             "type": "vagrant",
             "output": "hcf-{{.Provider}}-v{{user `version`}}.box",
-            "override": {
-                "libvirt": {
-                    "vagrantfile_template": "Vagrantfile-qemu.template"
-                }
-            }
+            "vagrantfile_template": "Vagrantfile.template"
         }
     ]
 }

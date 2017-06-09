@@ -6,7 +6,7 @@ vanbuckets="http://concourse.van:9000/minio"
 minio="https://minio.from-the.cloud:9000/fissile"
 
 # Tool versions
-thefissile="$(echo "fissile-5.0.0+40.g395df0b" | sed -e 's/+/%2B/')"
+thefissile="$(echo "fissile-5.0.0+44.g3750468" | sed -e 's/+/%2B/')"
 
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
@@ -17,6 +17,7 @@ cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&versi
 stampy_url="${stampy_url:-https://concourse-hpe.s3.amazonaws.com/stampy-0.0.0%2B7.g4d305fa.master-linux.amd64.tgz}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v1.5.4/bin/linux/amd64/kubectl}"
 k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v0.0.1/kctl-linux-amd64}"
+kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed940e6156272c0af/raw/}"
 
 mkdir -p "${bin_dir}"
 mkdir -p "${tools_dir}"
@@ -35,6 +36,7 @@ tar -xzf "${tools_dir}/cf.tgz" -C "${bin_dir}"
 echo "Fetching kubectl ..."
 wget -q "${kubectl_url}" -O "${bin_dir}/kubectl"
 wget -q "${k_url}" -O "${bin_dir}/k"
+wget -q "${kk_url}" -O "${bin_dir}/kk"
 
 echo "Making binaries executable ..."
 chmod a+x "${FISSILE_BINARY}"
@@ -42,6 +44,7 @@ chmod a+x "${bin_dir}/stampy"
 chmod a+x "${bin_dir}/cf"
 chmod a+x "${bin_dir}/kubectl"
 chmod a+x "${bin_dir}/k"
+chmod a+x "${bin_dir}/kk"
 
 echo "Pulling ruby bosh image ..."
 docker pull splatform/bosh-cli

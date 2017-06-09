@@ -48,6 +48,7 @@ roles:
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_server_name.sh
   - scripts/patches/fix_consul_pre_start.sh
   jobs:
@@ -116,6 +117,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/create_mysql_data_tmp.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
@@ -244,6 +246,7 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -531,6 +534,7 @@ roles:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
+  - scripts/patches/cloud_controller_migration_transactional.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -589,6 +593,8 @@ roles:
       internal: 8125
       public: false
     healthcheck:
+      liveness:
+        timeout: 3000 # pre-start migration can take forever
       url: http://container-ip:9022/v2/info
   configuration:
     templates:
@@ -631,6 +637,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/inverted_skip_ssl.sh
   scripts:
+  - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   jobs:
@@ -766,6 +773,7 @@ roles:
   - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
+  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
@@ -1748,14 +1756,14 @@ configuration:
   - name: HCP_CA_CERT
     internal: true
     immutable: true
-    description: >
-      (Not used on HCP) The CA certificate to use.  Only used for development.
+    description: The CA certificate for UAA
+    internal: true
   - name: HCP_COMPONENT_INDEX
     type: environment
   - name: HCP_COMPONENT_NAME
     type: environment
   - name: HCP_IDENTITY_EXTERNAL_PORT
-    type: environment
+    default: 2793
   - name: HCP_INSTANCE_ID
     type: environment
   - name: HCP_SERVICE_DOMAIN_SUFFIX
@@ -2427,10 +2435,12 @@ configuration:
     properties.routing_api.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.routing_api.etcd.servers: ((ETCD_HCF_CLUSTER_IPS))((#ETCD_HCF_CLUSTER_CONFIG_REVISION))((/ETCD_HCF_CLUSTER_CONFIG_REVISION))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
     properties.routing_api.sqldb.host: "mysql-proxy.((HCP_SERVICE_DOMAIN_SUFFIX))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
+    properties.routing_api.uri: '"http://routing-api.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'

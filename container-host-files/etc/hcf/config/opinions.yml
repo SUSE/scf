@@ -293,7 +293,6 @@ properties:
       port: 3306
       schema: routing-api
       username: routing-api
-    uri: http://routing-api
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
