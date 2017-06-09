@@ -24,15 +24,11 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########
 
-<<<<<<< HEAD
-run: kube/bosh-task/post-deployment-setup.yml
-=======
 certs: uaa-certs
 	${GIT_ROOT}/bin/generate-certs.sh scf bin/settings/cert.env
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 
-run:
->>>>>>> Cert integration.
+run: kube/bosh-task/post-deployment-setup.yml
 	${GIT_ROOT}/make/run
 
 validate:
