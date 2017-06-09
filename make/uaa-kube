@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. "${GIT_ROOT}/make/include/registry"
+. "${GIT_ROOT}/src/uaa-fissile-release/.envrc"
+
+# Note: While we want the integrated UAA to use the same registry and
+# org as SCF itself, we must not override the prefix, on pain of
+# getting images with the same name for different roles in SCF and UAA
+# (mysql, uaa, role-packages).
+
+IMAGE_REGISTRY="${IMAGE_REGISTRY}" \
+    IMAGE_ORG="${IMAGE_ORG}" \
+    make -C "${GIT_ROOT}/src/uaa-fissile-release" \
+        kube-configs

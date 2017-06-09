@@ -179,9 +179,17 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yml:
+kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
 	${GIT_ROOT}/make/kube
 .PHONY: kube
+
+uaa-kube: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-kube
+.PHONY: uaa-kube
+
+hyperkube:
+	${GIT_ROOT}/make/hyperkube
+.PHONY: hyperkube
 
 ########## CONFIGURATION TARGETS ##########
 
