@@ -9,8 +9,8 @@ has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
 }
 
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-stop start
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop start
 if has_namespace ; then
     kubectl delete namespace "${NAMESPACE}"
 fi
-stampy "${GIT_ROOT}/hcf_metrics.csv" "$0" make-stop 'done'
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop 'done'
