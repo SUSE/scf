@@ -25,8 +25,11 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh
 ########## VAGRANT VM TARGETS ##########
 
 certs: uaa-certs
-	${GIT_ROOT}/bin/generate-certs.sh cf bin/settings/cert.env
+	${GIT_ROOT}/bin/generate-dev-certs.sh cf bin/settings/cert.env
 	${GIT_ROOT}/bin/settings/kube/ca.sh
+
+uaa-certs:
+	${GIT_ROOT}/make/uaa-certs
 
 run:
 	${GIT_ROOT}/make/uaa-run
