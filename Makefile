@@ -5,8 +5,6 @@ GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 # Default target specification
 run:
 
-.PHONY: docker-images
-
 ########## UTILITY TARGETS ##########
 
 clean:
@@ -26,7 +24,15 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########
 
-run: kube/bosh-task/post-deployment-setup.yml
+certs: uaa-certs
+	${GIT_ROOT}/bin/generate-dev-certs.sh cf bin/settings/cert.env
+	${GIT_ROOT}/bin/settings/kube/ca.sh
+
+uaa-certs:
+	${GIT_ROOT}/make/uaa-certs
+
+run:
+	${GIT_ROOT}/make/uaa-run
 	${GIT_ROOT}/make/run
 
 validate:
@@ -34,6 +40,13 @@ validate:
 
 stop:
 	${GIT_ROOT}/make/stop
+	${GIT_ROOT}/make/uaa-stop
+
+uaa-run:
+	${GIT_ROOT}/make/uaa-run
+
+uaa-stop:
+	${GIT_ROOT}/make/uaa-stop
 
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
@@ -156,17 +169,23 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images
+images: bosh-images uaa-images
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
+uaa-images: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-images
+
 build: compile images
 
-publish: bosh-publish docker-publish
+publish: bosh-publish uaa-publish
 
 bosh-publish: ${FISSILE_BINARY}
 	make/bosh-publish
+
+uaa-publish: ${FISSILE_BINARY}
+	make/uaa-publish
 
 show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
@@ -175,9 +194,14 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yml:
+kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
+	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube
 .PHONY: kube
+
+uaa-kube: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-kube
+.PHONY: uaa-kube
 
 ########## CONFIGURATION TARGETS ##########
 

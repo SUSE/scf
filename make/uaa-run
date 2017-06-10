@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+. "${GIT_ROOT}/make/include/registry"
+. "${GIT_ROOT}/src/uaa-fissile-release/.envrc"
+
+make -C "${GIT_ROOT}/src/uaa-fissile-release" run

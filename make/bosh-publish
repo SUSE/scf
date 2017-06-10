@@ -6,9 +6,10 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . "${GIT_ROOT}/make/include/registry"
 
-BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}")}
+BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" --repository "${IMAGE_PREFIX}")}
 
 for image in ${BOSH_IMAGES}; do
     # Redirect docker stdout to avoid polluting logfiles with progressbar characters
+    echo Pushing "${image}" ...
     docker push "${image}" > /dev/null
 done
