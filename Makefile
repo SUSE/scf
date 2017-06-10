@@ -29,6 +29,7 @@ certs: uaa-certs
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 
 run: kube/bosh-task/post-deployment-setup.yml
+	${GIT_ROOT}/make/uaa-run
 	${GIT_ROOT}/make/run
 
 validate:
@@ -36,6 +37,7 @@ validate:
 
 stop:
 	${GIT_ROOT}/make/stop
+	${GIT_ROOT}/make/uaa-stop
 
 vagrant-box:
 	${GIT_ROOT}/make/vagrant-box
