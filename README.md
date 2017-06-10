@@ -4,15 +4,16 @@ SUSE Cloud Foundry (SCF) is a [Cloud Foundry](https://www.cloudfoundry.org)
 distribution based on the open source version but with several very key
 differences:
 
-* Uses [fissile](https://github.com/suse/fissile) to run CF components on top of Kubernetes (and Docker)
+* Uses [fissile](https://github.com/suse/fissile) to containerize the CF components, for running on top of Kubernetes (and Docker)
 * CF Components run on an OpenSUSE Stemcell
 * CF Apps optionally can run on a preview of the OpenSUSE Stack (rootfs + buildpacks)
 
 # Disclaimer
 
-We are currently at a very early stage of development, things **will** break,
-and URLs **will** change it also might not work out of the box for everyone
-without some troubleshooting.
+Though fissile has been around for a few years now and it's containerization technology
+is fairly stable. Deploying directly to kubernetes however is relatively new, as is the
+OpenSUSE stack and stemcell. This means that things are liable to break as we continue
+development, for sure links and where things are hosted are still in flux.
 
 For development testing we've mainly been targeting the following so they should
 be a known working quantity:
@@ -22,15 +23,15 @@ be a known working quantity:
 | OpenSUSE 42.x  | Libvirt        |
 | Mac OSX Sierra | VirtualBox     |
 
-For more production-like deploys we've been targetting baremetal Kubernetes 1.6.1
+For more production-like deploys we've been targetting baremetal Kubernetes 1.6.1 (using only 1.5 features)
 though these deploys currently require the adventurer to be able to debug and problem solve
 which takes knowledge of the components this repo brings together currently.
 
 # Table of Contents
 
-1. [Deploying SCF on Vagrant](deploying-scf-on-vagrant)
-1. [Deploying SCF on Kubernetes](deploying-scf-on-kubernetes)
-1. [Development FAQ](development-faq)
+1. [Deploying SCF on Vagrant](#deploying-scf-on-vagrant)
+1. [Deploying SCF on Kubernetes](#deploying-scf-on-kubernetes)
+1. [Development FAQ](#development-faq)
 
 # Deploying SCF on Vagrant
 
@@ -71,8 +72,6 @@ a working system.
     make vagrant-prep
     # This uses fissile to create kubernetes service, deployment, stateful set definitions
     make kube
-    # This is a small hack to make the output of make kube be compatible with K8s 1.6
-    perl -p -i -e 's@extensions/v1beta1@batch/v1@' kube/bosh-task/*.yml
     # This is the final step, where it will create the 'cf' namespace in K8s and provision
     # all the definitions you created.
     make run
@@ -96,6 +95,8 @@ This means that you cannot connect to it from some other box.
 
 ```bash
 # Attach to the endpoint (self-signed certs in dev mode requires skipping validation)
+# cf-dev.io simply resolves to the static IP 192.168.77.77 that vagrant provisions
+# This DNS resolution may fail on certain DNS providers that block resolution to 192.168.*
 cf api --skip-ssl-validation https://api.cf-dev.io
 ```
 
