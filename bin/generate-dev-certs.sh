@@ -67,10 +67,8 @@ signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
-  buildCertstrap=$(docker run -d golang:1.7 bash -c "go get github.com/square/certstrap")
-  docker wait "${buildCertstrap}"
-  docker cp "${buildCertstrap}:/go/bin/certstrap" /home/vagrant/bin/
-  docker rm "${buildCertstrap}"
+  docker run --rm -v "${HOME}/bin":/out:rw golang:1.7 /usr/bin/env GOBIN=/out go get github.com/square/certstrap
+  sudo chown "$(id -un):$(id -gn)" "${HOME}/bin/certstrap"
 }
 
 # Certificate generation
