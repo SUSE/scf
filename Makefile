@@ -168,7 +168,7 @@ uaa-images: ${FISSILE_BINARY}
 
 build: compile images
 
-publish: bosh-publish docker-publish uaa-publish
+publish: bosh-publish uaa-publish
 
 bosh-publish: ${FISSILE_BINARY}
 	make/bosh-publish

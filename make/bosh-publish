@@ -10,5 +10,6 @@ BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image --docker-registry "${IMAGE_REGIS
 
 for image in ${BOSH_IMAGES}; do
     # Redirect docker stdout to avoid polluting logfiles with progressbar characters
+    echo Pushing "${image}" ...
     docker push "${image}" > /dev/null
 done
