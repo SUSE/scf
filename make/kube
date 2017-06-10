@@ -17,3 +17,6 @@ fissile build kube \
     --kube-output-dir="${GIT_ROOT}/kube" \
     --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
     --use-memory-limits=false --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" --repository "${IMAGE_PREFIX}"  
+
+# This is a small hack to make the output of make kube be compatible with K8s 1.6
+perl -p -i -e 's@extensions/v1beta1@batch/v1@' kube/bosh-task/*.yml
