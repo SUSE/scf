@@ -43,7 +43,7 @@ Vagrant.configure(2) do |config|
 
 # Currently not built for vmware_fusion
 # config.vm.provider "vmware_fusion" do |vb, override|
-#   override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
+#   override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.0.box"
 #
 #   # Customize the amount of memory on the VM:
 #   vb.memory = vm_memory.to_s
@@ -69,7 +69,7 @@ Vagrant.configure(2) do |config|
 
 # Currently not built for vmware_workstation
 #  config.vm.provider "vmware_workstation" do |vb, override|
-#    override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
+#    override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.0.box"
 #
 #    # Customize the amount of memory on the VM:
 #    vb.memory = vm_memory.to_s
