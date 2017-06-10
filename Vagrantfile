@@ -27,7 +27,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://minio.from-the.cloud:9000/vagrant-box-images/hcf-virtualbox-v2.0.0.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.0.box"
 
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
@@ -41,55 +41,57 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
   end
 
-  config.vm.provider "vmware_fusion" do |vb, override|
-    override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
+# Currently not built for vmware_fusion
+# config.vm.provider "vmware_fusion" do |vb, override|
+#   override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.0.box"
+#
+#   # Customize the amount of memory on the VM:
+#   vb.memory = vm_memory.to_s
+#   vb.cpus = vm_cpus
+#   # If you need to debug stuff
+#   # vb.gui = true
+#
+#   # `vmrun getGuestIPAddress` often returns the address of the docker0 bridge instead of eth0 :(
+#   vb.enable_vmrun_ip_lookup = false
+#
+#   # Disable default synced folder
+#   config.vm.synced_folder ".", "/vagrant", disabled: true
+#
+#   # Enable HGFS
+#   vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
+#
+#   # Must be equal to the total number of shares
+#   vb.vmx["sharedFolder.maxnum"] = "2"
+#
+#   # Configure shared folders
+#   VMwareHacks.configure_shares(vb)
+# end
 
-    # Customize the amount of memory on the VM:
-    vb.memory = vm_memory.to_s
-    vb.cpus = vm_cpus
-    # If you need to debug stuff
-    # vb.gui = true
-
-    # `vmrun getGuestIPAddress` often returns the address of the docker0 bridge instead of eth0 :(
-    vb.enable_vmrun_ip_lookup = false
-
-    # Disable default synced folder
-    config.vm.synced_folder ".", "/vagrant", disabled: true
-
-    # Enable HGFS
-    vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
-
-    # Must be equal to the total number of shares
-    vb.vmx["sharedFolder.maxnum"] = "2"
-
-    # Configure shared folders
-    VMwareHacks.configure_shares(vb)
-  end
-
-  config.vm.provider "vmware_workstation" do |vb, override|
-    override.vm.box="https://minio.from-the.cloud:9000/vagrant-box-images/hcf-vmware-v2.0.0.box"
-
-    # Customize the amount of memory on the VM:
-    vb.memory = vm_memory.to_s
-    vb.cpus = vm_cpus
-    # If you need to debug stuff
-    # vb.gui = true
-
-    # Disable default synced folder
-    config.vm.synced_folder ".", "/vagrant", disabled: true
-
-    # Enable HGFS
-    vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
-
-    # Must be equal to the total number of shares
-    vb.vmx["sharedFolder.maxnum"] = "2"
-
-    # Configure shared folders
-    VMwareHacks.configure_shares(vb)
-  end
+# Currently not built for vmware_workstation
+#  config.vm.provider "vmware_workstation" do |vb, override|
+#    override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.0.box"
+#
+#    # Customize the amount of memory on the VM:
+#    vb.memory = vm_memory.to_s
+#    vb.cpus = vm_cpus
+#    # If you need to debug stuff
+#    # vb.gui = true
+#
+#    # Disable default synced folder
+#    config.vm.synced_folder ".", "/vagrant", disabled: true
+#
+#    # Enable HGFS
+#    vb.vmx["isolation.tools.hgfs.disable"] = "FALSE"
+#
+#    # Must be equal to the total number of shares
+#    vb.vmx["sharedFolder.maxnum"] = "2"
+#
+#    # Configure shared folders
+#    VMwareHacks.configure_shares(vb)
+#  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://minio.from-the.cloud:9000/vagrant-box-images/hcf-libvirt-v2.0.0.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.0.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
