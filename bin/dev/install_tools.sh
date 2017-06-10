@@ -15,7 +15,7 @@ fissile_url="${fissile_url:-${s3}/${thefissile}.linux-amd64.tgz}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
 stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/0.0.0/stampy-0.0.0.22.gbb93bf3.linux-amd64.tgz}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v1.5.4/bin/linux/amd64/kubectl}"
-k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v0.0.1/kctl-linux-amd64}"
+k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v0.0.12/kctl-linux-amd64}"
 kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed940e6156272c0af/raw/}"
 
 mkdir -p "${bin_dir}"
