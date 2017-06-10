@@ -203,10 +203,6 @@ uaa-kube: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/uaa-kube
 .PHONY: uaa-kube
 
-hyperkube:
-	${GIT_ROOT}/make/hyperkube
-.PHONY: hyperkube
-
 ########## CONFIGURATION TARGETS ##########
 
 generate: \
