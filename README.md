@@ -10,10 +10,11 @@ differences:
 
 # Disclaimer
 
-Though fissile has been around for a few years now and it's containerization technology
-is fairly stable. Deploying directly to kubernetes however is relatively new, as is the
+Fissile has been around for a few years now and its containerization technology
+is fairly stable; however deploying directly to kubernetes is relatively new, as is the
 OpenSUSE stack and stemcell. This means that things are liable to break as we continue
-development, for sure links and where things are hosted are still in flux.
+development. Specifically links and where things are hosted are still in flux and will most
+likely break.
 
 For development testing we've mainly been targeting the following so they should
 be a known working quantity:
@@ -145,7 +146,7 @@ container.
 
 ### How do I clear all data and begin anew without rebuilding everything?
 
-On the Vagrant box, run the following commands
+On the Vagrant box, run the following commands:
 
 ```bash
 make stop
@@ -211,7 +212,7 @@ make images run
 
 Try each of the following solutions sequentially:
 
-* Run the `~. && vagrant reload` command.
+* Run the `vagrant reload` command.
 * Run `vagrant halt && vagrant reload` command.
 * Manually stop the virtual machine and then run the `vagrant reload` command.
 * Run the `vagrant destroy -f && vagrant up` command and then run `make vagrant-prep run` on the Vagrant box.
@@ -224,11 +225,8 @@ You can access any URL or endpoint that references this address from your host.
 ### How do I connect to the Cloud Foundry database?
 
 1. Use the role manifest to expose the port for the mysql proxy role
-
 2. The MySQL instance is exposed at `192.168.77.77:3306`.
-
 3. The default username is: `root`.
-
 4. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/scf/bin/settings/settings.env` file on the Vagrant box.
 
 ### How do I add a new BOSH release to SCF?
@@ -348,9 +346,8 @@ here.
 
 1. Bump the real submodule:
 
-    a. Bump the real submodule and begin testing.
-
-    b. Remove the clone you used for the release.
+    1. Bump the real submodule and begin testing.
+    1. Remove the clone you used for the release.
 
 1. Test the release by running the `make <release-name>-release compile images run` command.
 
@@ -363,19 +360,6 @@ here.
 
 * If our submodules are close to the `HEAD` of upstream and no merge conflicts occur, follow [the steps described here](#if-im-working-on-component-x-how-does-my-dev-cycle-look-like).
 * If merge conflicts occur, or if the component is referenced as a submodule, and it is not compatible with the parent release, work with the SCF team to resolve the issue on a case-by-case basis.
-
-### What is the difference between a BOSH role and a Docker role?
-
-* `fissile` generates `bosh` and `bosh-task` roles using BOSH releases while regular `Dockerfiles` create `docker` roles.
-* You can include both types of role in the role manifest, using the same run information.
-
-### How can I add a Docker role to SCF?
-
-    1. Name your new role.
-    1. Create a directory named after your role in `./docker-images`.
-    1. Create a `Dockerfile` in the new directory.
-    1. Add your role to `role-manifest.yml`
-    1. Test using the `make docker-images run` command.
 
 ## How do I publish SCF and BOSH images?
 
