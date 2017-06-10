@@ -28,7 +28,7 @@ certs: uaa-certs
 	${GIT_ROOT}/bin/generate-certs.sh cf bin/settings/cert.env
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 
-run: kube/bosh-task/post-deployment-setup.yml
+run:
 	${GIT_ROOT}/make/uaa-run
 	${GIT_ROOT}/make/run
 
