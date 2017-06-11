@@ -34,7 +34,7 @@ shift $((OPTIND - 1))
 usage() {
     cat <<'EOL'
 Usage: "${0:-generate_dev_certs.sh}" [NAMESPACE] <OUTPUT_PATH>
-Namespace defaults to `hcf`
+Namespace defaults to `cf`
 EOL
 }
 
@@ -47,7 +47,7 @@ namespace="${1:-}"
 output_path="${2:-}"
 if test -z "${output_path}" ; then
     output_path="${namespace}"
-    namespace="hcf"
+    namespace="cf"
 fi
 
 if test -z "${output_path}" ; then
@@ -72,7 +72,7 @@ command -v certstrap > /dev/null 2>&1 || {
 }
 
 # Certificate generation
-certs_path="/tmp/hcf/certs"
+certs_path="/tmp/scf/certs"
 hcf_certs_path="${certs_path}/hcf"
 internal_certs_dir="${certs_path}/internal"
 # The next line opens the output file, and assigns the fd to ${output_fd}
@@ -251,7 +251,7 @@ cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_ser
 # We include hcf.uaa.${DOMAIN} / hcf.login.${DOMAIN} because it's not covered by
 # *.${DOMAIN} and it's required by the dev UAA server
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-hcf},${DOMAIN},*.${DOMAIN},${namespace}.uaa.${DOMAIN},${namespace}.login.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-cf},${DOMAIN},*.${DOMAIN},${namespace}.uaa.${DOMAIN},${namespace}.login.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"

@@ -1,4 +1,4 @@
-#Usage: https://github.com/hpcloud/hcf/blob/develop/docs/kube.md
+#Usage: https://github.com/SUSE/scf/blob/develop/docs/kube.md
 #!/bin/bash
 set -ex
 
@@ -51,7 +51,7 @@ fissile build images
 fissile build kube -k kube/ --use-memory-limits=false \
     -D $(echo env/*.env | tr ' ' ',')
 
-make -C ~/hcf hyperkube	
+make -C ~/scf hyperkube	
 
 #Run UAA
 kubectl create namespace uaa
@@ -60,7 +60,7 @@ kubectl create -n uaa -f kube-test/exposed-ports.yml
 
 #Build CF
 kubectl create namespace cf
-cd ~/hcf
+cd ~/scf
 source .envrc
 make vagrant-prep
 bash bin/settings/kube/ca.sh
