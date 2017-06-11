@@ -38,7 +38,7 @@ Vagrant.configure(2) do |config|
 
     # https://github.com/mitchellh/vagrant/issues/351
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
+    override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
 
 # Currently not built for vmware_fusion
@@ -98,7 +98,7 @@ Vagrant.configure(2) do |config|
     libvirt.cpus = vm_cpus
 
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "/home/vagrant/hcf", type: "nfs"
+    override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
 
   # We can't run the VMware specific mounting in a provider override,
@@ -117,7 +117,7 @@ Vagrant.configure(2) do |config|
         sleep 1
         retries=$((retries+1))
 
-        if [ -d "/mnt/hgfs/hcf/src" ]; then
+        if [ -d "/mnt/hgfs/scf/src" ]; then
           mounts_available="yes"
         fi
       done
@@ -125,12 +125,12 @@ Vagrant.configure(2) do |config|
       if hash vmhgfs-fuse 2>/dev/null; then
         echo "Mounts available after ${retries} seconds."
 
-        if [ ! -d "/home/vagrant/hcf" ]; then
+        if [ ! -d "/home/vagrant/scf" ]; then
           echo "Sharing directories in the VMware world ..."
-          mkdir -p /home/vagrant/hcf
+          mkdir -p /home/vagrant/scf
           mkdir -p /home/vagrant/.bosh
 
-          sudo vmhgfs-fuse .host:hcf /home/vagrant/hcf -o allow_other
+          sudo vmhgfs-fuse .host:scf /home/vagrant/scf -o allow_other
           sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
         fi
       else
@@ -160,9 +160,9 @@ Vagrant.configure(2) do |config|
       https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
     chmod a+x ${HOME}/bin/direnv
     echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
-    ln -s ${HOME}/hcf/bin/dev/vagrant-envrc ${HOME}/.envrc
+    ln -s ${HOME}/scf/bin/dev/vagrant-envrc ${HOME}/.envrc
     ${HOME}/bin/direnv allow ${HOME}
-    ${HOME}/bin/direnv allow ${HOME}/hcf
+    ${HOME}/bin/direnv allow ${HOME}/scf
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -174,20 +174,19 @@ Vagrant.configure(2) do |config|
 
     # Install development tools
     (
-      cd "${HOME}/hcf"
-      ${HOME}/bin/direnv exec ${HOME}/hcf/bin/dev/install_tools.sh
+      cd "${HOME}/scf"
+      ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
     )
 
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
-    echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/hcf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
+    echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH=$PATH:/home/vagrant/hcf/container-host-files/opt/hcf/bin/' >> .profile
-    echo "alias hcf-status-watch='watch --color hcf-status'" >> .profile
+    echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
 
-    direnv exec /home/vagrant/hcf make -C /home/vagrant/hcf copy-compile-cache
+    direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
@@ -206,7 +205,7 @@ module VMwareHacks
     vb.vmx["sharedFolder0.readAccess"] = "TRUE"
     vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
     vb.vmx["sharedFolder0.hostPath"] = current_dir
-    vb.vmx["sharedFolder0.guestName"] = "hcf"
+    vb.vmx["sharedFolder0.guestName"] = "scf"
     vb.vmx["sharedFolder0.expiration"] = "never"
     vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
 
