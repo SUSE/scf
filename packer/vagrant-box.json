@@ -1,7 +1,7 @@
 {
     "variables": {
-        "version": "2.0.0",
-        "vm_name": "hcf-vagrant-{{isotime \"20060102-1504\"}}",
+        "version": "2.0.1",
+        "vm_name": "scf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "iso_url": "http://download.opensuse.org/distribution/leap/42.2/iso/openSUSE-Leap-42.2-NET-x86_64.iso",
@@ -160,7 +160,7 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "output": "hcf-{{.Provider}}-v{{user `version`}}.box",
+            "output": "scf-{{.Provider}}-v{{user `version`}}.box",
             "vagrantfile_template": "Vagrantfile.template"
         }
     ]
