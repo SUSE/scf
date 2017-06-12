@@ -1748,7 +1748,7 @@ configuration:
     type: environment
   - name: HCF_UAA_ROOT_ZONE_URL
     immutable: true
-    default: https://uaa:8443
+    default: https://uaa:2793
     description: The location of the UAA root zone. Only used for development.
   - name: HCP_AZ
     type: environment
