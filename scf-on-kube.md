@@ -4,7 +4,7 @@
 Right now this assumes we're using the same stemcell for uaa as we use for scf.
 
 ```bash
-cd ~/hcf
+cd ~/scf
 make docker-deps
 ```
 
@@ -47,12 +47,12 @@ rbenv rehash
 First, generate the certs for `scf`:
 
 ```bash
-~/hcf/bin/generate-dev-certs.sh [NAMESPACE YOU WILL USE FOR SCF] ~/hcf/bin/settings/certs.env  
+~/scf/bin/generate-dev-certs.sh [NAMESPACE YOU WILL USE FOR SCF] ~/scf/bin/settings/certs.env  
 ```
 
 Then, copy the certs from `scf`
 ```bash
-cp ~/hcf/bin/settings/certs.env ./env/
+cp ~/scf/bin/settings/certs.env ./env/
 ```
 
 ```bash
@@ -78,7 +78,7 @@ Edit `kube/bosh-task/post-deployment-setup.yml`, and set the `apiVersion` to be
 ### Step 4.b - Deploy
 
 ```bash
-cd ~/hcf
+cd ~/scf
 make vagrant-prep kube
 kubectl create namespace scf && \
 kubectl create -n scf -f ./kube/bosh/ && \
