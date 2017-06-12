@@ -5,7 +5,7 @@ set -o errexit -o nounset
 s3="https://cf-opensusefs2.s3.amazonaws.com/fissile"
 
 # Tool versions
-thefissile="$(echo "fissile-5.0.0+44.g3750468" | sed -e 's/+/%2B/')"
+thefissile="$(echo "fissile-5.0.0+49.gf5e9403" | sed -e 's/+/%2B/')"
 
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
