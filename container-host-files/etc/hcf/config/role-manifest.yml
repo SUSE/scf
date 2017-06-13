@@ -601,7 +601,7 @@ roles:
     healthcheck:
       liveness:
         timeout: 3000 # pre-start migration can take forever
-        initial_delay: 1800
+        initial_delay: 3600
         period: 60
       readiness:
         url: http://container-ip:9022/v2/info
