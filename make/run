@@ -32,8 +32,11 @@ kubectl get storageclass persistent 2>/dev/null || {
     kubectl create -f -
 }
 
-kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh"
-kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/post-deployment-setup.yml"
+kubectl create --namespace="${NAMESPACE}" \
+    --filename="kube/bosh" \
+    --filename="kube/secrets" \
+    --filename="kube/bosh-task/post-deployment-setup.yml" \
+    ${NULL}
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 
