@@ -177,7 +177,8 @@ roles:
       internal: 4444
       public: false
     healthcheck:
-      url: http://container-ip:9200/
+      readiness:
+        url: http://container-ip:9200/
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -230,7 +231,8 @@ roles:
       internal: 1936
       public: false
     healthcheck:
-      url: http://container-ip:1936/
+      readiness:
+        url: http://container-ip:1936/
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -289,20 +291,21 @@ roles:
       internal: 17017
       public: false
     healthcheck:
-      command:
-        - /usr/bin/curl
-        - --data
-        - ''
-        - --fail
-        - --resolve
-        - "diego-database:8889:127.0.0.1"
-        - --cert
-        - /var/vcap/jobs/bbs/config/certs/server.crt
-        - --key
-        - /var/vcap/jobs/bbs/config/certs/server.key
-        - --cacert
-        - /var/vcap/jobs/bbs/config/certs/ca.crt
-        - https://diego-database:8889/v1/ping
+      readiness:
+        command:
+          - /usr/bin/curl
+          - --data
+          - ''
+          - --fail
+          - --resolve
+          - "diego-database:8889:127.0.0.1"
+          - --cert
+          - /var/vcap/jobs/bbs/config/certs/server.crt
+          - --key
+          - /var/vcap/jobs/bbs/config/certs/server.key
+          - --cacert
+          - /var/vcap/jobs/bbs/config/certs/ca.crt
+          - https://diego-database:8889/v1/ping
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-pod((/KUBE_POD_SERVICE))
@@ -356,7 +359,8 @@ roles:
       internal: 443
       public: true
     healthcheck:
-      url: http://container-ip:8080/health
+      readiness:
+        url: http://container-ip:8080/health
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -405,7 +409,8 @@ roles:
       internal: 20000-20008
       public: true
     healthcheck:
-      url: http://container-ip/health
+      readiness:
+        url: http://container-ip/health
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -504,10 +509,11 @@ roles:
       public: false
     docker-args: [--network-alias, hcf.uaa.hcf.svc, --publish, '8443:8443/tcp']
     healthcheck:
-      url: https://container-ip:8443/info
-      headers:
-        host: uaa
-        accept: application/json
+      readiness:
+        url: https://container-ip:8443/info
+        headers:
+          host: uaa
+          accept: application/json
   configuration:
     templates:
       properties.login.url: '"https://login.((DOMAIN))"'
@@ -595,7 +601,10 @@ roles:
     healthcheck:
       liveness:
         timeout: 3000 # pre-start migration can take forever
-      url: http://container-ip:9022/v2/info
+        initial_delay: 1800
+        period: 60
+      readiness:
+        url: http://container-ip:9022/v2/info
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -816,16 +825,17 @@ roles:
       internal: 7001
       public: false
     healthcheck:
-      command:
-        - /usr/bin/curl
-        - --fail
-        - --resolve
-        - etcd:4001:127.0.0.1
-        - --cert
-        - /var/vcap/jobs/etcd/config/certs/client.crt
-        - --key
-        - /var/vcap/jobs/etcd/config/certs/client.key
-        - https://etcd:4001/v2/stats/leader
+      readiness:
+        command:
+          - /usr/bin/curl
+          - --fail
+          - --resolve
+          - etcd:4001:127.0.0.1
+          - --cert
+          - /var/vcap/jobs/etcd/config/certs/client.crt
+          - --key
+          - /var/vcap/jobs/etcd/config/certs/client.key
+          - https://etcd:4001/v2/stats/leader
   configuration:
     templates:
       # On k8s, we want the FQDN: etcd-pod.hcf.svc.cluster.local
@@ -883,7 +893,8 @@ roles:
       internal: 8082
       public: false
     healthcheck:
-      url: http://container-ip:8081/set-cookie
+      readiness:
+        url: http://container-ip:8081/set-cookie
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1019,7 +1030,8 @@ roles:
       internal: 17018
       public: false
     healthcheck:
-      url: http://container-ip:1518/v1/bulk_actual_lrp_status?guids=1
+      readiness:
+        url: http://container-ip:1518/v1/bulk_actual_lrp_status?guids=1
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1101,7 +1113,8 @@ roles:
       internal: 8080
       public: false
     healthcheck:
-      url: http://container-ip:8080/v1/static/
+      readiness:
+        url: http://container-ip:8080/v1/static/
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1156,7 +1169,8 @@ roles:
       internal: 1801
       public: false
     healthcheck:
-      url: http://container-ip:7777/ping # garden TCP listener
+      readiness:
+        url: http://container-ip:7777/ping # garden TCP listener
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-pod((/KUBE_POD_SERVICE))
