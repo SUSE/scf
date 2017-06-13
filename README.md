@@ -166,8 +166,8 @@ Typically Vagrant box deployments encounter one of few problems:
     they will be recreated.
 
     ```bash
-    k delete pod cf:routing-api
-    k delete pod cf:router
+    k delete pod cf:^routing-api
+    k delete pod cf:^router
     ```
 
 # Deploying SCF on Kubernetes
