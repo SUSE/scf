@@ -26,3 +26,4 @@ src/buildpacks/*-clone
 output/
 /kube/bosh/
 /kube/bosh-task/
+personal-setup
