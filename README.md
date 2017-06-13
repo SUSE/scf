@@ -28,11 +28,36 @@ For more production-like deploys we've been targetting baremetal Kubernetes 1.6.
 though these deploys currently require the adventurer to be able to debug and problem solve
 which takes knowledge of the components this repo brings together currently.
 
-# Table of Contents
+Table of Contents
+=================
 
-1. [Deploying SCF on Vagrant](#deploying-scf-on-vagrant)
-1. [Deploying SCF on Kubernetes](#deploying-scf-on-kubernetes)
-1. [Development FAQ](#development-faq)
+   * [SUSE Cloud Foundry](#suse-cloud-foundry)
+   * [Disclaimer](#disclaimer)
+   * [Table of Contents](#table-of-contents)
+   * [Deploying SCF on Vagrant](#deploying-scf-on-vagrant)
+      * [Requirements](#requirements)
+      * [Deploying](#deploying)
+      * [Usage](#usage)
+   * [Deploying SCF on Kubernetes](#deploying-scf-on-kubernetes)
+      * [Makefile targets](#makefile-targets)
+         * [Vagrant VM Targets](#vagrant-vm-targets)
+   * [Development FAQ](#development-faq)
+      * [Where do I find logs?](#where-do-i-find-logs)
+      * [How do I clear all data and begin anew without rebuilding everything?](#how-do-i-clear-all-data-and-begin-anew-without-rebuilding-everything)
+      * [How do I run smoke and acceptance tests?](#how-do-i-run-smoke-and-acceptance-tests)
+         * [How do I run a subset of SCF acceptance tests?](#how-do-i-run-a-subset-of-scf-acceptance-tests)
+         * [How do I run a subset of Cloud Foundry acceptance tests?](#how-do-i-run-a-subset-of-cloud-foundry-acceptance-tests)
+      * [fissile refuses to create images that already exist. How do I recreate images?](#fissile-refuses-to-create-images-that-already-exist-how-do-i-recreate-images)
+      * [My vagrant box is frozen. What can I do?](#my-vagrant-box-is-frozen-what-can-i-do)
+      * [Can I target the cluster from the host using the cf CLI?](#can-i-target-the-cluster-from-the-host-using-the-cf-cli)
+      * [How do I connect to the Cloud Foundry database?](#how-do-i-connect-to-the-cloud-foundry-database)
+      * [How do I add a new BOSH release to SCF?](#how-do-i-add-a-new-bosh-release-to-scf)
+      * [What does my dev cycle look like when I work on Component X?](#what-does-my-dev-cycle-look-like-when-i-work-on-component-x)
+      * [How do I expose new settings via environment variables?](#how-do-i-expose-new-settings-via-environment-variables)
+      * [How do I bump the submodules for the various releases?](#how-do-i-bump-the-submodules-for-the-various-releases)
+      * [Can I suspend or resume my vagrant VM?](#can-i-suspend-or-resume-my-vagrant-vm)
+      * [How do I develop an upstream PR?](#how-do-i-develop-an-upstream-pr)
+      * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
 
 # Deploying SCF on Vagrant
 
@@ -103,7 +128,12 @@ cf api --skip-ssl-validation https://api.cf-dev.io
 
 # Deploying SCF on Kubernetes
 
-TODO
+After careful consideration of the difficulty of the current install, we decided not
+to detail the instructions to install on bare K8s because it still requires far too
+much knowledge of SCF related systems and troubleshooting.
+
+Please be patient while we work on a set of [Helm](https://github.com/kubernetes/helm)
+charts that will help people easily install on any Kubernetes.
 
 ## Makefile targets
 
@@ -116,7 +146,7 @@ Name            | Effect |
 `vagrant-box`    | Build the Vagrant box image using `packer` |
 `vagrant-prep`    | Shortcut for building everything needed for `make run` |
 
-## Development FAQ
+# Development FAQ
 
 ### Where do I find logs?
 
