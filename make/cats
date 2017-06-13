@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+NAMESPACE="cf"
+
+has_namespace() {
+    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
+}
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats start
+
+if has_namespace ; then
+    :
+else
+    echo 1>&2 Namespace ${NAMESPACE} is missing. SCF is not running.
+    exit 1
+fi
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup start
+
+cf api api.cf-dev.io --skip-ssl-validation
+cf auth admin changeme
+cf enable-feature-flag diego_docker
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup end
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::create start
+
+# Delete left-over pod/definition from previous runs, then create/run
+kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/acceptance-tests.yml"
+kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/acceptance-tests.yml"
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::create end
+
+sleep 5 ; # Slap dash: Wait for container to be up and running
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::log end
+
+# First show the logs accumulated so far, then stream further logs in
+# a way which terminates when the pod (= testsuite) terminates.
+k log    cf:^acceptance-tests
+k attach cf:^acceptance-tests
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::log end
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats 'done'
