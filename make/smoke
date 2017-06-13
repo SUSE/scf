@@ -20,8 +20,10 @@ fi
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup start
 
+. ${GIT_ROOT}/bin/settings/settings.env
+
 cf api api.cf-dev.io --skip-ssl-validation
-cf auth admin changeme
+cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
 cf enable-feature-flag diego_docker
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup end
@@ -29,7 +31,9 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup end
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create start
 
 # Delete left-over pod/definition from previous runs, then create/run
-kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests.yml"
+kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests.yml" \
+    2> /dev/null || /bin/true
+
 kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests.yml"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create end
