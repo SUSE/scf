@@ -72,7 +72,7 @@
 	url = https://github.com/SUSE/cf-opensuse42-release.git
 [submodule "src/hcf-release/src/github.com/suse/testbrain"]
 	path = src/hcf-release/src/github.com/suse/testbrain
-	url = git@github.com:suse/testbrain.git
+	url = https://github.com/SUSE/testbrain.git
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
-	url = git@github.com:SUSE/uaa-fissile-release
+	url = https://github.com/SUSE/uaa-fissile-release
