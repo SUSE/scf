@@ -184,7 +184,9 @@ Vagrant.configure(2) do |config|
     set -e
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
+    echo 'export PATH=$PATH:/home/vagrant/scf/output/bin/' >> .profile
     echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
+    echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
     direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
