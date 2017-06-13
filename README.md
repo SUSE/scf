@@ -38,6 +38,7 @@ Table of Contents
       * [Requirements](#requirements)
       * [Deploying](#deploying)
       * [Usage](#usage)
+      * [Troubleshooting](#troubleshooting)
    * [Deploying SCF on Kubernetes](#deploying-scf-on-kubernetes)
       * [Makefile targets](#makefile-targets)
          * [Vagrant VM Targets](#vagrant-vm-targets)
@@ -104,7 +105,14 @@ a working system.
 
     # Watch the status of the pods, when everything is fully ready it should be usable.
     pod-status --watch
+
+    # Currently the api role takes a very long time to do its migrations (~20 mins), to see if it's
+    # doing migrations check the logs, if you see messages about migrations please be patient, otherwise
+    # see the Troubleshooting guide.
+    k logs -f cf:^api-[0-9]
     ```
+
+**Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
 ## Usage
 
@@ -119,12 +127,48 @@ You can get the the cf client here:
 The way the vagrant box is created is by making a network with a static IP on the host.
 This means that you cannot connect to it from some other box.
 
+**Note**: Currently you must run the cf client from inside the vagrant box. It's already
+installed so you don't have to download it there.
+
 ```bash
 # Attach to the endpoint (self-signed certs in dev mode requires skipping validation)
 # cf-dev.io simply resolves to the static IP 192.168.77.77 that vagrant provisions
 # This DNS resolution may fail on certain DNS providers that block resolution to 192.168.*
 cf api --skip-ssl-validation https://api.cf-dev.io
 ```
+
+## Troubleshooting
+
+Typically Vagrant box deployments encounter one of few problems:
+
+* uaa does not come up correctly (constantly not ready in pod-status)
+
+    In this case perform the following
+
+    ```bash
+    # Delete everything in the uaa namespace
+    k delete namespace uaa
+
+    # Delete the pv related to uaa/mysql-data-mysql-0
+    k get pv # Find it
+    k delete pv pvc-63aab845-4fe7-11e7-9c8d-525400652dd8
+
+    make uaa-run
+    ```
+
+* api does not come up correctly and is not performing migrations (curl output in logs)
+
+    uaa is not functioning, try steps above
+
+* routing-api and router do not come up
+
+    uaa and/or api is down, make sure they are running first and then delete the pods
+    they will be recreated.
+
+    ```bash
+    k delete pod cf:^routing-api
+    k delete pod cf:^router
+    ```
 
 # Deploying SCF on Kubernetes
 
