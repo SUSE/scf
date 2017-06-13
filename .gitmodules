@@ -58,9 +58,6 @@
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
 	url = https://github.com/cloudfoundry/grootfs-release.git
-[submodule "src/uaa-release"]
-	path = src/uaa-release
-	url = https://github.com/cloudfoundry/uaa-release.git
 [submodule "src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests
 	url = https://github.com/cloudfoundry/cf-acceptance-tests

@@ -310,11 +310,6 @@ properties:
   traffic_controller:
     locked_memory_limit: kernel
   uaa:
-    authentication:
-      policy:
-        countFailuresWithinSeconds: null
-        lockoutAfterFailures: null
-        lockoutPeriodSeconds: null
     clients:
       # Note that these clients are overridden in the dev-only UAA role; that is
       # instead used to bootstrap the default zone, whereas all of these clients
@@ -373,11 +368,6 @@ properties:
       tcp_router:
         authorities: routing.routes.read
         authorized-grant-types: client_credentials,refresh_token
-    database:
-      abandoned_timeout: 600
-      remove_abandoned: true
-    issuer: https://uaa.example.com
-    require_https: null
     user:
       authorities:
       - openid
@@ -395,10 +385,3 @@ properties:
       - roles
       - user_attributes
       - routing.router_groups.read
-  uaadb:
-    address: mysql-proxy
-    databases:
-    - name: uaadb
-      tag: uaa
-    db_scheme: mysql
-    port: 3306

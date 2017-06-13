@@ -26,7 +26,7 @@ update_submodule () {
 	git submodule update --init --recursive
 }
 
-for release_name in nats-release consul-release loggregator capi-release uaa-release diego-release etcd-release garden-runc-release
+for release_name in nats-release consul-release loggregator capi-release diego-release etcd-release garden-runc-release
 do
 	clone_dir=${GIT_ROOT}/src/${release_name}-clone
 	if test -e "${clone_dir}"
@@ -37,7 +37,7 @@ do
 done
 
 BUILDPACK_SUBMODULES="go-buildpack-release \
-	              binary-buildpack-release \
+                      binary-buildpack-release \
                       nodejs-buildpack-release \
                       ruby-buildpack-release \
                       php-buildpack-release \
@@ -81,7 +81,6 @@ CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
 ETCD_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" etcd-release)
 LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator)
 NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
-UAA_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" uaa-release)
 
 #CFMYSQL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" cf-mysql-release)
 ROUTING_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" routing-release)
@@ -100,5 +99,4 @@ update_submodule consul-release "${CONSUL_RELEASE}" src
 update_submodule etcd-release "${ETCD_RELEASE}" src
 update_submodule loggregator "${LOGGREGATOR}" src
 update_submodule nats-release "${NATS_RELEASE}" src
-update_submodule uaa-release "${UAA_RELEASE}" src
 update_submodule routing-release "${ROUTING_RELEASE}" src

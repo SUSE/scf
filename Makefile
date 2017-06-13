@@ -66,9 +66,6 @@ registry:
 
 ########## BOSH RELEASE TARGETS ##########
 
-uaa-release:
-	${GIT_ROOT}/make/bosh-release src/uaa-release
-
 diego-release:
 	${GIT_ROOT}/make/bosh-release src/diego-release
 
@@ -142,7 +139,6 @@ releases: \
 	routing-release \
 	hcf-release \
 	capi-release \
-	uaa-release \
 	loggregator-release \
 	nats-release \
 	consul-release \
