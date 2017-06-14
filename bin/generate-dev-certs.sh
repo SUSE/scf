@@ -185,10 +185,6 @@ certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA -
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_client --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_client --CA internalCA --passphrase "${signing_key_passphrase}"
 
-# generate SAML_SERVICEPROVIDER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name saml_serviceprovider --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign saml_serviceprovider --CA internalCA --passphrase "${signing_key_passphrase}"
-
 # generate SYSLOGDRAINBINDER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name syslogdrainbinder --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign syslogdrainbinder --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -239,19 +235,8 @@ mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
 ssh-keygen -E MD5 -lf "${certs_path}/app_ssh_key" | awk '{print $2}' | sed -e 's/^MD5://' > "${certs_path}/app_ssh_host_key_fingerprint"
 
-# generate uaa certs
-uaa_server_key="${certs_path}/uaa_private_key.pem"
-uaa_server_crt="${certs_path}/uaa_ca.crt"
-
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name "uaa" --domain "$(make_domains "uaa")" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign "uaa" --CA internalCA --passphrase "${signing_key_passphrase}"
-cp "${internal_certs_dir}/uaa.crt" "${uaa_server_crt}"
-cat "${internal_certs_dir}/uaa.crt" "${internal_certs_dir}/uaa.key" > "${uaa_server_key}"
-
-# We include hcf.uaa.${DOMAIN} / hcf.login.${DOMAIN} because it's not covered by
-# *.${DOMAIN} and it's required by the dev UAA server
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-cf},${DOMAIN},*.${DOMAIN},${namespace}.uaa.${DOMAIN},${namespace}.login.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-cf},${DOMAIN},*.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
@@ -319,15 +304,11 @@ add_env REP_CLIENT_CERT           "${internal_certs_dir}/rep_client.crt"
 add_env REP_CLIENT_KEY            "${internal_certs_dir}/rep_client.key"
 add_env ROUTER_SSL_CERT           "${certs_path}/router_ssl.cert"
 add_env ROUTER_SSL_KEY            "${certs_path}/router_ssl.key"
-add_env SAML_SERVICEPROVIDER_CERT "${internal_certs_dir}/saml_serviceprovider.crt"
-add_env SAML_SERVICEPROVIDER_KEY  "${internal_certs_dir}/saml_serviceprovider.key"
 add_env SYSLOGDRAINBINDER_CERT    "${internal_certs_dir}/syslogdrainbinder.crt"
 add_env SYSLOGDRAINBINDER_KEY     "${internal_certs_dir}/syslogdrainbinder.key"
 add_env TPS_CC_CLIENT_CRT         "${internal_certs_dir}/tpsCCClient.crt"
 add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
 add_env TRAFFICCONTROLLER_KEY     "${internal_certs_dir}/trafficcontroller.key"
-add_env UAA_SERVER_CERT           "${uaa_server_crt}"
-add_env UAA_SERVER_KEY            "${uaa_server_key}"
 
 echo "Keys for ${DOMAIN} wrote to ${output_path}"
