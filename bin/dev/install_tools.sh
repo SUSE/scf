@@ -1,22 +1,25 @@
 #!/bin/bash
 set -o errexit -o nounset
 
+# Get version information
+. "$(dirname "$0")/versions.sh"
+
 # Tool locations
 s3="https://cf-opensusefs2.s3.amazonaws.com/fissile"
 
 # Tool versions
-thefissile="$(echo "fissile-5.0.0+57.gdb657e9" | sed -e 's/+/%2B/')"
+thefissile="fissile-$(echo "${FISSILE_VERSION}" | sed -e 's/+/%2B/')"
 
 # Installs tools needed to build and run HCF
 bin_dir="${bin_dir:-output/bin}"
 tools_dir="${tools_dir:-output/tools}"
-ubuntu_image="${ubuntu_image:-ubuntu:14.04}"
+ubuntu_image="${ubuntu_image:-ubuntu:${UBUNTU_VERSION}}"
 fissile_url="${fissile_url:-${s3}/${thefissile}.linux-amd64.tgz}"
-cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=6.21.1&source=github-rel}"
-stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/0.0.0/stampy-0.0.0.22.gbb93bf3.linux-amd64.tgz}"
-kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v1.5.4/bin/linux/amd64/kubectl}"
-k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v0.0.12/kctl-linux-amd64}"
-kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed940e6156272c0af/raw/}"
+cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=${CFCLI_VERSION}&source=github-rel}"
+stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STAMPY_MAJOR}/stampy-${STAMPY_VERSION}.linux-amd64.tgz}"
+kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl}"
+k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v${K_VERSION}/kctl-linux-amd64}"
+kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/${KK_VERSION}/raw/}"
 
 mkdir -p "${bin_dir}"
 mkdir -p "${tools_dir}"

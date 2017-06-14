@@ -1,6 +1,8 @@
 #!/bin/bash
-
 set -o errexit -o nounset
+
+# Get version information
+. "$(dirname "$0")/dev/versions.sh"
 
 load_env() {
     local dir="${1}"
@@ -67,7 +69,7 @@ signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
-  docker run --rm -v "${HOME}/bin":/out:rw golang:1.7 /usr/bin/env GOBIN=/out go get github.com/square/certstrap
+  docker run --rm -v "${HOME}/bin":/out:rw golang:${GOLANG_VERSION} /usr/bin/env GOBIN=/out go get github.com/square/certstrap
   sudo chown "$(id -un):$(id -gn)" "${HOME}/bin/certstrap"
 }
 
