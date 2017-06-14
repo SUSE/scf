@@ -21,9 +21,10 @@ src/*-clone
 src/buildpacks/*-clone
 /*.tf
 /*.tf.json
-
+bin/settings/kube/ca.env
 # `make dist` output of various forms
 output/
 /kube/bosh/
 /kube/bosh-task/
+/kube/secrets/
 personal-setup

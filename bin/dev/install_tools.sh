@@ -21,18 +21,19 @@ kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed
 mkdir -p "${bin_dir}"
 mkdir -p "${tools_dir}"
 
-echo "Fetching cf CLI ..."
+echo "Fetching cf CLI $cf_url ..."
 wget -q "$cf_url"        -O "${tools_dir}/cf.tgz"
-echo "Fetching fissile ..."
+echo "Fetching fissile $fissile_url ..."
 wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}"
+echo "Installed: $("${FISSILE_BINARY}" version)"
 
-echo "Fetching stampy ..."
+echo "Fetching stampy $stampy_url ..."
 wget -q "$stampy_url"   -O - | tar xz -C "${bin_dir}" stampy
 
 echo "Unpacking cf CLI ..."
 tar -xzf "${tools_dir}/cf.tgz" -C "${bin_dir}"
 
-echo "Fetching kubectl ..."
+echo "Fetching kubectl ${kubectl_url} ..."
 wget -q "${kubectl_url}" -O "${bin_dir}/kubectl"
 wget -q "${k_url}" -O "${bin_dir}/k"
 wget -q "${kk_url}" -O "${bin_dir}/kk"
