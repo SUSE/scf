@@ -127,9 +127,6 @@ You can get the the cf client here:
 The way the vagrant box is created is by making a network with a static IP on the host.
 This means that you cannot connect to it from some other box.
 
-**Note**: Currently you must run the cf client from inside the vagrant box. It's already
-installed so you don't have to download it there.
-
 ```bash
 # Attach to the endpoint (self-signed certs in dev mode requires skipping validation)
 # cf-dev.io simply resolves to the static IP 192.168.77.77 that vagrant provisions
