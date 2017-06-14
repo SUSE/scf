@@ -64,6 +64,12 @@ vagrant-prep: \
 registry:
 	${GIT_ROOT}/make/registry
 
+smoke:
+	${GIT_ROOT}/make/smoke
+
+cats:
+	${GIT_ROOT}/make/cats
+
 ########## BOSH RELEASE TARGETS ##########
 
 uaa-release:
