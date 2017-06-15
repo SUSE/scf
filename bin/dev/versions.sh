@@ -29,19 +29,27 @@ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.33
 
 export GOLANG_VERSION=1.7
 
+# IV. make/include/versioning
+
+export CF_VERSION=251
+
 # Notes
 # github.com/square/certstrap - Unversioned `go get`
 
-# Show versions
+# Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################
 
-echo cf $CFCLI_VERSION
-echo fissile $FISSILE_VERSION
-echo kk $KK_VERSION
-echo kubectl $KUBECTL_VERSION
-echo k $K_VERSION
-echo stampy $STAMPY_VERSION
-#echo stampy $STAMPY_MAJOR
-echo ubuntu $UBUNTU_VERSION
-echo stemcell $FISSILE_STEMCELL_VERSION
-echo go $GOLANG_VERSION
+if [ "X$(basename "$0")" = "Xversions.sh" ]
+then
+    echo cf '      =' $CF_VERSION
+    echo cf-cli '  =' $CFCLI_VERSION
+    echo fissile ' =' $FISSILE_VERSION
+    echo go '      =' $GOLANG_VERSION
+    echo k '       =' $K_VERSION
+    echo kk '      =' $KK_VERSION
+    echo kubectl ' =' $KUBECTL_VERSION
+    echo stampy '  =' $STAMPY_VERSION
+    echo stemcell '=' $FISSILE_STEMCELL_VERSION
+    echo ubuntu '  =' $UBUNTU_VERSION
+    echo
+fi
