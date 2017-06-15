@@ -5,7 +5,7 @@ set -o errexit -o nounset
 # This file is sourced everywhere one or more of the versions are
 # needed.
 
-# I. bin/dev/install_tool.sh
+# Used in: bin/dev/install_tool.sh
 
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+57.gdb657e9"
@@ -21,15 +21,15 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 # Notes
 # splatform/bosh-cli - Unversioned docker pull
 
-# II. .envrc
+# Used in: .envrc
 
 export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.33
 
-# III. bin/generate-dev-certs.sh
+# Used in: bin/generate-dev-certs.sh
 
 export GOLANG_VERSION=1.7
 
-# IV. make/include/versioning
+# Used in: make/include/versioning
 
 export CF_VERSION=251
 
