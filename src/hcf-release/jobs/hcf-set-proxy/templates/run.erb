@@ -40,6 +40,20 @@ if_p("hcf_set_proxy.running_no_proxy") do |val|
 end
 %>
 
+# Report progress to the user; use as printf
+status() {
+    local fmt="${1}"
+    shift
+    printf "\n%b${fmt}%b\n" "\033[0;32m" "$@" "\033[0m"
+}
+
+# Report problem to the user; use as printf
+trouble() {
+    local fmt="${1}"
+    shift
+    printf "\n%b${fmt}%b\n" "\033[0;31m" "$@" "\033[0m"
+}
+
 # helper function to retry a command several times, with a delay between trials
 # usage: retry <max-tries> <delay> <command>...
 function retry () {
@@ -49,9 +63,13 @@ function retry () {
     shift 2
 
     while test ${i} -lt ${max} ; do
+	printf "Trying: %s\n" "$*"
         if "$@" ; then
+	    status ' SUCCESS'
             break
         fi
+	trouble '  FAILED'
+	status "Waiting ${delay} ..."
         sleep "${delay}"
         i="$(expr ${i} + 1)"
     done
@@ -63,11 +81,11 @@ CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
 
-echo "Waiting for CC... $CF_SKIP $API_ENDPOINT"
+status "Waiting for CC ... $CF_SKIP at $API_ENDPOINT"
 retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
 
-echo "Waiting for UAA... $CURL_SKIP $UAA_ENDPOINT"
-retry 240 30s curl --fail --silent --header 'Accept: application/json' $UAA_ENDPOINT/info
+status "Waiting for UAA ... at $CURL_SKIP $UAA_ENDPOINT/info"
+retry 240 30s curl --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
 
 insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.clients.hcf_auto_config.secret").shellescape %> ${CURL_SKIP}
 
@@ -78,7 +96,7 @@ cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shelle
 <%end
 end %>
 
-echo "Remove temporary users"
+status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
-echo "Setting of external proxies complete."
+status "Setting of external proxies complete."
