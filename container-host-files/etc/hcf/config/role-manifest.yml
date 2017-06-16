@@ -421,9 +421,10 @@ roles:
   - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
+  - scripts/authorize_internal_ca.sh
+  - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
