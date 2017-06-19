@@ -22,8 +22,8 @@ trouble() {
     printf "\n%b${fmt}%b\n" "\033[0;31m" "$@" "\033[0m"
 }
 
-# helper function to retry a command several times, with a delay between trials
-# usage: retry <max-tries> <delay> <command>...
+# helper function to retry a command until it suceeds, with a delay between trials
+# usage: retry_forever <delay> <command>...
 function retry_forever () {
     delay=${1}
     shift 1
