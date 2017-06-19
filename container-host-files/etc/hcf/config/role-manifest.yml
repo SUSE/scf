@@ -1686,7 +1686,7 @@ configuration:
     internal: true
     immutable: true
     description: The CA certificate for UAA
-    internal: true
+    secret: true
   - name: HCP_COMPONENT_INDEX
     type: environment
   - name: HCP_COMPONENT_NAME
