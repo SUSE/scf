@@ -235,9 +235,9 @@ cf enable-feature-flag diego_docker
 and execute the following commands:
 
 ```bash
-kubectl create -n cf -f kube/bosh-task/smoke-tests.yml
+make smoke
+make cats
 kubectl create -n cf -f kube/bosh-task/acceptance-tests-brain.yml
-kubectl create -n cf -f kube/bosh-task/acceptance-tests.yml
 ```
 
 #### How do I run a subset of SCF acceptance tests?
