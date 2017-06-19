@@ -7,7 +7,6 @@
 
 # Note that this is *sourced* into run.sh, so we can't exit the shell.
 
-
 # Report progress to the user; use as printf
 status() {
     local fmt="${1}"
@@ -43,12 +42,12 @@ function retry_forever () {
 SKIP=$(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)
 
 status "Waiting for UAA to be available ..."
-retry_forever 10s curl --connect-timeout 5 --fail $SKIP "${HCF_UAA_INTERNAL_URL}/token_key"
+retry_forever 10s curl --connect-timeout 5 --fail $SKIP "https://${KUBERNETES_NAMESPACE}.${UAA_HOST}:${UAA_PORT}/token_key"
 
 status "Extract JWT public signing key"
 export JWT_SIGNING_PUB="$(\
     { curl --fail $(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)\
-        "${HCF_UAA_INTERNAL_URL}/token_key" \
+        "https://${KUBERNETES_NAMESPACE}.${UAA_HOST}:${UAA_PORT}/token_key" \
         || exit 1 \
     ; } \
     | awk 'BEGIN { RS="," ; FS="\"" } /value/ { if ($2 == "value") print $4 } ')"
