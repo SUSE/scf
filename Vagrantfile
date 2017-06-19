@@ -91,7 +91,7 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.1.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.2.box"
     libvirt.driver = "kvm"
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
