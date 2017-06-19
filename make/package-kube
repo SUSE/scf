@@ -6,11 +6,20 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 . ${GIT_ROOT}/make/include/versioning
 
+tmp_dir=$(mktemp -d)
+
 ARTIFACT=${ARTIFACT_NAME}-kube-${APP_VERSION}.zip
 
 rm ${GIT_ROOT}/${ARTIFACT} 2>/dev/null || true
 
-cd kube && zip -r9 ${GIT_ROOT}/${ARTIFACT} * \
+mkdir "${tmp_dir}/cf" "${tmp_dir}/uaa"
+
+rsync -a "${GIT_ROOT}/kube/" "${tmp_dir}/cf"
+rsync -a "${GIT_ROOT}/src/uaa-fissile-release/kube/" "${tmp_dir}/uaa"
+
+cd "${tmp_dir}" && zip -r9 ${GIT_ROOT}/${ARTIFACT} * \
     ${NULL:-}
+
+rm -rf "${tmp_dir}"
 
 echo Generated ${ARTIFACT}
