@@ -4,15 +4,15 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-. "${GIT_ROOT}/make/include/registry"
+. "${GIT_ROOT}/.envrc"
 . "${GIT_ROOT}/src/uaa-fissile-release/.envrc"
 
-# IMAGE_REGISTRY and ORG have the same defaults, and pass through also.
-# IMAGE_PREFIX we must not pass, on pain of getting images with the
-# same name for different roles in SCF and UAA (mysql, uaa,
-# role-packages).
+# FISSILE_DOCKER_REGISTRY and FISSILE_DOCKER_ORGANIZATION have the
+# same defaults, and pass through also. FOSSIL_REPOSITORY we must not
+# pass, on pain of getting images with the same name for different
+# roles in SCF and UAA (mysql, uaa, role-packages).
 
-unset IMAGE_PREFIX
+unset FOSSIL_REPOSITORY
 
 make -C "${GIT_ROOT}/src/uaa-fissile-release" \
     kube-configs

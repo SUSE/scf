@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-. ${GIT_ROOT}/make/include/registry
+. "${GIT_ROOT}/.envrc"
 . ${GIT_ROOT}/make/include/versioning
 
 ${GIT_ROOT}/bin/validation.sh
@@ -16,7 +16,7 @@ ${GIT_ROOT}/bin/validation.sh
 
 PROPMAP=$(mktemp -t vagrant-propmap.XXXXXX.yml)
 OPTIONS=$(echo \
-    --scf-prefix \"${IMAGE_PREFIX}\" \
+    --scf-prefix \"${FISSILE_REPOSITORY}\" \
     --scf-tag \"${DOCKER_APP_VERSION}\" \
     --scf-version \"${APP_VERSION}\" \
     --scf-root-dir \"${GIT_ROOT}\" \
