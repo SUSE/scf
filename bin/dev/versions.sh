@@ -8,7 +8,7 @@ set -o errexit -o nounset
 # Used in: bin/dev/install_tool.sh
 
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.0.0+57.gdb657e9"
+export FISSILE_VERSION="5.0.0+62.gba2a780"
 export KK_VERSION="40a5b3756cf4bcbed940e6156272c0af"
 export KUBECTL_VERSION="1.5.4"
 export K_VERSION="0.0.12"
