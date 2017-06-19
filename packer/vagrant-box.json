@@ -149,7 +149,6 @@
         },
         {
             "type": "shell",
-            "only": ["virtualbox-iso", "vmware-iso"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/compact.sh"
