@@ -9,6 +9,7 @@ set -o errexit -o nounset
 
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+62.gba2a780"
+export HELM_VERSION="2.4.2"
 export KK_VERSION="40a5b3756cf4bcbed940e6156272c0af"
 export KUBECTL_VERSION="1.5.4"
 export K_VERSION="0.0.12"
@@ -45,6 +46,7 @@ then
     echo cf-cli '  =' $CFCLI_VERSION
     echo fissile ' =' $FISSILE_VERSION
     echo go '      =' $GOLANG_VERSION
+    echo helm '    =' $HELM_VERSION
     echo k '       =' $K_VERSION
     echo kk '      =' $KK_VERSION
     echo kubectl ' =' $KUBECTL_VERSION
