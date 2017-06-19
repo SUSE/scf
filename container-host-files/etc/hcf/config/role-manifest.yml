@@ -1098,7 +1098,7 @@ roles:
       public: false
     healthcheck:
       readiness:
-        url: http://container-ip:7777/ping # garden TCP listener
+        url: http://container-ip:1800/ping # rep HTTP server
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-pod((/KUBE_POD_SERVICE))
