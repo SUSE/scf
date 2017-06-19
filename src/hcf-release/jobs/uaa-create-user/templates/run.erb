@@ -69,7 +69,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
 
     UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-hcf}"
 
-    status "Waiting for root UAA to be available at %s ..." '<%= p("hcf.uaa.internal-url") %>'
+    status "Waiting for root UAA to be available ..."
     retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
 
     # We need to create the HCF zone manually
@@ -125,7 +125,7 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
 else
     # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
     # We update them manually to work around the issue.
-    status "Waiting for UAA zone to be available at %s ..." '<%= p("hcf.uaa.internal-url") %>'
+    status "Waiting for UAA zone to be available ..."
     retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
     status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
@@ -169,7 +169,7 @@ else
     set -o errexit
 fi
 
-status "Waiting for UAA zone to be available at %s ..." '<%= p("hcf.uaa.internal-url") %>'
+status "Waiting for UAA zone to be available ..."
 retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
 status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'

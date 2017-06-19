@@ -81,10 +81,10 @@ CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
 API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
 
-status "Waiting for CC ... $CF_SKIP at $API_ENDPOINT"
+status "Waiting for CC ..."
 retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
 
-status "Waiting for UAA ... at $CURL_SKIP $UAA_ENDPOINT/info"
+status "Waiting for UAA ..."
 retry 240 30s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
 
 insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.clients.hcf_auto_config.secret").shellescape %> ${CURL_SKIP}

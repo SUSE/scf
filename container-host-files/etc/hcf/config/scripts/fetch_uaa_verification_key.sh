@@ -42,7 +42,7 @@ function retry_forever () {
 
 SKIP=$(if test "${SKIP_CERT_VERIFY_EXTERNAL}" = "true" ; then echo "--insecure" ; fi)
 
-status "Waiting for UAA to be available at ${HCF_UAA_INTERNAL_URL}/token_key ..."
+status "Waiting for UAA to be available ..."
 retry_forever 10s curl --connect-timeout 5 --fail $SKIP "${HCF_UAA_INTERNAL_URL}/token_key"
 
 status "Extract JWT public signing key"
