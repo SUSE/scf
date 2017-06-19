@@ -43,13 +43,13 @@ function retry () {
     shift 2
 
     while test ${i} -lt ${max} ; do
-	printf "Trying: %s\n" "$*"
+        printf "Trying: %s\n" "$*"
         if "$@" ; then
-	    status ' SUCCESS'
+            status ' SUCCESS'
             break
         fi
-	trouble '  FAILED'
-	status "Waiting ${delay} ..."
+        trouble '  FAILED'
+        status "Waiting ${delay} ..."
         sleep "${delay}"
         i="$(expr ${i} + 1)"
     done
@@ -191,10 +191,10 @@ if uaac user get <%= username %> ; then
 else
     status "Creating user %s" <%= username %>
     uaac user add <%= username %> \
-	--given_name '' \
-	--family_name '' \
-	--emails <%= username %> \
-	--password <%= password %>
+        --given_name '' \
+        --family_name '' \
+        --emails <%= username %> \
+        --password <%= password %>
 fi
 
 user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')

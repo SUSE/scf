@@ -63,13 +63,13 @@ function retry () {
     shift 2
 
     while test ${i} -lt ${max} ; do
-	printf "Trying: %s\n" "$*"
+        printf "Trying: %s\n" "$*"
         if "$@" ; then
-	    status ' SUCCESS'
+            status ' SUCCESS'
             break
         fi
-	trouble '  FAILED'
-	status "Waiting ${delay} ..."
+        trouble '  FAILED'
+        status "Waiting ${delay} ..."
         sleep "${delay}"
         i="$(expr ${i} + 1)"
     done
