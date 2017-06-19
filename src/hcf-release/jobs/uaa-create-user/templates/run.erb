@@ -122,7 +122,7 @@ status "Populating clients..."
     status "- Client <%= client_id %> /done"
 <% end %>
 
-status "Waiting for UAA to be availabile at %s..." '<%= p("uaa.url") %>'
+status "Waiting for UAA zone to be available ..."
 retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
 
 status "Logging in to %s" '<%= p("uaa.url") %>'
