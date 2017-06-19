@@ -29,13 +29,13 @@ function retry_forever () {
     shift 1
 
     while true ; do
-	printf "Trying: %s\n" "$*"
+        printf "Trying: %s\n" "$*"
         if "$@" ; then
-	    status ' SUCCESS'
+            status ' SUCCESS'
             break
         fi
-	trouble '  FAILED'
-	status "Waiting ${delay} ..."
+        trouble '  FAILED'
+        status "Waiting ${delay} ..."
         sleep "${delay}"
     done
 }
