@@ -11,10 +11,7 @@ templates:
   run.erb: bin/run
 
 properties:
-  hcf.uaa.internal-url:
-    description: The URL of the HCF UAA zone
-    example: https://hcf.uaa.example.com
-  hcf.uaa.root-zone.url:
+  scf.uaa.root-zone.url:
     description: The URL of the root zone, used to create the HCF zone
     example: https://uaa.example.com
   ssl.skip_cert_verify:

@@ -63,85 +63,50 @@ curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
 uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 %>
 
-if test -z "${HCP_INSTANCE_ID:-}" ; then
-    # Running in vagrant, and managing our own UAA
-    # We need to create the zone and populate it the way HCP would have done.
+# Running in vagrant, and managing our own UAA
+# We need to create the zone and populate it
 
-    UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-hcf}"
+UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-scf}"
 
-    status "Waiting for root UAA to be available ..."
-    retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
+status "Waiting for root UAA to be available..."
+retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("scf.uaa.root-zone.url") %>/info'
 
-    # We need to create the HCF zone manually
-    status "Checking for UAA zone ${UAA_ZONE_ID}..."
+# We need to create the HCF zone manually
+status "Checking for UAA zone ${UAA_ZONE_ID}..."
 
-    uaac target <%= uaac_ssl %> '<%= p("hcf.uaa.root-zone.url") %>'
-    uaac token client get default_zone_admin --secret '<%= p("uaa.admin.client_secret") %>'
+uaac target <%= uaac_ssl %> '<%= p("scf.uaa.root-zone.url") %>'
+uaac token client get default_zone_admin --secret '<%= p("uaa.admin.client_secret") %>'
 
-    if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404 Not Found' ; then
-        status "Creating UAA zone ${UAA_ZONE_ID}"
-        uaac curl <%= curl_ssl %> -X POST /identity-zones -H 'Content-Type: application/json' -d '{
-            "id": "'"${UAA_ZONE_ID}"'",
-            "subdomain": "'"${UAA_ZONE_ID}"'",
-            "name": "'"${UAA_ZONE_ID}"'"
-        }'
+if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404 Not Found' ; then
+    status "Creating UAA zone ${UAA_ZONE_ID}"
+    uaac curl <%= curl_ssl %> -X POST /identity-zones -H 'Content-Type: application/json' -d '{
+        "id": "'"${UAA_ZONE_ID}"'",
+        "subdomain": "'"${UAA_ZONE_ID}"'",
+        "name": "'"${UAA_ZONE_ID}"'"
+    }'
+fi
+
+status "Creating groups..."
+<% p('uaa.user.authorities', []).each do |group_name| %>
+    if ! uaac --zone "${UAA_ZONE_ID}" group get '<%= group_name %>' ; then
+        status "- Group <%= group_name %> ..."
+        uaac --zone "${UAA_ZONE_ID}" group add '<%= group_name %>'
+        status "- Group <%= group_name %> /done"
     fi
+<% end %>
 
-    status "Creating groups..."
-    <% p('uaa.user.authorities', []).each do |group_name| %>
-        if ! uaac --zone "${UAA_ZONE_ID}" group get '<%= group_name %>' ; then
-            status "- Group <%= group_name %> ..."
-            uaac --zone "${UAA_ZONE_ID}" group add '<%= group_name %>'
-            status "- Group <%= group_name %> /done"
-        fi
-    <% end %>
-
-    status "Populating clients..."
-    <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
-        status "- Client <%= client_id %> ..."
-        if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
-            status "- Client <%= client_id %> adding ..."
-            uaac --zone "${UAA_ZONE_ID}" client add '<%= client_id %>' \
-                --no-interactive \
-                <%
-                    %w(scope authorized-grant-types authorities access-token-validity refresh-token-validity redirect-uri secret).each do |key|
-                        if client_data.key? key
-                            %> --<%= key.tr('-', '_') %> '<%= client_data[key] %>' <%
-                        end
-                    end
-                    if client_data.key? 'autoapprove'
-                        if client_data['autoapprove'].eql? true
-                            %> --autoapprove '<%= client_data['scope'] %>' <%
-                        else
-                            %> --autoapprove '<%= client_data['autoapprove'] %>' <%
-                        end
-                    end
-                %>
-        fi
-        status "- Client <%= client_id %> set secret"
-        uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
-        status "- Client <%= client_id %> /done"
-    <% end %>
-else
-    # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
-    # We update them manually to work around the issue.
-    status "Waiting for UAA zone to be available ..."
-    retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
-
-    status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
-    uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
-    uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
-
-    status "Fixing missing configs for clients..."
-    # Disable because we need to manually check uaac's exit code
-    set +o errexit
-    <% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
-        <% next unless client_data['autoapprove'] || client_data['redirect-uri'] %>
-          uaac_message="$(uaac client update '<%= client_id %>' \
+status "Populating clients..."
+<% p('uaa.clients', {}).sort.each do |client_id, client_data| %>
+    status "- Client <%= client_id %> ..."
+    if ! uaac --zone "${UAA_ZONE_ID}" client get '<%= client_id %>' ; then
+        status "- Client <%= client_id %> adding ..."
+        uaac --zone "${UAA_ZONE_ID}" client add '<%= client_id %>' \
             --no-interactive \
             <%
-                if client_data.key? 'redirect-uri'
-                    %> --redirect_uri '<%= client_data['redirect-uri'] %>' <%
+                %w(scope authorized-grant-types authorities access-token-validity refresh-token-validity redirect-uri secret).each do |key|
+                    if client_data.key? key
+                        %> --<%= key.tr('-', '_') %> '<%= client_data[key] %>' <%
+                    end
                 end
                 if client_data.key? 'autoapprove'
                     if client_data['autoapprove'].eql? true
@@ -150,30 +115,18 @@ else
                         %> --autoapprove '<%= client_data['autoapprove'] %>' <%
                     end
                 end
-            %>)"
+            %>
+    fi
+    status "- Client <%= client_id %> set secret"
+    uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
+    status "- Client <%= client_id %> /done"
+<% end %>
 
-          # Test to see if uaac failed because we've already done this.
-          # Post flight roles need to be idempotent.
-          # uaac will exit with 1 if it has nothing to do and display a message
-          # that says: Nothing to update. Use -i for interactive update.
-          if [ "$?" != "0" ]; then
-            if [[ ! "$uaac_message" == *"Nothing to update"* ]]; then
-              echo $uaac_message
-              exit 1
-            fi
-          fi
-        uaac secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
-    <% end %>
+status "Waiting for UAA to be availabile at %s..." '<%= p("uaa.url") %>'
+retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
 
-    # Re-enable after dealing with uaac client update
-    set -o errexit
-fi
-
-status "Waiting for UAA zone to be available ..."
-retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
-
-status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
-uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
+status "Logging in to %s" '<%= p("uaa.url") %>'
+uaac target <%= uaac_ssl %> <%= p("uaa.url") %>
 uaac token client get hcf_auto_config --secret '<%= p("uaa.clients.hcf_auto_config.secret") %>'
 
 <% secret      = '/etc/secrets/cluster-admin-password'
