@@ -7,6 +7,10 @@
 
 set -o errexit -o nounset
 
+# Default: verbose operation. Uncomment 2nd line to quiet this job
+SILENT=
+#SILENT=--silent
+
 <% if properties.uaa.scim.users.empty? %>
      echo "Aborting. No admin user configured."
      exit 1
@@ -23,6 +27,13 @@ status() {
     printf "\n%b${fmt}%b\n" "\033[0;32m" "$@" "\033[0m"
 }
 
+# Report problem to the user; use as printf
+trouble() {
+    local fmt="${1}"
+    shift
+    printf "\n%b${fmt}%b\n" "\033[0;31m" "$@" "\033[0m"
+}
+
 # helper function to retry a command several times, with a delay between trials
 # usage: retry <max-tries> <delay> <command>...
 function retry () {
@@ -32,9 +43,13 @@ function retry () {
     shift 2
 
     while test ${i} -lt ${max} ; do
+        printf "Trying: %s\n" "$*"
         if "$@" ; then
+            status ' SUCCESS'
             break
         fi
+        trouble '  FAILED'
+        status "Waiting ${delay} ..."
         sleep "${delay}"
         i="$(expr ${i} + 1)"
     done
@@ -54,8 +69,8 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
 
     UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-hcf}"
 
-    status "Waiting for root UAA to be available..."
-    retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
+    status "Waiting for root UAA to be available ..."
+    retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.root-zone.url") %>/info'
 
     # We need to create the HCF zone manually
     status "Checking for UAA zone ${UAA_ZONE_ID}..."
@@ -75,7 +90,9 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
     status "Creating groups..."
     <% p('uaa.user.authorities', []).each do |group_name| %>
         if ! uaac --zone "${UAA_ZONE_ID}" group get '<%= group_name %>' ; then
+            status "- Group <%= group_name %> ..."
             uaac --zone "${UAA_ZONE_ID}" group add '<%= group_name %>'
+            status "- Group <%= group_name %> /done"
         fi
     <% end %>
 
@@ -108,8 +125,8 @@ if test -z "${HCP_INSTANCE_ID:-}" ; then
 else
     # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
     # We update them manually to work around the issue.
-    status "Waiting for UAA zone to be availabile..."
-    retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+    status "Waiting for UAA zone to be available ..."
+    retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
     status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
     uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
@@ -152,8 +169,8 @@ else
     set -o errexit
 fi
 
-status "Waiting for UAA to be availabile at %s..." '<%= p("hcf.uaa.internal-url") %>'
-retry 240 30s curl --silent --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
+status "Waiting for UAA zone to be available ..."
+retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("hcf.uaa.internal-url") %>/info'
 
 status "Logging in to %s" '<%= p("hcf.uaa.internal-url") %>'
 uaac target <%= uaac_ssl %> <%= p("hcf.uaa.internal-url") %>
@@ -174,10 +191,10 @@ if uaac user get <%= username %> ; then
 else
     status "Creating user %s" <%= username %>
     uaac user add <%= username %> \
-	--given_name '' \
-	--family_name '' \
-	--emails <%= username %> \
-	--password <%= password %>
+        --given_name '' \
+        --family_name '' \
+        --emails <%= username %> \
+        --password <%= password %>
 fi
 
 user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')
