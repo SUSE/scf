@@ -157,16 +157,6 @@ Typically Vagrant box deployments encounter one of few problems:
 
     uaa is not functioning, try steps above
 
-* routing-api and router do not come up
-
-    uaa and/or api is down, make sure they are running first and then delete the pods
-    they will be recreated.
-
-    ```bash
-    k delete pod cf:^routing-api
-    k delete pod cf:^router
-    ```
-
 # Deploying SCF on Kubernetes
 
 After careful consideration of the difficulty of the current install, we decided not
