@@ -9,6 +9,8 @@ set -o errexit -o nounset
 
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+62.gba2a780"
+export HELM_VERSION="2.4.2"
+export HELM_CERTGEN_VERSION="master"
 export KK_VERSION="40a5b3756cf4bcbed940e6156272c0af"
 export KUBECTL_VERSION="1.5.4"
 export K_VERSION="0.0.12"
@@ -41,15 +43,17 @@ export CF_VERSION=251
 
 if [ "X$(basename "$0")" = "Xversions.sh" ]
 then
-    echo cf '      =' $CF_VERSION
-    echo cf-cli '  =' $CFCLI_VERSION
-    echo fissile ' =' $FISSILE_VERSION
-    echo go '      =' $GOLANG_VERSION
-    echo k '       =' $K_VERSION
-    echo kk '      =' $KK_VERSION
-    echo kubectl ' =' $KUBECTL_VERSION
-    echo stampy '  =' $STAMPY_VERSION
-    echo stemcell '=' $FISSILE_STEMCELL_VERSION
-    echo ubuntu '  =' $UBUNTU_VERSION
+    echo cf '           =' $CF_VERSION
+    echo cf-cli '       =' $CFCLI_VERSION
+    echo fissile '      =' $FISSILE_VERSION
+    echo go '           =' $GOLANG_VERSION
+    echo helm '         =' $HELM_VERSION
+    echo helm-certgen ' =' $HELM_CERTGEN_VERSION
+    echo k '            =' $K_VERSION
+    echo kk '           =' $KK_VERSION
+    echo kubectl '      =' $KUBECTL_VERSION
+    echo stampy '       =' $STAMPY_VERSION
+    echo stemcell '     =' $FISSILE_STEMCELL_VERSION
+    echo ubuntu '       =' $UBUNTU_VERSION
     echo
 fi
