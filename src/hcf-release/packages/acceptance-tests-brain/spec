@@ -2,7 +2,7 @@
 name: acceptance-tests-brain
 dependencies:
   - cli
-  - golang1.6
+  - golang1.7
 files:
   - acceptance-tests-brain/test-scripts/*
   - acceptance-tests-brain/test-resources/**/*
