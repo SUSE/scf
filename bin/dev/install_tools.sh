@@ -25,6 +25,8 @@ helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HEL
 mkdir -p "${bin_dir}"
 mkdir -p "${tools_dir}"
 
+bin_dir="$(cd "${bin_dir}" && pwd)"
+
 echo "Fetching cf CLI $cf_url ..."
 wget -q "$cf_url"        -O "${tools_dir}/cf.tgz"
 echo "Fetching fissile $fissile_url ..."
@@ -53,6 +55,10 @@ chmod a+x "${bin_dir}/kubectl"
 chmod a+x "${bin_dir}/k"
 chmod a+x "${bin_dir}/kk"
 chmod a+x "${bin_dir}/helm"
+
+echo "Installing certstrap ..."
+docker run --rm -v "${bin_dir}":/out:rw "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/square/certstrap
+sudo chown "$(id -un):$(id -gn)" "${bin_dir}/certstrap"
 
 echo "Pulling ruby bosh image ..."
 docker pull splatform/bosh-cli
