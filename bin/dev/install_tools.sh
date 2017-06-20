@@ -66,4 +66,13 @@ docker pull splatform/bosh-cli
 echo "Installing tiller for helm ..."
 helm init
 
+echo "Installing helm-certgen ..."
+helm_certgen_dir="$(mktemp -d)"
+trap "rm -rf '${helm_certgen_dir}'" EXIT
+git clone --branch "${HELM_CERTGEN_VERSION}" --depth 1 https://github.com/SUSE/helm-certgen.git "${helm_certgen_dir}"
+docker run --rm -v "${bin_dir}":/out:rw -v "${helm_certgen_dir}:/go/src/github.com/SUSE/helm-certgen:ro" "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/SUSE/helm-certgen
+sudo chown "$(id -un):$(id -gn)" "${bin_dir}/helm-certgen"
+mv --no-target-directory "${helm_certgen_dir}/plugin" "${HOME}/.helm/plugins/certgen"
+rm -rf "${helm_certgen_dir}"
+
 echo "Done."
