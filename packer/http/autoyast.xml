@@ -130,6 +130,7 @@
       <package>virtualbox-guest-kmp-default</package>
       <package>virtualbox-guest-tools</package>
       <package>xfsprogs</package>
+      <package>zip</package>
     </packages>
   </software>
 
