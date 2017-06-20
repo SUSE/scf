@@ -219,5 +219,5 @@ dist: \
 	${NULL}
 
 kube-dist: kube
-	${GIT_ROOT}/make/package-kube
+	${GIT_ROOT}/make/kube-dist
 	rm -rf kube
