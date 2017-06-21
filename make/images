@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-. ${GIT_ROOT}/make/include/registry
+. "${GIT_ROOT}/.envrc"
 . ${GIT_ROOT}/make/include/versioning
 
 ACTION=${1}
@@ -16,6 +16,8 @@ fi
 PREFIX='fissile-'
 
 for ROLE in ${ROLES}; do
+    ROLE_PREFIX="${FISSILE_DOCKER_REGISTRY}${FISSILE_DOCKER_ORGANIZATION}/${FISSILE_REPOSITORY}"
+
     case ${ACTION} in
         build)
             cd ${GIT_ROOT}/docker-images/${ROLE}
@@ -23,20 +25,20 @@ for ROLE in ${ROLES}; do
             ;;
         tag)
             TAG=$(fissile show image | awk -F : "/fissile-${ROLE}:/ {print \$2 }")
-            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
-            docker tag ${PREFIX}${ROLE}:${TAG} ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}
+            docker tag ${PREFIX}${ROLE}:${TAG} ${ROLE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}
+            docker tag ${PREFIX}${ROLE}:${TAG} ${ROLE_PREFIX}-${ROLE}:${GIT_BRANCH}
             ;;
         publish)
             # Redirect docker stdout to avoid polluting logfiles with progressbar characters
-            echo "Publishing ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}"
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION} > /dev/null
-            echo "Publishing ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH}"
-            docker push ${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:${GIT_BRANCH} > /dev/null
+            echo "Publishing ${ROLE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION}"
+            docker push ${ROLE_PREFIX}-${ROLE}:${DOCKER_APP_VERSION} > /dev/null
+            echo "Publishing ${ROLE_PREFIX}-${ROLE}:${GIT_BRANCH}"
+            docker push ${ROLE_PREFIX}-${ROLE}:${GIT_BRANCH} > /dev/null
             ;;
         clean)
             # For bosh images, there may be images with stale tags we want to delete
-            WANTED_TAG=$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" | grep "^${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}:" | cut -f 2 -d :)
-            docker images "${IMAGE_REGISTRY}${IMAGE_ORG}/${IMAGE_PREFIX}-${ROLE}" | tail -n +2 | while read REPOSITORY TAG _ ; do
+            WANTED_TAG=$(fissile show image | grep "^${ROLE_PREFIX}-${ROLE}:" | cut -f 2 -d :)
+            docker images "${ROLE_PREFIX}-${ROLE}" | tail -n +2 | while read REPOSITORY TAG _ ; do
                 if test "${TAG}" != "${WANTED_TAG}" ; then
                     docker rmi "${REPOSITORY}:${TAG}"
                 fi

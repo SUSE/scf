@@ -4,9 +4,9 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-. "${GIT_ROOT}/make/include/registry"
+. "${GIT_ROOT}/.envrc"
 
-BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image --docker-registry "${IMAGE_REGISTRY}" --docker-organization "${IMAGE_ORG}" --repository "${IMAGE_PREFIX}")}
+BOSH_IMAGES=${BOSH_IMAGES:-$(fissile show image)}
 
 for image in ${BOSH_IMAGES}; do
     # Redirect docker stdout to avoid polluting logfiles with progressbar characters
