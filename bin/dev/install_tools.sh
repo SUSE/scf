@@ -57,21 +57,29 @@ chmod a+x "${bin_dir}/kk"
 chmod a+x "${bin_dir}/helm"
 
 echo "Installing certstrap ..."
+# We run chown in docker to avoid requiring sudo
 docker run --rm -v "${bin_dir}":/out:rw "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/square/certstrap
-sudo chown "$(id -un):$(id -gn)" "${bin_dir}/certstrap"
+docker run --rm -v "${bin_dir}":/out:rw "golang:${GOLANG_VERSION}" /bin/chown "$(id -u):$(id -g)" /out/certstrap
 
 echo "Pulling ruby bosh image ..."
 docker pull splatform/bosh-cli
 
-echo "Installing tiller for helm ..."
-helm init
+# Note that we might not have a k8s available; do this only if we're in vagrant
+if systemctl is-active kube-apiserver.service ; then
+  echo "Installing tiller for helm ..."
+  helm init
+else
+  echo "Skipping tiller installation for helm; no local kube found"
+fi
 
 echo "Installing helm-certgen ..."
 helm_certgen_dir="$(mktemp -d)"
 trap "rm -rf '${helm_certgen_dir}'" EXIT
 git clone --branch "${HELM_CERTGEN_VERSION}" --depth 1 https://github.com/SUSE/helm-certgen.git "${helm_certgen_dir}"
 docker run --rm -v "${bin_dir}":/out:rw -v "${helm_certgen_dir}:/go/src/github.com/SUSE/helm-certgen:ro" "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/SUSE/helm-certgen
-sudo chown "$(id -un):$(id -gn)" "${bin_dir}/helm-certgen"
+docker run --rm -v "${bin_dir}":/out:rw "golang:${GOLANG_VERSION}" /bin/chown "$(id -u):$(id -g)" /out/helm-certgen
+mkdir -p "${HOME}/.helm/plugins" # Necessary if we didn't run `helm init`
+rm -rf "${HOME}/.helm/plugins/certgen"
 mv --no-target-directory "${helm_certgen_dir}/plugin" "${HOME}/.helm/plugins/certgen"
 rm -rf "${helm_certgen_dir}"
 
