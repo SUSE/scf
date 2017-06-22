@@ -25,7 +25,7 @@ GIT_TAG=${GIT_TAG:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $1 }' )}
 GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $2 }' )}
 GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $3 }' )}
 
-. $(dirname $(dirname $(dirname "${0}")))/bin/dev/versions.sh
+. "${GIT_ROOT}"/bin/dev/versions.sh
 
 ARTIFACT_NAME=${ARTIFACT_NAME:-$(basename $(git config --get remote.origin.url) .git | sed s/^hcf-//)}
 APP_VERSION=${GIT_TAG}${GIT_PREREL_INT}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
