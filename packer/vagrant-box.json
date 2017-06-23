@@ -108,36 +108,6 @@
             ]
         },
         {
-            "type": "file",
-            "source": "http/apiserver-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/apiserver-vagrant-overrides.env",
-            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env"
-        },
-        {
-            "type": "file",
-            "source": "http/controller-manager-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/kubelet-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/kubelet-vagrant-overrides.env",
-            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.env"
-        },
-        {
-            "type": "file",
-            "source": "http/docker.conf",
-            "destination": "/etc/sysconfig/docker"
-        },
-        {
             "type": "shell",
             "only": ["virtualbox-iso"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
