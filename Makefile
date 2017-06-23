@@ -31,6 +31,9 @@ certs: uaa-certs
 uaa-certs:
 	${GIT_ROOT}/make/uaa-certs
 
+uaa-releases:
+	${GIT_ROOT}/make/uaa-releases
+
 run:
 	${GIT_ROOT}/make/uaa-run
 	${GIT_ROOT}/make/run
