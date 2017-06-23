@@ -21,14 +21,28 @@ Vagrant.configure(2) do |config|
   vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
+  os=`uname`.strip
+  if os == 'Darwin'
+    default_if=`route get default | grep interface`.split(" ").last
+  else
+    default_if=`/sbin/route | grep default`.split(" ").last
+  end
+  # Ugly hack to warn user about not using a host bridge with libvirt
+  user_warned_about_bridge = false
+
+  net_config = {
+    :use_dhcp_assigned_default_route => true
+  }
+
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.77.77"
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.3.box"
-
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.4.box"
+    net_config[:nic_type] = "virtio"
+    net_config[:bridged] = default_if
+    override.vm.network "public_network", net_config
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
     vb.cpus = vm_cpus
@@ -91,12 +105,46 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.3.box"
+    # Because Vagrant will run this section 100 times:
+    if ! user_warned_about_bridge
+      if ! File.file? "/usr/sbin/brctl"
+         puts "'brctl' tool not found. Have you installed bridge-utils?"
+      else
+         if `/usr/sbin/brctl show | cut -f1 | grep '^#{default_if}$'`.empty?
+           puts <<-BRIDGE_WARNING
+Your default interface is not a host bridge.
+When using the libvirt provider, you must set up a host bridge interface in order for the VM
+to be accessible on the public IP from the KVM host.
+If using wicked, you can put the following in /etc/sysconfig/network/ifcfg-#{default_if}:
+   BOOTPROTO='none'
+   STARTMODE='auto'
+   DHCLIENT_SET_DEFAULT_ROUTE='yes'
+and the following in /etc/sysconfig/network/ifcfg-br0:
+   DHCCLIENT_SET_DEFAULT_ROUTE='yes'
+   STARTMODE='auto'
+   BOOTPROTO='dhcp'
+   BRIDGE='yes'
+   BRIDGE_STP='off'
+   BRIDGE_FORWARDDELAY='0'
+   BRIDGE_PORTS='eth0'
+   BRIDGE_PORTPRIORITIES='-'
+   BRIDGE_PATHCOSTS='-'
+then run `wicked ifreload all`, and try `vagrant up --provider libvirt` again
+BRIDGE_WARNING
+        end
+      end
+      user_warned_about_bridge = true
+    end
+
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.4.box"
     libvirt.driver = "kvm"
+    net_config[:nic_model_type] = "virtio"
+    net_config[:dev] = default_if
+    net_config[:type] = "bridge"
+    override.vm.network "public_network", net_config
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
     libvirt.cpus = vm_cpus
-
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
@@ -194,31 +242,31 @@ Vagrant.configure(2) do |config|
   SHELL
 end
 
-module VMwareHacks
-
-  # Here we manually define the shared folder for VMware-based providers
-  def VMwareHacks.configure_shares(vb)
-    current_dir = File.dirname(__FILE__)
-    bosh_cache = File.join(current_dir, '.fissile/.bosh')
-
-    # share . in the box
-    vb.vmx["sharedFolder0.present"] = "TRUE"
-    vb.vmx["sharedFolder0.enabled"] = "TRUE"
-    vb.vmx["sharedFolder0.readAccess"] = "TRUE"
-    vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
-    vb.vmx["sharedFolder0.hostPath"] = current_dir
-    vb.vmx["sharedFolder0.guestName"] = "scf"
-    vb.vmx["sharedFolder0.expiration"] = "never"
-    vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
-
-    # share .fissile/.bosh in the box
-    vb.vmx["sharedFolder1.present"] = "TRUE"
-    vb.vmx["sharedFolder1.enabled"] = "TRUE"
-    vb.vmx["sharedFolder1.readAccess"] = "TRUE"
-    vb.vmx["sharedFolder1.writeAccess"] = "TRUE"
-    vb.vmx["sharedFolder1.hostPath"] = bosh_cache
-    vb.vmx["sharedFolder1.guestName"] = "bosh"
-    vb.vmx["sharedFolder1.expiration"] = "never"
-    vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
-  end
-end
+# module VMwareHacks
+#
+#   # Here we manually define the shared folder for VMware-based providers
+#   def VMwareHacks.configure_shares(vb)
+#     current_dir = File.dirname(__FILE__)
+#     bosh_cache = File.join(current_dir, '.fissile/.bosh')
+#
+#     # share . in the box
+#     vb.vmx["sharedFolder0.present"] = "TRUE"
+#     vb.vmx["sharedFolder0.enabled"] = "TRUE"
+#     vb.vmx["sharedFolder0.readAccess"] = "TRUE"
+#     vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
+#     vb.vmx["sharedFolder0.hostPath"] = current_dir
+#     vb.vmx["sharedFolder0.guestName"] = "scf"
+#     vb.vmx["sharedFolder0.expiration"] = "never"
+#     vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
+#
+#     # share .fissile/.bosh in the box
+#     vb.vmx["sharedFolder1.present"] = "TRUE"
+#     vb.vmx["sharedFolder1.enabled"] = "TRUE"
+#     vb.vmx["sharedFolder1.readAccess"] = "TRUE"
+#     vb.vmx["sharedFolder1.writeAccess"] = "TRUE"
+#     vb.vmx["sharedFolder1.hostPath"] = bosh_cache
+#     vb.vmx["sharedFolder1.guestName"] = "bosh"
+#     vb.vmx["sharedFolder1.expiration"] = "never"
+#     vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
+#   end
+# end
