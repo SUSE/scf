@@ -34,6 +34,9 @@ uaa-certs:
 uaa-releases:
 	${GIT_ROOT}/make/uaa-releases
 
+uaa-kube-dist:
+	${GIT_ROOT}/make/uaa-kube-dist
+
 run:
 	${GIT_ROOT}/make/uaa-run
 	${GIT_ROOT}/make/run
@@ -221,6 +224,6 @@ dist: \
 	kube-dist \
 	${NULL}
 
-kube-dist: kube
+kube-dist: kube uaa-kube-dist
 	${GIT_ROOT}/make/kube-dist
 	rm -rf kube
