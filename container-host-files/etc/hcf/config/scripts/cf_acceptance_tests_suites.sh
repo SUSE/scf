@@ -59,6 +59,6 @@ done
 
 for suite in ${ALL_SUITES} ; do
     if test -n "${suites[${suite}]}" ; then
-        echo "properties.acceptance_tests.include_${suite}: ${suites[${suite}]}" >> /opt/hcf/env2conf.yml
+        echo "properties.acceptance_tests.include_${suite}: ${suites[${suite}]}" >> /opt/scf/env2conf.yml
     fi
 done
