@@ -29,6 +29,7 @@ Vagrant.configure('2') do |config|
     end
   end
 
+  config.vm.provision :shell, privileged: true, path: "bin/common/start_docker_service.sh"
   config.vm.provision :shell, privileged: true, path: "bin/common/write_bridged_ip_to_environment.sh"
   # Install common and dev tools
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
@@ -42,10 +43,10 @@ Vagrant.configure('2') do |config|
     )
   SHELL
 
-  # Set up docker config, enable/start services
-  config.vm.provision :shell, privileged: true, path: "bin/common/start_k8s_docker_services.sh"
-  config.vm.provision :shell, privileged: true, inline: "chown vagrant:users /home/vagrant/.fissile"
+  # Set up k8s config, enable/start services
   config.vm.provision :shell, privileged: true, path: "bin/common/create_k8s_certs.sh"
+  config.vm.provision :shell, privileged: true, path: "bin/common/start_k8s_services.sh"
+  config.vm.provision :shell, privileged: true, inline: "chown vagrant:users /home/vagrant/.fissile"
   # Create kubedns. Needs privileged, because it modifies the kubedns config
   config.vm.provision :shell, privileged: true, path: "bin/common/create_kubedns.sh"
 end
