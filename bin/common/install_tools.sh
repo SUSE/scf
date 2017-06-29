@@ -21,12 +21,6 @@ SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
 echo "Fetching cf CLI $cf_url ..."
 wget -q "$cf_url"        -O "${SCF_TOOLS_DIR}/cf.tgz"
 
-# Certstrap is used for creating the k8s signing keys, which are necessary to avoid communication bugs on host restarts
-echo "Installing certstrap ..."
-# We run chown in docker to avoid requiring sudo
-docker run --rm -v "${SCF_BIN_DIR}":/out:rw "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/square/certstrap
-docker run --rm -v "${SCF_BIN_DIR}":/out:rw "golang:${GOLANG_VERSION}" /bin/chown "$(id -u):$(id -g)" /out/certstrap
-
 echo "Unpacking cf CLI ..."
 tar -xzf "${SCF_TOOLS_DIR}/cf.tgz" -C "${SCF_BIN_DIR}"
 
