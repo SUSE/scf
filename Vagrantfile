@@ -9,15 +9,6 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
 
-  # Create port forward mappings
-  # These are not normally required, since all access happens on the
-  # 192.168.77.77 IP address
-  #
-  # config.vm.network "forwarded_port", guest: 80, host: 80
-  # config.vm.network "forwarded_port", guest: 443, host: 443
-  # config.vm.network "forwarded_port", guest: 4443, host: 4443
-  # config.vm.network "forwarded_port", guest: 8501, host: 8501
-
   vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
@@ -39,7 +30,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.4.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
     net_config[:nic_type] = "virtio"
     net_config[:bridged] = default_if
     override.vm.network "public_network", net_config
@@ -110,33 +101,17 @@ Vagrant.configure(2) do |config|
       if ! File.file? "/usr/sbin/brctl"
          puts "'brctl' tool not found. Have you installed bridge-utils?"
       else
-         if `/usr/sbin/brctl show | cut -f1 | grep '^#{default_if}$'`.empty?
-           puts <<-BRIDGE_WARNING
-Your default interface is not a host bridge.
-When using the libvirt provider, you must set up a host bridge interface in order for the VM
-to be accessible on the public IP from the KVM host.
-If using wicked, you can put the following in /etc/sysconfig/network/ifcfg-#{default_if}:
-   BOOTPROTO='none'
-   STARTMODE='auto'
-   DHCLIENT_SET_DEFAULT_ROUTE='yes'
-and the following in /etc/sysconfig/network/ifcfg-br0:
-   DHCCLIENT_SET_DEFAULT_ROUTE='yes'
-   STARTMODE='auto'
-   BOOTPROTO='dhcp'
-   BRIDGE='yes'
-   BRIDGE_STP='off'
-   BRIDGE_FORWARDDELAY='0'
-   BRIDGE_PORTS='eth0'
-   BRIDGE_PORTPRIORITIES='-'
-   BRIDGE_PATHCOSTS='-'
-then run `wicked ifreload all`, and try `vagrant up --provider libvirt` again
-BRIDGE_WARNING
+        if `/usr/sbin/brctl show | cut -f1 | grep '^#{default_if}$'`.empty?
+          config.vm.provision :shell, path: "bin/common/warn_no_bridge.sh", env: {
+            "COMMAND"    => "vagrant up --provider=libvirt",
+            "DEFAULT_IF" => default_if
+          }
         end
       end
       user_warned_about_bridge = true
     end
 
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.4.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
     net_config[:nic_model_type] = "virtio"
     net_config[:dev] = default_if
@@ -149,56 +124,9 @@ BRIDGE_WARNING
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
 
-  # We can't run the VMware specific mounting in a provider override,
-  # because as documentation states, ordering is outside in:
-  # https://www.vagrantup.com/docs/provisioning/basic_usage.html
-  #
-  # This would mean that mounting the shared folders would always be the last
-  # thing done, when we need it to be the first
-  config.vm.provision "shell", privileged: false, inline: <<-SCRIPT
-    # Only run if we're on Workstation or Fusion
-    if sudo dmidecode -s system-product-name | grep -qi vmware; then
-      echo "Waiting for mounts to be available ..."
-      retries=1
-      mounts_available="no"
-      until [ "$mounts_available" == "yes"  ] || [ "$retries" -gt 120 ]; do
-        sleep 1
-        retries=$((retries+1))
-
-        if [ -d "/mnt/hgfs/scf/src" ]; then
-          mounts_available="yes"
-        fi
-      done
-
-      if hash vmhgfs-fuse 2>/dev/null; then
-        echo "Mounts available after ${retries} seconds."
-
-        if [ ! -d "/home/vagrant/scf" ]; then
-          echo "Sharing directories in the VMware world ..."
-          mkdir -p /home/vagrant/scf
-          mkdir -p /home/vagrant/.bosh
-
-          sudo vmhgfs-fuse .host:scf /home/vagrant/scf -o allow_other
-          sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
-        fi
-      else
-        >&2 echo "Timed out waiting for mounts load after ${retries} seconds."
-        exit 1
-      fi
-    fi
-  SCRIPT
-
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
-  }, inline: <<-SHELL
-    set -e
-    for var in no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY ; do
-       if test -n "${!var}" ; then
-          echo "${var}=${!var}" | tee -a /etc/environment
-       fi
-    done
-    echo Proxy setup of the host, saved ...
-  SHELL
+  }, path: "bin/common/write_proxy_vars_to_environment.sh" 
 
   # set up direnv so we can pick up fissile configuration
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -215,24 +143,8 @@ BRIDGE_WARNING
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -e
-
-    # Get proxy configuration here
-    source /etc/environment
-    export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
-
-    # Install development tools
-    (
-      cd "${HOME}/scf"
-      ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
-    )
-
-  SHELL
-
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -e
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH=$PATH:/home/vagrant/scf/output/bin/' >> .profile
     echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
