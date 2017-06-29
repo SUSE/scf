@@ -4,7 +4,6 @@
 
 set -o errexit -o xtrace
 
-zypper --non-interactive install --no-confirm docker
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
 # Having a newer kernel seems to mitigate issues with crashing
@@ -13,6 +12,7 @@ zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
+    docker \
     etcd \
     kubernetes-client \
     kubernetes-kubelet \
