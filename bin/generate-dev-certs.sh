@@ -2,7 +2,7 @@
 set -o errexit -o nounset
 
 # Get version information
-. "$(dirname "$0")/dev/versions.sh"
+. "$(dirname "$0")/common/versions.sh"
 
 load_env() {
     local dir="${1}"
