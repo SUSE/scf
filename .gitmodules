@@ -10,6 +10,9 @@
 [submodule "src/cflinuxfs2-rootfs-release"]
 	path = src/cflinuxfs2-rootfs-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
+[submodule "src/cflinuxfs2-release"]
+	path = src/cflinuxfs2-release
+	url = https://github.com/cloudfoundry/cflinuxfs2-release.git
 [submodule "src/routing-release"]
 	path = src/routing-release
 	url = https://github.com/cloudfoundry-incubator/routing-release.git
