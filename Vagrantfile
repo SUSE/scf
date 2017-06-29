@@ -152,6 +152,19 @@ Vagrant.configure(2) do |config|
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
+
+  # Install common and dev tools
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    # Get proxy configuration here
+    export HOME=/home/vagrant
+    cd "${HOME}/scf"
+    ${HOME}/bin/direnv exec ${HOME}/scf/bin/common/install_tools.sh
+    ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
+    # Add /usr/local/bin to non-login path, since tools are installed there
+    sed -i '/ENV_SUPATH/s/$/:\\/usr\\/local\\/bin/' /etc/login.defs
+    sed -i 's@secure_path="\\(.*\\)"@secure_path="\\1:/usr/local/bin"@g' /etc/sudoers
+  SHELL
+  config.vm.provision :shell, privileged: true, inline: "chown vagrant:users /home/vagrant/.fissile"
 end
 
 # module VMwareHacks
