@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.4",
+        "version": "2.0.5",
         "vm_name": "scf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -106,6 +106,31 @@
             "scripts": [
                 "scripts/install-kubernetes.sh"
             ]
+        },
+        {
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.env",
+            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env"
+        },
+        {
+            "type": "file",
+            "source": "http/controller-manager-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.conf",
+            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.env",
+            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.env"
         },
         {
             "type": "shell",
