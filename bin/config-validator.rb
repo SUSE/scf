@@ -262,7 +262,7 @@ def check_clustering(manifest, bosh_properties)
       release_name = job['release_name']
       bosh_properties[release_name][job_name].each_key do |property|
         (rparams["properties." + property] || []).each do |param|
-          next unless param.end_with? '_HCF_CLUSTER_IPS'
+          next unless /^K8S_.*_CLUSTER_IPS$/ =~ param
           collected_params[param] << [job_name, release_name]
         end
       end

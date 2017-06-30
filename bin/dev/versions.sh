@@ -25,7 +25,7 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 # Used in: .envrc
 
-export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.33
+export FISSILE_STEMCELL_VERSION=42.2-13.gf265b3b-28.59
 
 # Used in: bin/generate-dev-certs.sh
 

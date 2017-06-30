@@ -208,7 +208,6 @@ properties:
     rep:
       bbs:
         api_location: diego-database:8889
-      cell_id: diego-cell-0 # TODO: fix this for HA
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
