@@ -697,6 +697,9 @@ roles:
       external: 8082
       internal: 8082
       public: false
+    healthcheck:
+      readiness:
+        port: 8082
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2072,6 +2075,7 @@ configuration:
     az: '"((HCP_AZ))"'
     id: ((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((HOSTNAME))((/HCP_COMPONENT_NAME))
     index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
+    ip: '"((IP_ADDRESS))"'
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -2308,7 +2312,6 @@ configuration:
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.metron_agent.zone: '"((HCP_AZ))"'
-    properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
