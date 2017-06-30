@@ -59,6 +59,7 @@ Table of Contents
       * [Can I suspend or resume my vagrant VM?](#can-i-suspend-or-resume-my-vagrant-vm)
       * [How do I develop an upstream PR?](#how-do-i-develop-an-upstream-pr)
       * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
+      * [How do I generate certs for pre-built Docker images?](#how-do-i-generate-certs-for-prebuilt-docker-images)
 
 # Deploying SCF on Vagrant
 
@@ -441,3 +442,9 @@ here.
     ```bash
     make tag publish IMAGE_REGISTRY=docker.example.com/
     ```
+
+## How do I generate certs for pre-built Docker images?
+
+1. Download the [scf-cert-generator.sh](https://github.com/SUSE/scf/blob/develop/docker-images/cert-generator/scf-cert-generator.sh) script
+1. Run it, setting the command line options according to your cluster
+1. Provide the resulting YAML file to the Helm chart
