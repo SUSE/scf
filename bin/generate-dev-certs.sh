@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset
-
-# Get version information
-. "$(dirname "$0")/dev/versions.sh"
+set -o errexit -o nounset -o pipefail
 
 load_env() {
     local dir="${1}"
