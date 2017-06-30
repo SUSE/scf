@@ -15,9 +15,9 @@ SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 if [ ! -f "${SENTINEL}" ]; then
 
   read -r -d '' setup_patch_etcd_bosh_utils <<'PATCH' || true
---- etcd_bosh_utils.sh.erb.orig	2017-05-17 13:37:05.054264713 -0700
-+++ etcd_bosh_utils.sh.erb	2017-05-19 13:20:42.590606579 -0700
-@@ -36,20 +36,22 @@
+--- etcd_bosh_utils.sh.erb.orig	2017-06-30 12:52:53.903674583 -0700
++++ etcd_bosh_utils.sh.erb	2017-07-04 14:34:58.514590178 -0700
+@@ -36,26 +36,28 @@
    end
  
    def advertise_peer_url
@@ -46,25 +46,22 @@ if [ ! -f "${SENTINEL}" ]; then
      end
    end
  
-@@ -65,7 +67,7 @@
+   def cluster_member_ips
+     ips = nil
+-    if_p("etcd.machines") { |machines| ips = machines.map { |m| "http://#{m}:4001" } }
++    if_p("etcd.machines") { |machines| ips = machines.map { |m| "#{client_protocol}://#{m}:4001" } }
+     unless ips
+       ips = link("etcd").instances.map { |i| "http://#{i.address}:4001" }
+     end
+@@ -72,7 +74,7 @@
    end
  
    def consistency_checker_cluster_members
 -    if p("etcd.require_ssl") || p("etcd.peer_require_ssl")
 +    if p("etcd.cluster")
-       cluster_member_urls = p("etcd.cluster").map do |zone|
-         result = []
-         for i in 0..zone["instances"]-1
-@@ -75,8 +77,7 @@
-       end.flatten.join(",")
-       return cluster_member_urls
-     else
--      my_ip = discover_external_ip
--      cluster_member_ips = p("etcd.machines").map { |m| "http://#{m}:4001" }.join(",")
-+      cluster_member_ips = p("etcd.machines").map { |m| "#{client_protocol}://#{m}:4001" }.join(",")
-       return cluster_member_ips
-     end
-   end
+       cluster_member_urls = nil
+       if_link("etcd") do |etcd_link|
+         urls = []
 PATCH
 
   cd "$PATCH_DIR"
