@@ -59,10 +59,6 @@
             "vboxmanage": [
                 [ "modifyvm", "{{.Name}}", "--memory", "1024" ]
             ],
-            "vboxmanage_post": [
-                [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
-                [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "2", "--type", "hdd", "--medium", "disk2.vmdk" ]
-            ],
             "boot_command": [
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
