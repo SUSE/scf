@@ -3,7 +3,7 @@ set -o errexit -o nounset -o pipefail
 
 load_env() {
     local dir="${1}"
-    for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$') ; do
+    for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$' | grep -vE '/ca\.env$') ; do
         if ! test -e "${f}" ; then
             echo "Invalid environment file ${f}" >&2
             exit 1
