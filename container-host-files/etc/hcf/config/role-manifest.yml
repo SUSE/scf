@@ -2336,6 +2336,7 @@ configuration:
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.routing_api.url: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
@@ -2358,6 +2359,7 @@ configuration:
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
+    properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
@@ -2373,6 +2375,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.uaa.hostname: '((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
