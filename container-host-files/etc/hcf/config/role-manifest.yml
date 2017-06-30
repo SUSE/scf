@@ -11,14 +11,11 @@ roles:
     release_name: hcf
   - name: nats
     release_name: nats
-  - name: nats_stream_forwarder
-    release_name: nats
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: metron_agent
   - name: nats
-  - name: nats_stream_forwarder
   tags: ['clustered']
   run:
     scaling:
