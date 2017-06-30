@@ -19,4 +19,9 @@ and the following in /etc/sysconfig/network/ifcfg-br0:
    BRIDGE_PORTPRIORITIES='-'
    BRIDGE_PATHCOSTS='-'
 then run \`wicked ifreload all\`, and try \`$COMMAND\` again
+
 EOF
+
+if [[ $COMMAND =~ vagrant ]]; then
+  echo "Or unset VAGRANT_BRIDGED before trying again to use NAT"
+fi

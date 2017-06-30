@@ -5,25 +5,104 @@
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
+
+
+def os_is_osx?
+  `uname`.strip == 'Darwin'
+end
+
+def default_if_osx
+  `route get default | grep interface`.split(" ").last
+end
+
+def default_if_linux
+  `/sbin/route | grep default`.split(" ").last
+end
+
+# Returns the name of the default interface
+def default_if
+  @default_if_memo ||= os_is_osx? ? default_if_osx : default_if_linux
+end
+
+def interface_is_bridge?(interface)
+  `/usr/sbin/brctl show | cut -f1 | grep '^#{interface}$'`.strip.length > 0
+end
+
+# While VBox on Linux allows bridging without a host device, there's no easy way
+# to check the provider from the Vagrantfile (provider-specific config blocks
+# still run on the wrong providers) so assume libvirt on linux deployments
+#
+# It's also worth noting that the Vagrant libvirt provider (KVM) typically uses
+# 'direct' type interfaces for public_network interfaces. While these *do* work
+# without a host bridge interface, the host VM is unable to route to IPs the VM
+# receives this way. See https://libvirt.org/formatnetwork.html#examplesDirect
+def host_bridge_available?
+  # Exploit the fact that puts returns nil, which is falsy
+  if os_is_osx?
+    puts "Bridged networking not implemented on OSX"
+  elsif ! default_if
+    puts "No default interface detected"
+  elsif ! File.file? "/usr/sbin/brctl"
+    puts "'brctl' tool not found. Have you installed bridge-utils"
+  elsif ! interface_is_bridge?(default_if)
+    warning_env = {
+      "COMMAND"    => "vagrant up --provider=libvirt",
+      "DEFAULT_IF" => default_if
+    }
+    puts system(warning_env, "bin/common/warn_no_bridge.sh")
+  else
+    true
+  end
+end
+
+def bridged_net_linux?()
+  @bridged_net_memo ||= ENV.fetch("VAGRANT_BRIDGED", false) && host_bridge_available?
+end
+
+# In theory, vbox could manage a bridged deployment if the interface is not wireless
+# But for now, we'll assume vbox is primarily used for osx deployments, which means
+# a wired interface may not be available
+def bridged_net_osx?
+  false
+end
+
+def bridged_net?
+  @bridged_net_memo ||= os_is_osx? ? bridged_net_linux? : bridged_net_osx?
+end
+
+def net_dhcp?
+  ENV.fetch("VAGRANT_DHCP", false) ? true : bridged_net?
+end
+
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
 
+  # Create port forward mappings
+  # These are only required when using private (NAT) networking, and want
+  # VM access from a client not on the VM host
+  #
+  # config.vm.network "forwarded_port", guest: 80, host: 80
+  # config.vm.network "forwarded_port", guest: 443, host: 443
+  # config.vm.network "forwarded_port", guest: 4443, host: 4443
+  # config.vm.network "forwarded_port", guest: 8501, host: 8501
+
   vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
-  os=`uname`.strip
-  if os == 'Darwin'
-    default_if=`route get default | grep interface`.split(" ").last
+  net_config = {}
+  if bridged_net?
+    net_config[:using_dhcp_assigned_default_route] = true
   else
-    default_if=`/sbin/route | grep default`.split(" ").last
+    # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
+    # bridged networking uses type: bridged (even though the virtual interface still
+    # gets its IP from dhcp. If not using dhcp, the VM will use the 192.168.77.77 IP
+    if ENV.fetch("VAGRANT_DHCP", false)
+      net_config[:type] = "dhcp"
+    else
+      net_config[:ip] = "192.168.77.77"
+    end
   end
-  # Ugly hack to warn user about not using a host bridge with libvirt
-  user_warned_about_bridge = false
-
-  net_config = {
-    :use_dhcp_assigned_default_route => true
-  }
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -32,8 +111,12 @@ Vagrant.configure(2) do |config|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
     net_config[:nic_type] = "virtio"
-    net_config[:bridged] = default_if
-    override.vm.network "public_network", net_config
+    if bridged_net?
+      net_config[:bridged] = default_if
+      override.vm.network "public_network", net_config
+    else
+      override.vm.network "private_network", net_config
+    end
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
     vb.cpus = vm_cpus
@@ -96,27 +179,17 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    # Because Vagrant will run this section 100 times:
-    if ! user_warned_about_bridge
-      if ! File.file? "/usr/sbin/brctl"
-         puts "'brctl' tool not found. Have you installed bridge-utils?"
-      else
-        if `/usr/sbin/brctl show | cut -f1 | grep '^#{default_if}$'`.empty?
-          config.vm.provision :shell, path: "bin/common/warn_no_bridge.sh", env: {
-            "COMMAND"    => "vagrant up --provider=libvirt",
-            "DEFAULT_IF" => default_if
-          }
-        end
-      end
-      user_warned_about_bridge = true
-    end
 
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
     net_config[:nic_model_type] = "virtio"
-    net_config[:dev] = default_if
-    net_config[:type] = "bridge"
-    override.vm.network "public_network", net_config
+    if bridged_net?
+      net_config[:dev] = default_if
+      net_config[:type] = "bridge"
+      override.vm.network "public_network", net_config
+    else
+      override.vm.network "private_network", net_config
+    end
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
     libvirt.cpus = vm_cpus

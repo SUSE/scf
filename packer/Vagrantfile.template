@@ -32,7 +32,7 @@ Vagrant.configure('2') do |config|
   config.vm.provision :shell, privileged: true, path: "bin/common/start_docker_service.sh"
 
   # Get the bridged IP and add to /etc/environment
-  config.vm.provision :shell, privileged: true, path: "bin/common/write_bridged_ip_to_environment.sh"
+  config.vm.provision :shell, privileged: true, path: "bin/common/write_k8s_ip_to_environment.sh"
 
   # Install certstrap (used for k8s cert gen):
   config.vm.provision :shell, privileged: true, path: "bin/common/install_certstrap.sh"
