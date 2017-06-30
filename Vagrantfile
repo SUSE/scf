@@ -90,19 +90,21 @@ Vagrant.configure(2) do |config|
   vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
-  net_config = {}
+  vb_net_config = {}
   if bridged_net?
-    net_config[:using_dhcp_assigned_default_route] = true
+    vb_net_config[:using_dhcp_assigned_default_route] = true
   else
     # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
     # bridged networking uses type: bridged (even though the virtual interface still
     # gets its IP from dhcp. If not using dhcp, the VM will use the 192.168.77.77 IP
     if ENV.fetch("VAGRANT_DHCP", false)
-      net_config[:type] = "dhcp"
+      vb_net_config[:type] = "dhcp"
     else
-      net_config[:ip] = "192.168.77.77"
+      vb_net_config[:ip] = "192.168.77.77"
     end
   end
+  # Create a clone of this, otherwise it gets mutated in both providers' sections
+  libvirt_net_config = vb_net_config.clone
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -110,12 +112,12 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
-    net_config[:nic_type] = "virtio"
+    vb_net_config[:nic_type] = "virtio"
     if bridged_net?
-      net_config[:bridged] = default_if
-      override.vm.network "public_network", net_config
+      vb_net_config[:bridged] = default_if
+      override.vm.network "public_network", vb_net_config
     else
-      override.vm.network "private_network", net_config
+      override.vm.network "private_network", vb_net_config
     end
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
@@ -182,13 +184,13 @@ Vagrant.configure(2) do |config|
 
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
-    net_config[:nic_model_type] = "virtio"
+    libvirt_net_config[:nic_model_type] = "virtio"
     if bridged_net?
-      net_config[:dev] = default_if
-      net_config[:type] = "bridge"
-      override.vm.network "public_network", net_config
+      libvirt_net_config[:dev] = default_if
+      libvirt_net_config[:type] = "bridge"
+      override.vm.network "public_network", libvirt_net_config
     else
-      override.vm.network "private_network", net_config
+      override.vm.network "private_network", libvirt_net_config
     end
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
