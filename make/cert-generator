@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+certgen_docker_root=${certgen_docker_root:-$(mktemp -d)}
+
+cp "${GIT_ROOT}/docker-images/cert-generator/Dockerfile" "${certgen_docker_root}"
+cp "${GIT_ROOT}/docker-images/cert-generator/cert-generator.sh" "${certgen_docker_root}"
+cp "${GIT_ROOT}/bin/generate-dev-certs.sh" "${certgen_docker_root}"
+cp "${GIT_ROOT}/src/uaa-fissile-release/generate-certs.sh" "${certgen_docker_root}"
+
+docker build -t splatform/cert-generator "${certgen_docker_root}"
+
+rm -rf "${certgen_docker_root}"

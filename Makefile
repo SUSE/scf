@@ -227,3 +227,10 @@ dist: \
 kube-dist: kube uaa-kube-dist
 	${GIT_ROOT}/make/kube-dist
 	rm -rf kube
+
+########## SUPPORT  TARGETS ##########
+
+cert-generator:
+	${GIT_ROOT}/make/cert-generator
+
+
