@@ -112,7 +112,6 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
-    vb_net_config[:nic_type] = "virtio"
     if bridged_net?
       vb_net_config[:bridged] = default_if
       override.vm.network "public_network", vb_net_config
