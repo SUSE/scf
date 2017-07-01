@@ -118,6 +118,7 @@ Vagrant.configure(2) do |config|
     else
       override.vm.network "private_network", vb_net_config
     end
+
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
     vb.cpus = vm_cpus
@@ -132,7 +133,7 @@ Vagrant.configure(2) do |config|
 
 # Currently not built for vmware_fusion
 # config.vm.provider "vmware_fusion" do |vb, override|
-#   override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.3.box"
+#   override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.4.box"
 #
 #   # Customize the amount of memory on the VM:
 #   vb.memory = vm_memory.to_s
@@ -158,7 +159,7 @@ Vagrant.configure(2) do |config|
 
 # Currently not built for vmware_workstation
 #  config.vm.provider "vmware_workstation" do |vb, override|
-#    override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.3.box"
+#    override.vm.box="https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-vmware-v2.0.4.box"
 #
 #    # Customize the amount of memory on the VM:
 #    vb.memory = vm_memory.to_s
@@ -180,7 +181,6 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
     libvirt_net_config[:nic_model_type] = "virtio"

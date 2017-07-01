@@ -37,7 +37,9 @@ helm_certgen_dir="$(mktemp -d)"
 trap "rm -rf '${helm_certgen_dir}'" EXIT
 git clone --branch "${HELM_CERTGEN_VERSION}" --depth 1 https://github.com/SUSE/helm-certgen.git "${helm_certgen_dir}"
 docker run --rm -v "${SCF_BIN_DIR}":/out:rw -v "${helm_certgen_dir}:/go/src/github.com/SUSE/helm-certgen:ro" "golang:${GOLANG_VERSION}" /usr/bin/env GOBIN=/out go get github.com/SUSE/helm-certgen
-docker run --rm -v "${SCF_BIN_DIR}":/out:rw "golang:${GOLANG_VERSION}" /bin/chown "$(id -u):$(id -g)" /out/helm-certgen
+if [[ $(stat -c '%u' "${SCF_BIN_DIR}/helm-certgen") -eq 0 ]]; then
+  docker run --rm -v "${SCF_BIN_DIR}":/out:rw "golang:${GOLANG_VERSION}" /bin/chown "$(id -u):$(id -g)" /out/helm-certgen
+fi
 mkdir -p "${HOME}/.helm/plugins" # Necessary if we didn't run `helm init`
 rm -rf "${HOME}/.helm/plugins/certgen"
 mv --no-target-directory "${helm_certgen_dir}/plugin" "${HOME}/.helm/plugins/certgen"

@@ -293,19 +293,7 @@ roles:
     healthcheck:
       readiness:
         command:
-          - /usr/bin/curl
-          - --data
-          - ''
-          - --fail
-          - --resolve
-          - "diego-database:8889:127.0.0.1"
-          - --cert
-          - /var/vcap/jobs/bbs/config/certs/server.crt
-          - --key
-          - /var/vcap/jobs/bbs/config/certs/server.key
-          - --cacert
-          - /var/vcap/jobs/bbs/config/certs/ca.crt
-          - https://diego-database:8889/v1/ping
+          - /var/vcap/jobs/global-properties/bin/readiness/diego-database
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-pod((/KUBE_POD_SERVICE))
@@ -758,15 +746,7 @@ roles:
     healthcheck:
       readiness:
         command:
-          - /usr/bin/curl
-          - --fail
-          - --resolve
-          - etcd:4001:127.0.0.1
-          - --cert
-          - /var/vcap/jobs/etcd/config/certs/client.crt
-          - --key
-          - /var/vcap/jobs/etcd/config/certs/client.key
-          - https://etcd:4001/v2/stats/leader
+          - /var/vcap/jobs/global-properties/bin/readiness/etcd
   configuration:
     templates:
       # On k8s, we want the FQDN: etcd-pod.hcf.svc.cluster.local
