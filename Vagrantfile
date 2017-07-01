@@ -92,7 +92,7 @@ Vagrant.configure(2) do |config|
 
   vb_net_config = {}
   if bridged_net?
-    vb_net_config[:using_dhcp_assigned_default_route] = true
+    vb_net_config[:use_dhcp_assigned_default_route] = true
   else
     # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
     # bridged networking uses type: bridged (even though the virtual interface still
