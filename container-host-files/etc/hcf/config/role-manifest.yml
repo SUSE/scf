@@ -2079,6 +2079,7 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
+    properties.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
@@ -2088,33 +2089,45 @@ configuration:
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
     properties.capi.cc_uploader.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.nsync.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.nsync.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.nsync.cc.base_url: http://api.((K8S_SERVICE_DOMAIN_SUFFIX)):9022
     properties.capi.nsync.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
     properties.capi.nsync.diego_privileged_containers: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
+    properties.capi.nsync.file_server_url: http://diego-access.((K8S_SERVICE_DOMAIN_SUFFIX)):8080
     properties.capi.nsync.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.stager.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.stager.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.stager.cc.basic_auth_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.capi.stager.cc.internal_service_hostname: api.((K8S_SERVICE_DOMAIN_SUFFIX))
+    properties.capi.stager.cc_uploader_url: http://diego-cc-bridge.((K8S_SERVICE_DOMAIN_SUFFIX)):9090
     properties.capi.stager.diego_privileged_containers: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.capi.stager.docker_staging_stack: '"((DEFAULT_STACK))"'
+    properties.capi.stager.file_server_url: http://diego-access.((K8S_SERVICE_DOMAIN_SUFFIX)):8080
     properties.capi.stager.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
     properties.capi.stager.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.stager.staging_task_callback_url: http://diego-cc-bridge.((K8S_SERVICE_DOMAIN_SUFFIX)):8888
+    properties.capi.tps.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.cc.client_cert: '"((TPS_CC_CLIENT_CRT))"'
     properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_KEY))"'
+    properties.capi.tps.cc.internal_service_hostname: api.((K8S_SERVICE_DOMAIN_SUFFIX))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.tps.traffic_controller_url: ws://loggregator.((K8S_SERVICE_DOMAIN_SUFFIX)):8081
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore.((K8S_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
@@ -2122,11 +2135,16 @@ configuration:
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.diego.nsync_url: http://diego-cc-bridge.((K8S_SERVICE_DOMAIN_SUFFIX)):8787
+    properties.cc.diego.stager_url: http://diego-cc-bridge.((K8S_SERVICE_DOMAIN_SUFFIX)):8888
+    properties.cc.diego.tps_url: http://diego-cc-bridge.((K8S_SERVICE_DOMAIN_SUFFIX)):1518
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.droplets.webdav_config.private_endpoint: https://blobstore.((K8S_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
+    properties.cc.internal_service_hostname: api.((K8S_SERVICE_DOMAIN_SUFFIX))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
@@ -2135,12 +2153,16 @@ configuration:
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.packages.webdav_config.private_endpoint: https://blobstore.((K8S_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore.((K8S_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.srv_api_uri: http://api.((K8S_SERVICE_DOMAIN_SUFFIX)):9022
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
+    properties.ccdb.address: mysql-proxy.((K8S_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod.((K8S_SERVICE_DOMAIN_SUFFIX))
@@ -2157,6 +2179,7 @@ configuration:
     properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
+    properties.diego.auctioneer.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2168,6 +2191,7 @@ configuration:
     properties.diego.auctioneer.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
+    properties.diego.bbs.auctioneer.api_location: diego-brain.((K8S_SERVICE_DOMAIN_SUFFIX)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
@@ -2188,6 +2212,7 @@ configuration:
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.rep.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
@@ -2199,15 +2224,18 @@ configuration:
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
     properties.diego.rep.zone: '"((HCP_AZ))"'
+    properties.diego.route_emitter.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: ((K8S_NATS_CLUSTER_IPS))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
+    properties.diego.ssh_proxy.bbs.api_location: diego-database.((K8S_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.ssh_proxy.cc.internal_service_hostname: api.((K8S_SERVICE_DOMAIN_SUFFIX))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'

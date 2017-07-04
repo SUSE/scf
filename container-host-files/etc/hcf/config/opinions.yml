@@ -21,43 +21,22 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
-  bbs:
-    api_location: diego-database:8889
   capi:
     nsync:
-      bbs:
-        api_location: diego-database:8889
-      cc:
-        base_url: http://api:9022
-      file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
-      bbs:
-        api_location: diego-database:8889
-      cc:
-        internal_service_hostname: api
-      cc_uploader_url: http://diego-cc-bridge:9090
-      file_server_url: http://diego-access:8080
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
-      staging_task_callback_url: http://diego-cc-bridge:8888
-    tps:
-      bbs:
-        api_location: diego-database:8889
-      cc:
-        internal_service_hostname: api
-      traffic_controller_url: ws://loggregator:8081
   cc:
     broker_client_timeout_seconds: 70
     buildpacks:
       blobstore_type: webdav
       webdav_config:
-        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     client_max_body_size: 15M
     default_running_security_groups:
@@ -67,14 +46,9 @@ properties:
     - public_networks
     - dns
     default_to_diego_backend: true
-    diego:
-      nsync_url: http://diego-cc-bridge:8787
-      stager_url: http://diego-cc-bridge:8888
-      tps_url: http://diego-cc-bridge:1518
     droplets:
       blobstore_type: webdav
       webdav_config:
-        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     external_protocol: http
     install_buildpacks:
@@ -98,7 +72,6 @@ properties:
       package: binary-buildpack
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
-    internal_service_hostname: api
     jobs:
       generic:
         number_of_workers: null
@@ -110,7 +83,6 @@ properties:
     packages:
       blobstore_type: webdav
       webdav_config:
-        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     quota_definitions:
       default:
@@ -121,7 +93,6 @@ properties:
     resource_pool:
       blobstore_type: webdav
       webdav_config:
-        private_endpoint: https://blobstore:4443
         username: 'blobstore_user'
     security_event_logging:
       enabled: null
@@ -146,7 +117,6 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
-    srv_api_uri: http://api:9022
     stacks:
     - name: cflinuxfs2
       description: Cloud Foundry Linux-based filesystem
@@ -173,7 +143,6 @@ properties:
     core_file_pattern: false
     volume_services_enabled: true
   ccdb:
-    address: mysql-proxy
     databases:
     - name: ccdb
       tag: cc
@@ -190,13 +159,8 @@ properties:
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
   diego:
-    auctioneer:
-      bbs:
-        api_location: diego-database:8889
     bbs:
       active_key_label: active
-      auctioneer:
-        api_location: diego-brain:9016
       etcd:
         machines: []
     executor:
@@ -206,22 +170,14 @@ properties:
     file_server:
       static_directory: /var/vcap/packages/
     rep:
-      bbs:
-        api_location: diego-database:8889
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
         - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
     route_emitter:
-      bbs:
-        api_location: diego-database:8889
       nats:
         user: nats
     ssh_proxy:
-      bbs:
-        api_location: diego-database:8889
-      cc:
-        internal_service_hostname: api
       enable_cf_auth: true
   doppler:
     tls:
