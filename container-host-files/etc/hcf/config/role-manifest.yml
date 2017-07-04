@@ -1422,9 +1422,8 @@ configuration:
     description: The PEM-encoded private key for internal cloud controller traffic.
     required: true
   - name: CDN_URI
-    default: "''"
+    default: ""
     description: URI for a CDN to use for buildpack downloads.
-    required: true
   - name: CLUSTER_ADMIN_AUTHORITIES
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
     description: The Oauth2 authorities available to the cluster administrator.
@@ -1517,7 +1516,7 @@ configuration:
     description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
     required: true
   - name: DEFAULT_STACK
-    default: cflinuxfs2
+    default: opensuse42
     description: The default stack to use if no custom stack is specified by an app.
   - name: DIEGO_CELL_DISK_CAPACITY_MB
     default: auto
@@ -1655,6 +1654,7 @@ configuration:
     required: true
   - name: HCP_AZ
     type: environment
+    default: "z1"
   - name: HCP_CA_CERT
     internal: true
     immutable: true
@@ -1978,8 +1978,6 @@ configuration:
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     immutable: true
-    generator:
-      type: Password
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CC_CLIENT_SECRET

@@ -3,19 +3,29 @@
 set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-. "${GIT_ROOT}/.envrc"
-
 cd "${GIT_ROOT}"
+source .envrc
 
 ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
 
-# TODO: We currently skip memory limits for development purposes
+CREATE_HELM_CHART=false
+KUBE_OUTPUT_DIR=kube
 
+if [ "${1:-}" = "helm" ]; then
+    CREATE_HELM_CHART=true
+    KUBE_OUTPUT_DIR=helm
+    ENV_FILES="$(echo bin/settings/certs.env bin/settings/kube/ca.env)"
+fi
+
+rm -rf ${KUBE_OUTPUT_DIR}
+
+# TODO: We currently skip memory limits for development purposes
 fissile build kube \
-    --kube-output-dir="${GIT_ROOT}/kube" \
+    --kube-output-dir="${KUBE_OUTPUT_DIR}" \
     --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
     --use-memory-limits=false \
+    --create-helm-chart=${CREATE_HELM_CHART} \
+    --chart-file=Chart.yaml
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
-perl -p -i -e 's@extensions/v1beta1@batch/v1@' kube/bosh-task/*.yml
+perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" ${KUBE_OUTPUT_DIR})
