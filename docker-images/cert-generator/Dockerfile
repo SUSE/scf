@@ -8,11 +8,6 @@ RUN zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check
     zypper clean -a
 
 RUN mkdir /scf-settings /uaa-settings /out
-COPY generate-dev-certs.sh /
-COPY generate-certs.sh /
-COPY cert-generator.sh /
-COPY scf-settings/* /scf-settings/
-COPY uaa-settings/* /uaa-settings/
-
+COPY generate-dev-certs.sh generate-certs.sh cert-generator.sh /
 
 ENTRYPOINT ["/cert-generator.sh"]
