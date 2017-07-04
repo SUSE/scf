@@ -2095,7 +2095,13 @@ configuration:
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
+    properties.capi.cc_uploader.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.cc_uploader.cc.client_cert: '"((CC_SERVER_CRT))"'
+    properties.capi.cc_uploader.cc.client_key: '"((CC_SERVER_KEY))"'
     properties.capi.cc_uploader.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_SERVER_CRT))"'
+    properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_SERVER_KEY))"'
     properties.capi.nsync.bbs.api_location: diego-database.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2142,9 +2148,11 @@ configuration:
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX)):9091
     properties.cc.diego.nsync_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8787
     properties.cc.diego.stager_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8888
     properties.cc.diego.tps_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):1518
+
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -2296,6 +2304,8 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    # How to reach the capi.cc_uploader
+    properties.internal_hostname: '"cc-uploader.((HCP_SERVICE_DOMAIN_SUFFIX))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
