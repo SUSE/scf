@@ -1051,7 +1051,7 @@ roles:
   - name: garden
     release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
-    release_name: cflinuxfs2-rootfs
+    release_name: cflinuxfs2
   - name: opensuse42-rootfs-setup
     release_name: cf-opensuse42
   - name: metron_agent

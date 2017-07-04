@@ -7,9 +7,6 @@
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
 	url = https://github.com/cloudfoundry/cf-mysql-release.git
-[submodule "src/cflinuxfs2-rootfs-release"]
-	path = src/cflinuxfs2-rootfs-release
-	url = https://github.com/cloudfoundry/cflinuxfs2-rootfs-release.git
 [submodule "src/cflinuxfs2-release"]
 	path = src/cflinuxfs2-release
 	url = https://github.com/cloudfoundry/cflinuxfs2-release.git

@@ -18,8 +18,7 @@ echo "${VERSION_INFO}" > ${GIT_ROOT}/_work/VERSION_INFO
 
 CF_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"cf-release-commit-sha\"])
 DIEGO_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"diego-release-version\"])
-CFLINUXFS2_OLD_ROOTFS_RELEASE=v1.112.0
-CFLINUXFS2_ROOTFS_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"cflinuxfs2-release-version\"])
+CFLINUXFS2_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"cflinuxfs2-release-version\"])
 GARDEN_RUNC_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"garden-runc-release-version\"])
 
 update_submodule () {
@@ -73,8 +72,7 @@ do
 done
 
 update_submodule diego-release "${DIEGO_RELEASE}" src
-update_submodule cflinuxfs2-rootfs-release "${CFLINUXFS2_OLD_ROOTFS_RELEASE}" src
-update_submodule cflinuxfs2-release "${CFLINUXFS2_ROOTFS_RELEASE}" src
+update_submodule cflinuxfs2-release "${CFLINUXFS2_RELEASE}" src
 update_submodule garden-runc-release "${GARDEN_RUNC_RELEASE}" src
 
 CF_RELEASE_VERSION_INFO=$(curl --silent "https://api.github.com/repos/cloudfoundry/cf-release/contents/src?ref=${CF_RELEASE}")
