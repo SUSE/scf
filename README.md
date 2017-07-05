@@ -112,6 +112,19 @@ a working system.
     # see the Troubleshooting guide.
     k logs -f cf:^api-[0-9]
     ```
+3. Changing the default STEMCELL
+
+   The default stemcell is set to opensuse.
+   To build with an alternative stemcell the environment variables `FISSILE_STEMCELL` and FISSILE_STEMCELL_VERSION need to be set manually.
+   After changing the stemcell you have to remove the contents of `~vagrant/.fissile/compilation` and `~vagrant/sfc/.fissile/compilation` inside the vagrant box. Afterwards recompile scf (for details see section "2. Building the system").
+   
+   **Example:**
+
+   ```
+   $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
+   $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
+   ```
+   
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
