@@ -514,6 +514,11 @@ roles:
       external: 9022
       internal: 9022
       public: false
+    - name: api-tls
+      protocol: TCP
+      external: 9023
+      internal: 9023
+      public: false
     - name: statsd
       protocol: TCP
       external: 8125
