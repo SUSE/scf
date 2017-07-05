@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -vx
+set -o errexit
 while ! ifconfig eth1 | grep -q addr; do
   sleep 3
 done
