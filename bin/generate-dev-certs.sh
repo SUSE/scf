@@ -62,6 +62,7 @@ if test "${has_env}" = "no" ; then
 fi
 
 # Replace the stubbed-out namespace info
+K8S_SERVICE_DOMAIN_SUFFIX="${K8S_SERVICE_DOMAIN_SUFFIX:-\${namespace\}.svc.cluster.local}"
 K8S_SERVICE_DOMAIN_SUFFIX="${K8S_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
 
 # Generate a random signing key passphrase
@@ -313,4 +314,4 @@ add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
 add_env TRAFFICCONTROLLER_KEY     "${internal_certs_dir}/trafficcontroller.key"
 
-echo "Keys for ${DOMAIN} wrote to ${output_path}"
+echo "Keys for ${DOMAIN} (service domain ${K8S_SERVICE_DOMAIN_SUFFIX}) wrote to ${output_path}"
