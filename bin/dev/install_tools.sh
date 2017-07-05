@@ -19,7 +19,7 @@ cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&versi
 stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STAMPY_MAJOR}/stampy-${STAMPY_VERSION}.linux-amd64.tgz}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl}"
 k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v${K_VERSION}/kctl-linux-amd64}"
-kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/${KK_VERSION}/raw/}"
+kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed940e6156272c0af/raw/${KK_VERSION}/kk}"
 helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz}"
 
 mkdir -p "${bin_dir}"
