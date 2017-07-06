@@ -5,6 +5,7 @@ RUN zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check
     zypper --non-interactive install --no-confirm --from devel:languages:go go && \
     zypper --non-interactive install --no-confirm git vim && \
     go get github.com/square/certstrap && \
+    rm -rf ~/go/{src,pkg} && \
     zypper clean -a
 
 RUN mkdir /scf-settings /uaa-settings /out
