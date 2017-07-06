@@ -24,4 +24,4 @@ fi
 
 cell_subnet="${target_prefix}.${HCP_COMPONENT_INDEX}.0/24"
 
-perl -p -i -e "s@^properties.garden.network_pool:.*@properties.garden.network_pool: ${cell_subnet}@" /opt/hcf/env2conf.yml
+perl -p -i -e "s@^properties.garden.network_pool:.*@properties.garden.network_pool: ${cell_subnet}@" /opt/scf/env2conf.yml
