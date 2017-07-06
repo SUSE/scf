@@ -8,7 +8,8 @@ RUN zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check
     rm -rf ~/go/{src,pkg} && \
     zypper clean -a
 
-RUN mkdir /scf-settings /uaa-settings /out
+RUN mkdir /out
+VOLUME /out
 COPY generate-dev-certs.sh generate-certs.sh cert-generator.sh /
 
 ENTRYPOINT ["/cert-generator.sh"]
