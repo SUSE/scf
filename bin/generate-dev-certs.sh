@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset
-
-# Get version information
-. "$(dirname "$0")/dev/versions.sh"
+set -o errexit -o nounset -o pipefail
 
 load_env() {
     local dir="${1}"
-    for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$') ; do
+    for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$' | grep -vE '/ca\.env$') ; do
         if ! test -e "${f}" ; then
             echo "Invalid environment file ${f}" >&2
             exit 1
@@ -226,16 +223,13 @@ mv -f ${internal_certs_dir}/consul_agent.csr ${internal_certs_dir}/agent.csr
 mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 
 # generate APP_SSH SSH key
-# ATTENTION: Strip the type prefix from the fingerprint.
-#            Leaving it in breaks the `cf ssh` fingerprint detection
-#            (based on the length of the fingerprint without type info).
-#            And cf requires MD5, does not like SHA256.
+# ATTENTION: Generate the fingerprint in MD5 format
 #
 # See  https://github.com/cloudfoundry/diego-release/tree/develop/examples/aws#generating-ssh-proxy-host-key-and-fingerprint
 # and  https://github.com/cloudfoundry/cli/issues/817
 #
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
-ssh-keygen -E MD5 -lf "${certs_path}/app_ssh_key" | awk '{print $2}' | sed -e 's/^MD5://' > "${certs_path}/app_ssh_host_key_fingerprint"
+awk '{print $2}' "${certs_path}/app_ssh_key.pub" | base64 -d | openssl md5 -c | awk '{print $2}' > "${certs_path}/app_ssh_host_key_fingerprint"
 
 server_cn=router_ssl
 certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-cf},${DOMAIN},*.${DOMAIN}"
