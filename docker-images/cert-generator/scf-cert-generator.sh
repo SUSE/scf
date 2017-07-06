@@ -49,7 +49,7 @@ fi
 
 docker run --rm \
 	--volume "${out_dir}":/out \
-	--env namespace="${namespace}" \
+	--env NAMESPACE="${namespace}" \
 	--env DOMAIN="${domain}" \
 	splatform/cert-generator
 
