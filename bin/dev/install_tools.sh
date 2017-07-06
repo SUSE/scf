@@ -20,7 +20,6 @@ SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching fissile $fissile_url ..."
 wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}"
-echo "Installed: $("${FISSILE_BINARY}" version)"
 
 echo "Fetching stampy $stampy_url ..."
 wget -q "$stampy_url"   -O - | tar xz -C "${SCF_BIN_DIR}" stampy
@@ -28,6 +27,8 @@ wget -q "$stampy_url"   -O - | tar xz -C "${SCF_BIN_DIR}" stampy
 echo "Making binaries executable ..."
 chmod a+x "${FISSILE_BINARY}"
 chmod a+x "${SCF_BIN_DIR}/stampy"
+
+echo "Installed: $("${FISSILE_BINARY}" version)"
 
 echo "Pulling ruby bosh image ..."
 docker pull splatform/bosh-cli

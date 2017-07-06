@@ -216,6 +216,16 @@ Vagrant.configure(2) do |config|
   SHELL
 
   config.vm.provision :shell, privileged: true, inline: "chown vagrant:users /home/vagrant/.fissile"
+  # Install common and dev tools
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    set -o errexit -o xtrace -v
+    # Get proxy configuration here
+    export HOME=/home/vagrant
+    cd "${HOME}/scf"
+    ${HOME}/bin/direnv exec ${HOME}/scf/bin/common/install_tools.sh
+    ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
+  SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit -o xtrace
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
@@ -226,16 +236,6 @@ Vagrant.configure(2) do |config|
     direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
-  SHELL
-
-  # Install common and dev tools
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    set -o errexit -o xtrace
-    # Get proxy configuration here
-    export HOME=/home/vagrant
-    cd "${HOME}/scf"
-    ${HOME}/bin/direnv exec ${HOME}/scf/bin/common/install_tools.sh
-    ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
   SHELL
 end
 
