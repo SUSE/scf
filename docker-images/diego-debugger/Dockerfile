@@ -23,7 +23,7 @@ RUN echo 'if [ -r /etc/secrets/bbs-client-key ]; then \
             echo -e $BBS_CLIENT_KEY > /root/bbs.key; \
           fi' >> /root/.bashrc
 
-RUN echo 'export BBS_ENDPOINT=https://diego-database.${K8S_SERVICE_DOMAIN_SUFFIX}:8889' >> /root/.bashrc
+RUN echo 'export BBS_ENDPOINT=https://diego-database.${KUBE_SERVICE_DOMAIN_SUFFIX}:8889' >> /root/.bashrc
 RUN echo 'export BBS_CERT_FILE=/root/bbs.crt' >> /root/.bashrc
 RUN echo 'export BBS_KEY_FILE=/root/bbs.key' >> /root/.bashrc
 

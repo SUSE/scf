@@ -62,8 +62,8 @@ if test "${has_env}" = "no" ; then
 fi
 
 # Replace the stubbed-out namespace info
-K8S_SERVICE_DOMAIN_SUFFIX="${K8S_SERVICE_DOMAIN_SUFFIX:-\${namespace\}.svc.cluster.local}"
-K8S_SERVICE_DOMAIN_SUFFIX="${K8S_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
+KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX:-\${namespace\}.svc.cluster.local}"
+KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
 
 # Generate a random signing key passphrase
 signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
@@ -95,7 +95,7 @@ openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 
 # Given a host name (e.g. "api"), produce variations based on:
-# - Having K8S_SERVICE_DOMAIN_SUFFIX and not ("api", "api.cf.svc.cluster.local")
+# - Having KUBE_SERVICE_DOMAIN_SUFFIX and not ("api", "api.cf.svc.cluster.local")
 # - Wildcard and not ("api", "*.api")
 # - Include "COMPONENT.*.svc", "COMPONENT.*.svc.cluster"
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
@@ -122,9 +122,9 @@ make_domains() {
     if test -n "${DOMAIN:-}" ; then
         result="${result},${host_name}.${DOMAIN},*.${host_name}.${DOMAIN}"
     fi
-    if test -n "${K8S_SERVICE_DOMAIN_SUFFIX:-}" ; then
-        result="${result},${host_name}.${K8S_SERVICE_DOMAIN_SUFFIX}"
-        result="${result},*.${host_name}.${K8S_SERVICE_DOMAIN_SUFFIX}"
+    if test -n "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
+        result="${result},${host_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}"
+        result="${result},*.${host_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}"
     fi
     echo "${result}"
 }
@@ -239,7 +239,7 @@ ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
 ssh-keygen -E MD5 -lf "${certs_path}/app_ssh_key" | awk '{print $2}' | sed -e 's/^MD5://' > "${certs_path}/app_ssh_host_key_fingerprint"
 
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${K8S_SERVICE_DOMAIN_SUFFIX},${DOMAIN},*.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${KUBE_SERVICE_DOMAIN_SUFFIX},${DOMAIN},*.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
@@ -314,4 +314,4 @@ add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
 add_env TRAFFICCONTROLLER_KEY     "${internal_certs_dir}/trafficcontroller.key"
 
-echo "Keys for ${DOMAIN} (service domain ${K8S_SERVICE_DOMAIN_SUFFIX}) wrote to ${output_path}"
+echo "Keys for ${DOMAIN} (service domain ${KUBE_SERVICE_DOMAIN_SUFFIX}) wrote to ${output_path}"

@@ -13,11 +13,13 @@
 set -x
 
 k8s_api() {
+    local api_ver="$1"
+    shift
     local svcacct=/var/run/secrets/kubernetes.io/serviceaccount
     curl --silent \
         --cacert "${svcacct}/ca.crt" \
         -H "Authorization: bearer $(cat "${svcacct}/token")" \
-        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/api/v1/namespaces/$(cat "${svcacct}/namespace")/${1#/}"
+        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/${api_ver}/namespaces/$(cat "${svcacct}/namespace")/${1#/}"
 }
 
 find_cluster_ha_hosts() {
@@ -27,45 +29,34 @@ find_cluster_ha_hosts() {
 
     if test "${this_component}" != "${component_name}" ; then
         # Requesting a different component, use DNS name
-        echo "[\"${component_name}.${K8S_SERVICE_DOMAIN_SUFFIX}\"]"
+        echo "[\"${component_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}\"]"
     else
-        # Requesting all the pods in this component
-        local i
-        for (( i = 0 ; i < 60 ; i ++ )) ; do
-            hosts="$(k8s_api /pods | jq -crM '
-                .items |
-                map(
-                    select(.metadata.labels."skiff-role-name" == "'"${component_name}"'") |
-                    .metadata.name |
-                    select(.) |
-                    . + "'".${component_name}-pod.${K8S_SERVICE_DOMAIN_SUFFIX}"'"
-                )
-            ' )"
-            if test "${hosts}" != '[]' ; then
-                break
-            fi
-            sleep 1
+        # Find the number of replicas we have
+        local statefulset_name replicas i
+        statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | jq -crM '.metadata.annotations."kubernetes.io/created-by"' | jq -crM .reference.name)"
+        replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | jq -crM .spec.replicas)
+
+        # Return a list of all replicas
+        local hosts=""
+        for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
+            hosts="${hosts},${component_name}-${i}.${component_name}-pod.${KUBE_SERVICE_DOMAIN_SUFFIX}"
         done
-        if test "${hosts}" == '[]' ; then
-            echo "No servers found for ${component_name}.${K8S_SERVICE_DOMAIN_SUFFIX} after 60 seconds; should at least have this container" >&2
-            exit 1
-        fi
-        echo "${hosts}"
+        echo "[${hosts#,}]"
     fi
 }
 
-if test -z "${K8S_SERVICE_DOMAIN_SUFFIX:-}" ; then
+if test -z "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
     # Only set this if no custom value was provided
     # We need to use the FQDN because that's the value in /etc/hosts; since the
     # pods aren't ready initially, nothing (including this pod) will resolve
     # via the DNS server.  Using the value in /etc/hosts lets us start the
     # bootstrap node.
-    export K8S_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
+    export KUBE_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
 fi
-export K8S_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
-export K8S_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
-export K8S_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
-export K8S_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+export KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+export KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+export KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+export KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
 
 unset k8s_api
 unset find_cluster_ha_hosts
