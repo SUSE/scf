@@ -1644,7 +1644,7 @@ configuration:
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
   - name: GARDEN_ROOTFS_DRIVER
-    default: overlay-xfs
+    default: btrfs
     description: The filesystem driver to use (btrfs or overlay-xfs).
     required: true
   - name: GO_LOG_LEVEL
