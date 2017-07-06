@@ -57,3 +57,11 @@ then
     echo ubuntu '       =' $UBUNTU_VERSION
     echo
 fi
+
+if id -u vagrant >& /dev/null; then
+  SCF_BIN_DIR="${SCF_BIN_DIR:-/usr/local/bin}"
+  SCF_TOOLS_DIR="${SCF_TOOLS_DIR:-/home/vagrant/tools}"
+else
+  SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
+  SCF_TOOLS_DIR="${SCF_TOOLS_DIR:-output/tools}"
+fi
