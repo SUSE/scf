@@ -7,71 +7,21 @@
 # you're doing.
 
 
-def os_is_osx?
-  `uname`.strip == 'Darwin'
-end
-
-def default_if_osx
-  `route get default | grep interface`.split(" ").last
-end
-
-def default_if_linux
-  `/sbin/route | grep default`.split(" ").last
-end
-
-# Returns the name of the default interface
-def default_if
-  @default_if_memo ||= os_is_osx? ? default_if_osx : default_if_linux
-end
-
-def interface_is_bridge?(interface)
-  `/usr/sbin/brctl show | cut -f1 | grep '^#{interface}$'`.strip.length > 0
-end
-
-# While VBox on Linux allows bridging without a host device, there's no easy way
-# to check the provider from the Vagrantfile (provider-specific config blocks
-# still run on the wrong providers) so assume libvirt on linux deployments
-#
-# It's also worth noting that the Vagrant libvirt provider (KVM) typically uses
-# 'direct' type interfaces for public_network interfaces. While these *do* work
-# without a host bridge interface, the host VM is unable to route to IPs the VM
-# receives this way. See https://libvirt.org/formatnetwork.html#examplesDirect
-def host_bridge_available?
-  # Exploit the fact that puts returns nil, which is falsy
-  if os_is_osx?
-    puts "Bridged networking not implemented on OSX"
-  elsif ! default_if
-    puts "No default interface detected"
-  elsif ! File.file? "/usr/sbin/brctl"
-    puts "'brctl' tool not found. Have you installed bridge-utils"
-  elsif ! interface_is_bridge?(default_if)
-    warning_env = {
-      "COMMAND"    => "vagrant up --provider=libvirt",
-      "DEFAULT_IF" => default_if
-    }
-    puts system(warning_env, "bin/common/warn_no_bridge.sh")
-  else
-    true
+def base_net_config
+  base_config = {
+    use_dhcp_assigned_default_route: true
+  }
+  if (ENV.keys & ["VAGRANT_KVM_BRIDGE", "VAGRANT_VBOX_BRIDGE"]).empty?
+    if ENV.include? "VAGRANT_DHCP"
+      # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
+      # bridged networking uses type: bridged (even though the virtual interface still
+      # gets its IP from dhcp. If not using dhcp, the VM will use the 192.168.77.77 IP
+      base_config[:type] = "dhcp"
+    else
+      base_config[:ip] = "192.168.77.77"
+    end
   end
-end
-
-def bridged_net_linux?()
-  @bridged_net_memo ||= ENV.fetch("VAGRANT_BRIDGED", false) && host_bridge_available?
-end
-
-# In theory, vbox could manage a bridged deployment if the interface is not wireless
-# But for now, we'll assume vbox is primarily used for osx deployments, which means
-# a wired interface may not be available
-def bridged_net_osx?
-  false
-end
-
-def bridged_net?
-  @bridged_net_memo ||= os_is_osx? ? bridged_net_linux? : bridged_net_osx?
-end
-
-def net_dhcp?
-  ENV.fetch("VAGRANT_DHCP", false) ? true : bridged_net?
+  base_config
 end
 
 Vagrant.configure(2) do |config|
@@ -90,30 +40,15 @@ Vagrant.configure(2) do |config|
   vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
   vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
 
-  vb_net_config = {}
-  if bridged_net?
-    vb_net_config[:use_dhcp_assigned_default_route] = true
-  else
-    # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
-    # bridged networking uses type: bridged (even though the virtual interface still
-    # gets its IP from dhcp. If not using dhcp, the VM will use the 192.168.77.77 IP
-    if ENV.fetch("VAGRANT_DHCP", false)
-      vb_net_config[:type] = "dhcp"
-    else
-      vb_net_config[:ip] = "192.168.77.77"
-    end
-  end
-  # Create a clone of this, otherwise it gets mutated in both providers' sections
-  libvirt_net_config = vb_net_config.clone
-
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
-    if bridged_net?
-      vb_net_config[:bridged] = default_if
+    vb_net_config ||= base_net_config
+    if ENV.include? "VAGRANT_VBOX_BRIDGE"
+      vb_net_config = vb_net_config.merge bridged: ENV.fetch("VAGRANT_VBOX_BRIDGE")
       override.vm.network "public_network", vb_net_config
     else
       override.vm.network "private_network", vb_net_config
@@ -183,9 +118,10 @@ Vagrant.configure(2) do |config|
   config.vm.provider "libvirt" do |libvirt, override|
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
+    libvirt_net_config ||= base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
-    if bridged_net?
-      libvirt_net_config[:dev] = default_if
+    if ENV.include? "VAGRANT_KVM_BRIDGE"
+      libvirt_net_config[:dev] = ENV.fetch "VAGRANT_KVM_BRIDGE"
       libvirt_net_config[:type] = "bridge"
       override.vm.network "public_network", libvirt_net_config
     else
@@ -215,19 +151,19 @@ Vagrant.configure(2) do |config|
     ${HOME}/bin/direnv allow ${HOME}/scf
   SHELL
 
-  config.vm.provision :shell, privileged: true, inline: "chown vagrant:users /home/vagrant/.fissile"
   # Install common and dev tools
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
     set -o errexit -o xtrace -v
     # Get proxy configuration here
     export HOME=/home/vagrant
+    export PATH=$PATH:/home/vagrant/bin
     cd "${HOME}/scf"
-    ${HOME}/bin/direnv exec ${HOME}/scf/bin/common/install_tools.sh
-    ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
+    bash ${HOME}/scf/bin/common/install_tools.sh
+    direnv exec ${HOME}/scf/bin/dev/install_tools.sh
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -o errexit -o xtrace
+    set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
     echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
