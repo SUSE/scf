@@ -9,23 +9,21 @@ source .envrc
 ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
 
 CREATE_HELM_CHART=false
-KUBE_OUTPUT_DIR=kube
+BUILD_TARGET=kube
 
 if [ "${1:-}" = "helm" ]; then
     CREATE_HELM_CHART=true
-    KUBE_OUTPUT_DIR=helm
+    BUILD_TARGET=helm
     ENV_FILES="$(echo bin/settings/certs.env bin/settings/kube/ca.env)"
 fi
 
-rm -rf ${KUBE_OUTPUT_DIR}
+rm -rf "${BUILD_TARGET}"
 
 # TODO: We currently skip memory limits for development purposes
-fissile build kube \
-    --kube-output-dir="${KUBE_OUTPUT_DIR}" \
+fissile build "${BUILD_TARGET}" \
+    --output-dir="${BUILD_TARGET}" \
     --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
-    --use-memory-limits=false \
-    --create-helm-chart=${CREATE_HELM_CHART} \
-    --chart-file=Chart.yaml
+    --use-memory-limits=false
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
-perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" ${KUBE_OUTPUT_DIR})
+perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" "${BUILD_TARGET}")
