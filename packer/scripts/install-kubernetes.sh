@@ -29,6 +29,8 @@ systemctl enable kube-apiserver.service
 systemctl enable kube-controller-manager.service
 systemctl enable kube-proxy.service
 systemctl enable kube-scheduler.service
+systemctl enable kubelet
 
 # Fake the service account key
 ln -s /var/run/kubernetes/apiserver.key /var/lib/kubernetes/serviceaccount.key
+mkdir -p /tmp/hostpath_pv

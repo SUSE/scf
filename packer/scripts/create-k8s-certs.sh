@@ -14,5 +14,4 @@ mv /run/certstrap/{apiserver,kubelet,CA.kube.vagrant}.{crt,key} /etc/kubernetes/
 chown kube:kube /etc/kubernetes/certs/apiserver.{crt,key} /etc/kubernetes/ca/
 cp /etc/kubernetes/certs/CA.kube.vagrant.crt /etc/pki/trust/anchors/
 update-ca-certificates
-systemctl daemon-reload
 systemctl restart etcd.service kube-apiserver.service kube-controller-manager.service kube-proxy.service kube-scheduler.service kubelet.service
