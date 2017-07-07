@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.4",
+        "version": "2.0.5",
         "vm_name": "scf-vagrant-{{isotime \"20060102-1504\"}}",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -17,8 +17,7 @@
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
             "guest_os_type": "suse-64",
-            "disk_size": 20480,
-            "disk_additional_size": [102400],
+            "disk_size": 120480,
             "ssh_username": "{{user `ssh_username`}}",
             "ssh_password": "{{user `ssh_password`}}",
             "iso_url": "{{user `iso_url`}}",
@@ -45,7 +44,7 @@
             "vm_name": "{{user `vm_name`}}",
             "guest_os_type": "OpenSUSE_64",
             "guest_additions_mode": "disable",
-            "disk_size": 20480,
+            "disk_size": 120480,
             "hard_drive_interface": "sata",
             "hard_drive_nonrotational": true,
             "hard_drive_discard": true,
@@ -60,10 +59,6 @@
             "vboxmanage": [
                 [ "modifyvm", "{{.Name}}", "--memory", "1024" ]
             ],
-            "vboxmanage_post": [
-                [ "createhd", "--format", "VMDK", "--filename", "disk2.vmdk", "--variant", "STREAM", "--size", "100000"],
-                [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "2", "--type", "hdd", "--medium", "disk2.vmdk" ]
-            ],
             "boot_command": [
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
@@ -76,7 +71,7 @@
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}",
-            "disk_size": 20480,
+            "disk_size": 120480,
             "disk_interface": "virtio",
             "disk_compression": true,
             "net_device": "virtio-net",

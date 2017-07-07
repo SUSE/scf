@@ -65,7 +65,7 @@
         </partition>
         <partition>
           <create config:type="boolean">true</create>
-          <filesystem config:type="symbol">btrfs</filesystem>
+          <filesystem config:type="symbol">ext4</filesystem>
           <mount>/</mount>
         </partition>
       </partitions>
