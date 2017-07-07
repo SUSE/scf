@@ -151,6 +151,10 @@
             "type": "shell",
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
+                "scripts/install-certstrap.sh",
+                "scripts/usr-local-bin-to-path.sh",
+                "scripts/create-k8s-certs.sh",
+                "scripts/create-kubedns.sh",
                 "scripts/compact.sh"
             ],
             "start_retry_timeout": "7m"
