@@ -101,7 +101,7 @@ make_domains() {
     local result="${host_name},*.${host_name}"
     local i
     for (( i = 0; i < 10; i++ )) ; do
-        result="${result},${host_name}-${i}.${host_name}-pod"
+        result="${result},${host_name}-${i}.${host_name}-set"
     done
     # For faking out HA on vagrant
     result="${result},${host_name}-0.${namespace}.svc,*.${host_name}-0.${namespace}.svc"
@@ -112,7 +112,7 @@ make_domains() {
             result="${result},${host_name}.${instance_name}.svc${cluster_name}"
             result="${result},*.${host_name}.${instance_name}.svc${cluster_name}"
             for (( i = 0; i < 10; i++ )) ; do
-                result="${result},${host_name}-${i}.${host_name}-pod.${instance_name}.svc${cluster_name}"
+                result="${result},${host_name}-${i}.${host_name}-set.${instance_name}.svc${cluster_name}"
             done
         done
     done
