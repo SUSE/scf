@@ -4,6 +4,10 @@
 
 set -o errexit -o xtrace
 
+swapoff -a
+zypper --non-interactive install --no-confirm docker
+usermod --append --groups docker vagrant
+
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
 # Having a newer kernel seems to mitigate issues with crashing
@@ -12,7 +16,6 @@ zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
-    docker \
     etcd \
     kubernetes-client \
     kubernetes-kubelet \
@@ -24,12 +27,14 @@ zypper --non-interactive install --no-confirm --from Virtualization:containers \
 zypper --non-interactive install --no-confirm --from Kernel:stable \
     kernel-default
 
+
 systemctl enable etcd.service
 systemctl enable kube-apiserver.service
 systemctl enable kube-controller-manager.service
 systemctl enable kube-proxy.service
 systemctl enable kube-scheduler.service
 systemctl enable kubelet
+systemctl enable ntpd
 
 # Fake the service account key
 ln -s /var/run/kubernetes/apiserver.key /var/lib/kubernetes/serviceaccount.key
