@@ -34,14 +34,11 @@ kubectl get storageclass persistent 2>/dev/null || {
 
 source bin/settings/settings.env
 source bin/settings/network.env
-namespace=${NAMESPACE}
-source bin/settings/kube/hcp-compatibility.env
 
 helm install helm \
      --namespace ${NAMESPACE} \
      --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
      --set "env.DOMAIN=${DOMAIN}" \
-     --set "env.HCP_SERVICE_DOMAIN_SUFFIX=${HCP_SERVICE_DOMAIN_SUFFIX}" \
      --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}"
