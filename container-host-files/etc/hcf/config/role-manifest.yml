@@ -1153,6 +1153,8 @@ roles:
     exposed-ports: []
 - name: post-deployment-setup
   type: bosh-task
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
