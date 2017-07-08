@@ -296,7 +296,7 @@ roles:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-database
   configuration:
     templates:
-      properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-pod.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
+      properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -754,15 +754,15 @@ roles:
           - /var/vcap/jobs/global-properties/bin/readiness/etcd
   configuration:
     templates:
-      # On k8s, we want the FQDN: etcd-pod.hcf.svc.cluster.local
-      properties.etcd.advertise_urls_dns_suffix: etcd-pod.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
+      properties.etcd.advertise_urls_dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
       # The default of null in the bosh release does not seem to
       # define the property properly. Setting it here does define the
       # property, with a value of null. Note, placement in the
       # opinions is blocked by the configuration validator,
       # complaining about it 'matching the default'. So, here it is.
       properties.etcd.cluster: null
-      properties.etcd_metrics_server.etcd.dns_suffix: etcd-pod.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.etcd_metrics_server.etcd.dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1086,7 +1086,7 @@ roles:
         url: http://container-ip:1800/ping # rep HTTP server
   configuration:
     templates:
-      properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-pod.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
+      properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
 - name: acceptance-tests-brain
   type: bosh-task
   scripts:
@@ -2171,7 +2171,7 @@ configuration:
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
