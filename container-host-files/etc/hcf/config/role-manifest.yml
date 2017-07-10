@@ -2305,7 +2305,7 @@ configuration:
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     # How to reach the capi.cc_uploader
-    properties.internal_hostname: '"cc-uploader.((HCP_SERVICE_DOMAIN_SUFFIX))"'
+    properties.internal_hostname: '"cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
@@ -2388,7 +2388,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((UAA_HOST)).((HCP_SERVICE_DOMAIN_SUFFIX))'
+    properties.uaa.hostname: '((UAA_HOST)).((KUBE_SERVICE_DOMAIN_SUFFIX))'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
