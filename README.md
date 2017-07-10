@@ -124,7 +124,6 @@ a working system.
    $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
    $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
    ```
-   
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
@@ -170,6 +169,8 @@ Typically Vagrant box deployments encounter one of few problems:
 * api does not come up correctly and is not performing migrations (curl output in logs)
 
     uaa is not functioning, try steps above
+
+* vagrant under VirtualBox freezing for no obvious reason: try enabling the "Use Host I/O Cache" option in `Settings->Storage->SATA Controller`.
 
 # Deploying SCF on Kubernetes
 
