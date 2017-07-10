@@ -39,7 +39,7 @@ find_cluster_ha_hosts() {
         # Return a list of all replicas
         local hosts=""
         for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
-            hosts="${hosts},${component_name}-${i}.${component_name}-pod.${KUBE_SERVICE_DOMAIN_SUFFIX}"
+            hosts="${hosts},${component_name}-${i}.${component_name}-set.${KUBE_SERVICE_DOMAIN_SUFFIX}"
         done
         echo "[${hosts#,}]"
     fi
