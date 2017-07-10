@@ -32,10 +32,16 @@ kubectl get storageclass persistent 2>/dev/null || {
     kubectl create -f -
 }
 
-kubectl create --namespace="${NAMESPACE}" \
-    --filename="kube/bosh" \
-    --filename="kube/secrets" \
-    --filename="kube/bosh-task/post-deployment-setup.yml"
+source bin/settings/settings.env
+source bin/settings/network.env
+
+helm install helm \
+     --namespace ${NAMESPACE} \
+     --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
+     --set "env.DOMAIN=${DOMAIN}" \
+     --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
+     --set "env.UAA_HOST=${UAA_HOST}" \
+     --set "env.UAA_PORT=${UAA_PORT}"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 

@@ -98,10 +98,10 @@ a working system.
     # This runs a combination of bosh & fissile in order to create the docker images you'll need
     # Once this step is done you can see images available via "docker images"
     make vagrant-prep
-    # This uses fissile to create kubernetes service, deployment, stateful set definitions
-    make kube
-    # This is the final step, where it will create the 'cf' namespace in K8s and provision
-    # all the definitions you created.
+    # This uses fissile to create a helm charts for scf and uaa
+    make helm
+    # This is the final step, where it will install the uaa helm chart into the 'uaa' namespace
+    # and the scf helm chart into the 'cf' namespace.
     make run
 
     # Watch the status of the pods, when everything is fully ready it should be usable.

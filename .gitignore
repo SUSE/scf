@@ -24,5 +24,6 @@ src/buildpacks/*-clone
 bin/settings/kube/ca.env
 # `make dist` output of various forms
 output/
+helm/
 kube/
 personal-setup

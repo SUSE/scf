@@ -208,9 +208,18 @@ kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
+helm helm/bosh-task/post-deployment-setup.yml: uaa-helm
+	${GIT_ROOT}/bin/settings/kube/ca.sh
+	${GIT_ROOT}/make/kube helm
+.PHONY: helm
+
 uaa-kube: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/uaa-kube
 .PHONY: uaa-kube
+
+uaa-helm: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-kube helm
+.PHONY: uaa-helm
 
 ########## CONFIGURATION TARGETS ##########
 
