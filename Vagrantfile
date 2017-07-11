@@ -46,9 +46,9 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
-    vb_net_config ||= base_net_config
+    vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
-      vb_net_config = vb_net_config.merge bridged: ENV.fetch("VAGRANT_VBOX_BRIDGE")
+      vb_net_config[:bridged] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
       override.vm.network "public_network", vb_net_config
     else
       override.vm.network "private_network", vb_net_config
@@ -118,10 +118,10 @@ Vagrant.configure(2) do |config|
   config.vm.provider "libvirt" do |libvirt, override|
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
     libvirt.driver = "kvm"
-    libvirt_net_config ||= base_net_config
+    libvirt_net_config = base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
     if ENV.include? "VAGRANT_KVM_BRIDGE"
-      libvirt_net_config[:dev] = ENV.fetch "VAGRANT_KVM_BRIDGE"
+      libvirt_net_config[:dev] = ENV["VAGRANT_KVM_BRIDGE"]
       libvirt_net_config[:type] = "bridge"
       override.vm.network "public_network", libvirt_net_config
     else
@@ -136,7 +136,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
-  }, path: "bin/common/write_proxy_vars_to_environment.sh" 
+  }, path: "bin/common/write_proxy_vars_to_environment.sh"
 
   # set up direnv so we can pick up fissile configuration
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -153,7 +153,7 @@ Vagrant.configure(2) do |config|
 
   # Install common and dev tools
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    set -o errexit -o xtrace -v
+    set -o errexit -o xtrace -o verbose
     # Get proxy configuration here
     export HOME=/home/vagrant
     export PATH=$PATH:/home/vagrant/bin
@@ -174,32 +174,3 @@ Vagrant.configure(2) do |config|
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
 end
-
-# module VMwareHacks
-#
-#   # Here we manually define the shared folder for VMware-based providers
-#   def VMwareHacks.configure_shares(vb)
-#     current_dir = File.dirname(__FILE__)
-#     bosh_cache = File.join(current_dir, '.fissile/.bosh')
-#
-#     # share . in the box
-#     vb.vmx["sharedFolder0.present"] = "TRUE"
-#     vb.vmx["sharedFolder0.enabled"] = "TRUE"
-#     vb.vmx["sharedFolder0.readAccess"] = "TRUE"
-#     vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
-#     vb.vmx["sharedFolder0.hostPath"] = current_dir
-#     vb.vmx["sharedFolder0.guestName"] = "scf"
-#     vb.vmx["sharedFolder0.expiration"] = "never"
-#     vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
-#
-#     # share .fissile/.bosh in the box
-#     vb.vmx["sharedFolder1.present"] = "TRUE"
-#     vb.vmx["sharedFolder1.enabled"] = "TRUE"
-#     vb.vmx["sharedFolder1.readAccess"] = "TRUE"
-#     vb.vmx["sharedFolder1.writeAccess"] = "TRUE"
-#     vb.vmx["sharedFolder1.hostPath"] = bosh_cache
-#     vb.vmx["sharedFolder1.guestName"] = "bosh"
-#     vb.vmx["sharedFolder1.expiration"] = "never"
-#     vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
-#   end
-# end
