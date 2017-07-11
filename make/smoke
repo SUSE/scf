@@ -38,7 +38,18 @@ kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create end
 
-sleep 5 ; # Slap dash: Wait for container to be up and running
+i=0
+
+while [ "$(k get pod cf:^smoke-test -o=json | jq -r .status.phase)" != "Running" ]
+do
+  i=$((i + 1))
+  if [ ${i} -gt 30 ]
+  then
+    echo "smoke-test container failed to reach Running state"
+    exit 1
+  fi
+  sleep 1
+done
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::log end
 

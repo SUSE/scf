@@ -38,7 +38,20 @@ kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/acceptance-
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::create end
 
-sleep 5 ; # Slap dash: Wait for container to be up and running
+i=0
+
+set +o errexit
+while [ "$(k get pod cf:^acceptance-tests -o=json | jq -r .status.phase)" != "Running" ]
+do
+  i=$((i + 1))
+  if [ ${i} -gt 30 ]
+  then
+    echo "acceptance-tests container failed to reach Running state"
+    exit 1
+  fi
+  sleep 1
+done
+set -o errexit
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::log end
 
