@@ -11,14 +11,11 @@ roles:
     release_name: hcf
   - name: nats
     release_name: nats
-  - name: nats_stream_forwarder
-    release_name: nats
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: metron_agent
   - name: nats
-  - name: nats_stream_forwarder
   tags: ['clustered']
   run:
     scaling:
@@ -700,6 +697,9 @@ roles:
       external: 8082
       internal: 8082
       public: false
+    healthcheck:
+      readiness:
+        port: 8082
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1051,7 +1051,7 @@ roles:
   - name: garden
     release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
-    release_name: cflinuxfs2-rootfs
+    release_name: cflinuxfs2
   - name: opensuse42-rootfs-setup
     release_name: cf-opensuse42
   - name: metron_agent
@@ -2075,6 +2075,7 @@ configuration:
     az: '"((HCP_AZ))"'
     id: ((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((HOSTNAME))((/HCP_COMPONENT_NAME))
     index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
+    ip: '"((IP_ADDRESS))"'
     networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -2094,7 +2095,13 @@ configuration:
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
+    properties.capi.cc_uploader.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.cc_uploader.cc.client_cert: '"((CC_SERVER_CRT))"'
+    properties.capi.cc_uploader.cc.client_key: '"((CC_SERVER_KEY))"'
     properties.capi.cc_uploader.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_SERVER_CRT))"'
+    properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_SERVER_KEY))"'
     properties.capi.nsync.bbs.api_location: diego-database.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.nsync.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.nsync.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2141,9 +2148,11 @@ configuration:
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX)):9091
     properties.cc.diego.nsync_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8787
     properties.cc.diego.stager_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8888
     properties.cc.diego.tps_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):1518
+
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -2295,6 +2304,8 @@ configuration:
     properties.hcf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    # How to reach the capi.cc_uploader
+    properties.internal_hostname: '"cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
@@ -2311,7 +2322,6 @@ configuration:
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.metron_agent.zone: '"((HCP_AZ))"'
-    properties.metron_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
@@ -2339,6 +2349,7 @@ configuration:
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.routing_api.url: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
@@ -2361,6 +2372,7 @@ configuration:
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
+    properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
@@ -2376,6 +2388,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
+    properties.uaa.hostname: '((UAA_HOST)).((KUBE_SERVICE_DOMAIN_SUFFIX))'
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))

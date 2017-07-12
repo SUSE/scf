@@ -90,8 +90,8 @@ garden-release:
 mysql-release:
 	RUBY_VERSION=2.3.1 ${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 
-cflinuxfs2-rootfs-release:
-	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
+cflinuxfs2-release:
+	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-release
 
 cf-opensuse42-release:
 	${GIT_ROOT}/make/bosh-release src/cf-opensuse42-release
@@ -146,7 +146,7 @@ releases: \
 	etcd-release \
 	garden-release \
 	mysql-release \
-	cflinuxfs2-rootfs-release \
+	cflinuxfs2-release \
 	cf-opensuse42-release \
 	routing-release \
 	hcf-release \
