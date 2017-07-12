@@ -33,7 +33,7 @@ while getopts "d:hn:o:" opt; do
         echo "Invalid -${opt} argument ${OPTARG}, must be a directory" >&2
         exit 1
       fi
-      out_dir=${OPTARG}
+      out_dir="$(cd "${OPTARG}" ; pwd)"
       ;;
   esac
 done
@@ -46,6 +46,8 @@ then
   usage
   exit 1
 fi
+
+echo Writing results to ${out_dir}
 
 docker run --rm \
 	--volume "${out_dir}":/out \
