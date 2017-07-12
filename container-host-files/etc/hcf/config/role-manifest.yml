@@ -138,7 +138,7 @@ roles:
     persistent-volumes:
     - path: /var/vcap/store
       tag: mysql-data
-      size: 2
+      size: 20
     shared-volumes: []
     memory: 3072
     virtual-cpus: 2
