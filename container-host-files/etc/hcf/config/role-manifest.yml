@@ -25,7 +25,7 @@ roles:
     persistent-volumes: []
     shared-volumes: []
     memory: 256
-    virtual-cpus: 4
+    virtual-cpus: 2
     exposed-ports:
     - name: nats
       protocol: TCP
