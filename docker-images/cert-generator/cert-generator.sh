@@ -14,7 +14,6 @@ trap finish EXIT
 cat <<EOF > ${env_dir}/network.env
 
 DOMAIN=${DOMAIN}
-HCP_SERVICE_DOMAIN_SUFFIX=${NAMESPACE}.svc.cluster.local
 
 EOF
 
