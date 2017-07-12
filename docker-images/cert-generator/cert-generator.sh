@@ -20,6 +20,8 @@ EOF
 /generate-certs.sh -e "${env_dir}" /tmp/uaa-certs.env > /dev/null
 /generate-dev-certs.sh -e "${env_dir}" "${NAMESPACE}" /tmp/scf-certs.env > /dev/null
 
-perl -pe 's@(.+?)=(.+)@$1: "$2"@' < /tmp/uaa-certs.env > /out/uaa-cert-values.yaml
-perl -pe 's@(.+?)=(.+)@$1: "$2"@' < /tmp/scf-certs.env > /out/scf-cert-values.yaml
+echo "env:" > /out/uaa-cert-values.yaml
+echo "env:" > /out/scf-cert-values.yaml
+perl -pe 's@(.+?)=(.+)@  $1: "$2"@' < /tmp/uaa-certs.env >> /out/uaa-cert-values.yaml
+perl -pe 's@(.+?)=(.+)@  $1: "$2"@' < /tmp/scf-certs.env >> /out/scf-cert-values.yaml
 
