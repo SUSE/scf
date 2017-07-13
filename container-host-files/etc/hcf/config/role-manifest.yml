@@ -1860,7 +1860,6 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
       subject_alt_names:
       - parameter: DOMAIN
         wildcard: false
@@ -1874,6 +1873,7 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: private_key
+      key_length: 4096
     description: The private ssl key for ssl termination.
     required: true
   - name: ROUTER_STATUS_PASSWORD
