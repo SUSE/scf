@@ -8,7 +8,7 @@
         "iso_checksum": "750434ff041b9e7baf31217fcfab41df0560e8e8a39d508c196eb19c151f265c",
         "iso_checksum_type": "sha256",
         "http_directory": "http",
-        "ssh_wait_timeout": "60m",
+        "ssh_wait_timeout": "300m",
         "shutdown_command": "echo vagrant | sudo -S shutdown -P now"
     },
     "builders": [
