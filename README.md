@@ -461,4 +461,8 @@ here.
 
 1. Download the [scf-cert-generator.sh](https://github.com/SUSE/scf/blob/develop/docker-images/cert-generator/scf-cert-generator.sh) script
 1. Run it, setting the command line options according to your cluster
-1. Provide the resulting YAML file to the Helm chart
+1. Provide the resulting YAML file to helm as a values.yaml file:
+
+    ```bash
+    helm install ... -f scf-cert-values.yaml
+    ```
