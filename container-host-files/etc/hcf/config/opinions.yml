@@ -148,7 +148,12 @@ properties:
       tag: cc
     db_scheme: mysql
     port: 3306
+  cf:
+    admin_username: admin
   cf_mysql:
+    broker:
+      port: 8081
+      protocol: http
     mysql:
       startup_timeout: 300
       galera_healthcheck:

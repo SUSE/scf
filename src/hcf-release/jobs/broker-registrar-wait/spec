@@ -1,0 +1,25 @@
+---
+name: broker-registrar-wait
+
+description: Wait for the dev mysql broker to be online, so the broker registrar can run
+
+packages: []
+
+templates:
+  run.erb: bin/run
+
+properties:
+
+  cf_mysql.external_host:
+    description: 'Host address of the service broker'
+  cf_mysql.broker.protocol:
+    description: 'Protocol (http/https) provided to the Cloud Controller when registering/de-registering the broker'
+    default: https
+  cf_mysql.broker.port:
+    description: 'Port for the service broker'
+    default: 443
+  cf_mysql.broker.auth_username:
+    description: 'Basic Auth username for the service broker'
+    default: admin
+  cf_mysql.broker.auth_password:
+    description: 'Basic Auth password for the service broker'
