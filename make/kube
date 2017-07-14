@@ -22,8 +22,7 @@ rm -rf "${BUILD_TARGET}"
 # TODO: We currently skip memory limits for development purposes
 fissile build "${BUILD_TARGET}" \
     --output-dir="${BUILD_TARGET}" \
-    --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
-    --use-memory-limits=false
+    --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)"
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
 perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" "${BUILD_TARGET}")
