@@ -208,16 +208,10 @@ class Common
       DNS_RECORD_NAME
       DONT_SKIP_CERT_VERIFY_INTERNAL
       GO_LOG_LEVEL
-      HTTPS_PROXY
-      HTTP_PROXY
       IP_ADDRESS
       JWT_SIGNING_PEM
       JWT_SIGNING_PUB
       NGINX_LOG_LEVEL
-      NO_PROXY
-      http_proxy
-      https_proxy
-      no_proxy
     ).include? key
   end
 
