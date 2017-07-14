@@ -1204,9 +1204,7 @@ roles:
     release_name: hcf
   - name: uaa-create-user
     release_name: hcf
-  - name: cf-set-proxy
-    release_name: hcf
-  - name: broker-registrar-wait
+  - name: configure-scf
     release_name: hcf
   - name: broker-registrar
     release_name: cf-mysql
