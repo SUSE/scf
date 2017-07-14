@@ -1670,7 +1670,11 @@ configuration:
     type: environment
   - name: HOSTNAME
   - name: HTTPS_PROXY
+    required: false
+    description: Location of the proxy to use for secure web access.
   - name: HTTP_PROXY
+    required: false
+    description: Location of the proxy to use for regular web access.
   - name: INTERNAL_API_PASSWORD
     secret: true
     immutable: true
@@ -1803,6 +1807,8 @@ configuration:
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
   - name: NO_PROXY
+    description: Comma separated list of IP addresses and domains which should not be directoed through a proxy, if any.
+    required: false
   - name: REP_CLIENT_CERT
     secret: true
     generator:
