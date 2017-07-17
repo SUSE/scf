@@ -15,7 +15,7 @@ if [ "${1:-}" = "helm" ]; then
 fi
 
 if [ "${BUILD_TARGET}" = "kube" ]; then
-    # Ovverides when generating kube config files instead of helm charts.
+    # Overrides when generating kube config files instead of helm charts.
     FISSILE_OUTPUT_DIR="${PWD}/kube"
     ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
     FISSILE_DEFAULTS_FILE="$(echo "${ENV_FILES}" | tr ' ' ,)"
