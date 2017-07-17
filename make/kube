@@ -17,11 +17,13 @@ if [ "${1:-}" = "helm" ]; then
     ENV_FILES="$(echo bin/settings/certs.env bin/settings/kube/ca.env)"
 fi
 
-rm -rf "${BUILD_TARGET}"
+if [ "${BUILD_TARGET}" = "kube" ]; then
+    FISSILE_OUTPUT_DIR="${PWD}/kube"
+fi
 
-# TODO: We currently skip memory limits for development purposes
+rm -rf "${FISSILE_OUTPUT_DIR}"
+
 fissile build "${BUILD_TARGET}" \
-    --output-dir="${BUILD_TARGET}" \
     --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)"
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
