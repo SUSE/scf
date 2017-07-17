@@ -1,7 +1,7 @@
 ---
-name: cf-set-proxy
+name: configure-scf
 
-description: cf-set-proxy will initialize the running- and staging-environment-variable-groups for the current HTTP(S) proxy settings
+description: Uses the cf CLI to configure SCF once it's online (things like proxy settings, service brokers, etc.)
 
 packages:
   - cli
@@ -32,3 +32,19 @@ properties:
     description: True for insecure connections
   uaa.clients.hcf_auto_config.secret:
     description: The secret for the UAA client to set up proxies
+  cf_mysql.external_host:
+    description: 'Host address of the service broker'
+  cf_mysql.broker.protocol:
+    description: 'Protocol (http/https) provided to the Cloud Controller when registering/de-registering the broker'
+    default: https
+  cf_mysql.broker.port:
+    description: 'Port for the service broker'
+    default: 443
+  cf_mysql.broker.auth_username:
+    description: 'Basic Auth username for the service broker'
+    default: admin
+  cf_mysql.broker.auth_password:
+    description: 'Basic Auth password for the service broker'
+  cf_mysql.mysql.port:
+    description: 'Port used by the service broker and bound applications to reach the service'
+    default: 3306

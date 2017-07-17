@@ -177,7 +177,7 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images uaa-images
+images: bosh-images uaa-images helm
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
