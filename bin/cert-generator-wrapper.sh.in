@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o nounset
+
+usage() {
+	cat <<EOF
+$(basename "${0}"): SCF Certificate Generator
+
+  -d <domain>:     Sets the top level domain for the cluster
+  -h:              Displays this help message
+  -n <namespace>:  Sets namespace, default: 'cf'
+  -o <output dir>: Sets output directory, default: \`pwd\`
+EOF
+}
+
+namespace=cf
+scipts_dir="$(cd "$(dirname "$0")/scripts/" && pwd)"
+out_dir="$(pwd)"
+
+while getopts "d:hn:o:" opt; do
+  case $opt in
+    d)
+      domain="${OPTARG}"
+      ;;
+    h)
+      usage
+      exit
+      ;;
+    n)
+      namespace="${OPTARG}"
+      ;;
+    o)
+      if ! test -d "${OPTARG}" ; then
+        echo "Invalid -${opt} argument ${OPTARG}, must be a directory" >&2
+        exit 1
+      fi
+      out_dir="$(cd "${OPTARG}" ; pwd)"
+      ;;
+  esac
+done
+
+if test -z "${domain:-}" ; then
+  usage
+  exit 1
+fi
+
+env_dir="$(mktemp -dt scf-env.XXXXXXXX)"
+finish() {
+  rm -rf "${env_dir}"
+}
+
+trap finish EXIT
+
+cat <<EOF > "${env_dir}/network.env"
+
+DOMAIN=${domain}
+
+EOF
+
+if ! test -x certstrap ; then
+  host_os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  if test "${host_os}" = '@@CERTSTRAP_OS@@' ; then
+    export PATH="${PATH}:${PWD}/scripts"
+  else
+    printf 'certstrap binary not found, and the embedded one is for @@CERTSTRAP_OS@@, not %s\n' "${host_os}" >&2
+    exit 1
+  fi
+fi
+
+echo "env:" > "${out_dir}/uaa-cert-values.yaml"
+"${scipts_dir}/generate-uaa-certs.sh" -e "${env_dir}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/uaa-cert-values.yaml") >/dev/null
+
+echo "env:" > "${out_dir}/scf-cert-values.yaml"
+"${scipts_dir}/generate-scf-certs.sh" -e "${env_dir}" "${namespace}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/scf-cert-values.yaml") >/dev/null
