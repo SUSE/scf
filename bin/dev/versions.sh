@@ -11,6 +11,7 @@ export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+115.g7121d1b"
 export HELM_VERSION="2.4.2"
 export HELM_CERTGEN_VERSION="master"
+export CERTSTRAP_VERSION="v1.0.1-11-g0e00d5c"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.5.4"
 export K_VERSION="0.0.12"
@@ -49,6 +50,7 @@ then
     echo go '           =' $GOLANG_VERSION
     echo helm '         =' $HELM_VERSION
     echo helm-certgen ' =' $HELM_CERTGEN_VERSION
+    echo certstrap '    =' $CERTSTRAP_VERSION
     echo k '            =' $K_VERSION
     echo kk '           =' $KK_VERSION
     echo kubectl '      =' $KUBECTL_VERSION
