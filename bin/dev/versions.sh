@@ -8,7 +8,7 @@ set -o errexit -o nounset
 # Used in: bin/dev/install_tool.sh
 
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.0.0+115.g7121d1b"
+export FISSILE_VERSION="5.0.0+121.ge39ca03"
 export HELM_VERSION="2.4.2"
 export HELM_CERTGEN_VERSION="master"
 export CERTSTRAP_VERSION="v1.0.1-11-g0e00d5c"
@@ -26,7 +26,7 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 # Used in: .envrc
 
-export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-13.gf265b3b-28.59}
+export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-15.g38c573e-29.12}
 
 # Used in: bin/generate-dev-certs.sh
 
