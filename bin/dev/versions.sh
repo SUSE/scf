@@ -34,7 +34,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
-export CF_VERSION=251
+export CF_VERSION=265
 
 # Notes
 # github.com/square/certstrap - Unversioned `go get`
