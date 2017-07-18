@@ -6,10 +6,10 @@ usage() {
 	cat <<EOF
 $(basename "${0}"): SCF Certificate Generator
 
-  -d <domain>:     Sets the top level domain for the cluster
+  -d <domain>:     Sets the top level domain for the cluster (required)
   -h:              Displays this help message
-  -n <namespace>:  Sets namespace, default: 'cf'
-  -o <output dir>: Sets output directory, default: \`pwd\`
+  -n <namespace>:  Sets namespace, default: \`cf\`
+  -o <output dir>: Sets output directory, default: \`pwd\`.  Must already exist.
 EOF
 }
 
@@ -66,6 +66,12 @@ if ! test -x certstrap ; then
     exit 1
   fi
 fi
+
+# The shell scripts generate a shell environment style file (lines of KEY=VAL);
+# we need to convert them to YAML-style, with an initial indent before KEY, and
+# quoting the VAL.  That is, convert `KEY=VAL` to `  KEY: "VAL"`.
+# We also use bash-style `>()` for redirection because the scripts take output
+# file names, instead of piping the results to somewhere useful.
 
 echo "env:" > "${out_dir}/uaa-cert-values.yaml"
 "${scipts_dir}/generate-uaa-certs.sh" -e "${env_dir}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/uaa-cert-values.yaml") >/dev/null
