@@ -20,7 +20,7 @@ fi
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-cats::setup start
 
-. ${GIT_ROOT}/bin/settings/settings.env
+. "${GIT_ROOT}/bin/settings/settings.env"
 
 cf api api.cf-dev.io --skip-ssl-validation
 cf auth admin "${CLUSTER_ADMIN_PASSWORD}"

@@ -1131,6 +1131,7 @@ roles:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
 - name: acceptance-tests-brain
   type: bosh-task
+  tags: [stop-on-failure]
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -1151,6 +1152,7 @@ roles:
     exposed-ports: []
 - name: acceptance-tests
   type: bosh-task
+  tags: [stop-on-failure]
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/cf_acceptance_tests_suites.sh
@@ -1175,6 +1177,7 @@ roles:
       hcf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
+  tags: [stop-on-failure]
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
