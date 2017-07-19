@@ -40,7 +40,7 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create end
 
 i=0
 
-while [ "$(k get pod cf:^smoke-test -o=json | jq -r .status.phase)" != "Running" ]
+while [ "$(k get pod "${NAMESPACE}":^smoke-test -o=json | jq -r .status.phase)" != "Running" ]
 do
   i=$((i + 1))
   if [ ${i} -gt 30 ]
@@ -55,8 +55,8 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::log end
 
 # First show the logs accumulated so far, then stream further logs in
 # a way which terminates when the pod (= testsuite) terminates.
-k log    cf:^smoke-test
-k attach cf:^smoke-test
+k logs   "${NAMESPACE}":^smoke-test
+k attach "${NAMESPACE}":^smoke-test
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::log end
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke 'done'
