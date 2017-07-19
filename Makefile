@@ -73,6 +73,9 @@ registry:
 smoke:
 	${GIT_ROOT}/make/smoke
 
+brain:
+	${GIT_ROOT}/make/brain
+
 cats:
 	${GIT_ROOT}/make/cats
 
