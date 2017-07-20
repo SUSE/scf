@@ -203,12 +203,12 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
+kube ${FISSILE_OUTPUT_DIR}/kube/bosh-task/post-deployment-setup.yml: uaa-kube
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
-helm helm/bosh-task/post-deployment-setup.yml: uaa-helm
+helm ${FISSILE_OUTPUT_DIR}/helm/bosh-task/post-deployment-setup.yml: uaa-helm
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube helm
 .PHONY: helm
@@ -235,7 +235,7 @@ dist: \
 
 kube-dist: kube uaa-kube-dist
 	${GIT_ROOT}/make/kube-dist
-	rm -rf kube
+	rm -rf ${FISSILE_OUTPUT_DIR}/kube
 
 ########## SUPPORT  TARGETS ##########
 
