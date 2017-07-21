@@ -14,15 +14,16 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-brain start
 if has_namespace ; then
     :
 else
-    echo 1>&2 Namespace ${NAMESPACE} is missing. SCF is not running.
+    echo 1>&2 Namespace "${NAMESPACE}" is missing. SCF is not running.
     exit 1
 fi
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-brain::setup start
 
-. "${GIT_ROOT}/bin/settings/settings.env"
+source "${GIT_ROOT}/bin/settings/settings.env"
+source "${GIT_ROOT}/bin/settings/network.env"
 
-cf api api.cf-dev.io --skip-ssl-validation
+cf api api."${DOMAIN}" --skip-ssl-validation
 cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
 cf enable-feature-flag diego_docker
 
@@ -33,6 +34,11 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-brain::create start
 # Delete left-over pod/definition from previous runs, then create/run
 kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/acceptance-tests-brain.yml" \
     2> /dev/null || /bin/true
+
+printf "Waiting for namespace %s to be deleted...\n" "${NAMESPACE}"
+while has_namespace ; do
+    sleep 1
+done
 
 kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/acceptance-tests-brain.yml"
 
