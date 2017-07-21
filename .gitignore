@@ -4,12 +4,8 @@ _work/
 target/
 password
 *.pem
-*.tfstate*
-*.tfvars
-.terraform/
-!.fissile/.gitkeep
-!.fissile/.bosh/.gitkeep
-.fissile/*
+!.gitkeep
+/.fissile/
 .vagrant
 .bash_history
 *.box
@@ -19,11 +15,7 @@ password
 .demos
 src/*-clone
 src/buildpacks/*-clone
-/*.tf
-/*.tf.json
-bin/settings/kube/ca.env
+/bin/settings/kube/ca.env
 # `make dist` output of various forms
-output/
-helm/
-kube/
+/output/
 personal-setup
