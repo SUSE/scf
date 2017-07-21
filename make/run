@@ -35,7 +35,7 @@ kubectl get storageclass persistent 2>/dev/null || {
 source bin/settings/settings.env
 source bin/settings/network.env
 
-helm install helm \
+helm install "${FISSILE_OUTPUT_DIR}/helm/cf" \
      --namespace ${NAMESPACE} \
      --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
      --set "env.DOMAIN=${DOMAIN}" \

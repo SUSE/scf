@@ -31,10 +31,10 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::setup end
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create start
 
 # Delete left-over pod/definition from previous runs, then create/run
-kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests.yml" \
+kubectl delete --namespace="${NAMESPACE}" --filename="${FISSILE_OUTPUT_DIR}/kube/bosh-task/smoke-tests.yml" \
     2> /dev/null || /bin/true
 
-kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/smoke-tests.yml"
+kubectl create --namespace="${NAMESPACE}" --filename="${FISSILE_OUTPUT_DIR}/kube/bosh-task/smoke-tests.yml"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-smoke::create end
 
