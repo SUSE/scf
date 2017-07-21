@@ -208,7 +208,7 @@ kube ${FISSILE_OUTPUT_DIR}/kube/bosh-task/post-deployment-setup.yml: uaa-kube
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
-helm ${FISSILE_OUTPUT_DIR}/helm/bosh-task/post-deployment-setup.yml: uaa-helm
+helm ${FISSILE_OUTPUT_DIR}/helm/cf/bosh-task/post-deployment-setup.yml: uaa-helm
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube helm
 .PHONY: helm
