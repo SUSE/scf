@@ -2,24 +2,31 @@
 
 set -o errexit -o nounset
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
 
-. ${GIT_ROOT}/make/include/versioning
+. "${GIT_ROOT}/make/include/versioning"
 
-tmp_dir=$(mktemp -d)
+artifacts=("")
+for variant in kube helm ; do
+    tmp_dir=$(mktemp -d)
+    trap "rm -rf '${tmp_dir}'" EXIT
+    artifact="${ARTIFACT_NAME}-${variant}-${APP_VERSION}.zip"
 
-ARTIFACT=${ARTIFACT_NAME}-kube-${APP_VERSION}.zip
+    rm -f "${GIT_ROOT}/${artifact}"
 
-rm ${GIT_ROOT}/${ARTIFACT} 2>/dev/null || true
+    mkdir -p "${tmp_dir}"/{cf,uaa}
 
-mkdir "${tmp_dir}/cf" "${tmp_dir}/uaa"
+    cp -r "${GIT_ROOT}/${variant}/"* "${tmp_dir}/cf"
+    cp -r "${GIT_ROOT}/src/uaa-fissile-release/${variant}/"* "${tmp_dir}/uaa"
 
-cp -r "${GIT_ROOT}"/kube/* "${tmp_dir}/cf"
-cp -r "${GIT_ROOT}"/src/uaa-fissile-release/kube/* "${tmp_dir}/uaa"
+    (
+        cd "${tmp_dir}"
+        zip -r9 "${GIT_ROOT}/${artifact}" ./*
+    )
 
-cd "${tmp_dir}" && zip -r9 ${GIT_ROOT}/${ARTIFACT} * \
-    ${NULL:-}
+    rm -rf "${tmp_dir}"
+    trap '' EXIT
+    artifacts=("${artifact}" "${artifacts[@]}")
+done
 
-rm -rf "${tmp_dir}"
-
-echo Generated ${ARTIFACT}
+echo "Generated ${artifacts[*]}"
