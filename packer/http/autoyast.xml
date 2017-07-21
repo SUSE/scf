@@ -125,6 +125,7 @@
       <package>dmidecode</package>
       <package>jq</package>
       <package>make</package>
+      <package>man</package>
       <package>open-vm-tools</package>
       <package>openssh</package>
       <package>virtualbox-guest-kmp-default</package>
