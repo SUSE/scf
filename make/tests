@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+NAMESPACE="cf"
+POD_NAME=$1
+if [ ! -f "kube/bosh-task/${POD_NAME}.yml" ]; then
+    echo 1>&2 There is no bosh-task for ${POD_NAME}.
+    exit 1
+fi
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+METRICS="${GIT_ROOT}/scf_metrics.csv"
+
+has_namespace() {
+    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
+}
+
+has_pod() {
+    kubectl get pod --output=name --namespace "${NAMESPACE}" "${POD_NAME}" >/dev/null 2>/dev/null
+}
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" start
+
+if has_namespace ; then
+    :
+else
+    echo 1>&2 Namespace "${NAMESPACE}" is missing. SCF is not running.
+    exit 1
+fi
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" start
+
+source "${GIT_ROOT}/bin/settings/settings.env"
+source "${GIT_ROOT}/bin/settings/network.env"
+
+cf api api."${DOMAIN}" --skip-ssl-validation
+cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
+cf enable-feature-flag diego_docker
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" end
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
+
+# Delete left-over pod/definition from previous runs, then create/run
+kubectl delete --namespace="${NAMESPACE}" --filename="kube/bosh-task/${POD_NAME}.yml" \
+    2> /dev/null || /bin/true
+
+echo "Waiting for pod ${POD_NAME} to be deleted..."
+while has_pod ; do
+    sleep 1
+done
+
+kubectl create --namespace="${NAMESPACE}" --filename="kube/bosh-task/${POD_NAME}.yml"
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
+
+i=0
+
+while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o=json | jq -r .status.phase)" != "Running" ]
+do
+  i=$((i + 1))
+  if [ ${i} -gt 30 ]
+  then
+    echo 1>&2 "${POD_NAME} container failed to reach Running state"
+    exit 1
+  fi
+  sleep 1
+done
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
+
+# First show the logs accumulated so far, then stream further logs in
+# a way which terminates when the pod (= testsuite) terminates.
+kubectl logs   --namespace "${NAMESPACE}" "${POD_NAME}"
+kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}"
+
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
+stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end

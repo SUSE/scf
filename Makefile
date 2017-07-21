@@ -71,10 +71,13 @@ registry:
 	${GIT_ROOT}/make/registry
 
 smoke:
-	${GIT_ROOT}/make/smoke
+	${GIT_ROOT}/make/tests smoke-tests
+
+brain:
+	${GIT_ROOT}/make/tests acceptance-tests-brain
 
 cats:
-	${GIT_ROOT}/make/cats
+	${GIT_ROOT}/make/tests acceptance-tests
 
 ########## BOSH RELEASE TARGETS ##########
 
