@@ -39,7 +39,11 @@ chmod a+x "${SCF_BIN_DIR}/helm"
 # Note that we might not have a k8s available; do this only if we're in vagrant
 if systemctl is-active kube-apiserver.service ; then
   echo "Installing tiller for helm ..."
-  helm init
+  if [[ $(id -u) -eq 0 ]] && id -u vagrant &>/dev/null; then
+    sudo -u vagrant helm init
+  else
+    helm init
+  fi
 else
   echo "Skipping tiller installation for helm; no local kube found"
 fi
