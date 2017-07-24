@@ -63,7 +63,7 @@ KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX:-\${namespace\}.svc.clu
 KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
 
 # Generate a random signing key passphrase
-signing_key_passphrase=$(LC_CTYPE=C tr -cd 0-9a-f < /dev/urandom | head -c64)
+signing_key_passphrase=$(head -c32 /dev/urandom | base64)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
