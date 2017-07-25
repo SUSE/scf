@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -o xtrace
+set -o errexit
+set -o nounset
+
+GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
+
+. "${GIT_ROOT}/make/include/versioning"
+
+tmp_dir=$(mktemp -d)
+trap "rm -rf '${tmp_dir}'" EXIT
+
+for OS in linux darwin
+do
+    mkdir "${tmp_dir}/${OS}"
+    ARCHIVE="${GIT_ROOT}/scf-${OS}-amd64-${APP_VERSION}.zip"
+
+    echo Packaging for $OS, taking $APP_VERSION ...
+
+    # Assembling the pieces ...
+    mkdir -p ${tmp_dir}/${OS}/kube ${tmp_dir}/${OS}/helm
+
+    # kube configs
+    unzip ${GIT_ROOT}/${ARTIFACT_NAME}-kube-${APP_VERSION}.zip -d ${tmp_dir}/${OS}/kube
+    # helm charts
+    unzip ${GIT_ROOT}/${ARTIFACT_NAME}-helm-${APP_VERSION}.zip -d ${tmp_dir}/${OS}/helm
+
+    # "Am I Ok" for kube
+    cp ${GIT_ROOT}/bin/dev/kube-ready-state-check.sh ${tmp_dir}/${OS}/
+
+    # cert scripts, and
+    # certstrap
+    tar -xzf ${GIT_ROOT}/output/scf-cert-generator.${OS}-amd64.tgz -C ${tmp_dir}/${OS}
+
+    # Package the assembly. This directly places it into the output
+    ( cd ${tmp_dir}/${OS} ; zip -r9 $ARCHIVE * )
+done
