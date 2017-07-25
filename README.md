@@ -95,11 +95,10 @@ a working system.
     # The scf directory you cloned has been mounted into the guest OS, cd into it
     cd scf
 
-    # This runs a combination of bosh & fissile in order to create the docker images you'll need
-    # Once this step is done you can see images available via "docker images"
+    # This runs a combination of bosh & fissile in order to create the docker
+    # images and helm charts you'll need. Once this step is done you can see 
+    # images available via "docker images"
     make vagrant-prep
-    # This uses fissile to create a helm charts for scf and uaa
-    make helm
     # This is the final step, where it will install the uaa helm chart into the 'uaa' namespace
     # and the scf helm chart into the 'cf' namespace.
     make run
