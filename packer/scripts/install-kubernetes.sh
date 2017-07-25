@@ -6,23 +6,19 @@ set -o errexit -o xtrace
 
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
-# Having a newer kernel seems to mitigate issues with crashing
-zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
-    obs://Kernel:stable/standard Kernel:stable
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
     docker \
-    etcd \
-    kubernetes-client \
-    kubernetes-kubelet \
-    kubernetes-master \
-    kubernetes-node \
-    kubernetes-addons-kubedns \
-    kubernetes-node-cni \
-    kubernetes-node-image-pause
-zypper --non-interactive install --no-confirm --from Kernel:stable \
-    kernel-default
+    etcd-3.1.0 \
+    kubernetes-common-1.6.1 \
+    kubernetes-client-1.6.1 \
+    kubernetes-kubelet-1.6.1 \
+    kubernetes-master-1.6.1 \
+    kubernetes-node-1.6.1 \
+    kubernetes-addons-kubedns-1.5.3 \
+    kubernetes-node-cni-1.5.3 \
+    kubernetes-node-image-pause-0.1
 
 systemctl enable etcd.service
 systemctl enable kube-apiserver.service
