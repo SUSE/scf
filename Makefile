@@ -240,6 +240,9 @@ kube-dist: kube uaa-kube-dist
 	${GIT_ROOT}/make/kube-dist
 	rm -rf kube
 
+bundle-dist: kube-dist cert-generator 
+	${GIT_ROOT}/make/bundle-dist
+
 ########## SUPPORT  TARGETS ##########
 
 cert-generator:
