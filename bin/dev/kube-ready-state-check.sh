@@ -79,9 +79,9 @@ if having_category node ; then
     grep -wq "swapaccount=1" /proc/cmdline
     status "swapaccount enable"
 
-    # docker info should show overlay2
-    docker info 2> /dev/null | grep -wq "Storage Driver: overlay2"
-    status "docker info should show overlay2"
+    # docker info should not show aufs
+    docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
+    status "docker info should not show aufs"
 fi
 
 # kube-dns shows 4/4 ready
