@@ -74,11 +74,8 @@ function having_category() {
 
 echo "Testing $(green $category)"
 
-# cgroup memory & swap accounting in /proc/cmdline
+# swap accounting in /proc/cmdline
 if having_category node ; then
-    grep -wq "cgroup_enable=memory" /proc/cmdline
-    status "cgroup_enable memory"
-
     grep -wq "swapaccount=1" /proc/cmdline
     status "swapaccount enable"
 
