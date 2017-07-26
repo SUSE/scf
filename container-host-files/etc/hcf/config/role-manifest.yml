@@ -2143,6 +2143,7 @@ configuration:
     required: true
   - name: UAA_HOST
     description: The host name of the UAA server (root zone)
+    required: true
   - name: UAA_PORT
     default: 2793
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
