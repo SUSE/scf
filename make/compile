@@ -118,7 +118,7 @@ case ${COMMAND} in
         restore
 
         echo Please allow a long time for mariadb to compile
-        fissile build packages --stemcell ${FISSILE_STEMCELL}
+        fissile build packages
 
         cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
         ;;

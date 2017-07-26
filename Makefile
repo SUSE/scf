@@ -71,10 +71,13 @@ registry:
 	${GIT_ROOT}/make/registry
 
 smoke:
-	${GIT_ROOT}/make/smoke
+	${GIT_ROOT}/make/tests smoke-tests
+
+brain:
+	${GIT_ROOT}/make/tests acceptance-tests-brain
 
 cats:
-	${GIT_ROOT}/make/cats
+	${GIT_ROOT}/make/tests acceptance-tests
 
 ########## BOSH RELEASE TARGETS ##########
 
@@ -90,8 +93,8 @@ garden-release:
 mysql-release:
 	RUBY_VERSION=2.3.1 ${GIT_ROOT}/make/bosh-release src/cf-mysql-release
 
-cflinuxfs2-rootfs-release:
-	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-rootfs-release
+cflinuxfs2-release:
+	${GIT_ROOT}/make/bosh-release src/cflinuxfs2-release
 
 cf-opensuse42-release:
 	${GIT_ROOT}/make/bosh-release src/cf-opensuse42-release
@@ -146,7 +149,7 @@ releases: \
 	etcd-release \
 	garden-release \
 	mysql-release \
-	cflinuxfs2-rootfs-release \
+	cflinuxfs2-release \
 	cf-opensuse42-release \
 	routing-release \
 	hcf-release \
@@ -177,7 +180,7 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
-images: bosh-images uaa-images
+images: bosh-images uaa-images helm
 
 bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
@@ -199,7 +202,7 @@ show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
 
 show-versions:
-	${GIT_ROOT}/bin/dev/versions.sh
+	${GIT_ROOT}/bin/common/versions.sh
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
@@ -208,9 +211,18 @@ kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
+helm helm/bosh-task/post-deployment-setup.yml: uaa-helm
+	${GIT_ROOT}/bin/settings/kube/ca.sh
+	${GIT_ROOT}/make/kube helm
+.PHONY: helm
+
 uaa-kube: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/uaa-kube
 .PHONY: uaa-kube
+
+uaa-helm: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/uaa-kube helm
+.PHONY: uaa-helm
 
 ########## CONFIGURATION TARGETS ##########
 
@@ -227,6 +239,9 @@ dist: \
 kube-dist: kube uaa-kube-dist
 	${GIT_ROOT}/make/kube-dist
 	rm -rf kube
+
+bundle-dist: kube-dist cert-generator 
+	${GIT_ROOT}/make/bundle-dist
 
 ########## SUPPORT  TARGETS ##########
 

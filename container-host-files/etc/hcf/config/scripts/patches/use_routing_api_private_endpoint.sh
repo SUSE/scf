@@ -16,7 +16,7 @@ read -r -d '' setup_patch_cc_yaml <<'PATCH' || true
 
  <% if p("routing_api.enabled") %>
  routing_api:
-+  private_endpoint: <%= "#{p('routing_api.uri')}:#{p('routing_api.port')}" %>
++  private_endpoint: <%= "#{p('routing_api.url')}:#{p('routing_api.port')}" %>
    url: <%= "https://api.#{system_domain}/routing" %>
    routing_client_name: "cc_routing"
    routing_client_secret: <%= p("uaa.clients.cc_routing.secret") %>

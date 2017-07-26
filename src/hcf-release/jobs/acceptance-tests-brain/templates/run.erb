@@ -11,6 +11,7 @@ export BRAIN=/var/vcap/packages/acceptance-tests-brain
 export ASSETS="${BRAIN}/test-resources"
 export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
 
+shopt -s nullglob
 for i in "${ASSETS}/plugins/"*; do
     cf install-plugin -f "$i" > /dev/null
     # -f forces install without requiring confirmation.

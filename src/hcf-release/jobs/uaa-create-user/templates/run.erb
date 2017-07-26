@@ -55,7 +55,7 @@ function retry () {
     done
 }
 
-export PATH="${PATH}:/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin"
+export PATH="/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin:${PATH}"
 export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
 
 <%

@@ -10,60 +10,53 @@
 # its target, which the low-level network setup of the system
 # round-robins to all the machines in the etcd sub-cluster.
 
+set -x
+
+k8s_api() {
+    local api_ver="$1"
+    shift
+    local svcacct=/var/run/secrets/kubernetes.io/serviceaccount
+    curl --silent \
+        --cacert "${svcacct}/ca.crt" \
+        -H "Authorization: bearer $(cat "${svcacct}/token")" \
+        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/${api_ver}/namespaces/$(cat "${svcacct}/namespace")/${1#/}"
+}
+
 find_cluster_ha_hosts() {
-    local component_name="${1}"
-    if test -z "${KUBERNETES_SERVICE_HOST:-}" ; then
-        # on Vagrant ; HA is not supported
-        # Fall back to simple hostname
-        echo "[\"${component_name}\"]"
-        return 0
-    fi
+    local component_name this_component hosts
+    component_name="${1}"
+    this_component="$(k8s_api "/pods/${HOSTNAME}" | jq -crM '.metadata.labels."skiff-role-name"')"
 
-    local this_component="${HOSTNAME%-*}"
     if test "${this_component}" != "${component_name}" ; then
-        echo "[\"${component_name}\"]"
-        return 0
-    fi
-
-    if test -n "${KUBERNETES_NAMESPACE:-}" ; then
-        # This is running on raw Kubernetes
-
-        # Loop over the environment to locate the component name variables.
-        local hosts=''
-        local names=()
-        local i
-        for (( i = 0 ; i < 60 ; i ++ )) ; do
-            names=($(dig "${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }'))
-            if test "${#names[@]}" -gt 0 ; then
-                break
-            fi
-            sleep 1
-        done
-        if test "${#names[@]}" -lt 1 ; then
-            echo "No servers found for ${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX} after 60 seconds; should at least have this container" >&2
-            exit 1
-        fi
-        local name
-        for name in "${names[@]}" ; do
-            hosts="${hosts},\"${name%.}\""
-        done
-        # Return the result, with [] around the hostnames, removing the leading comma
-        echo "[${hosts#,}]"
+        # Requesting a different component, use DNS name
+        echo "[\"${component_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}\"]"
     else
-        echo "FIXME: I busted HCP" >&2
-        exit 1
+        # Find the number of replicas we have
+        local statefulset_name replicas i
+        statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | jq -crM '.metadata.annotations."kubernetes.io/created-by"' | jq -crM .reference.name)"
+        replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | jq -crM .spec.replicas)
+
+        # Return a list of all replicas
+        local hosts=""
+        for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
+            hosts="${hosts},${component_name}-${i}.${component_name}-set.${KUBE_SERVICE_DOMAIN_SUFFIX}"
+        done
+        echo "[${hosts#,}]"
     fi
 }
 
-if test -n "${KUBERNETES_NAMESPACE:-}" ; then
-    # We're on raw Kubernetes; do some HCP-compatibility work
-    # We don't have the k8s namespace available, but it _is_ in resolv.conf
-    export HCP_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
+if test -z "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
+    # Only set this if no custom value was provided
+    # We need to use the FQDN because that's the value in /etc/hosts; since the
+    # pods aren't ready initially, nothing (including this pod) will resolve
+    # via the DNS server.  Using the value in /etc/hosts lets us start the
+    # bootstrap node.
+    export KUBE_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
 fi
+export KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+export KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+export KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+export KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
 
-export CONSUL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
-export NATS_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
-export ETCD_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
-export MYSQL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
-
+unset k8s_api
 unset find_cluster_ha_hosts

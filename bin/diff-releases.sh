@@ -3,7 +3,7 @@ set -e
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-mkdir -p LOG/dr
+mkdir -p ${GIT_ROOT}/_work/LOG/dr
 for clonedir in $(find . -type d -name '*-clone')
 do
     release=$(echo $(basename ${clonedir}) | sed -e 's/-clone//' -e 's/-release//')
@@ -15,5 +15,5 @@ do
     echo
     (
 	FISSILE_RELEASE='' fissile diff --release ${reldir},${clonedir}
-    ) 2>&1 | tee LOG/dr/${release}
+    ) 2>&1 | tee ${GIT_ROOT}/_work/LOG/dr/${release}
 done

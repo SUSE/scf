@@ -204,24 +204,14 @@ class Common
     return true if key.start_with? 'HCP_'
     %w(
       CATS_SUITES
-      CONSUL_HCF_CLUSTER_IPS
       CONSUL_LOG_LEVEL
       DNS_RECORD_NAME
       DONT_SKIP_CERT_VERIFY_INTERNAL
-      ETCD_HCF_CLUSTER_IPS
       GO_LOG_LEVEL
-      HTTPS_PROXY
-      HTTP_PROXY
       IP_ADDRESS
       JWT_SIGNING_PEM
       JWT_SIGNING_PUB
-      MYSQL_HCF_CLUSTER_IPS
-      NATS_HCF_CLUSTER_IPS
       NGINX_LOG_LEVEL
-      NO_PROXY
-      http_proxy
-      https_proxy
-      no_proxy
     ).include? key
   end
 

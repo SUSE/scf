@@ -95,13 +95,12 @@ a working system.
     # The scf directory you cloned has been mounted into the guest OS, cd into it
     cd scf
 
-    # This runs a combination of bosh & fissile in order to create the docker images you'll need
-    # Once this step is done you can see images available via "docker images"
+    # This runs a combination of bosh & fissile in order to create the docker
+    # images and helm charts you'll need. Once this step is done you can see 
+    # images available via "docker images"
     make vagrant-prep
-    # This uses fissile to create kubernetes service, deployment, stateful set definitions
-    make kube
-    # This is the final step, where it will create the 'cf' namespace in K8s and provision
-    # all the definitions you created.
+    # This is the final step, where it will install the uaa helm chart into the 'uaa' namespace
+    # and the scf helm chart into the 'cf' namespace.
     make run
 
     # Watch the status of the pods, when everything is fully ready it should be usable.
@@ -112,6 +111,18 @@ a working system.
     # see the Troubleshooting guide.
     k logs -f cf:^api-[0-9]
     ```
+3. Changing the default STEMCELL
+
+   The default stemcell is set to opensuse.
+   To build with an alternative stemcell the environment variables `FISSILE_STEMCELL` and FISSILE_STEMCELL_VERSION need to be set manually.
+   After changing the stemcell you have to remove the contents of `~vagrant/.fissile/compilation` and `~vagrant/sfc/.fissile/compilation` inside the vagrant box. Afterwards recompile scf (for details see section "2. Building the system").
+   
+   **Example:**
+
+   ```
+   $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
+   $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
+   ```
 
 3. Environment variables to configure `vagrant up` (optional)
     - `VAGRANT_VBOX_BRIDGE`: Set this to the name of an interface to enable bridged networking when
@@ -151,6 +162,45 @@ a working system.
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
+3. Pulling updates
+
+    When you want to pull the latest changes from the upstream you should:
+
+    ```
+    # Pull the changes (or checkout the commit you want):
+    git pull
+
+    # Update all submodules to match the checked out commit
+    git submodules update --recursive
+    ```
+
+    Sometimes, when we bump the BOSH release submodules, they move to a different
+    location and you need to run:
+
+    ```
+      git submodule sync --recursive
+    ```
+
+    You might have to run the `git submodules update --recursive` again after the
+    last command.
+
+    If there are untracked changes from submodule directories you can safely remove them.
+
+    E.g. A command that will update all submodules and drop any changed or untracked files in them is:
+
+    ```
+      git submodule update --recursive --force && git submodule foreach --recursive 'git co . && git clean -fdx'
+    ```
+
+    **Make sure you understand what the [`git clean` flags mean](https://git-scm.com/docs/git-clean/) before you run this**
+
+    Now you need to rebuild the images inside the vagrant box:
+
+    ```
+    make stop # And wait until all pods are stopped and removed
+    make vagrant-prep kube run
+    ```
+
 ## Usage
 
 The vagrant box is set up with default certs, passwords, ips, etc. to make it easier
@@ -168,7 +218,9 @@ This means that you cannot connect to it from some other box.
 # Attach to the endpoint (self-signed certs in dev mode requires skipping validation)
 # cf-dev.io simply resolves to the static IP 192.168.77.77 that vagrant provisions
 # This DNS resolution may fail on certain DNS providers that block resolution to 192.168.*
+# Unless you've changed the default credentials in the configuration it's admin/changeme
 cf api --skip-ssl-validation https://api.cf-dev.io
+cf login -u admin -p changeme
 ```
 
 ## Troubleshooting
@@ -193,6 +245,33 @@ Typically Vagrant box deployments encounter one of few problems:
 * api does not come up correctly and is not performing migrations (curl output in logs)
 
     uaa is not functioning, try steps above
+
+* vagrant under VirtualBox freezing for no obvious reason: try enabling the "Use Host I/O Cache" option in `Settings->Storage->SATA Controller`.
+
+* volumes don't get mounted when suspending/resuming the box
+
+  For now only `vagrant stop` and then `vagrant up` fixes it.
+
+* When restarting the box with either `vagrant reload` or `vagrant stop/up` some
+  pods never come up automatically. You have to do a `make stop` and then
+  `make run` to bring this up.
+
+* Pulling images during any of `vagrant up` or `make vagrant-prep` or `make docker-deps`
+  fails.
+
+  In order to have access to the internet inside the vagrant box and inside the
+  containers (withing the box) you need to enable ip forwarding for both the host
+  and the vagrant box (which is the host for containers)
+
+  To enable temporarily:
+
+  ```echo "1" | sudo tee /proc/sys/net/ipv4/ip_forward```
+
+  or to do this permanently:
+
+  ```echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/50-docker-ipv4-ipforward.conf```
+
+  and restart your docker service (or run `vagrant up` again if changed on the host)
 
 # Deploying SCF on Kubernetes
 
@@ -352,6 +431,44 @@ You can access any URL or endpoint that references this address from your host.
 1. Make a change to component `X`, in its respective release (`X-release`).
 1. Run `make X-release compile images run` to build your changes and run them.
 
+#### Bumping a version in a release (or just make a change)
+
+For this example, lets suppose we want to update a release to a later tag.
+First of all checkout the desired commit:
+
+```
+host> cd src/loggregator/ && git checkout v81
+```
+
+If the submodules has submodules of each own, you will have to "sync" and "update"
+them as well. See "Pulling updates" in [Deploying section](#deploying).
+
+Then from inside the vagrant box regenarate the image for this release:
+
+```
+vagrant> cd scf && make loggregator-release compile images
+```
+
+Then let kubernetes know about this new image and use it:
+
+```
+vagrant> make kube
+```
+
+And restart the pods:
+
+```
+vagrant> make stop && make run
+```
+
+If everything works, then you probably need to update the .gitmodules to point
+to the new submodule commit SHA:
+
+```
+host> git add src/loggregator && git commit -am "Bumped the version of loggregator"
+host> git push origin develop # or whatever your remote and branch are called
+```
+
 ### How do I expose new settings via environment variables?
 
 1. Edit `./container-host-files/etc/scf/config/role-manifest.yml`:
@@ -483,4 +600,8 @@ here.
 
 1. Download the [scf-cert-generator.sh](https://github.com/SUSE/scf/blob/develop/docker-images/cert-generator/scf-cert-generator.sh) script
 1. Run it, setting the command line options according to your cluster
-1. Provide the resulting YAML file to the Helm chart
+1. Provide the resulting YAML file to helm as a values.yaml file:
+
+    ```bash
+    helm install ... -f scf-cert-values.yaml
+    ```

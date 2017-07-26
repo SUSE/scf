@@ -59,10 +59,11 @@ if test "${has_env}" = "no" ; then
 fi
 
 # Replace the stubbed-out namespace info
-HCP_SERVICE_DOMAIN_SUFFIX="${HCP_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
+KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX:-\${namespace\}.svc.cluster.local}"
+KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${namespace}}"
 
 # Generate a random signing key passphrase
-signing_key_passphrase=$(head -c 32 /dev/urandom | xxd -ps -c 32)
+signing_key_passphrase=$(head -c32 /dev/urandom | base64)
 
 # build and install `certstrap` tool if it's not installed
 command -v certstrap > /dev/null 2>&1 || {
@@ -91,7 +92,7 @@ openssl req -new -key hcf.key -out hcf.csr -sha512 -subj "/CN=*.${DOMAIN}/C=US"
 openssl x509 -req -days 3650 -in hcf.csr -signkey hcf.key -out hcf.crt
 
 # Given a host name (e.g. "api"), produce variations based on:
-# - Having HCP_SERVICE_DOMAIN_SUFFIX and not ("api", "api.hcf")
+# - Having KUBE_SERVICE_DOMAIN_SUFFIX and not ("api", "api.cf.svc.cluster.local")
 # - Wildcard and not ("api", "*.api")
 # - Include "COMPONENT.*.svc", "COMPONENT.*.svc.cluster"
 #   Where * is one of hcf, hcf1, hcf2, hcf3, hcf4, hcf5
@@ -100,7 +101,7 @@ make_domains() {
     local result="${host_name},*.${host_name}"
     local i
     for (( i = 0; i < 10; i++ )) ; do
-        result="${result},${host_name}-${i}.${host_name}-pod"
+        result="${result},${host_name}-${i}.${host_name}-set"
     done
     # For faking out HA on vagrant
     result="${result},${host_name}-0.${namespace}.svc,*.${host_name}-0.${namespace}.svc"
@@ -111,16 +112,16 @@ make_domains() {
             result="${result},${host_name}.${instance_name}.svc${cluster_name}"
             result="${result},*.${host_name}.${instance_name}.svc${cluster_name}"
             for (( i = 0; i < 10; i++ )) ; do
-                result="${result},${host_name}-${i}.${host_name}-pod.${instance_name}.svc${cluster_name}"
+                result="${result},${host_name}-${i}.${host_name}-set.${instance_name}.svc${cluster_name}"
             done
         done
     done
     if test -n "${DOMAIN:-}" ; then
         result="${result},${host_name}.${DOMAIN},*.${host_name}.${DOMAIN}"
     fi
-    if test -n "${HCP_SERVICE_DOMAIN_SUFFIX:-}" ; then
-        result="${result},${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
-        result="${result},*.${host_name}.${HCP_SERVICE_DOMAIN_SUFFIX}"
+    if test -n "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
+        result="${result},${host_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}"
+        result="${result},*.${host_name}.${KUBE_SERVICE_DOMAIN_SUFFIX}"
     fi
     echo "${result}"
 }
@@ -229,10 +230,10 @@ mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 # and  https://github.com/cloudfoundry/cli/issues/817
 #
 ssh-keygen -b 4096 -t rsa -f "${certs_path}/app_ssh_key" -q -N "" -C hcf-ssh-key
-awk '{print $2}' "${certs_path}/app_ssh_key.pub" | base64 -d | openssl md5 -c | awk '{print $2}' > "${certs_path}/app_ssh_host_key_fingerprint"
+awk '{print $2}' "${certs_path}/app_ssh_key.pub" | base64 --decode | openssl md5 -c | awk '{print $NF}' > "${certs_path}/app_ssh_host_key_fingerprint"
 
 server_cn=router_ssl
-certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${HCP_SERVICE_DOMAIN_SUFFIX:-cf},${DOMAIN},*.${DOMAIN}"
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "router,router.${KUBE_SERVICE_DOMAIN_SUFFIX},${DOMAIN},*.${DOMAIN}"
 certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/router_ssl.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/router_ssl.cert"
@@ -307,4 +308,4 @@ add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
 add_env TRAFFICCONTROLLER_KEY     "${internal_certs_dir}/trafficcontroller.key"
 
-echo "Keys for ${DOMAIN} wrote to ${output_path}"
+echo "Keys for ${DOMAIN} (service domain ${KUBE_SERVICE_DOMAIN_SUFFIX}) wrote to ${output_path}"

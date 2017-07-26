@@ -100,7 +100,7 @@ done
 #
 # This is undesirable when working with newer releases, then switching back
 # to older ones
-rm -rf ${ROOT}/${release_path}/dev-releases
+rm -rf ${ROOT}/${release_path}/dev_releases
 
 docker run \
     --interactive \

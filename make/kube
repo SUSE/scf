@@ -3,19 +3,27 @@
 set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-. "${GIT_ROOT}/.envrc"
-
 cd "${GIT_ROOT}"
+source .envrc
 
-ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
+CREATE_HELM_CHART=false
+BUILD_TARGET=kube
 
-# TODO: We currently skip memory limits for development purposes
+if [ "${1:-}" = "helm" ]; then
+    CREATE_HELM_CHART=true
+    BUILD_TARGET=helm
+fi
 
-fissile build kube \
-    --kube-output-dir="${GIT_ROOT}/kube" \
-    --defaults-file="$(echo "${ENV_FILES}" | tr ' ' ,)" \
-    --use-memory-limits=false \
+if [ "${BUILD_TARGET}" = "kube" ]; then
+    # Overrides when generating kube config files instead of helm charts.
+    FISSILE_OUTPUT_DIR="${PWD}/kube"
+    ENV_FILES="$(echo bin/settings/*.env bin/settings/kube/*.env)"
+    FISSILE_DEFAULTS_FILE="$(echo "${ENV_FILES}" | tr ' ' ,)"
+fi
+
+rm -rf "${FISSILE_OUTPUT_DIR}"
+
+fissile build "${BUILD_TARGET}"
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
-perl -p -i -e 's@extensions/v1beta1@batch/v1@' kube/bosh-task/*.yml
+perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" "${BUILD_TARGET}")
