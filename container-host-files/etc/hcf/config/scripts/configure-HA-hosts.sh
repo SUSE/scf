@@ -25,7 +25,7 @@ k8s_api() {
 find_cluster_ha_hosts() {
     local component_name this_component hosts
     component_name="${1}"
-    this_component="$(k8s_api "/pods/${HOSTNAME}" | jq -crM '.metadata.labels."skiff-role-name"')"
+    this_component="$(k8s_api api/v1 "/pods/${HOSTNAME}" | jq -crM '.metadata.labels."skiff-role-name"')"
 
     if test "${this_component}" != "${component_name}" ; then
         # Requesting a different component, use DNS name
