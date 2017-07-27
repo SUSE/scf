@@ -273,9 +273,6 @@ properties:
       # Note that these clients are overridden in the dev-only UAA role; that is
       # instead used to bootstrap the default zone, whereas all of these clients
       # go into the HCF zone.
-      cc-service-dashboards:
-        authorities: clients.read,clients.write,clients.admin
-        authorized-grant-types: client_credentials
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
