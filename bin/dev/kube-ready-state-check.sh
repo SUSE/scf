@@ -115,13 +115,6 @@ if having_category node ; then
     status "Privileged must be enabled in 'kubelet'"
 fi
 
-# dns check for the current hostname resolution
-if having_category api ; then
-    IP=$(host -tA "${SCF_DOMAIN}" | awk '{ print $NF }')
-    /sbin/ifconfig | grep -wq "inet addr:$IP"
-    status "dns check"
-fi
-
 # override tasks infinity in systemd configuration
 if having_category node ; then
     systemctl cat containerd | grep -wq "TasksMax=infinity"
