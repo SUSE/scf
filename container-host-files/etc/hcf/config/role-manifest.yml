@@ -1112,11 +1112,11 @@ roles:
       max: 254
     capabilities: [ALL]
     persistent-volumes:
-    - path: /var/vcap/data
+    - path: /var/vcap/data/garden
       tag: garden-data
       size: 50
-    - path: /var/vcap/data/garden
-      tag: garden-graph
+    - path: /var/vcap/data/grootfs
+      tag: garden-data
       size: 50
     shared-volumes: []
     memory: 4096
