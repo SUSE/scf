@@ -1116,7 +1116,7 @@ roles:
       tag: garden-data
       size: 50
     - path: /var/vcap/data/grootfs
-      tag: garden-data
+      tag: grootfs-data
       size: 50
     shared-volumes: []
     memory: 4096
