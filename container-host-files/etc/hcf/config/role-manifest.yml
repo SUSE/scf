@@ -1511,7 +1511,7 @@ configuration:
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
-    default: 1.0.0
+    default: 2.0.2
     description: "'build' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_DESCRIPTION
