@@ -86,13 +86,13 @@ fi
 
 # kube-dns shows 4/4 ready
 if having_category kube ; then
-    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns | grep -Eq '([0-9])/\1 *Running'
+    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "kube-dns should be running (show 4/4 ready)"
 fi
 
 # tiller-deploy shows 4/4 ready
 if having_category kube ; then
-    kubectl get pods --namespace=kube-system --selector name=tiller | grep -Eq '([0-9])/\1 *Running'
+    kubectl get pods --namespace=kube-system --selector name=tiller 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "tiller should be running (1/1 ready)"
 fi
 
