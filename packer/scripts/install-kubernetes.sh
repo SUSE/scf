@@ -4,6 +4,7 @@
 
 set -o errexit -o xtrace
 
+# Kube doesn't like swap: https://github.com/kubernetes/kubernetes/blob/e4551d50e57c089aab6f67333412d3ca64bc09ae/pkg/kubelet/cm/container_manager_linux.go#L207-L209
 swapoff -a
 
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \

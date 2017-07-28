@@ -5,8 +5,12 @@ set -o errexit -o nounset
 . "$(dirname "$0")/versions.sh"
 
 # Installs tools needed to build and run HCF
-SCF_BIN_DIR="${SCF_BIN_DIR:-/home/vagrant/bin}"
-SCF_TOOLS_DIR="${SCF_TOOLS_DIR:-/home/vagrant/tools}"
+if id -u vagrant >& /dev/null; then
+  SCF_BIN_DIR="${SCF_BIN_DIR:-/usr/local/bin}"
+else
+  SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
+fi
+
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=${CFCLI_VERSION}&source=github-rel}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl}"
 k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v${K_VERSION}/kctl-linux-amd64}"
@@ -14,21 +18,20 @@ kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed
 helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz}"
 
 mkdir -p "${SCF_BIN_DIR}"
-mkdir -p "${SCF_TOOLS_DIR}"
 
 SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching cf CLI $cf_url ..."
-wget -q "$cf_url"        -O "${SCF_TOOLS_DIR}/cf.tgz"
+wget -q "$cf_url" -O "/tmp/cf.tgz"
 
 echo "Unpacking cf CLI ..."
-tar -xzf "${SCF_TOOLS_DIR}/cf.tgz" -C "${SCF_BIN_DIR}"
+tar -xzf "/tmp/cf.tgz" -C "${SCF_BIN_DIR}"
 
 wget -q "${k_url}" -O "${SCF_BIN_DIR}/k"
 wget -q "${kk_url}" -O "${SCF_BIN_DIR}/kk"
 
 echo "Fetching helm from ${helm_url} ..."
-wget -q "${helm_url}" -O - | tar xz -C "${SCF_BIN_DIR}" --strip-components=1 linux-amd64/helm
+wget -q "${helm_url}" -O - | tar xz -C "${SCF_BIN_DIR}" --no-same-owner --strip-components=1 linux-amd64/helm
 
 echo "Making binaries executable ..."
 chmod a+x "${SCF_BIN_DIR}/cf"
@@ -36,7 +39,7 @@ chmod a+x "${SCF_BIN_DIR}/k"
 chmod a+x "${SCF_BIN_DIR}/kk"
 chmod a+x "${SCF_BIN_DIR}/helm"
 
-# Note that we might not have a k8s available; do this only if we're in vagrant
+# The vagrant deployment runs this script privileged, so init helm as vagrant user if they exist.
 if systemctl is-active kube-apiserver.service ; then
   echo "Installing tiller for helm ..."
   if [[ $(id -u) -eq 0 ]] && id -u vagrant &>/dev/null; then
