@@ -36,6 +36,10 @@ esac
 FAILED=0
 SCF_DOMAIN=${SCF_DOMAIN:-cf-dev.io}
 
+function has_command() {
+    type "${1}" &> /dev/null ;
+}
+
 function green() {
     printf "\033[32m%b\033[0m\n" "$1"
 }
@@ -72,7 +76,7 @@ function having_category() {
     return 1
 }
 
-echo "Testing $(green $category)"
+echo "Testing $(green "${category}")"
 
 # swap accounting in /proc/cmdline
 if having_category node ; then
@@ -98,33 +102,35 @@ fi
 
 # ntp is installed and running
 if having_category api kube node ; then
-    systemctl is-active ntpd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
-    status "ntp or systemd-timesyncd must be installed and active"
+    pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
+    status "An ntp daemon or systemd-timesyncd must be installed and active"
 fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test $(kubectl get storageclasses |& wc -l) -gt 1
+    test "$(kubectl get storageclasses |& wc -l)" -gt 1
     status "A storage class should exist in K8s"
 fi
 
 # privileged pods are enabled in K8s
 if having_category api ; then
-    kube_apiserver=$(systemctl status kube-apiserver -l | grep "/usr/bin/hyperkube apiserver" )
+    kube_apiserver=$(pgrep -ax hyperkube | grep " apiserver " )
     [[ $kube_apiserver == *"--allow-privileged"* ]]
     status "Privileged must be enabled in 'kube-apiserver'"
 fi
 
 if having_category node ; then
-    kubelet=$(systemctl status kubelet -l | grep "/usr/bin/hyperkube kubelet" )
+    kubelet=$(pgrep -ax hyperkube | grep " kubelet " )
     [[ $kubelet == *"--allow-privileged"* ]]
     status "Privileged must be enabled in 'kubelet'"
 fi
 
 # override tasks infinity in systemd configuration
 if having_category node ; then
-    systemctl cat containerd | grep -wq "TasksMax=infinity"
-    status "TasksMax must be set to infinity"
+    if has_command isystemctl ; then
+        systemctl cat containerd | grep -wq "TasksMax=infinity"
+        status "TasksMax must be set to infinity"
+    fi
 fi
 
 exit $FAILED
