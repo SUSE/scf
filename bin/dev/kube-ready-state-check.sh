@@ -127,9 +127,12 @@ fi
 
 # override tasks infinity in systemd configuration
 if having_category node ; then
-    if has_command isystemctl ; then
+    if has_command systemctl ; then
         systemctl cat containerd | grep -wq "TasksMax=infinity"
         status "TasksMax must be set to infinity"
+    else
+        test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
+        status "Max processes should be unlimited, or as high as possible for the system"
     fi
 fi
 
