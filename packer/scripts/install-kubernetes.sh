@@ -13,7 +13,7 @@ zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
     docker \
-    etcd-3.1.0 \
+    etcd-3.2.4 \
     kubernetes-common-1.6.1 \
     kubernetes-client-1.6.1 \
     kubernetes-kubelet-1.6.1 \

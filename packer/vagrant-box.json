@@ -138,6 +138,8 @@
             "only": ["virtualbox-iso"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
+                "zypper --non-interactive remove --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
+                "zypper --non-interactive install --no-confirm virtualbox-guest-tools-5.1.22",
                 "systemctl enable vboxadd-service.service",
                 "systemctl enable vboxadd.service"
             ]
