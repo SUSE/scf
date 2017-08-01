@@ -129,7 +129,9 @@ a working system.
       using the Virtualbox provider. Turning on bridged networking will allow your vagrant box to receive
       an IP accessible anywhere on the network. While Virtualbox is able to bridge over an interface
       without any special networking configuration (and may even do this on OSX), bridged networking may
-      not be supported when the provided interface is a wireless interface.
+      not be supported when the provided interface is a wireless interface.See the [Virtualbox docs](
+      https://www.virtualbox.org/manual/ch06.html#network_bridged) on bridged networking for more
+      information.
     - `VAGRANT_KVM_BRIDGE`: Set this to the name of your host's linux bridge interface if you have one
       configured. If using Wicked as your network manager, you can configure one by setting the config
       files for your default interface and bridge interface as follows:

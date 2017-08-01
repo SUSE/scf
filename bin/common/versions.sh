@@ -9,7 +9,7 @@ set -o errexit -o nounset
 
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+126.g9f731ea"
-export HELM_VERSION="2.4.2"
+export HELM_VERSION="2.5.1"
 export HELM_CERTGEN_VERSION="master"
 export CERTSTRAP_VERSION="v1.0.1-11-g0e00d5c"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
