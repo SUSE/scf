@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 
+# prevent cd from printing the directory it changes to. This breaks
+# cd/pwd constructions (See **).
+unset CDPATH
+
 load_env() {
     local dir="${1}"
     for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$' | grep -vE '/ca\.env$') ; do
@@ -55,6 +59,7 @@ if test -z "${output_path}" ; then
 fi
 
 if test "${has_env}" = "no" ; then
+    # (**)
     load_env "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
 fi
 
