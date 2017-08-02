@@ -150,7 +150,7 @@
             "scripts": [
                 "scripts/install-certstrap.sh",
                 "scripts/usr-local-bin-to-path.sh",
-                "scripts/create-k8s-certs.sh",
+                "scripts/create-kube-certs.sh",
                 "scripts/create-kubedns.sh",
                 "scripts/compact.sh"
             ],

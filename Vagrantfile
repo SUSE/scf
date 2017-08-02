@@ -48,7 +48,7 @@ Vagrant.configure(2) do |config|
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.6.box"
     vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
-      vb_net_config[:bridged] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
+      vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
       override.vm.network "public_network", vb_net_config
     else
       override.vm.network "private_network", vb_net_config
@@ -157,6 +157,7 @@ Vagrant.configure(2) do |config|
     # Get proxy configuration here
     export HOME=/home/vagrant
     export PATH=$PATH:/home/vagrant/bin
+    export SCF_BIN_DIR=/usr/local/bin
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh

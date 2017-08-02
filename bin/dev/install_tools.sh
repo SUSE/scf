@@ -4,11 +4,7 @@ set -o errexit -o nounset
 # Get version information and set destination paths
 . "$(dirname "$0")/../common/versions.sh"
 
-if id -u vagrant >& /dev/null; then
-  SCF_BIN_DIR="${SCF_BIN_DIR:-/usr/local/bin}"
-else
-  SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
-fi
+SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
 
 # Tool locations
 s3="https://cf-opensusefs2.s3.amazonaws.com/fissile"
