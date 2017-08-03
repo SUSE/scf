@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
-
+set -vx
 # Get version information and set destination dirs
 . "$(dirname "$0")/versions.sh"
 
@@ -22,6 +22,11 @@ wget -q "$cf_url" -O "/tmp/cf.tgz"
 echo "Unpacking cf CLI ..."
 tar -xzf "/tmp/cf.tgz" -C "${SCF_BIN_DIR}"
 
+if ! type kubectl &>/dev/null; then
+  echo "Fetching kubectl ${kubectl_url} ..."
+  wget -q "${kubectl_url}" -O "${SCF_BIN_DIR}/kubectl"
+  chmod a+x "${SCF_BIN_DIR}/kubectl"
+fi
 wget -q "${k_url}" -O "${SCF_BIN_DIR}/k"
 wget -q "${kk_url}" -O "${SCF_BIN_DIR}/kk"
 
