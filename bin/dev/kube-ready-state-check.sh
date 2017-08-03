@@ -36,6 +36,10 @@ esac
 FAILED=0
 SCF_DOMAIN=${SCF_DOMAIN:-cf-dev.io}
 
+function has_command() {
+    type "${1}" &> /dev/null ;
+}
+
 function green() {
     printf "\033[32m%b\033[0m\n" "$1"
 }
@@ -72,63 +76,64 @@ function having_category() {
     return 1
 }
 
-echo "Testing $(green $category)"
+echo "Testing $(green "${category}")"
 
-# cgroup memory & swap accounting in /proc/cmdline
+# swap accounting in /proc/cmdline
 if having_category node ; then
-    grep -wq "cgroup_enable=memory" /proc/cmdline
-    status "cgroup_enable memory"
-
     grep -wq "swapaccount=1" /proc/cmdline
     status "swapaccount enable"
 
-    # docker info should show overlay2
-    docker info 2> /dev/null | grep -wq "Storage Driver: overlay2"
-    status "docker info should show overlay2"
+    # docker info should not show aufs
+    docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
+    status "docker info should not show aufs"
 fi
 
 # kube-dns shows 4/4 ready
 if having_category kube ; then
-    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns | grep -Eq '([0-9])/\1 *Running'
-    status "kube-dns should shows 4/4 ready"
+    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
+    status "kube-dns should be running (show 4/4 ready)"
+fi
+
+# tiller-deploy shows 4/4 ready
+if having_category kube ; then
+    kubectl get pods --namespace=kube-system --selector name=tiller 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
+    status "tiller should be running (1/1 ready)"
 fi
 
 # ntp is installed and running
 if having_category api kube node ; then
-    systemctl is-active ntpd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
-    status "ntp or systemd-timesyncd must be installed and active"
+    pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
+    status "An ntp daemon or systemd-timesyncd must be installed and active"
 fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test $(kubectl get storageclasses |& wc -l) -gt 1
+    test "$(kubectl get storageclasses |& wc -l)" -gt 1
     status "A storage class should exist in K8s"
 fi
 
 # privileged pods are enabled in K8s
 if having_category api ; then
-    kube_apiserver=$(systemctl status kube-apiserver -l | grep "/usr/bin/hyperkube apiserver" )
+    kube_apiserver=$(pgrep -ax hyperkube | grep " apiserver " )
     [[ $kube_apiserver == *"--allow-privileged"* ]]
     status "Privileged must be enabled in 'kube-apiserver'"
 fi
 
 if having_category node ; then
-    kubelet=$(systemctl status kubelet -l | grep "/usr/bin/hyperkube kubelet" )
+    kubelet=$(pgrep -ax hyperkube | grep " kubelet " )
     [[ $kubelet == *"--allow-privileged"* ]]
     status "Privileged must be enabled in 'kubelet'"
 fi
 
-# dns check for the current hostname resolution
-if having_category api ; then
-    IP=$(host -tA "${SCF_DOMAIN}" | awk '{ print $NF }')
-    /sbin/ifconfig | grep -wq "inet addr:$IP"
-    status "dns check"
-fi
-
 # override tasks infinity in systemd configuration
 if having_category node ; then
-    systemctl cat containerd | grep -wq "TasksMax=infinity"
-    status "TasksMax must be set to infinity"
+    if has_command systemctl ; then
+        systemctl cat containerd | grep -wq "TasksMax=infinity"
+        status "TasksMax must be set to infinity"
+    else
+        test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
+        status "Max processes should be unlimited, or as high as possible for the system"
+    fi
 fi
 
 exit $FAILED

@@ -14,7 +14,7 @@ EOF
 }
 
 namespace=cf
-scipts_dir="$(cd "$(dirname "$0")/scripts/" && pwd)"
+scripts_dir="$(cd "$(dirname "$0")/scripts/" && pwd)"
 out_dir="$(pwd)"
 
 while getopts "d:hn:o:" opt; do
@@ -60,7 +60,7 @@ EOF
 if ! test -x certstrap ; then
   host_os="$(uname -s | tr '[:upper:]' '[:lower:]')"
   if test "${host_os}" = '@@CERTSTRAP_OS@@' ; then
-    export PATH="${PATH}:${PWD}/scripts"
+    export PATH="${PATH}:${scripts_dir}"
   else
     printf 'certstrap binary not found, and the embedded one is for @@CERTSTRAP_OS@@, not %s\n' "${host_os}" >&2
     exit 1
@@ -74,8 +74,8 @@ fi
 # file names, instead of piping the results to somewhere useful.
 
 echo "env:" > "${out_dir}/uaa-cert-values.yaml"
-"${scipts_dir}/generate-uaa-certs.sh" -e "${env_dir}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/uaa-cert-values.yaml") >/dev/null
+"${scripts_dir}/generate-uaa-certs.sh" -e "${env_dir}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/uaa-cert-values.yaml") >/dev/null
 
 echo "env:" > "${out_dir}/scf-cert-values.yaml"
-"${scipts_dir}/generate-scf-certs.sh" -e "${env_dir}" "${namespace}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/scf-cert-values.yaml") >/dev/null
+"${scripts_dir}/generate-scf-certs.sh" -e "${env_dir}" "${namespace}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/scf-cert-values.yaml") >/dev/null
 awk '$1 == "INTERNAL_CA_CERT:" { $1 = "  HCP_CA_CERT:" ; print }' "${out_dir}/uaa-cert-values.yaml" >> "${out_dir}/scf-cert-values.yaml"

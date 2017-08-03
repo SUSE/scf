@@ -1113,8 +1113,11 @@ roles:
     capabilities: [ALL]
     persistent-volumes:
     - path: /var/vcap/data/garden
-      tag: garden-graph
-      size: 5
+      tag: garden-data
+      size: 50
+    - path: /var/vcap/data/grootfs
+      tag: grootfs-data
+      size: 50
     shared-volumes: []
     memory: 4096
     virtual-cpus: 4
@@ -1508,7 +1511,7 @@ configuration:
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
-    default: 1.0.0
+    default: 2.0.2
     description: "'build' attribute in the /v2/info endpoint"
     required: true
   - name: CLUSTER_DESCRIPTION
@@ -2143,6 +2146,7 @@ configuration:
     required: true
   - name: UAA_HOST
     description: The host name of the UAA server (root zone)
+    required: true
   - name: UAA_PORT
     default: 2793
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
@@ -2464,7 +2468,6 @@ configuration:
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
-    properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
