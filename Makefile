@@ -206,12 +206,12 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
+kube kube/bosh-task/post-deployment-setup.yaml: uaa-kube
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
-helm helm/bosh-task/post-deployment-setup.yml: uaa-helm
+helm helm/bosh-task/post-deployment-setup.yaml: uaa-helm
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube helm
 .PHONY: helm

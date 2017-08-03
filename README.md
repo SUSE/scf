@@ -307,7 +307,7 @@ and execute the following commands:
 ```bash
 make smoke
 make cats
-kubectl create -n cf -f kube/bosh-task/acceptance-tests-brain.yml
+kubectl create -n cf -f kube/bosh-task/acceptance-tests-brain.yaml
 ```
 
 #### How do I run a subset of SCF acceptance tests?
