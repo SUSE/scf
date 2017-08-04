@@ -7,14 +7,23 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
-get_package_version_list() {
+_get_package_version_list() {
     fissile show release | grep -v 'Dev release' | grep -F '(' | cut -d: -f1 | sort -u | while read package hash ; do
         hash=$(echo "${hash}" | tr -c -d 0-9a-f)
         echo "${package}/${hash}"
     done
 }
 
-cache() {
+get_package_version_list() {
+    (
+        _get_package_version_list
+        cd src/uaa-fissile-release
+        source .envrc
+        _get_package_version_list
+    ) | sort -u
+}
+
+_cache() {
     test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
 
     for package_version in $(get_package_version_list) ; do
@@ -35,6 +44,10 @@ cache() {
     done
 
     echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
+}
+
+cache() {
+    _cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 }
 
 restore() {
@@ -113,13 +126,15 @@ case ${COMMAND} in
     clean)
         clean;;
     cache)
-        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &;;
+        cache;;
+    list)
+        get_package_version_list;;
     *)
         restore
 
         echo Please allow a long time for mariadb to compile
         fissile build packages
 
-        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
+        cache
         ;;
 esac
