@@ -5,13 +5,32 @@
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
+
+
+def base_net_config
+  base_config = {
+    use_dhcp_assigned_default_route: true
+  }
+  if (ENV.keys & ["VAGRANT_KVM_BRIDGE", "VAGRANT_VBOX_BRIDGE"]).empty?
+    if ENV.include? "VAGRANT_DHCP"
+      # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
+      # bridged networking uses type: bridged (even though the virtual interface still
+      # gets its IP from dhcp). If not using dhcp, the VM will use the 192.168.77.77 IP
+      base_config[:type] = "dhcp"
+    else
+      base_config[:ip] = "192.168.77.77"
+    end
+  end
+  base_config
+end
+
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
 
   # Create port forward mappings
-  # These are not normally required, since all access happens on the
-  # 192.168.77.77 IP address
+  # These are only required when using private (NAT) networking, and want
+  # VM access from a client not on the VM host
   #
   # config.vm.network "forwarded_port", guest: 80, host: 80
   # config.vm.network "forwarded_port", guest: 443, host: 443
@@ -23,11 +42,17 @@ Vagrant.configure(2) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.77.77"
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.5.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.6.box"
+    vb_net_config = base_net_config
+    if ENV.include? "VAGRANT_VBOX_BRIDGE"
+      vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
+      override.vm.network "public_network", vb_net_config
+    else
+      override.vm.network "private_network", vb_net_config
+    end
 
     # Customize the amount of memory on the VM:
     vb.memory = vm_memory.to_s
@@ -91,65 +116,27 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.5.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.6.box"
     libvirt.driver = "kvm"
+    libvirt_net_config = base_net_config
+    libvirt_net_config[:nic_model_type] = "virtio"
+    if ENV.include? "VAGRANT_KVM_BRIDGE"
+      libvirt_net_config[:dev] = ENV["VAGRANT_KVM_BRIDGE"]
+      libvirt_net_config[:type] = "bridge"
+      override.vm.network "public_network", libvirt_net_config
+    else
+      override.vm.network "private_network", libvirt_net_config
+    end
+    # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
     libvirt.cpus = vm_cpus
-
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
 
-  # We can't run the VMware specific mounting in a provider override,
-  # because as documentation states, ordering is outside in:
-  # https://www.vagrantup.com/docs/provisioning/basic_usage.html
-  #
-  # This would mean that mounting the shared folders would always be the last
-  # thing done, when we need it to be the first
-  config.vm.provision "shell", privileged: false, inline: <<-SCRIPT
-    # Only run if we're on Workstation or Fusion
-    if sudo dmidecode -s system-product-name | grep -qi vmware; then
-      echo "Waiting for mounts to be available ..."
-      retries=1
-      mounts_available="no"
-      until [ "$mounts_available" == "yes"  ] || [ "$retries" -gt 120 ]; do
-        sleep 1
-        retries=$((retries+1))
-
-        if [ -d "/mnt/hgfs/scf/src" ]; then
-          mounts_available="yes"
-        fi
-      done
-
-      if hash vmhgfs-fuse 2>/dev/null; then
-        echo "Mounts available after ${retries} seconds."
-
-        if [ ! -d "/home/vagrant/scf" ]; then
-          echo "Sharing directories in the VMware world ..."
-          mkdir -p /home/vagrant/scf
-          mkdir -p /home/vagrant/.bosh
-
-          sudo vmhgfs-fuse .host:scf /home/vagrant/scf -o allow_other
-          sudo vmhgfs-fuse .host:bosh /home/vagrant/.bosh -o allow_other
-        fi
-      else
-        >&2 echo "Timed out waiting for mounts load after ${retries} seconds."
-        exit 1
-      fi
-    fi
-  SCRIPT
-
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
-  }, inline: <<-SHELL
-    set -e
-    for var in no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY ; do
-       if test -n "${!var}" ; then
-          echo "${var}=${!var}" | tee -a /etc/environment
-       fi
-    done
-    echo Proxy setup of the host, saved ...
-  SHELL
+  }, path: "bin/common/write_proxy_vars_to_environment.sh"
 
   # set up direnv so we can pick up fissile configuration
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
@@ -164,26 +151,22 @@ Vagrant.configure(2) do |config|
     ${HOME}/bin/direnv allow ${HOME}/scf
   SHELL
 
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -e
-
+  # Install common and dev tools
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    set -o errexit -o xtrace -o verbose
     # Get proxy configuration here
-    source /etc/environment
-    export no_proxy http_proxy https_proxy NO_PROXY HTTP_PROXY HTTPS_PROXY
-
-    # Install development tools
-    (
-      cd "${HOME}/scf"
-      ${HOME}/bin/direnv exec ${HOME}/scf/bin/dev/install_tools.sh
-    )
-
+    export HOME=/home/vagrant
+    export PATH=$PATH:/home/vagrant/bin
+    export SCF_BIN_DIR=/usr/local/bin
+    cd "${HOME}/scf"
+    bash ${HOME}/scf/bin/common/install_tools.sh
+    direnv exec ${HOME}/scf/bin/dev/install_tools.sh
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -e
+    set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH=$PATH:/home/vagrant/scf/output/bin/' >> .profile
     echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
@@ -191,33 +174,4 @@ Vagrant.configure(2) do |config|
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
-end
-
-module VMwareHacks
-
-  # Here we manually define the shared folder for VMware-based providers
-  def VMwareHacks.configure_shares(vb)
-    current_dir = File.dirname(__FILE__)
-    bosh_cache = File.join(current_dir, '.fissile/.bosh')
-
-    # share . in the box
-    vb.vmx["sharedFolder0.present"] = "TRUE"
-    vb.vmx["sharedFolder0.enabled"] = "TRUE"
-    vb.vmx["sharedFolder0.readAccess"] = "TRUE"
-    vb.vmx["sharedFolder0.writeAccess"] = "TRUE"
-    vb.vmx["sharedFolder0.hostPath"] = current_dir
-    vb.vmx["sharedFolder0.guestName"] = "scf"
-    vb.vmx["sharedFolder0.expiration"] = "never"
-    vb.vmx["sharedfolder0.followSymlinks"] = "TRUE"
-
-    # share .fissile/.bosh in the box
-    vb.vmx["sharedFolder1.present"] = "TRUE"
-    vb.vmx["sharedFolder1.enabled"] = "TRUE"
-    vb.vmx["sharedFolder1.readAccess"] = "TRUE"
-    vb.vmx["sharedFolder1.writeAccess"] = "TRUE"
-    vb.vmx["sharedFolder1.hostPath"] = bosh_cache
-    vb.vmx["sharedFolder1.guestName"] = "bosh"
-    vb.vmx["sharedFolder1.expiration"] = "never"
-    vb.vmx["sharedfolder1.followSymlinks"] = "TRUE"
-  end
 end

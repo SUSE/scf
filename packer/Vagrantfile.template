@@ -9,8 +9,6 @@ Vagrant.configure('2') do |config|
 
   config.vm.provider :libvirt do |libvirt|
     libvirt.disk_bus = 'virtio'
-    libvirt.storage :file, :size => '100G', bus: 'virtio', device: 'vdb'
-
     if ENV['VAGRANT_LIBVIRT_URI']
       require 'uri'
       uri = URI.parse(ENV['VAGRANT_LIBVIRT_URI'])
@@ -30,57 +28,4 @@ Vagrant.configure('2') do |config|
       end
     end
   end
-
-  # Format the kubelet / docker disk.  This is here because libvirt needs to
-  # do it on `vagrant up`.
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    set -o errexit -o xtrace
-    disk=/dev/sdb
-    if test -e /dev/vdb ; then
-      disk=/dev/vdb
-    fi
-    parted --script "${disk}" mklabel gpt
-    parted --script "${disk}" mkpart kubelet-data ext4 0% 100%
-    echo "Waiting for new partition to show up..."
-    while ! test -e "${disk}1" ; do
-      partprobe "${disk}"
-      sleep 1
-    done
-    mkfs.ext4 "${disk}1"
-    eval $(blkid -s UUID -o export "${disk}1")
-    mount "${disk}1" /mnt
-    mkdir /mnt/{docker,kubelet,hostpath,fissile}
-    chown kube:kube /mnt/hostpath
-    chown vagrant:users /mnt/fissile
-    umount /mnt
-    echo "UUID=${UUID}  /mnt                   ext4 defaults 0 0" >> /etc/fstab
-    echo "/mnt/docker   /var/lib/docker        none bind     0 0" >> /etc/fstab
-    echo "/mnt/kubelet  /var/lib/kubelet       none bind     0 0" >> /etc/fstab
-    echo "/mnt/hostpath /tmp/hostpath_pv       none bind     0 0" >> /etc/fstab
-    echo "/mnt/fissile  /home/vagrant/.fissile none bind     0 0" >> /etc/fstab
-    mkdir -p /var/lib/kubelet
-    mkdir -p /tmp/hostpath_pv
-    mkdir -p /home/vagrant/.fissile
-    chown kube:kube /tmp/hostpath_pv
-    chown vagrant:users /home/vagrant/.fissile
-    systemctl enable docker.service
-    systemctl enable kubelet.service
-  SHELL
-
-  config.vm.provision :reload # apply filesystem changes
-
-  # Start the DNS addon
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    # Wait for kubernetes to be responsive
-    echo "Waiting for kube-apiserver to be active..."
-    while ! systemctl is-active kube-apiserver.service 2>/dev/null >/dev/null; do
-      sleep 10
-    done
-    echo "Waiting for kubectl to respond..."
-    while ! kubectl get pods --all-namespaces 2>/dev/null ; do
-      sleep 2
-    done
-
-    kubectl create --namespace kube-system --filename /etc/kubernetes/addons/kubedns.yml
-  SHELL
 end

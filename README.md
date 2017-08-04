@@ -87,7 +87,7 @@ a working system.
 
     ```bash
     # Bring the vagrant box up
-    vagrant up --provider X # Where X is libvirt | virtualbox
+    vagrant up --provider X # Where X is libvirt | virtualbox. See next section for additional options.
 
     # Once the vagrant box is up, ssh into it
     vagrant ssh
@@ -123,6 +123,44 @@ a working system.
    $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
    $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
    ```
+
+3. Environment variables to configure `vagrant up` (optional)
+    - `VAGRANT_VBOX_BRIDGE`: Set this to the name of an interface to enable bridged networking when
+      using the Virtualbox provider. Turning on bridged networking will allow your vagrant box to receive
+      an IP accessible anywhere on the network. While Virtualbox is able to bridge over an interface
+      without any special networking configuration (and may even do this on OSX), bridged networking may
+      not be supported when the provided interface is a wireless interface.See the [Virtualbox docs](
+      https://www.virtualbox.org/manual/ch06.html#network_bridged) on bridged networking for more
+      information.
+    - `VAGRANT_KVM_BRIDGE`: Set this to the name of your host's linux bridge interface if you have one
+      configured. If using Wicked as your network manager, you can configure one by setting the config
+      files for your default interface and bridge interface as follows:
+      ```
+      #default interface:
+      BOOTPROTO='none'
+      STARTMODE='auto'
+      DHCLIENT_SET_DEFAULT_ROUTE='yes'
+      ```
+      ```
+      #bridged interface:
+      DHCCLIENT_SET_DEFAULT_ROUTE='yes'
+      STARTMODE='auto'
+      BOOTPROTO='dhcp'
+      BRIDGE='yes'
+      BRIDGE_STP='off'
+      BRIDGE_FORWARDDELAY='0'
+      BRIDGE_PORTS='eth0'
+      BRIDGE_PORTPRIORITIES='-'
+      BRIDGE_PATHCOSTS='-'
+      ```
+      For example, if your default interface is named `eth0`', you would edit
+      `/etc/sysconfig/network/ifcfg-eth0` and `/etc/sysconfig/network/ifcfg-br0`
+      with the above settings. Then, after the desired configuration is in place, run
+      `wicked ifreload all` and wait for wicked to apply the changes.
+    - `VAGRANT_DHCP`: Set this to any value when using virtual networking (as opposed to bridged networking)
+      in order to let your VM receive an IP via DHCP in the virtual network. If this environment variable is
+      unset, the VM will instead obtain the IP 192.168.77.77. 
+   
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 

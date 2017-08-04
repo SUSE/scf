@@ -204,7 +204,7 @@ show-docker-setup:
 	${GIT_ROOT}/make/show-docker-setup
 
 show-versions:
-	${GIT_ROOT}/bin/dev/versions.sh
+	${GIT_ROOT}/bin/common/versions.sh
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
