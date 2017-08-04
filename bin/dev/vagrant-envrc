@@ -1,11 +1,3 @@
-
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-
-# (**)
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
-
 # Directory used when mounting volumes to containers
 export HCF_RUN_STORE="$HOME/.run/store"
 
