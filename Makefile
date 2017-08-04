@@ -186,7 +186,9 @@ bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
 uaa-images: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/compile restore
 	${GIT_ROOT}/make/uaa-images
+	${GIT_ROOT}/make/compile cache
 
 build: compile images
 

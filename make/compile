@@ -23,7 +23,7 @@ get_package_version_list() {
     ) | sort -u
 }
 
-cache() {
+_cache() {
     test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
 
     for package_version in $(get_package_version_list) ; do
@@ -44,6 +44,10 @@ cache() {
     done
 
     echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
+}
+
+cache() {
+    _cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
 }
 
 restore() {
@@ -122,7 +126,7 @@ case ${COMMAND} in
     clean)
         clean;;
     cache)
-        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &;;
+        cache;;
     list)
         get_package_version_list;;
     *)
@@ -131,6 +135,6 @@ case ${COMMAND} in
         echo Please allow a long time for mariadb to compile
         fissile build packages
 
-        cache > "${FISSILE_WORK_DIR}/rsync.log" 2>&1 &
+        cache
         ;;
 esac
