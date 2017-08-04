@@ -3,10 +3,15 @@
 # This script pulls in the various cf-*-release submodules so the
 # VM can use them.
 
+# prevent cd from printing the directory it changes to. This breaks
+# cd/pwd constructions (See **).
+unset CDPATH
+
 function has_upstream() {
     git rev-parse @{u} > /dev/null 2>&1
 }
 
+# (**)
 ROOT=$(dirname $(cd $(dirname $0) && pwd))
 cd ${ROOT}/src
 

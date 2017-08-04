@@ -1,6 +1,10 @@
 #!/bin/bash
 set -o errexit -o nounset
 
+# prevent cd from printing the directory it changes to. This breaks
+# cd/pwd constructions (See **).
+unset CDPATH
+
 # Get version information
 . "$(dirname "$0")/versions.sh"
 
@@ -25,6 +29,7 @@ helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HEL
 mkdir -p "${bin_dir}"
 mkdir -p "${tools_dir}"
 
+# (**)
 bin_dir="$(cd "${bin_dir}" && pwd)"
 
 echo "Fetching cf CLI $cf_url ..."
