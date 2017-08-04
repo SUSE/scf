@@ -186,7 +186,9 @@ bosh-images: validate ${FISSILE_BINARY}
 	${GIT_ROOT}/make/bosh-images
 
 uaa-images: ${FISSILE_BINARY}
+	${GIT_ROOT}/make/compile restore
 	${GIT_ROOT}/make/uaa-images
+	${GIT_ROOT}/make/compile cache
 
 build: compile images
 
@@ -206,12 +208,12 @@ show-versions:
 	${GIT_ROOT}/make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yml: uaa-kube
+kube kube/bosh-task/post-deployment-setup.yaml: uaa-kube
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube
 .PHONY: kube
 
-helm helm/bosh-task/post-deployment-setup.yml: uaa-helm
+helm helm/bosh-task/post-deployment-setup.yaml: uaa-helm
 	${GIT_ROOT}/bin/settings/kube/ca.sh
 	${GIT_ROOT}/make/kube helm
 .PHONY: helm

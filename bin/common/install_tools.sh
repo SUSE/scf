@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
 set -vx
+
+# See notes on CDPATH in dev/install_tools.sh:
+unset CDPATH
 # Get version information and set destination dirs
 . "$(dirname "$0")/versions.sh"
 

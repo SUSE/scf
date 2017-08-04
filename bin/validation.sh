@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-ROOT="$(readlink -f "$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )")"
+# prevent cd from printing the directory it changes to. This breaks
+# cd/pwd constructions (See **).
+unset CDPATH
+
+# (**)
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
 
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" validation start
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" validation::show-properties start
