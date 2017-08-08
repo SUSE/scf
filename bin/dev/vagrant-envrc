@@ -1,9 +1,3 @@
-# Directory used when mounting volumes to containers
-export HCF_RUN_STORE="${HOME}/.run/store"
-
-# Directory where all the log directories will be mounted for all containers
-export HCF_RUN_LOG_DIRECTORY="${HOME}/.run/log"
-
 # Path to a location where all fissile output is stored
 export FISSILE_WORK_DIR="${HOME}/.fissile/"
 
