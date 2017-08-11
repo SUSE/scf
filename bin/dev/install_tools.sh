@@ -22,7 +22,7 @@ stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STA
 mkdir -p "${SCF_BIN_DIR}"
 
 # (**)
-SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
+export SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching fissile $fissile_url ..."
 wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}"
