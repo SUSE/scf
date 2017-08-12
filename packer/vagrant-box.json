@@ -1,7 +1,7 @@
 {
     "variables": {
-        "version": "2.0.6",
-        "vm_name": "scf-vagrant-{{isotime \"20060102-1504\"}}",
+        "version": "2.0.6+{{isotime \"20060102-1504\"}}",
+        "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "iso_url": "http://download.opensuse.org/distribution/leap/42.2/iso/openSUSE-Leap-42.2-NET-x86_64.iso",
@@ -9,6 +9,12 @@
         "iso_checksum_type": "sha256",
         "http_directory": "http",
         "ssh_wait_timeout": "300m",
+        "source_machine_package": "{{ env `SOURCE_MACHINE_PACKAGE` }}",
+        "source_machine_image": "{{ env `SOURCE_MACHINE_IMAGE` }}",
+        "ssh_private_key_file": "{{ env `SSH_PRIVATE_KEY_FILE` }}",
+        "triton_account": "{{ env `TRITON_ACCOUNT` }}",
+        "triton_key_id": "{{ env `TRITON_KEY_ID` }}",
+        "triton_url": "{{ env `TRITON_URL` }}",
         "shutdown_command": "echo vagrant | sudo -S shutdown -P now"
     },
     "builders": [
@@ -93,14 +99,46 @@
                 "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
                 "<enter><wait>"
             ]
+        },
+        {
+            "type": "triton",
+            "image_name": "{{ user `vm_name` }}",
+            "image_version": "{{ user `version` }}",
+            "source_machine_image": "{{ user `source_machine_image` }}",
+            "source_machine_package": "{{ user `source_machine_package` }}",
+            "ssh_private_key_file": "{{ user `ssh_private_key_file` }}",
+            "ssh_username": "root",
+            "triton_account": "{{ user `triton_account` }}",
+            "triton_key_id": "{{ user `triton_key_id` }}",
+            "triton_key_material": "{{ user `ssh_private_key_file` }}",
+            "triton_url": "{{ user `triton_url` }}"
         }
     ],
     "provisioners": [
         {
             "type": "shell",
+            "only": ["triton"],
+            "inline": [
+                "# Create vagrant user",
+                "useradd --create-home vagrant",
+                "echo vagrant:vagrant | chpasswd"
+            ]
+        },
+        {
+            "type": "shell",
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/install-kubernetes.sh"
+            ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "# Create directories to ensure packer doesn't mess up",
+                "mkdir -p /etc/systemd/system/kube-apiserver.service.d/",
+                "mkdir -p /etc/systemd/system/kube-controller-manager.service.d/",
+                "mkdir -p /etc/systemd/system/kubelet.service.d/"
             ]
         },
         {
@@ -119,6 +157,30 @@
             "destination": "/etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf"
         },
         {
+            "only": ["triton"],
+            "type": "file",
+            "source": "http/controller-manager-jenkins-overrides.conf",
+            "destination": "/etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf"
+        },
+        {
+            "only": ["triton"],
+            "type": "file",
+            "source": "http/data-hostpath-create.service",
+            "destination": "/etc/systemd/system/data-hostpath-create.service"
+        },
+        {
+            "only": ["triton"],
+            "type": "file",
+            "source": "http/tmp-hostpath_pv.automount",
+            "destination": "/etc/systemd/system/tmp-hostpath_pv.automount"
+        },
+        {
+            "only": ["triton"],
+            "type": "file",
+            "source": "http/tmp-hostpath_pv.mount",
+            "destination": "/etc/systemd/system/tmp-hostpath_pv.mount"
+        },
+        {
             "type": "file",
             "source": "http/kubelet-vagrant-overrides.conf",
             "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
@@ -130,8 +192,20 @@
         },
         {
             "type": "file",
+            "source": "http/user-limits.conf",
+            "destination": "/etc/security/limits.d/vagrant.conf"
+        },
+        {
+            "type": "file",
             "source": "http/docker.conf",
             "destination": "/etc/sysconfig/docker"
+        },
+        {
+            "type": "shell",
+            "only": ["triton"],
+            "inline": [
+                "perl -p -i -e 's@(DOCKER_OPTS)=\"(.*)\"@$1=\"$2 --graph=/data/docker\"@' /etc/sysconfig/docker"
+            ]
         },
         {
             "type": "shell",
@@ -151,7 +225,25 @@
                 "scripts/install-certstrap.sh",
                 "scripts/usr-local-bin-to-path.sh",
                 "scripts/create-kube-certs.sh",
-                "scripts/create-kubedns.sh",
+                "scripts/create-kubedns.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["triton"],
+            "inline": [
+                "# Install helm",
+                "wget -O - https://kubernetes-helm.storage.googleapis.com/helm-v2.5.1-linux-amd64.tar.gz | tar xz -C /usr/local/bin --no-same-owner --strip-components=1 linux-amd64/helm",
+                "sudo -i -u vagrant helm init",
+                "# Install Java",
+                "zypper --non-interactive install jre-openjdk-headless"
+            ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "scripts": [
                 "scripts/compact.sh"
             ],
             "start_retry_timeout": "7m"
@@ -160,6 +252,7 @@
     "post-processors": [
         {
             "type": "vagrant",
+            "only": ["vmware-iso", "virtualbox-iso", "qemu"],
             "output": "scf-{{.Provider}}-v{{user `version`}}.box",
             "vagrantfile_template": "Vagrantfile.template"
         }
