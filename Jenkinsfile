@@ -153,7 +153,7 @@ pipeline {
                         source ${PWD}/.envrc
                         set -x
                         unset HCF_PACKAGE_COMPILATION_CACHE
-                        rm scf-*-amd64-*.zip
+                        rm -f scf-*-amd64-*.zip
                         make helm bundle-dist
                     '''
                 }
