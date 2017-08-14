@@ -191,7 +191,7 @@ a working system.
     E.g. A command that will update all submodules and drop any changed or untracked files in them is:
 
     ```
-      git submodule update --recursive --force && git submodule foreach --recursive 'git co . && git clean -fdx'
+      git submodule update --recursive --force && git submodule foreach --recursive 'git checkout . && git clean -fdx'
     ```
 
     **Make sure you understand what the [`git clean` flags mean](https://git-scm.com/docs/git-clean/) before you run this**
