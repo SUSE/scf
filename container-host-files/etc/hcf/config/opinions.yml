@@ -148,6 +148,15 @@ properties:
       tag: cc
     db_scheme: mysql
     port: 3306
+  cf-usb:
+    broker:
+      username: broker-admin
+      port: 24054
+    management:
+      dev_mode: true
+      port: 24053
+      uaa:
+        client: cf-usb
   cf:
     admin_username: admin
   cf_mysql:

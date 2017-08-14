@@ -207,6 +207,10 @@ certstrap --depot-path "${internal_certs_dir}"  sign etcdClient --CA internalCA 
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer" --domain "$(make_ha_domains "etcd")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer --CA internalCA --passphrase "${signing_key_passphrase}"
 
+# generate USB certs
+certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb-int")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}"  sign cfUsbBrokerServer --CA internalCA --passphrase "${signing_key_passphrase}"
+
 # generate Consul certs (Instructions from https://github.com/cloudfoundry-incubator/consul-release#generating-keys-and-certificates)
 # Server certificate to share across the consul cluster
 server_cn=server.dc1.${namespace}
@@ -278,6 +282,8 @@ add_env BLOBSTORE_TLS_CERT        "${certs_path}/blobstore_tls.cert"
 add_env BLOBSTORE_TLS_KEY         "${certs_path}/blobstore_tls.key"
 add_env CC_SERVER_CRT             "${internal_certs_dir}/api.crt"
 add_env CC_SERVER_KEY             "${internal_certs_dir}/api.key"
+add_env CF_USB_BROKER_SERVER_CERT "${internal_certs_dir}/cfUsbBrokerServer.crt"
+add_env CF_USB_BROKER_SERVER_KEY  "${internal_certs_dir}/cfUsbBrokerServer.key"
 add_env CONSUL_AGENT_CERT         "${internal_certs_dir}/agent.crt"
 add_env CONSUL_AGENT_KEY          "${internal_certs_dir}/agent.key"
 add_env CONSUL_SERVER_CERT        "${internal_certs_dir}/server.crt"
