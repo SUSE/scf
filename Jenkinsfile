@@ -7,6 +7,7 @@ pipeline {
         skipDefaultCheckout() // We do our own checkout so it can be disabled
         timestamps()
         timeout(time: 5, unit: 'HOURS')
+        ws('scf')
     }
     parameters {
         booleanParam(
