@@ -43,7 +43,7 @@ pipeline {
         string(
             name: 'S3_BUCKET',
             description: 'AWS S3 bucket to publish to',
-            defaultValue: 'scf',
+            defaultValue: 'cf-opensusefs2',
         )
         string(
             name: 'S3_PREFIX',
