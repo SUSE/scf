@@ -170,6 +170,8 @@ Vagrant.configure(2) do |config|
     echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
+    echo -e '\nexport HISTFILE=/home/vagrant/scf/output/.bash_history' >> .profile
+
     direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
