@@ -73,3 +73,6 @@
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
 	url = https://github.com/SUSE/uaa-fissile-release
+[submodule "src/cf-usb"]
+	path = src/cf-usb
+	url = git@github.com:SUSE/cf-usb
