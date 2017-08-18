@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.6+{{isotime \"20060102-1504\"}}",
+        "version": "2.0.6",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -21,7 +21,7 @@
         {
             "type": "vmware-iso",
             "headless": true,
-            "vm_name": "{{user `vm_name`}}",
+            "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
             "guest_os_type": "suse-64",
             "disk_size": 120480,
             "ssh_username": "{{user `ssh_username`}}",
@@ -47,7 +47,7 @@
         {
             "type": "virtualbox-iso",
             "headless": true,
-            "vm_name": "{{user `vm_name`}}",
+            "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
             "guest_os_type": "OpenSUSE_64",
             "guest_additions_mode": "disable",
             "disk_size": 120480,
@@ -76,7 +76,7 @@
         {
             "type": "qemu",
             "headless": true,
-            "vm_name": "{{user `vm_name`}}",
+            "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
             "disk_size": 120480,
             "disk_interface": "virtio",
             "disk_compression": true,
@@ -103,7 +103,7 @@
         {
             "type": "triton",
             "image_name": "{{ user `vm_name` }}",
-            "image_version": "{{ user `version` }}",
+            "image_version": "{{ user `version` }}+{{isotime \"20060102-1504\"}}",
             "source_machine_image": "{{ user `source_machine_image` }}",
             "source_machine_package": "{{ user `source_machine_package` }}",
             "ssh_private_key_file": "{{ user `ssh_private_key_file` }}",
