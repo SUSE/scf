@@ -79,7 +79,9 @@ pipeline {
             }
             steps {
                 deleteDir()
-                params.SKIP_CHECKOUT = false
+                script {
+                    params.SKIP_CHECKOUT = false
+                }
             }
         }
         stage('clean') {
