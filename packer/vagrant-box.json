@@ -121,7 +121,10 @@
             "inline": [
                 "# Create vagrant user",
                 "useradd --create-home vagrant",
-                "echo vagrant:vagrant | chpasswd"
+                "echo vagrant:vagrant | chpasswd",
+                "# Enable swap accounting",
+                "perl -p -i -e 's@^(GRUB_CMDLINE_LINUX_DEFAULT)=\"(.*)\"@$1=\"$2 swapaccount=1\"@' /etc/default/grub",
+                "grub2-mkconfig -o /boot/grub2/grub.cfg"
             ]
         },
         {
@@ -236,8 +239,8 @@
                 "# Install helm",
                 "wget -O - https://kubernetes-helm.storage.googleapis.com/helm-v2.5.1-linux-amd64.tar.gz | tar xz -C /usr/local/bin --no-same-owner --strip-components=1 linux-amd64/helm",
                 "sudo -i -u vagrant helm init",
-                "# Install Java",
-                "zypper --non-interactive install jre-openjdk-headless"
+                "# Install additional packages",
+                "zypper --non-interactive install jre-openjdk-headless make zip"
             ]
         },
         {
