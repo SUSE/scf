@@ -80,8 +80,9 @@ command -v certstrap > /dev/null 2>&1 || {
 certs_path="/tmp/scf/certs"
 hcf_certs_path="${certs_path}/hcf"
 internal_certs_dir="${certs_path}/internal"
-# The next line opens the output file, and assigns the fd to ${output_fd}
-exec {output_fd}>"${output_path}"
+# We can't dynamically allocate a fd because darwin bash is too old.  Hard code to fd9 for now.
+output_fd=9
+exec 9>"${output_path}"
 
 # prepare directories
 rm -rf "${certs_path}"
