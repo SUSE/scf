@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.6",
+        "version": "2.0.7",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -135,78 +135,86 @@
             ]
         },
         {
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.conf",
+            "destination": "/tmp/apiserver-vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/apiserver-vagrant-overrides.env",
+            "destination": "/tmp/apiserver-vagrant-overrides.env"
+        },
+        {
+            "type": "file",
+            "source": "http/controller-manager-vagrant-overrides.conf",
+            "destination": "/tmp/controller-manager-vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.conf",
+            "destination": "/tmp/kubelet-vagrant-overrides.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/kubelet-vagrant-overrides.env",
+            "destination": "/tmp/kubelet-vagrant-overrides.env"
+        },
+        {
+            "type": "file",
+            "source": "http/user-limits.conf",
+            "destination": "/tmp/user-limits.conf"
+        },
+        {
+            "type": "file",
+            "source": "http/docker.conf",
+            "destination": "/tmp/docker.conf"
+        },
+        {
             "type": "shell",
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
                 "# Create directories to ensure packer doesn't mess up",
                 "mkdir -p /etc/systemd/system/kube-apiserver.service.d/",
+                "mv /tmp/apiserver-vagrant-overrides.conf /etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf",
+                "mv /tmp/apiserver-vagrant-overrides.env /etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env",
                 "mkdir -p /etc/systemd/system/kube-controller-manager.service.d/",
-                "mkdir -p /etc/systemd/system/kubelet.service.d/"
+                "mv /tmp/controller-manager-vagrant-overrides.conf /etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf",
+                "mkdir -p /etc/systemd/system/kubelet.service.d/",
+                "mv /tmp/kubelet-vagrant-overrides.conf /etc/systemd/system/kubelet.service.d/vagrant-overrides.conf",
+                "mv /tmp/kubelet-vagrant-overrides.env /etc/systemd/system/kubelet.service.d/vagrant-overrides.env",
+                "mv /tmp/user-limits.conf /etc/security/limits.d/vagrant-nproc.conf",
+                "mv /tmp/docker.conf /etc/sysconfig/docker"
             ]
         },
         {
             "type": "file",
-            "source": "http/apiserver-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/apiserver-vagrant-overrides.env",
-            "destination": "/etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env"
-        },
-        {
-            "type": "file",
-            "source": "http/controller-manager-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf"
-        },
-        {
             "only": ["triton"],
-            "type": "file",
             "source": "http/controller-manager-jenkins-overrides.conf",
             "destination": "/etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf"
         },
         {
-            "only": ["triton"],
             "type": "file",
+            "only": ["triton"],
             "source": "http/data-hostpath-create.service",
             "destination": "/etc/systemd/system/data-hostpath-create.service"
         },
         {
-            "only": ["triton"],
             "type": "file",
+            "only": ["triton"],
             "source": "http/tmp-hostpath_pv.automount",
             "destination": "/etc/systemd/system/tmp-hostpath_pv.automount"
         },
         {
-            "only": ["triton"],
             "type": "file",
+            "only": ["triton"],
             "source": "http/tmp-hostpath_pv.mount",
             "destination": "/etc/systemd/system/tmp-hostpath_pv.mount"
-        },
-        {
-            "type": "file",
-            "source": "http/kubelet-vagrant-overrides.conf",
-            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/kubelet-vagrant-overrides.env",
-            "destination": "/etc/systemd/system/kubelet.service.d/vagrant-overrides.env"
-        },
-        {
-            "type": "file",
-            "source": "http/user-limits.conf",
-            "destination": "/etc/security/limits.d/vagrant.conf"
-        },
-        {
-            "type": "file",
-            "source": "http/docker.conf",
-            "destination": "/etc/sysconfig/docker"
         },
         {
             "type": "shell",
             "only": ["triton"],
             "inline": [
+                "# Triton needs to put docker graph in /data for the larger disk",
                 "perl -p -i -e 's@(DOCKER_OPTS)=\"(.*)\"@$1=\"$2 --graph=/data/docker\"@' /etc/sysconfig/docker"
             ]
         },
