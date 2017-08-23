@@ -153,7 +153,7 @@ pipeline {
                         source ${PWD}/.envrc
                         set -x
                         unset HCF_PACKAGE_COMPILATION_CACHE
-                        rm -f scf-*-amd64-*.zip
+                        rm -f scf-*amd64*.zip
                         make helm bundle-dist
                     '''
                 }
@@ -186,13 +186,14 @@ pipeline {
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                         )]) {
                             script {
-                                def files = findFiles(glob: 'scf-*-amd64-*.zip')
+                                def files = findFiles(glob: 'scf-*amd64*.zip')
                                 for ( int i = 0 ; i < files.size() ; i ++ ) {
                                     s3Upload(
                                         file: files[i].path,
                                         bucket: "${params.S3_BUCKET}",
                                         path: "${params.S3_PREFIX}${files[i].name}",
                                     )
+                                    sh "rm -f '${files[i].name}'"
                                 }
                             }
                         }
