@@ -3,7 +3,6 @@ roles:
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -40,7 +39,6 @@ roles:
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -328,7 +326,6 @@ roles:
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -384,7 +381,6 @@ roles:
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   - scripts/authorize_internal_ca.sh
@@ -438,7 +434,6 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -489,7 +484,6 @@ roles:
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   - scripts/authorize_internal_ca.sh
@@ -538,7 +532,6 @@ roles:
   - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/nginx_log_level.sh
   scripts:
@@ -622,7 +615,6 @@ roles:
 - name: api-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
@@ -654,7 +646,6 @@ roles:
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
@@ -702,7 +693,6 @@ roles:
 - name: clock-global
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
@@ -734,7 +724,6 @@ roles:
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -791,7 +780,6 @@ roles:
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/chown_vcap_store.sh
@@ -854,7 +842,6 @@ roles:
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -900,7 +887,6 @@ roles:
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -940,7 +926,6 @@ roles:
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1037,7 +1022,6 @@ roles:
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1070,7 +1054,6 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1120,7 +1103,6 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1688,8 +1670,6 @@ configuration:
     required: true
     description: Base domain of the HCF cluster.
     internal: true
-  - name: DONT_SKIP_CERT_VERIFY_INTERNAL
-    type: environment
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -2043,15 +2023,6 @@ configuration:
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
     required: true
-  - name: SKIP_CERT_VERIFY_EXTERNAL
-    default: false
-    description: Skip TLS verification when communicating with UAA system domain.
-    required: true
-  - name: SKIP_CERT_VERIFY_INTERNAL
-    default: false
-    example: false
-    description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
-    required: true
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
@@ -2356,7 +2327,6 @@ configuration:
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022
-    properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.broker.auth_password: '"((CF_MYSQL_BROKER_AUTH_PASSWORD))"'
     properties.cf_mysql.broker.cookie_secret: '"((CF_MYSQL_BROKER_COOKIE_SECRET))"'
     properties.cf_mysql.broker.db_password: '"((CF_MYSQL_BROKER_DB_PASSWORD))"'
@@ -2388,14 +2358,12 @@ configuration:
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
-    properties.diego.auctioneer.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
     properties.diego.bbs.auctioneer.api_location: diego-brain.((KUBE_SERVICE_DOMAIN_SUFFIX)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
-    properties.diego.bbs.auctioneer.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2405,7 +2373,6 @@ configuration:
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
-    properties.diego.bbs.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
@@ -2419,7 +2386,6 @@ configuration:
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
@@ -2440,12 +2406,10 @@ configuration:
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
-    properties.diego.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.doppler.syslog_skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.doppler.zone: '"((HCP_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2456,17 +2420,11 @@ configuration:
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd.peer_require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
@@ -2481,7 +2439,6 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
-    properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2493,8 +2450,6 @@ configuration:
     properties.internal_hostname: '"cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.loggregator.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
@@ -2519,13 +2474,10 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    properties.router.ssl_skip_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.routing_api.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.routing_api.etcd.servers: ((KUBE_ETCD_CLUSTER_IPS))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
@@ -2536,11 +2488,9 @@ configuration:
     properties.routing_api.uri: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.routing_api.url: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
-    properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
