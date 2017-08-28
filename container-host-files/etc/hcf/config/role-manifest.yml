@@ -1670,9 +1670,9 @@ configuration:
     description: The host to ping for confirmation of DNS resolution.
     required: true
   - name: DOMAIN
-    example: my-hcf-cluster.com
+    example: my-scf-cluster.com
     required: true
-    description: Base domain of the HCF cluster.
+    description: Base domain of the SCF cluster.
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -1771,14 +1771,14 @@ configuration:
       `LOG_LEVEL` instead, from which this one is derived.
   - name: HCF_LOG_HOST
     internal: true
-    description: The log destination to talk to. If not set it defaults to flightrecorder.
+    description: The log destination to talk to. This has to point to a syslog server.
   - name: HCF_LOG_PORT
     internal: true
-    description: The port used by rsyslog to talk to the log destination. If not set it defaults to the flightrecorder port. If that is not set we fall back to 514, the standard port of syslog.
+    description: The port used by rsyslog to talk to the log destination. If not set it defaults to 514, the standard port of syslog.
   - name: HCF_LOG_PROTOCOL
     internal: true
     default: tcp
-    description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
+    description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
   - name: HCP_CA_CERT
     internal: true
@@ -1806,7 +1806,7 @@ configuration:
       id: cacert
       type: CACertificate
       value_type: certificate
-    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
+    description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
     required: true
   - name: JWT_SIGNING_PUB
     type: environment
@@ -1937,7 +1937,7 @@ configuration:
     immutable: true
     generator:
       type: Password
-    description: The password used to contact the sidecar endpoints via Basic Auth.
+    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
     required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
@@ -2093,8 +2093,8 @@ configuration:
     description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
-    example: tcp.my-hcf-cluster.com
-    description: TCP routing domain of the HCF cluster; only used for testing;
+    example: tcp.my-scf-cluster.com
+    description: TCP routing domain of the SCF cluster; only used for testing;
   - name: TPS_CC_CLIENT_CRT
     secret: true
     generator:
@@ -2118,7 +2118,7 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
-    description: PEM-encoded certificate
+    description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRAFFICCONTROLLER_KEY
     secret: true
@@ -2127,7 +2127,7 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded key.
+    description: PEM-encoded key for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRUSTED_CERTS
     description: Concatenation of trusted CA certificates to be made available on the cell.
