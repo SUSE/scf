@@ -1673,7 +1673,6 @@ configuration:
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
-    internal: true
   - name: DOPPLER_CERT
     secret: true
     generator:
