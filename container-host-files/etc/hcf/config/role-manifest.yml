@@ -1687,7 +1687,6 @@ configuration:
     example: my-hcf-cluster.com
     required: true
     description: Base domain of the HCF cluster.
-    internal: true
   - name: DONT_SKIP_CERT_VERIFY_INTERNAL
     type: environment
   - name: DOPPLER_CERT
