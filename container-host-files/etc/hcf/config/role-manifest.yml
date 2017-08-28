@@ -1801,21 +1801,13 @@ configuration:
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
     required: true
-  - name: HCP_AZ
-    type: environment
-    default: "z1"
   - name: HCP_CA_CERT
     internal: true
     immutable: true
     description: The CA certificate for UAA
     secret: true
-  - name: HCP_COMPONENT_INDEX
-    type: environment
-  - name: HCP_COMPONENT_NAME
-    type: environment
-  - name: HCP_INSTANCE_ID
-    type: environment
   - name: HOSTNAME
+    description: An environment variable set by bash that contains the hostname of the container
   - name: HTTPS_PROXY
     required: false
     description: Location of the proxy to use for secure web access.
@@ -1846,6 +1838,13 @@ configuration:
       The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user.
       Its value is supplied by the kubernetes runtime.
+  - name: KUBE_AZ
+    type: environment
+    default: "z1"
+  - name: KUBE_COMPONENT_INDEX
+    type: environment
+  - name: KUBE_COMPONENT_NAME
+    type: environment
   - name: KUBE_CONSUL_CLUSTER_IPS
     type: environment
     description: >
@@ -1858,6 +1857,8 @@ configuration:
       A comma-separated list of IP addresses for the machines of the etcd sub-cluster.
       This parameter cannot be set by the user.
       Its value is automatically computed during cluster setup.
+  - name: KUBE_INSTANCE_ID
+    type: environment
   - name: KUBE_MYSQL_CLUSTER_IPS
     type: environment
     description: >
@@ -2272,11 +2273,11 @@ configuration:
     description: Whether or not to use privileged containers for staging tasks.
     required: true
   templates:
-    az: '"((HCP_AZ))"'
-    id: ((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((HOSTNAME))((/HCP_COMPONENT_NAME))
-    index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
+    az: '"((KUBE_AZ))"'
+    id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_INSTANCE_ID))-((KUBE_COMPONENT_INDEX))((/KUBE_INSTANCE_ID))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
+    index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
@@ -2396,7 +2397,7 @@ configuration:
     properties.cf_mysql.broker.services: '[{"name":"mysql-dev","id":"9ef3b781-fdd1-4eac-9b97-f9e76640249d","tags":["mysql"],"description":"dev grade MySQL databases on demand","dashboard_client":{"id":"mysql","secret":"((UAA_CLIENTS_CC_SERVICE_SECRET))"},"metadata":{"displayName":"MySQL for SCF","documentationUrl":"https://github.com/cloudfoundry/cf-mysql-release/blob/master/README.md","longDescription":"Creating a service instance provisions a database. Binding applications provisions unique credentials for each application to access the database.","providerDisplayName":"SUSE","supportUrl":"https://www.suse.com/support/"},"plan_updateable":true,"plans":[{"description":"Shared MySQL Server","id":"843e376c-574c-402a-9a64-9e9801a75881","max_storage_mb":10,"max_user_connections":20,"name":"10mb"},{"description":"Shared MySQL Server","id":"10914e8c-c186-45c2-ab02-893e80606805","max_storage_mb":20,"max_user_connections":40,"name":"20mb"}]}]'
     properties.cf_mysql.external_host: '"mysql-broker.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
-    properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.persistent_disk: ((MYSQL_BROKER_DISK_SIZE))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
@@ -2455,7 +2456,7 @@ configuration:
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
-    properties.diego.rep.zone: '"((HCP_AZ))"'
+    properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-database.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
@@ -2478,7 +2479,7 @@ configuration:
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.syslog_skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.doppler.zone: '"((HCP_AZ))"'
+    properties.doppler.zone: '"((KUBE_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
@@ -2538,7 +2539,7 @@ configuration:
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.metron_agent.zone: '"((HCP_AZ))"'
+    properties.metron_agent.zone: '"((KUBE_AZ))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
