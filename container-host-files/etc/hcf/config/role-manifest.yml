@@ -2091,6 +2091,7 @@ configuration:
     required: true
   - name: TCP_DOMAIN
     example: tcp.my-hcf-cluster.com
+    required: true
     description: TCP routing domain of the HCF cluster; only used for testing;
   - name: TPS_CC_CLIENT_CRT
     secret: true
