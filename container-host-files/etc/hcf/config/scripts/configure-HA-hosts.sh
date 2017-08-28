@@ -56,6 +56,12 @@ if test -z "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
     # bootstrap node.
     export KUBE_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
 fi
+KUBE_COMPONENT_INDEX="${HOSTNAME##*-}"
+if test -n "${KUBE_COMPONENT_INDEX}" -a -z "${KUBE_COMPONENT_INDEX//[0-9]/}" ; then
+    unset KUBE_COMPONENT_INDEX
+else
+    export KUBE_COMPONENT_INDEX
+fi
 export KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
 export KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
 export KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
