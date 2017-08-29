@@ -1487,6 +1487,9 @@ configuration:
       type: Password
     description: The password for the bulk api.
     required: true
+  - name: CATS_SUITES
+    internal: true
+    description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
   - name: CCDB_ROLE_PASSWORD
     secret: true
     immutable: true
