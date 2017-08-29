@@ -210,41 +210,5 @@
       <file_contents><![CDATA[ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
 ]]></file_contents>
     </file>
-    <file>
-      <!-- This directory is filled in by packer -->
-      <file_path>/etc/systemd/system/kube-apiserver.service.d/</file_path>
-      <file_owner>vagrant.users</file_owner>
-      <file_permissions>0755</file_permissions>
-    </file>
-    <file>
-      <!-- This directory is filled in by packer -->
-      <file_path>/etc/systemd/system/kube-controller-manager.service.d/</file_path>
-      <file_owner>vagrant.users</file_owner>
-      <file_permissions>0755</file_permissions>
-    </file>
-    <file>
-      <!-- This directory is filled in by packer -->
-      <file_path>/etc/systemd/system/kubelet.service.d/</file_path>
-      <file_owner>vagrant.users</file_owner>
-      <file_permissions>0755</file_permissions>
-    </file>
-    <file>
-      <file_path>/etc/sysconfig/docker</file_path>
-      <file_owner>vagrant.users</file_owner>
-      <file_permissions>0644</file_permissions>
-      <file_contents>DOCKER_OPTS="--insecure-registry=0.0.0.0/0"</file_contents>
-    </file>
-    <file>
-      <file_path>/etc/security/limits.d/vagrant-nproc.conf</file_path>
-      <file_owner>root.root</file_owner>
-      <file_permissions>644</file_permissions>
-      <file_contents><![CDATA[
-# This overrides /etc/security/limits.conf to allow more processes for the
-# vagrant user (which is where all our processes go)
-
-vagrant hard nproc unlimited
-vagrant soft nproc unlimited
-      ]]></file_contents>
-    </file>
   </files>
 </profile>

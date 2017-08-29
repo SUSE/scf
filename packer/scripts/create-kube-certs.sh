@@ -2,6 +2,8 @@
 
 set -o errexit -o xtrace
 
+export PATH="${PATH}:/usr/local/bin/"
+
 mkdir -p /run/certstrap
 certstrap --depot-path "/run/certstrap" init --common-name "CA.kube.vagrant" --passphrase "" --years 10
 certstrap --depot-path "/run/certstrap" request-cert --common-name "apiserver" --passphrase "" --ip 127.0.0.1,192.168.77.77,172.17.0.1,10.254.0.1 --domain kubernetes.default.svc,kubernetes.default,kubernetes,localhost
