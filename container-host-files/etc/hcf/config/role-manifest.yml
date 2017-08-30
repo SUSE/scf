@@ -528,6 +528,7 @@ roles:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
+  tags: [clustered]
   environment_scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
