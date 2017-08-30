@@ -12,6 +12,7 @@ zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
 zypper --non-interactive install --no-confirm --from Virtualization:containers \
+    cni-plugins \
     docker \
     etcd-3.2.4 \
     kubernetes-common-1.6.1 \
