@@ -123,6 +123,9 @@ nats-release:
 consul-release:
 	${GIT_ROOT}/make/bosh-release src/consul-release
 
+local-volume-release:
+	${GIT_ROOT}/make/bosh-release src/local-volume-release
+
 binary-buildpack-release:
 	${GIT_ROOT}/make/bosh-release src/buildpacks/binary-buildpack-release
 
@@ -161,6 +164,7 @@ releases: \
 	loggregator-release \
 	nats-release \
 	consul-release \
+	local-volume-release \
 	binary-buildpack-release \
 	go-buildpack-release \
 	java-buildpack-release \

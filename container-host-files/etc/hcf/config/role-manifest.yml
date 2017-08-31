@@ -590,7 +590,10 @@ roles:
       max: 65535
     capabilities: []
     persistent-volumes: []
-    shared-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/nfs/shared'
+      size: 100
+      tag: 'api-data'
     memory: 2560
     virtual-cpus: 4
     exposed-ports:
@@ -1129,6 +1132,7 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_persi_localdriver_permissions.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1146,11 +1150,14 @@ roles:
     release_name: loggregator
   - name: grootfs
     release_name: grootfs
+  - name: localdriver
+    release_name: local-volume
   processes:
   - name: metron_agent
   - name: consul_agent
   - name: rep
   - name: garden
+  - name: localdriver
   run:
     scaling:
       min: 1
@@ -1163,7 +1170,10 @@ roles:
     - path: /var/vcap/data/grootfs
       tag: grootfs-data
       size: 50
-    shared-volumes: []
+    shared-volumes:
+    - path: '/var/vcap/persistore/servicevolumes/_volumes'
+      size: 100
+      tag: 'persistore'
     memory: 4096
     virtual-cpus: 4
     exposed-ports:
@@ -1178,6 +1188,75 @@ roles:
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
+- name: persi-broker
+  environment_scripts:
+  - scripts/inverted_skip_ssl.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: localdriver
+    release_name: local-volume
+  - name: localbroker
+    release_name: local-volume
+  - name: haproxy
+    release_name: cf
+  processes:
+  - name: localdriver
+  - name: localbroker
+  - name: haproxy
+  run:
+    scaling:
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag:  persibroker-data
+      size: 1
+    shared-volumes:
+    - path: '/var/vcap/persistore/servicevolumes/_volumes'
+      size: 100
+      tag: 'persistore'
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'persi-broker'
+        protocol: 'TCP'
+        external: 443
+        internal: 443
+        public: false
+  configuration:
+    templates:
+      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.servers: '["127.0.0.1"]'
+      properties.router.port: 8999
+      properties.ha_proxy.disable_http: true
+      properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
+      properties.cc.allow_app_ssh_access: false
+- name: persi-create-service
+  type: bosh-task
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: persi-create-service
+    release_name: hcf
+  processes: []
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: post-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 1
+    exposed-ports: []
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -1962,6 +2041,19 @@ configuration:
   - name: NO_PROXY
     description: Comma separated list of IP addresses and domains which should not be directoed through a proxy, if any.
     required: false
+  - name: PERSI_BROKER_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the Persi service broker.
+  - name: PERSI_BROKER_TLS_CERT_KEY
+    secret: true
+    generator:
+      id: "persi_broker_cert"
+      type: Certificate
+      value_type: cert_private_key
+    description: TLS certificate and key (PEM file).
   - name: REP_CLIENT_CERT
     secret: true
     generator:
@@ -2491,6 +2583,7 @@ configuration:
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: '"cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.localbroker.password: '"((PERSI_BROKER_PASSWORD))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
     # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
