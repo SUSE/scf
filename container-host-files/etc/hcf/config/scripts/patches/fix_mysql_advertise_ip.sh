@@ -15,8 +15,8 @@ read -r -d '' setup_patch_my_cnf <<'PATCH' || true
  wsrep_on=ON
  wsrep_provider=/var/vcap/packages/mariadb/lib/plugin/libgalera_smm.so
 -wsrep_provider_options="gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE;pc.checksum=TRUE"
-+wsrep_provider_options="gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE;pc.checksum=TRUE;ist.recv_addr=<%= node_host %>:4568"
-+wsrep_sst_receive_address='<%= node_host %>:4444'
++wsrep_provider_options="gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE;pc.checksum=TRUE;ist.recv_addr=<%= discover_external_ip %>:4568"
++wsrep_sst_receive_address='<%= discover_external_ip %>:4444'
  wsrep_cluster_address="gcomm://<%= cluster_ips.join(",") %>"
  wsrep_node_address='<%= node_host %>:<%= p('cf_mysql.mysql.galera_port') %>'
  wsrep_node_name='<%= name %>/<%= index %>'
