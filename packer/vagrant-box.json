@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.7",
+        "version": "2.0.8",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -247,8 +247,19 @@
                 "# Install helm",
                 "wget -O - https://kubernetes-helm.storage.googleapis.com/helm-v2.5.1-linux-amd64.tar.gz | tar xz -C /usr/local/bin --no-same-owner --strip-components=1 linux-amd64/helm",
                 "sudo -i -u vagrant helm init",
+                "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
+                "rm -rf /data/docker/image/* /data/docker/containers/* /data/docker/overlay2",
                 "# Install additional packages",
                 "zypper --non-interactive install jre-openjdk-headless make zip"
+            ]
+        },
+        {
+            "type": "shell",
+            "only": ["vmware-iso", "virtualbox-iso", "qemu"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
+                "rm -rf /var/lib/docker/image/* /var/lib/docker/continers/* /var/lib/docker/overlay2"
             ]
         },
         {
