@@ -126,6 +126,9 @@ consul-release:
 local-volume-release:
 	${GIT_ROOT}/make/bosh-release src/local-volume-release
 
+cephfs-release:
+	${GIT_ROOT}/make/bosh-release src/cephfs-release
+
 binary-buildpack-release:
 	${GIT_ROOT}/make/bosh-release src/buildpacks/binary-buildpack-release
 
@@ -161,6 +164,7 @@ releases: \
 	routing-release \
 	hcf-release \
 	capi-release \
+	cephfs-release \
 	loggregator-release \
 	nats-release \
 	consul-release \

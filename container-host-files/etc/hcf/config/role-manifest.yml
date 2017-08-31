@@ -1152,6 +1152,8 @@ roles:
     release_name: grootfs
   - name: localdriver
     release_name: local-volume
+  - name: cephdriver
+    release_name: cephfs
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1201,11 +1203,17 @@ roles:
     release_name: local-volume
   - name: localbroker
     release_name: local-volume
+  - name: cephdriver
+    release_name: cephfs
+  - name: cephbroker
+    release_name: cephfs
   - name: haproxy
     release_name: cf
   processes:
   - name: localdriver
   - name: localbroker
+  - name: cephdriver
+  - name: cephbroker
   - name: haproxy
   run:
     scaling:

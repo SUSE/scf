@@ -79,3 +79,6 @@
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = https://github.com/SUSE/cf-usb
+[submodule "src/cephfs-release"]
+	path = src/cephfs-release
+	url = https://github.com/cloudfoundry-incubator/cephfs-bosh-release
