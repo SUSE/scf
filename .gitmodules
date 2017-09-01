@@ -82,3 +82,6 @@
 [submodule "src/cephfs-release"]
 	path = src/cephfs-release
 	url = https://github.com/cloudfoundry-incubator/cephfs-bosh-release
+[submodule "src/nfs-volume-release"]
+	path = src/nfs-volume-release
+	url = https://github.com/cloudfoundry-incubator/nfs-volume-release
