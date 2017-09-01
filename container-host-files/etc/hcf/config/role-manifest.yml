@@ -1190,7 +1190,7 @@ roles:
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
-- name: persi-broker
+- name: persi-local-broker
   environment_scripts:
   - scripts/inverted_skip_ssl.sh
   scripts:
@@ -1203,18 +1203,9 @@ roles:
     release_name: local-volume
   - name: localbroker
     release_name: local-volume
-  - name: cephdriver
-    release_name: cephfs
-  - name: cephbroker
-    release_name: cephfs
-  - name: haproxy
-    release_name: cf
   processes:
   - name: localdriver
   - name: localbroker
-  - name: cephdriver
-  - name: cephbroker
-  - name: haproxy
   run:
     scaling:
       min: 1
@@ -1231,21 +1222,63 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports:
-      - name: 'persi-broker'
+      - name: 'persi-local-broker'
         protocol: 'TCP'
         external: 443
         internal: 443
         public: false
   configuration:
     templates:
-      properties.localbroker.listen-addr: "127.0.0.1:8999"
-      properties.router.servers: '["127.0.0.1"]'
-      properties.router.port: 8999
-      properties.ha_proxy.disable_http: true
-      properties.ha_proxy.ssl_pem: '"((PERSI_BROKER_TLS_CERT_KEY))"'
       properties.cc.allow_app_ssh_access: false
+      properties.localbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.port: 8999
+
+- name: persi-ceph-broker
+  environment_scripts:
+  - scripts/inverted_skip_ssl.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: cephdriver
+    release_name: cephfs
+  - name: cephbroker
+    release_name: cephfs
+  processes:
+  - name: cephdriver
+  - name: cephbroker
+  run:
+    scaling:
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag:  persibroker-data
+      size: 1
+    shared-volumes:
+    - path: '/var/vcap/persistore/servicevolumes/_volumes'
+      size: 100
+      tag: 'persistore'
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'persi-ceph-broker'
+        protocol: 'TCP'
+        external: 443
+        internal: 443
+        public: false
+  configuration:
+    templates:
+      properties.cc.allow_app_ssh_access: false
+      properties.cephbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.port: 8999
 - name: persi-create-service
   type: bosh-task
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   jobs:
@@ -2055,13 +2088,6 @@ configuration:
     generator:
       type: Password
     description: The password for access to the Persi service broker.
-  - name: PERSI_BROKER_TLS_CERT_KEY
-    secret: true
-    generator:
-      id: "persi_broker_cert"
-      type: Certificate
-      value_type: cert_private_key
-    description: TLS certificate and key (PEM file).
   - name: REP_CLIENT_CERT
     secret: true
     generator:
