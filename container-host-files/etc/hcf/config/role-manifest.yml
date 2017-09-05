@@ -1132,7 +1132,6 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_persi_localdriver_permissions.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
@@ -1150,8 +1149,6 @@ roles:
     release_name: loggregator
   - name: grootfs
     release_name: grootfs
-  - name: localdriver
-    release_name: local-volume
   - name: cephdriver
     release_name: cephfs
   processes:
@@ -1159,7 +1156,7 @@ roles:
   - name: consul_agent
   - name: rep
   - name: garden
-  - name: localdriver
+  - name: cephdriver
   run:
     scaling:
       min: 1
@@ -1172,10 +1169,7 @@ roles:
     - path: /var/vcap/data/grootfs
       tag: grootfs-data
       size: 50
-    shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
-      size: 100
-      tag: 'persistore'
+    shared-volumes: []
     memory: 4096
     virtual-cpus: 4
     exposed-ports:
@@ -1190,48 +1184,7 @@ roles:
   configuration:
     templates:
       properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
-- name: persi-local-broker
-  environment_scripts:
-  - scripts/inverted_skip_ssl.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: localdriver
-    release_name: local-volume
-  - name: localbroker
-    release_name: local-volume
-  processes:
-  - name: localdriver
-  - name: localbroker
-  run:
-    scaling:
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      tag:  persibroker-data
-      size: 1
-    shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
-      size: 100
-      tag: 'persistore'
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-      - name: 'persi-local-broker'
-        protocol: 'TCP'
-        external: 443
-        internal: 443
-        public: false
-  configuration:
-    templates:
-      properties.cc.allow_app_ssh_access: false
-      properties.localbroker.listen-addr: "127.0.0.1:8999"
-      properties.router.port: 8999
+
 
 - name: persi-ceph-broker
   environment_scripts:
@@ -1258,10 +1211,7 @@ roles:
     - path: /var/vcap/store
       tag:  persibroker-data
       size: 1
-    shared-volumes:
-    - path: '/var/vcap/persistore/servicevolumes/_volumes'
-      size: 100
-      tag: 'persistore'
+    shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports:
@@ -1275,29 +1225,7 @@ roles:
       properties.cc.allow_app_ssh_access: false
       properties.cephbroker.listen-addr: "127.0.0.1:8999"
       properties.router.port: 8999
-- name: persi-create-service
-  type: bosh-task
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: persi-create-service
-    release_name: hcf
-  processes: []
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: post-flight
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports: []
+
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
