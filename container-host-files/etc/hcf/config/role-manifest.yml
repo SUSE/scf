@@ -1787,7 +1787,10 @@ configuration:
     description: The CA certificate for UAA
     secret: true
   - name: HOSTNAME
-    description: An environment variable set by bash that contains the hostname of the container
+    description: >
+      The host name of the container.  This should be automatic and should not
+      be prompted.
+    type: environment
   - name: HTTPS_PROXY
     required: false
     description: Location of the proxy to use for secure web access.
