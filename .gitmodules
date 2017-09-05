@@ -16,6 +16,9 @@
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
+[submodule "src/local-volume-release"]
+	path = src/local-volume-release
+	url = https://github.com/cloudfoundry-incubator/local-volume-release
 [submodule "src/hcf-release/src/certstrap"]
 	path = src/hcf-release/src/certstrap
 	url = https://github.com/hpcloud/certstrap
@@ -76,3 +79,6 @@
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = https://github.com/SUSE/cf-usb
+[submodule "src/cephfs-release"]
+	path = src/cephfs-release
+	url = https://github.com/cloudfoundry-incubator/cephfs-bosh-release

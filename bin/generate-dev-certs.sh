@@ -254,6 +254,13 @@ certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internal
 mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/blobstore_tls.key"
 mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/blobstore_tls.cert"
 
+server_cn=persi_broker_tls
+certstrap --depot-path "${internal_certs_dir}" request-cert --passphrase '' --common-name "${server_cn}" --domain "$(make_domains "persi-broker")"
+certstrap --depot-path "${internal_certs_dir}" sign "${server_cn}" --CA internalCA --passphrase "${signing_key_passphrase}"
+mv -f "${internal_certs_dir}/${server_cn}.key" "${certs_path}/persi_broker_tls.key"
+mv -f "${internal_certs_dir}/${server_cn}.crt" "${certs_path}/persi_broker_tls.cert"
+cat "${certs_path}/persi_broker_tls.cert" "${certs_path}/persi_broker_tls.key" > "${certs_path}/persi_broker_tls.pem"
+
 # escape_file_contents reads the given file and replaces newlines with the literal string '\n'
 escape_file_contents() {
     # Add a backslash at the end of each line, then replace the newline with a literal 'n'
@@ -307,10 +314,11 @@ add_env JWT_SIGNING_PEM           "${certs_path}/jwt_signing.pem"
 add_env JWT_SIGNING_PUB           "${certs_path}/jwt_signing.pub"
 add_env METRON_CERT               "${internal_certs_dir}/metron.crt"
 add_env METRON_KEY                "${internal_certs_dir}/metron.key"
-add_env REP_SERVER_CERT           "${internal_certs_dir}/rep_server.crt"
-add_env REP_SERVER_KEY            "${internal_certs_dir}/rep_server.key"
+add_env PERSI_BROKER_TLS_CERT_KEY "${certs_path}/persi_broker_tls.pem"
 add_env REP_CLIENT_CERT           "${internal_certs_dir}/rep_client.crt"
 add_env REP_CLIENT_KEY            "${internal_certs_dir}/rep_client.key"
+add_env REP_SERVER_CERT           "${internal_certs_dir}/rep_server.crt"
+add_env REP_SERVER_KEY            "${internal_certs_dir}/rep_server.key"
 add_env ROUTER_SSL_CERT           "${certs_path}/router_ssl.cert"
 add_env ROUTER_SSL_KEY            "${certs_path}/router_ssl.key"
 add_env SYSLOGDRAINBINDER_CERT    "${internal_certs_dir}/syslogdrainbinder.crt"
