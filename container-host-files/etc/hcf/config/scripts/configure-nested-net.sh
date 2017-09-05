@@ -5,7 +5,7 @@ if test -z "${HCP_INSTANCE_ID}" ; then
     exit 0
 fi
 
-if test -z "${HCP_COMPONENT_INDEX}" ; then
+if test -z "${KUBE_COMPONENT_INDEX}" ; then
     printf "Your HCP is broken; no index was specified\n" >&2
     exit 1
 fi
@@ -17,11 +17,11 @@ fi
 
 target_prefix="${DIEGO_CELL_SUBNET%.0.0/16}"
 
-if test "${HCP_COMPONENT_INDEX}" -lt 0 -o "${HCP_COMPONENT_INDEX}" -gt 254 ; then
-    printf "Instance index %s is not supported\n" "${HCP_COMPONENT_INDEX}" >&2
+if test "${KUBE_COMPONENT_INDEX}" -lt 0 -o "${KUBE_COMPONENT_INDEX}" -gt 254 ; then
+    printf "Instance index %s is not supported\n" "${KUBE_COMPONENT_INDEX}" >&2
     exit 1
 fi
 
-cell_subnet="${target_prefix}.${HCP_COMPONENT_INDEX}.0/24"
+cell_subnet="${target_prefix}.${KUBE_COMPONENT_INDEX}.0/24"
 
 perl -p -i -e "s@^properties.garden.network_pool:.*@properties.garden.network_pool: ${cell_subnet}@" /opt/scf/env2conf.yml
