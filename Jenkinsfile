@@ -187,11 +187,31 @@ pipeline {
                         )]) {
                             script {
                                 def files = findFiles(glob: 'scf-*amd64*.zip')
+                                def subdir = "${params.S3_PREFIX}"
+                                def prefix = ""
+
+                                // If CHANGE_ID env var exists, put the build in the `prs` subdir
+                                // If not, master goes in the root, develop goes in its own dir, and
+                                // all other branches into the `branches` subdir.
+                                try {
+                                    prefix = "PR-${CHANGE_ID}-"
+                                    subdir = "${params.S3_PREFIX}prs/"
+                                } catch(Exception ex) {
+                                    if (env.BRANCH_NAME == 'develop') {
+                                        subdir = "${params.S3_PREFIX}develop/"
+                                    } else if (env.BRANCH_NAME != 'master') {
+                                        subdir = "${params.S3_PREFIX}branches/"
+                                        prefix = "${BRANCH_NAME}-"
+                                    }
+                                }
+
+                                prefix = java.net.URLEncoder.encode(prefix, "UTF-8")
+
                                 for ( int i = 0 ; i < files.size() ; i ++ ) {
                                     s3Upload(
                                         file: files[i].path,
                                         bucket: "${params.S3_BUCKET}",
-                                        path: "${params.S3_PREFIX}${files[i].name}",
+                                        path: "${subdir}${prefix}${files[i].name}",
                                     )
                                     sh "rm -f '${files[i].name}'"
                                 }
