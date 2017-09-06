@@ -25,7 +25,7 @@ k8s_api() {
 find_cluster_ha_hosts() {
     local component_name this_component hosts
     component_name="${1}"
-    this_component="$(k8s_api api/v1 "/pods/${HOSTNAME}" | jq -crM '.metadata.labels."skiff-role-name"')"
+    this_component="$(cat /var/vcap/instance/name)"
 
     if test "${this_component}" != "${component_name}" ; then
         # Requesting a different component, use DNS name
@@ -47,22 +47,6 @@ find_cluster_ha_hosts() {
         echo "[${hosts#,}]"
     fi
 }
-
-if test -z "${KUBE_SERVICE_DOMAIN_SUFFIX:-}" ; then
-    # Only set this if no custom value was provided
-    # We need to use the FQDN because that's the value in /etc/hosts; since the
-    # pods aren't ready initially, nothing (including this pod) will resolve
-    # via the DNS server.  Using the value in /etc/hosts lets us start the
-    # bootstrap node.
-    export KUBE_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
-fi
-
-export KUBE_COMPONENT_INDEX="${HOSTNAME##*-}"
-if test -z "${KUBE_COMPONENT_INDEX}" -o -n "${KUBE_COMPONENT_INDEX//[0-9]/}" ; then
-    # The index isn't a number; create a random number instead.
-    # This is used in some roles as a random offset for ports &c.
-    export KUBE_COMPONENT_INDEX=${RANDOM}
-fi
 
 export KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
 export KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
