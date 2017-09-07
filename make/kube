@@ -25,5 +25,9 @@ rm -rf "${FISSILE_OUTPUT_DIR}"
 
 fissile build "${BUILD_TARGET}"
 
+if [ "${BUILD_TARGET}" = "helm" ]; then
+    cp Chart.yaml ./helm
+fi
+
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
 perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl "kind: Job" "${BUILD_TARGET}")
