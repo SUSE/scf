@@ -123,12 +123,6 @@ nats-release:
 consul-release:
 	${GIT_ROOT}/make/bosh-release src/consul-release
 
-local-volume-release:
-	${GIT_ROOT}/make/bosh-release src/local-volume-release
-
-nfs-volume-release:
-	${GIT_ROOT}/make/bosh-release src/nfs-volume-release
-
 cephfs-release:
 	${GIT_ROOT}/make/bosh-release src/cephfs-release
 
@@ -170,9 +164,7 @@ releases: \
 	cephfs-release \
 	loggregator-release \
 	nats-release \
-	nfs-volume-release \
 	consul-release \
-	local-volume-release \
 	binary-buildpack-release \
 	go-buildpack-release \
 	java-buildpack-release \
