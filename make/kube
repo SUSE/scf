@@ -26,7 +26,7 @@ rm -rf "${FISSILE_OUTPUT_DIR}"
 fissile build "${BUILD_TARGET}"
 
 if [ "${BUILD_TARGET}" = "helm" ]; then
-    cp Chart.yaml ./helm
+    cp Chart.yaml "${FISSILE_OUTPUT_DIR}"
 fi
 
 # This is a small hack to make the output of make kube be compatible with K8s 1.6
