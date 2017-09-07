@@ -16,9 +16,9 @@ pipeline {
             description: 'Skip the checkout step for faster iteration',
         )
         booleanParam(
-            name: 'RESET',
+            name: 'WIPE',
             defaultValue: false,
-            description: 'Remove all existing build artifacts',
+            description: 'Remove all existing sources and start from scratch',
         )
         booleanParam(
             name: 'CLEAN',
@@ -73,27 +73,15 @@ pipeline {
     }
 
     stages {
-        stage('reset') {
+        stage('wipe') {
             when {
-                expression { return params.RESET }
+                expression { return params.WIPE }
             }
             steps {
-                checkout(
-                    $class: scm.$class,
-                    userRemoteConfigs: scm.userRemoteConfigs,
-                    branches: scm.branches,
-                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                    submoduleCfg: scm.submoduleCfg,
-                    browser: scm.browser,
-                    gitTool: scm.gitTool,
-                    extensions: [
-                        [$class: 'CheckoutOption', timeout: 30],
-                        [$class: 'CloneOption', timeout: 30],
-                        [$class: 'SubmoduleOption', recursiveSubmodules: true, timeout: 60],
-                        [$class: 'CleanBeforeCheckout'],
-                    ],
-
-                )
+                deleteDir()
+                script {
+                    params.SKIP_CHECKOUT = false
+                }
             }
         }
         stage('clean') {
