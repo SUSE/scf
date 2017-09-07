@@ -1226,6 +1226,44 @@ roles:
       properties.cephbroker.listen-addr: "127.0.0.1:8999"
       properties.router.port: 8999
 
+# Remove this role when an external CEPH filesystem becomes available for trial - See QA Spike: SES.
+- name: persi-ceph-fs
+  environment_scripts:
+  - scripts/inverted_skip_ssl.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: cephfs
+    release_name: cephfs
+  processes:
+  - name: cephfs
+  run:
+    scaling:
+      min: 1
+      max: 1
+    capabilities: []
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag:  persibroker-data
+      size: 1
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+      - name: 'persi-ceph-fs'
+        protocol: 'TCP'
+        external: 6789
+        internal: 6789
+        public: false
+  configuration:
+    templates:
+      properties.cc.allow_app_ssh_access: false
+      properties.cephbroker.listen-addr: "127.0.0.1:8999"
+      properties.router.port: 8999
+
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -1567,6 +1605,16 @@ configuration:
   - name: CDN_URI
     default: ""
     description: URI for a CDN to use for buildpack downloads.
+
+  - name: CEPH_KEYRING
+    secret: true
+    generator:
+      id: ceph_keyring
+      type: Certificate
+      value_type: certificate
+    description: A ceph keyring
+    required: true
+
   - name: CF_MYSQL_BROKER_AUTH_PASSWORD
     secret: true
     immutable: true
@@ -2394,6 +2442,10 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+
+    properties.cephbroker.keyring: "'((CEPH_KEYRING))'"
+    properties.cephfs.client_keyring: "'((CEPH_KEYRING))'"
+
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
