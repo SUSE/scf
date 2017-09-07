@@ -3,6 +3,7 @@
 pipeline {
     agent any
     options {
+        ansiColor('xterm')
         disableConcurrentBuilds() // Otherwise clean would delete the images
         skipDefaultCheckout() // We do our own checkout so it can be disabled
         timestamps()
@@ -109,42 +110,36 @@ pipeline {
         }
         stage('tools') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        set -e +x
-                        source ${PWD}/.envrc
-                        set -x
-                        unset HCF_PACKAGE_COMPILATION_CACHE
-                        make ${FISSILE_BINARY}
-                    '''
-                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    make ${FISSILE_BINARY}
+                '''
             }
         }
         stage('build') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        set -e +x
-                        source ${PWD}/.envrc
-                        set -x
-                        unset HCF_PACKAGE_COMPILATION_CACHE
-                        make vagrant-prep validate
-                    '''
-                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    make vagrant-prep validate
+                '''
             }
         }
         stage('dist') {
             steps {
-                ansiColor('xterm') {
-                    sh '''
-                        set -e +x
-                        source ${PWD}/.envrc
-                        set -x
-                        unset HCF_PACKAGE_COMPILATION_CACHE
-                        rm -f scf-*amd64*.zip
-                        make helm bundle-dist
-                    '''
-                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    rm -f scf-*amd64*.zip
+                    make helm bundle-dist
+                '''
             }
         }
         stage('publish') {
@@ -152,62 +147,60 @@ pipeline {
                 expression { return params.PUBLISH }
             }
             steps {
-                ansiColor('xterm') {
+                withCredentials([usernamePassword(
+                    credentialsId: params.DOCKER_CREDENTIALS,
+                    usernameVariable: 'DOCKER_HUB_USERNAME',
+                    passwordVariable: 'DOCKER_HUB_PASSWORD',
+                )]) {
+                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" '
+                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    make publish
+                '''
+                withAWS(region: params.S3_REGION) {
                     withCredentials([usernamePassword(
-                        credentialsId: params.DOCKER_CREDENTIALS,
-                        usernameVariable: 'DOCKER_HUB_USERNAME',
-                        passwordVariable: 'DOCKER_HUB_PASSWORD',
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
-                        sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" '
-                    }
-                    sh '''
-                        set -e +x
-                        source ${PWD}/.envrc
-                        set -x
-                        unset HCF_PACKAGE_COMPILATION_CACHE
-                        make publish
-                    '''
-                    withAWS(region: params.S3_REGION) {
-                        withCredentials([usernamePassword(
-                            credentialsId: params.S3_CREDENTIALS,
-                            usernameVariable: 'AWS_ACCESS_KEY_ID',
-                            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                        )]) {
-                            script {
-                                def files = findFiles(glob: 'scf-*amd64*.zip')
-                                def subdir = "${params.S3_PREFIX}"
-                                def prefix = ""
+                        script {
+                            def files = findFiles(glob: 'scf-*amd64*.zip')
+                            def subdir = "${params.S3_PREFIX}"
+                            def prefix = ""
 
-                                // If CHANGE_ID env var exists, put the build in the `prs` subdir
-                                // If not, master goes in the root, develop goes in its own dir, and
-                                // all other branches into the `branches` subdir.
-                                try {
-                                    prefix = "PR-${CHANGE_ID}-"
-                                    subdir = "${params.S3_PREFIX}prs/"
-                                } catch(Exception ex) {
-                                    if (env.BRANCH_NAME == 'develop') {
-                                        subdir = "${params.S3_PREFIX}develop/"
-                                    } else if (env.BRANCH_NAME != 'master') {
-                                        subdir = "${params.S3_PREFIX}branches/"
-                                        prefix = "${BRANCH_NAME}-"
-                                    }
+                            // If CHANGE_ID env var exists, put the build in the `prs` subdir
+                            // If not, master goes in the root, develop goes in its own dir, and
+                            // all other branches into the `branches` subdir.
+                            try {
+                                prefix = "PR-${CHANGE_ID}-"
+                                subdir = "${params.S3_PREFIX}prs/"
+                            } catch(Exception ex) {
+                                if (env.BRANCH_NAME == 'develop') {
+                                    subdir = "${params.S3_PREFIX}develop/"
+                                } else if (env.BRANCH_NAME != 'master') {
+                                    subdir = "${params.S3_PREFIX}branches/"
+                                    prefix = "${BRANCH_NAME}-"
                                 }
+                            }
 
-                                prefix = java.net.URLEncoder.encode(prefix, "UTF-8")
+                            prefix = java.net.URLEncoder.encode(prefix, "UTF-8")
 
-                                for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                    s3Upload(
-                                        file: files[i].path,
-                                        bucket: "${params.S3_BUCKET}",
-                                        path: "${subdir}${prefix}${files[i].name}",
-                                    )
-                                    sh "rm -f '${files[i].name}'"
-                                }
+                            for ( int i = 0 ; i < files.size() ; i ++ ) {
+                                s3Upload(
+                                    file: files[i].path,
+                                    bucket: "${params.S3_BUCKET}",
+                                    path: "${subdir}${prefix}${files[i].name}",
+                                )
+                                sh "rm -f '${files[i].name}'"
                             }
                         }
                     }
                 }
             }
-       }
+        }
     }
 }
