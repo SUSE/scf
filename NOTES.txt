@@ -12,5 +12,10 @@
 
     Please remember, it may take some time for everything to come online.
 
-    You can use [1;36mpod-status[0m or [1;36mpod-status -w[0m to check if everything is up
-    and running.
+    You can use
+        [1;36mkubectl get pods --namespace {{ .Release.Namespace }}[0m
+
+    to spot-check if everything is up and running, or
+        [1;36mwatch -c 'kubectl get pods --namespace {{ .Release.Namespace }}'[0m
+
+    to monitor continously.
