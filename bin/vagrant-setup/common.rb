@@ -171,6 +171,7 @@ class Common
   def self.special_property(key)
     # Detect keys with structured values "collect" must not recurse into.
     return true if key =~ /^properties.cc.security_group_definitions/
+    return true if key =~ /^properties.cc.diego.lifecycle_bundles/
     return true if key =~ /^properties.ccdb.roles/
     return true if key =~ /^properties.uaadb.roles/
     return true if key =~ /^properties.uaa.clients/
