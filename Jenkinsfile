@@ -1,5 +1,33 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
+
+String distSubDir() {
+    try {
+        "${CHANGE_ID}"
+        return 'prs/'
+    } catch (Exception ex) {
+        switch (env.BRANCH_NAME) {
+            case 'develop':
+                return 'develop/'
+            case 'master':
+                return 'master/'
+            default:
+                return 'branches/'
+        }
+    }
+}
+
+String distPrefix() {
+    try {
+        return "PR-${CHANGE_ID}-"
+    } catch (Exception ex) {
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+            return ''
+        }
+        return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+    }
+}
+
 pipeline {
     agent any
     options {
@@ -30,6 +58,16 @@ pipeline {
             name: 'PUBLISH',
             defaultValue: true,
             description: 'Enable publishing',
+        )
+        booleanParam(
+            name: 'TEST',
+            defaultValue: true,
+            description: 'Trigger tests after publishing',
+        )
+        booleanParam(
+            name: 'TEST_CATS',
+            defaultValue: false,
+            description: 'Trigger CATS in the test run',
         )
         credentials(
             name: 'S3_CREDENTIALS',
@@ -169,27 +207,8 @@ pipeline {
                     )]) {
                         script {
                             def files = findFiles(glob: 'scf-*amd64*.zip')
-                            def subdir = "${params.S3_PREFIX}"
-                            def prefix = ""
-
-                            // If CHANGE_ID env var exists, put the build in the `prs` subdir
-                            // If not, master goes in the root, develop goes in its own dir, and
-                            // all other branches into the `branches` subdir.
-                            try {
-                                prefix = "PR-${CHANGE_ID}-"
-                                subdir = "${params.S3_PREFIX}prs/"
-                            } catch(Exception ex) {
-                                if (env.BRANCH_NAME == 'develop') {
-                                    subdir = "${params.S3_PREFIX}develop/"
-                                } else if (env.BRANCH_NAME == 'master') {
-                                    subdir = "${params.S3_PREFIX}master/"
-                                } else {
-                                    subdir = "${params.S3_PREFIX}branches/"
-                                    prefix = "${BRANCH_NAME}-"
-                                }
-                            }
-
-                            prefix = java.net.URLEncoder.encode(prefix, "UTF-8")
+                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
+                            def prefix = distPrefix()
 
                             for ( int i = 0 ; i < files.size() ; i ++ ) {
                                 s3Upload(
@@ -197,10 +216,28 @@ pipeline {
                                     bucket: "${params.S3_BUCKET}",
                                     path: "${subdir}${prefix}${files[i].name}",
                                 )
-                                sh "rm -f '${files[i].name}'"
                             }
                         }
                     }
+                }
+            }
+        }
+        stage('test') {
+            when {
+                expression { return params.PUBLISH && params.TEST }
+            }
+            steps {
+                script {
+                    def files = findFiles(glob: 'scf-*.linux-amd64*.zip')
+                    build(
+                        job: 'scf-test',
+                        parameters: [
+                            string(name: 'CONFIG_NAME', value: distPrefix() + files[0].path),
+                            string(name: 'CONFIG_PATH', value: 'https://s3.amazonaws.com/cf-opensusefs2/scf/config/' + distSubDir()),
+                            booleanParam(name: 'RUN_CATS', value: params.TEST_CATS),
+                        ],
+                        wait: false,
+                    )
                 }
             }
         }
