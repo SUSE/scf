@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
+HOMEDIR=~ ## TODO: verify if this works on jenkins
+BASEDIR="$HOMEDIR/.fissile/compilation"
+OUTPUTDIR="$GIT_ROOT/source-output"
+
+rm -rf $OUTPUTDIR
+mkdir -p $OUTPUTDIR
+
+pushd $BASEDIR
+DIRS=`ls`
+for DIR in $DIRS 
+do
+	tar cvzf "$OUTPUTDIR/${DIR}_source.tar.gz" "$DIR/sources/var/vcap/source"
+done
+popd

@@ -191,6 +191,10 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
+compile-clean:
+	${GIT_ROOT}/make/compile clean
+	${GIT_ROOT}/make/tar-sources
+
 images: bosh-images uaa-images helm
 
 bosh-images: validate ${FISSILE_BINARY}
