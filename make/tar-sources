@@ -9,7 +9,6 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 HOMEDIR=~ 
 BASEDIR="$HOMEDIR/.fissile/compilation"
 OUTPUTDIR="$GIT_ROOT/source-output"
-SOURCE_PATHS=()
 
 rm -rf $OUTPUTDIR
 mkdir -p $OUTPUTDIR
@@ -30,12 +29,9 @@ do
 		fi
 	done
 	if [[ $DO_TAR == true ]]; then
-		echo "Adding $SOURCE_NAME to archive array (source size: $SOURCE_SIZE)"
-		SOURCE_PATHS+=($SOURCE_PATH)
+		echo "Creating tar archive for $SOURCE_NAME (source size: $SOURCE_SIZE)"
+		tar czf "$OUTPUTDIR/${SOURCE_NAME}-${DIR}.tar.gz" "$SOURCE_PATH"
 	fi
 done
-echo "================================="
-echo "Creating source tarball"
-tar czf "$OUTPUTDIR/${DIR}_source.tar.gz" "${SOURCE_PATHS[@]}"
 
 popd
