@@ -2,11 +2,14 @@
 
 set -o errexit -o nounset
 
+DIRECTORY_BLACKLIST="*-buildpack cflinuxfs2 opensuse42 busybox golang*"
+
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-HOMEDIR=~ ## TODO: verify if this works on jenkins
+HOMEDIR=~ 
 BASEDIR="$HOMEDIR/.fissile/compilation"
 OUTPUTDIR="$GIT_ROOT/source-output"
+SOURCE_PATHS=()
 
 rm -rf $OUTPUTDIR
 mkdir -p $OUTPUTDIR
@@ -15,6 +18,24 @@ pushd $BASEDIR
 DIRS=`ls`
 for DIR in $DIRS 
 do
-	tar cvzf "$OUTPUTDIR/${DIR}_source.tar.gz" "$DIR/sources/var/vcap/source"
+	DO_TAR=true
+	SOURCE_PATH="$DIR/sources/var/vcap/source"
+	SOURCE_NAME=`ls "$SOURCE_PATH"`
+	SOURCE_SIZE=`du "$SOURCE_PATH"|tail -n1`
+	for ITEM in $DIRECTORY_BLACKLIST
+	do
+		if [[ $SOURCE_NAME == $ITEM ]]; then
+			DO_TAR=false
+			echo "-----> $SOURCE_NAME IS BLACKLISTED (matches: $ITEM)"
+		fi
+	done
+	if [[ $DO_TAR == true ]]; then
+		echo "Adding $SOURCE_NAME to archive array (source size: $SOURCE_SIZE)"
+		SOURCE_PATHS+=($SOURCE_PATH)
+	fi
 done
+echo "================================="
+echo "Creating source tarball"
+tar czf "$OUTPUTDIR/${DIR}_source.tar.gz" "${SOURCE_PATHS[@]}"
+
 popd
