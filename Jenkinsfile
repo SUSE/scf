@@ -181,7 +181,9 @@ pipeline {
                             } catch(Exception ex) {
                                 if (env.BRANCH_NAME == 'develop') {
                                     subdir = "${params.S3_PREFIX}develop/"
-                                } else if (env.BRANCH_NAME != 'master') {
+                                } else if (env.BRANCH_NAME == 'master') {
+                                    subdir = "${params.S3_PREFIX}master/"
+                                } else {
                                     subdir = "${params.S3_PREFIX}branches/"
                                     prefix = "${BRANCH_NAME}-"
                                 }
