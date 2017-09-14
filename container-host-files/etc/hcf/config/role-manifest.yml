@@ -662,7 +662,7 @@ roles:
   - name: staticfile-buildpack
     release_name: staticfile-buildpack
   - name: java-buildpack
-    release_name: java-buildpack
+    release_name: java-offline-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
   processes:
