@@ -69,6 +69,11 @@ pipeline {
             defaultValue: false,
             description: 'Trigger CATS in the test run',
         )
+        booleanParam(
+            name: 'TAR_SOURCES',
+            defaultValue: false,
+            description: 'Tar Sources',
+        )
         credentials(
             name: 'S3_CREDENTIALS',
             description: 'AWS access key / secret key used for publishing',
@@ -167,6 +172,18 @@ pipeline {
                     make vagrant-prep validate
                 '''
             }
+        }
+        stage('tar_sources') {
+          when {
+                expression { return params.TAR_SOURCES }
+          }
+          steps {
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    make compile-clean
+                '''
+          }
         }
         stage('dist') {
             steps {
