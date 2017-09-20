@@ -250,7 +250,7 @@
                 "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
                 "rm -rf /data/docker/image/* /data/docker/containers/* /data/docker/overlay2",
                 "# Install additional packages",
-                "zypper --non-interactive install jre-openjdk-headless make zip"
+                "zypper --non-interactive install jre-openjdk-headless make zip osc"
             ]
         },
         {
