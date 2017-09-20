@@ -105,6 +105,8 @@ properties:
     description: "The name of the php buildpack to use in acceptance tests that specify a buildpack."
   acceptance_tests.binary_buildpack_name:
     description: "The name of the binary buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.dotnet_core_buildpack_name:
+    description: "The name of the .NET Core buildpack to use in acceptance tests that specify a buildpack."
   acceptance_tests.persistent_app_host:
     description: "The default name for the persistent app host."
   acceptance_tests.persistent_app_space:
