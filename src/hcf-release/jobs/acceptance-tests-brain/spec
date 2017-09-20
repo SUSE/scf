@@ -10,6 +10,7 @@ packages:
 templates:
   run.erb: bin/run
   environment.sh.erb: bin/environment.sh
+  pre-start.erb: bin/pre-start
 
 properties:
   acceptance_tests_brain.domain:
