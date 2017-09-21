@@ -21,9 +21,9 @@ case ${GIT_PREREL} in
 	;;
 esac
 
-GIT_TAG=${GIT_TAG:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $1 }' )}
-GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $2 }' )}
-GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $3 }' )}
+GIT_TAG=${GIT_TAG:-${GIT_DESCRIBE%-*-*}} # Remove the last two hyphen-separated sections
+GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $(NF - 1) }' )}
+GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $NF }' )}
 
 . "${GIT_ROOT}"/bin/common/versions.sh
 

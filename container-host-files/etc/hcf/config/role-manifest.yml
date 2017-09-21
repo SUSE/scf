@@ -3,7 +3,6 @@ roles:
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -40,7 +39,6 @@ roles:
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/authorize_internal_ca.sh
@@ -181,7 +179,7 @@ roles:
       properties.cf_mysql.external_host: ((DOMAIN))
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))
+      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
@@ -234,11 +232,12 @@ roles:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))
+      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
 - name: mysql-broker
+  tags: ['clustered']
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -275,7 +274,7 @@ roles:
       properties.cf_mysql.external_host: ((DOMAIN))
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))
+      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
@@ -305,7 +304,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -328,11 +327,9 @@ roles:
 - name: diego-database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -354,12 +351,9 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      tag: diego-database-data
-      size: 2
+    persistent-volumes: []
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
@@ -380,11 +374,10 @@ roles:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-database
   configuration:
     templates:
-      properties.diego.bbs.advertisement_base_hostname: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
+      properties.diego.bbs.advertisement_base_hostname: diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   - scripts/authorize_internal_ca.sh
@@ -438,7 +431,6 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -489,7 +481,6 @@ roles:
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   - scripts/authorize_internal_ca.sh
@@ -517,7 +508,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -534,11 +525,11 @@ roles:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
+  tags: [clustered]
   environment_scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/nginx_log_level.sh
   scripts:
@@ -622,7 +613,6 @@ roles:
 - name: api-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
@@ -654,7 +644,6 @@ roles:
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
@@ -702,7 +691,6 @@ roles:
 - name: clock-global
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
@@ -734,7 +722,6 @@ roles:
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
@@ -791,7 +778,6 @@ roles:
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/chown_vcap_store.sh
@@ -854,7 +840,6 @@ roles:
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   scripts:
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
@@ -900,7 +885,6 @@ roles:
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -940,7 +924,6 @@ roles:
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -974,7 +957,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1037,7 +1020,6 @@ roles:
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1060,7 +1042,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
+      max: 3
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1070,7 +1052,6 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1120,7 +1101,6 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
-  - scripts/inverted_skip_ssl.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
@@ -1177,7 +1157,7 @@ roles:
         url: http://container-ip:1800/ping # rep HTTP server
   configuration:
     templates:
-      properties.diego.rep.advertise_domain: ((KUBE_POD_SERVICE))((^KUBE_POD_SERVICE))diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))((/KUBE_POD_SERVICE))
+      properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -1617,6 +1597,10 @@ configuration:
     required: true
   - name: CONSUL_LOG_LEVEL
     type: environment
+    description: >
+      The log level for consul. This parameter is not supposed to be set by
+      the user. To change the cluster's log level set the parameter `LOG_LEVEL`
+      instead, from which this one is derived.
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
@@ -1642,7 +1626,7 @@ configuration:
     immutable: true
     generator:
       type: Password
-    description: key for encrypting sensitive values in the Cloud Controller database.
+    description: Key for encrypting sensitive values in the Cloud Controller database.
     required: true
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
@@ -1684,12 +1668,9 @@ configuration:
     description: The host to ping for confirmation of DNS resolution.
     required: true
   - name: DOMAIN
-    example: my-hcf-cluster.com
+    example: my-scf-cluster.com
     required: true
-    description: Base domain of the HCF cluster.
-    internal: true
-  - name: DONT_SKIP_CERT_VERIFY_INTERNAL
-    type: environment
+    description: Base domain of the SCF cluster.
   - name: DOPPLER_CERT
     secret: true
     generator:
@@ -1782,32 +1763,31 @@ configuration:
     required: true
   - name: GO_LOG_LEVEL
     type: environment
+    description: >
+      The log level for go components. This parameter is not supposed to be set
+      by the user. To change the cluster's log level set the parameter
+      `LOG_LEVEL` instead, from which this one is derived.
   - name: HCF_LOG_HOST
     internal: true
-    description: The log destination to talk to. If not set it defaults to flightrecorder.
+    description: The log destination to talk to. This has to point to a syslog server.
   - name: HCF_LOG_PORT
     internal: true
-    description: The port used by rsyslog to talk to the log destination. If not set it defaults to the flightrecorder port. If that is not set we fall back to 514, the standard port of syslog.
+    description: The port used by rsyslog to talk to the log destination. If not set it defaults to 514, the standard port of syslog.
   - name: HCF_LOG_PROTOCOL
     internal: true
     default: tcp
-    description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp.
+    description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
-  - name: HCP_AZ
-    type: environment
-    default: "z1"
   - name: HCP_CA_CERT
     internal: true
     immutable: true
     description: The CA certificate for UAA
     secret: true
-  - name: HCP_COMPONENT_INDEX
-    type: environment
-  - name: HCP_COMPONENT_NAME
-    type: environment
-  - name: HCP_INSTANCE_ID
-    type: environment
   - name: HOSTNAME
+    description: >
+      The host name of the container.  This should be automatic and should not
+      be prompted.
+    type: environment
   - name: HTTPS_PROXY
     required: false
     description: Location of the proxy to use for secure web access.
@@ -1827,22 +1807,50 @@ configuration:
       id: cacert
       type: CACertificate
       value_type: certificate
-    description: PEM-encoded CA certificate used to sign TLS certificate hosted by Diego BBS.
+    description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
     required: true
   - name: JWT_SIGNING_PUB
     type: environment
     description: The key used to verify JWT-based OAuth2 tokens generated by UAA.
   - name: KUBERNETES_NAMESPACE
     type: environment
+    description: >
+      The name of the kubernetes namespace all components will run in.
+      This parameter cannot be set by the user.
+      Its value is supplied by the kubernetes runtime.
+  - name: KUBE_AZ
+    type: environment
+    default: "z1"
+  - name: KUBE_COMPONENT_INDEX
+    type: environment
+  - name: KUBE_COMPONENT_NAME
+    type: environment
   - name: KUBE_CONSUL_CLUSTER_IPS
     type: environment
+    description: >
+      A comma-separated list of IP addresses for the machines of the consul sub-cluster.
+      This parameter cannot be set by the user.
+      Its value is automatically computed during cluster setup.
   - name: KUBE_ETCD_CLUSTER_IPS
+    type: environment
+    description: >
+      A comma-separated list of IP addresses for the machines of the etcd sub-cluster.
+      This parameter cannot be set by the user.
+      Its value is automatically computed during cluster setup.
+  - name: KUBE_INSTANCE_ID
     type: environment
   - name: KUBE_MYSQL_CLUSTER_IPS
     type: environment
+    description: >
+      A comma-separated list of IP addresses for the machines of the mysql sub-cluster.
+      This parameter cannot be set by the user.
+      Its value is automatically computed during cluster setup.
   - name: KUBE_NATS_CLUSTER_IPS
     type: environment
-  - name: KUBE_POD_SERVICE
+    description: >
+      A comma-separated list of IP addresses for the machines of the nats sub-cluster.
+      This parameter cannot be set by the user.
+      Its value is automatically computed during cluster setup.
   - name: KUBE_SERVICE_DOMAIN_SUFFIX
     description: >
       The Kubernetes-internal domain suffix (svc.<namespace>.cluster.local or
@@ -1850,6 +1858,22 @@ configuration:
       runtime configuration.
     immutable: true
     required: false
+  - name: KUBE_SIZING_CONSUL_COUNT
+    description: >
+      The number of consul replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_ETCD_COUNT
+    description: >
+      The number of etcd replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_MYSQL_COUNT
+    description: >
+      The number of mysql replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_NATS_COUNT
+    description: >
+      The number of nats replicas deployed.
+      This value is set automatically by the helm charts of SCF.
   - name: LOGGREGATOR_SHARED_SECRET
     secret: true
     immutable: true
@@ -1930,7 +1954,7 @@ configuration:
     immutable: true
     generator:
       type: Password
-    description: The password used to contact the sidecar endpoints via Basic Auth.
+    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
     required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
@@ -1955,6 +1979,10 @@ configuration:
     required: true
   - name: NGINX_LOG_LEVEL
     type: environment
+    description: >
+      The log level for nginx. This parameter is not supposed to be set by the
+      user. To change the cluster's log level set the parameter `LOG_LEVEL`
+      instead, from which this one is derived.
   - name: NGINX_MAX_REQUEST_BODY_SIZE
     default: 1536
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
@@ -2043,15 +2071,6 @@ configuration:
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
     required: true
-  - name: SKIP_CERT_VERIFY_EXTERNAL
-    default: false
-    description: Skip TLS verification when communicating with UAA system domain.
-    required: true
-  - name: SKIP_CERT_VERIFY_INTERNAL
-    default: false
-    example: false
-    description: Determines whether dashboard verifies SSL certificates when communicating with Cloud Controller and UAA.
-    required: true
   - name: STAGER_INSECURE_DOCKER_REGISTRIES
     default: ''
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
@@ -2091,8 +2110,9 @@ configuration:
     description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
-    example: tcp.my-hcf-cluster.com
-    description: TCP routing domain of the HCF cluster; only used for testing;
+    example: tcp.my-scf-cluster.com
+    required: true
+    description: TCP routing domain of the SCF cluster; only used for testing;
   - name: TPS_CC_CLIENT_CRT
     secret: true
     generator:
@@ -2116,7 +2136,7 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
-    description: PEM-encoded certificate
+    description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRAFFICCONTROLLER_KEY
     secret: true
@@ -2125,7 +2145,7 @@ configuration:
       type: Certificate
       value_type: private_key
       key_length: 4096
-    description: PEM-encoded key.
+    description: PEM-encoded key for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRUSTED_CERTS
     description: Concatenation of trusted CA certificates to be made available on the cell.
@@ -2231,6 +2251,7 @@ configuration:
   - name: UAA_PORT
     default: 2793
     internal: true
+    description: The tcp port the UAA server (root zone) listens on for requests.
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
     default: false
     description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
@@ -2240,11 +2261,11 @@ configuration:
     description: Whether or not to use privileged containers for staging tasks.
     required: true
   templates:
-    az: '"((HCP_AZ))"'
-    id: ((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((#HCP_INSTANCE_ID))-((HCP_COMPONENT_INDEX))((/HCP_INSTANCE_ID))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((HOSTNAME))((/HCP_COMPONENT_NAME))
-    index: ((HCP_COMPONENT_INDEX))((^HCP_COMPONENT_INDEX))0((/HCP_COMPONENT_INDEX))
+    az: '"((KUBE_AZ))"'
+    id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_INSTANCE_ID))-((KUBE_COMPONENT_INDEX))((/KUBE_INSTANCE_ID))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
+    index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#HCP_COMPONENT_NAME))((HCP_COMPONENT_NAME))((/HCP_COMPONENT_NAME))((^HCP_COMPONENT_NAME))((DNS_RECORD_NAME))((/HCP_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
@@ -2356,7 +2377,6 @@ configuration:
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022
-    properties.cf.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.cf_mysql.broker.auth_password: '"((CF_MYSQL_BROKER_AUTH_PASSWORD))"'
     properties.cf_mysql.broker.cookie_secret: '"((CF_MYSQL_BROKER_COOKIE_SECRET))"'
     properties.cf_mysql.broker.db_password: '"((CF_MYSQL_BROKER_DB_PASSWORD))"'
@@ -2364,13 +2384,13 @@ configuration:
     properties.cf_mysql.broker.services: '[{"name":"mysql-dev","id":"9ef3b781-fdd1-4eac-9b97-f9e76640249d","tags":["mysql"],"description":"dev grade MySQL databases on demand","dashboard_client":{"id":"mysql","secret":"((UAA_CLIENTS_CC_SERVICE_SECRET))"},"metadata":{"displayName":"MySQL for SCF","documentationUrl":"https://github.com/cloudfoundry/cf-mysql-release/blob/master/README.md","longDescription":"Creating a service instance provisions a database. Binding applications provisions unique credentials for each application to access the database.","providerDisplayName":"SUSE","supportUrl":"https://www.suse.com/support/"},"plan_updateable":true,"plans":[{"description":"Shared MySQL Server","id":"843e376c-574c-402a-9a64-9e9801a75881","max_storage_mb":10,"max_user_connections":20,"name":"10mb"},{"description":"Shared MySQL Server","id":"10914e8c-c186-45c2-ab02-893e80606805","max_storage_mb":20,"max_user_connections":40,"name":"20mb"}]}]'
     properties.cf_mysql.external_host: '"mysql-broker.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
-    properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.persistent_disk: ((MYSQL_BROKER_DISK_SIZE))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
+    properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))((#KUBE_SIZING_CONSUL_COUNT))((/KUBE_SIZING_CONSUL_COUNT))
     properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
     properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
     properties.consul.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2388,14 +2408,12 @@ configuration:
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
-    properties.diego.auctioneer.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
     properties.diego.bbs.auctioneer.api_location: diego-brain.((KUBE_SERVICE_DOMAIN_SUFFIX)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
-    properties.diego.bbs.auctioneer.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2405,7 +2423,6 @@ configuration:
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
-    properties.diego.bbs.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
@@ -2419,17 +2436,16 @@ configuration:
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.rep.require_tls: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
-    properties.diego.rep.zone: '"((HCP_AZ))"'
+    properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-database.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
+    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
     properties.diego.ssh_proxy.bbs.api_location: diego-database.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2440,33 +2456,25 @@ configuration:
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
-    properties.diego.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.doppler.syslog_skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
-    properties.doppler.zone: '"((HCP_AZ))"'
+    properties.doppler.zone: '"((KUBE_AZ))"'
     properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-    properties.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
+    properties.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
     properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
     properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd.peer_require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
     properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
     properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.etcd_metrics_server.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
@@ -2481,7 +2489,6 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
-    properties.hcf.skip_cert_verify_external: ((SKIP_CERT_VERIFY_EXTERNAL))
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2492,9 +2499,7 @@ configuration:
     # How to reach the capi.cc_uploader
     properties.internal_hostname: '"cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.loggregator.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
+    properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
@@ -2506,10 +2511,10 @@ configuration:
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.metron_agent.zone: '"((HCP_AZ))"'
+    properties.metron_agent.zone: '"((KUBE_AZ))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
-    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
+    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
@@ -2519,14 +2524,11 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.ssl_cert: '"((ROUTER_SSL_CERT))"'
     properties.router.ssl_key: '"((ROUTER_SSL_KEY))"'
-    properties.router.ssl_skip_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    # Include SKIP_CERT_VERIFY_INTERNAL so our detection algorithm includes it in the generated deployment manifests
-    properties.routing_api.etcd.require_ssl: ((DONT_SKIP_CERT_VERIFY_INTERNAL))((#SKIP_CERT_VERIFY_INTERNAL))((/SKIP_CERT_VERIFY_INTERNAL))
-    properties.routing_api.etcd.servers: ((KUBE_ETCD_CLUSTER_IPS))
+    properties.routing_api.etcd.servers: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
@@ -2536,11 +2538,9 @@ configuration:
     properties.routing_api.uri: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.routing_api.url: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
-    properties.skip_ssl_validation: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.ssl.skip_cert_verify: ((SKIP_CERT_VERIFY_INTERNAL))
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'

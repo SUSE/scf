@@ -45,7 +45,6 @@ trap test_cleanup EXIT ERR
 # python_buildpack       6          true      false
 # php_buildpack          7          true      false    php_buildpack-cached-v4.3.22.zip
 # binary_buildpack       8          true      false    binary_buildpack-cached-v1.0.5.zip
-# cf_iis_buildpack       9          true      false    cf-iis8-buildpack.zip
 ##
 # 123456789.123456789.12 123456789. 123456789 12345678 123456789.123456789.123456789.123456789.1
 
@@ -69,10 +68,9 @@ get_filename() {
 list_buildpacks
 get_buildpacks
 
-# Check that the (nine) standard buildpacks are present
+# Check that the (eight) standard buildpacks are present
 for pack in \
     binary \
-    cf_iis \
     go \
     java \
     nodejs \

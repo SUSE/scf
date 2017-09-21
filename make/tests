@@ -34,10 +34,6 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" start
 source "${GIT_ROOT}/bin/settings/settings.env"
 source "${GIT_ROOT}/bin/settings/network.env"
 
-cf api api."${DOMAIN}" --skip-ssl-validation
-cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
-cf enable-feature-flag diego_docker
-
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" end
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start

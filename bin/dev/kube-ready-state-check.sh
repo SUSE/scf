@@ -100,15 +100,15 @@ if having_category kube ; then
     status "tiller should be running (1/1 ready)"
 fi
 
-# ntp is installed and running
-if having_category api kube node ; then
+# ntp or systemd-timesyncd is installed and running
+if having_category api node ; then
     pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
     status "An ntp daemon or systemd-timesyncd must be installed and active"
 fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test "$(kubectl get storageclasses |& wc -l)" -gt 1
+    test "$(kubectl get storageclasses 2>&1 | wc -l)" -gt 1
     status "A storage class should exist in K8s"
 fi
 
