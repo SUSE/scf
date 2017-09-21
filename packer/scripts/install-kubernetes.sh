@@ -11,18 +11,15 @@ zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
     obs://Virtualization:containers Virtualization:containers
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri # for troubleshooting
-zypper --non-interactive install --no-confirm --from Virtualization:containers \
+zypper --non-interactive install --no-confirm --from=Virtualization:containers \
     cni-plugins \
-    docker \
-    etcd-3.2.4 \
-    kubernetes-common-1.6.1 \
-    kubernetes-client-1.6.1 \
-    kubernetes-kubelet-1.6.1 \
-    kubernetes-master-1.6.1 \
-    kubernetes-node-1.6.1 \
-    kubernetes-addons-kubedns-1.5.3 \
-    kubernetes-node-cni-1.5.3 \
-    kubernetes-node-image-pause-0.1
+    'docker = 1.12.6' \
+    etcd \
+    kubernetes-client \
+    kubernetes-kubelet \
+    kubernetes-master \
+    kubernetes-node \
+    kubernetes-node-image-pause
 
 usermod --append --groups docker vagrant
 systemctl enable etcd.service
