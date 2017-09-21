@@ -80,14 +80,9 @@ pipeline {
             description: 'Push sources to obs',
         )
         credentials(
-            name: 'OBS_CREDENTIALS_USERNAME',
-            description: 'Username for build.opensuse.org',
-            defaultValue: '',
-        )
-        credentials(
-            name: 'OBS_CREDENTIALS_PASSWORD',
+            name: 'OBS_CREDENTIALS',
             description: 'Password for build.opensuse.org',
-            defaultValue: '',
+            defaultValue: 'alfred-jenkins',
         )
         credentials(
             name: 'S3_CREDENTIALS',
@@ -206,7 +201,7 @@ pipeline {
           }
           steps {
                 withCredentials([usernamePassword(
-                    credentialsId: params.DOCKER_CREDENTIALS,
+                    credentialsId: params.OBS_CREDENTIALS,
                     usernameVariable: 'OBS_CREDENTIALS_USERNAME',
                     passwordVariable: 'OBS_CREDENTIALS_PASSWORD',
                 )]) {
@@ -226,6 +221,7 @@ pipeline {
                   make osc-commit-sources
                   rm ~/.oscrc 
                 '''
+                }
           }
         }
         stage('dist') {
