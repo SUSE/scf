@@ -80,7 +80,7 @@ pipeline {
             description: 'Push sources to obs',
         )
         credentials(
-            name: 'OBS_CREDENTIALS_USER',
+            name: 'OBS_CREDENTIALS_USERNAME',
             description: 'Username for build.opensuse.org',
             defaultValue: '',
         )
@@ -205,6 +205,11 @@ pipeline {
                 expression { return params.COMMIT_SOURCES }
           }
           steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.DOCKER_CREDENTIALS,
+                    usernameVariable: 'OBS_CREDENTIALS_USERNAME',
+                    passwordVariable: 'OBS_CREDENTIALS_PASSWORD',
+                )]) {
                 sh '''
                   set -e +x
                   source ${PWD}/.envrc
