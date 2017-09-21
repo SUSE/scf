@@ -173,10 +173,17 @@ properties:
       api_username: 'mysql_proxy'
       healthcheck_timeout_millis: 30000
   diego:
+    auctioneer:
+      rep:
+        require_tls: true
     bbs:
       active_key_label: active
+      auctioneer:
+        require_tls: true
       etcd:
         machines: []
+      rep:
+        require_tls: true
     executor:
       garden:
         address: 127.0.0.1:7777
@@ -188,6 +195,7 @@ properties:
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
         - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
+      require_tls: true
     route_emitter:
       nats:
         user: nats
@@ -196,8 +204,12 @@ properties:
   doppler:
     locked_memory_limit: kernel
     port: 4443
+    syslog_skip_cert_verify: false
   etcd:
     bootstrap_node: etcd-0
+  etcd_metrics_server:
+    etcd:
+      require_ssl: true
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
@@ -231,9 +243,14 @@ properties:
     monit:
       user: "admin"
       port: 2289
+  hcf:
+    skip_cert_verify_external: false
   hm9000:
     # Used in cc_ng and cc_worker
     url: https://this.is.unused
+  loggregator:
+    etcd:
+      require_ssl: true
   metron_agent:
     deployment: hcf-deployment
     health_port: 14824
@@ -256,6 +273,8 @@ properties:
       user: router_user
   routing_api:
     enabled: true
+    etcd:
+      require_ssl: true
     sqldb:
       type: mysql
       port: 3306
@@ -273,6 +292,8 @@ properties:
   syslog_drain_binder:
     locked_memory_limit: kernel
   system_domain_organization: null
+  ssl:
+    skip_cert_verify: false
   tcp_emitter:
     debug_address: 0.0.0.0:17003
   traffic_controller:
