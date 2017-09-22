@@ -59,12 +59,6 @@
       <partitions config:type="list">
         <partition>
           <create config:type="boolean">true</create>
-          <size>1073741824</size>
-          <filesystem config:type="symbol">swap</filesystem>
-          <mount>swap</mount>
-        </partition>
-        <partition>
-          <create config:type="boolean">true</create>
           <filesystem config:type="symbol">ext4</filesystem>
           <mount>/</mount>
         </partition>
