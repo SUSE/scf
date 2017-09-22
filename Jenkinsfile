@@ -208,14 +208,14 @@ pipeline {
                 sh '''
                   set -e +x
                   source ${PWD}/.envrc
-                  $(echo <<EOF
+                  echo " 
                   [general]
                   apiurl = https://api.opensuse.org
 
                   [https://api.opensuse.org]
                   user = %%%OBS_USERNAME%%% 
                   pass = %%%OBS_PASSWORD%%%
-                  EOF) >> ~/.oscrc  
+                  " >> ~/.oscrc  
                   sed -e "s/%%%OBS_USERNAME%%%/$OBS_CREDENTIALS_USERNAME/g" ~/.oscrc  
                   sed -e "s/%%%OBS_PASSWORD%%%/$OBS_CREDENTIALS_PASSWORD/g" ~/.oscrc 
                   make osc-commit-sources
