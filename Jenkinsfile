@@ -35,7 +35,7 @@ pipeline {
         disableConcurrentBuilds() // Otherwise clean would delete the images
         skipDefaultCheckout() // We do our own checkout so it can be disabled
         timestamps()
-        timeout(time: 5, unit: 'HOURS')
+        timeout(time: 10, unit: 'HOURS')
         ws('scf')
     }
     parameters {
