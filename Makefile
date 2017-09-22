@@ -51,6 +51,9 @@ stop:
 uaa-run:
 	${GIT_ROOT}/make/uaa-run
 
+uaa-wait:
+	${GIT_ROOT}/make/uaa-wait
+
 uaa-stop:
 	${GIT_ROOT}/make/uaa-stop
 
