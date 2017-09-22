@@ -7,7 +7,7 @@ set -o errexit -o nounset
 
 # Used in: bin/dev/install_tool.sh
 
-export BOSH_CLI_VERSION="3b63a0e24bda00325369a4f31d8ee0d924047866"
+export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+259.g25b32de"
 export HELM_VERSION="2.5.1"

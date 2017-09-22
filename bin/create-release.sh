@@ -107,6 +107,23 @@ done
 # to older ones
 rm -rf ${ROOT}/${release_path}/dev_releases
 
+if find "${ROOT}/${release_path}/blobs/" -type l >/dev/null 2>/dev/null; then
+  # Migrating from BOSH CLI v1 (ruby) to BOSH CLI v2 (golang)
+  docker run \
+    --interactive \
+    --rm \
+    --volume "${FISSILE_CACHE_DIR}":/bosh-cache \
+    --volume "${ROOT}/:${ROOT}/" \
+    --volume "${ROOT}/bin/dev/fake-git":/usr/local/bin/git:ro \
+    --env RUBY_VERSION="${RUBY_VERSION:-2.2.3}" \
+    ${proxies} \
+    --env MAVEN_OPTS="$MO" \
+    --env JAVA_OPTS="$MO" \
+    "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
+    /usr/local/bin/bosh.sh \
+        "$(id -u)" "$(id -g)" /bosh-cache reset-release --dir="${ROOT}/${release_path}"
+fi
+
 docker run \
     --interactive \
     --rm \
@@ -118,7 +135,7 @@ docker run \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
     "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
-    /usr/local/bin/create-release.sh \
-        "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
+    /usr/local/bin/bosh.sh \
+        "$(id -u)" "$(id -g)" /bosh-cache create-release --dir="${ROOT}/${release_path}" --force --name "${release_name}"
 
 stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done
