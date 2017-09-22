@@ -78,4 +78,4 @@
 	url = https://github.com/SUSE/cf-usb
 [submodule "src/buildpacks/dotnet-core-buildpack-release"]
 	path = src/buildpacks/dotnet-core-buildpack-release
-	url = https://github.com/cloudfoundry/dotnet-core-buildpack-release
+	url = https://github.com/SUSE/cf-dotnet-core-buildpack-release
