@@ -7,6 +7,17 @@ unset CDPATH
 
 load_env() {
     local dir="${1}"
+    DOMAIN=${DOMAIN:-}
+    if test -n "${DOMAIN}"; then
+        tmp=$(mktemp -d)
+        cp -r "${dir}/"*.env "${tmp}"
+        trap "rm -rf ${tmp}" EXIT
+        if test -f "${tmp}/network.env"; then
+            sed -i "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" "${tmp}/network.env"
+            sed -i "s/^UAA_HOST=.*/UAA_HOST=uaa.${DOMAIN}/" "${tmp}/network.env"
+        fi
+        dir="${tmp}"
+    fi
     for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$' | grep -vE '/ca\.env$') ; do
         if ! test -e "${f}" ; then
             echo "Invalid environment file ${f}" >&2

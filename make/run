@@ -3,6 +3,7 @@
 set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+cd "${GIT_ROOT}"
 NAMESPACE="cf"
 
 has_namespace() {
@@ -32,8 +33,20 @@ kubectl get storageclass persistent 2>/dev/null || {
     kubectl create -f -
 }
 
+DOMAIN=${DOMAIN:-}
+NETWORK_ENV=bin/settings/network.env
+if test -n "${DOMAIN}"; then
+    TMP=$(mktemp -d)
+    cp "${NETWORK_ENV}" "${TMP}"
+    trap "rm -rf ${TMP}" EXIT
+    NETWORK_ENV="${TMP}/$(basename "${NETWORK_ENV}")"
+    sed -e "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" \
+        -e "s/^UAA_HOST=.*/UAA_HOST=uaa.${DOMAIN}/" \
+        -e "s/^TCP_DOMAIN=.*/TCP_DOMAIN=tcp.${DOMAIN}/" \
+        -i "${NETWORK_ENV}"
+fi
 source bin/settings/settings.env
-source bin/settings/network.env
+source "${NETWORK_ENV}"
 
 helm install helm \
      --namespace ${NAMESPACE} \
@@ -42,7 +55,8 @@ helm install helm \
      --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
      --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
      --set "env.UAA_HOST=${UAA_HOST}" \
-     --set "env.UAA_PORT=${UAA_PORT}"
+     --set "env.UAA_PORT=${UAA_PORT}" \
+     --set "kube.external_ip=$(dig +short ${DOMAIN})"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 
