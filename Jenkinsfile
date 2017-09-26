@@ -82,7 +82,7 @@ pipeline {
         credentials(
             name: 'OBS_CREDENTIALS',
             description: 'Password for build.opensuse.org',
-            defaultValue: 'alfred-jenkins',
+            defaultValue: 'osc-alfred-jenkins',
         )
         credentials(
             name: 'S3_CREDENTIALS',
@@ -208,16 +208,14 @@ pipeline {
                 sh '''
                   set -e +x
                   source ${PWD}/.envrc
-                  echo " 
-                  [general]
-                  apiurl = https://api.opensuse.org
-
-                  [https://api.opensuse.org]
-                  user = %%%OBS_USERNAME%%% 
-                  pass = %%%OBS_PASSWORD%%%
-                  " >> ~/.oscrc  
-                  sed -e "s/%%%OBS_USERNAME%%%/$OBS_CREDENTIALS_USERNAME/g" ~/.oscrc  
-                  sed -e "s/%%%OBS_PASSWORD%%%/$OBS_CREDENTIALS_PASSWORD/g" ~/.oscrc 
+                  echo -e "[general]
+apiurl = https://api.opensuse.org
+[https://api.opensuse.org]
+user = %%%OBS_USERNAME%%% 
+pass = %%%OBS_PASSWORD%%%
+" > ~/.oscrc  
+                  sed -e "s/%%%OBS_USERNAME%%%/$OBS_CREDENTIALS_USERNAME/g" ~/.oscrc -i.bak 
+                  sed -e "s/%%%OBS_PASSWORD%%%/$OBS_CREDENTIALS_PASSWORD/g" ~/.oscrc -i.bak 
                   make osc-commit-sources
                   rm ~/.oscrc 
                 '''

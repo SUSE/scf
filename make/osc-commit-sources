@@ -33,7 +33,7 @@ osc commit -m "Add sources"
 # trigger legal_db scanning for all pacakges
 for PACKAGE in ${PACKAGES[@]}
 do
-	#curl -v -X POST http://legaldb.suse.de/packages -d api=https://api.opensuse.org/ -d project=$OSC_BASE_PATH -d package=$PACKAGE
+	curl -v -X POST http://legaldb.suse.de/packages -d api=https://api.opensuse.org/ -d project=$OSC_BASE_PATH -d package=$PACKAGE -d external_link=SCF -d priority=1
 	echo $PACKAGE
 done
 popd > /dev/null
