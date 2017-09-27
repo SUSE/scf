@@ -129,6 +129,9 @@ consul-release:
 binary-buildpack-release:
 	${GIT_ROOT}/make/bosh-release src/buildpacks/binary-buildpack-release
 
+dotnet-core-buildpack-release:
+	${GIT_ROOT}/make/bosh-release src/buildpacks/dotnet-core-buildpack-release
+
 go-buildpack-release:
 	${GIT_ROOT}/make/bosh-release src/buildpacks/go-buildpack-release
 
@@ -165,6 +168,7 @@ releases: \
 	nats-release \
 	consul-release \
 	binary-buildpack-release \
+	dotnet-core-buildpack-release \
 	go-buildpack-release \
 	java-buildpack-release \
 	nodejs-buildpack-release \
