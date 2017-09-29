@@ -118,9 +118,6 @@ pipeline {
             }
             steps {
                 deleteDir()
-                script {
-                    params.SKIP_CHECKOUT = false
-                }
             }
         }
         stage('clean') {
@@ -137,7 +134,7 @@ pipeline {
         }
         stage('checkout') {
             when {
-                expression { return ! params.SKIP_CHECKOUT }
+                expression { return (!params.SKIP_CHECKOUT) || params.WIPE }
             }
             steps {
                 sh '''
