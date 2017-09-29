@@ -90,7 +90,7 @@ do
     echo "Creating tar archive for $SOURCE_NAME (stage: ${STAGE} source size: $SOURCE_SIZE)"
     PACKAGE_FILE_NAME_BASE="$OUTPUTDIR/${STAGE}_${SOURCE_NAME}" 
     tar czf "${PACKAGE_FILE_NAME_BASE}.tar.gz" "$SOURCE_PATH"
-    echo "$TEMPLATE_FILE" >> "${PACKAGE_FILE_NAME_BASE}.spec"
+    echo "$TEMPLATE_FILE" >> "scf_${PACKAGE_FILE_NAME_BASE}.spec"
     sed -i -- "s/==PACKAGE_NAME==/$STAGE ${SOURCE_NAME}/g" "${PACKAGE_FILE_NAME_BASE}.spec"
     sed -i -- "s/==PACKAGE_VERSION==/$DIR/g" "${PACKAGE_FILE_NAME_BASE}.spec"
     fi
