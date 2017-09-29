@@ -16,7 +16,7 @@ PACKAGES=()
 for FILE in `ls $SOURCE_OUTPUT_DIR/*.tar.gz`
 do
 	TMP=${FILE%.tar.gz}
-	PACKAGE_NAME="scf_${TMP##*/}"
+	PACKAGE_NAME="${TMP##*/}"
   if [ ! -d "$PACKAGE_NAME" ]; then
 	  osc mkpac $PACKAGE_NAME
   fi
