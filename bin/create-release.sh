@@ -117,7 +117,7 @@ docker run \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
-    splatform/bosh-cli \
+    "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
     /usr/local/bin/create-release.sh \
         "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
 

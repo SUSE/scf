@@ -37,7 +37,7 @@ chmod a+x "${SCF_BIN_DIR}/stampy"
 echo "Installed: $("${FISSILE_BINARY}" version)"
 
 echo "Pulling ruby bosh image ..."
-docker pull splatform/bosh-cli
+docker pull "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}"
 
 echo "Installing helm-certgen ..."
 
