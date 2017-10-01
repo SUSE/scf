@@ -496,6 +496,15 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
+                - diego-cell
+            topologyKey: "beta.kubernetes.io/os"
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
                 - router
             topologyKey: "beta.kubernetes.io/os"
 - name: tcp-router
@@ -1384,6 +1393,15 @@ roles:
                 operator: In
                 values:
                 - diego-cell
+            topologyKey: "beta.kubernetes.io/os"
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - router
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
