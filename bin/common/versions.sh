@@ -8,7 +8,7 @@ set -o errexit -o nounset
 # Used in: bin/dev/install_tool.sh
 
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.0.0+236.g32ae02a"
+export FISSILE_VERSION="5.0.0+259.g25b32de"
 export HELM_VERSION="2.5.1"
 export HELM_CERTGEN_VERSION="master"
 export CERTSTRAP_VERSION="v1.0.1-11-g0e00d5c"
