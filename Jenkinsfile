@@ -211,11 +211,9 @@ pipeline {
                   echo -e "[general]
 apiurl = https://api.opensuse.org
 [https://api.opensuse.org]
-user = %%%OBS_USERNAME%%% 
-pass = %%%OBS_PASSWORD%%%
+user = ${OBS_CREDENTIALS_USERNAME} 
+pass = ${OBS_CREDENTIALS_PASSWORD}
 " > ~/.oscrc  
-                  sed -e "s/%%%OBS_USERNAME%%%/$OBS_CREDENTIALS_USERNAME/g" ~/.oscrc -i.bak 
-                  sed -e "s/%%%OBS_PASSWORD%%%/$OBS_CREDENTIALS_PASSWORD/g" ~/.oscrc -i.bak 
                   make osc-commit-sources
                   rm ~/.oscrc 
                 '''

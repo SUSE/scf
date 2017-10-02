@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-DIRECTORY_BLACKLIST="*-buildpack cflinuxfs2 opensuse42 busybox golang*"
+DIRECTORY_BLACKLIST=".*-buildpack|cflinuxfs2|opensuse42|busybox|golang.*"
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
@@ -10,7 +10,7 @@ BASEDIR="$FISSILE_WORK_DIR/compilation"
 
 OUTPUTDIR="$GIT_ROOT/source-output"
 SRC_DIR="$GIT_ROOT/src/"
-pushd $SRC_DIR > /dev/null
+pushd "${SRC_DIR}" > /dev/null
 SRC_FILES=$(find * -type f -name *.yml)
 popd > /dev/null
 
@@ -51,49 +51,36 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 EOF
 )
 
-rm -rf $OUTPUTDIR
-mkdir -p $OUTPUTDIR
+rm -rf "${OUTPUTDIR}"
+mkdir -p "${OUTPUTDIR}"
 
-pushd $BASEDIR > /dev/null
-DIRS=`ls`
-for DIR in $DIRS 
+pushd "${BASEDIR}" > /dev/null
+for DIR in $(ls -d **/sources/var/vcap/source/* | egrep -v "$DIRECTORY_BLACKLIST"  | xargs dirname)
 do
-  DO_TAR=true
-  SOURCE_PATH="$DIR/sources/var/vcap/source"
-  SOURCE_NAME=`ls "$SOURCE_PATH"`
-  SOURCE_SIZE=`du "$SOURCE_PATH"|tail -n1`
-  for ITEM in $DIRECTORY_BLACKLIST
-  do
-    if [[ $SOURCE_NAME == $ITEM ]]; then
-      DO_TAR=false
-      echo "-----> $SOURCE_NAME IS BLACKLISTED (matches: $ITEM)"
+  SOURCE_NAME=$(ls "${DIR}")
+  SOURCE_SIZE=$(du -h "${DIR}" | tail -n1)
+  RELEASE_HASH=$(echo "${DIR}" | sed -e 's/\/.*$//g')
+
+  # get first folder name for distinguish files later
+  pushd "${GIT_ROOT}/src" > /dev/null
+  for FILE in $SRC_FILES; do
+    STAGE=$(grep -m1 -H "${RELEASE_HASH}" "${FILE}" 2>/dev/null|sed -e 's/\/.*$//g' -) 
+    if [ -n "$STAGE" ]; then
+      break
     fi
   done
+  popd > /dev/null
+  if [ -z "$STAGE" ]; then
+    echo "############################### Failed to find package $RELEASE_HASH in $SRC_DIR"
+    exit 1
+  fi
 
-  if [[ $DO_TAR == true ]]; then
-
-    # get first folder name for distinguish files later
-    pushd $GIT_ROOT/src > /dev/null
-    for FILE in $SRC_FILES; do
-      STAGE=$(grep -m1 -H $DIR $FILE 2>/dev/null|sed -e 's/\/.*$//g' -) 
-      if [ ! -z "$STAGE" ]; then
-        echo $STAGE
-        break
-      fi
-    done
-    popd > /dev/null
-    if [ -z "$STAGE" ]; then
-      echo "############################### Failed to find package $DIR in $SRC_DIR"
-      exit 1
-    fi
-
-    echo "Creating tar archive for $SOURCE_NAME (stage: ${STAGE} source size: $SOURCE_SIZE)"
-    PACKAGE_FILE_NAME_BASE="$OUTPUTDIR/scf_${STAGE}_${SOURCE_NAME}" 
-    tar czf "${PACKAGE_FILE_NAME_BASE}.tar.gz" "$SOURCE_PATH"
-    echo "$TEMPLATE_FILE" > "${PACKAGE_FILE_NAME_BASE}.spec"
-    sed -i -- "s/==PACKAGE_NAME==/$STAGE ${SOURCE_NAME}/g" "${PACKAGE_FILE_NAME_BASE}.spec"
-    sed -i -- "s/==PACKAGE_VERSION==/$DIR/g" "${PACKAGE_FILE_NAME_BASE}.spec"
-    fi
+  echo "Creating tar archive for $SOURCE_NAME (stage: ${STAGE} source size: $SOURCE_SIZE)"
+  PACKAGE_FILE_NAME_BASE="$OUTPUTDIR/scf_${STAGE}_${SOURCE_NAME}" 
+  tar czf "${PACKAGE_FILE_NAME_BASE}.tar.gz" "${DIR}"
+  echo "$TEMPLATE_FILE" > "${PACKAGE_FILE_NAME_BASE}.spec"
+  sed -i -- "s/==PACKAGE_NAME==/${STAGE} ${SOURCE_NAME}/g" "${PACKAGE_FILE_NAME_BASE}.spec"
+  sed -i -- "s/==PACKAGE_VERSION==/${RELEASE_HASH}/g" "${PACKAGE_FILE_NAME_BASE}.spec"
 done
 
 popd > /dev/null
