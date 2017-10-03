@@ -81,12 +81,6 @@ KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${names
 # Generate a random signing key passphrase
 signing_key_passphrase=$(head -c32 /dev/urandom | base64)
 
-# build and install `certstrap` tool if it's not installed
-command -v certstrap > /dev/null 2>&1 || {
-  docker run --rm -v "${HOME}/bin":/out:rw golang:${GOLANG_VERSION} /usr/bin/env GOBIN=/out go get github.com/square/certstrap
-  sudo chown "$(id -un):$(id -gn)" "${HOME}/bin/certstrap"
-}
-
 # Certificate generation
 certs_path="/tmp/scf/certs"
 hcf_certs_path="${certs_path}/hcf"
