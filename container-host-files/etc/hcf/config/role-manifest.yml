@@ -47,6 +47,7 @@ roles:
                 operator: In
                 values:
                 - nats
+            topologyKey: "beta.kubernetes.io/os"
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -126,6 +127,7 @@ roles:
                 operator: In
                 values:
                 - consul
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.consul.agent.mode: '"server"'
@@ -207,6 +209,7 @@ roles:
                 operator: In
                 values:
                 - mysql
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -365,6 +368,7 @@ roles:
                 operator: In
                 values:
                 - cf-usb
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -427,6 +431,7 @@ roles:
                 operator: In
                 values:
                 - diego-database
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
@@ -492,6 +497,7 @@ roles:
                 operator: In
                 values:
                 - router
+            topologyKey: "beta.kubernetes.io/os"
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -552,6 +558,7 @@ roles:
                 operator: In
                 values:
                 - tcp-router
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -609,6 +616,7 @@ roles:
                 operator: In
                 values:
                 - routing-api
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -708,6 +716,7 @@ roles:
                 operator: In
                 values:
                 - api
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -753,6 +762,7 @@ roles:
                 operator: In
                 values:
                 - api-worker
+            topologyKey: "beta.kubernetes.io/os"
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -842,6 +852,7 @@ roles:
                 operator: In
                 values:
                 - clock-global
+            topologyKey: "beta.kubernetes.io/os"
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -909,6 +920,7 @@ roles:
                 operator: In
                 values:
                 - doppler
+            topologyKey: "beta.kubernetes.io/os"
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -971,6 +983,7 @@ roles:
                 operator: In
                 values:
                 - etcd
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
@@ -1038,6 +1051,7 @@ roles:
                 operator: In
                 values:
                 - loggregator
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1088,6 +1102,7 @@ roles:
                 operator: In
                 values:
                 - diego-brain
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1195,6 +1210,7 @@ roles:
                 operator: In
                 values:
                 - diego-cc-bridge
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1238,6 +1254,7 @@ roles:
                 operator: In
                 values:
                 - diego-route-emitter
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1297,6 +1314,7 @@ roles:
                 operator: In
                 values:
                 - diego-access
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1366,6 +1384,7 @@ roles:
                 operator: In
                 values:
                 - diego-cell
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
