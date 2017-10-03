@@ -2,8 +2,6 @@
 set -o errexit -o nounset
 set -vx
 
-# See notes on CDPATH in dev/install_tools.sh:
-unset CDPATH
 # Get version information and set destination dirs
 . "$(dirname "$0")/versions.sh"
 
@@ -17,7 +15,7 @@ helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HEL
 
 mkdir -p "${SCF_BIN_DIR}"
 
-SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
+SCF_BIN_DIR="$(unset CDPATH ; cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching cf CLI $cf_url ..."
 wget -q "$cf_url" -O "/tmp/cf.tgz"

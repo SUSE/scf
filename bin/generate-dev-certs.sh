@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-
 load_env() {
     local dir="${1}"
     DOMAIN=${DOMAIN:-}
@@ -70,8 +66,7 @@ if test -z "${output_path}" ; then
 fi
 
 if test "${has_env}" = "no" ; then
-    # (**)
-    load_env "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
+    load_env "$( unset CDPATH ; cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
 fi
 
 # Replace the stubbed-out namespace info

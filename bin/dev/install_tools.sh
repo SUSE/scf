@@ -2,10 +2,6 @@
 set -o errexit -o nounset
 set -vx
 # Get version information and set destination paths
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-# Get version information
 . "$(dirname "$0")/../common/versions.sh"
 
 SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
@@ -21,8 +17,7 @@ stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STA
 
 mkdir -p "${SCF_BIN_DIR}"
 
-# (**)
-export SCF_BIN_DIR="$(cd "${SCF_BIN_DIR}" && pwd)"
+export SCF_BIN_DIR="$(unset CDPATH ; cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching fissile $fissile_url ..."
 wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}"
