@@ -1482,30 +1482,6 @@ roles:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
-- name: dev-dns
-  type: docker
-  tags: [dev-only]
-  run:
-    env: []
-    scaling:
-      min: 1
-      max: 1
-    capabilities: [NET_ADMIN]
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 1
-    exposed-ports:
-    - name: dev-dns
-      protocol: UDP
-      external: 53
-      internal: 8600
-      public: true
-    - name: dev-dns-tcp
-      protocol: TCP
-      external: 53
-      internal: 8600
-      public: true
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
