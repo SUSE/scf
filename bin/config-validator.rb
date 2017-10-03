@@ -75,8 +75,8 @@ def main
 
   STDOUT.puts "\nAll vars in env files must exist in the role manifest".cyan
   env_dir = File.expand_path(File.join(__FILE__, '../settings'))
-  all_env_dirs = Dir.glob(File.join(env_dir, "**/*/")) << env_dir
-  dev_env = Common.collect_dev_env(all_env_dirs)
+  all_env_files = Dir.glob(File.join(env_dir, "**/*.env"))
+  dev_env = Common.collect_dev_env(all_env_files)
   check_env_files(manifest, dev_env)
 
   STDOUT.puts "\nAll role manifest params must be used".cyan

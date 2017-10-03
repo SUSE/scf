@@ -98,31 +98,24 @@ class Common
   end
 
   # # ## ### ##### ########
-  def self.collect_dev_env(env_dir_list)
+  def self.collect_dev_env(env_files)
     collected_env = {}
 
-    env_dir_list.each do |env_dir|
-      env_files = Dir.glob(File.join(env_dir, "*.env")).sort
-      if env_files.empty?
-        STDERR.puts "--env-dir #{env_dir} does not contain any *.env files"
-        exit 1
-      end
-      env_files.each do |env_file|
-        File.readlines(env_file, encoding:'UTF-8').each_with_index do |line, i|
-          line.strip!
-          next if line.empty? || line.start_with?('#')
-          name, value = line.split('=', 2)
-          if value.nil?
-            match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
-            if match
-              collected_env.delete match['name']
-            else
-              STDERR.puts "Cannot parse line #{i} in #{env_file}: #{line}"
-              exit 1
-            end
+    env_files.each do |env_file|
+      File.readlines(env_file, encoding:'UTF-8').each_with_index do |line, i|
+        line.strip!
+        next if line.empty? || line.start_with?('#')
+        name, value = line.split('=', 2)
+        if value.nil?
+          match = /^ \s* unset \s+ (?<name>\w+) \s* $/x.match(line)
+          if match
+            collected_env.delete match['name']
           else
-            collected_env[name] = [env_file, value]
+            STDERR.puts "Cannot parse line #{i} in #{env_file}: #{line}"
+            exit 1
           end
+        else
+          collected_env[name] = [env_file, value]
         end
       end
     end
