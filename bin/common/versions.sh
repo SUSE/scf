@@ -7,6 +7,7 @@ set -o errexit -o nounset
 
 # Used in: bin/dev/install_tool.sh
 
+export BOSH_CLI_VERSION="3b63a0e24bda00325369a4f31d8ee0d924047866"
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.0.0+259.g25b32de"
 export HELM_VERSION="2.5.1"
@@ -21,9 +22,6 @@ export UBUNTU_VERSION="14.04"
 # For stampy we need the major+minor+patch as a separate value.
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')
 
-# Notes
-# splatform/bosh-cli - Unversioned docker pull
-
 # Used in: .envrc
 
 export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-15.g38c573e-29.12}
@@ -36,14 +34,12 @@ export GOLANG_VERSION=1.7
 
 export CF_VERSION=265
 
-# Notes
-# github.com/square/certstrap - Unversioned `go get`
-
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################
 
 if [ "X$(basename "$0")" = "Xversions.sh" ]
 then
+    echo bosh-cli '     =' $BOSH_CLI_VERSION
     echo cf '           =' $CF_VERSION
     echo cf-cli '       =' $CFCLI_VERSION
     echo fissile '      =' $FISSILE_VERSION
