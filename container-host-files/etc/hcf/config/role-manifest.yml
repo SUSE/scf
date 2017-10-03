@@ -36,6 +36,17 @@ roles:
       external: 4223
       internal: 4223
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - nats
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -104,6 +115,17 @@ roles:
       external: 8500
       internal: 8500
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - consul
   configuration:
     templates:
       properties.consul.agent.mode: '"server"'
@@ -174,6 +196,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:9200/
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - mysql
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -321,6 +354,17 @@ roles:
       external: 24053
       internal: 24053
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - cf-usb
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -372,6 +416,17 @@ roles:
       readiness:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-database
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-database
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
@@ -426,6 +481,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - router
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -475,6 +541,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip/health
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - tcp-router
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -521,6 +598,17 @@ roles:
       internal: 3000
       public: false
     # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - routing-api
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -609,6 +697,17 @@ roles:
         period: 60
       readiness:
         url: http://container-ip:9022/v2/info
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - api
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -643,6 +742,17 @@ roles:
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - api-worker
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -721,6 +831,17 @@ roles:
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - clock-global
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -777,6 +898,17 @@ roles:
     healthcheck:
       readiness:
         port: 8082
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - doppler
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -828,6 +960,17 @@ roles:
       readiness:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/etcd
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - etcd
   configuration:
     templates:
       # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
@@ -884,6 +1027,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8081/set-cookie
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - loggregator
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -923,6 +1077,17 @@ roles:
       external: 9016
       internal: 9016
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-brain
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1019,6 +1184,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:1518/v1/bulk_actual_lrp_status?guids=1
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-cc-bridge
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1051,6 +1227,17 @@ roles:
     memory: 256
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-route-emitter
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1099,6 +1286,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8080/v1/static/
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-access
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1157,6 +1355,17 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:1800/ping # rep HTTP server
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-cell
   configuration:
     templates:
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
