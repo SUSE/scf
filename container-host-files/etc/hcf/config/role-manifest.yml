@@ -988,12 +988,7 @@ roles:
     templates:
       # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
       properties.etcd.advertise_urls_dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-      # The default of null in the bosh release does not seem to
-      # define the property properly. Setting it here does define the
-      # property, with a value of null. Note, placement in the
-      # opinions is blocked by the configuration validator,
-      # complaining about it 'matching the default'. So, here it is.
-      properties.etcd.cluster: null
+      properties.etcd.cluster: '[{"name": "etcd", "instances": ((KUBE_SIZING_ETCD_COUNT))}]'
       properties.etcd_metrics_server.etcd.dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: loggregator
   environment_scripts:
