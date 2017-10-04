@@ -18,6 +18,7 @@ thefissile="fissile-$(echo "${FISSILE_VERSION}" | sed -e 's/+/%2B/')"
 
 fissile_url="${fissile_url:-${s3}/${thefissile}.linux-amd64.tgz}"
 stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STAMPY_MAJOR}/stampy-${STAMPY_VERSION}.linux-amd64.tgz}"
+certstrap_url="${certstrap_url:-https://cf-opensusefs2.s3.amazonaws.com/certstrap/certstrap-${CERTSTRAP_VERSION}.linux-amd64.tgz}"
 
 mkdir -p "${SCF_BIN_DIR}"
 
@@ -30,9 +31,13 @@ wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}"
 echo "Fetching stampy $stampy_url ..."
 wget -q "$stampy_url"   -O - | tar xz -C "${SCF_BIN_DIR}" stampy
 
+echo "Fetching certstrap from ${certstrap_url} ..."
+wget -q "${certstrap_url}" -O - | tar -xzC "${SCF_BIN_DIR}" --overwrite certstrap
+
 echo "Making binaries executable ..."
 chmod a+x "${FISSILE_BINARY}"
 chmod a+x "${SCF_BIN_DIR}/stampy"
+chmod a+x "${SCF_BIN_DIR}/certstrap"
 
 echo "Installed: $("${FISSILE_BINARY}" version)"
 
