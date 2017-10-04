@@ -102,7 +102,7 @@ done
 # to older ones
 rm -rf ${ROOT}/${release_path}/dev_releases
 
-if find "${ROOT}/${release_path}/blobs/" -type l >/dev/null 2>/dev/null; then
+if test -n "$(find "${ROOT}/${release_path}/blobs/" -type l 2>/dev/null)"; then
   # Migrating from BOSH CLI v1 (ruby) to BOSH CLI v2 (golang)
   docker run \
     --interactive \
