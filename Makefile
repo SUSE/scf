@@ -191,6 +191,12 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	${GIT_ROOT}/make/compile
 
+compile-clean: clean ${FISSILE_BINARY} vagrant-prep
+	${GIT_ROOT}/make/tar-sources
+
+osc-commit-sources:
+	${GIT_ROOT}/make/osc-commit-sources
+
 images: bosh-images uaa-images helm
 
 bosh-images: validate ${FISSILE_BINARY}

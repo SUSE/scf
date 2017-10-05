@@ -35,7 +35,7 @@ pipeline {
         disableConcurrentBuilds() // Otherwise clean would delete the images
         skipDefaultCheckout() // We do our own checkout so it can be disabled
         timestamps()
-        timeout(time: 5, unit: 'HOURS')
+        timeout(time: 10, unit: 'HOURS')
         ws('scf')
     }
     parameters {
@@ -68,6 +68,21 @@ pipeline {
             name: 'TEST_CATS',
             defaultValue: false,
             description: 'Trigger CATS in the test run',
+        )
+        booleanParam(
+            name: 'TAR_SOURCES',
+            defaultValue: false,
+            description: 'Tar sources',
+        )
+        booleanParam(
+            name: 'COMMIT_SOURCES',
+            defaultValue: false,
+            description: 'Push sources to obs',
+        )
+        credentials(
+            name: 'OBS_CREDENTIALS',
+            description: 'Password for build.opensuse.org',
+            defaultValue: 'osc-alfred-jenkins',
         )
         credentials(
             name: 'S3_CREDENTIALS',
@@ -164,6 +179,43 @@ pipeline {
                     make vagrant-prep validate
                 '''
             }
+        }
+        stage('tar_sources') {
+          when {
+                expression { return params.TAR_SOURCES }
+          }
+          steps {
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    make compile-clean
+                '''
+          }
+        }
+        stage('commit_sources') {
+          when {
+                expression { return params.COMMIT_SOURCES }
+          }
+          steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.OBS_CREDENTIALS,
+                    usernameVariable: 'OBS_CREDENTIALS_USERNAME',
+                    passwordVariable: 'OBS_CREDENTIALS_PASSWORD',
+                )]) {
+                sh '''
+                  set -e +x
+                  source ${PWD}/.envrc
+                  echo -e "[general]
+apiurl = https://api.opensuse.org
+[https://api.opensuse.org]
+user = ${OBS_CREDENTIALS_USERNAME} 
+pass = ${OBS_CREDENTIALS_PASSWORD}
+" > ~/.oscrc  
+                  make osc-commit-sources
+                  rm ~/.oscrc 
+                '''
+                }
+          }
         }
         stage('dist') {
             steps {
