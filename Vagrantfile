@@ -163,6 +163,15 @@ Vagrant.configure(2) do |config|
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
   SHELL
 
+  # Set up the storage class
+  config.vm.provision :shell, privileged: false, inline: <<-SHELL
+    if ! kubectl get storageclass persistent 2>/dev/null ; then
+      perl -p -e 's@storage.k8s.io/v1beta1@storage.k8s.io/v1@g' \
+        "${HOME}/scf/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
+      kubectl create -f -
+    fi
+  SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
@@ -171,6 +180,9 @@ Vagrant.configure(2) do |config|
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
     echo -e '\nexport HISTFILE=/home/vagrant/scf/output/.bash_history' >> .profile
+
+    # Check that the cluster is reasonable
+    /home/vagrant/scf/bin/dev/kube-ready-state-check.sh
 
     direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
