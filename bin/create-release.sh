@@ -101,6 +101,9 @@ done
 # This is undesirable when working with newer releases, then switching back
 # to older ones
 rm -rf ${ROOT}/${release_path}/dev_releases
+# This is the new path for BOSH v2; deleting this also resolves an issue where
+# BOSH will fail to create-release if the BOSH cache was manually deleted.
+rm -rf ${ROOT}/${release_path}/.dev_builds
 
 if test -n "$(find "${ROOT}/${release_path}/blobs/" -type l 2>/dev/null)"; then
   # Migrating from BOSH CLI v1 (ruby) to BOSH CLI v2 (golang)
