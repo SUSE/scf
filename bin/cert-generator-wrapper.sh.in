@@ -2,10 +2,6 @@
 set -o errexit
 set -o nounset
 
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **1 **2).
-unset CDPATH
-
 usage() {
 	cat <<EOF
 $(basename "${0}"): SCF Certificate Generator
@@ -18,8 +14,7 @@ EOF
 }
 
 namespace=cf
-# (**1)
-scripts_dir="$(cd "$(dirname "$0")/scripts/" && pwd)"
+scripts_dir="$(unset CDPATH ; cd "$(dirname "$0")/scripts/" && pwd)"
 out_dir="$(pwd)"
 
 while getopts "d:hn:o:" opt; do
@@ -40,7 +35,7 @@ while getopts "d:hn:o:" opt; do
         exit 1
       fi
       # (**2)
-      out_dir="$(cd "${OPTARG}" ; pwd)"
+      out_dir="$(unset CDPATH ; cd "${OPTARG}" ; pwd)"
       ;;
   esac
 done

@@ -2,12 +2,7 @@
 set -o errexit
 set -o nounset
 
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-
-# (**)
-ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+ROOT="$( unset CDPATH ; cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 
 if [[ $# -lt 2 || -z "${1:-}" || -z "${2:-}" ]]; then
   cat <<HELP
@@ -106,6 +101,26 @@ done
 # This is undesirable when working with newer releases, then switching back
 # to older ones
 rm -rf ${ROOT}/${release_path}/dev_releases
+# This is the new path for BOSH v2; deleting this also resolves an issue where
+# BOSH will fail to create-release if the BOSH cache was manually deleted.
+rm -rf ${ROOT}/${release_path}/.dev_builds
+
+if test -n "$(find "${ROOT}/${release_path}/blobs/" -type l 2>/dev/null)"; then
+  # Migrating from BOSH CLI v1 (ruby) to BOSH CLI v2 (golang)
+  docker run \
+    --interactive \
+    --rm \
+    --volume "${FISSILE_CACHE_DIR}":/bosh-cache \
+    --volume "${ROOT}/:${ROOT}/" \
+    --volume "${ROOT}/bin/dev/fake-git":/usr/local/bin/git:ro \
+    --env RUBY_VERSION="${RUBY_VERSION:-2.2.3}" \
+    ${proxies} \
+    --env MAVEN_OPTS="$MO" \
+    --env JAVA_OPTS="$MO" \
+    "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
+    /usr/local/bin/bosh.sh \
+        "$(id -u)" "$(id -g)" /bosh-cache reset-release --dir="${ROOT}/${release_path}"
+fi
 
 docker run \
     --interactive \
@@ -118,7 +133,7 @@ docker run \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
     "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
-    /usr/local/bin/create-release.sh \
-        "$(id -u)" "$(id -g)" /bosh-cache --dir ${ROOT}/${release_path} --force --name "${release_name}"
+    /usr/local/bin/bosh.sh \
+        "$(id -u)" "$(id -g)" /bosh-cache create-release --dir="${ROOT}/${release_path}" --force --name "${release_name}"
 
 stampy ${ROOT}/scf_metrics.csv "${BASH_SOURCE[0]}" create-release::${release_name} done
