@@ -205,14 +205,6 @@ pipeline {
                     set -x
                     unset HCF_PACKAGE_COMPILATION_CACHE
 
-                    # Make sure to use the .envrc variables if the override variables are empty
-                    if [ -z "${FISSILE_STEMCELL}" ]; then
-                        unset FISSILE_STEMCELL
-                    fi
-                    if [ -z "${FISSILE_STEMCELL_VERSION}" ]; then
-                        unset FISSILE_STEMCELL_VERSION
-                    fi
-
                     make vagrant-prep validate
                 '''
             }
