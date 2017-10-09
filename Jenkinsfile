@@ -134,6 +134,11 @@ pipeline {
             defaultValue: '',
             description: 'Override the .envrc configured stemcell version. .envrc is used if left blank.',
         )
+        booleanParam(
+            name: 'TRIGGER_SLES_BUILD',
+            defaultValue: true,
+            description: 'Trigger a SLES version of this job',
+        )
     }
 
     environment {
@@ -144,6 +149,14 @@ pipeline {
     }
 
     stages {
+        stage('trigger_sles_build') {
+          when {
+                expression { return params.TRIGGER_SLES_BUILD }
+          }
+          steps {
+            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
+          }
+        }
         stage('wipe') {
             when {
                 expression { return params.WIPE }
