@@ -55,9 +55,14 @@ pipeline {
             description: 'Remove build artifacts that should normally not be reused',
         )
         booleanParam(
-            name: 'PUBLISH',
+            name: 'PUBLISH_DOCKER',
             defaultValue: true,
-            description: 'Enable publishing',
+            description: 'Enable publishing to docker',
+        )
+        booleanParam(
+            name: 'PUBLISH_S3',
+            defaultValue: true,
+            description: 'Enable publishing to amazon s3',
         )
         booleanParam(
             name: 'TEST',
@@ -119,14 +124,39 @@ pipeline {
             defaultValue: 'splatform',
             description: 'Docker organization to publish to',
         )
+        string(
+            name: 'FISSILE_STEMCELL',
+            defaultValue: '',
+            description: 'Override the .envrc configured stemcell. .envrc is used if left blank.',
+        )
+        string(
+            name: 'FISSILE_STEMCELL_VERSION',
+            defaultValue: '',
+            description: 'Override the .envrc configured stemcell version. .envrc is used if left blank.',
+        )
+        booleanParam(
+            name: 'TRIGGER_SLES_BUILD',
+            defaultValue: true,
+            description: 'Trigger a SLES version of this job',
+        )
     }
 
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
+        FISSILE_STEMCELL = "${params.FISSILE_STEMCELL}"
+        FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
     }
 
     stages {
+        stage('trigger_sles_build') {
+          when {
+                expression { return params.TRIGGER_SLES_BUILD }
+          }
+          steps {
+            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
+          }
+        }
         stage('wipe') {
             when {
                 expression { return params.WIPE }
@@ -171,11 +201,23 @@ pipeline {
         }
         stage('build') {
             steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.DOCKER_CREDENTIALS,
+                    usernameVariable: 'DOCKER_HUB_USERNAME',
+                    passwordVariable: 'DOCKER_HUB_PASSWORD',
+                )]) {
+                    sh '''
+                        if [ -n "${FISSILE_DOCKER_REGISTRY}" ]; then
+                            docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}"
+                        fi
+                    '''
+                }
                 sh '''
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
                     unset HCF_PACKAGE_COMPILATION_CACHE
+
                     make vagrant-prep validate
                 '''
             }
@@ -229,9 +271,9 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 '''
             }
         }
-        stage('publish') {
+        stage('publish_docker') {
             when {
-                expression { return params.PUBLISH }
+                expression { return params.PUBLISH_DOCKER }
             }
             steps {
                 withCredentials([usernamePassword(
@@ -248,6 +290,14 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     unset HCF_PACKAGE_COMPILATION_CACHE
                     make publish
                 '''
+            }
+        }
+
+        stage('publish_s3') {
+            when {
+                expression { return params.PUBLISH_S3 }
+            }
+            steps {
                 withAWS(region: params.S3_REGION) {
                     withCredentials([usernamePassword(
                         credentialsId: params.S3_CREDENTIALS,
