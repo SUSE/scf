@@ -1335,6 +1335,8 @@ roles:
     release_name: cflinuxfs2
   - name: opensuse42-rootfs-setup
     release_name: cf-opensuse42
+  - name: cf-sle12-setup
+    release_name: cf-sle12
   - name: metron_agent
     release_name: loggregator
   - name: grootfs
@@ -2571,6 +2573,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'

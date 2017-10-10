@@ -79,3 +79,6 @@
 [submodule "src/buildpacks/java-offline-buildpack-release"]
 	path = src/buildpacks/java-offline-buildpack-release
 	url = https://github.com/SUSE/cf-java-offline-buildpack-release.git
+[submodule "src/cf-sle12-release"]
+	path = src/cf-sle12-release
+	url = https://github.com/SUSE/cf-sle12-release.git

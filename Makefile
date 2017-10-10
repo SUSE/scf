@@ -105,6 +105,9 @@ cflinuxfs2-release:
 cf-opensuse42-release:
 	${GIT_ROOT}/make/bosh-release src/cf-opensuse42-release
 
+cf-sle12-release:
+	${GIT_ROOT}/make/bosh-release src/cf-sle12-release
+
 routing-release:
 	${GIT_ROOT}/make/bosh-release src/routing-release
 
@@ -161,6 +164,7 @@ releases: \
 	usb-release \
 	cflinuxfs2-release \
 	cf-opensuse42-release \
+	cf-sle12-release \
 	routing-release \
 	hcf-release \
 	capi-release \
