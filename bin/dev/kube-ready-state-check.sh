@@ -108,7 +108,7 @@ fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test "$(kubectl get storageclasses 2>&1 | wc -l)" -gt 1
+    test ! "$(kubectl get storageclasses 2>&1 | grep "No resources found.")"
     status "A storage class should exist in K8s"
 fi
 
