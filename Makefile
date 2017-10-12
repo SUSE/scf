@@ -62,6 +62,7 @@ docker-deps:
 	make/docker-deps
 
 vagrant-prep: \
+	certs \
 	docker-deps \
 	releases \
 	compile \
@@ -199,7 +200,7 @@ compile-clean: clean ${FISSILE_BINARY} vagrant-prep
 osc-commit-sources:
 	make/osc-commit-sources
 
-images: bosh-images uaa-images helm
+images: bosh-images uaa-images helm kube
 
 bosh-images: validate ${FISSILE_BINARY}
 	make/bosh-images
@@ -227,15 +228,11 @@ show-versions:
 	make/show-versions
 
 ########## KUBERNETES TARGETS ##########
-kube kube/bosh-task/post-deployment-setup.yaml: uaa-kube
-	bin/settings/kube/ca.sh
-	bin/generate-dev-certs.sh cf bin/settings/certs.env
+kube: uaa-kube
 	make/kube
 .PHONY: kube
 
-helm helm/bosh-task/post-deployment-setup.yaml: uaa-helm
-	bin/settings/kube/ca.sh
-	bin/generate-dev-certs.sh cf bin/settings/certs.env
+helm: uaa-helm
 	make/kube helm
 .PHONY: helm
 
