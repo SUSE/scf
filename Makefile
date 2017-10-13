@@ -72,6 +72,9 @@ vagrant-prep: \
 registry:
 	make/registry
 
+secure-registries:
+	make/secure-registries
+
 smoke:
 	make/tests smoke-tests
 
