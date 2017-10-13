@@ -26,13 +26,13 @@ properties:
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/cf-sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/cf-sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
   cc:
     broker_client_timeout_seconds: 70
@@ -124,7 +124,7 @@ properties:
       description: Cloud Foundry Linux-based filesystem
     - name: opensuse42
       description: openSUSE-based filesystem
-    - name: cf-sle12
+    - name: sle12
       description: SLE-based filesystem
     staging_upload_user: staging_user
     system_hostnames:
@@ -199,7 +199,7 @@ properties:
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
         - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
-        - cf-sle12:/var/vcap/packages/cf-sle12/rootfs.tar
+        - sle12:/var/vcap/packages/cf-sle12/rootfs.tar
       require_tls: true
     route_emitter:
       nats:
