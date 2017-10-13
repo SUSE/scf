@@ -7,4 +7,30 @@ REGISTRY_HOST_PORT=${REGISTRY_HOST_PORT:-${REGISTRY_PORT}}
 REGISTRY_IMAGE=${REGISTRY_IMAGE:-'registry:2'}
 REGISTRY_NAME=${REGISTRY_NAME:-'registry'}
 
-docker run --detach --publish ${REGISTRY_HOST_PORT}:5000 --restart always --name ${REGISTRY_NAME} ${REGISTRY_IMAGE}
+if [ -z "${REGISTRY_USERNAME:-}" ]; then
+    docker run --detach \
+           --publish ${REGISTRY_HOST_PORT}:5000 \
+           --restart always \
+           --name ${REGISTRY_NAME} \
+           ${REGISTRY_IMAGE}
+else
+    mkdir -p /tmp/scf/auth
+
+    docker run --rm \
+           --entrypoint htpasswd ${REGISTRY_IMAGE} \
+           -Bbn "${REGISTRY_USERNAME}" "${REGISTRY_PASSWORD:-}" \
+           > /tmp/scf/auth/htpasswd
+
+    docker run --detach \
+           --publish ${REGISTRY_HOST_PORT}:5000 \
+           --restart always \
+           --name ${REGISTRY_NAME} \
+           -v /tmp/scf/auth:/auth \
+           -e "REGISTRY_AUTH=htpasswd" \
+           -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+           -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+           -v /tmp/scf/certs:/certs \
+           -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/router_ssl.cert \
+           -e REGISTRY_HTTP_TLS_KEY=/certs/router_ssl.key \
+           ${REGISTRY_IMAGE}
+fi
