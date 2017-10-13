@@ -16,6 +16,7 @@ password
 .demos
 /src/*-clone
 /src/buildpacks/*-clone
+/bin/settings/certs.env
 /bin/settings/kube/ca.env
 # `make dist` output of various forms
 /output/
