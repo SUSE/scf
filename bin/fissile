@@ -1,0 +1,3 @@
+#!/bin/sh
+export FISSILE_TAG_EXTRA=$(git rev-parse HEAD)
+exec fissile.binary "$@"
