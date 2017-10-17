@@ -21,7 +21,7 @@ mkdir -p "${SCF_BIN_DIR}"
 export SCF_BIN_DIR="$(unset CDPATH ; cd "${SCF_BIN_DIR}" && pwd)"
 
 echo "Fetching fissile $fissile_url ..."
-wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}.binary"
+wget -q "$fissile_url"   -O - | tar xz --to-stdout fissile > "${FISSILE_BINARY}.real"
 
 echo "Fetching stampy $stampy_url ..."
 wget -q "$stampy_url"   -O - | tar xz -C "${SCF_BIN_DIR}" stampy
@@ -30,7 +30,7 @@ echo "Fetching certstrap from ${certstrap_url} ..."
 wget -q "${certstrap_url}" -O - | tar -xzC "${SCF_BIN_DIR}" --overwrite certstrap
 
 echo "Making binaries executable ..."
-chmod a+x "${FISSILE_BINARY}.binary"
+chmod a+x "${FISSILE_BINARY}.real"
 chmod a+x "${SCF_BIN_DIR}/stampy"
 chmod a+x "${SCF_BIN_DIR}/certstrap"
 
