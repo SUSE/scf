@@ -45,7 +45,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.8.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.9.box"
     vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
       vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
@@ -116,7 +116,7 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.8.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.9.box"
     libvirt.driver = "kvm"
     libvirt_net_config = base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
@@ -163,6 +163,15 @@ Vagrant.configure(2) do |config|
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
   SHELL
 
+  # Set up the storage class
+  config.vm.provision :shell, privileged: false, inline: <<-SHELL
+    if ! kubectl get storageclass persistent 2>/dev/null ; then
+      perl -p -e 's@storage.k8s.io/v1beta1@storage.k8s.io/v1@g' \
+        "${HOME}/scf/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
+      kubectl create -f -
+    fi
+  SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
@@ -171,6 +180,9 @@ Vagrant.configure(2) do |config|
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
     echo -e '\nexport HISTFILE=/home/vagrant/scf/output/.bash_history' >> .profile
+
+    # Check that the cluster is reasonable
+    /home/vagrant/scf/bin/dev/kube-ready-state-check.sh
 
     direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
 
