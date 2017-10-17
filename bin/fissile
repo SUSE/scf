@@ -1,0 +1,3 @@
+#!/bin/sh
+export FISSILE_TAG_EXTRA=$(git -C "${FISSILE_GIT_ROOT:-$PWD}" rev-parse HEAD)
+exec fissile.real "$@"
