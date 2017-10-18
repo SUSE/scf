@@ -37,7 +37,7 @@ export CF_VERSION=265
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################
 
-if [ "X$(basename "$0")" = "Xversions.sh" ]
+if [ "X$(basename -- "$0")" = "Xversions.sh" ]
 then
     echo bosh-cli '     =' $BOSH_CLI_VERSION
     echo cf '           =' $CF_VERSION
