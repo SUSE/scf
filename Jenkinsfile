@@ -9,6 +9,10 @@ String domain() {
     return ipAddress() + ".nip.io"
 }
 
+String jobBaseName() {
+    return env.JOB_BASE_NAME.toLowerCase()
+}
+
 void runTest(String testName) {
     sh """
         kube_overrides() {
@@ -32,7 +36,7 @@ EOF
         image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf/bosh-task/${testName}.yaml" | tr -d '"')
 
         kubectl run \
-            --namespace=${JOB_BASE_NAME}-${BUILD_NUMBER}-scf \
+            --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
             --restart=Never \
             --image=\${image} \
@@ -286,13 +290,14 @@ pipeline {
         }
 
         stage('deploy') {
-			when {
-				expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
-			}
+            when {
+                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+            }
             steps {
                 timeout(time: 2, unit: 'HOURS') {
                     sh """
-                        kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"'"${JOB_BASE_NAME}-${BUILD_NUMBER}-"'hostpath"},"provisioner":"kubernetes.io/host-path"}'
+                        kubectl delete storageclass hostpath || /bin/true
+                        kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
                         # Unzip the bundle
                         rm -rf unzipped
@@ -303,35 +308,35 @@ pipeline {
                         ./unzipped/kube-ready-state-check.sh || /bin/true
 
                         mkdir unzipped/certs
-                        ./unzipped/cert-generator.sh -d "${domain()}" -n ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf -o unzipped/certs
+                        ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
 
                         helm install unzipped/helm/uaa \
-                            --name ${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa \
-                            --namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa \
+                            --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                            --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                             --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                             --set env.DOMAIN=${domain()} \
                             --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
                             --set env.UAA_HOST=uaa.${domain()} \
                             --set env.UAA_PORT=2793 \
                             --set kube.external_ip=${ipAddress()} \
-                            --set kube.storage_class.persistent=${JOB_BASE_NAME}-${BUILD_NUMBER}-hostpath \
+                            --set kube.storage_class.persistent=hostpath \
                             --values unzipped/certs/uaa-cert-values.yaml
 
                         helm install unzipped/helm/cf \
-                            --name ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf \
-                            --namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf \
+                            --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                            --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                             --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                             --set env.DOMAIN=${domain()} \
                             --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
                             --set env.UAA_HOST=uaa.${domain()} \
                             --set env.UAA_PORT=2793 \
                             --set kube.external_ip=${ipAddress()} \
-                            --set kube.storage_class.persistent=${JOB_BASE_NAME}-${BUILD_NUMBER}-hostpath \
+                            --set kube.storage_class.persistent=hostpath \
                             --values unzipped/certs/scf-cert-values.yaml
 
                         echo Waiting for all pods to be ready...
                         set +o xtrace
-                        for ns in "${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa" "${JOB_BASE_NAME}-${BUILD_NUMBER}-scf" ; do
+                        for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
                             while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
                                 sleep 10
                             done
@@ -398,11 +403,11 @@ pipeline {
                   echo -e "[general]
 apiurl = https://api.opensuse.org
 [https://api.opensuse.org]
-user = ${OBS_CREDENTIALS_USERNAME} 
+user = ${OBS_CREDENTIALS_USERNAME}
 pass = ${OBS_CREDENTIALS_PASSWORD}
-" > ~/.oscrc  
+" > ~/.oscrc
                   make osc-commit-sources
-                  rm ~/.oscrc 
+                  rm ~/.oscrc
                 '''
                 }
           }
@@ -464,20 +469,20 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
         always {
             sh '''#!/bin/bash
             set -o xtrace
-            if kubectl get storageclass ${JOB_BASE_NAME}-${BUILD_NUMBER}-hostpath ; then
-                kubectl delete storageclass ${JOB_BASE_NAME}-${BUILD_NUMBER}-hostpath
+            if kubectl get storageclass ${jobBaseName()}-${BUILD_NUMBER}-hostpath ; then
+                kubectl delete storageclass ${jobBaseName()}-${BUILD_NUMBER}-hostpath
             fi
-            if kubectl get namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf ; then
-                kubectl delete namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf
+            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; then
+                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
             fi
-            if kubectl get namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa ; then
-                kubectl delete namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa
+            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; then
+                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa
             fi
-            helm list --all --short | grep "${JOB_BASE_NAME}-${BUILD_NUMBER}-" | xargs --no-run-if-empty helm delete --purge
-            while kubectl get namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-scf ; do
+            helm list --all --short | grep "${jobBaseName()}-${BUILD_NUMBER}-" | xargs --no-run-if-empty helm delete --purge
+            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; do
                 sleep 1
             done
-            while kubectl get namespace ${JOB_BASE_NAME}-${BUILD_NUMBER}-uaa ; do
+            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; do
                 sleep 1
             done
             '''
