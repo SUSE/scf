@@ -20,6 +20,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -72,6 +73,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -156,6 +159,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -240,6 +244,7 @@ roles:
     scaling:
       min: 1
       max: 1
+      # ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -294,6 +299,7 @@ roles:
     scaling:
       min: 1
       max: 1
+      # ha: ?
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -341,6 +347,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -400,6 +407,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -462,6 +471,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -528,6 +538,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -593,6 +604,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -677,6 +689,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -745,6 +758,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -788,6 +802,7 @@ roles:
     scaling:
       min: 1
       max: 1
+      # Not HA capable; use external HA storage instead
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -835,6 +850,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -875,6 +891,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -949,6 +966,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -1016,6 +1035,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1075,6 +1095,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1135,6 +1156,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1232,6 +1254,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1279,6 +1302,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1350,6 +1374,7 @@ roles:
     scaling:
       min: 1
       max: 254
+      ha: 3
     capabilities: [ALL]
     persistent-volumes:
     - path: /var/vcap/data/garden
