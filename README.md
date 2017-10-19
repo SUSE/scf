@@ -70,7 +70,13 @@ Table of Contents
 1. Install the following vagrant plugins
 
     * vagrant-reload
+      ```bash
+      vagrant plugin install vagrant-reload
+      ```
     * vagrant-libvirt (if using libvirt)
+      ```bash
+      vagrant plugin install vagrant-libvirt
+      ```
 
 ## Deploying
 
