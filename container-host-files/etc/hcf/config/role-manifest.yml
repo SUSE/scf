@@ -244,6 +244,7 @@ roles:
     scaling:
       min: 1
       max: 1
+      # mysql-proxy should be active/passive, but it looks like it is round-robin right now, which doesn't work
       # ha: 2
     capabilities: []
     persistent-volumes: []
@@ -299,7 +300,6 @@ roles:
     scaling:
       min: 1
       max: 1
-      # ha: ?
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1374,6 +1374,7 @@ roles:
     scaling:
       min: 1
       max: 254
+      # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
       ha: 3
     capabilities: [ALL]
     persistent-volumes:
