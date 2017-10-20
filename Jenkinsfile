@@ -294,56 +294,54 @@ pipeline {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
             }
             steps {
-                timeout(time: 2, unit: 'HOURS') {
-                    sh """
-                        kubectl delete storageclass hostpath || /bin/true
-                        kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
+                sh """
+                    kubectl delete storageclass hostpath || /bin/true
+                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
-                        # Unzip the bundle
-                        rm -rf unzipped
-                        mkdir unzipped
-                        unzip -e scf-*linux-amd64*.zip -d unzipped
+                    # Unzip the bundle
+                    rm -rf unzipped
+                    mkdir unzipped
+                    unzip -e scf-*linux-amd64*.zip -d unzipped
 
-                        # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
-                        ./unzipped/kube-ready-state-check.sh || /bin/true
+                    # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
+                    ./unzipped/kube-ready-state-check.sh || /bin/true
 
-                        mkdir unzipped/certs
-                        ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
+                    mkdir unzipped/certs
+                    ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
 
-                        helm install unzipped/helm/uaa \
-                            --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                            --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                            --set env.CLUSTER_ADMIN_PASSWORD=changeme \
-                            --set env.DOMAIN=${domain()} \
-                            --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                            --set env.UAA_HOST=uaa.${domain()} \
-                            --set env.UAA_PORT=2793 \
-                            --set kube.external_ip=${ipAddress()} \
-                            --set kube.storage_class.persistent=hostpath \
-                            --values unzipped/certs/uaa-cert-values.yaml
+                    helm install unzipped/helm/uaa \
+                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --values unzipped/certs/uaa-cert-values.yaml
 
-                        helm install unzipped/helm/cf \
-                            --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                            --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                            --set env.CLUSTER_ADMIN_PASSWORD=changeme \
-                            --set env.DOMAIN=${domain()} \
-                            --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                            --set env.UAA_HOST=uaa.${domain()} \
-                            --set env.UAA_PORT=2793 \
-                            --set kube.external_ip=${ipAddress()} \
-                            --set kube.storage_class.persistent=hostpath \
-                            --values unzipped/certs/scf-cert-values.yaml
+                    helm install unzipped/helm/cf \
+                        --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --values unzipped/certs/scf-cert-values.yaml
 
-                        echo Waiting for all pods to be ready...
-                        set +o xtrace
-                        for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                            while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                                sleep 10
-                            done
+                    echo Waiting for all pods to be ready...
+                    set +o xtrace
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
+                            sleep 10
                         done
-                        kubectl get pods --all-namespaces
-                    """
-                }
+                    done
+                    kubectl get pods --all-namespaces
+                """
             }
         }
 
