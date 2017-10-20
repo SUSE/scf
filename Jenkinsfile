@@ -224,7 +224,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    kubectl get namespace | awk '/-scf|-uaa/ {print $1} | xargs kubectl delete ns'
+                    kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs kubectl delete ns
                     while kubectl get namespace | grep 'scf|uaa'; do
                         sleep 1
                     done
