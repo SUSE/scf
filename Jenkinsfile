@@ -224,6 +224,11 @@ pipeline {
             }
             steps {
                 sh '''
+                    kubectl get namespace | awk '/-scf|-uaa/ {print $1} | xargs kubectl delete ns'
+                    while kubectl get namespace | grep 'scf|uaa'; do
+                        sleep 1
+                    done
+
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
                         xargs --no-run-if-empty docker rmi
