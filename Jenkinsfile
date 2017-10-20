@@ -184,7 +184,7 @@ pipeline {
         )
         booleanParam(
             name: 'TRIGGER_SLES_BUILD',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Trigger a SLES version of this job',
         )
         string(
