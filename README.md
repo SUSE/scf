@@ -60,6 +60,7 @@ Table of Contents
       * [How do I develop an upstream PR?](#how-do-i-develop-an-upstream-pr)
       * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
       * [How do I generate certs for pre-built Docker images?](#how-do-i-generate-certs-for-prebuilt-docker-images)
+      * [How do I use an authenticated registry for my Docker images?](#how-do-i-use-an-authenticated-registry-for-my-docker-images)
 
 # Deploying SCF on Vagrant
 
@@ -613,3 +614,62 @@ here.
     ```bash
     helm install ... -f scf-cert-values.yaml
     ```
+
+## How do I use an authenticated registry for my Docker images?
+
+For testing purposes we can create an authenticated registry right inside
+the Vagrant box.  But the instructions work just the same with a pre-existing
+local registry.
+
+The environment variables must be exported before changing into the `scf/`
+directory. Otherwise `direnv` will remove the settings when switching to the
+`src/uaa-fissile-release/` dir and back:
+
+```
+vagrant ssh
+export FISSILE_DOCKER_REGISTRY=registry.cf-dev.io:5000
+export FISSILE_DOCKER_USERNAME=admin
+export FISSILE_DOCKER_PASSWORD=changeme
+cd scf
+time make vagrant-prep
+```
+
+`make secure-registries` will disallow access to insecure registries and register
+the interal CA cert before restarting the docker daemon.
+
+`make registry` will create a local docker registry re-using the router_ssl certs
+and using basic auth. `make publish` will push all images to this registry:
+
+```
+make secure-registries
+make registry
+docker login -u $FISSILE_DOCKER_USERNAME -p $FISSILE_DOCKER_PASSWORD $FISSILE_DOCKER_REGISTRY
+make publish
+docker logout $FISSILE_DOCKER_REGISTRY
+```
+
+Log out to make sure that kube is using the registry credentials from the
+helm chart and not the cached docker session.
+
+Now delete all the local copies of the images. direnv allow is required to call
+fissile from the UAA directory, and `FISSILE_REPOSITORY` needs to be overridden
+from the `scf` setting that is inherited:
+
+```
+fissile show image | xargs docker rmi
+cd src/uaa-fissile-release/
+direnv allow
+FISSILE_REPOSITORY=uaa fissile show image | xargs docker rmi
+docker images
+cd -
+```
+
+Now create an SCF and UAA instance via the helm chart and confirm that all
+images are fetched correctly. Run smoke tests for final verification:
+
+```
+make run
+pod-status --watch
+docker images
+make smoke
+```
