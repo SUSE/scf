@@ -7,10 +7,6 @@ pushd "${TMPPATH}" > /dev/null
 for PROJECT in ${PROJECTS}; do
   osc checkout -M "${PROJECT}"
   pushd "${PROJECT}" > /dev/null
-
-  for PACKAGE in *
-  do
-    curl -v -X POST http://legaldb.suse.de/packages -d api=https://api.opensuse.org/ -d project="${PROJECT}" -d package="${PACKAGE}" -d external_link=SCF -d priority=1
-  done
+  osc submitrequest ${PROJECT}:reviewed
   popd > /dev/null
 done
