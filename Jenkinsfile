@@ -29,7 +29,7 @@ String distPrefix() {
 }
 
 pipeline {
-    agent any
+    agent { label ((["scf"] + (params.AGENT_LABELS ? params.AGENT_LABELS : "").tokenize()).join("&&")) }
     options {
         ansiColor('xterm')
         skipDefaultCheckout() // We do our own checkout so it can be disabled
@@ -137,6 +137,11 @@ pipeline {
             name: 'TRIGGER_SLES_BUILD',
             defaultValue: true,
             description: 'Trigger a SLES version of this job',
+        )
+        string(
+            name: 'AGENT_LABELS',
+            defaultValue: '',
+            description: 'Extra labels for Jenkins slave selection',
         )
     }
 
