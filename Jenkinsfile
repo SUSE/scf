@@ -6,7 +6,11 @@ String distSubDir() {
         "${CHANGE_ID}"
         return 'prs/'
     } catch (Exception ex) {
-        switch (env.BRANCH_NAME) {
+        string branch = params.BRANCH_NAME
+        if (branch == "" || branch == null) {
+            branch = env.BRANCH_NAME
+        }
+        switch (env.branch) {
             case 'develop':
                 return 'develop/'
             case 'master':
@@ -21,10 +25,14 @@ String distPrefix() {
     try {
         return "PR-${CHANGE_ID}-"
     } catch (Exception ex) {
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+        string branch = params.BRANCH_NAME
+        if (branch == "" || branch == null) {
+            branch = env.BRANCH_NAME
+        }
+        if (branch == 'develop' || branch == 'master') {
             return ''
         }
-        return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        return java.net.URLEncoder.encode("${branch}-", "UTF-8")
     }
 }
 
