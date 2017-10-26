@@ -153,14 +153,6 @@ pipeline {
     }
 
     stages {
-        stage('trigger_sles_build') {
-          when {
-                expression { return params.TRIGGER_SLES_BUILD }
-          }
-          steps {
-            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
-          }
-        }
         stage('wipe') {
             when {
                 expression { return params.WIPE }
@@ -343,6 +335,14 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     )
                 }
             }
+        }
+        stage('trigger_sles_build') {
+          when {
+                expression { return params.TRIGGER_SLES_BUILD }
+          }
+          steps {
+            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
+          }
         }
     }
 }
