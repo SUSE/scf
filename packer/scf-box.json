@@ -1,9 +1,9 @@
 {
     "variables": {
-        "version": "2.0.10",
-        "vm_name": "scf-vagrant",
-        "ssh_username": "vagrant",
-        "ssh_password": "vagrant",
+        "version": "1.0.0",
+        "vm_name": "scf-vm",
+        "ssh_username": "scf",
+        "ssh_password": "changeme",
         "iso_url": "http://download.opensuse.org/distribution/leap/42.2/iso/openSUSE-Leap-42.2-NET-x86_64.iso",
         "iso_checksum": "750434ff041b9e7baf31217fcfab41df0560e8e8a39d508c196eb19c151f265c",
         "iso_checksum_type": "sha256",
@@ -15,7 +15,7 @@
         "triton_account": "{{ env `TRITON_ACCOUNT` }}",
         "triton_key_id": "{{ env `TRITON_KEY_ID` }}",
         "triton_url": "{{ env `TRITON_URL` }}",
-        "shutdown_command": "echo vagrant | sudo -S shutdown -P now"
+        "shutdown_command": "echo changeme | sudo -S shutdown -P now"
     },
     "builders": [
         {
@@ -37,7 +37,7 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/scfyast.xml ",
                 "<enter><wait>"
             ],
             "vmx_data": {
@@ -69,12 +69,13 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/scfyast.xml ",
                 "<enter><wait>"
             ]
         },
         {
             "type": "qemu",
+            "format": "qcow2",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
             "disk_size": 120480,
@@ -96,7 +97,7 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/scfyast.xml ",
                 "<enter><wait>"
             ]
         },
@@ -243,17 +244,31 @@
                 "scripts/install-certstrap.sh",
                 "scripts/usr-local-bin-to-path.sh",
                 "scripts/create-kube-certs.sh",
-                "scripts/create-kubedns.sh"
+                "scripts/create-kubedns.sh",
+                "scripts/install-helm.sh",
+                "scripts/install-k.sh",
+                "scripts/install-cap-archives.sh"
             ],
             "start_retry_timeout": "7m"
         },
         {
+            "type": "file",
+            "source": "scripts/install-helm-images.rb",
+            "destination": "/tmp/install-helm-images.rb"
+        },
+        {
             "type": "shell",
-            "only": ["triton"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "ruby /tmp/install-helm-images.rb /home/scf/helm",
+                "ruby /tmp/install-helm-images.rb /home/scf/console",
+                "rm /tmp/install-helm-images.rb"
+            ]
+        },
+        {
+            "type": "shell",
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
-                "scripts/install-helm.sh",
-                "scripts/install-k.sh",
                 "scripts/stop-kube-and-docker.sh"
             ],
             "start_retry_timeout": "7m"
@@ -262,18 +277,10 @@
             "type": "shell",
             "only": ["triton"],
             "inline": [
+                "# Remove all images",
                 "rm -rf /data/docker/image/* /data/docker/containers/* /data/docker/overlay2",
                 "# Install additional packages",
                 "zypper --non-interactive install jre-openjdk-headless make zip osc"
-            ]
-        },
-        {
-            "type": "shell",
-            "only": ["vmware-iso", "virtualbox-iso", "qemu"],
-            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
-            "inline": [
-                "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
-                "rm -rf /var/lib/docker/image/* /var/lib/docker/continers/* /var/lib/docker/overlay2"
             ]
         },
         {
