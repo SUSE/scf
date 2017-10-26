@@ -247,6 +247,7 @@
                 "scripts/create-kubedns.sh",
                 "scripts/install-helm.sh",
                 "scripts/install-k.sh",
+                "scripts/install-cf.sh",
                 "scripts/install-cap-archives.sh"
             ],
             "start_retry_timeout": "7m"
