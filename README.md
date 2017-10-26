@@ -673,3 +673,13 @@ pod-status --watch
 docker images
 make smoke
 ```
+
+If the registry API needs to be accessed via curl, then it is easier to just use basic auth,
+which can be requested by setting:
+
+```
+...
+export FISSILE_DOCKER_AUTH=basic
+make registry
+curl -u ${FISSILE_DOCKER_USERNAME}:${FISSILE_DOCKER_PASSWORD} https://registry.cf-dev.io:5000/v2/
+```
