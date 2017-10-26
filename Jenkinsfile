@@ -225,7 +225,7 @@ pipeline {
             steps {
                 sh '''
                     kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs --no-run-if-empty kubectl delete ns
-                    while kubectl get namespace | grep 'scf|uaa'; do
+                    while kubectl get namespace | grep '-scf|-uaa'; do
                         sleep 1
                     done
 
@@ -472,8 +472,8 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
         always {
             sh """#!/bin/bash
             set -o xtrace
-            if kubectl get storageclass ${jobBaseName()}-${BUILD_NUMBER}-hostpath ; then
-                kubectl delete storageclass ${jobBaseName()}-${BUILD_NUMBER}-hostpath
+            if kubectl get storageclass hostpath ; then
+                kubectl delete storageclass hostpath
             fi
             if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; then
                 kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
