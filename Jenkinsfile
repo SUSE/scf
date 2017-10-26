@@ -1,6 +1,50 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
 
+String ipAddress() {
+    return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
+}
+
+String domain() {
+    return ipAddress() + ".nip.io"
+}
+
+String jobBaseName() {
+    return env.JOB_BASE_NAME.toLowerCase()
+}
+
+void runTest(String testName) {
+    sh """
+        kube_overrides() {
+            ruby <<EOF
+                require 'yaml'
+                require 'json'
+                domain = '${domain()}'
+                obj = YAML.load_file('\$1')
+                obj['spec']['containers'].each do |container|
+                    container['env'].each do |env|
+                        value = env['value']
+                        value = domain          if env['name'] == 'DOMAIN'
+                        value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
+                        env['value'] = value.to_s
+                    end
+                end
+                puts obj.to_json
+EOF
+        }
+
+        image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf/bosh-task/${testName}.yaml" | tr -d '"')
+
+        kubectl run \
+            --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
+            --attach \
+            --restart=Never \
+            --image=\${image} \
+            --overrides="\$(kube_overrides "unzipped/kube/cf/bosh-task/${testName}.yaml")" \
+            "${testName}"
+    """
+}
+
 String distSubDir() {
     try {
         "${CHANGE_ID}"
@@ -64,14 +108,19 @@ pipeline {
             description: 'Enable publishing to amazon s3',
         )
         booleanParam(
-            name: 'TEST',
+            name: 'TEST_SMOKE',
             defaultValue: true,
-            description: 'Trigger tests after publishing',
+            description: 'Run smoke tests',
+        )
+        booleanParam(
+            name: 'TEST_BRAIN',
+            defaultValue: true,
+            description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
             name: 'TEST_CATS',
             defaultValue: false,
-            description: 'Trigger CATS in the test run',
+            description: 'Run CATS (Cloud Foundry Acceptance Tests)',
         )
         booleanParam(
             name: 'TAR_SOURCES',
@@ -135,7 +184,7 @@ pipeline {
         )
         booleanParam(
             name: 'TRIGGER_SLES_BUILD',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Trigger a SLES version of this job',
         )
         string(
@@ -175,6 +224,11 @@ pipeline {
             }
             steps {
                 sh '''
+                    kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs --no-run-if-empty kubectl delete ns
+                    while kubectl get namespace | grep '-scf|-uaa'; do
+                        sleep 1
+                    done
+
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
                         xargs --no-run-if-empty docker rmi
@@ -226,6 +280,103 @@ pipeline {
                 '''
             }
         }
+
+        stage('dist') {
+            steps {
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    rm -f scf-*amd64*.zip
+                    make helm bundle-dist
+                '''
+            }
+        }
+
+        stage('deploy') {
+            when {
+                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+            }
+            steps {
+                sh """
+                    kubectl delete storageclass hostpath || /bin/true
+                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
+
+                    # Unzip the bundle
+                    rm -rf unzipped
+                    mkdir unzipped
+                    unzip -e scf-*linux-amd64*.zip -d unzipped
+
+                    # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
+                    ./unzipped/kube-ready-state-check.sh || /bin/true
+
+                    mkdir unzipped/certs
+                    ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
+
+                    helm install unzipped/helm/uaa \
+                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --values unzipped/certs/uaa-cert-values.yaml
+
+                    helm install unzipped/helm/cf \
+                        --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --values unzipped/certs/scf-cert-values.yaml
+
+                    echo Waiting for all pods to be ready...
+                    set +o xtrace
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
+                            sleep 10
+                        done
+                    done
+                    kubectl get pods --all-namespaces
+                """
+            }
+        }
+
+        stage('smoke') {
+            when {
+                expression { return params.TEST_SMOKE }
+            }
+            steps {
+                runTest('smoke-tests')
+            }
+        }
+
+        stage('brain') {
+            when {
+                expression { return params.TEST_BRAIN }
+            }
+            steps {
+                runTest('acceptance-tests-brain')
+            }
+        }
+
+        stage('cats') {
+            when {
+                expression { return params.TEST_CATS }
+            }
+            steps {
+                runTest('acceptance-tests')
+            }
+        }
+
         stage('tar_sources') {
           when {
                 expression { return params.TAR_SOURCES }
@@ -238,6 +389,7 @@ pipeline {
                 '''
           }
         }
+
         stage('commit_sources') {
           when {
                 expression { return params.COMMIT_SOURCES }
@@ -254,27 +406,16 @@ pipeline {
                   echo -e "[general]
 apiurl = https://api.opensuse.org
 [https://api.opensuse.org]
-user = ${OBS_CREDENTIALS_USERNAME} 
+user = ${OBS_CREDENTIALS_USERNAME}
 pass = ${OBS_CREDENTIALS_PASSWORD}
-" > ~/.oscrc  
+" > ~/.oscrc
                   make osc-commit-sources
-                  rm ~/.oscrc 
+                  rm ~/.oscrc
                 '''
                 }
           }
         }
-        stage('dist') {
-            steps {
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    set -x
-                    unset HCF_PACKAGE_COMPILATION_CACHE
-                    rm -f scf-*amd64*.zip
-                    make helm bundle-dist
-                '''
-            }
-        }
+
         stage('publish_docker') {
             when {
                 expression { return params.PUBLISH_DOCKER }
@@ -325,24 +466,30 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 }
             }
         }
-        stage('test') {
-            when {
-                expression { return params.PUBLISH && params.TEST }
-            }
-            steps {
-                script {
-                    def files = findFiles(glob: 'scf-*.linux-amd64*.zip')
-                    build(
-                        job: 'scf-test',
-                        parameters: [
-                            string(name: 'CONFIG_NAME', value: distPrefix() + files[0].path),
-                            string(name: 'CONFIG_PATH', value: 'https://s3.amazonaws.com/cf-opensusefs2/scf/config/' + distSubDir()),
-                            booleanParam(name: 'RUN_CATS', value: params.TEST_CATS),
-                        ],
-                        wait: false,
-                    )
-                }
-            }
+    }
+
+    post {
+        always {
+            sh """#!/bin/bash
+            set -o xtrace
+            if kubectl get storageclass hostpath ; then
+                kubectl delete storageclass hostpath
+            fi
+            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; then
+                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
+            fi
+            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; then
+                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa
+            fi
+            helm list --all --short | grep '${jobBaseName()}-${BUILD_NUMBER}-' | xargs --no-run-if-empty helm delete --purge
+            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; do
+                sleep 1
+            done
+            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; do
+                sleep 1
+            done
+            """
         }
     }
+
 }
