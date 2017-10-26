@@ -162,12 +162,19 @@ pipeline {
 
     stages {
         stage('trigger_sles_build') {
-          when {
+            when {
                 expression { return params.TRIGGER_SLES_BUILD }
-          }
-          steps {
-            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
-          }
+            }
+            steps {
+                build(
+                    job: 'scf-sles-trigger',
+                    wait: false,
+                    parameters: [
+                        string(name: 'JOB_NAME', value: env.JOB_NAME),
+                        string(name: 'BRANCH_NAME', value: params.BRANCH_NAME ? params.BRANCH_NAME : env.BRANCH_NAME),
+                    ]
+                )
+            }
         }
         stage('wipe') {
             when {
