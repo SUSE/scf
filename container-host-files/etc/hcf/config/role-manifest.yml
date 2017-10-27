@@ -70,7 +70,8 @@ roles:
   - name: consul_agent
     release_name: consul
     provides:
-      consul: {}
+      consul_common: {}
+      consul_server: {}
   - name: metron_agent
     release_name: loggregator
   processes:
