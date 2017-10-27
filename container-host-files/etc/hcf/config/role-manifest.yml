@@ -10,6 +10,8 @@ roles:
     release_name: hcf
   - name: nats
     release_name: nats
+    provides:
+      nats: {}
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -64,6 +66,8 @@ roles:
     release_name: hcf
   - name: consul_agent
     release_name: consul
+    provides:
+      consul: {}
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -151,6 +155,8 @@ roles:
     release_name: hcf
   - name: mysql
     release_name: cf-mysql
+    provides:
+      mysql: {}
   processes:
   - name: mariadb_ctrl
   - name: galera-healthcheck
@@ -237,6 +243,8 @@ roles:
     release_name: hcf
   - name: proxy
     release_name: cf-mysql
+    provides:
+      proxy: {}
   processes:
   - name: cf-mysql-route-registrar
   - name: switchboard
