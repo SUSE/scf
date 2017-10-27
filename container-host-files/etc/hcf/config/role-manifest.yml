@@ -278,49 +278,6 @@ roles:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
-- name: mysql-broker
-  tags: ['clustered']
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/patches/fix_mysqlbroker_setup_syslog_forwarder.sh
-  - scripts/patches/fix_mysqlbroker_su.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: patch-properties
-    release_name: hcf
-  - name: cf-mysql-broker
-    release_name: cf-mysql
-  processes:
-  - name: quota-enforcer
-  - name: cf-mysql-broker
-  run:
-    scaling:
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: broker
-      protocol: TCP
-      external: 8081
-      internal: 8081
-      public: false
-  configuration:
-    templates:
-      properties.cf_mysql.external_host: ((DOMAIN))
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1491,8 +1448,6 @@ roles:
     release_name: hcf
   - name: configure-scf
     release_name: hcf
-  - name: broker-registrar
-    release_name: cf-mysql
   processes: []
   run:
     scaling:
@@ -1731,30 +1686,6 @@ configuration:
   - name: CDN_URI
     default: ""
     description: URI for a CDN to use for buildpack downloads.
-  - name: CF_MYSQL_BROKER_AUTH_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'Basic auth password for the mysql service broker'
-  - name: CF_MYSQL_BROKER_COOKIE_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'A unique secret key, used to sign sessions for the mysql service broker'
-  - name: CF_MYSQL_BROKER_DB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'Password used to connect to the mysql server for the mysql service broker'
-  - name: CF_MYSQL_BROKER_QUOTA_ENFORCER_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'The password for the quota-enforcer user used for the mysql service broker'
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
@@ -2156,10 +2087,6 @@ configuration:
       type: Password
     description: The password for the MySQL server admin user.
     required: true
-  - name: MYSQL_BROKER_DISK_SIZE
-    description: Disk size alloted for mysql service instances (MB)
-    required: true
-    default: 5000
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -2610,15 +2537,9 @@ configuration:
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022
-    properties.cf_mysql.broker.auth_password: '"((CF_MYSQL_BROKER_AUTH_PASSWORD))"'
-    properties.cf_mysql.broker.cookie_secret: '"((CF_MYSQL_BROKER_COOKIE_SECRET))"'
-    properties.cf_mysql.broker.db_password: '"((CF_MYSQL_BROKER_DB_PASSWORD))"'
-    properties.cf_mysql.broker.quota_enforcer.password: '"((CF_MYSQL_BROKER_QUOTA_ENFORCER_PASSWORD))"'
-    properties.cf_mysql.broker.services: '[{"name":"mysql-dev","id":"9ef3b781-fdd1-4eac-9b97-f9e76640249d","tags":["mysql"],"description":"dev grade MySQL databases on demand","dashboard_client":{"id":"mysql","secret":"((UAA_CLIENTS_CC_SERVICE_SECRET))"},"metadata":{"displayName":"MySQL for SCF","documentationUrl":"https://github.com/cloudfoundry/cf-mysql-release/blob/master/README.md","longDescription":"Creating a service instance provisions a database. Binding applications provisions unique credentials for each application to access the database.","providerDisplayName":"SUSE","supportUrl":"https://www.suse.com/support/"},"plan_updateable":true,"plans":[{"description":"Shared MySQL Server","id":"843e376c-574c-402a-9a64-9e9801a75881","max_storage_mb":10,"max_user_connections":20,"name":"10mb"},{"description":"Shared MySQL Server","id":"10914e8c-c186-45c2-ab02-893e80606805","max_storage_mb":20,"max_user_connections":40,"name":"20mb"}]}]'
     properties.cf_mysql.external_host: '"mysql-broker.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.cf_mysql.mysql.persistent_disk: ((MYSQL_BROKER_DISK_SIZE))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
