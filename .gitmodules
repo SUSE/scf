@@ -58,9 +58,6 @@
 [submodule "src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests
 	url = https://github.com/cloudfoundry/cf-acceptance-tests
-[submodule "src/hcf-release/src/smoke-tests"]
-	path = src/hcf-release/src/smoke-tests
-	url = https://github.com/cloudfoundry/cf-smoke-tests.git
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
 	url = https://github.com/SUSE/cf-opensuse42-release.git
