@@ -266,6 +266,13 @@ properties:
     user: nats
   nfs_server:
     address: 0.0.0.3
+  nfsbroker:
+    db_driver: 'mysql'
+    db_username: 'nfsvolume'
+    db_port: 3306
+    db_name: 'nfsvolume'
+    service_name: 'persi-nfs'
+    service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
   router:
     enable_ssl: true
     extra_headers_to_log: null

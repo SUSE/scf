@@ -61,6 +61,7 @@ Table of Contents
       * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
       * [How do I generate certs for pre-built Docker images?](#how-do-i-generate-certs-for-prebuilt-docker-images)
       * [How do I use an authenticated registry for my Docker images?](#how-do-i-use-an-authenticated-registry-for-my-docker-images)
+      * [Using Persi NFS](#using-persi-nfs)
 
 # Deploying SCF on Vagrant
 
@@ -683,3 +684,84 @@ export FISSILE_DOCKER_AUTH=basic
 make registry
 curl -u ${FISSILE_DOCKER_USERNAME}:${FISSILE_DOCKER_PASSWORD} https://registry.cf-dev.io:5000/v2/
 ```
+
+## Using Persi NFS
+
+
+### Running a test NFS server
+
+```bash
+# Enable NFS modules
+sudo modprobe nfs
+sudo modprobe nfsd
+
+docker run -d --name nfs \
+    -v "/home/toaster/tools/nfs_share:/exports/foo" \
+    -p 111:111/tcp \
+    -p 111:111/udp \
+    -p 662:662/udp \
+    -p 662:662/tcp \
+    -p 875:875/udp \
+    -p 875:875/tcp \
+    -p 2049:2049/udp \
+    -p 2049:2049/tcp \
+    -p 32769:32769/udp \
+    -p 32803:32803/tcp \
+    -p 892:892/udp \
+    -p 892:892/tcp \
+    --privileged \
+    viovanov/nfs-server /exports/foo
+```
+
+### Allow access to the NFS server
+
+- Security group JSON file (nfs-sg.json)
+```json
+[
+    {
+        "destination": "192.168.77.77",
+        "protocol": "tcp",
+        "ports": "111,662,875,892,2049,32803"
+    },
+    {
+        "destination": "192.168.77.77",
+        "protocol": "udp",
+        "ports": "111,662,875,892,2049,32769"
+    }
+]
+```
+
+```bash
+# Create the security group - JSON above
+cf create-security-group nfs-test nfs-sg.json
+# Bind security groups for containers that run apps
+cf bind-running-security-group nfs-test
+# Bind security groups for containers that stage apps
+cf bind-staging-security-group nfs-test
+```
+
+### Creating and testing a service
+
+#### Get the pora app
+
+```
+git clone https://github.com/cloudfoundry/persi-acceptance-tests.git
+cd persi-acceptance-tests/assets/pora
+cf push pora --no-start
+```
+
+#### Test that writes work
+```bash
+# Enable the Persi NFS service
+cf enable-service-access persi-nfs
+
+# Create a service and bind it
+cf create-service persi-nfs Existing myVolume -c '{"share":"192.168.77.77/exports/foo"}'
+cf bind-service pora myVolume -c '{"uid":"1000","gid":"1000"}'
+
+# Start the app
+cf start pora
+# Test the app is available
+curl pora.cf-dev.io
+# Test the app can write
+curl pora.cf-dev.io/write

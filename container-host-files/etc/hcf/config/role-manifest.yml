@@ -823,8 +823,7 @@ roles:
   run:
     scaling:
       min: 1
-      max: 65535
-      ha: 2
+      max: 1 # Max is 1 per the description of the clock job
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1308,6 +1307,48 @@ roles:
                 values:
                 - diego-access
             topologyKey: "beta.kubernetes.io/os"
+- name: nfs-broker
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/consul_agent_log_level.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: metron_agent
+    release_name: loggregator
+  - name: nfsbroker
+    release_name: nfs-volume
+  run:
+    scaling:
+      min: 1
+      max: 3
+    capabilities: [ALL]
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 128
+    virtual-cpus: 2
+    exposed-ports:
+    - name: nfsbroker
+      protocol: TCP
+      external: 8999
+      internal: 8999
+      public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - nfs-broker
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1316,6 +1357,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
+  - scripts/patches/fix_persi_nfsdriver.sh
   - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1339,6 +1381,8 @@ roles:
     release_name: loggregator
   - name: grootfs
     release_name: grootfs
+  - name: nfsv3driver
+    release_name: nfs-volume
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1366,6 +1410,16 @@ roles:
       protocol: TCP
       external: 1801
       internal: 1801
+      public: false
+    - name: nfs-driver
+      protocol: TCP
+      external: 7589
+      internal: 7589
+      public: false      
+    - name: nfs-admin
+      protocol: TCP
+      external: 7590
+      internal: 7590
       public: false
     healthcheck:
       readiness:
@@ -2175,6 +2229,68 @@ configuration:
   - name: NO_PROXY
     description: Comma separated list of IP addresses and domains which should not be directoed through a proxy, if any.
     required: false
+  - name: PERSI_NFS_ALLOWED_OPTIONS
+    description: 'Comma separated list of white-listed options that may be set during create or bind operations.'
+    example: 'uid,gid,allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,fsname,username,password'
+    default: 'uid,gid,auto_cache,username,password'
+  - name: PERSI_NFS_BROKER_PASSWORD
+    description: 'Basic auth password to verify on incoming Service Broker requests'
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    required: true
+  - name: PERSI_NFS_DEFAULT_OPTIONS
+    description: "Comma separated list of default values for nfs mount options. If a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS, then this default value will be set and it won't be overridable."
+
+  - name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
+    description: "Comma separated list of white-listed options that may be accepted in the mount_config options. Note a specific 'sloppy_mount:true' volume option tells the driver to ignore non-white-listed options, while a 'sloppy_mount:false' tells the driver to fail fast instead when receiving a non-white-listed option."
+    example: "allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname"
+    default: "auto_cache"
+  - name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
+    description: 'Comma separated list of white-listed options that may be configured in supported in the mount_config.source URL query params'
+    example: 'uid,gid,auto-traverse-mounts,dircache'
+    default: 'uid,gid'
+  - name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
+    description: "Comma separated list default values for options that may be configured in the mount_config options, formatted as 'option:default'. If an option is not specified in the volume mount, or the option is not white-listed, then the specified default value will be used instead."
+    example: "allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true"
+    default: "auto_cache:true"
+  - name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
+    description: ''
+  - name: PERSI_NFS_DRIVER_DISABLE
+    description: "Disable Persi NFS driver"
+    default: "false"
+  - name: PERSI_NFS_DRIVER_LDAP_HOST
+    description: "LDAP server host name or ip address (required for LDAP integration only)"
+    default: ""
+  - name: PERSI_NFS_DRIVER_LDAP_PASSWORD
+    description: "LDAP service account password (required for LDAP integration only)"
+    default: "-"
+    secret: true
+    immutable: true
+  - name: PERSI_NFS_DRIVER_LDAP_PORT
+    description: "LDAP server port (required for LDAP integration only)"
+    default: "389"
+  - name: PERSI_NFS_DRIVER_LDAP_PROTOCOL
+    description: "LDAP server protocol (required for LDAP integration only)"
+    default: tcp
+  - name: PERSI_NFS_DRIVER_LDAP_USER
+    description: "LDAP service account user name (required for LDAP integration only)"
+    default: ""
+  - name: PERSI_NFS_DRIVER_LDAP_USER_FQDN
+    description: "LDAP fqdn for user records we will search against when looking up user uids (required for LDAP integration only)"
+    example: "cn=Users,dc=corp,dc=test,dc=com"
+    default: ""
+
+  - name: PERSI_NFS_MYSQL_PASSWORD
+    description: 'Database password for storing broker state for the Persi NFS Broker'
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    required: true
+
+
   - name: REP_CLIENT_CERT
     secret: true
     generator:
@@ -2545,7 +2661,6 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
-    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
@@ -2558,7 +2673,7 @@ configuration:
     properties.cf.api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume", "username": "nfsvolume", "password":"((PERSI_NFS_MYSQL_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2688,6 +2803,24 @@ configuration:
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
+    properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
+    properties.nfsbroker.db_hostname: 'mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))'
+    properties.nfsbroker.db_password: '"((PERSI_NFS_MYSQL_PASSWORD))"'
+    properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
+    properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
+    properties.nfsbroker.url: 'http://nfs-broker.((KUBE_SERVICE_DOMAIN_SUFFIX)):8999'
+    properties.nfsv3driver.allowed-in-mount: '"((PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT))"'
+    properties.nfsv3driver.allowed-in-source: '"((PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE))"'
+    properties.nfsv3driver.default-in-mount: '"((PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT))"'
+    properties.nfsv3driver.default-in-source: '"((PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE))"'
+    properties.nfsv3driver.disable: '((PERSI_NFS_DRIVER_DISABLE))'
+    properties.nfsv3driver.ldap_host: '"((PERSI_NFS_DRIVER_LDAP_HOST))"'
+    properties.nfsv3driver.ldap_port: '"((PERSI_NFS_DRIVER_LDAP_PORT))"'
+    properties.nfsv3driver.ldap_proto: '"((PERSI_NFS_DRIVER_LDAP_PROTOCOL))"'
+    properties.nfsv3driver.ldap_svc_password: '"((PERSI_NFS_DRIVER_LDAP_PASSWORD))"'
+    properties.nfsv3driver.ldap_svc_user: '"((PERSI_NFS_DRIVER_LDAP_USER))"'
+    properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
+    properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'

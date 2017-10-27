@@ -82,3 +82,6 @@
 [submodule "src/cf-sle12-release"]
 	path = src/cf-sle12-release
 	url = https://github.com/SUSE/cf-sle12-release.git
+[submodule "src/nfs-volume-release"]
+	path = src/nfs-volume-release
+	url = https://github.com/cloudfoundry/nfs-volume-release.git
