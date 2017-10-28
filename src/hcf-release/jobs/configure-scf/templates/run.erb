@@ -11,10 +11,6 @@ export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-u
 SILENT=
 #SILENT=--silent
 
-BROKER_URL='<%= p("cf_mysql.broker.protocol") %>://<%= p("cf_mysql.external_host") %>:<%= p("cf_mysql.broker.port") %>'
-BROKER_USERNAME='<%= p("cf_mysql.broker.auth_username") %>'
-BROKER_PASSWORD='<%= p("cf_mysql.broker.auth_password") %>'
-
 <%
 require 'shellwords'
 env = {}
@@ -105,23 +101,6 @@ insert_cf_client_auth_token.rb "$UAA_ENDPOINT" hcf_auto_config:<%= p("uaa.client
 cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
 <%end
 end %>
-
-status "Waiting for dev mysql broker to be available..."
-
-retry 240 30s curl ${SILENT} --connect-timeout 5 --fail --head --header 'Accept: application/json' -u ${BROKER_USERNAME}:${BROKER_PASSWORD} ${BROKER_URL}/v2/catalog
-
-# Get the IP of the mysql server used for the dev-mysql service
-mysql_dev_ip=$(getent hosts <%= p("cf_mysql.host") %> | awk '{ print $1 }' | head -n 1)
-
-# Write a security group definition
-echo "[{\"protocol\":\"tcp\",\"destination\":\"${mysql_dev_ip}\",\"ports\": \"<%= p("cf_mysql.mysql.port") %>\"}]" > /tmp/mysql-dev-sg.json
-
-# Create the security group
-cf create-security-group dev-mysql /tmp/mysql-dev-sg.json
-
-# Bind the security group
-cf bind-staging-security-group dev-mysql
-cf bind-running-security-group dev-mysql
 
 status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
