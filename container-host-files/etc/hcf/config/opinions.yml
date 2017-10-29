@@ -26,11 +26,13 @@ properties:
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     stager:
       lifecycle_bundles:
         - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        - "buildpack/sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
   cc:
     broker_client_timeout_seconds: 70
@@ -55,8 +57,6 @@ properties:
     - name: staticfile_buildpack
       package: staticfile-buildpack
     - name: java_buildpack
-      package: java-buildpack
-    - name: java_offline_buildpack
       package: java-offline-buildpack
     - name: ruby_buildpack
       package: ruby-buildpack
@@ -70,6 +70,8 @@ properties:
       package: php-buildpack
     - name: binary_buildpack
       package: binary-buildpack
+    - name: dotnet-core_buildpack
+      package: dotnet-core-buildpack
     - name: cf_iis_buildpack
       package: cf_iis_buildpack
     jobs:
@@ -122,6 +124,8 @@ properties:
       description: Cloud Foundry Linux-based filesystem
     - name: opensuse42
       description: openSUSE-based filesystem
+    - name: sle12
+      description: SLE-based filesystem
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -195,6 +199,7 @@ properties:
       preloaded_rootfses:
         - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
         - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
+        - sle12:/var/vcap/packages/cf-sle12/rootfs.tar
       require_tls: true
     route_emitter:
       nats:
@@ -225,6 +230,7 @@ properties:
     persistent_image_list:
     - /var/vcap/packages/cflinuxfs2/rootfs.tar
     - /var/vcap/packages/opensuse42/rootfs.tar
+    - /var/vcap/packages/cf-sle12/rootfs.tar
     image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     image_plugin_extra_args:
     - --config=/var/vcap/jobs/grootfs/config/grootfs_config.yml
@@ -239,6 +245,7 @@ properties:
     persistent_image_list:
     - /var/vcap/packages/cflinuxfs2/rootfs.tar
     - /var/vcap/packages/opensuse42/rootfs.tar
+    - /var/vcap/packages/cf-sle12/rootfs.tar
   fissile:
     monit:
       user: "admin"
@@ -259,6 +266,13 @@ properties:
     user: nats
   nfs_server:
     address: 0.0.0.3
+  nfsbroker:
+    db_driver: 'mysql'
+    db_username: 'nfsvolume'
+    db_port: 3306
+    db_name: 'nfsvolume'
+    service_name: 'persi-nfs'
+    service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
   router:
     enable_ssl: true
     extra_headers_to_log: null

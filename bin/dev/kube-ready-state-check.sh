@@ -108,7 +108,7 @@ fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test "$(kubectl get storageclasses 2>&1 | wc -l)" -gt 1
+    test ! "$(kubectl get storageclasses 2>&1 | grep "No resources found.")"
     status "A storage class should exist in K8s"
 fi
 
@@ -128,7 +128,7 @@ fi
 # override tasks infinity in systemd configuration
 if having_category node ; then
     if has_command systemctl ; then
-        systemctl cat containerd | grep -wq "TasksMax=infinity"
+        test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
         status "TasksMax must be set to infinity"
     else
         test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096

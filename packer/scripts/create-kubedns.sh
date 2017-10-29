@@ -14,9 +14,11 @@ done
 while ! kubectl get ns kube-system >& /dev/null; do
   sleep .1
 done
-perl -p -i -e '
-  s@clusterIP:.*@clusterIP: 10.254.0.254@ ;
-  s@170Mi@256Mi@ ;
-  s@70Mi@128Mi@ ;
-' /etc/kubernetes/addons/kubedns.yml
-kubectl create --namespace kube-system --filename /etc/kubernetes/addons/kubedns.yml
+
+curl -s https://raw.githubusercontent.com/SUSE/caasp-services/b0cf20ca424c/contrib/addons/kubedns/dns.yaml | \
+  perl -p -e '
+    s@clusterIP:.*@clusterIP: 10.254.0.254@ ;
+    s@170Mi@256Mi@ ;
+    s@70Mi@128Mi@ ;
+  ' | \
+  kubectl create --namespace kube-system --filename -

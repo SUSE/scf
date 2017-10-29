@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-
-# (**)
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
+ROOT="$(unset CDPATH ; cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
 
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" validation start
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" validation::show-properties start
@@ -24,7 +19,7 @@ docker < ${PROPS} run \
     --volume ${FISSILE_CACHE_DIR}:/root/.bosh/cache:ro \
     --volume $ROOT/:$ROOT/:ro \
     --env RUBY_VERSION=2.2.3 \
-    splatform/bosh-cli \
+    "splatform/bosh-cli:${BOSH_CLI_VERSION:-latest}" \
     bash --login -c "${ROOT}/bin/config-validator.rb"
 
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" validation::docker "done"

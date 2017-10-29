@@ -10,6 +10,8 @@ roles:
     release_name: hcf
   - name: nats
     release_name: nats
+    provides:
+      nats: {}
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -20,6 +22,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -36,6 +39,18 @@ roles:
       external: 4223
       internal: 4223
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - nats
+            topologyKey: "beta.kubernetes.io/os"
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -51,6 +66,8 @@ roles:
     release_name: hcf
   - name: consul_agent
     release_name: consul
+    provides:
+      consul: {}
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -60,6 +77,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -104,6 +123,18 @@ roles:
       external: 8500
       internal: 8500
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - consul
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.consul.agent.mode: '"server"'
@@ -124,6 +155,8 @@ roles:
     release_name: hcf
   - name: mysql
     release_name: cf-mysql
+    provides:
+      mysql: {}
   processes:
   - name: mariadb_ctrl
   - name: galera-healthcheck
@@ -132,6 +165,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -174,6 +208,18 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:9200/
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - mysql
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -197,6 +243,8 @@ roles:
     release_name: hcf
   - name: proxy
     release_name: cf-mysql
+    provides:
+      proxy: {}
   processes:
   - name: cf-mysql-route-registrar
   - name: switchboard
@@ -204,6 +252,8 @@ roles:
     scaling:
       min: 1
       max: 1
+      # mysql-proxy should be active/passive, but it looks like it is round-robin right now, which doesn't work
+      # ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -236,49 +286,6 @@ roles:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
-- name: mysql-broker
-  tags: ['clustered']
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/patches/fix_mysqlbroker_setup_syslog_forwarder.sh
-  - scripts/patches/fix_mysqlbroker_su.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: patch-properties
-    release_name: hcf
-  - name: cf-mysql-broker
-    release_name: cf-mysql
-  processes:
-  - name: quota-enforcer
-  - name: cf-mysql-broker
-  run:
-    scaling:
-      min: 1
-      max: 1
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: broker
-      protocol: TCP
-      external: 8081
-      internal: 8081
-      public: false
-  configuration:
-    templates:
-      properties.cf_mysql.external_host: ((DOMAIN))
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.cluster_ips: ((KUBE_MYSQL_CLUSTER_IPS))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -305,6 +312,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -321,6 +329,18 @@ roles:
       external: 24053
       internal: 24053
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - cf-usb
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -352,6 +372,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -372,6 +394,18 @@ roles:
       readiness:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-database
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-database
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.diego.bbs.advertisement_base_hostname: diego-database-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
@@ -402,6 +436,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -426,6 +461,27 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-cell
+            topologyKey: "beta.kubernetes.io/os"
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - router
+            topologyKey: "beta.kubernetes.io/os"
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -456,6 +512,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -475,6 +532,18 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip/health
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - tcp-router
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -509,6 +578,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -521,6 +591,18 @@ roles:
       internal: 3000
       public: false
     # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - routing-api
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -565,8 +647,10 @@ roles:
     release_name: python-buildpack
   - name: staticfile-buildpack
     release_name: staticfile-buildpack
-  - name: java-buildpack
-    release_name: java-buildpack
+  - name: java-offline-buildpack
+    release_name: java-offline-buildpack
+  - name: dotnet-core-buildpack
+    release_name: dotnet-core-buildpack
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -579,6 +663,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -607,6 +692,18 @@ roles:
         period: 60
       readiness:
         url: http://container-ip:9022/v2/info
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - api
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -635,12 +732,25 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - api-worker
+            topologyKey: "beta.kubernetes.io/os"
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -666,6 +776,7 @@ roles:
     scaling:
       min: 1
       max: 1
+      # Not HA capable; use external HA storage instead
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -712,13 +823,25 @@ roles:
   run:
     scaling:
       min: 1
-      max: 65535
+      max: 1 # Max is 1 per the description of the clock job
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 512
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - clock-global
+            topologyKey: "beta.kubernetes.io/os"
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -741,6 +864,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -775,6 +899,18 @@ roles:
     healthcheck:
       readiness:
         port: 8082
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - doppler
+            topologyKey: "beta.kubernetes.io/os"
 - name: etcd
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -803,6 +939,8 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 3
+      must_be_odd: true
     capabilities: []
     persistent-volumes:
     - path: /var/vcap/store
@@ -826,16 +964,23 @@ roles:
       readiness:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/etcd
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - etcd
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
       properties.etcd.advertise_urls_dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-      # The default of null in the bosh release does not seem to
-      # define the property properly. Setting it here does define the
-      # property, with a value of null. Note, placement in the
-      # opinions is blocked by the configuration validator,
-      # complaining about it 'matching the default'. So, here it is.
-      properties.etcd.cluster: null
+      properties.etcd.cluster: '[{"name": "etcd", "instances": ((KUBE_SIZING_ETCD_COUNT))}]'
       properties.etcd_metrics_server.etcd.dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: loggregator
   environment_scripts:
@@ -863,6 +1008,7 @@ roles:
     scaling:
       min: 1
       max: 65535
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -882,6 +1028,18 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8081/set-cookie
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - loggregator
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -910,6 +1068,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -921,6 +1080,18 @@ roles:
       external: 9016
       internal: 9016
       public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-brain
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cc-bridge
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -958,6 +1129,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1017,6 +1189,18 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:1518/v1/bulk_actual_lrp_status?guids=1
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-cc-bridge
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-route-emitter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1043,12 +1227,25 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
     exposed-ports: []
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-route-emitter
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1078,6 +1275,7 @@ roles:
     scaling:
       min: 1
       max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -1097,6 +1295,60 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8080/v1/static/
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-access
+            topologyKey: "beta.kubernetes.io/os"
+- name: nfs-broker
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/consul_agent_log_level.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: metron_agent
+    release_name: loggregator
+  - name: nfsbroker
+    release_name: nfs-volume
+  run:
+    scaling:
+      min: 1
+      max: 3
+    capabilities: [ALL]
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 128
+    virtual-cpus: 2
+    exposed-ports:
+    - name: nfsbroker
+      protocol: TCP
+      external: 8999
+      internal: 8999
+      public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - nfs-broker
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1105,6 +1357,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
+  - scripts/patches/fix_persi_nfsdriver.sh
   - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1122,10 +1375,14 @@ roles:
     release_name: cflinuxfs2
   - name: opensuse42-rootfs-setup
     release_name: cf-opensuse42
+  - name: cf-sle12-setup
+    release_name: cf-sle12
   - name: metron_agent
     release_name: loggregator
   - name: grootfs
     release_name: grootfs
+  - name: nfsv3driver
+    release_name: nfs-volume
   processes:
   - name: metron_agent
   - name: consul_agent
@@ -1135,6 +1392,8 @@ roles:
     scaling:
       min: 1
       max: 254
+      # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
+      ha: 3
     capabilities: [ALL]
     persistent-volumes:
     - path: /var/vcap/data/garden
@@ -1152,9 +1411,40 @@ roles:
       external: 1801
       internal: 1801
       public: false
+    - name: nfs-driver
+      protocol: TCP
+      external: 7589
+      internal: 7589
+      public: false
+    - name: nfs-admin
+      protocol: TCP
+      external: 7590
+      internal: 7590
+      public: false
     healthcheck:
       readiness:
         url: http://container-ip:1800/ping # rep HTTP server
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-cell
+            topologyKey: "beta.kubernetes.io/os"
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - router
+            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
@@ -1238,8 +1528,6 @@ roles:
     release_name: hcf
   - name: configure-scf
     release_name: hcf
-  - name: broker-registrar
-    release_name: cf-mysql
   processes: []
   run:
     scaling:
@@ -1252,30 +1540,6 @@ roles:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
-- name: dev-dns
-  type: docker
-  tags: [dev-only]
-  run:
-    env: []
-    scaling:
-      min: 1
-      max: 1
-    capabilities: [NET_ADMIN]
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 1
-    exposed-ports:
-    - name: dev-dns
-      protocol: UDP
-      external: 53
-      internal: 8600
-      public: true
-    - name: dev-dns-tcp
-      protocol: TCP
-      external: 53
-      internal: 8600
-      public: true
 configuration:
   variables:
   - name: ALLOWED_CORS_DOMAINS
@@ -1467,6 +1731,9 @@ configuration:
       type: Password
     description: The password for the bulk api.
     required: true
+  - name: CATS_SUITES
+    internal: true
+    description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
   - name: CCDB_ROLE_PASSWORD
     secret: true
     immutable: true
@@ -1499,30 +1766,6 @@ configuration:
   - name: CDN_URI
     default: ""
     description: URI for a CDN to use for buildpack downloads.
-  - name: CF_MYSQL_BROKER_AUTH_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'Basic auth password for the mysql service broker'
-  - name: CF_MYSQL_BROKER_COOKIE_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'A unique secret key, used to sign sessions for the mysql service broker'
-  - name: CF_MYSQL_BROKER_DB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'Password used to connect to the mysql server for the mysql service broker'
-  - name: CF_MYSQL_BROKER_QUOTA_ENFORCER_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'The password for the quota-enforcer user used for the mysql service broker'
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
@@ -1924,10 +2167,6 @@ configuration:
       type: Password
     description: The password for the MySQL server admin user.
     required: true
-  - name: MYSQL_BROKER_DISK_SIZE
-    description: Disk size alloted for mysql service instances (MB)
-    required: true
-    default: 5000
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -1990,6 +2229,81 @@ configuration:
   - name: NO_PROXY
     description: Comma separated list of IP addresses and domains which should not be directoed through a proxy, if any.
     required: false
+  - name: PERSI_NFS_ALLOWED_OPTIONS
+    description: 'Comma separated list of white-listed options that may be set during create or bind operations.'
+    example: 'uid,gid,allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,fsname,username,password'
+    default: 'uid,gid,auto_cache,username,password'
+  - name: PERSI_NFS_BROKER_PASSWORD
+    description: 'Basic auth password to verify on incoming Service Broker requests'
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    required: true
+  - name: PERSI_NFS_DEFAULT_OPTIONS
+    description: > 
+      Comma separated list of default values for nfs mount options. 
+      If a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS, 
+      then this default value will be set and it won't be overridable.
+  - name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
+    description: >
+      Comma separated list of white-listed options that may be accepted in the mount_config options.
+      Note a specific 'sloppy_mount:true' volume option tells the driver to ignore non-white-listed options,
+      while a 'sloppy_mount:false' tells the driver to fail fast instead when receiving a non-white-listed option."
+    example: "allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname"
+    default: "auto_cache"
+  - name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
+    description: >
+      Comma separated list of white-listed options that may be configured in supported in the 
+      mount_config.source URL query params
+    example: 'uid,gid,auto-traverse-mounts,dircache'
+    default: 'uid,gid'
+  - name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
+    description: >
+      Comma separated list default values for options that may be configured in the mount_config options,
+      formatted as 'option:default'. If an option is not specified in the volume mount, or the option is
+      not white-listed, then the specified default value will be used instead.
+    example: "allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true"
+    default: "auto_cache:true"
+  - name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
+    description: >
+      Comma separated list of default values for options in the source URL query params,
+      formatted as 'option:default'. If an option is not specified in the volume mount, 
+      or the option is not white-listed, then the specified default value will be applied.
+  - name: PERSI_NFS_DRIVER_DISABLE
+    description: "Disable Persi NFS driver"
+    default: "false"
+  - name: PERSI_NFS_DRIVER_LDAP_HOST
+    description: "LDAP server host name or ip address (required for LDAP integration only)"
+    default: ""
+  - name: PERSI_NFS_DRIVER_LDAP_PASSWORD
+    description: "LDAP service account password (required for LDAP integration only)"
+    default: "-"
+    secret: true
+    immutable: true
+  - name: PERSI_NFS_DRIVER_LDAP_PORT
+    description: "LDAP server port (required for LDAP integration only)"
+    default: "389"
+  - name: PERSI_NFS_DRIVER_LDAP_PROTOCOL
+    description: "LDAP server protocol (required for LDAP integration only)"
+    default: tcp
+  - name: PERSI_NFS_DRIVER_LDAP_USER
+    description: "LDAP service account user name (required for LDAP integration only)"
+    default: ""
+  - name: PERSI_NFS_DRIVER_LDAP_USER_FQDN
+    description: "LDAP fqdn for user records we will search against when looking up user uids (required for LDAP integration only)"
+    example: "cn=Users,dc=corp,dc=test,dc=com"
+    default: ""
+
+  - name: PERSI_NFS_MYSQL_PASSWORD
+    description: 'Database password for storing broker state for the Persi NFS Broker'
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    required: true
+
+
   - name: REP_CLIENT_CERT
     secret: true
     generator:
@@ -2174,13 +2488,6 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
-    required: true
-  - name: UAA_CLIENTS_CC_SERVICE_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Used for generating SSO clients for service brokers.
     required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
@@ -2367,6 +2674,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
@@ -2377,16 +2685,9 @@ configuration:
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022
-    properties.cf_mysql.broker.auth_password: '"((CF_MYSQL_BROKER_AUTH_PASSWORD))"'
-    properties.cf_mysql.broker.cookie_secret: '"((CF_MYSQL_BROKER_COOKIE_SECRET))"'
-    properties.cf_mysql.broker.db_password: '"((CF_MYSQL_BROKER_DB_PASSWORD))"'
-    properties.cf_mysql.broker.quota_enforcer.password: '"((CF_MYSQL_BROKER_QUOTA_ENFORCER_PASSWORD))"'
-    properties.cf_mysql.broker.services: '[{"name":"mysql-dev","id":"9ef3b781-fdd1-4eac-9b97-f9e76640249d","tags":["mysql"],"description":"dev grade MySQL databases on demand","dashboard_client":{"id":"mysql","secret":"((UAA_CLIENTS_CC_SERVICE_SECRET))"},"metadata":{"displayName":"MySQL for SCF","documentationUrl":"https://github.com/cloudfoundry/cf-mysql-release/blob/master/README.md","longDescription":"Creating a service instance provisions a database. Binding applications provisions unique credentials for each application to access the database.","providerDisplayName":"SUSE","supportUrl":"https://www.suse.com/support/"},"plan_updateable":true,"plans":[{"description":"Shared MySQL Server","id":"843e376c-574c-402a-9a64-9e9801a75881","max_storage_mb":10,"max_user_connections":20,"name":"10mb"},{"description":"Shared MySQL Server","id":"10914e8c-c186-45c2-ab02-893e80606805","max_storage_mb":20,"max_user_connections":40,"name":"20mb"}]}]'
-    properties.cf_mysql.external_host: '"mysql-broker.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.cf_mysql.mysql.persistent_disk: ((MYSQL_BROKER_DISK_SIZE))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume", "username": "nfsvolume", "password":"((PERSI_NFS_MYSQL_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
     properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2516,6 +2817,24 @@ configuration:
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
+    properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
+    properties.nfsbroker.db_hostname: 'mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))'
+    properties.nfsbroker.db_password: '"((PERSI_NFS_MYSQL_PASSWORD))"'
+    properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
+    properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
+    properties.nfsbroker.url: 'http://nfs-broker.((KUBE_SERVICE_DOMAIN_SUFFIX)):8999'
+    properties.nfsv3driver.allowed-in-mount: '"((PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT))"'
+    properties.nfsv3driver.allowed-in-source: '"((PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE))"'
+    properties.nfsv3driver.default-in-mount: '"((PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT))"'
+    properties.nfsv3driver.default-in-source: '"((PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE))"'
+    properties.nfsv3driver.disable: '((PERSI_NFS_DRIVER_DISABLE))'
+    properties.nfsv3driver.ldap_host: '"((PERSI_NFS_DRIVER_LDAP_HOST))"'
+    properties.nfsv3driver.ldap_port: '"((PERSI_NFS_DRIVER_LDAP_PORT))"'
+    properties.nfsv3driver.ldap_proto: '"((PERSI_NFS_DRIVER_LDAP_PROTOCOL))"'
+    properties.nfsv3driver.ldap_svc_password: '"((PERSI_NFS_DRIVER_LDAP_PASSWORD))"'
+    properties.nfsv3driver.ldap_svc_user: '"((PERSI_NFS_DRIVER_LDAP_USER))"'
+    properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
+    properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'

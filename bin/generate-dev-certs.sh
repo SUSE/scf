@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 
-# prevent cd from printing the directory it changes to. This breaks
-# cd/pwd constructions (See **).
-unset CDPATH
-
 load_env() {
     local dir="${1}"
+    DOMAIN=${DOMAIN:-}
+    if test -n "${DOMAIN}"; then
+        tmp=$(mktemp -d)
+        cp -r "${dir}/"*.env "${tmp}"
+        trap "rm -rf ${tmp}" EXIT
+        if test -f "${tmp}/network.env"; then
+            sed -i "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" "${tmp}/network.env"
+            sed -i "s/^UAA_HOST=.*/UAA_HOST=uaa.${DOMAIN}/" "${tmp}/network.env"
+        fi
+        dir="${tmp}"
+    fi
     for f in $(ls "${dir}"/*.env | sort | grep -vE '/certs\.env$' | grep -vE '/ca\.env$') ; do
         if ! test -e "${f}" ; then
             echo "Invalid environment file ${f}" >&2
@@ -59,8 +66,7 @@ if test -z "${output_path}" ; then
 fi
 
 if test "${has_env}" = "no" ; then
-    # (**)
-    load_env "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
+    load_env "$( unset CDPATH ; cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/settings/"
 fi
 
 # Replace the stubbed-out namespace info
@@ -69,12 +75,6 @@ KUBE_SERVICE_DOMAIN_SUFFIX="${KUBE_SERVICE_DOMAIN_SUFFIX/\$\{namespace\}/${names
 
 # Generate a random signing key passphrase
 signing_key_passphrase=$(head -c32 /dev/urandom | base64)
-
-# build and install `certstrap` tool if it's not installed
-command -v certstrap > /dev/null 2>&1 || {
-  docker run --rm -v "${HOME}/bin":/out:rw golang:${GOLANG_VERSION} /usr/bin/env GOBIN=/out go get github.com/square/certstrap
-  sudo chown "$(id -un):$(id -gn)" "${HOME}/bin/certstrap"
-}
 
 # Certificate generation
 certs_path="/tmp/scf/certs"

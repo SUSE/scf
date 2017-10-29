@@ -68,9 +68,10 @@ get_filename() {
 list_buildpacks
 get_buildpacks
 
-# Check that the (eight) standard buildpacks are present
+# Check that the (nine) standard buildpacks are present
 for pack in \
     binary \
+    dotnet-core \
     go \
     java \
     nodejs \

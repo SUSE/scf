@@ -52,9 +52,6 @@
 [submodule "src/buildpacks/staticfile-buildpack-release"]
 	path = src/buildpacks/staticfile-buildpack-release
 	url = https://github.com/SUSE/cf-staticfile-buildpack-release.git
-[submodule "src/buildpacks/java-buildpack-release"]
-	path = src/buildpacks/java-buildpack-release
-	url = https://github.com/SUSE/cf-java-buildpack-release.git
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
 	url = https://github.com/cloudfoundry/grootfs-release.git
@@ -76,3 +73,15 @@
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = https://github.com/SUSE/cf-usb
+[submodule "src/buildpacks/dotnet-core-buildpack-release"]
+	path = src/buildpacks/dotnet-core-buildpack-release
+	url = https://github.com/SUSE/cf-dotnet-core-buildpack-release
+[submodule "src/buildpacks/java-offline-buildpack-release"]
+	path = src/buildpacks/java-offline-buildpack-release
+	url = https://github.com/SUSE/cf-java-offline-buildpack-release.git
+[submodule "src/cf-sle12-release"]
+	path = src/cf-sle12-release
+	url = https://github.com/SUSE/cf-sle12-release.git
+[submodule "src/nfs-volume-release"]
+	path = src/nfs-volume-release
+	url = https://github.com/cloudfoundry/nfs-volume-release.git

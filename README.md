@@ -60,6 +60,8 @@ Table of Contents
       * [How do I develop an upstream PR?](#how-do-i-develop-an-upstream-pr)
       * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
       * [How do I generate certs for pre-built Docker images?](#how-do-i-generate-certs-for-prebuilt-docker-images)
+      * [How do I use an authenticated registry for my Docker images?](#how-do-i-use-an-authenticated-registry-for-my-docker-images)
+      * [Using Persi NFS](#using-persi-nfs)
 
 # Deploying SCF on Vagrant
 
@@ -70,7 +72,13 @@ Table of Contents
 1. Install the following vagrant plugins
 
     * vagrant-reload
+      ```bash
+      vagrant plugin install vagrant-reload
+      ```
     * vagrant-libvirt (if using libvirt)
+      ```bash
+      vagrant plugin install vagrant-libvirt
+      ```
 
 ## Deploying
 
@@ -607,3 +615,153 @@ here.
     ```bash
     helm install ... -f scf-cert-values.yaml
     ```
+
+## How do I use an authenticated registry for my Docker images?
+
+For testing purposes we can create an authenticated registry right inside
+the Vagrant box.  But the instructions work just the same with a pre-existing
+local registry.
+
+The environment variables must be exported before changing into the `scf/`
+directory. Otherwise `direnv` will remove the settings when switching to the
+`src/uaa-fissile-release/` dir and back:
+
+```
+vagrant ssh
+export FISSILE_DOCKER_REGISTRY=registry.cf-dev.io:5000
+export FISSILE_DOCKER_USERNAME=admin
+export FISSILE_DOCKER_PASSWORD=changeme
+cd scf
+time make vagrant-prep
+```
+
+`make secure-registries` will disallow access to insecure registries and register
+the interal CA cert before restarting the docker daemon.
+
+`make registry` will create a local docker registry re-using the router_ssl certs
+and using basic auth. `make publish` will push all images to this registry:
+
+```
+make secure-registries
+make registry
+docker login -u $FISSILE_DOCKER_USERNAME -p $FISSILE_DOCKER_PASSWORD $FISSILE_DOCKER_REGISTRY
+make publish
+docker logout $FISSILE_DOCKER_REGISTRY
+```
+
+Log out to make sure that kube is using the registry credentials from the
+helm chart and not the cached docker session.
+
+Now delete all the local copies of the images. direnv allow is required to call
+fissile from the UAA directory, and `FISSILE_REPOSITORY` needs to be overridden
+from the `scf` setting that is inherited:
+
+```
+fissile show image | xargs docker rmi
+cd src/uaa-fissile-release/
+direnv allow
+FISSILE_REPOSITORY=uaa fissile show image | xargs docker rmi
+docker images
+cd -
+```
+
+Now create an SCF and UAA instance via the helm chart and confirm that all
+images are fetched correctly. Run smoke tests for final verification:
+
+```
+make run
+pod-status --watch
+docker images
+make smoke
+```
+
+If the registry API needs to be accessed via curl, then it is easier to just use basic auth,
+which can be requested by setting:
+
+```
+...
+export FISSILE_DOCKER_AUTH=basic
+make registry
+curl -u ${FISSILE_DOCKER_USERNAME}:${FISSILE_DOCKER_PASSWORD} https://registry.cf-dev.io:5000/v2/
+```
+
+## Using Persi NFS
+
+
+### Running a test NFS server
+
+```bash
+# Enable NFS modules
+sudo modprobe nfs
+sudo modprobe nfsd
+
+docker run -d --name nfs \
+    -v "[SOME_DIR_YOU_WANT_TO_SHARE_ON_YOUR_HOST]:/exports/foo" \
+    -p 111:111/tcp \
+    -p 111:111/udp \
+    -p 662:662/udp \
+    -p 662:662/tcp \
+    -p 875:875/udp \
+    -p 875:875/tcp \
+    -p 2049:2049/udp \
+    -p 2049:2049/tcp \
+    -p 32769:32769/udp \
+    -p 32803:32803/tcp \
+    -p 892:892/udp \
+    -p 892:892/tcp \
+    --privileged \
+    viovanov/nfs-server /exports/foo
+```
+
+### Allow access to the NFS server
+
+- Security group JSON file (nfs-sg.json)
+```json
+[
+    {
+        "destination": "192.168.77.77",
+        "protocol": "tcp",
+        "ports": "111,662,875,892,2049,32803"
+    },
+    {
+        "destination": "192.168.77.77",
+        "protocol": "udp",
+        "ports": "111,662,875,892,2049,32769"
+    }
+]
+```
+
+```bash
+# Create the security group - JSON above
+cf create-security-group nfs-test nfs-sg.json
+# Bind security groups for containers that run apps
+cf bind-running-security-group nfs-test
+# Bind security groups for containers that stage apps
+cf bind-staging-security-group nfs-test
+```
+
+### Creating and testing a service
+
+#### Get the pora app
+
+```
+git clone https://github.com/cloudfoundry/persi-acceptance-tests.git
+cd persi-acceptance-tests/assets/pora
+cf push pora --no-start
+```
+
+#### Test that writes work
+```bash
+# Enable the Persi NFS service
+cf enable-service-access persi-nfs
+
+# Create a service and bind it
+cf create-service persi-nfs Existing myVolume -c '{"share":"192.168.77.77/exports/foo"}'
+cf bind-service pora myVolume -c '{"uid":"1000","gid":"1000"}'
+
+# Start the app
+cf start pora
+# Test the app is available
+curl pora.cf-dev.io
+# Test the app can write
+curl pora.cf-dev.io/write
