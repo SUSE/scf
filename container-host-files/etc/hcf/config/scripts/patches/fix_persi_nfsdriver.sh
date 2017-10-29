@@ -1,5 +1,10 @@
 set -e
 
+# SUSE compatibility:
+# - makes sure useradd adds a group for the cvcap user; 
+#   by default this doesn't occur by default on SUSE; see `man useradd`` for details
+# - adduser is not avalable on SUSE - use usermod instead
+
 PATCH_DIR="/var/vcap/jobs-src/nfsv3driver/templates"
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 

@@ -1415,7 +1415,7 @@ roles:
       protocol: TCP
       external: 7589
       internal: 7589
-      public: false      
+      public: false
     - name: nfs-admin
       protocol: TCP
       external: 7590
@@ -2241,22 +2241,35 @@ configuration:
       type: Password
     required: true
   - name: PERSI_NFS_DEFAULT_OPTIONS
-    description: "Comma separated list of default values for nfs mount options. If a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS, then this default value will be set and it won't be overridable."
-
+    description: > 
+      Comma separated list of default values for nfs mount options. 
+      If a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS, 
+      then this default value will be set and it won't be overridable.
   - name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
-    description: "Comma separated list of white-listed options that may be accepted in the mount_config options. Note a specific 'sloppy_mount:true' volume option tells the driver to ignore non-white-listed options, while a 'sloppy_mount:false' tells the driver to fail fast instead when receiving a non-white-listed option."
+    description: >
+      Comma separated list of white-listed options that may be accepted in the mount_config options.
+      Note a specific 'sloppy_mount:true' volume option tells the driver to ignore non-white-listed options,
+      while a 'sloppy_mount:false' tells the driver to fail fast instead when receiving a non-white-listed option."
     example: "allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname"
     default: "auto_cache"
   - name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
-    description: 'Comma separated list of white-listed options that may be configured in supported in the mount_config.source URL query params'
+    description: >
+      Comma separated list of white-listed options that may be configured in supported in the 
+      mount_config.source URL query params
     example: 'uid,gid,auto-traverse-mounts,dircache'
     default: 'uid,gid'
   - name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
-    description: "Comma separated list default values for options that may be configured in the mount_config options, formatted as 'option:default'. If an option is not specified in the volume mount, or the option is not white-listed, then the specified default value will be used instead."
+    description: >
+      Comma separated list default values for options that may be configured in the mount_config options,
+      formatted as 'option:default'. If an option is not specified in the volume mount, or the option is
+      not white-listed, then the specified default value will be used instead.
     example: "allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true"
     default: "auto_cache:true"
   - name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
-    description: ''
+    description: >
+      Comma separated list of default values for options in the source URL query params,
+      formatted as 'option:default'. If an option is not specified in the volume mount, 
+      or the option is not white-listed, then the specified default value will be applied.
   - name: PERSI_NFS_DRIVER_DISABLE
     description: "Disable Persi NFS driver"
     default: "false"
@@ -2661,6 +2674,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'

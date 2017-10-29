@@ -696,7 +696,7 @@ sudo modprobe nfs
 sudo modprobe nfsd
 
 docker run -d --name nfs \
-    -v "/home/toaster/tools/nfs_share:/exports/foo" \
+    -v "[SOME_DIR_YOU_WANT_TO_SHARE_ON_YOUR_HOST]:/exports/foo" \
     -p 111:111/tcp \
     -p 111:111/udp \
     -p 662:662/udp \
