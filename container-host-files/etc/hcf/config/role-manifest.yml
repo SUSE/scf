@@ -286,7 +286,6 @@ roles:
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-      properties.cf_mysql.proxy.proxy_ips: '["mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
