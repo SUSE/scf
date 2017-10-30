@@ -85,7 +85,7 @@ CF_SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
 CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
 
 UAA_ENDPOINT="<%= p('hcf.uaa.internal-url') %>"
-API_ENDPOINT="<%= p("cc.srv_api_uri") %>"
+API_ENDPOINT="<%= p('cf.insecure_api_url') %>"
 
 status "Waiting for CC ..."
 retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"

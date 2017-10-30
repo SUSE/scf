@@ -7,12 +7,12 @@ if [ -f "${SENTINEL}" ]; then
   exit 0
 fi
 
-cd "$PATCH_DIR"
-
-read -r -d '' setup_patch_cc_yaml <<'PATCH' || true
---- cloud_controller_api.yml.erb
-+++ cloud_controller_api.yml.erb
-@@ -215,6 +215,7 @@ hm9000:
+patch -d "$PATCH_DIR" --force -p4 <<'PATCH'
+diff --git bosh/jobs/cloud_controller_ng/templates/cloud_controller_ng.yml.erb bosh/jobs/cloud_controller_ng/templates/cloud_controller_ng.yml.erb
+index 2f17279b3..33d21b5d5 100644
+--- bosh/jobs/cloud_controller_ng/templates/cloud_controller_ng.yml.erb
++++ bosh/jobs/cloud_controller_ng/templates/cloud_controller_ng.yml.erb
+@@ -223,6 +223,7 @@ hm9000:
 
  <% if p("routing_api.enabled") %>
  routing_api:
@@ -22,16 +22,14 @@ read -r -d '' setup_patch_cc_yaml <<'PATCH' || true
    routing_client_secret: <%= p("uaa.clients.cc_routing.secret") %>
 PATCH
 
-echo -e "${setup_patch_cc_yaml}" | patch --force
-
 PATCH_DIR=/var/vcap/packages/cloud_controller_ng/cloud_controller_ng/lib/cloud_controller/
 
-cd "$PATCH_DIR"
-
-read -r -d '' setup_patch_routing_api_endpoint <<'PATCH' || true
---- dependency_locator.rb
-+++ dependency_locator.rb
-@@ -240,7 +240,7 @@ module CloudController
+patch -d "$PATCH_DIR" --force -p2 <<'PATCH'
+diff --git lib/cloud_controller/dependency_locator.rb lib/cloud_controller/dependency_locator.rb
+index 6948c3b09..474443ffa 100644
+--- lib/cloud_controller/dependency_locator.rb
++++ lib/cloud_controller/dependency_locator.rb
+@@ -271,7 +271,7 @@ module CloudController
        )
 
        skip_cert_verify = @config[:skip_cert_verify]
@@ -41,8 +39,6 @@ read -r -d '' setup_patch_routing_api_endpoint <<'PATCH' || true
      end
 
 PATCH
-
-echo -e "${setup_patch_routing_api_endpoint}" | patch --force
 
 touch "${SENTINEL}"
 

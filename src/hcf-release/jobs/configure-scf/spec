@@ -12,8 +12,8 @@ templates:
   run.erb: bin/run
 
 properties:
-  cc.srv_api_uri:
-    description: The cloudcontroller's api endpoint
+  cf.insecure_api_url:
+    description: The cloudcontroller's API endpoint (without TLS)
   hcf_set_proxy.staging_http_proxy:
     description: The HTTP proxy to use during staging
   hcf_set_proxy.staging_https_proxy:
