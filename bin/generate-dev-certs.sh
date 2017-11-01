@@ -166,7 +166,7 @@ certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_re
 certstrap --depot-path "${internal_certs_dir}" sign bbs_rep --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate BBS_SERVER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_server --domain "$(make_domains "diego-database")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name bbs_server --domain "$(make_domains "diego-api")" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign bbs_server --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate CC_SERVER certs (properties.cc.mutual_tls.{private_key,public_cert})
@@ -174,6 +174,10 @@ certstrap --depot-path "${internal_certs_dir}" sign bbs_server --CA internalCA -
 # has that name hardwired into it!
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name api --domain "$(make_domains "api"),cloud-controller-ng.service.cf.internal" --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign api --CA internalCA --passphrase "${signing_key_passphrase}"
+
+# generate CC_UPLOADER certs
+certstrap --depot-path "${internal_certs_dir}" request-cert --common-name cc_uploader --domain "$(make_ha_domains "cc-uploader")" --passphrase ""
+certstrap --depot-path "${internal_certs_dir}" sign cc_uploader --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate DOPPLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name doppler --passphrase ""
@@ -288,6 +292,8 @@ add_env BLOBSTORE_TLS_CERT        "${certs_path}/blobstore_tls.cert"
 add_env BLOBSTORE_TLS_KEY         "${certs_path}/blobstore_tls.key"
 add_env CC_SERVER_CRT             "${internal_certs_dir}/api.crt"
 add_env CC_SERVER_KEY             "${internal_certs_dir}/api.key"
+add_env CC_UPLOADER_CRT           "${internal_certs_dir}/cc_uploader.crt"
+add_env CC_UPLOADER_KEY           "${internal_certs_dir}/cc_uploader.key"
 add_env CF_USB_BROKER_SERVER_CERT "${internal_certs_dir}/cfUsbBrokerServer.crt"
 add_env CF_USB_BROKER_SERVER_KEY  "${internal_certs_dir}/cfUsbBrokerServer.key"
 add_env CONSUL_AGENT_CERT         "${internal_certs_dir}/agent.crt"

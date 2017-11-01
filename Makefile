@@ -98,6 +98,9 @@ garden-release:
 mysql-release:
 	RUBY_VERSION=2.3.1 make/bosh-release src/cf-mysql-release
 
+smoke-tests-release:
+	make/bosh-release src/cf-smoke-tests-release
+
 usb-release:
 	make/bosh-release src/cf-usb/cf-usb-release
 
@@ -134,6 +137,9 @@ nats-release:
 consul-release:
 	make/bosh-release src/consul-release
 
+statsd-injector-release:
+	make/bosh-release src/statsd-injector-release
+
 binary-buildpack-release:
 	make/bosh-release src/buildpacks/binary-buildpack-release
 
@@ -166,6 +172,7 @@ releases: \
 	etcd-release \
 	garden-release \
 	mysql-release \
+	smoke-tests-release \
 	usb-release \
 	nfs-volume-release \
 	cflinuxfs2-release \
@@ -177,6 +184,7 @@ releases: \
 	loggregator-release \
 	nats-release \
 	consul-release \
+	statsd-injector-release \
 	binary-buildpack-release \
 	dotnet-core-buildpack-release \
 	go-buildpack-release \

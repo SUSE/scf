@@ -2,4 +2,6 @@
 
 set -o errexit -o nounset
 
-docker pull ${FISSILE_STEMCELL}
+if test -z $(docker images -q ${FISSILE_STEMCELL} 2>/dev/null) ; then
+    docker pull ${FISSILE_STEMCELL}
+fi

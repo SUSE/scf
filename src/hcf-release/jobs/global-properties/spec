@@ -4,7 +4,7 @@ description: Dummy BOSH job used to host global parameters that are required to 
 
 templates:
   run.erb: bin/run
-  readiness-diego-database.sh: bin/readiness/diego-database
+  readiness-diego-api.sh: bin/readiness/diego-api
   readiness-etcd.sh: bin/readiness/etcd
 
 packages: []
