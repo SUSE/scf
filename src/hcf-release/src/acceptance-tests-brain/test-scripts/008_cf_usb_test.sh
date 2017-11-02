@@ -28,25 +28,27 @@
 
 function get_port
 {
-    port=$(awk '/Route .* has been created/ {print $2}' < ${TMP}/$1 | cut -f 2 -d ':')
+    file="${1}"
+    port="$(awk '/Route .* has been created/ {print $2}' < "${TMP}/${file}" | cut -f 2 -d ':')"
     if [ -z "${port}" ]; then
-	echo "ERROR: Could not determine the assigned random port number for $1"
-	echo "ERROR: Mapping route to random port failed for $1"
+	echo 1>&2 "ERROR: Could not determine the assigned random port number for $1"
+	echo 1>&2 "ERROR: Mapping route to random port failed for $1"
 	exit 1
     fi
-    echo $port
+    echo "${port}"
 }
 
 function wait_on_port
 {
+    endpoint="${CF_TCP_DOMAIN}:${1}"
     for (( i = 0; i < 12 ; i++ )) ; do
-	if curl --fail -s -o /dev/null ${CF_TCP_DOMAIN}:$1 ; then
+	if curl --fail -s -o /dev/null "${endpoint}" ; then
             break
 	fi
 	sleep 5
     done
     # Last try, any error will abort the test
-    curl ${CF_TCP_DOMAIN}:$1
+    curl "${endpoint}"
 }
 
 ## # # ## ### Tracing and common configuration ### ## # #
@@ -65,28 +67,27 @@ function login_cleanup() {
     trap "" EXIT ERR
     set +o errexit
 
-    cf delete-space -f ${CF_SPACE}
-    cf delete-org -f ${CF_ORG}
+    cf delete-space -f "${CF_SPACE}"
+    cf delete-org   -f "${CF_ORG}"
 
     set -o errexit
 }
 trap login_cleanup EXIT ERR
 
 # target, login, create work org and space
-cf api --skip-ssl-validation api.${CF_DOMAIN}
-cf auth ${CF_USERNAME} ${CF_PASSWORD}
+cf api --skip-ssl-validation "api.${CF_DOMAIN}"
+cf auth "${CF_USERNAME}" "${CF_PASSWORD}"
 
-cf create-org ${CF_ORG}
-cf target -o ${CF_ORG}
+cf create-org "${CF_ORG}"
+cf target -o  "${CF_ORG}"
 
-cf create-space ${CF_SPACE}
-cf target -s ${CF_SPACE}
+cf create-space "${CF_SPACE}"
+cf target -s    "${CF_SPACE}"
 
 ## # # ## ### Test-specific configuration ### ## # #
 
 # Location of the test script. All other assets will be found relative
 # to this.
-SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TMP=$(mktemp -dt 008_cf_usb.XXXXXX)
 
 MYSQL_USER=root
@@ -115,13 +116,13 @@ function test_cleanup() {
     # - tcp routing
     # - temp directory
 
-    cf delete-service -f ${SERVICE_INSTANCE}
-    yes | cf usb delete-driver-endpoint ${SERVICE_TYPE}
-    cf delete -f ${SIDECAR_APP}
-    cf delete -f ${SERVER_APP}
+    cf delete-service -f "${SERVICE_INSTANCE}"
+    yes | cf usb delete-driver-endpoint "${SERVICE_TYPE}"
+    cf delete -f "${SIDECAR_APP}"
+    cf delete -f "${SERVER_APP}"
     cf unbind-running-security-group internal-services-workaround
     cf unbind-staging-security-group internal-services-workaround
-    cf delete-shared-domain -f ${CF_TCP_DOMAIN}
+    cf delete-shared-domain -f "${CF_TCP_DOMAIN}"
 
     rm -rf "${TMP}"
 
@@ -132,51 +133,51 @@ trap test_cleanup EXIT ERR
 
 # --(0)-- Initialize tcp routing
 
-cf delete-shared-domain -f ${CF_TCP_DOMAIN} || true
-cf create-shared-domain    ${CF_TCP_DOMAIN} --router-group default-tcp
+cf delete-shared-domain -f "${CF_TCP_DOMAIN}" || true
+cf create-shared-domain    "${CF_TCP_DOMAIN}" --router-group default-tcp
 cf update-quota default --reserved-route-ports -1
 
 # --(0.1) -- Initialize a security group to allow for inter-app comms
 # Attention: This SG opens the entire internal kube service network.
 
-#echo > ${TMP}/internal-services.json '[{ "destination": "192.168.77.77/32", "protocol": "all" }]'
-echo > ${TMP}/internal-services.json '[{ "destination": "0.0.0.0/0", "protocol": "all" }]'
+echo > "${TMP}/internal-services.json" '[{ "destination": "0.0.0.0/0", "protocol": "all" }]'
 
-cf create-security-group       internal-services-workaround ${TMP}/internal-services.json
+cf create-security-group       internal-services-workaround "${TMP}/internal-services.json"
 cf bind-running-security-group internal-services-workaround
 cf bind-staging-security-group internal-services-workaround
 
 ## --(1)-- Create and configure the mysql server
 
-cf push --no-start --no-route --health-check-type none ${SERVER_APP} -o mysql/mysql-server
-cf map-route ${SERVER_APP} ${CF_TCP_DOMAIN} --random-port | tee ${TMP}/mysql
-cf set-env   ${SERVER_APP} MYSQL_ROOT_PASSWORD ${MYSQL_PASS}
-cf set-env   ${SERVER_APP} MYSQL_ROOT_HOST '%'
-cf start     ${SERVER_APP}
+cf push --no-start --no-route --health-check-type none "${SERVER_APP}" -o mysql/mysql-server
+cf map-route "${SERVER_APP}" "${CF_TCP_DOMAIN}" --random-port | tee "${TMP}/mysql"
+cf set-env   "${SERVER_APP}" MYSQL_ROOT_PASSWORD "${MYSQL_PASS}"
+cf set-env   "${SERVER_APP}" MYSQL_ROOT_HOST '%'
+cf start     "${SERVER_APP}"
 
-MYSQL_PORT=$(get_port mysql)
+MYSQL_PORT="$(get_port mysql)"
 
-wait_on_port ${MYSQL_PORT}
+wait_on_port "${MYSQL_PORT}"
 
 ## --(2)-- Create and configure the mysql client sidecar for usb.
 
-cf push ${SIDECAR_APP} --no-start -o splatform/cf-usb-sidecar-dev-mysql
+cf push "${SIDECAR_APP}" --no-start -o splatform/cf-usb-sidecar-dev-mysql
 
 # Use a secret key that will be used by the USB to talk to your
 # sidecar, and set the connection parameters for the mysql client
 # sidecar so that it can talk to the mysql server from the previous
 # step.
-cf set-env ${SIDECAR_APP} SIDECAR_API_KEY ${SIDECAR_API_KEY}
-cf set-env ${SIDECAR_APP} SERVICE_MYSQL_HOST ${CF_TCP_DOMAIN}
-cf set-env ${SIDECAR_APP} SERVICE_MYSQL_PORT ${MYSQL_PORT}
-cf set-env ${SIDECAR_APP} SERVICE_MYSQL_USER ${MYSQL_USER}
-cf set-env ${SIDECAR_APP} SERVICE_MYSQL_PASS ${MYSQL_PASS}
-cf start   ${SIDECAR_APP}
+cf set-env "${SIDECAR_APP}" SIDECAR_API_KEY    "${SIDECAR_API_KEY}"
+cf set-env "${SIDECAR_APP}" SERVICE_MYSQL_HOST "${CF_TCP_DOMAIN}"
+cf set-env "${SIDECAR_APP}" SERVICE_MYSQL_PORT "${MYSQL_PORT}"
+cf set-env "${SIDECAR_APP}" SERVICE_MYSQL_USER "${MYSQL_USER}"
+cf set-env "${SIDECAR_APP}" SERVICE_MYSQL_PASS "${MYSQL_PASS}"
+cf start   "${SIDECAR_APP}"
 
 # --(3)-- Create a driver endpoint to the mysql sidecar (== service type)
 # Note that the -c ":" is required as a workaround to a known issue
-cf usb create-driver-endpoint ${SERVICE_TYPE} \
-    https://${SIDECAR_APP}.${CF_DOMAIN} ${SIDECAR_API_KEY} \
+cf usb create-driver-endpoint "${SERVICE_TYPE}" \
+    "https://${SIDECAR_APP}.${CF_DOMAIN}" \
+    "${SIDECAR_API_KEY}" \
     -c ":"
 
 # --(4)-- Check that the service is available in the marketplace and use it
@@ -186,12 +187,12 @@ cf usb create-driver-endpoint ${SERVICE_TYPE} \
 ## through and fails the filter.
 
 cf marketplace
-cf marketplace | grep ${SERVICE_TYPE}
+cf marketplace | grep "${SERVICE_TYPE}"
 
-cf create-service ${SERVICE_TYPE} default ${SERVICE_INSTANCE}
+cf create-service "${SERVICE_TYPE}" default "${SERVICE_INSTANCE}"
 
 cf services
-cf services | grep ${SERVICE_INSTANCE}
+cf services | grep "${SERVICE_INSTANCE}"
 
 # -- If we want to, we can now create and push an app which uses the
 #    service-instance as database, and verify that it works.
