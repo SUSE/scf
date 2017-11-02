@@ -8,3 +8,11 @@ PATH=$PATH:/var/vcap/packages/cli/bin
 cf api --skip-ssl-validation "https://api.$DOMAIN"
 cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
 cf enable-feature-flag diego_docker
+
+wget https://github.com/SUSE/cf-usb-plugin/releases/download/0.0.1/cf-plugin-usb-linux-amd64.zip
+# TODO: Make version configurable (track plugin releases)
+# TODO: SHA256 checksum validation
+
+unzip cf-plugin-usb-linux-amd64.zip
+cf install-plugin -f ./cf-plugin-usb
+cf usb info
