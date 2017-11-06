@@ -44,7 +44,7 @@ chmod a+x "${SCF_BIN_DIR}/helm"
 if systemctl is-active kube-apiserver.service ; then
   echo "Installing tiller for helm ..."
   if [[ $(id -u) -eq 0 ]] && id -u vagrant &>/dev/null; then
-    sudo -u vagrant helm init
+    sudo -iu vagrant helm init
   else
     helm init
   fi
