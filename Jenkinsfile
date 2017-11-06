@@ -229,6 +229,8 @@ pipeline {
                         sleep 1
                     done
 
+                    helm list --all --short | grep -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
+
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
                         xargs --no-run-if-empty docker rmi
@@ -467,29 +469,4 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
         }
     }
-
-    post {
-        always {
-            sh """#!/bin/bash
-            set -o xtrace
-            if kubectl get storageclass hostpath ; then
-                kubectl delete storageclass hostpath
-            fi
-            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; then
-                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
-            fi
-            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; then
-                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa
-            fi
-            helm list --all --short | grep '${jobBaseName()}-${BUILD_NUMBER}-' | xargs --no-run-if-empty helm delete --purge
-            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; do
-                sleep 1
-            done
-            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; do
-                sleep 1
-            done
-            """
-        }
-    }
-
 }
