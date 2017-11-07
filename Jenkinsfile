@@ -229,6 +229,10 @@ pipeline {
                         sleep 1
                     done
 
+                    while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
+                        sleep 1
+                    done
+
                     helm list --all --short | grep -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
