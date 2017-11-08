@@ -491,12 +491,13 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
-  - scripts/patches/fix_tcp_routing_wait_for_uaa.sh
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: wait-for-uaa
     release_name: hcf
   - name: tcp_router
     release_name: routing
@@ -567,14 +568,10 @@ roles:
     release_name: loggregator
   - name: routing-api
     release_name: routing
-  - name: tcp_emitter
-    # TCP-emitter can be on a different role, it's just convenient here
-    release_name: routing
   processes:
   - name: consul_agent
   - name: metron_agent
   - name: routing-api
-  - name: tcp_emitter
   run:
     scaling:
       min: 1
@@ -1163,51 +1160,6 @@ roles:
                 values:
                 - cc-uploader
             topologyKey: "beta.kubernetes.io/os"
-- name: diego-route-emitter
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: route_emitter
-    release_name: diego
-  - name: consul_agent
-    release_name: consul
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: route_emitter
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports: []
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-route-emitter
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1327,7 +1279,11 @@ roles:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
+  - name: wait-for-uaa
+    release_name: hcf
   - name: rep
+    release_name: diego
+  - name: route_emitter
     release_name: diego
   - name: consul_agent
     release_name: consul
@@ -1349,6 +1305,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   - name: rep
+  - name: route_emitter
   - name: garden
   run:
     scaling:
@@ -2091,13 +2048,6 @@ configuration:
     description: >
       The number of nats replicas deployed.
       This value is set automatically by the helm charts of SCF.
-  - name: LOGGREGATOR_SHARED_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Shared secret used to verify cryptographically signed dropsonde messages.
-    required: true
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2463,6 +2413,13 @@ configuration:
       type: Password
     description: The password for UAA access by the Routing API.
     required: true
+  - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Used for fetching service key values from CredHub.
+    required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
     immutable: true
@@ -2556,8 +2513,6 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-    properties.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
-    properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2608,8 +2563,6 @@ configuration:
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBE_SERVICE_DOMAIN_SUFFIX)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
-    properties.cc.diego.stager_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8888
-    properties.cc.diego.tps_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):1518
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
@@ -2704,7 +2657,7 @@ configuration:
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
+    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))((#TRUSTED_CERTS))null((/TRUSTED_CERTS))'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2727,7 +2680,6 @@ configuration:
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.zone: '"((KUBE_AZ))"'
-    properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2832,9 +2784,6 @@ configuration:
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
-    properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.tcp_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
@@ -2847,6 +2796,7 @@ configuration:
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
@@ -2861,8 +2811,9 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((UAA_HOST)).((KUBE_SERVICE_DOMAIN_SUFFIX))'
+    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
     properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT)) # For loggregator
+    properties.uaa.port: ((UAA_PORT))
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
