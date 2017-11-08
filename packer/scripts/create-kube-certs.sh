@@ -23,4 +23,7 @@ perl -p -i -e 's@^(KUBE_CONTROLLER_MANAGER_ARGS=)"(.*)"@\1"\2 --enable-hostpath-
 # Tell kubelet to use kubedns for DNS, and give it a cluster domain (we don't care which) to have useful /etc/resolv.conf
 perl -p -i -e 's@^(KUBELET_ARGS=)"(.*)"@\1"\2 --cluster-dns=10.254.0.254 --cluster-domain=cluster.local --cgroups-per-qos=false --enforce-node-allocatable='"''"' --network-plugin='"'"'kubenet'"'"' --non-masquerade-cidr=172.16.0.0/16 --pod-cidr=172.16.0.0/16 --network-plugin-dir=/usr/lib/cni/"@' /etc/kubernetes/kubelet
 
+# Enable RBAC for kubernetes
+perl -p -i -e 's@^(KUBE_API_ARGS=)"(.*)"@\1"\2 --authorization-mode=RBAC"@' /etc/kubernetes/apiserver
+
 systemctl restart etcd.service kube-apiserver.service kube-controller-manager.service kube-proxy.service kube-scheduler.service kubelet.service

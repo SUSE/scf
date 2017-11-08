@@ -45,7 +45,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.9.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.10.box"
     vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
       vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
@@ -116,7 +116,7 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.9.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.10.box"
     libvirt.driver = "kvm"
     libvirt_net_config = base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
