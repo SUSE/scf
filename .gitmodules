@@ -88,3 +88,6 @@
 [submodule "src/statsd-injector-release"]
 	path = src/statsd-injector-release
 	url = https://github.com/cloudfoundry/statsd-injector-release.git
+[submodule "src/hcf-release/src/github.com/suse/scf-secret-generator"]
+	path = src/hcf-release/src/github.com/suse/scf-secret-generator
+	url = git@github.com:SUSE/scf-secret-generator
