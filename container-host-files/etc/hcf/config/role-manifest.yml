@@ -1460,6 +1460,18 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 configuration:
+  auth:
+    roles:
+      configgin-role:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get, list, patch]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
+    accounts:
+      default:
+        roles: [configgin-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []

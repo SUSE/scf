@@ -42,12 +42,34 @@ chmod a+x "${SCF_BIN_DIR}/helm"
 
 # The vagrant deployment runs this script privileged, so init helm as vagrant user if they exist.
 if systemctl is-active kube-apiserver.service ; then
-  echo "Installing tiller for helm ..."
   if [[ $(id -u) -eq 0 ]] && id -u vagrant &>/dev/null; then
-    sudo -iu vagrant helm init
+    do_as_vagrant="sudo -iu vagrant"
   else
-    helm init
+    do_as_vagrant=""
   fi
+
+  echo "Setting up RBAC permissions for tiller ..."
+  ${do_as_vagrant} kubectl create -f - <<EOF
+  { "apiVersion": "rbac.authorization.k8s.io/v1beta1",
+    "kind": "ClusterRoleBinding",
+    "metadata": { "name": "permissive-system-accounts" },
+    "roleRef":{
+      "apiGroup": "rbac.authorization.k8s.io",
+      "kind": "ClusterRole",
+      "name": "cluster-admin"
+    },
+    "subjects": [
+      { "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Group",
+        "name": "system:serviceaccounts:kube-system" },
+      { "kind": "ServiceAccount",
+        "name": "default",
+        "namespace":"kube-system" }
+    ]
+  }
+EOF
+  echo "Installing tiller for helm ..."
+  ${do_as_vagrant} helm init
 else
   echo "Skipping tiller installation for helm; no local kube found"
 fi
