@@ -109,12 +109,12 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_SMOKE',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Run smoke tests',
         )
         booleanParam(
             name: 'TEST_BRAIN',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
