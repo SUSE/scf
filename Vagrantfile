@@ -162,6 +162,11 @@ Vagrant.configure(2) do |config|
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
+    # Enable RBAC for kube on vagrant boxes older than 2.0.10
+    if ! grep -q "KUBE_API_ARGS=.*--authorization-mode=RBAC" /etc/kubernetes/apiserver; then
+      perl -p -i -e 's@^(KUBE_API_ARGS=)"(.*)"@\\1"\\2 --authorization-mode=RBAC"@' /etc/kubernetes/apiserver
+      systemctl restart kube-apiserver
+    fi
   SHELL
 
   # Set up the storage class
