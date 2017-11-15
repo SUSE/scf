@@ -40,6 +40,7 @@ Vagrant.configure(2) do |config|
   vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
   vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
   vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.10'))
+  vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -159,6 +160,10 @@ Vagrant.configure(2) do |config|
     export HOME=/home/vagrant
     export PATH=$PATH:/home/vagrant/bin
     export SCF_BIN_DIR=/usr/local/bin
+    if [ -n "#{vm_registry_mirror}" ]; then
+      perl -p -i -e 's@^(DOCKER_OPTS=)"(.*)"@\\1"\\2 --registry-mirror=#{vm_registry_mirror}"@' /etc/sysconfig/docker
+      service docker restart
+    fi
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
