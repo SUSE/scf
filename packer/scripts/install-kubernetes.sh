@@ -21,7 +21,7 @@ zypper --non-interactive install --no-confirm --from=Virtualization:containers \
     kubernetes-node \
     kubernetes-node-image-pause
 
-usermod --append --groups docker vagrant
+usermod --append --groups docker vagrant || usermod --append --groups docker scf
 systemctl enable etcd.service
 systemctl enable kube-apiserver.service
 systemctl enable kube-controller-manager.service
