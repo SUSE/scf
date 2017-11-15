@@ -35,7 +35,7 @@
     </dhcp_options>
 
     <dns>
-      <hostname>vagrant-kube</hostname>
+      <hostname>{{.hostname}}</hostname>
 
       <resolv_conf_policy>auto</resolv_conf_policy>
 
@@ -96,9 +96,9 @@
   <add-on>
     <add_on_products config:type="list">
       <listentry>
-        <media_url>http://download.opensuse.org/update/leap/42.2/oss/</media_url>
-        <name>openSUSE-Leap-42.2-Update</name>
-        <product>openSUSE-Leap-42.2-Update</product>
+        <media_url>http://download.opensuse.org/update/leap/42.3/oss/</media_url>
+        <name>openSUSE-Leap-42.3-Update</name>
+        <product>openSUSE-Leap-42.3-Update</product>
         <product_dir>/</product_dir>
       </listentry>
     </add_on_products>
@@ -167,38 +167,38 @@
       <encrypted config:type="boolean">true</encrypted>
       <gid>1000</gid>
       <group_password>x</group_password>
-      <groupname>vagrant</groupname>
-      <userlist>vagrant</userlist>
+      <groupname>{{.groupname}}</groupname>
+      <userlist>{{.username}}</userlist>
     </group>
   </groups>
 
   <users config:type="list">
     <user>
       <username>root</username>
-      <user_password>vagrant</user_password>
+      <user_password>{{.password}}</user_password>
     </user>
 
     <user>
-      <username>vagrant</username>
-      <user_password>vagrant</user_password>
+      <username>{{.username}}</username>
+      <user_password>{{.password}}</user_password>
     </user>
   </users>
 
   <files config:type="list">
     <file>
-      <file_path>/etc/sudoers.d/vagrant</file_path>
+      <file_path>/etc/sudoers.d/{{.username}}</file_path>
       <file_owner>root.root</file_owner>
       <file_permissions>660</file_permissions>
-      <file_contents>vagrant ALL=(ALL) NOPASSWD: ALL</file_contents>
+      <file_contents>{{.username}} ALL=(ALL) NOPASSWD: ALL</file_contents>
     </file>
     <file>
-      <file_path>/home/vagrant/.ssh/</file_path>
-      <file_owner>vagrant.users</file_owner>
+      <file_path>/home/{{.username}}/.ssh/</file_path>
+      <file_owner>{{.username}}.users</file_owner>
       <file_permissions>700</file_permissions>
     </file>
     <file>
-      <file_path>/home/vagrant/.ssh/authorized_keys</file_path>
-      <file_owner>vagrant.users</file_owner>
+      <file_path>/home/{{.username}}/.ssh/authorized_keys</file_path>
+      <file_owner>{{.username}}.users</file_owner>
       <file_permissions>600</file_permissions>
       <!-- We want no leading whitespace, and a new line at the end; otherwise vagrant doesn't munge this correctly -->
       <file_contents><![CDATA[ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
