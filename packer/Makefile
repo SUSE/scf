@@ -1,4 +1,5 @@
 .PHONY: vagrant-virtualbox vagrant-libvirt scf-cached
+.INTERMEDIATE: http/scf-autoyast.xml http/vagrant-autoyast.xml
 
 scf-cached-libvirt: http/scf-autoyast.xml
 	packer build -only scf-cached-libvirt vagrant-box.json

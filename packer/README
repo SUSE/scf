@@ -10,5 +10,5 @@ txtplate: https://github.com/aarondl/txtplate/releases
 To create one of the boxes do this
 
 ```bash
-packer build -only=<ONE OF: vagrant-virtualbox, vagrant-libvirt, vagrant-vmware, jenkins-slave, scf-cached> vagrant-box.json
+make <ONE OF: vagrant-virtualbox, vagrant-libvirt, vagrant-vmware, jenkins-slave, scf-cached>
 ```
