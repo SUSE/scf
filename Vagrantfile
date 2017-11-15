@@ -37,15 +37,16 @@ Vagrant.configure(2) do |config|
   # config.vm.network "forwarded_port", guest: 4443, host: 4443
   # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
-  vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
-  vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
+  vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
+  vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
+  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.10'))
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.10.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v#{vm_box_version}.box"
     vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
       vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
@@ -116,7 +117,7 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.10.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v#{vm_box_version}.box"
     libvirt.driver = "kvm"
     libvirt_net_config = base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
