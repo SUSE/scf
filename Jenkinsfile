@@ -224,6 +224,15 @@ pipeline {
             }
             steps {
                 sh '''
+                    #!/bin/bash
+                    dump_info() {
+                        kubectl get namespace
+                        helm list --all
+                        docker ps -a
+                        docker images
+                    }
+                    trap dump_info EXIT
+
                     kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs --no-run-if-empty kubectl delete ns
                     while kubectl get namespace | grep -- '-scf|-uaa'; do
                         sleep 1
