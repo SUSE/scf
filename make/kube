@@ -5,6 +5,8 @@ set -o errexit -o nounset
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
 source .envrc
+source ${GIT_ROOT}/make/include/versioning
+
 DOMAIN=${DOMAIN:-}
 
 NETWORK_ENV=bin/settings/network.env
