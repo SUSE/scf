@@ -40,7 +40,12 @@ rm -rf "${FISSILE_OUTPUT_DIR}"
 fissile build "${BUILD_TARGET}"
 
 if [ "${BUILD_TARGET}" = "helm" ]; then
-    cp Chart.yaml "${FISSILE_OUTPUT_DIR}"
+    cat > "${FISSILE_OUTPUT_DIR}/Chart.yaml" << EOF
+apiVersion: v1
+description: A Helm chart for SUSE Cloud Foundry
+name: scf
+version: ${APP_VERSION}
+EOF
     cp NOTES.txt  "${FISSILE_OUTPUT_DIR}/templates/"
 fi
 
