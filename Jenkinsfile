@@ -320,7 +320,12 @@ pipeline {
                     mkdir unzipped/certs
                     ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
 
-                    helm install unzipped/helm/uaa \
+                    suffix=""
+                    if echo "$FISSILE_STEMCELL" | grep -qv "fissile-stemcell-sle"; then
+                        suffix="-opensuse"
+                    fi
+
+                    helm install unzipped/helm/uaa${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -332,7 +337,7 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath \
                         --values unzipped/certs/uaa-cert-values.yaml
 
-                    helm install unzipped/helm/cf \
+                    helm install unzipped/helm/cf${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
