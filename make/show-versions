@@ -9,7 +9,6 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cat <<-EOF
 Branch             = ${GIT_BRANCH}
 Tag                = ${GIT_TAG}
-Prerel             = ${GIT_PREREL}
 Commits            = ${GIT_COMMITS}
 SHA                = ${GIT_SHA}
 Describe           = ${GIT_DESCRIBE}

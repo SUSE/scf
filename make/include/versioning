@@ -10,17 +10,6 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 GIT_DESCRIBE=${GIT_DESCRIBE:-$(git describe --tags --long)}
 GIT_BRANCH=${GIT_BRANCH:-$(git name-rev --name-only HEAD | sed -e 's/[^-a-zA-Z0-9_.]/_/g')}
 
-GIT_PREREL=${GIT_PREREL:-pre}
-
-case ${GIT_PREREL} in
-    release)   GIT_PREREL_INT="" ;;
-    pre)       GIT_PREREL_INT="-${GIT_PREREL}" ;;
-    rc.[0-9]*) GIT_PREREL_INT="-${GIT_PREREL}" ;;
-    *)  echo "GIT_PREREL: Bad value \"${GIT_PREREL}\", expected 'pre', 'release', or 'rc.[0-9]+'"
-	exit 1
-	;;
-esac
-
 GIT_TAG=${GIT_TAG:-${GIT_DESCRIBE%-*-*}} # Remove the last two hyphen-separated sections
 GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $(NF - 1) }' )}
 GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $NF }' )}
@@ -28,5 +17,5 @@ GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $NF }' )}
 . "${GIT_ROOT}"/bin/common/versions.sh
 
 export ARTIFACT_NAME=${ARTIFACT_NAME:-$(basename $(git config --get remote.origin.url) .git | sed s/^hcf-//)}
-export APP_VERSION=${GIT_TAG}${GIT_PREREL_INT}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
+export APP_VERSION=${GIT_TAG}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
 export DOCKER_APP_VERSION=$(echo ${APP_VERSION} | tr + -)
