@@ -2666,7 +2666,7 @@ configuration:
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))((#TRUSTED_CERTS))null((/TRUSTED_CERTS))'
+    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
