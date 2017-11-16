@@ -1,4 +1,4 @@
-.PHONY: vagrant-virtualbox vagrant-libvirt scf-cached
+.PHONY: vagrant-virtualbox vagrant-libvirt scf-cached-libvirt
 .INTERMEDIATE: http/scf-autoyast.xml http/vagrant-autoyast.xml
 
 scf-cached-libvirt: http/scf-autoyast.xml
