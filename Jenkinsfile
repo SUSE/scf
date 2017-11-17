@@ -306,6 +306,10 @@ pipeline {
             }
             steps {
                 sh """
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+
                     kubectl delete storageclass hostpath || /bin/true
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
