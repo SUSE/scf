@@ -150,12 +150,12 @@ pipeline {
         string(
             name: 'S3_BUCKET',
             description: 'AWS S3 bucket to publish to',
-            defaultValue: 'cf-opensusefs2',
+            defaultValue: 'cap-release-archives',
         )
         string(
             name: 'S3_PREFIX',
             description: 'AWS S3 prefix to publish to',
-            defaultValue: 'scf/config/',
+            defaultValue: '/',
         )
         credentials(
             name: 'DOCKER_CREDENTIALS',
