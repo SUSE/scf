@@ -1432,6 +1432,26 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: secret-generation
+  type: bosh-task
+  jobs:
+  - name: generate-secrets
+    release_name: hcf
+  processes: []
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: pre-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 1
+    exposed-ports: []
+    service-account: secret-generator
+    object-annotations:
+      helm.sh/hook: "pre-install, pre-upgrade"
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1467,9 +1487,15 @@ configuration:
       - apiGroups: [""]
         resources: [services]
         verbs: [get]
+      secrets-role:
+      - apiGroups: [""]
+        resources: [secrets]
+        verbs: [create, get, list, patch, update]
     accounts:
       default:
         roles: [configgin-role]
+      secret-generator:
+        roles: [configgin-role, secrets-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []
