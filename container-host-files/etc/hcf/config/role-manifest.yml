@@ -1450,8 +1450,6 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
     service-account: secret-generator
-    object-annotations:
-      helm.sh/hook: "pre-install, pre-upgrade"
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
