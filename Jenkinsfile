@@ -256,6 +256,8 @@ pipeline {
                         sleep 1
                     done
 
+                    docker ps --filter=status=exited --quiet | xargs --no-run-if-empty docker rm
+
                     while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
                         sleep 1
                     done
