@@ -77,12 +77,28 @@ status "Checking for UAA zone ${UAA_ZONE_ID}..."
 uaac target <%= uaac_ssl %> '<%= p("scf.uaa.root-zone.url") %>'
 uaac token client get default_zone_admin --secret '<%= p("uaa.admin.client_secret") %>'
 
-if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404 Not Found' ; then
+if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '404' ; then
     status "Creating UAA zone ${UAA_ZONE_ID}"
     uaac curl <%= curl_ssl %> -X POST /identity-zones -H 'Content-Type: application/json' -d '{
         "id": "'"${UAA_ZONE_ID}"'",
         "subdomain": "'"${UAA_ZONE_ID}"'",
-        "name": "'"${UAA_ZONE_ID}"'"
+        "name": "'"${UAA_ZONE_ID}"'",
+        "config": {
+          "userConfig": {
+            "defaultGroups": [
+                "openid",
+                "cloud_controller.read",
+                "cloud_controller.write",
+                "password.write",
+                "uaa.user",
+                "approvals.me",
+                "profile",
+                "roles",
+                "user_attributes",
+                "uaa.offline_token"
+            ]
+          }
+        }
     }'
 fi
 
@@ -161,7 +177,14 @@ if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' 
     status "User %s already in %s" <%= username %> '<%= authority %>'
 elif ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
     status "+ %s" <%= username %>
+    set +e
     uaac member add '<%= authority %>' <%= username %>
+    if [ $? -eq 0 ]; then
+    	status "Add %s to %s successfully" <%= username %> '<%= authority %>'
+    else
+        status "Add %s to %s failed but ignore the error first" <%= username %> '<%= authority %>'
+    fi
+    set -e
 fi
 <% end %>
 
