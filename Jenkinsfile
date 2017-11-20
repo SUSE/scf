@@ -224,10 +224,39 @@ pipeline {
             }
             steps {
                 sh '''
-                    kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs --no-run-if-empty kubectl delete ns
-                    while kubectl get namespace | grep -- '-scf|-uaa'; do
+                    #!/bin/bash
+                    dump_info() {
+                        kubectl get namespace
+                        helm list --all
+                        docker ps -a
+                        docker images
+                    }
+                    trap dump_info EXIT
+
+                    get_namespaces() {
+                        local ns
+                        local -A all_ns
+                        # Loop until getting namespaces succeeds
+                        while test -z "${all_ns[kube-system]:-}" ; do
+                            all_ns=[]
+                            for ns in $(kubectl get namespace --no-headers --output=custom-columns=:.metadata.name) ; do
+                                all_ns[${ns}]=${ns}
+                            done
+                        done
+                        # Only return the namespaces we want
+                        for ns in "${all_ns[@]}" ; do
+                            if [[ "${ns}" =~ scf|uaa ]] ; then
+                                echo "${ns}"
+                            fi
+                        done
+                    }
+
+                    get_namespaces | xargs --no-run-if-empty kubectl delete ns
+                    while test -n "$(get_namespaces)"; do
                         sleep 1
                     done
+
+                    docker ps --filter=status=exited --quiet | xargs --no-run-if-empty docker rm
 
                     while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
                         sleep 1
