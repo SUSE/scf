@@ -14,10 +14,16 @@ for variant in kube helm ; do
 
     rm -f "${GIT_ROOT}/${artifact}"
 
-    mkdir -p "${tmp_dir}"/{cf,uaa}
+    # Add "-opensuse" suffix to the chart directory if we are on opensuse stemcell.
+    # The directory should match the chart name.
+    if [[ $FISSILE_STEMCELL =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
+      suffix="-opensuse"
+    fi
 
-    cp -r "${GIT_ROOT}/${variant}/"* "${tmp_dir}/cf"
-    cp -r "${GIT_ROOT}/src/uaa-fissile-release/${variant}/"* "${tmp_dir}/uaa"
+    mkdir -p "${tmp_dir}"/{cf,uaa}${suffix:-}
+
+    cp -r "${GIT_ROOT}/${variant}/"* "${tmp_dir}/cf${suffix:-}"
+    cp -r "${GIT_ROOT}/src/uaa-fissile-release/${variant}/"* "${tmp_dir}/uaa${suffix:-}"
 
     (
         cd "${tmp_dir}"
