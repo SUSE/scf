@@ -85,3 +85,6 @@
 [submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
 	url = https://github.com/SUSE/cf-acceptance-tests.git
+[submodule "src/cf-syslog-drain-release"]
+	path = src/cf-syslog-drain-release
+	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git

@@ -300,6 +300,21 @@ properties:
       port: 3306
       schema: routing-api
       username: routing-api
+  scalablesyslog:
+    adapter:
+      bosh_dns: true
+      tls:
+         cn: 'dummy-1'
+    adapter_rlp:
+      tls:
+        cn: 'syslog_rlp'
+    scheduler:
+      bosh_dns: true
+      tls:
+        api:
+          cn: 'api'
+        client:
+          adapter_cn: 'syslog_adapter'
   smoke_tests:
     user: 'admin'
     org: smoke-test-org

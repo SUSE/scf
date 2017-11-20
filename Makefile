@@ -127,6 +127,9 @@ cf-opensuse42-release:
 cf-sle12-release:
 	make/bosh-release src/cf-sle12-release
 
+cf-syslog-drain-release:
+	make/bosh-release src/cf-syslog-drain-release
+
 routing-release:
 	make/bosh-release src/routing-release
 
@@ -185,6 +188,7 @@ releases: \
 	cflinuxfs2-release \
 	cf-opensuse42-release \
 	cf-sle12-release \
+	cf-syslog-drain-release \
 	routing-release \
 	scf-helper-release \
 	capi-release \
