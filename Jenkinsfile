@@ -155,7 +155,7 @@ pipeline {
         string(
             name: 'S3_PREFIX',
             description: 'AWS S3 prefix to publish to',
-            defaultValue: '/',
+            defaultValue: '',
         )
         credentials(
             name: 'DOCKER_CREDENTIALS',
