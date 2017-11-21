@@ -39,6 +39,15 @@ find_cluster_ha_hosts() {
         statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | jq -crM '.metadata.annotations."kubernetes.io/created-by"' | jq -crM .reference.name)"
         replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | jq -crM .spec.replicas)
 
+        if [ "${statefulset_name}" == "" ]; then
+            echo "Cannot get statefulset name from kubernetes API, exit"
+            exit 1
+        fi
+        if [ "${replicas}" == "" ]; then
+            echo "Cannot get replicas from kubernetes API, exit"
+            exit 1
+        fi
+        
         # Return a list of all replicas
         local hosts=""
         for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
@@ -48,10 +57,14 @@ find_cluster_ha_hosts() {
     fi
 }
 
-export KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
-export KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
-export KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
-export KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+export KUBE_CONSUL_CLUSTER_IPS
+KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+export KUBE_NATS_CLUSTER_IPS
+KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+export KUBE_ETCD_CLUSTER_IPS
+KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+export KUBE_MYSQL_CLUSTER_IPS
 
 unset k8s_api
 unset find_cluster_ha_hosts
