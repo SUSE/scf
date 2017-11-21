@@ -1509,7 +1509,6 @@ configuration:
       id: app_ssh
       type: SSH
       value_type: private_key
-      key_length: 4096
     description: PEM encoded RSA private key used to identify host.
     required: true
   - name: APP_SSH_KEY_FINGERPRINT
@@ -1530,6 +1529,8 @@ configuration:
       id: auctioneer_rep_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - auctioneer_rep
     description: PEM-encoded certificate
     required: true
   - name: AUCTIONEER_REP_KEY
@@ -1538,7 +1539,6 @@ configuration:
       id: auctioneer_rep_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: AUCTIONEER_SERVER_CERT
@@ -1547,6 +1547,9 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - auctioneer_server
+      role_name: diego-brain
     description: PEM-encoded server certificate
     required: true
   - name: AUCTIONEER_SERVER_KEY
@@ -1555,7 +1558,6 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
@@ -1571,6 +1573,8 @@ configuration:
       id: bbs_auctioneer_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_auctioneer
     description: PEM-encoded certificate
     required: true
   - name: BBS_AUCTIONEER_KEY
@@ -1579,7 +1583,6 @@ configuration:
       id: bbs_auctioneer_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: BBS_CLIENT_CRT
@@ -1588,6 +1591,8 @@ configuration:
       id: bbs_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_client
     description: PEM-encoded client certificate.
     required: true
   - name: BBS_CLIENT_KEY
@@ -1596,7 +1601,6 @@ configuration:
       id: bbs_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: BBS_REP_CERT
@@ -1605,6 +1609,8 @@ configuration:
       id: bbs_rep_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_rep
     description: PEM-encoded certificate
     required: true
   - name: BBS_REP_KEY
@@ -1613,7 +1619,6 @@ configuration:
       id: bbs_rep_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: BBS_SERVER_CRT
@@ -1622,6 +1627,9 @@ configuration:
       id: bbs_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_server
+      role_name: diego-api
     description: PEM-encoded client certificate.
     required: true
   - name: BBS_SERVER_KEY
@@ -1630,7 +1638,6 @@ configuration:
       id: bbs_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: BLOBSTORE_ACCESS_RULES
@@ -1661,12 +1668,9 @@ configuration:
       id: blobstore_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - blobstore_tls
+      role_name: blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
     required: true
   - name: BLOBSTORE_TLS_KEY
@@ -1700,12 +1704,12 @@ configuration:
       id: cc_mutual_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - api
+      # The "cloud-controller-ng.service.cf.internal" is present because the syslog-drain-binder
+      # has that name hardwired into it!
+      - cloud-controller-ng.service.cf.internal
+      role_name: api
     description: The PEM-encoded certificate for internal cloud controller traffic.
     required: true
   - name: CC_SERVER_KEY
@@ -1722,12 +1726,9 @@ configuration:
       id: cc_uploader_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - cc_uploader
+      role_name: cc-uploader
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
     required: true
   - name: CC_UPLOADER_KEY
@@ -1747,7 +1748,9 @@ configuration:
       id: "usb_broker_server_cert"
       type: Certificate
       value_type: certificate
-      key_length: 4096
+      subject_names:
+      - cfUsbBrokerServer
+      role_name: cf-usb
     description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
@@ -1794,7 +1797,8 @@ configuration:
       id: consul_agent_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
+      subject_names:
+      - "consul agent"
     description: PEM-encoded agent certificate.
     required: true
   - name: CONSUL_AGENT_KEY
@@ -1825,10 +1829,8 @@ configuration:
       id: consul_server_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - static: server.dc1.hcf
-        wildcard: false
+      subject_names:
+      - "server.dc1.{{.KUBERNETES_NAMESPACE}}"
     description: PEM-encoded server certificate.
     required: true
   - name: CONSUL_SERVER_KEY
@@ -1895,6 +1897,8 @@ configuration:
       id: doppler_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - doppler
     description: PEM-encoded certificate.
     required: true
   - name: DOPPLER_KEY
@@ -1903,7 +1907,6 @@ configuration:
       id: doppler_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: DROPLET_MAX_STAGED_STORED
@@ -1916,6 +1919,8 @@ configuration:
       id: etcd_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdClient
     description: PEM-encoded client certificate.
     required: true
   - name: ETCD_CLIENT_KEY
@@ -1924,7 +1929,6 @@ configuration:
       id: etcd_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: ETCD_PEER_CRT
@@ -1933,6 +1937,9 @@ configuration:
       id: etcd_peer_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdPeer
+      role_name: etcd
     description: PEM-encoded peer certificate.
     required: true
   - name: ETCD_PEER_KEY
@@ -1941,7 +1948,6 @@ configuration:
       id: etcd_peer_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded peer key.
     required: true
   - name: ETCD_SERVER_CRT
@@ -1950,6 +1956,9 @@ configuration:
       id: etcd_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdServer
+      role_name: etcd
     description: PEM-encoded server certificate.
     required: true
   - name: ETCD_SERVER_KEY
@@ -1958,7 +1967,6 @@ configuration:
       id: etcd_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key.
     required: true
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
@@ -2026,6 +2034,14 @@ configuration:
       type: CACertificate
       value_type: certificate
     description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
+    required: true
+  - name: INTERNAL_CA_KEY
+    secret: true
+    generator:
+      id: cacert
+      type: CACertificate
+      value_type: private_key
+    description: PEM-encoded CA key.
     required: true
   - name: JWT_SIGNING_PUB
     type: environment
@@ -2100,6 +2116,8 @@ configuration:
       id: metron_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - metron
     description: PEM-encoded certificate.
     required: true
   - name: METRON_KEY
@@ -2108,7 +2126,6 @@ configuration:
       id: metron_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: MONIT_PASSWORD
@@ -2268,6 +2285,8 @@ configuration:
       id: rep_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - rep_client
     description: PEM-encoded client certificate
     required: true
   - name: REP_CLIENT_KEY
@@ -2276,7 +2295,6 @@ configuration:
       id: rep_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key
     required: true
   - name: REP_SERVER_CERT
@@ -2285,6 +2303,9 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - rep_server
+      role_name: diego-cell
     description: PEM-encoded server certificate
     required: true
   - name: REP_SERVER_KEY
@@ -2293,7 +2314,6 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key
     required: true
   - name: RESERVABLE_PORTS
@@ -2319,11 +2339,12 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: certificate
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - router_ssl
+      - router
+      - "router.{{.KUBE_SERVICE_DOMAIN_SUFFIX}}"
+      - "{{.DOMAIN}}"
+      - "*.{{.DOMAIN}}"
     description: The public ssl cert for ssl termination.
     required: true
   - name: ROUTER_SSL_KEY
@@ -2332,7 +2353,6 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: The private ssl key for ssl termination.
     required: true
   - name: ROUTER_STATUS_PASSWORD
@@ -2370,6 +2390,8 @@ configuration:
       id: syslogdrainbinder_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - syslogdrainbinder
     description: PEM-encoded certificate
     required: true
   - name: SYSLOGDRAINBINDER_KEY
@@ -2378,7 +2400,6 @@ configuration:
       id: syslogdrainbinder_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
@@ -2391,6 +2412,8 @@ configuration:
       id: tps_cc_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - tpsCCClient
     description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
     required: true
   - name: TPS_CC_CLIENT_KEY
@@ -2399,7 +2422,6 @@ configuration:
       id: tps_cc_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key for internal communication between the cloud controller and TPS.
     required: true
   - name: TRAFFICCONTROLLER_CERT
@@ -2408,6 +2430,8 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - trafficcontroller
     description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRAFFICCONTROLLER_KEY
@@ -2416,7 +2440,6 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRUSTED_CERTS
