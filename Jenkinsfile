@@ -336,7 +336,7 @@ pipeline {
             steps {
                 sh """
                     set -e +x
-                    source ${PWD}/.envrc
+                    source \${PWD}/.envrc
                     set -x
 
                     kubectl delete storageclass hostpath || /bin/true
@@ -354,7 +354,7 @@ pipeline {
                     ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
 
                     suffix=""
-                    if echo "$FISSILE_STEMCELL" | grep -qv "fissile-stemcell-sle"; then
+                    if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
                         suffix="-opensuse"
                     fi
 
