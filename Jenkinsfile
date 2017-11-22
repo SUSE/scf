@@ -33,14 +33,14 @@ void runTest(String testName) {
 EOF
         }
 
-        image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf/bosh-task/${testName}.yaml" | tr -d '"')
+        image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf*/bosh-task/${testName}.yaml" | tr -d '"')
 
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides "unzipped/kube/cf/bosh-task/${testName}.yaml")" \
+            --overrides="\$(kube_overrides "unzipped/kube/cf*/bosh-task/${testName}.yaml")" \
             "${testName}"
     """
 }
@@ -358,7 +358,7 @@ pipeline {
                         suffix="-opensuse"
                     fi
 
-                    helm install unzipped/helm/uaa${suffix} \
+                    helm install unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -370,7 +370,7 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath \
                         --values unzipped/certs/uaa-cert-values.yaml
 
-                    helm install unzipped/helm/cf${suffix} \
+                    helm install unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
