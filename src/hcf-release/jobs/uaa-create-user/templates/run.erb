@@ -85,18 +85,7 @@ if uaac curl <%= curl_ssl %> "/identity-zones/${UAA_ZONE_ID}" | grep --quiet '40
         "name": "'"${UAA_ZONE_ID}"'",
         "config": {
           "userConfig": {
-            "defaultGroups": [
-                "openid",
-                "cloud_controller.read",
-                "cloud_controller.write",
-                "password.write",
-                "uaa.user",
-                "approvals.me",
-                "profile",
-                "roles",
-                "user_attributes",
-                "uaa.offline_token"
-            ]
+            "defaultGroups": <%= p("uaa.user.default_groups").to_json %>
           }
         }
     }'
@@ -133,9 +122,13 @@ status "Populating clients..."
                 end
             %>
     fi
-    status "- Client <%= client_id %> set secret"
-    uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
-    status "- Client <%= client_id %> /done"
+    if test -n '<%= client_data['secret'] %>' ; then
+        status "- Client <%= client_id %> set secret"
+        uaac --zone "${UAA_ZONE_ID}" secret set '<%= client_id %>' --secret '<%= client_data['secret'] %>'
+        status "- Client <%= client_id %> /done"
+    else
+        status "- Client <%= client_id %> no secret, skipped"
+    fi
 <% end %>
 
 status "Waiting for UAA zone to be available ..."
@@ -169,23 +162,19 @@ fi
 user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')
 
 <% authorities.each do |authority| %>
-status "Adding users to authority %s" '<%= authority %>'
-if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
-    uaac group add '<%= authority %>'
-fi
-if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
-    status "User %s already in %s" <%= username %> '<%= authority %>'
-elif ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
-    status "+ %s" <%= username %>
-    set +e
-    uaac member add '<%= authority %>' <%= username %>
-    if [ $? -eq 0 ]; then
-    	status "Add %s to %s successfully" <%= username %> '<%= authority %>'
+    if uaac curl -k "/Users/${user_id}" | grep -A999 '{' | jq -r '.groups[].display' | grep --quiet '<%= authority %>' ; then
+        status "User already in group %s, skipping" '<%= authority %>'
     else
-        status "Add %s to %s failed but ignore the error first" <%= username %> '<%= authority %>'
+        status "Adding users to authority %s" '<%= authority %>'
+        if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
+            uaac group add '<%= authority %>'
+        fi
+        if uaac group get '<%= authority %>' | grep -q '  displayname: <%= username %>' ; then
+            status "User %s already in %s" <%= username %> '<%= authority %>'
+        elif ! uaac group get '<%= authority %>' | grep -q "    value: ${user_id}" ; then
+            uaac member add '<%= authority %>' <%= username %>
+        fi
     fi
-    set -e
-fi
 <% end %>
 
 status "UAA initialization successful"

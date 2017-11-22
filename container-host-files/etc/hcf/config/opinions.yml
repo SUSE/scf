@@ -392,3 +392,14 @@ properties:
       - roles
       - user_attributes
       - routing.router_groups.read
+      default_groups:
+      - openid
+      - cloud_controller.read
+      - cloud_controller.write
+      - password.write
+      - uaa.user
+      - approvals.me
+      - profile
+      - roles
+      - user_attributes
+      - uaa.offline_token
