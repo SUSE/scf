@@ -51,7 +51,7 @@ name: cf${chart_name_suffix:-}
 version: ${APP_VERSION}
 EOF
     cp NOTES.txt  "${FISSILE_OUTPUT_DIR}/templates/"
+elif [ "${BUILD_TARGET}" = "kube" ]; then
+    # This is a small hack to make the output of make kube be compatible with K8s 1.6
+    perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl 'kind: "Job"' "${BUILD_TARGET}")
 fi
-
-# This is a small hack to make the output of make kube be compatible with K8s 1.6
-perl -p -i -e 's@ extensions/v1beta1@ batch/v1@' $(grep -rl 'kind: "Job"' "${BUILD_TARGET}")
