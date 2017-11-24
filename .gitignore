@@ -20,8 +20,4 @@ password
 /bin/settings/kube/ca.env
 # `make dist` output of various forms
 /output/
-/scf-kube-*.zip
-/scf-helm-*.zip
-/helm/
-/kube/
 personal-setup

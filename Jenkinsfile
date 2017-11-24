@@ -33,14 +33,14 @@ void runTest(String testName) {
 EOF
         }
 
-        image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf*/bosh-task/${testName}.yaml" | tr -d '"')
+        image=\$(awk '\$1 == "image:" { print \$2 }' "output/unzipped/kube/cf*/bosh-task/${testName}.yaml" | tr -d '"')
 
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides "unzipped/kube/cf*/bosh-task/${testName}.yaml")" \
+            --overrides="\$(kube_overrides "output/unzipped/kube/cf*/bosh-task/${testName}.yaml")" \
             "${testName}"
     """
 }
@@ -323,7 +323,7 @@ pipeline {
                     source ${PWD}/.envrc
                     set -x
                     unset HCF_PACKAGE_COMPILATION_CACHE
-                    rm -f scf-*amd64*.zip
+                    rm -f output/scf-*amd64*.zip
                     make helm bundle-dist
                 '''
             }
@@ -343,22 +343,22 @@ pipeline {
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
-                    rm -rf unzipped
-                    mkdir unzipped
-                    unzip -e scf-*linux-amd64*.zip -d unzipped
+                    rm -rf output/unzipped
+                    mkdir -p output/unzipped
+                    unzip -e output/scf-*linux-amd64*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
-                    ./unzipped/kube-ready-state-check.sh || /bin/true
+                    ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    mkdir unzipped/certs
-                    ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
+                    mkdir output/unzipped/certs
+                    ./output/unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o output/unzipped/certs
 
                     suffix=""
                     if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
                         suffix="-opensuse"
                     fi
 
-                    helm install unzipped/helm/uaa\${suffix} \
+                    helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -368,9 +368,9 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --values unzipped/certs/uaa-cert-values.yaml
+                        --values output/unzipped/certs/uaa-cert-values.yaml
 
-                    helm install unzipped/helm/cf\${suffix} \
+                    helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -380,7 +380,7 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --values unzipped/certs/scf-cert-values.yaml
+                        --values output/unzipped/certs/scf-cert-values.yaml
 
                     echo Waiting for all pods to be ready...
                     set +o xtrace
@@ -494,7 +494,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: 'scf-*amd64*.zip')
+                            def files = findFiles(glob: 'output/scf-*amd64*.zip')
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 

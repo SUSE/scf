@@ -48,7 +48,7 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
-helm install helm \
+helm install output/helm \
      --namespace ${NAMESPACE} \
      --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
      --set "env.DOMAIN=${DOMAIN}" \
