@@ -61,9 +61,6 @@
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
 	url = https://github.com/SUSE/cf-opensuse42-release.git
-[submodule "src/hcf-release/src/github.com/suse/testbrain"]
-	path = src/hcf-release/src/github.com/suse/testbrain
-	url = https://github.com/SUSE/testbrain.git
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
 	url = https://github.com/SUSE/uaa-fissile-release
@@ -88,3 +85,9 @@
 [submodule "src/statsd-injector-release"]
 	path = src/statsd-injector-release
 	url = https://github.com/cloudfoundry/statsd-injector-release.git
+[submodule "src/hcf-release/src/github.com/SUSE/testbrain"]
+	path = src/hcf-release/src/github.com/SUSE/testbrain
+	url = https://github.com/SUSE/testbrain.git
+[submodule "src/hcf-release/src/github.com/SUSE/scf-secret-generator"]
+	path = src/hcf-release/src/github.com/SUSE/scf-secret-generator
+	url = https://github.com/SUSE/scf-secret-generator.git

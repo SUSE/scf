@@ -1,0 +1,10 @@
+---
+name: generate-secrets
+
+description: This job will generate the secrets for the cluster
+
+packages:
+  - generate-secrets
+
+templates:
+  run.erb: bin/run
