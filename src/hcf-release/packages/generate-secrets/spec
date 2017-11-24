@@ -1,7 +1,6 @@
 ---
 name: generate-secrets
 dependencies:
-  - cli
   - golang1.7
 files:
   - github.com/suse/scf-secret-generator/**/*
