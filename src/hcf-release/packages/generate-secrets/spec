@@ -3,5 +3,5 @@ name: generate-secrets
 dependencies:
   - golang1.7
 files:
-  - github.com/suse/scf-secret-generator/**/*
+  - github.com/SUSE/scf-secret-generator/**/*
   - hcf-config/*
