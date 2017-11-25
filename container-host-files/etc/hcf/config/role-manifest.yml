@@ -1450,6 +1450,9 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
     service-account: secret-generator
+  configuration:
+    templates:
+      properties.hcf.secrets.variables: '((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_ETCD_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1705,7 +1708,6 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - api
       # The "cloud-controller-ng.service.cf.internal" is present because the syslog-drain-binder
       # has that name hardwired into it!
       - cloud-controller-ng.service.cf.internal
@@ -2086,9 +2088,37 @@ configuration:
       runtime configuration.
     immutable: true
     required: false
+  - name: KUBE_SIZING_API_COUNT
+    description: >
+      The number of api replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_BLOBSTORE_COUNT
+    description: >
+      The number of blobstore replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_CC_UPLOADER_COUNT
+    description: >
+      The number of cc-uploader replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_CF_USB_COUNT
+    description: >
+      The number of cf-usb replicas deployed.
+      This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_CONSUL_COUNT
     description: >
       The number of consul replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_API_COUNT
+    description: >
+      The number of diego-api replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_BRAIN_COUNT
+    description: >
+      The number of diego-brain replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_CELL_COUNT
+    description: >
+      The number of diego-cell replicas deployed.
       This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_ETCD_COUNT
     description: >
@@ -2762,7 +2792,7 @@ configuration:
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
-    properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
+    properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
