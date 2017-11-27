@@ -368,6 +368,7 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
+                        --set kube.auth=rbac \
                         --values output/unzipped/certs/uaa-cert-values.yaml
 
                     helm install output/unzipped/helm/cf\${suffix} \
@@ -380,6 +381,7 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
+                        --set kube.auth=rbac \
                         --values output/unzipped/certs/scf-cert-values.yaml
 
                     echo Waiting for all pods to be ready...
