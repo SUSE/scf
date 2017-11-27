@@ -385,9 +385,9 @@ pipeline {
                     echo Waiting for all pods to be ready...
                     set +o xtrace
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
+			kubectl -n $ns get pods | grep secret-generation
+			kubectl -n $ns get events | grep secret-generation
+                        sleep 60
                     done
                     kubectl get pods --all-namespaces
                 """
