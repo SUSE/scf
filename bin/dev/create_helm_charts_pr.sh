@@ -41,13 +41,17 @@ wget -O bundle.zip "${CAP_BUNDLE}"
 unzip -d bundle/ bundle.zip
 bundle=$(basename "$CAP_BUNDLE" .zip)
 
+if [ -d bundle/helm/cf-opensuse ]; then
+  suffix="-opensuse"
+fi
+
 cd kubernetes-charts-suse-com
 # Remove old charts
-rm -rf stable/cf*
-rm -rf stable/uaa*
+rm -rf stable/cf${suffix:-}
+rm -rf stable/uaa${suffix:-}
 # Place the new ones
-cp -r ../bundle/helm/cf* stable/
-cp -r ../bundle/helm/uaa* stable/
+cp -r ../bundle/helm/cf${suffix:-} stable/
+cp -r ../bundle/helm/uaa${suffix:-} stable/
 
 $HUB config user.email "cf-ci-bot@suse.de"
 $HUB config user.name "${GITHUB_USER}"
