@@ -37,7 +37,7 @@ fi
 
 rm -rf "${FISSILE_OUTPUT_DIR}"
 
-fissile build "${BUILD_TARGET}"
+fissile build "${BUILD_TARGET}" --use-secrets-generator
 
 if [ "${BUILD_TARGET}" = "helm" ]; then
     if [[ $FISSILE_STEMCELL =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
