@@ -7,7 +7,6 @@ cd "${GIT_ROOT}"
 NAMESPACE="cf"
 UAA_NAMESPACE="uaa"
 CA_CERT=internal-ca-cert
-CA_KEY=internal-ca-key
 
 has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
@@ -46,7 +45,6 @@ until has_internal_ca ; do
 done
 
 CA_CERT="$(get_uaa_secret ${CA_CERT} | base64 -d -)"
-CA_KEY="$(get_uaa_secret ${CA_KEY} | base64 -d -)"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::ca-cert end
 
@@ -82,8 +80,6 @@ helm install output/helm \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}" \
      --set "env.HCP_CA_CERT=${CA_CERT}" \
-     --set "env.INTERNAL_CA_CERT=${CA_CERT}" \
-     --set "env.INTERNAL_CA_KEY=${CA_KEY}" \
      --set "kube.external_ip=$(dig +short ${DOMAIN})" \
      --set "kube.auth=rbac" \
      "$@"
