@@ -59,13 +59,14 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_server_name.sh
   - scripts/patches/fix_consul_pre_start.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -289,7 +290,6 @@ roles:
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/fetch_uaa_verification_key.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
@@ -297,6 +297,8 @@ roles:
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cf-usb
     release_name: cf-usb
@@ -351,10 +353,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: rep-certstrap
     release_name: hcf
@@ -414,12 +417,13 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
-  - scripts/authorize_internal_ca.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: gorouter
     release_name: routing
@@ -491,10 +495,11 @@ roles:
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: wait-for-uaa
     release_name: hcf
@@ -553,12 +558,13 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
-  - scripts/authorize_internal_ca.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -605,7 +611,6 @@ roles:
 - name: api
   tags: [clustered]
   environment_scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/nginx_log_level.sh
@@ -617,6 +622,8 @@ roles:
   - scripts/patches/use_routing_api_private_endpoint.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: patch-properties
     release_name: hcf
@@ -711,10 +718,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cloud_controller_worker
     release_name: capi
@@ -806,10 +814,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cloud_controller_clock
     release_name: capi
@@ -922,13 +931,14 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: patch-properties
     release_name: hcf
@@ -993,10 +1003,11 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: loggregator_trafficcontroller
     release_name: loggregator
@@ -1054,10 +1065,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -1106,10 +1118,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: tps
     release_name: capi
@@ -1165,10 +1178,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: ssh_proxy
     release_name: diego
@@ -1225,10 +1239,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: metron_agent
     release_name: loggregator
@@ -1270,12 +1285,13 @@ roles:
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/patches/fix_persi_nfsdriver.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: wait-for-uaa
     release_name: hcf
@@ -1368,10 +1384,10 @@ roles:
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: acceptance-tests-brain
     release_name: hcf
@@ -1390,10 +1406,11 @@ roles:
   type: bosh-task
   tags: [stop-on-failure]
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: acceptance-tests
     release_name: hcf
@@ -1414,10 +1431,10 @@ roles:
 - name: smoke-tests
   type: bosh-task
   tags: [stop-on-failure]
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: smoke_tests
     release_name: cf-smoke-tests
@@ -1457,10 +1474,10 @@ roles:
   type: bosh-task
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: uaa-create-user
     release_name: hcf
@@ -2007,7 +2024,6 @@ configuration:
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
   - name: HCP_CA_CERT
-    internal: true
     immutable: true
     description: The CA certificate for UAA
     secret: true
