@@ -1452,7 +1452,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.hcf.secrets.variables: '((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_ETCD_COUNT))'
+      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_ETCD_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
