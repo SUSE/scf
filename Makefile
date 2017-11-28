@@ -37,6 +37,7 @@ uaa-kube-dist:
 
 run:
 	make/uaa-run
+	make/uaa-wait
 	make/run
 
 validate:
