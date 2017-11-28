@@ -4,6 +4,7 @@ description: Install both internal and UAA CA certificates
 
 templates:
   pre-start.erb: bin/pre-start
+  run.erb: bin/run
 
 packages: []
 
