@@ -33,14 +33,14 @@ void runTest(String testName) {
 EOF
         }
 
-        image=\$(awk '\$1 == "image:" { print \$2 }' "output/unzipped/kube/cf*/bosh-task/${testName}.yaml" | tr -d '"')
+        image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides "output/unzipped/kube/cf*/bosh-task/${testName}.yaml")" \
+            --overrides="\$(kube_overrides output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
             "${testName}"
     """
 }
