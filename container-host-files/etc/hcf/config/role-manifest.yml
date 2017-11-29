@@ -2588,10 +2588,8 @@ configuration:
   - name: UAA_HOST
     description: The host name of the UAA server (root zone)
     required: true
-    internal: true
   - name: UAA_PORT
     default: 2793
-    internal: true
     description: The tcp port the UAA server (root zone) listens on for requests.
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
     default: false
