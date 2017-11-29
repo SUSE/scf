@@ -33,14 +33,14 @@ void runTest(String testName) {
 EOF
         }
 
-        image=\$(awk '\$1 == "image:" { print \$2 }' "unzipped/kube/cf/bosh-task/${testName}.yaml" | tr -d '"')
+        image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides "unzipped/kube/cf/bosh-task/${testName}.yaml")" \
+            --overrides="\$(kube_overrides output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
             "${testName}"
     """
 }
@@ -109,12 +109,12 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_SMOKE',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Run smoke tests',
         )
         booleanParam(
             name: 'TEST_BRAIN',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
@@ -150,12 +150,12 @@ pipeline {
         string(
             name: 'S3_BUCKET',
             description: 'AWS S3 bucket to publish to',
-            defaultValue: 'cf-opensusefs2',
+            defaultValue: 'cap-release-archives',
         )
         string(
             name: 'S3_PREFIX',
             description: 'AWS S3 prefix to publish to',
-            defaultValue: 'scf/config/',
+            defaultValue: '',
         )
         credentials(
             name: 'DOCKER_CREDENTIALS',
@@ -224,10 +224,46 @@ pipeline {
             }
             steps {
                 sh '''
-                    kubectl get namespace | awk '/-scf|-uaa/ {print $1}' | xargs --no-run-if-empty kubectl delete ns
-                    while kubectl get namespace | grep -- '-scf|-uaa'; do
+                    #!/bin/bash
+                    dump_info() {
+                        kubectl get namespace
+                        helm list --all
+                        docker ps -a
+                        docker images
+                    }
+                    trap dump_info EXIT
+
+                    get_namespaces() {
+                        local ns
+                        local -A all_ns
+                        # Loop until getting namespaces succeeds
+                        while test -z "${all_ns[kube-system]:-}" ; do
+                            all_ns=[]
+                            for ns in $(kubectl get namespace --no-headers --output=custom-columns=:.metadata.name) ; do
+                                all_ns[${ns}]=${ns}
+                            done
+                        done
+                        # Only return the namespaces we want
+                        for ns in "${all_ns[@]}" ; do
+                            if [[ "${ns}" =~ scf|uaa ]] ; then
+                                echo "${ns}"
+                            fi
+                        done
+                    }
+
+                    get_namespaces | xargs --no-run-if-empty kubectl delete ns
+                    while test -n "$(get_namespaces)"; do
                         sleep 1
                     done
+
+                    docker ps --filter=status=exited  --quiet | xargs --no-run-if-empty docker rm
+                    docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm
+
+                    while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
+                        sleep 1
+                    done
+
+                    helm list --all --short | grep -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
@@ -288,7 +324,7 @@ pipeline {
                     source ${PWD}/.envrc
                     set -x
                     unset HCF_PACKAGE_COMPILATION_CACHE
-                    rm -f scf-*amd64*.zip
+                    rm -f output/scf-*amd64*.zip
                     make helm bundle-dist
                 '''
             }
@@ -300,21 +336,30 @@ pipeline {
             }
             steps {
                 sh """
+                    set -e +x
+                    source \${PWD}/.envrc
+                    set -x
+
                     kubectl delete storageclass hostpath || /bin/true
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
-                    rm -rf unzipped
-                    mkdir unzipped
-                    unzip -e scf-*linux-amd64*.zip -d unzipped
+                    rm -rf output/unzipped
+                    mkdir -p output/unzipped
+                    unzip -e output/scf-*linux-amd64*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
-                    ./unzipped/kube-ready-state-check.sh || /bin/true
+                    ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    mkdir unzipped/certs
-                    ./unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o unzipped/certs
+                    mkdir output/unzipped/certs
+                    ./output/unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o output/unzipped/certs
 
-                    helm install unzipped/helm/uaa \
+                    suffix=""
+                    if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
+                        suffix="-opensuse"
+                    fi
+
+                    helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -324,9 +369,10 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --values unzipped/certs/uaa-cert-values.yaml
+                        --set kube.auth=rbac \
+                        --values output/unzipped/certs/uaa-cert-values.yaml
 
-                    helm install unzipped/helm/cf \
+                    helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
@@ -336,7 +382,8 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --values unzipped/certs/scf-cert-values.yaml
+                        --set kube.auth=rbac \
+                        --values output/unzipped/certs/scf-cert-values.yaml
 
                     echo Waiting for all pods to be ready...
                     set +o xtrace
@@ -450,7 +497,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: 'scf-*amd64*.zip')
+                            def files = findFiles(glob: 'output/scf-*amd64*.zip')
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
@@ -467,29 +514,4 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
         }
     }
-
-    post {
-        always {
-            sh """#!/bin/bash
-            set -o xtrace
-            if kubectl get storageclass hostpath ; then
-                kubectl delete storageclass hostpath
-            fi
-            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; then
-                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
-            fi
-            if kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; then
-                kubectl delete namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa
-            fi
-            helm list --all --short | grep '${jobBaseName()}-${BUILD_NUMBER}-' | xargs --no-run-if-empty helm delete --purge
-            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-scf ; do
-                sleep 1
-            done
-            while kubectl get namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa ; do
-                sleep 1
-            done
-            """
-        }
-    }
-
 }

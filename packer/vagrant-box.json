@@ -1,11 +1,11 @@
 {
     "variables": {
-        "version": "2.0.9",
+        "version": "2.0.11",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
-        "iso_url": "http://download.opensuse.org/distribution/leap/42.2/iso/openSUSE-Leap-42.2-NET-x86_64.iso",
-        "iso_checksum": "750434ff041b9e7baf31217fcfab41df0560e8e8a39d508c196eb19c151f265c",
+        "iso_url": "http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-NET-x86_64.iso",
+        "iso_checksum": "d1a17116cf33a5582b83ef479d7b151b33938e60f07eebc544abf162e2aa5c12",
         "iso_checksum_type": "sha256",
         "http_directory": "http",
         "ssh_wait_timeout": "300m",
@@ -19,6 +19,7 @@
     },
     "builders": [
         {
+            "name": "vagrant-vmware",
             "type": "vmware-iso",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
@@ -37,7 +38,7 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
             ],
             "vmx_data": {
@@ -45,6 +46,7 @@
             }
         },
         {
+            "name": "vagrant-virtualbox",
             "type": "virtualbox-iso",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
@@ -69,11 +71,12 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
             ]
         },
         {
+            "name": "vagrant-libvirt",
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
@@ -96,11 +99,42 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
-                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoyast.xml ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
             ]
         },
         {
+            "name": "scf-cached-libvirt",
+            "type": "qemu",
+
+            "vm_name": "scf-vm+{{isotime \"20060102-1504\"}}",
+            "ssh_username": "scf",
+            "ssh_password": "changeme",
+            "shutdown_command": "echo changeme | sudo -S shutdown -P now",
+
+            "headless": true,
+            "disk_size": 120480,
+            "disk_interface": "virtio",
+            "disk_compression": true,
+            "net_device": "virtio-net",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "http_directory": "{{user `http_directory`}}",
+            "qemuargs": [
+                [ "-m", "1024M" ]
+            ],
+            "boot_command": [
+                "<esc><enter><wait>",
+                "linux lang=en_US textmode=1 ",
+                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/scf-autoyast.xml ",
+                "<enter><wait>"
+            ]
+        },
+        {
+            "name": "jenkins-slave",
             "type": "triton",
             "image_name": "{{ user `vm_name` }}",
             "image_version": "{{ user `version` }}+{{isotime \"20060102-1504\"}}",
@@ -117,7 +151,7 @@
     "provisioners": [
         {
             "type": "shell",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "inline": [
                 "# Create vagrant user",
                 "useradd --create-home vagrant",
@@ -195,39 +229,39 @@
         },
         {
             "type": "file",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "source": "http/controller-manager-jenkins-overrides.conf",
             "destination": "/etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf"
         },
         {
             "type": "file",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "source": "http/data-hostpath-create.service",
             "destination": "/etc/systemd/system/data-hostpath-create.service"
         },
         {
             "type": "file",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "source": "http/tmp-hostpath_pv.automount",
             "destination": "/etc/systemd/system/tmp-hostpath_pv.automount"
         },
         {
             "type": "file",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "source": "http/tmp-hostpath_pv.mount",
             "destination": "/etc/systemd/system/tmp-hostpath_pv.mount"
         },
         {
             "type": "shell",
-            "only": ["triton"],
+            "only": ["jenkins-slave"],
             "inline": [
-                "# Triton needs to put docker graph in /data for the larger disk",
+                "# jenkins-slave (triton) needs to put docker graph in /data for the larger disk",
                 "perl -p -i -e 's@(DOCKER_OPTS)=\"(.*)\"@$1=\"$2 --graph=/data/docker\"@' /etc/sysconfig/docker"
             ]
         },
         {
             "type": "shell",
-            "only": ["virtualbox-iso"],
+            "only": ["vagrant-virtualbox"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
                 "zypper --non-interactive remove --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
@@ -249,24 +283,45 @@
         },
         {
             "type": "shell",
-            "only": ["triton"],
+            "only": ["jenkins-slave", "scf-cached-libvirt"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "scripts": [
+                "scripts/install-helm.sh",
+                "scripts/install-k.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["scf-cached-libvirt"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "scripts": [
+                "scripts/install-cf.sh",
+                "scripts/install-cap-archives.sh",
+                "scripts/install-helm-images.sh"
+            ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "scripts": [
+                "scripts/stop-kube-and-docker.sh"
+            ],
+            "start_retry_timeout": "7m"
+        },
+        {
+            "type": "shell",
+            "only": ["jenkins-slave"],
             "inline": [
-                "# Install helm",
-                "wget -O - https://kubernetes-helm.storage.googleapis.com/helm-v2.5.1-linux-amd64.tar.gz | tar xz -C /usr/local/bin --no-same-owner --strip-components=1 linux-amd64/helm",
-                "sudo -i -u vagrant helm init",
-                "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
-                "rm -rf /data/docker/image/* /data/docker/containers/* /data/docker/overlay2",
-                "# Install additional packages",
                 "zypper --non-interactive install jre-openjdk-headless make zip osc"
             ]
         },
         {
             "type": "shell",
-            "only": ["vmware-iso", "virtualbox-iso", "qemu"],
+            "only": ["vagrant-vmware", "vagrant-virtualbox", "vagrant-libvirt", "jenkins-slave"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
-                "systemctl stop kube-apiserver kube-controller-manager kube-proxy kube-scheduler kubelet docker",
-                "rm -rf /var/lib/docker/image/* /var/lib/docker/continers/* /var/lib/docker/overlay2"
+                "rm -rf /var/lib/docker/image/* /var/lib/docker/containers/* /var/lib/docker/overlay2"
             ]
         },
         {
@@ -281,7 +336,7 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "only": ["vmware-iso", "virtualbox-iso", "qemu"],
+            "only": ["vagrant-vmware", "vagrant-virtualbox", "vagrant-libvirt"],
             "output": "scf-{{.Provider}}-v{{user `version`}}.box",
             "vagrantfile_template": "Vagrantfile.template"
         }

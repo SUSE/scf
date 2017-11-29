@@ -29,15 +29,26 @@ diff --git lib/cloud_controller/dependency_locator.rb lib/cloud_controller/depen
 index 6948c3b09..474443ffa 100644
 --- lib/cloud_controller/dependency_locator.rb
 +++ lib/cloud_controller/dependency_locator.rb
-@@ -271,7 +271,7 @@ module CloudController
+@@ -292,7 +292,7 @@ module CloudController
        )
 
-       skip_cert_verify = @config[:skip_cert_verify]
--      routing_api_url  = HashUtils.dig(@config, :routing_api, :url)
-+      routing_api_url  = HashUtils.dig(@config, :routing_api, :private_endpoint)
+       skip_cert_verify = config.get(:skip_cert_verify)
+-      routing_api_url = config.get(:routing_api, :url)
++      routing_api_url = config.get(:routing_api, :private_endpoint)
        RoutingApi::Client.new(routing_api_url, uaa_client, skip_cert_verify)
      end
 
+diff --git lib/cloud_controller/config_schemas/api_schema.rb lib/cloud_controller/config_schemas/api_schema.rb
+index 78f53270b..ffb53a10d 100644--- lib/cloud_controller/config_schemas/api_schema.rb
++++ lib/cloud_controller/config_schemas/api_schema.rb
+@@ -216,6 +216,7 @@ module VCAP::CloudController
+
+           users_can_select_backend: bool,
+           optional(:routing_api) => {
++            private_endpoint: String,
+             url: String,
+             routing_client_name: String,
+             routing_client_secret: String,
 PATCH
 
 touch "${SENTINEL}"

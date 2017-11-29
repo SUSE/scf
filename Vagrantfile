@@ -37,15 +37,17 @@ Vagrant.configure(2) do |config|
   # config.vm.network "forwarded_port", guest: 4443, host: 4443
   # config.vm.network "forwarded_port", guest: 8501, host: 8501
 
-  vm_memory = ENV.fetch('VM_MEMORY', 10 * 1024).to_i
-  vm_cpus = ENV.fetch('VM_CPUS', 4).to_i
+  vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
+  vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
+  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.10'))
+  vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v2.0.9.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v#{vm_box_version}.box"
     vb_net_config = base_net_config
     if ENV.include? "VAGRANT_VBOX_BRIDGE"
       vb_net_config[:bridge] = ENV.fetch("VAGRANT_VBOX_BRIDGE")
@@ -116,7 +118,7 @@ Vagrant.configure(2) do |config|
 #  end
 
   config.vm.provider "libvirt" do |libvirt, override|
-    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v2.0.9.box"
+    override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-libvirt-v#{vm_box_version}.box"
     libvirt.driver = "kvm"
     libvirt_net_config = base_net_config
     libvirt_net_config[:nic_model_type] = "virtio"
@@ -158,9 +160,18 @@ Vagrant.configure(2) do |config|
     export HOME=/home/vagrant
     export PATH=$PATH:/home/vagrant/bin
     export SCF_BIN_DIR=/usr/local/bin
+    if [ -n "#{vm_registry_mirror}" ]; then
+      perl -p -i -e 's@^(DOCKER_OPTS=)"(.*)"@\\1"\\2 --registry-mirror=#{vm_registry_mirror}"@' /etc/sysconfig/docker
+      service docker restart
+    fi
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
+    # Enable RBAC for kube on vagrant boxes older than 2.0.10
+    if ! grep -q "KUBE_API_ARGS=.*--authorization-mode=RBAC" /etc/kubernetes/apiserver; then
+      perl -p -i -e 's@^(KUBE_API_ARGS=)"(.*)"@\\1"\\2 --authorization-mode=RBAC"@' /etc/kubernetes/apiserver
+      systemctl restart kube-apiserver
+    fi
   SHELL
 
   # Set up the storage class

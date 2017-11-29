@@ -181,7 +181,7 @@ a working system.
     git pull
 
     # Update all submodules to match the checked out commit
-    git submodules update --recursive
+    git submodule update --init --recursive
     ```
 
     Sometimes, when we bump the BOSH release submodules, they move to a different
@@ -191,7 +191,7 @@ a working system.
       git submodule sync --recursive
     ```
 
-    You might have to run the `git submodules update --recursive` again after the
+    You might have to run the `git submodule update --init --recursive` again after the
     last command.
 
     If there are untracked changes from submodule directories you can safely remove them.
@@ -353,7 +353,7 @@ and execute the following commands:
 ```bash
 make smoke
 make cats
-kubectl create -n cf -f kube/bosh-task/acceptance-tests-brain.yaml
+make brain
 ```
 
 #### How do I run a subset of SCF acceptance tests?

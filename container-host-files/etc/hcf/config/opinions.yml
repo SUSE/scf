@@ -36,7 +36,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-    client_max_body_size: 15M
     core_file_pattern: false # This ensures the value gets to the BOSH templater, which will see this as off
     default_running_security_groups:
     - public_networks
@@ -50,6 +49,9 @@ properties:
         buildpack/opensuse42: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
         buildpack/sle12: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
         docker: docker_app_lifecycle/docker_app_lifecycle.tgz
+      # "Enabling secure communication between Cloud Controller and Diego" claims that these temporary
+      # settings will become the default in CF 274, but as of CF 278 they are still necessary.
+      # https://docs.google.com/document/d/1pdxC1DqROqk72BDw--6b5v2r0K7Jpp9l-FbO6tlkQDs/edit#heading=h.yh800xsnqw7t
       temporary_local_apps: true                 # Remove in CF 274
       temporary_cc_uploader_mtls: true           # Remove in CF 274
       temporary_droplet_download_mtls: true      # Remove in CF 274
@@ -153,7 +155,6 @@ properties:
         alert_if_above_mb: null
         restart_if_above_mb: null
         restart_if_consistently_above_mb: null
-    tls_port: 9023 # Needed by loggregator_trafficcontroller
     volume_services_enabled: true
   ccdb:
     databases:
@@ -211,6 +212,7 @@ properties:
         - sle12:/var/vcap/packages/cf-sle12/rootfs.tar
       require_tls: true
     route_emitter:
+      local_mode: true
       nats:
         user: nats
     ssh_proxy:
@@ -249,21 +251,12 @@ properties:
     privileged_image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     privileged_image_plugin_extra_args:
     - --config=/var/vcap/jobs/grootfs/config/privileged_grootfs_config.yml
-  grootfs:
-    graph_cleanup_threshold_in_mb: 3000
-    persistent_image_list:
-    - /var/vcap/packages/cflinuxfs2/rootfs.tar
-    - /var/vcap/packages/opensuse42/rootfs.tar
-    - /var/vcap/packages/cf-sle12/rootfs.tar
   fissile:
     monit:
       user: "admin"
       port: 2289
   hcf:
     skip_cert_verify_external: false
-  hm9000:
-    # Used in cc_ng and cc_worker
-    url: https://this.is.unused
   loggregator:
     etcd:
       require_ssl: true
@@ -316,8 +309,8 @@ properties:
   system_domain_organization: null
   ssl:
     skip_cert_verify: false
-  tcp_emitter:
-    debug_address: 0.0.0.0:17003
+  tcp:
+    enabled: true
   traffic_controller:
     locked_memory_limit: kernel
   uaa:
@@ -327,6 +320,9 @@ properties:
       # go into the HCF zone.
       cc_routing:
         authorities: routing.router_groups.read
+        authorized-grant-types: client_credentials
+      cc_service_key_client:
+        authorities: credhub.read,credhub.write
         authorized-grant-types: client_credentials
       cf:
         access-token-validity: 600
@@ -396,3 +392,14 @@ properties:
       - roles
       - user_attributes
       - routing.router_groups.read
+      default_groups:
+      - openid
+      - cloud_controller.read
+      - cloud_controller.write
+      - password.write
+      - uaa.user
+      - approvals.me
+      - profile
+      - roles
+      - user_attributes
+      - uaa.offline_token

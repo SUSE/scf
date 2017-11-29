@@ -31,3 +31,5 @@ properties:
     description: The base url of the UAA with the correct zone id
   uaa.user.authorities:
     description: List of user authorities to create in the HCF zone
+  uaa.user.default_groups:
+    description: The list of default user groups for new users

@@ -1,6 +1,19 @@
 # packer boxes for vagrant
 
-To create the boxes, run the following:
+## Requirements
+
+packer: https://www.packer.io/
+txtplate: https://github.com/aarondl/txtplate/releases
+
+## Creation
+
+To create one of the boxes do this
+
 ```bash
-packer build -only=<ONE OF: virtualbox-iso, qemu, vmware-iso> vagrant-box.json
+# Where TARGET is one of:
+#   scf-cached-libvirt
+#   vagrant-libvirt
+#   vagrant-virtualbox
+#   jenkins-slave
+make TARGET
 ```

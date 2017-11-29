@@ -59,13 +59,14 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_consul_server_name.sh
   - scripts/patches/fix_consul_pre_start.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -289,14 +290,14 @@ roles:
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cf-usb
     release_name: cf-usb
@@ -351,10 +352,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: rep-certstrap
     release_name: hcf
@@ -414,13 +416,13 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
-  - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: gorouter
     release_name: routing
@@ -491,12 +493,14 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
-  - scripts/patches/fix_tcp_routing_wait_for_uaa.sh
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
+    release_name: hcf
+  - name: wait-for-uaa
     release_name: hcf
   - name: tcp_router
     release_name: routing
@@ -553,13 +557,13 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
-  - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -567,14 +571,10 @@ roles:
     release_name: loggregator
   - name: routing-api
     release_name: routing
-  - name: tcp_emitter
-    # TCP-emitter can be on a different role, it's just convenient here
-    release_name: routing
   processes:
   - name: consul_agent
   - name: metron_agent
   - name: routing-api
-  - name: tcp_emitter
   run:
     scaling:
       min: 1
@@ -610,18 +610,19 @@ roles:
 - name: api
   tags: [clustered]
   environment_scripts:
-  - scripts/authorize_internal_ca.sh
-  - scripts/fetch_uaa_verification_key.sh
   - scripts/configure-HA-hosts.sh
   - scripts/consul_agent_log_level.sh
   - scripts/nginx_log_level.sh
   scripts:
+  - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: patch-properties
     release_name: hcf
@@ -716,10 +717,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cloud_controller_worker
     release_name: capi
@@ -787,7 +789,7 @@ roles:
     persistent-volumes:
     - path: /var/vcap/store
       tag: blobstore-data
-      size: 5
+      size: 50
     shared-volumes: []
     memory: 1536
     virtual-cpus: 2
@@ -811,10 +813,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: cloud_controller_clock
     release_name: capi
@@ -927,13 +930,14 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: patch-properties
     release_name: hcf
@@ -998,10 +1002,11 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: loggregator_trafficcontroller
     release_name: loggregator
@@ -1059,10 +1064,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: consul_agent
     release_name: consul
@@ -1111,10 +1117,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: tps
     release_name: capi
@@ -1163,51 +1170,6 @@ roles:
                 values:
                 - cc-uploader
             topologyKey: "beta.kubernetes.io/os"
-- name: diego-route-emitter
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: route_emitter
-    release_name: diego
-  - name: consul_agent
-    release_name: consul
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: route_emitter
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports: []
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-route-emitter
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1215,10 +1177,11 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: ssh_proxy
     release_name: diego
@@ -1275,10 +1238,11 @@ roles:
   - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: metron_agent
     release_name: loggregator
@@ -1320,14 +1284,19 @@ roles:
   scripts:
   - scripts/patches/fix_consul_pre_start.sh
   - scripts/patches/fix_persi_nfsdriver.sh
-  - scripts/authorize_internal_ca.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
+  - name: authorize-internal-ca
+    release_name: hcf
+  - name: wait-for-uaa
+    release_name: hcf
   - name: rep
+    release_name: diego
+  - name: route_emitter
     release_name: diego
   - name: consul_agent
     release_name: consul
@@ -1349,6 +1318,7 @@ roles:
   - name: metron_agent
   - name: consul_agent
   - name: rep
+  - name: route_emitter
   - name: garden
   run:
     scaling:
@@ -1413,10 +1383,10 @@ roles:
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: acceptance-tests-brain
     release_name: hcf
@@ -1435,10 +1405,11 @@ roles:
   type: bosh-task
   tags: [stop-on-failure]
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: acceptance-tests
     release_name: hcf
@@ -1459,10 +1430,10 @@ roles:
 - name: smoke-tests
   type: bosh-task
   tags: [stop-on-failure]
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: smoke_tests
     release_name: cf-smoke-tests
@@ -1477,14 +1448,35 @@ roles:
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
+- name: secret-generation
+  type: bosh-task
+  jobs:
+  - name: generate-secrets
+    release_name: hcf
+  processes: []
+  run:
+    scaling:
+      min: 1
+      max: 1
+    flight-stage: pre-flight
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 1
+    exposed-ports: []
+    service-account: secret-generator
+  configuration:
+    templates:
+      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_ETCD_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/authorize_internal_ca.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
     release_name: hcf
   - name: uaa-create-user
     release_name: hcf
@@ -1503,6 +1495,24 @@ roles:
     virtual-cpus: 1
     exposed-ports: []
 configuration:
+  auth:
+    roles:
+      configgin-role:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get, list, patch]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
+      secrets-role:
+      - apiGroups: [""]
+        resources: [secrets]
+        verbs: [create, get, list, patch, update]
+    accounts:
+      default:
+        roles: [configgin-role]
+      secret-generator:
+        roles: [configgin-role, secrets-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []
@@ -1518,7 +1528,6 @@ configuration:
       id: app_ssh
       type: SSH
       value_type: private_key
-      key_length: 4096
     description: PEM encoded RSA private key used to identify host.
     required: true
   - name: APP_SSH_KEY_FINGERPRINT
@@ -1539,6 +1548,8 @@ configuration:
       id: auctioneer_rep_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - auctioneer_rep
     description: PEM-encoded certificate
     required: true
   - name: AUCTIONEER_REP_KEY
@@ -1547,7 +1558,6 @@ configuration:
       id: auctioneer_rep_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: AUCTIONEER_SERVER_CERT
@@ -1556,6 +1566,9 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - auctioneer_server
+      role_name: diego-brain
     description: PEM-encoded server certificate
     required: true
   - name: AUCTIONEER_SERVER_KEY
@@ -1564,7 +1577,6 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
@@ -1580,6 +1592,8 @@ configuration:
       id: bbs_auctioneer_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_auctioneer
     description: PEM-encoded certificate
     required: true
   - name: BBS_AUCTIONEER_KEY
@@ -1588,7 +1602,6 @@ configuration:
       id: bbs_auctioneer_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: BBS_CLIENT_CRT
@@ -1597,6 +1610,8 @@ configuration:
       id: bbs_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_client
     description: PEM-encoded client certificate.
     required: true
   - name: BBS_CLIENT_KEY
@@ -1605,7 +1620,6 @@ configuration:
       id: bbs_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: BBS_REP_CERT
@@ -1614,6 +1628,8 @@ configuration:
       id: bbs_rep_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_rep
     description: PEM-encoded certificate
     required: true
   - name: BBS_REP_KEY
@@ -1622,7 +1638,6 @@ configuration:
       id: bbs_rep_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key
     required: true
   - name: BBS_SERVER_CRT
@@ -1631,6 +1646,9 @@ configuration:
       id: bbs_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - bbs_server
+      role_name: diego-api
     description: PEM-encoded client certificate.
     required: true
   - name: BBS_SERVER_KEY
@@ -1639,7 +1657,6 @@ configuration:
       id: bbs_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: BLOBSTORE_ACCESS_RULES
@@ -1670,12 +1687,9 @@ configuration:
       id: blobstore_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - blobstore_tls
+      role_name: blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
     required: true
   - name: BLOBSTORE_TLS_KEY
@@ -1709,12 +1723,11 @@ configuration:
       id: cc_mutual_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      # The "cloud-controller-ng.service.cf.internal" is present because the syslog-drain-binder
+      # has that name hardwired into it!
+      - cloud-controller-ng.service.cf.internal
+      role_name: api
     description: The PEM-encoded certificate for internal cloud controller traffic.
     required: true
   - name: CC_SERVER_KEY
@@ -1731,12 +1744,9 @@ configuration:
       id: cc_uploader_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - cc_uploader
+      role_name: cc-uploader
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
     required: true
   - name: CC_UPLOADER_KEY
@@ -1756,7 +1766,9 @@ configuration:
       id: "usb_broker_server_cert"
       type: Certificate
       value_type: certificate
-      key_length: 4096
+      subject_names:
+      - cfUsbBrokerServer
+      role_name: cf-usb
     description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
     secret: true
@@ -1803,7 +1815,8 @@ configuration:
       id: consul_agent_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
+      subject_names:
+      - "consul agent"
     description: PEM-encoded agent certificate.
     required: true
   - name: CONSUL_AGENT_KEY
@@ -1834,10 +1847,8 @@ configuration:
       id: consul_server_cert
       type: Certificate
       value_type: certificate
-      key_length: 4096
-      subject_alt_names:
-      - static: server.dc1.hcf
-        wildcard: false
+      subject_names:
+      - "server.dc1.{{.KUBERNETES_NAMESPACE}}"
     description: PEM-encoded server certificate.
     required: true
   - name: CONSUL_SERVER_KEY
@@ -1904,6 +1915,8 @@ configuration:
       id: doppler_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - doppler
     description: PEM-encoded certificate.
     required: true
   - name: DOPPLER_KEY
@@ -1912,7 +1925,6 @@ configuration:
       id: doppler_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: DROPLET_MAX_STAGED_STORED
@@ -1925,6 +1937,8 @@ configuration:
       id: etcd_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdClient
     description: PEM-encoded client certificate.
     required: true
   - name: ETCD_CLIENT_KEY
@@ -1933,7 +1947,6 @@ configuration:
       id: etcd_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key.
     required: true
   - name: ETCD_PEER_CRT
@@ -1942,6 +1955,9 @@ configuration:
       id: etcd_peer_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdPeer
+      role_name: etcd
     description: PEM-encoded peer certificate.
     required: true
   - name: ETCD_PEER_KEY
@@ -1950,7 +1966,6 @@ configuration:
       id: etcd_peer_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded peer key.
     required: true
   - name: ETCD_SERVER_CRT
@@ -1959,6 +1974,9 @@ configuration:
       id: etcd_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - etcdServer
+      role_name: etcd
     description: PEM-encoded server certificate.
     required: true
   - name: ETCD_SERVER_KEY
@@ -1967,7 +1985,6 @@ configuration:
       id: etcd_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key.
     required: true
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
@@ -2006,7 +2023,6 @@ configuration:
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
   - name: HCP_CA_CERT
-    internal: true
     immutable: true
     description: The CA certificate for UAA
     secret: true
@@ -2036,9 +2052,14 @@ configuration:
       value_type: certificate
     description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
     required: true
-  - name: JWT_SIGNING_PUB
-    type: environment
-    description: The key used to verify JWT-based OAuth2 tokens generated by UAA.
+  - name: INTERNAL_CA_KEY
+    secret: true
+    generator:
+      id: cacert
+      type: CACertificate
+      value_type: private_key
+    description: PEM-encoded CA key.
+    required: true
   - name: KUBERNETES_NAMESPACE
     type: environment
     description: >
@@ -2079,9 +2100,37 @@ configuration:
       runtime configuration.
     immutable: true
     required: false
+  - name: KUBE_SIZING_API_COUNT
+    description: >
+      The number of api replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_BLOBSTORE_COUNT
+    description: >
+      The number of blobstore replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_CC_UPLOADER_COUNT
+    description: >
+      The number of cc-uploader replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_CF_USB_COUNT
+    description: >
+      The number of cf-usb replicas deployed.
+      This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_CONSUL_COUNT
     description: >
       The number of consul replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_API_COUNT
+    description: >
+      The number of diego-api replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_BRAIN_COUNT
+    description: >
+      The number of diego-brain replicas deployed.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_DIEGO_CELL_COUNT
+    description: >
+      The number of diego-cell replicas deployed.
       This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_ETCD_COUNT
     description: >
@@ -2091,13 +2140,6 @@ configuration:
     description: >
       The number of nats replicas deployed.
       This value is set automatically by the helm charts of SCF.
-  - name: LOGGREGATOR_SHARED_SECRET
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Shared secret used to verify cryptographically signed dropsonde messages.
-    required: true
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2116,6 +2158,8 @@ configuration:
       id: metron_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - metron
     description: PEM-encoded certificate.
     required: true
   - name: METRON_KEY
@@ -2124,7 +2168,6 @@ configuration:
       id: metron_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: MONIT_PASSWORD
@@ -2284,6 +2327,8 @@ configuration:
       id: rep_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - rep_client
     description: PEM-encoded client certificate
     required: true
   - name: REP_CLIENT_KEY
@@ -2292,7 +2337,6 @@ configuration:
       id: rep_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key
     required: true
   - name: REP_SERVER_CERT
@@ -2301,6 +2345,9 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - rep_server
+      role_name: diego-cell
     description: PEM-encoded server certificate
     required: true
   - name: REP_SERVER_KEY
@@ -2309,7 +2356,6 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded server key
     required: true
   - name: RESERVABLE_PORTS
@@ -2335,11 +2381,12 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: certificate
-      subject_alt_names:
-      - parameter: DOMAIN
-        wildcard: false
-      - parameter: DOMAIN
-        wildcard: true
+      subject_names:
+      - router_ssl
+      - router
+      - "router.{{.KUBE_SERVICE_DOMAIN_SUFFIX}}"
+      - "{{.DOMAIN}}"
+      - "*.{{.DOMAIN}}"
     description: The public ssl cert for ssl termination.
     required: true
   - name: ROUTER_SSL_KEY
@@ -2348,7 +2395,6 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: The private ssl key for ssl termination.
     required: true
   - name: ROUTER_STATUS_PASSWORD
@@ -2386,6 +2432,8 @@ configuration:
       id: syslogdrainbinder_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - syslogdrainbinder
     description: PEM-encoded certificate
     required: true
   - name: SYSLOGDRAINBINDER_KEY
@@ -2394,7 +2442,6 @@ configuration:
       id: syslogdrainbinder_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
@@ -2407,6 +2454,8 @@ configuration:
       id: tps_cc_client_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - tpsCCClient
     description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
     required: true
   - name: TPS_CC_CLIENT_KEY
@@ -2415,7 +2464,6 @@ configuration:
       id: tps_cc_client_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded client key for internal communication between the cloud controller and TPS.
     required: true
   - name: TRAFFICCONTROLLER_CERT
@@ -2424,6 +2472,8 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - trafficcontroller
     description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRAFFICCONTROLLER_KEY
@@ -2432,7 +2482,6 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRUSTED_CERTS
@@ -2462,6 +2511,13 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
+    required: true
+  - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Used for fetching service key values from CredHub.
     required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
@@ -2528,10 +2584,8 @@ configuration:
   - name: UAA_HOST
     description: The host name of the UAA server (root zone)
     required: true
-    internal: true
   - name: UAA_PORT
     default: 2793
-    internal: true
     description: The tcp port the UAA server (root zone) listens on for requests.
   - name: USE_DIEGO_PRIVILEGED_CONTAINERS
     default: false
@@ -2556,8 +2610,6 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-    properties.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
-    properties.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2608,8 +2660,6 @@ configuration:
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBE_SERVICE_DOMAIN_SUFFIX)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
-    properties.cc.diego.stager_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):8888
-    properties.cc.diego.tps_url: http://diego-cc-bridge.((KUBE_SERVICE_DOMAIN_SUFFIX)):1518
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
@@ -2643,7 +2693,6 @@ configuration:
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
-    properties.cf-usb.management.public_key: '"((JWT_SIGNING_PUB))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_address: 'mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
@@ -2704,7 +2753,7 @@ configuration:
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.trusted_certs: '"((TRUSTED_CERTS))"'
+    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2727,7 +2776,6 @@ configuration:
     properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.doppler.zone: '"((KUBE_AZ))"'
-    properties.doppler_endpoint.shared_secret: '"((LOGGREGATOR_SHARED_SECRET))"'
     properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
@@ -2753,7 +2801,7 @@ configuration:
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
-    properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
+    properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
     properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
@@ -2832,9 +2880,6 @@ configuration:
     properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
-    properties.tcp_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.tcp_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.tcp_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
@@ -2847,6 +2892,7 @@ configuration:
     properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
+    properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
@@ -2861,8 +2907,9 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((UAA_HOST)).((KUBE_SERVICE_DOMAIN_SUFFIX))'
+    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
     properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT)) # For loggregator
+    properties.uaa.port: ((UAA_PORT))
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))

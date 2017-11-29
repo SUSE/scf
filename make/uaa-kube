@@ -7,6 +7,7 @@ cd "${GIT_ROOT}"
 
 source .envrc
 source src/uaa-fissile-release/.envrc
+source ${GIT_ROOT}/make/include/versioning
 
 # FISSILE_DOCKER_REGISTRY and FISSILE_DOCKER_ORGANIZATION have the
 # same defaults, and pass through also. FISSILE_REPOSITORY we must not
