@@ -79,7 +79,7 @@ helm install output/helm \
      --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}" \
-     --set "env.HCP_CA_CERT=${CA_CERT}" \
+     --set "env.UAA_CA_CERT=${CA_CERT}" \
      --set "kube.external_ip=$(dig +short ${DOMAIN})" \
      --set "kube.auth=rbac" \
      "$@"

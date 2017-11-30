@@ -2022,7 +2022,7 @@ configuration:
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
-  - name: HCP_CA_CERT
+  - name: UAA_CA_CERT
     immutable: true
     description: The CA certificate for UAA
     secret: true
@@ -2889,7 +2889,7 @@ configuration:
     properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
     properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
-    properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
+    properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
