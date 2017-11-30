@@ -2022,10 +2022,6 @@ configuration:
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
-  - name: UAA_CA_CERT
-    immutable: true
-    description: The CA certificate for UAA
-    secret: true
   - name: HOSTNAME
     description: >
       The host name of the container.  This should be automatic and should not
@@ -2498,6 +2494,10 @@ configuration:
     immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
+  - name: UAA_CA_CERT
+    immutable: true
+    description: The CA certificate for UAA
+    secret: true
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     immutable: true
