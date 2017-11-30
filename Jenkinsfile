@@ -6,7 +6,7 @@ String ipAddress() {
 }
 
 String domain() {
-    return ipAddress() + ".nip.io"
+    return ipAddress() + ".xip.io"
 }
 
 String jobBaseName() {
