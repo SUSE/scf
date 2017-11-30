@@ -26,15 +26,6 @@ certs: uaa-certs
 	bin/generate-dev-certs.sh cf bin/settings/certs.env
 	bin/settings/kube/ca.sh
 
-uaa-certs:
-	make/uaa-certs
-
-uaa-releases:
-	make/uaa-releases
-
-uaa-kube-dist:
-	make/uaa-kube-dist
-
 run:
 	make/uaa-run
 	make/uaa-wait
@@ -45,15 +36,6 @@ validate:
 
 stop:
 	make/stop
-	make/uaa-stop
-
-uaa-run:
-	make/uaa-run
-
-uaa-wait:
-	make/uaa-wait
-
-uaa-stop:
 	make/uaa-stop
 
 vagrant-box:
@@ -84,6 +66,45 @@ brain:
 
 cats:
 	make/tests acceptance-tests
+
+########## UAA LINK TARGETS ##########
+
+uaa-certs:
+	make/uaa-certs
+
+uaa-releases:
+	make/uaa-releases
+
+uaa-kube-dist:
+	make/uaa-kube-dist
+
+uaa-run:
+	make/uaa-run
+
+uaa-wait:
+	make/uaa-wait
+
+uaa-stop:
+	make/uaa-stop
+
+uaa-compile: ${FISSILE_BINARY}
+	make/compile restore
+	make/uaa-compile
+	make/compile cache
+
+uaa-images: ${FISSILE_BINARY}
+	make/uaa-images
+
+uaa-publish: ${FISSILE_BINARY}
+	make/uaa-publish
+
+uaa-kube: ${FISSILE_BINARY}
+	make/uaa-kube
+.PHONY: uaa-kube
+
+uaa-helm: ${FISSILE_BINARY}
+	make/uaa-kube helm
+.PHONY: uaa-helm
 
 ########## BOSH RELEASE TARGETS ##########
 
@@ -196,6 +217,7 @@ releases: \
 	ruby-buildpack-release \
 	staticfile-buildpack-release \
 	grootfs-release \
+	uaa-releases \
 	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
@@ -209,6 +231,9 @@ clean-compile-cache:
 
 compile: ${FISSILE_BINARY}
 	make/compile
+	make/compile restore
+	make/uaa-compile
+	make/compile cache
 
 compile-clean: clean ${FISSILE_BINARY} vagrant-prep
 	make/tar-sources
@@ -221,20 +246,12 @@ images: bosh-images uaa-images helm kube
 bosh-images: validate ${FISSILE_BINARY}
 	make/bosh-images
 
-uaa-images: ${FISSILE_BINARY}
-	make/compile restore
-	make/uaa-images
-	make/compile cache
-
 build: compile images
 
 publish: bosh-publish uaa-publish
 
 bosh-publish: ${FISSILE_BINARY}
 	make/bosh-publish
-
-uaa-publish: ${FISSILE_BINARY}
-	make/uaa-publish
 
 show-docker-setup:
 	make/show-docker-setup
@@ -244,6 +261,7 @@ show-versions:
 	make/show-versions
 
 ########## KUBERNETES TARGETS ##########
+
 kube: uaa-kube
 	make/kube
 .PHONY: kube
@@ -251,14 +269,6 @@ kube: uaa-kube
 helm: uaa-helm
 	make/kube helm
 .PHONY: helm
-
-uaa-kube: ${FISSILE_BINARY}
-	make/uaa-kube
-.PHONY: uaa-kube
-
-uaa-helm: ${FISSILE_BINARY}
-	make/uaa-kube helm
-.PHONY: uaa-helm
 
 ########## CONFIGURATION TARGETS ##########
 
@@ -279,7 +289,7 @@ kube-dist: kube uaa-kube-dist
 bundle-dist: kube-dist cert-generator 
 	make/bundle-dist
 
-########## SUPPORT  TARGETS ##########
+########## SUPPORT TARGETS ##########
 
 cert-generator:
 	make/cert-generator
