@@ -6,7 +6,7 @@ String ipAddress() {
 }
 
 String domain() {
-    return ipAddress() + ".nip.io"
+    return ipAddress() + ".xip.io"
 }
 
 String jobBaseName() {
@@ -508,6 +508,13 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                                     path: "${subdir}${prefix}${files[i].name}",
                                 )
                             }
+
+                            // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                            def encodedFileName = java.net.URLEncoder.encode(files[0].name, "UTF-8")
+                            def encodedCapBundleUri = java.net.URLEncoder.encode("https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}", "UTF-8")
+                            def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                            echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
                     }
                 }
