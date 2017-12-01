@@ -79,4 +79,4 @@ echo "env:" > "${out_dir}/uaa-cert-values.yaml"
 
 echo "env:" > "${out_dir}/scf-cert-values.yaml"
 "${scripts_dir}/generate-scf-certs.sh" -e "${env_dir}" "${namespace}" >(perl -pe 's@(.+?)=(.+)@  $1: "$2"@' >> "${out_dir}/scf-cert-values.yaml") >/dev/null
-awk '$1 == "INTERNAL_CA_CERT:" { $1 = "  HCP_CA_CERT:" ; print }' "${out_dir}/uaa-cert-values.yaml" >> "${out_dir}/scf-cert-values.yaml"
+awk '$1 == "INTERNAL_CA_CERT:" { $1 = "  UAA_CA_CERT:" ; print }' "${out_dir}/uaa-cert-values.yaml" >> "${out_dir}/scf-cert-values.yaml"
