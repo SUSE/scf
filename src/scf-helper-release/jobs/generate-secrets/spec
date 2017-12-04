@@ -1,0 +1,14 @@
+---
+name: generate-secrets
+
+description: This job will generate the secrets for the cluster
+
+packages:
+  - generate-secrets
+
+templates:
+  run.erb: bin/run
+
+properties:
+  scf.secrets.variables:
+    description: "A dummy variable to hold references to all config variables needed for secrets generation"

@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
-HCF_PACKAGE_COMPILATION_CACHE=${HCF_PACKAGE_COMPILATION_CACHE:-''}
+SCF_PACKAGE_COMPILATION_CACHE=${SCF_PACKAGE_COMPILATION_CACHE:-''}
 
 # Return a list of desired packages with their versions, as in package/00000000
 _get_package_version_list() {
@@ -24,11 +24,11 @@ get_package_version_list() {
 }
 
 _cache() {
-    test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
+    test -z "${SCF_PACKAGE_COMPILATION_CACHE}" && return
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
-        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
+        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
         test -e "${archive}" && {
             # Don't recreate an archive that already exists
             echo "Found:   ${archive}"
@@ -43,7 +43,7 @@ _cache() {
         ionice -c 3 nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}/" compiled
     done
 
-    echo "Cache saved to ${HCF_PACKAGE_COMPILATION_CACHE}"
+    echo "Cache saved to ${SCF_PACKAGE_COMPILATION_CACHE}"
 }
 
 cache() {
@@ -51,19 +51,19 @@ cache() {
 }
 
 restore() {
-    test -z "${HCF_PACKAGE_COMPILATION_CACHE}" && return
+    test -z "${SCF_PACKAGE_COMPILATION_CACHE}" && return
     test -d "${FISSILE_WORK_DIR}/compilation/" && return
 
     mkdir -p "${FISSILE_WORK_DIR}/compilation/"
-    mkdir -p "${HCF_PACKAGE_COMPILATION_CACHE}"
+    mkdir -p "${SCF_PACKAGE_COMPILATION_CACHE}"
 
     stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore start
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
-        archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
+        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
         if ! test -r "${archive}" -a -s "${archive}" ; then
-            old_archive="${HCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
+            old_archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
             if test -r "${old_archive}" -a -s "${old_archive}" ; then
                 # Fall back to old-style archive until all the caches are reasonably full
                 archive="${old_archive}"
@@ -87,20 +87,20 @@ restore() {
 
     stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore done
 
-    echo "Compiled packages restored from ${HCF_PACKAGE_COMPILATION_CACHE}"
+    echo "Compiled packages restored from ${SCF_PACKAGE_COMPILATION_CACHE}"
 }
 
 # Removes any compilation pieces that we don't need.
 # This affects both cache on the host, and local cache
 
 clean() {
-    if test -z "$(echo "${HCF_PACKAGE_COMPILATION_CACHE}" | tr -d ./)" ; then
-        echo "HCF_PACKAGE_COMPILATION_CACHE is empty; bailing to prevent wiping your disk" >&2
+    if test -z "$(echo "${SCF_PACKAGE_COMPILATION_CACHE}" | tr -d ./)" ; then
+        echo "SCF_PACKAGE_COMPILATION_CACHE is empty; bailing to prevent wiping your disk" >&2
         exit 1
     fi
-    test -d "${HCF_PACKAGE_COMPILATION_CACHE}/" || return
+    test -d "${SCF_PACKAGE_COMPILATION_CACHE}/" || return
     existing_packages=""
-    for path in "${HCF_PACKAGE_COMPILATION_CACHE}/"* ; do
+    for path in "${SCF_PACKAGE_COMPILATION_CACHE}/"* ; do
         test -e "${path}" || continue  # in case expansion failed
         hash=$(basename "${path}")
         existing_packages="${existing_packages} ${hash}"
@@ -111,7 +111,7 @@ clean() {
     done
     for unneeded_package in ${existing_packages} ; do
         echo "Removing ${unneeded_package}"
-        rm -rf "${HCF_PACKAGE_COMPILATION_CACHE}/${unneeded_package}"
+        rm -rf "${SCF_PACKAGE_COMPILATION_CACHE}/${unneeded_package}"
     done
 
     # And now the local cache. Same as above, just baked into of fissile.

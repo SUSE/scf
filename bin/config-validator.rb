@@ -20,9 +20,9 @@ def main
   bosh_properties = YAML.load(ARGF.read)
   # :: hash (release -> hash (job -> hash (property -> default)))
 
-  manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/role-manifest.yml'))
-  light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/opinions.yml'))
-  dark_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/dark-opinions.yml'))
+  manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/role-manifest.yml'))
+  light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/opinions.yml'))
+  dark_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/dark-opinions.yml'))
 
   manifest = Common.load_role_manifest(manifest_file)
   light = YAML.load_file(light_opinions_file)
@@ -137,7 +137,7 @@ def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   template_count = templates.inject([]) do |all_templates, (_, template_list)|
     all_templates << template_list.keys
   end.flatten.length
-  scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
+  scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/scripts'))
   scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
   rm_parameters = manifest['configuration']['variables']
 
@@ -187,8 +187,8 @@ end
 
 # Makes sure that all scripts are being used in the role manifest
 def check_role_manifest_scripts(manifest)
-  manifest_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/'))
-  scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/hcf/config/scripts'))
+  manifest_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/'))
+  scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/scripts'))
 
   scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
 
@@ -243,7 +243,7 @@ def check_clustering(manifest, bosh_properties)
   # - Iterate over jobs
   #   - Determine templates used by job
   #     - Determine parameters used by template
-  #       - Collect /_HCF_CLUSTER_IPS$/
+  #       - Collect /_CLUSTER_IPS$/
 
   manifest['roles'].each do |role|
     rparams = params.dup
