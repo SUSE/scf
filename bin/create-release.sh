@@ -7,7 +7,7 @@ ROOT="$( unset CDPATH ; cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 if [[ $# -lt 2 || -z "${1:-}" || -z "${2:-}" ]]; then
   cat <<HELP
   Usage: create-release.sh <RELEASE_PATH> <RELEASE_NAME>"
-  RELEASE_PATH must be relative to the root of hcf-infrastructure
+  RELEASE_PATH must be relative to the root of the infrastructure
 HELP
   exit 1
 fi
@@ -40,8 +40,8 @@ stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" "create-release::${release_
 
 mkdir -p "${FISSILE_CACHE_DIR}"
 
-# bosh create release calls `git status` (twice), but hcf doesn't need to know if the
-# repo is dirty, so stub it out.
+# bosh create release calls `git status` (twice), but we don't need to
+# know if the repo is dirty, so stub it out.
 
 # import proxy information, if any, what there is.
 # Note, the http:// schema prefix is intentional.

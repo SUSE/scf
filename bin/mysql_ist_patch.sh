@@ -9,7 +9,7 @@ set -o pipefail
 
 if [ "${#}" -eq 0 ]
 then
-  echo "Usage: ${0} <hcf_instance_id> [gcache_size]"
+  echo "Usage: ${0} <scf_instance_id> [gcache_size]"
   exit 1
 fi
 

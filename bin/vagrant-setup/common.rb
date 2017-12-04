@@ -64,10 +64,10 @@ class Common
     # Get options, set defaults for missing parts
     @dtr          = @options[:dtr]
     @dtr_org      = @options[:dtr_org]
-    @hcf_tag      = @options[:hcf_tag]
-    @hcf_prefix   = @options[:hcf_prefix]
-    @hcf_version  = @options[:hcf_version]
-    @hcf_root_dir = @options[:hcf_root_dir]
+    @scf_tag      = @options[:scf_tag]
+    @scf_prefix   = @options[:scf_prefix]
+    @scf_version  = @options[:scf_version]
+    @scf_root_dir = @options[:scf_root_dir]
   end
 
   # # ## ### ##### ########
@@ -180,8 +180,8 @@ class Common
   end
 
   def self.special_indexed(key)
-    return true if key == "HCF_BOOTSTRAP"
-    return true if key == "HCF_ROLE_INDEX"
+    return true if key == "SCF_BOOTSTRAP"
+    return true if key == "SCF_ROLE_INDEX"
     false
   end
 
@@ -195,7 +195,7 @@ class Common
 
   def self.special_env(key)
     # Detect env var keys that are special (they are used, but not defined in the role manifest).
-    return true if key.start_with? 'HCP_'
+    return true if key.start_with? 'SCF_'
     %w(
       CATS_SUITES
       CONSUL_LOG_LEVEL
@@ -212,15 +212,15 @@ class Common
     # Detect env var keys that are special (they are defined, but not
     # used in the role-manifest. They are needed and used in scripts).
     %w(
-      HCF_LOG_HOST
-      HCF_LOG_PORT
-      HCF_LOG_PROTOCOL
+      SCF_LOG_HOST
+      SCF_LOG_PORT
+      SCF_LOG_PROTOCOL
     ).include? key
   end
 
   def product_version
     return @product_version if @product_version
-    product_version = open("#{@hcf_root_dir}/VERSION").read.strip
+    product_version = open("#{@scf_root_dir}/VERSION").read.strip
     @product_version = "#{product_version}"
   end
 end
