@@ -11,8 +11,6 @@ export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
 export FISSILE_VERSION="5.1.0+22.gb916261"
 export HELM_VERSION="2.6.2"
-export HELM_CERTGEN_VERSION="master"
-export CERTSTRAP_VERSION="v1.0.1-11-g0e00d5c"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.8.2"
 export K_VERSION="0.0.12"
@@ -45,8 +43,6 @@ then
     echo fissile '      =' $FISSILE_VERSION
     echo go '           =' $GOLANG_VERSION
     echo helm '         =' $HELM_VERSION
-    echo helm-certgen ' =' $HELM_CERTGEN_VERSION
-    echo certstrap '    =' $CERTSTRAP_VERSION
     echo k '            =' $K_VERSION
     echo kk '           =' $KK_VERSION
     echo kubectl '      =' $KUBECTL_VERSION
