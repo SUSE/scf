@@ -410,7 +410,7 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      properties.diego.bbs.advertisement_base_hostname: diego-api-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.diego.bbs.advertisement_base_hostname: ((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
