@@ -22,10 +22,6 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh
 
 ########## VAGRANT VM TARGETS ##########
 
-certs: uaa-certs
-	bin/generate-dev-certs.sh cf bin/settings/certs.env
-	bin/settings/kube/ca.sh
-
 run:
 	make/uaa-run
 	make/uaa-wait
@@ -45,7 +41,6 @@ docker-deps:
 	make/docker-deps
 
 vagrant-prep: \
-	certs \
 	docker-deps \
 	releases \
 	compile \
@@ -68,9 +63,6 @@ cats:
 	make/tests acceptance-tests
 
 ########## UAA LINK TARGETS ##########
-
-uaa-certs:
-	make/uaa-certs
 
 uaa-releases:
 	make/uaa-releases
