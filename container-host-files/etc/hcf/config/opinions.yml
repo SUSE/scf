@@ -88,6 +88,7 @@ properties:
     jobs:
       generic:
         number_of_workers: null
+    log_db_queries: true
     newrelic:
       environment_name: null
       transaction_tracer:
@@ -288,8 +289,6 @@ properties:
       user: router_user
   routing_api:
     enabled: true
-    etcd:
-      require_ssl: true
     sqldb:
       type: mysql
       port: 3306
@@ -300,8 +299,6 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  syslog_aggregator:
-    transport: null
   syslog_daemon_config:
     enable: false
   syslog_drain_binder:
