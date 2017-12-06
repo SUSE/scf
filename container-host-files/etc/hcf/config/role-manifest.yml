@@ -150,7 +150,6 @@ roles:
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
-  - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
@@ -237,7 +236,6 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/patches/fix_mysqlproxy_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -931,7 +929,6 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/chown_vcap_store.sh
-  - scripts/patches/fix_etcd_bootstrap.sh
   - scripts/patches/fix_etcd_cluster_hostnames.sh
   - scripts/forward_logfiles.sh
   jobs:
@@ -2860,10 +2857,6 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]'
-    properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.routing_api.etcd.servers: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
