@@ -37,10 +37,6 @@ do
     # "Am I Ok" for kube
     cp ${GIT_ROOT}/bin/dev/kube-ready-state-check.sh ${tmp_dir}/${OS}/
 
-    # cert scripts, and
-    # certstrap
-    tar -xzf ${GIT_ROOT}/output/scf-cert-generator.${OS}-amd64.tgz -C ${tmp_dir}/${OS}
-
     # Package the assembly. This directly places it into the output
     ( cd ${tmp_dir}/${OS} ; zip -r9 $ARCHIVE * )
 done

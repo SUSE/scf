@@ -270,10 +270,5 @@ kube-dist: kube uaa-kube-dist
 	make/kube-dist
 	rm -rf kube
 
-bundle-dist: kube-dist cert-generator 
+bundle-dist: kube-dist
 	make/bundle-dist
-
-########## SUPPORT TARGETS ##########
-
-cert-generator:
-	make/cert-generator
