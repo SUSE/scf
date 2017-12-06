@@ -9,7 +9,6 @@ if [ "$1" == "-h" ]; then
 usage: $0 [-f] [-v] [INSTANCE_ID]
 
   -f  forces fetching of all logs even if a cache already exists
-  -v  prints verbose output
 
   INSTANCE_ID defaults to "scf"
 EOF
@@ -31,7 +30,7 @@ if [ ! -f ${DONE} ]; then
     mkdir -p ${KLOG}/${NS}
     rm -rf ${KLOG}/${NS}/*
 
-    PODS=$(kubectl get pods --namespace ${NS} -o name | sed 's/pod\///')
+    PODS=$(kubectl get pods --namespace ${NS} -o name | sed 's/pods\///')
 
     for POD in ${PODS}; do
         if $(kubectl exec ${POD} --namespace ${NS} -- bash -c "[ -d /var/vcap/sys/log ]"); then
