@@ -25,9 +25,6 @@
 [submodule "src/consul-release"]
 	path = src/consul-release
 	url = https://github.com/cloudfoundry-incubator/consul-release.git
-[submodule "src/loggregator"]
-	path = src/loggregator
-	url = https://github.com/cloudfoundry/loggregator.git
 [submodule "src/capi-release"]
 	path = src/capi-release
 	url = https://github.com/cloudfoundry/capi-release.git
@@ -91,3 +88,6 @@
 [submodule "src/hcf-release/src/github.com/SUSE/scf-secret-generator"]
 	path = src/hcf-release/src/github.com/SUSE/scf-secret-generator
 	url = https://github.com/SUSE/scf-secret-generator.git
+[submodule "src/loggregator"]
+	path = src/loggregator
+	url = https://github.com/cloudfoundry/loggregator-release.git
