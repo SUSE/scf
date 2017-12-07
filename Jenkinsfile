@@ -368,12 +368,27 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath \
                         --set kube.auth=rbac
 
+                    get_uaa_secret () {
+                        kubectl get secret secret --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
+                    }
+
+                    has_internal_ca() {
+                        test "\$(get_uaa_secret internal-ca-cert)" != ""
+                    }
+
+                    until has_internal_ca ; do
+                        sleep 10
+                    done
+
+                    UAA_CA_CERT="\$(get_uaa_secret internal-ca-cert | base64 -d -)"
+
                     helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
