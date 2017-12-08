@@ -195,10 +195,6 @@ certstrap --depot-path "${internal_certs_dir}" sign rep_server --CA internalCA -
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name rep_client --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign rep_client --CA internalCA --passphrase "${signing_key_passphrase}"
 
-# generate SYSLOGDRAINBINDER certs
-certstrap --depot-path "${internal_certs_dir}" request-cert --common-name syslogdrainbinder --passphrase ""
-certstrap --depot-path "${internal_certs_dir}" sign syslogdrainbinder --CA internalCA --passphrase "${signing_key_passphrase}"
-
 # generate TPS_CC_CLIENT certs (properties.capi.tps.cc.{client_cert,client_key})
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name tpsCCClient --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign tpsCCClient --CA internalCA --passphrase "${signing_key_passphrase}"
@@ -206,16 +202,6 @@ certstrap --depot-path "${internal_certs_dir}" sign tpsCCClient --CA internalCA 
 # generate TRAFFICCONTROLLER certs
 certstrap --depot-path "${internal_certs_dir}" request-cert --common-name trafficcontroller --passphrase ""
 certstrap --depot-path "${internal_certs_dir}" sign trafficcontroller --CA internalCA --passphrase "${signing_key_passphrase}"
-
-# generate ETCD certs (Instructions from https://github.com/cloudfoundry-incubator/diego-release#generating-tls-certificates)
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdServer" --domain "$(make_ha_domains "etcd")" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdServer --CA internalCA --passphrase "${signing_key_passphrase}"
-
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdClient" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdClient --CA internalCA --passphrase "${signing_key_passphrase}"
-
-certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "etcdPeer" --domain "$(make_ha_domains "etcd")" --passphrase ""
-certstrap --depot-path "${internal_certs_dir}"  sign etcdPeer --CA internalCA --passphrase "${signing_key_passphrase}"
 
 # generate USB certs
 certstrap --depot-path "${internal_certs_dir}"  request-cert --common-name "cfUsbBrokerServer" --domain "$(make_domains "cf-usb")" --passphrase ""
@@ -229,13 +215,6 @@ certstrap --depot-path ${internal_certs_dir} sign ${server_cn} --CA internalCA -
 mv -f ${internal_certs_dir}/${server_cn}.key ${internal_certs_dir}/server.key
 mv -f ${internal_certs_dir}/${server_cn}.csr ${internal_certs_dir}/server.csr
 mv -f ${internal_certs_dir}/${server_cn}.crt ${internal_certs_dir}/server.crt
-
-# Agent certificate to distribute to jobs that access consul
-certstrap --depot-path ${internal_certs_dir} request-cert --passphrase '' --common-name 'consul agent'
-certstrap --depot-path ${internal_certs_dir} sign consul_agent --CA internalCA --passphrase "${signing_key_passphrase}"
-mv -f ${internal_certs_dir}/consul_agent.key ${internal_certs_dir}/agent.key
-mv -f ${internal_certs_dir}/consul_agent.csr ${internal_certs_dir}/agent.csr
-mv -f ${internal_certs_dir}/consul_agent.crt ${internal_certs_dir}/agent.crt
 
 # generate APP_SSH SSH key
 # ATTENTION: Generate the fingerprint in MD5 format
@@ -296,18 +275,8 @@ add_env CC_UPLOADER_CRT           "${internal_certs_dir}/cc_uploader.crt"
 add_env CC_UPLOADER_KEY           "${internal_certs_dir}/cc_uploader.key"
 add_env CF_USB_BROKER_SERVER_CERT "${internal_certs_dir}/cfUsbBrokerServer.crt"
 add_env CF_USB_BROKER_SERVER_KEY  "${internal_certs_dir}/cfUsbBrokerServer.key"
-add_env CONSUL_AGENT_CERT         "${internal_certs_dir}/agent.crt"
-add_env CONSUL_AGENT_KEY          "${internal_certs_dir}/agent.key"
-add_env CONSUL_SERVER_CERT        "${internal_certs_dir}/server.crt"
-add_env CONSUL_SERVER_KEY         "${internal_certs_dir}/server.key"
 add_env DOPPLER_CERT              "${internal_certs_dir}/doppler.crt"
 add_env DOPPLER_KEY               "${internal_certs_dir}/doppler.key"
-add_env ETCD_CLIENT_CRT           "${internal_certs_dir}/etcdClient.crt"
-add_env ETCD_CLIENT_KEY           "${internal_certs_dir}/etcdClient.key"
-add_env ETCD_PEER_CRT             "${internal_certs_dir}/etcdPeer.crt"
-add_env ETCD_PEER_KEY             "${internal_certs_dir}/etcdPeer.key"
-add_env ETCD_SERVER_CRT           "${internal_certs_dir}/etcdServer.crt"
-add_env ETCD_SERVER_KEY           "${internal_certs_dir}/etcdServer.key"
 add_env INTERNAL_CA_CERT          "${internal_certs_dir}/internalCA.crt"
 add_env INTERNAL_CA_KEY           "${internal_certs_dir}/internalCA.key"
 add_env JWT_SIGNING_PEM           "${certs_path}/jwt_signing.pem"
@@ -316,12 +285,10 @@ add_env METRON_CERT               "${internal_certs_dir}/metron.crt"
 add_env METRON_KEY                "${internal_certs_dir}/metron.key"
 add_env REP_SERVER_CERT           "${internal_certs_dir}/rep_server.crt"
 add_env REP_SERVER_KEY            "${internal_certs_dir}/rep_server.key"
-add_env REP_CLIENT_CERT           "${internal_certs_dir}/rep_client.crt"
-add_env REP_CLIENT_KEY            "${internal_certs_dir}/rep_client.key"
+add_env DIEGO_CLIENT_CERT           "${internal_certs_dir}/rep_client.crt"
+add_env DIEGO_CLIENT_KEY            "${internal_certs_dir}/rep_client.key"
 add_env ROUTER_SSL_CERT           "${certs_path}/router_ssl.cert"
 add_env ROUTER_SSL_KEY            "${certs_path}/router_ssl.key"
-add_env SYSLOGDRAINBINDER_CERT    "${internal_certs_dir}/syslogdrainbinder.crt"
-add_env SYSLOGDRAINBINDER_KEY     "${internal_certs_dir}/syslogdrainbinder.key"
 add_env TPS_CC_CLIENT_CRT         "${internal_certs_dir}/tpsCCClient.crt"
 add_env TPS_CC_CLIENT_KEY         "${internal_certs_dir}/tpsCCClient.key"
 add_env TRAFFICCONTROLLER_CERT    "${internal_certs_dir}/trafficcontroller.crt"
