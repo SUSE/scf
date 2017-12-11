@@ -200,6 +200,11 @@
         },
         {
             "type": "file",
+            "source": "http/kubelet-config",
+            "destination": "/tmp/kubelet-config"
+        },
+        {
+            "type": "file",
             "source": "http/user-limits.conf",
             "destination": "/tmp/user-limits.conf"
         },
@@ -221,6 +226,8 @@
                 "mkdir -p /etc/systemd/system/kubelet.service.d/",
                 "mv /tmp/kubelet-vagrant-overrides.conf /etc/systemd/system/kubelet.service.d/vagrant-overrides.conf",
                 "mv /tmp/kubelet-vagrant-overrides.env /etc/systemd/system/kubelet.service.d/vagrant-overrides.env",
+                "mkdir -p /etc/kubernetes",
+                "mv /tmp/kubelet-config /etc/kubernetes/kubelet-config",
                 "mkdir -p /etc/systemd/system/containerd.service.d",
                 "mv /tmp/containerd-vagrant-overrides.conf /etc/systemd/system/containerd.service.d/vagrant-overrides.conf",
                 "mv /tmp/user-limits.conf /etc/security/limits.d/vagrant-nproc.conf",
