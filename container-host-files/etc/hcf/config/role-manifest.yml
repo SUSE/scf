@@ -302,8 +302,6 @@ roles:
     release_name: hcf
   - name: authorize-internal-ca
     release_name: hcf
-  - name: rep-certstrap
-    release_name: hcf
   - name: bbs
     release_name: diego
   - name: metron_agent
@@ -897,8 +895,6 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: authorize-internal-ca
-    release_name: hcf
-  - name: rep-certstrap
     release_name: hcf
   - name: auctioneer
     release_name: diego
@@ -2440,7 +2436,6 @@ configuration:
     properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
-    properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
