@@ -82,6 +82,6 @@
 [submodule "src/hcf-release/src/github.com/SUSE/scf-secret-generator"]
 	path = src/hcf-release/src/github.com/SUSE/scf-secret-generator
 	url = https://github.com/SUSE/scf-secret-generator.git
-[submodule "src/loggregator"]
-	path = src/loggregator
+[submodule "src/loggregator-release"]
+	path = src/loggregator-release
 	url = https://github.com/cloudfoundry/loggregator-release.git
