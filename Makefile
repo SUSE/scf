@@ -111,9 +111,6 @@ uaa-helm: ${FISSILE_BINARY}
 diego-release:
 	make/bosh-release src/diego-release
 
-etcd-release:
-	make/bosh-release src/etcd-release
-
 garden-release:
 	make/bosh-release src/garden-runc-release
 
@@ -156,9 +153,6 @@ loggregator-release:
 nats-release:
 	make/bosh-release src/nats-release
 
-consul-release:
-	make/bosh-release src/consul-release
-
 statsd-injector-release:
 	make/bosh-release src/statsd-injector-release
 
@@ -191,7 +185,6 @@ staticfile-buildpack-release:
 
 releases: \
 	diego-release \
-	etcd-release \
 	garden-release \
 	mysql-release \
 	smoke-tests-release \
@@ -205,7 +198,6 @@ releases: \
 	capi-release \
 	loggregator-release \
 	nats-release \
-	consul-release \
 	statsd-injector-release \
 	binary-buildpack-release \
 	dotnet-core-buildpack-release \

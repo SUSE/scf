@@ -4,12 +4,6 @@
 # the startup script (run.sh), and we should avoid mutating global state as much
 # as possible.
 
-# Note: While every role has a metron-agent, and the metron-agent
-# needs access to the etcd cluster, this does not mean that all roles
-# have to compute the cluster ips. The metron-agent uses ETCD_HOST as
-# its target, which the low-level network setup of the system
-# round-robins to all the machines in the etcd sub-cluster.
-
 set -x
 
 k8s_api() {
@@ -57,12 +51,8 @@ find_cluster_ha_hosts() {
     fi
 }
 
-KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
-export KUBE_CONSUL_CLUSTER_IPS
 KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
 export KUBE_NATS_CLUSTER_IPS
-KUBE_ETCD_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
-export KUBE_ETCD_CLUSTER_IPS
 KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
 export KUBE_MYSQL_CLUSTER_IPS
 
