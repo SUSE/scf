@@ -447,7 +447,7 @@ For this example, lets suppose we want to update a release to a later tag.
 First of all checkout the desired commit:
 
 ```
-host> cd src/loggregator/ && git checkout v81
+host> cd src/loggregator-release/ && git checkout v81
 ```
 
 If the submodules has submodules of each own, you will have to "sync" and "update"
@@ -475,7 +475,7 @@ If everything works, then you probably need to update the .gitmodules to point
 to the new submodule commit SHA:
 
 ```
-host> git add src/loggregator && git commit -am "Bumped the version of loggregator"
+host> git add src/loggregator-release && git commit -am "Bumped the version of loggregator-release"
 host> git push origin develop # or whatever your remote and branch are called
 ```
 

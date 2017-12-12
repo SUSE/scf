@@ -42,7 +42,7 @@ update_submodule () {
 	git submodule update --init --recursive
 }
 
-for release_name in nats-release consul-release loggregator capi-release diego-release etcd-release garden-runc-release
+for release_name in nats-release consul-release loggregator-release capi-release diego-release etcd-release garden-runc-release
 do
 	clone_dir=${GIT_ROOT}/src/${release_name}-clone
 	if test -e "${clone_dir}"
@@ -114,7 +114,7 @@ get_submodule_ref () {
 CAPI_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" capi-release)
 CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
 ETCD_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" etcd-release)
-LOGGREGATOR=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator)
+LOGGREGATOR_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator-release)
 NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
 
 #CFMYSQL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" cf-mysql-release)
@@ -132,7 +132,7 @@ ROUTING_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" routing-release
 update_submodule capi-release "${CAPI_RELEASE}" src
 update_submodule consul-release "${CONSUL_RELEASE}" src
 update_submodule etcd-release "${ETCD_RELEASE}" src
-update_submodule loggregator "${LOGGREGATOR}" src
+update_submodule loggregator "${LOGGREGATOR_RELEASE}" src
 update_submodule nats-release "${NATS_RELEASE}" src
 update_submodule routing-release "${ROUTING_RELEASE}" src
 
