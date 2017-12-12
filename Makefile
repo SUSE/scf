@@ -140,7 +140,7 @@ grootfs-release:
 	make/bosh-release src/grootfs-release
 
 loggregator-release:
-	make/bosh-release src/loggregator
+	make/bosh-release src/loggregator-release
 
 nats-release:
 	make/bosh-release src/nats-release
