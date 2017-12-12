@@ -15,6 +15,27 @@ fi
 release_path="$1"
 release_name="$2"
 
+ensure_valid_dev_build_index() {
+	local dev_build_dir="$1"
+	local cache_dir="$2"
+
+	if [[ ! -e "${dev_build_dir}" ]]
+	then
+		return
+	fi
+
+	local indexes=$(find "${dev_build_dir}" -name index.yml)
+
+	for index in ${indexes}
+	do
+		local sha1=$(awk '/sha1/ {print $2}' < "${index}")
+		if [[ ! -e "${cache_dir}/${sha1}" ]]
+		then
+			rm "${index}"
+		fi
+	done
+}
+
 stampy "${ROOT}/scf_metrics.csv" "${BASH_SOURCE[0]}" "create-release::${release_name}" start
 
 mkdir -p "${FISSILE_CACHE_DIR}"
@@ -101,9 +122,9 @@ done
 # This is undesirable when working with newer releases, then switching back
 # to older ones
 rm -rf ${ROOT}/${release_path}/dev_releases
-# This is the new path for BOSH v2; deleting this also resolves an issue where
-# BOSH will fail to create-release if the BOSH cache was manually deleted.
-rm -rf ${ROOT}/${release_path}/.dev_builds
+# BOSH will fail to create-release if the BOSH cache was manually deleted. Deleting
+# the index files causes the BOSH cache to be regenerated.
+ensure_valid_dev_build_index "${ROOT}/${release_path}/.dev_builds" "${FISSILE_CACHE_DIR}"
 
 if test -n "$(find "${ROOT}/${release_path}/blobs/" -type l 2>/dev/null)"; then
   # Migrating from BOSH CLI v1 (ruby) to BOSH CLI v2 (golang)

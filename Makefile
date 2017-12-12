@@ -22,10 +22,6 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh
 
 ########## VAGRANT VM TARGETS ##########
 
-certs: uaa-certs
-	bin/generate-dev-certs.sh cf bin/settings/certs.env
-	bin/settings/kube/ca.sh
-
 run:
 	make/uaa-run
 	make/uaa-wait
@@ -45,7 +41,6 @@ docker-deps:
 	make/docker-deps
 
 vagrant-prep: \
-	certs \
 	docker-deps \
 	releases \
 	compile \
@@ -68,9 +63,6 @@ cats:
 	make/tests acceptance-tests
 
 ########## UAA LINK TARGETS ##########
-
-uaa-certs:
-	make/uaa-certs
 
 uaa-releases:
 	make/uaa-releases
@@ -110,9 +102,6 @@ uaa-helm: ${FISSILE_BINARY}
 
 diego-release:
 	make/bosh-release src/diego-release
-
-etcd-release:
-	make/bosh-release src/etcd-release
 
 garden-release:
 	make/bosh-release src/garden-runc-release
@@ -156,9 +145,6 @@ loggregator-release:
 nats-release:
 	make/bosh-release src/nats-release
 
-consul-release:
-	make/bosh-release src/consul-release
-
 statsd-injector-release:
 	make/bosh-release src/statsd-injector-release
 
@@ -191,7 +177,6 @@ staticfile-buildpack-release:
 
 releases: \
 	diego-release \
-	etcd-release \
 	garden-release \
 	mysql-release \
 	smoke-tests-release \
@@ -205,7 +190,6 @@ releases: \
 	capi-release \
 	loggregator-release \
 	nats-release \
-	consul-release \
 	statsd-injector-release \
 	binary-buildpack-release \
 	dotnet-core-buildpack-release \
@@ -286,10 +270,5 @@ kube-dist: kube uaa-kube-dist
 	make/kube-dist
 	rm -rf kube
 
-bundle-dist: kube-dist cert-generator 
+bundle-dist: kube-dist
 	make/bundle-dist
-
-########## SUPPORT TARGETS ##########
-
-cert-generator:
-	make/cert-generator

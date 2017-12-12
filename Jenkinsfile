@@ -351,9 +351,6 @@ pipeline {
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    mkdir output/unzipped/certs
-                    ./output/unzipped/cert-generator.sh -d "${domain()}" -n ${jobBaseName()}-${BUILD_NUMBER}-scf -o output/unzipped/certs
-
                     suffix=""
                     if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
                         suffix="-opensuse"
@@ -369,8 +366,21 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac \
-                        --values output/unzipped/certs/uaa-cert-values.yaml
+                        --set kube.auth=rbac
+
+                    get_uaa_secret () {
+                        kubectl get secret secret --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
+                    }
+
+                    has_internal_ca() {
+                        test "\$(get_uaa_secret internal-ca-cert)" != ""
+                    }
+
+                    until has_internal_ca ; do
+                        sleep 10
+                    done
+
+                    UAA_CA_CERT="\$(get_uaa_secret internal-ca-cert | base64 -d -)"
 
                     helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
@@ -378,12 +388,12 @@ pipeline {
                         --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set env.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac \
-                        --values output/unzipped/certs/scf-cert-values.yaml
+                        --set kube.auth=rbac
 
                     echo Waiting for all pods to be ready...
                     set +o xtrace

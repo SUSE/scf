@@ -1,9 +1,6 @@
 [submodule "src/diego-release"]
 	path = src/diego-release
 	url = https://github.com/cloudfoundry-incubator/diego-release.git
-[submodule "src/etcd-release"]
-	path = src/etcd-release
-	url = https://github.com/cloudfoundry-incubator/etcd-release
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
 	url = https://github.com/cloudfoundry/cf-mysql-release.git
@@ -22,12 +19,6 @@
 [submodule "src/nats-release"]
 	path = src/nats-release
 	url = https://github.com/cloudfoundry/nats-release.git
-[submodule "src/consul-release"]
-	path = src/consul-release
-	url = https://github.com/cloudfoundry-incubator/consul-release.git
-[submodule "src/loggregator"]
-	path = src/loggregator
-	url = https://github.com/cloudfoundry/loggregator.git
 [submodule "src/capi-release"]
 	path = src/capi-release
 	url = https://github.com/cloudfoundry/capi-release.git
@@ -91,3 +82,6 @@
 [submodule "src/hcf-release/src/github.com/SUSE/scf-secret-generator"]
 	path = src/hcf-release/src/github.com/SUSE/scf-secret-generator
 	url = https://github.com/SUSE/scf-secret-generator.git
+[submodule "src/loggregator"]
+	path = src/loggregator
+	url = https://github.com/cloudfoundry/loggregator-release.git

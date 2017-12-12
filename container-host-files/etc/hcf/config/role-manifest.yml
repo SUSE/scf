@@ -14,12 +14,9 @@ roles:
       nats: {}
   - name: metron_agent
     release_name: loggregator
-  - name: consul_agent
-    release_name: consul
   processes:
   - name: metron_agent
   - name: nats
-  - name: consul_agent
   tags: ['clustered']
   run:
     scaling:
@@ -54,95 +51,6 @@ roles:
                 values:
                 - nats
             topologyKey: "beta.kubernetes.io/os"
-- name: consul
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/chown_vcap_store.sh
-  - scripts/patches/fix_consul_server_name.sh
-  - scripts/patches/fix_consul_pre_start.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: authorize-internal-ca
-    release_name: hcf
-  - name: consul_agent
-    release_name: consul
-    provides:
-      consul_common: {}
-      consul_server: {}
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: metron_agent
-  - name: consul_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 3
-      must_be_odd: true
-    capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      tag: consul-data
-      size: 1
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: server-rpc
-      protocol: TCP
-      external: 8300
-      internal: 8300
-      public: false
-    - name: serf-lan-tcp
-      protocol: TCP
-      external: 8301
-      internal: 8301
-      public: false
-    - name: serf-lan-udp
-      protocol: UDP
-      external: 8301
-      internal: 8301
-      public: false
-    - name: serf-wan-tcp
-      protocol: TCP
-      external: 8302
-      internal: 8302
-      public: false
-    - name: serf-wan-udp
-      protocol: UDP
-      external: 8302
-      internal: 8302
-      public: false
-    - name: cli-rpc
-      protocol: TCP
-      external: 8400
-      internal: 8400
-      public: false
-    - name: http-api
-      protocol: TCP
-      external: 8500
-      internal: 8500
-      public: false
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - consul
-            topologyKey: "beta.kubernetes.io/os"
-  configuration:
-    templates:
-      properties.consul.agent.mode: '"server"'
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -150,7 +58,6 @@ roles:
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
-  - scripts/patches/fix_mysql_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
@@ -237,7 +144,6 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
-  - scripts/patches/fix_mysqlproxy_setup_syslog_forwarder.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -290,7 +196,6 @@ roles:
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -301,14 +206,11 @@ roles:
     release_name: hcf
   - name: cf-usb
     release_name: cf-usb
-  - name: consul_agent
-    release_name: consul
   - name: route_registrar
     release_name: routing
   processes:
   - name: usb
   - name: route_registrar
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -345,31 +247,68 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+- name: diego-locket
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: hcf
+  - name: authorize-internal-ca
+    release_name: hcf
+  - name: locket
+    release_name: diego
+  - name: metron_agent
+    release_name: loggregator
+  processes:
+  - name: bbs
+  - name: metron_agent
+  run:
+    scaling:
+      min: 1
+      max: 3
+      ha: 3
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+    - name: locket
+      protocol: TCP
+      external: 8891
+      internal: 8891
+      public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - diego-locket
+            topologyKey: "beta.kubernetes.io/os"
 - name: diego-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: authorize-internal-ca
     release_name: hcf
-  - name: rep-certstrap
-    release_name: hcf
   - name: bbs
     release_name: diego
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: bbs
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -410,14 +349,12 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      properties.diego.bbs.advertisement_base_hostname: diego-api-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.diego.bbs.advertisement_base_hostname: ((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -426,14 +363,11 @@ roles:
     release_name: hcf
   - name: gorouter
     release_name: routing
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: gorouter
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -489,11 +423,9 @@ roles:
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -504,14 +436,11 @@ roles:
     release_name: hcf
   - name: tcp_router
     release_name: routing
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: tcp_router
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -555,24 +484,19 @@ roles:
   tags: [clustered]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: authorize-internal-ca
     release_name: hcf
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   - name: routing-api
     release_name: routing
   processes:
-  - name: consul_agent
   - name: metron_agent
   - name: routing-api
   run:
@@ -611,12 +535,10 @@ roles:
   tags: [clustered]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/nginx_log_level.sh
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   jobs:
@@ -628,8 +550,6 @@ roles:
     release_name: hcf
   - name: cloud_controller_ng
     release_name: capi
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   - name: route_registrar
@@ -660,7 +580,6 @@ roles:
   - name: cloud_controller_worker_local_2
   - name: route_registrar
   - name: metron_agent
-  - name: consul_agent
   - name: nginx_cc
   - name: statsd_injector
   run:
@@ -714,9 +633,7 @@ roles:
 - name: cc-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -725,14 +642,11 @@ roles:
     release_name: hcf
   - name: cloud_controller_worker
     release_name: capi
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   processes:
   - name: cloud_controller_worker_1
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -766,8 +680,6 @@ roles:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
-  - name: consul_agent
-    release_name: consul
   - name: blobstore
     release_name: capi
   - name: route_registrar
@@ -775,7 +687,6 @@ roles:
   - name: metron_agent
     release_name: loggregator
   processes:
-  - name: consul_agent
   - name: blobstore_nginx
   - name: blobstore_url_signer
   - name: route_registrar
@@ -810,9 +721,7 @@ roles:
 - name: cc-clock
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -821,8 +730,6 @@ roles:
     release_name: hcf
   - name: cloud_controller_clock
     release_name: capi
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   - name: statsd_injector
@@ -830,7 +737,6 @@ roles:
   processes:
   - name: cloud_controller_clock
   - name: metron_agent
-  - name: consul_agent
   - name: statsd_injector
   run:
     scaling:
@@ -864,17 +770,11 @@ roles:
     release_name: hcf
   - name: doppler
     release_name: loggregator
-  - name: syslog_drain_binder
-    release_name: loggregator
   - name: metron_agent
     release_name: loggregator
-  - name: consul_agent
-    release_name: consul
   processes:
   - name: doppler
   - name: metron_agent
-  - name: syslog_drain_binder
-  - consul_agent
   run:
     scaling:
       min: 1
@@ -926,78 +826,6 @@ roles:
                 values:
                 - doppler
             topologyKey: "beta.kubernetes.io/os"
-- name: etcd
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/chown_vcap_store.sh
-  - scripts/patches/fix_etcd_bootstrap.sh
-  - scripts/patches/fix_etcd_cluster_hostnames.sh
-  - scripts/forward_logfiles.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
-  - name: authorize-internal-ca
-    release_name: hcf
-  - name: patch-properties
-    release_name: hcf
-  - name: etcd
-    release_name: etcd
-  - name: etcd_metrics_server
-    release_name: etcd
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: etcd_metrics_server
-  - name: etcd
-  - name: metron_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 3
-      must_be_odd: true
-    capabilities: []
-    persistent-volumes:
-    - path: /var/vcap/store
-      size: 2
-      tag: cf-etcd-data
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: etcd-client
-      protocol: TCP
-      external: 4001
-      internal: 4001
-      public: false
-    - name: etcd-peer
-      protocol: TCP
-      external: 7001
-      internal: 7001
-      public: false
-    healthcheck:
-      readiness:
-        command:
-          - /var/vcap/jobs/global-properties/bin/readiness/etcd
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - etcd
-            topologyKey: "beta.kubernetes.io/os"
-  configuration:
-    templates:
-      # On k8s, we want the FQDN: etcd-set.hcf.svc.cluster.local
-      properties.etcd.advertise_urls_dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-      properties.etcd.cluster: '[{"name": "etcd", "instances": ((KUBE_SIZING_ETCD_COUNT))}]'
-      properties.etcd_metrics_server.etcd.dns_suffix: etcd-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: loggregator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1060,19 +888,13 @@ roles:
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: hcf
   - name: authorize-internal-ca
-    release_name: hcf
-  - name: consul_agent
-    release_name: consul
-  - name: rep-certstrap
     release_name: hcf
   - name: auctioneer
     release_name: diego
@@ -1081,7 +903,6 @@ roles:
   processes:
   - name: auctioneer
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -1113,10 +934,8 @@ roles:
 - name: cc-uploader
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1127,8 +946,6 @@ roles:
     release_name: capi
   - name: cc_uploader
     release_name: capi
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -1136,7 +953,6 @@ roles:
   - name: tps_listener
   - name: tps_watcher
   - name: metron_agent
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -1173,10 +989,8 @@ roles:
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1185,8 +999,6 @@ roles:
     release_name: hcf
   - name: ssh_proxy
     release_name: diego
-  - name: consul_agent
-    release_name: consul
   - name: metron_agent
     release_name: loggregator
   - name: file_server
@@ -1195,7 +1007,6 @@ roles:
   - name: file_server
   - name: metron_agent
   - name: ssh_proxy
-  - name: consul_agent
   run:
     scaling:
       min: 1
@@ -1235,7 +1046,6 @@ roles:
 - name: nfs-broker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1279,10 +1089,8 @@ roles:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
-  - scripts/consul_agent_log_level.sh
   - scripts/go_log_level.sh
   scripts:
-  - scripts/patches/fix_consul_pre_start.sh
   - scripts/patches/fix_persi_nfsdriver.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1298,8 +1106,6 @@ roles:
     release_name: diego
   - name: route_emitter
     release_name: diego
-  - name: consul_agent
-    release_name: consul
   - name: garden
     release_name: garden-runc
   - name: cflinuxfs2-rootfs-setup
@@ -1316,7 +1122,6 @@ roles:
     release_name: nfs-volume
   processes:
   - name: metron_agent
-  - name: consul_agent
   - name: rep
   - name: route_emitter
   - name: garden
@@ -1468,7 +1273,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_ETCD_COUNT))'
+      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1710,23 +1515,12 @@ configuration:
   - name: CATS_SUITES
     internal: true
     description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
-  - name: CCDB_ROLE_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the Cloud Controller database.
-    required: true
   - name: CC_SERVER_CRT
     secret: true
     generator:
       id: cc_mutual_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      # The "cloud-controller-ng.service.cf.internal" is present because the syslog-drain-binder
-      # has that name hardwired into it!
-      - cloud-controller-ng.service.cf.internal
       role_name: api
     description: The PEM-encoded certificate for internal cloud controller traffic.
     required: true
@@ -1809,56 +1603,6 @@ configuration:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
-  - name: CONSUL_AGENT_CERT
-    secret: true
-    generator:
-      id: consul_agent_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "consul agent"
-    description: PEM-encoded agent certificate.
-    required: true
-  - name: CONSUL_AGENT_KEY
-    secret: true
-    generator:
-      id: consul_agent_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key.
-    required: true
-  - name: CONSUL_ENCRYPTION_KEYS
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: 'Part of: A list of passphrases that will be converted into encryption
-      keys, the first key in the list is the active one.'
-    required: true
-  - name: CONSUL_LOG_LEVEL
-    type: environment
-    description: >
-      The log level for consul. This parameter is not supposed to be set by
-      the user. To change the cluster's log level set the parameter `LOG_LEVEL`
-      instead, from which this one is derived.
-  - name: CONSUL_SERVER_CERT
-    secret: true
-    generator:
-      id: consul_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "server.dc1.{{.KUBERNETES_NAMESPACE}}"
-    description: PEM-encoded server certificate.
-    required: true
-  - name: CONSUL_SERVER_KEY
-    secret: true
-    generator:
-      id: consul_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key.
-    required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
     immutable: true
@@ -1897,6 +1641,25 @@ configuration:
     default: 10.38.0.0/16
     description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
     required: true
+  - name: DIEGO_CLIENT_CERT
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - rep_client
+      - diego-locket.{{.KUBERNETES_NAMESPACE}}
+    description: PEM-encoded client certificate
+    required: true
+  - name: DIEGO_CLIENT_KEY
+    secret: true
+    generator:
+      id: rep_client_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded client key
+    required: true
   - name: DISABLE_CUSTOM_BUILDPACKS
     default: false
     description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
@@ -1930,62 +1693,6 @@ configuration:
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
-    required: true
-  - name: ETCD_CLIENT_CRT
-    secret: true
-    generator:
-      id: etcd_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - etcdClient
-    description: PEM-encoded client certificate.
-    required: true
-  - name: ETCD_CLIENT_KEY
-    secret: true
-    generator:
-      id: etcd_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key.
-    required: true
-  - name: ETCD_PEER_CRT
-    secret: true
-    generator:
-      id: etcd_peer_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - etcdPeer
-      role_name: etcd
-    description: PEM-encoded peer certificate.
-    required: true
-  - name: ETCD_PEER_KEY
-    secret: true
-    generator:
-      id: etcd_peer_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded peer key.
-    required: true
-  - name: ETCD_SERVER_CRT
-    secret: true
-    generator:
-      id: etcd_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - etcdServer
-      role_name: etcd
-    description: PEM-encoded server certificate.
-    required: true
-  - name: ETCD_SERVER_KEY
-    secret: true
-    generator:
-      id: etcd_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key.
     required: true
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
     default: false
@@ -2022,10 +1729,6 @@ configuration:
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
-  - name: HCP_CA_CERT
-    immutable: true
-    description: The CA certificate for UAA
-    secret: true
   - name: HOSTNAME
     description: >
       The host name of the container.  This should be automatic and should not
@@ -2073,18 +1776,6 @@ configuration:
     type: environment
   - name: KUBE_COMPONENT_NAME
     type: environment
-  - name: KUBE_CONSUL_CLUSTER_IPS
-    type: environment
-    description: >
-      A comma-separated list of IP addresses for the machines of the consul sub-cluster.
-      This parameter cannot be set by the user.
-      Its value is automatically computed during cluster setup.
-  - name: KUBE_ETCD_CLUSTER_IPS
-    type: environment
-    description: >
-      A comma-separated list of IP addresses for the machines of the etcd sub-cluster.
-      This parameter cannot be set by the user.
-      Its value is automatically computed during cluster setup.
   - name: KUBE_INSTANCE_ID
     type: environment
   - name: KUBE_NATS_CLUSTER_IPS
@@ -2116,10 +1807,6 @@ configuration:
     description: >
       The number of cf-usb replicas deployed.
       This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_CONSUL_COUNT
-    description: >
-      The number of consul replicas deployed.
-      This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_DIEGO_API_COUNT
     description: >
       The number of diego-api replicas deployed.
@@ -2131,10 +1818,6 @@ configuration:
   - name: KUBE_SIZING_DIEGO_CELL_COUNT
     description: >
       The number of diego-cell replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_ETCD_COUNT
-    description: >
-      The number of etcd replicas deployed.
       This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_NATS_COUNT
     description: >
@@ -2184,6 +1867,13 @@ configuration:
       type: Password
     description: The password for the MySQL server admin user.
     required: true
+  - name: MYSQL_CCDB_ROLE_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to the Cloud Controller database.
+    required: true
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
     immutable: true
@@ -2198,6 +1888,13 @@ configuration:
       type: Password
     description: The password for the cluster logger health user.
     required: true
+  - name: MYSQL_DIEGO_LOCKET_PASSWORD
+    description: Database password for the diego locket service.
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    required: true
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
     immutable: true
@@ -2211,6 +1908,13 @@ configuration:
     generator:
       type: Password
     description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
+    required: true
+  - name: MYSQL_PERSI_NFS_PASSWORD
+    description: 'Database password for storing broker state for the Persi NFS Broker'
+    secret: true
+    immutable: true
+    generator:
+      type: Password
     required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
@@ -2311,34 +2015,6 @@ configuration:
     description: "LDAP fqdn for user records we will search against when looking up user uids (required for LDAP integration only)"
     example: "cn=Users,dc=corp,dc=test,dc=com"
     default: ""
-
-  - name: PERSI_NFS_MYSQL_PASSWORD
-    description: 'Database password for storing broker state for the Persi NFS Broker'
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    required: true
-
-
-  - name: REP_CLIENT_CERT
-    secret: true
-    generator:
-      id: rep_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - rep_client
-    description: PEM-encoded client certificate
-    required: true
-  - name: REP_CLIENT_KEY
-    secret: true
-    generator:
-      id: rep_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key
-    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -2426,24 +2102,6 @@ configuration:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
-  - name: SYSLOGDRAINBINDER_CERT
-    secret: true
-    generator:
-      id: syslogdrainbinder_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - syslogdrainbinder
-    description: PEM-encoded certificate
-    required: true
-  - name: SYSLOGDRAINBINDER_KEY
-    secret: true
-    generator:
-      id: syslogdrainbinder_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
   - name: TCP_DOMAIN
     example: tcp.my-scf-cluster.com
     required: true
@@ -2486,18 +2144,15 @@ configuration:
     required: true
   - name: TRUSTED_CERTS
     description: Concatenation of trusted CA certificates to be made available on the cell.
-  - name: UAADB_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the UAA database.
-    required: true
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
     immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
+  - name: UAA_CA_CERT
+    immutable: true
+    description: The CA certificate for UAA
+    secret: true
   - name: UAA_CC_CLIENT_SECRET
     secret: true
     immutable: true
@@ -2641,6 +2296,7 @@ configuration:
     properties.capi.tps.cc.internal_service_hostname: api.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.capi.tps.traffic_controller_url: ws://loggregator.((KUBE_SERVICE_DOMAIN_SUFFIX)):8081
+    properties.capi.tps.watcher.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -2687,7 +2343,7 @@ configuration:
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBE_SERVICE_DOMAIN_SUFFIX)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
@@ -2701,17 +2357,8 @@ configuration:
     properties.cf.insecure_api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb", "username":"ccadmin", "password": "((CCDB_ROLE_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"},{"name":"diego", "username": "diego", "password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api", "username": "routing-api", "password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb", "username": "usb", "password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume", "username": "nfsvolume", "password":"((PERSI_NFS_MYSQL_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
-    properties.consul.agent.domain: ((KUBERNETES_NAMESPACE))((^KUBERNETES_NAMESPACE))hcf((/KUBERNETES_NAMESPACE))
-    properties.consul.agent.log_level: '"((CONSUL_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))((#KUBE_SIZING_CONSUL_COUNT))((/KUBE_SIZING_CONSUL_COUNT))
-    properties.consul.agent_cert: '"((CONSUL_AGENT_CERT))"'
-    properties.consul.agent_key: '"((CONSUL_AGENT_KEY))"'
-    properties.consul.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.consul.encrypt_keys: '["((CONSUL_ENCRYPTION_KEYS))"]'
-    properties.consul.server_cert: '"((CONSUL_SERVER_CERT))"'
-    properties.consul.server_key: '"((CONSUL_SERVER_KEY))"'
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
     properties.diego.auctioneer.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
@@ -2719,6 +2366,7 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.auctioneer.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
@@ -2731,25 +2379,27 @@ configuration:
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
-    properties.diego.bbs.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.bbs.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.diego.bbs.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.diego.bbs.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy:3306)/diego{{=(( ))=}}"'
+    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy.{{KUBE_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.locket.sql.db_host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.cell_id: ((HOSTNAME))
+    properties.diego.rep.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
@@ -2773,22 +2423,6 @@ configuration:
     properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
-    properties.doppler.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.doppler.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.doppler.zone: '"((KUBE_AZ))"'
-    properties.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.etcd.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-    properties.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
-    properties.etcd.peer_ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.etcd.peer_cert: '"((ETCD_PEER_CRT))"'
-    properties.etcd.peer_key: '"((ETCD_PEER_KEY))"'
-    properties.etcd.server_cert: '"((ETCD_SERVER_CRT))"'
-    properties.etcd.server_key: '"((ETCD_SERVER_KEY))"'
-    properties.etcd_metrics_server.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.etcd_metrics_server.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.etcd_metrics_server.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
@@ -2802,7 +2436,6 @@ configuration:
     properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     properties.hcf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
-    properties.hcf.rep-certstrap.rep_ca_key: '"((REP_SERVER_KEY))"'
     properties.hcf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.hcf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.hcf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
@@ -2812,8 +2445,6 @@ configuration:
     properties.hcf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.loggregator.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator.etcd.machines: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
     properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
@@ -2823,8 +2454,6 @@ configuration:
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.statsd_injector.cert: '"((CC_SERVER_CRT))"'
     properties.loggregator.tls.statsd_injector.key: '"((CC_SERVER_KEY))"'
-    properties.loggregator.tls.syslogdrainbinder.cert: '"((SYSLOGDRAINBINDER_CERT))"'
-    properties.loggregator.tls.syslogdrainbinder.key: '"((SYSLOGDRAINBINDER_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
@@ -2836,7 +2465,7 @@ configuration:
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
     properties.nfsbroker.db_hostname: 'mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))'
-    properties.nfsbroker.db_password: '"((PERSI_NFS_MYSQL_PASSWORD))"'
+    properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
     properties.nfsbroker.url: 'http://nfs-broker.((KUBE_SERVICE_DOMAIN_SUFFIX)):8999'
@@ -2860,10 +2489,10 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]'
-    properties.routing_api.etcd.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.routing_api.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.routing_api.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
-    properties.routing_api.etcd.servers: ((KUBE_ETCD_CLUSTER_IPS))((#KUBE_SIZING_ETCD_COUNT))((/KUBE_SIZING_ETCD_COUNT))
+    properties.routing_api.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
+    properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
@@ -2877,19 +2506,15 @@ configuration:
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
-    properties.syslog_drain_binder.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.syslog_drain_binder.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
     properties.system_domain: '"((DOMAIN))"'
     properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.tls.cert: '"((REP_CLIENT_CERT))"'
-    properties.tls.key: '"((REP_CLIENT_KEY))"'
-    properties.traffic_controller.etcd.client_cert: '"((ETCD_CLIENT_CRT))"'
-    properties.traffic_controller.etcd.client_key: '"((ETCD_CLIENT_KEY))"'
+    properties.tls.cert: '"((DIEGO_CLIENT_CERT))"'
+    properties.tls.key: '"((DIEGO_CLIENT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
-    properties.uaa.ca_cert: '"((HCP_CA_CERT))((^HCP_CA_CERT))((INTERNAL_CA_CERT))((/HCP_CA_CERT))"'
+    properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'

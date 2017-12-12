@@ -30,6 +30,8 @@ properties:
         - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     tps:
       listener_enabled: false # Remove in CF 274
+      watcher:
+        skip_consul_lock: true
   cc:
     broker_client_timeout_seconds: 70
     buildpacks:
@@ -88,6 +90,7 @@ properties:
     jobs:
       generic:
         number_of_workers: null
+    log_db_queries: true
     newrelic:
       environment_name: null
       transaction_tracer:
@@ -190,20 +193,31 @@ properties:
     auctioneer:
       rep:
         require_tls: true
+      skip_consul_lock: true
     bbs:
       active_key_label: active
       auctioneer:
         require_tls: true
+      detect_consul_cell_registrations: false
       etcd:
+        ca_cert: ""
+        client_cert: ""
+        client_key: ""
         machines: []
       rep:
         require_tls: true
+      skip_consul_lock: true
     executor:
       garden:
         address: 127.0.0.1:7777
         network: tcp
     file_server:
       static_directory: /var/vcap/packages/
+    locket:
+      sql:
+        db_port: 3306
+        db_schema: diego_locket
+        db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
@@ -220,12 +234,9 @@ properties:
   doppler:
     locked_memory_limit: kernel
     port: 4443
-    syslog_skip_cert_verify: false
+  enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0
-  etcd_metrics_server:
-    etcd:
-      require_ssl: true
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
@@ -257,9 +268,6 @@ properties:
       port: 2289
   hcf:
     skip_cert_verify_external: false
-  loggregator:
-    etcd:
-      require_ssl: true
   metron_agent:
     deployment: hcf-deployment
   nats:
@@ -288,8 +296,7 @@ properties:
       user: router_user
   routing_api:
     enabled: true
-    etcd:
-      require_ssl: true
+    skip_consul_lock: true
     sqldb:
       type: mysql
       port: 3306
@@ -300,12 +307,8 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  syslog_aggregator:
-    transport: null
   syslog_daemon_config:
     enable: false
-  syslog_drain_binder:
-    locked_memory_limit: kernel
   system_domain_organization: null
   ssl:
     skip_cert_verify: false
