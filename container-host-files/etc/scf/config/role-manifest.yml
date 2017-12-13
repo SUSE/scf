@@ -2205,13 +2205,15 @@ configuration:
       value_type: certificate
     description: PEM-encoded certificate
     required: true
+    subject_names:
+    - syslog_adapter
+    role_name: syslog-adapter
   - name: SYSLOG_ADAPT_KEY
     secret: true
     generator:
       id: syslog_adapt_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: SYSLOG_RLP_CERT
@@ -2222,13 +2224,15 @@ configuration:
       value_type: certificate
     description: PEM-encoded certificate
     required: true
+    subject_names:
+    - syslog_rlp
+    role_name: syslog-rlp
   - name: SYSLOG_RLP_KEY
     secret: true
     generator:
       id: syslog_rlp_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: SYSLOG_SCHED_CERT
@@ -2239,13 +2243,15 @@ configuration:
       value_type: certificate
     description: PEM-encoded certificate
     required: true
+    subject_names:
+    - syslog_scheduler
+    role_name: syslog-scheduler
   - name: SYSLOG_SCHED_KEY
     secret: true
     generator:
       id: syslog_sched_cert
       type: Certificate
       value_type: private_key
-      key_length: 4096
     description: PEM-encoded key.
     required: true
   - name: TCP_DOMAIN
