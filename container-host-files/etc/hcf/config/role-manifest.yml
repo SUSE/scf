@@ -570,8 +570,8 @@ roles:
     release_name: python-buildpack
   - name: staticfile-buildpack
     release_name: staticfile-buildpack
-  - name: java-offline-buildpack
-    release_name: java-offline-buildpack
+  - name: java-buildpack
+    release_name: java-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
   processes:

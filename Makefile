@@ -157,8 +157,8 @@ dotnet-core-buildpack-release:
 go-buildpack-release:
 	make/bosh-release src/buildpacks/go-buildpack-release
 
-java-offline-buildpack-release:
-	make/bosh-release src/buildpacks/java-offline-buildpack-release
+java-buildpack-release:
+	make/bosh-release src/buildpacks/java-buildpack-release
 
 nodejs-buildpack-release:
 	make/bosh-release src/buildpacks/nodejs-buildpack-release
@@ -194,7 +194,7 @@ releases: \
 	binary-buildpack-release \
 	dotnet-core-buildpack-release \
 	go-buildpack-release \
-	java-offline-buildpack-release \
+	java-buildpack-release \
 	nodejs-buildpack-release \
 	php-buildpack-release \
 	python-buildpack-release \

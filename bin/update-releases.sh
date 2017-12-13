@@ -59,7 +59,7 @@ BUILDPACK_SUBMODULES="go-buildpack-release \
                       php-buildpack-release \
                       python-buildpack-release \
                       staticfile-buildpack-release \
-                      java-offline-buildpack-release"
+                      java-buildpack-release"
 
 for release_name in ${BUILDPACK_SUBMODULES}
 do
@@ -109,7 +109,7 @@ get_submodule_ref () {
 # PHP_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" php-buildpack-release)
 # PYTHON_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" python-buildpack-release)
 # STATICFILE_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" staticfile-buildpack-release)
-# JAVA_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" java-offline-buildpack-release)
+# JAVA_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" java-buildpack-release)
 
 CAPI_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" capi-release)
 CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
@@ -127,7 +127,7 @@ ROUTING_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" routing-release
 # update_submodule php-buildpack-release "${PHP_BUILDPACK_RELEASE}" src/buildpacks
 # update_submodule python-buildpack-release "${PYTHON_BUILDPACK_RELEASE}" src/buildpacks
 # update_submodule staticfile-buildpack-release "${STATICFILE_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule java-offline-buildpack-release "${JAVA_BUILDPACK_RELEASE}" src/buildpacks
+# update_submodule java-buildpack-release "${JAVA_BUILDPACK_RELEASE}" src/buildpacks
 
 update_submodule capi-release "${CAPI_RELEASE}" src
 update_submodule consul-release "${CONSUL_RELEASE}" src
