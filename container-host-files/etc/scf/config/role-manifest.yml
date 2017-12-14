@@ -1370,7 +1370,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
+      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))((KUBE_SIZING_SYSLOG_RLP_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1907,6 +1907,10 @@ configuration:
     description: >
       The number of nats replicas deployed.
       This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_SYSLOG_RLP_COUNT
+    description: >
+      The number of syslog-rlp replicas deployed.
+      This value is set automatically by the helm charts of SCF.
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2203,10 +2207,10 @@ configuration:
       id: syslog_adapt_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - syslog_adapter
     description: PEM-encoded certificate
     required: true
-    subject_names:
-    - syslog_adapter
     role_name: syslog-adapter
   - name: SYSLOG_ADAPT_KEY
     secret: true
@@ -2222,11 +2226,11 @@ configuration:
       id: syslog_rlp_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - syslog_rlp
+      role_name: syslog-rlp
     description: PEM-encoded certificate
     required: true
-    subject_names:
-    - syslog_rlp
-    role_name: syslog-rlp
   - name: SYSLOG_RLP_KEY
     secret: true
     generator:
@@ -2241,10 +2245,10 @@ configuration:
       id: syslog_sched_cert
       type: Certificate
       value_type: certificate
+      subject_names:
+      - syslog_adapter
     description: PEM-encoded certificate
     required: true
-    subject_names:
-    - syslog_scheduler
     role_name: syslog-scheduler
   - name: SYSLOG_SCHED_KEY
     secret: true
