@@ -1623,7 +1623,7 @@ configuration:
     description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
     required: true
   - name: DEFAULT_STACK
-    default: opensuse42
+    default: sle12
     description: The default stack to use if no custom stack is specified by an app.
   - name: DIEGO_CELL_DISK_CAPACITY_MB
     default: auto
