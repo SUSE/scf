@@ -85,8 +85,6 @@ properties:
       package: binary-buildpack
     - name: dotnet-core_buildpack
       package: dotnet-core-buildpack
-    - name: cf_iis_buildpack
-      package: cf_iis_buildpack
     jobs:
       generic:
         number_of_workers: null
