@@ -46,9 +46,6 @@
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
 	url = https://github.com/cloudfoundry/grootfs-release.git
-[submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
-	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/cloudfoundry/cf-acceptance-tests
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
 	url = https://github.com/SUSE/cf-opensuse42-release.git
