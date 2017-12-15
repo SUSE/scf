@@ -256,7 +256,11 @@ pipeline {
                         sleep 1
                     done
 
+                    # Run `docker rm` commands twice because of internal race condition:
+                    # https://github.com/vmware/vic/issues/3196#issuecomment-263295426
+                    docker ps --filter=status=exited  --quiet | xargs --no-run-if-empty docker rm || true
                     docker ps --filter=status=exited  --quiet | xargs --no-run-if-empty docker rm
+                    docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm || true
                     docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm
 
                     while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
