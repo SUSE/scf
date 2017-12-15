@@ -253,9 +253,9 @@ roles:
   - scripts/go_log_level.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: hcf
+    release_name: scf-helper
   - name: locket
     release_name: diego
   - name: metron_agent
@@ -1273,7 +1273,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
+      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
