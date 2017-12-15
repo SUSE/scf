@@ -5,7 +5,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: scf-helper
   - name: scheduler
     release_name: cf-syslog-drain
   - name: metron_agent
@@ -37,7 +37,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: scf-helper
   - name: metron_agent
     release_name: loggregator
   - name: reverse_log_proxy
@@ -65,7 +65,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: scf-helper
   - name: adapter
     release_name: cf-syslog-drain
   - name: metron_agent
