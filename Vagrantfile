@@ -187,7 +187,7 @@ Vagrant.configure(2) do |config|
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/hcf/bin/' >> .profile
+    echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/scf/bin/' >> .profile
     echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
 
     echo -e '\nexport HISTFILE=/home/vagrant/scf/output/.bash_history' >> .profile

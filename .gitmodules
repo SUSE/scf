@@ -13,8 +13,8 @@
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
-[submodule "src/hcf-release/src/certstrap"]
-	path = src/hcf-release/src/certstrap
+[submodule "src/scf-helper-release/src/certstrap"]
+	path = src/scf-helper-release/src/certstrap
 	url = https://github.com/hpcloud/certstrap
 [submodule "src/nats-release"]
 	path = src/nats-release
@@ -46,8 +46,8 @@
 [submodule "src/grootfs-release"]
 	path = src/grootfs-release
 	url = https://github.com/cloudfoundry/grootfs-release.git
-[submodule "src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
-	path = src/hcf-release/src/github.com/cloudfoundry/cf-acceptance-tests
+[submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
+	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
 	url = https://github.com/cloudfoundry/cf-acceptance-tests
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
@@ -76,11 +76,11 @@
 [submodule "src/statsd-injector-release"]
 	path = src/statsd-injector-release
 	url = https://github.com/cloudfoundry/statsd-injector-release.git
-[submodule "src/hcf-release/src/github.com/SUSE/testbrain"]
-	path = src/hcf-release/src/github.com/SUSE/testbrain
+[submodule "src/scf-helper-release/src/github.com/SUSE/testbrain"]
+	path = src/scf-helper-release/src/github.com/SUSE/testbrain
 	url = https://github.com/SUSE/testbrain.git
-[submodule "src/hcf-release/src/github.com/SUSE/scf-secret-generator"]
-	path = src/hcf-release/src/github.com/SUSE/scf-secret-generator
+[submodule "src/scf-helper-release/src/github.com/SUSE/scf-secret-generator"]
+	path = src/scf-helper-release/src/github.com/SUSE/scf-secret-generator
 	url = https://github.com/SUSE/scf-secret-generator.git
 [submodule "src/loggregator-release"]
 	path = src/loggregator-release

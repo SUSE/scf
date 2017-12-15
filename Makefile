@@ -130,8 +130,8 @@ cf-sle12-release:
 routing-release:
 	make/bosh-release src/routing-release
 
-hcf-release:
-	make/bosh-release src/hcf-release
+scf-helper-release:
+	make/bosh-release src/scf-helper-release
 
 capi-release:
 	make/bosh-release src/capi-release
@@ -186,7 +186,7 @@ releases: \
 	cf-opensuse42-release \
 	cf-sle12-release \
 	routing-release \
-	hcf-release \
+	scf-helper-release \
 	capi-release \
 	loggregator-release \
 	nats-release \

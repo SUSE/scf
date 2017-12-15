@@ -288,7 +288,7 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
-                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    unset SCF_PACKAGE_COMPILATION_CACHE
                     make ${FISSILE_BINARY}
                 '''
             }
@@ -310,7 +310,7 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
-                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    unset SCF_PACKAGE_COMPILATION_CACHE
 
                     make vagrant-prep validate
                 '''
@@ -323,7 +323,7 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
-                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    unset SCF_PACKAGE_COMPILATION_CACHE
                     rm -f output/scf-*amd64*.zip
                     make helm bundle-dist
                 '''
@@ -489,7 +489,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
-                    unset HCF_PACKAGE_COMPILATION_CACHE
+                    unset SCF_PACKAGE_COMPILATION_CACHE
                     make publish
                 '''
             }

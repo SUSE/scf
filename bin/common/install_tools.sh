@@ -5,7 +5,7 @@ set -vx
 # Get version information and set destination dirs
 . "$(dirname "$0")/versions.sh"
 
-# Installs tools needed to build and run HCF
+# Installs tools needed to build and run SCF
 SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=${CFCLI_VERSION}&source=github-rel}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl}"
