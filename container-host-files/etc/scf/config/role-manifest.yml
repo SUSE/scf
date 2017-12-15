@@ -1,5 +1,102 @@
 ---
 roles:
+- name: syslog-scheduler
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: scheduler
+    release_name: cf-syslog-drain
+  - name: metron_agent
+    release_name: loggregator
+  processes:
+  - name: scheduler
+  - name: metron_agent
+  run:
+    scaling:
+      min: 1
+      max: 1
+      ha: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+    - name: scheduler-health
+      protocol: TCP
+      external: 8080
+      internal: 8080
+      public: false
+    healthcheck:
+      readiness:
+        url: http://container-ip:8080/health
+- name: syslog-rlp
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: metron_agent
+    release_name: loggregator
+  - name: reverse_log_proxy
+    release_name: loggregator
+  processes:
+  - name: metron_agent
+  run:
+    scaling: # half the number of traffic-controllers
+      min: 1
+      max: 65535
+      ha: 2
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+    - name: rlp
+      protocol: TCP
+      external: 8082
+      internal: 8082
+      public: false
+- name: syslog-adapter
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: adapter
+    release_name: cf-syslog-drain
+  - name: metron_agent
+    release_name: loggregator
+  processes:
+  - name: adapter
+  - name: metron_agent
+  run:
+    scaling: # one per 500 drains
+      min: 1
+      max: 65535
+      ha: 2
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+    - name: adapter
+      protocol: TCP
+      external: 4443
+      internal: 4443
+      public: false
+    - name: adapter-health
+      protocol: TCP
+      external: 8080
+      internal: 8080
+      public: false
+    healthcheck:
+      readiness:
+        url: http://container-ip:8080/health
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2100,6 +2197,60 @@ configuration:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
+  - name: SYSLOG_ADAPT_CERT
+    secret: true
+    generator:
+      id: syslog_adapt_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - syslog_adapter
+    description: PEM-encoded certificate
+    required: true
+  - name: SYSLOG_ADAPT_KEY
+    secret: true
+    generator:
+      id: syslog_adapt_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded key.
+    required: true
+  - name: SYSLOG_RLP_CERT
+    secret: true
+    generator:
+      id: syslog_rlp_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - syslog_rlp
+    description: PEM-encoded certificate
+    required: true
+  - name: SYSLOG_RLP_KEY
+    secret: true
+    generator:
+      id: syslog_rlp_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded key.
+    required: true
+  - name: SYSLOG_SCHED_CERT
+    secret: true
+    generator:
+      id: syslog_sched_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - syslog_adapter
+    description: PEM-encoded certificate
+    required: true
+  - name: SYSLOG_SCHED_KEY
+    secret: true
+    generator:
+      id: syslog_sched_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded key.
+    required: true
   - name: TCP_DOMAIN
     example: tcp.my-scf-cluster.com
     required: true
@@ -2442,6 +2593,8 @@ configuration:
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
     properties.loggregator.tls.metron.cert: '"((METRON_CERT))"'
     properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
+    properties.loggregator.tls.reverse_log_proxy.cert: '"((SYSLOG_RLP_CERT))"'
+    properties.loggregator.tls.reverse_log_proxy.key: '"((SYSLOG_RLP_KEY))"'
     properties.loggregator.tls.statsd_injector.cert: '"((CC_SERVER_CRT))"'
     properties.loggregator.tls.statsd_injector.key: '"((CC_SERVER_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
@@ -2491,6 +2644,18 @@ configuration:
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.routing_api.url: '"http://routing-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
+    properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
+    properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_KEY))"'
+    properties.scalablesyslog.adapter_rlp.tls.ca: '"((INTERNAL_CA_CERT))"'
+    properties.scalablesyslog.adapter_rlp.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
+    properties.scalablesyslog.adapter_rlp.tls.key: '"((SYSLOG_ADAPT_KEY))"'
+    properties.scalablesyslog.scheduler.tls.api.ca: '"((INTERNAL_CA_CERT))"'
+    properties.scalablesyslog.scheduler.tls.api.cert: '"((SYSLOG_SCHED_CERT))"'
+    properties.scalablesyslog.scheduler.tls.api.key: '"((SYSLOG_SCHED_KEY))"'
+    properties.scalablesyslog.scheduler.tls.client.ca: '"((INTERNAL_CA_CERT))"'
+    properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
+    properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_KEY))"'
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
     properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
