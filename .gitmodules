@@ -82,3 +82,6 @@
 [submodule "src/buildpacks/java-buildpack-release"]
 	path = src/buildpacks/java-buildpack-release
 	url = https://github.com/SUSE/cf-java-buildpack-release.git
+[submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
+	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
+	url = https://github.com/SUSE/cf-acceptance-tests.git
