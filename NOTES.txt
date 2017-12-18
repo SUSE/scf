@@ -18,4 +18,4 @@
     to spot-check if everything is up and running, or
         [1;36mwatch -c 'kubectl get pods --namespace {{ .Release.Namespace }}'[0m
 
-    to monitor continously.
+    to monitor continuously.
