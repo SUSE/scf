@@ -12,7 +12,7 @@ s3="https://cf-opensusefs2.s3.amazonaws.com/fissile"
 # Tool versions
 thefissile="fissile-$(echo "${FISSILE_VERSION}" | sed -e 's/+/%2B/')"
 
-fissile_url="${fissile_url:-${s3}/${thefissile}.linux-amd64.tgz}"
+fissile_url="${fissile_url:-${s3}/checks/${thefissile}.linux-amd64.tgz}"
 stampy_url="${stampy_url:-https://github.com/SUSE/stampy/releases/download/${STAMPY_MAJOR}/stampy-${STAMPY_VERSION}.linux-amd64.tgz}"
 
 mkdir -p "${SCF_BIN_DIR}"

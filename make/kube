@@ -7,6 +7,9 @@ cd "${GIT_ROOT}"
 source .envrc
 source ${GIT_ROOT}/make/include/versioning
 
+SUSE_STACK=${SUSE_STACK:-opensuse42}
+FISSILE_DEFAULTS_FILE="bin/settings/${SUSE_STACK}.env"
+
 DOMAIN=${DOMAIN:-}
 
 NETWORK_ENV=bin/settings/network.env
@@ -31,7 +34,7 @@ fi
 if [ "${BUILD_TARGET}" = "kube" ]; then
     # Overrides when generating kube config files instead of helm charts.
     FISSILE_OUTPUT_DIR="${PWD}/output/kube"
-    FISSILE_DEFAULTS_FILE="bin/settings/settings.env,${NETWORK_ENV}"
+    FISSILE_DEFAULTS_FILE="${FISSILE_DEFAULTS_FILE},bin/settings/settings.env,${NETWORK_ENV}"
     USE_SECRETS_GENERATOR=
 fi
 
