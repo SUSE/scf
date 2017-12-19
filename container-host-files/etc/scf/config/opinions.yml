@@ -5,18 +5,22 @@ properties:
     skip_ssl_validation: true
     backend: diego
     include_apps: true
+    include_backend_compatibility: true
+    include_container_networking: true
     include_detect: true
-    include_diego_ssh: true
     include_diego_docker: true
-    include_security_groups: true
+    include_diego_ssh: true
     include_internet_dependent: true
+    include_persistent_app: true
+    include_privileged_container_support: true
+    include_route_services: true
     include_routing: true
+    include_security_groups: true
     include_services: true
-    async_service_operation_timeout: 5
-    broker_start_timeout: 10
-    cf_push_timeout: 5
+    include_sso: true
+    include_tasks: true
+    include_v3: true
     default_timeout: 300
-    long_curl_timeout: 5
   acceptance_tests_brain:
     user: admin
     org: test-brain-org
