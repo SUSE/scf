@@ -2028,7 +2028,7 @@ configuration:
       user. To change the cluster's log level set the parameter `LOG_LEVEL`
       instead, from which this one is derived.
   - name: NGINX_MAX_REQUEST_BODY_SIZE
-    default: 1536
+    default: 2048
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
   - name: NO_PROXY
