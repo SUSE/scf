@@ -10,21 +10,43 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
 
+function login_cleanup() {
+    trap "" EXIT ERR
+    set +o errexit
+
+    cf delete-space -f ${CF_SPACE}
+    cf delete-org -f ${CF_ORG}
+
+    set -o errexit
+}
+trap login_cleanup EXIT ERR
+
 # target, login, create work org and space
 cf api --skip-ssl-validation api.${CF_DOMAIN}
 cf auth ${CF_USERNAME} ${CF_PASSWORD}
+
+cf create-org ${CF_ORG}
+cf target -o ${CF_ORG}
+
+cf create-space ${CF_SPACE}
+cf target -s ${CF_SPACE}
 
 ## # # ## ### Test-specific configuration ### ## # #
 
 # Location of the test script. All other assets will be found relative
 # to this.
 TMP=$(mktemp -dt 017_buildpacks.XXXXXX)
+SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSPECTOR_BUILDPACK_DIR=${SELFDIR}/../test-resources/buildpack_inspector_buildpack
 
 ## # # ## ### Test-specific code ### ## # #
 
 function test_cleanup() {
     trap "" EXIT ERR
+    login_cleanup
     set +o errexit
+
+    cf delete-buildpack -f buildpack_inspector_buildpack
 
     rm -rf "${TMP}"
 
@@ -37,14 +59,14 @@ trap test_cleanup EXIT ERR
 # Getting buildpacks...
 #
 # buildpack              position   enabled   locked   filename
-# staticfile_buildpack   1          true      false    staticfile_buildpack-cached-v1.3.13.zip
+# staticfile_buildpack   1          true      false    staticfile_buildpack-v1.3.13.zip
 # java_buildpack         2          true      false    java-buildpack-v3.10.zip
-# ruby_buildpack         3          true      false    ruby_buildpack-cached-v1.6.28.zip
-# nodejs_buildpack       4          true      false    nodejs_buildpack-cached-v1.5.23.zip
+# ruby_buildpack         3          true      false    ruby_buildpack-v1.6.28.zip
+# nodejs_buildpack       4          true      false    nodejs_buildpack-v1.5.23.zip
 # go_buildpack           5          true      false
 # python_buildpack       6          true      false
-# php_buildpack          7          true      false    php_buildpack-cached-v4.3.22.zip
-# binary_buildpack       8          true      false    binary_buildpack-cached-v1.0.5.zip
+# php_buildpack          7          true      false    php_buildpack-v4.3.22.zip
+# binary_buildpack       8          true      false    binary_buildpack-v1.0.5.zip
 ##
 # 123456789.123456789.12 123456789. 123456789 12345678 123456789.123456789.123456789.123456789.1
 
@@ -103,3 +125,22 @@ for (( i = 1 ; i <= $packs ; i ++ )) ; do
     printf "Got filename %s for position %s\n" "${filename}" "${i}"
     test -n "${filename}"
 done
+
+# Check that all buildpacks are uncached variants.
+# In order to do so a special inspector buildpack is added which inspects all
+# other buildpacks at staging time for cached dependencies.
+# An empty app is then pushed which won't be accepted by any of the regular
+# buildpacks. Only the inspector buildpack will accept the app if the "uncached"
+# check passes.
+
+# Add buildpack
+inspector_filename=${TMP}/buildpack_inspector_buildpack_v0.0.1.zip
+(cd ${INSPECTOR_BUILDPACK_DIR}; zip -r ${inspector_filename} *)
+cf create-buildpack buildpack_inspector_buildpack ${inspector_filename} 1
+
+# Deploy app
+dummy_app_dir=${TMP}/dummy-app
+mkdir ${dummy_app_dir}
+cd ${dummy_app_dir}
+touch foo
+cf push dummy-app -c /bin/bash -u none
