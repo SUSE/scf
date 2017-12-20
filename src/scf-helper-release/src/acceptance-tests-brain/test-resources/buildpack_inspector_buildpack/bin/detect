@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Redirect STDOUT to STDERR, only STDERR is relayed by the cf cli
+exec 1>&2
+
+# The java offline buildpack has a `resources/cache` dir while the rest have a
+# `dependencies` one.
+offenders=`find /tmp/buildpacks -type d -path */resources/cache -o -name dependencies`
+if [[ -n ${offenders} ]]; then
+  for buildpack in ${offenders}; do
+    echo "### Buildpack cache detection: ERROR: found cached dependencies in ${buildpack}"
+    buildpack_dir=`dirname ${buildpack}`
+    language=`grep language ${buildpack_dir}/manifest.yml`
+    echo "### Buildpack cache detection: ${language}"
+  done
+  exit 1
+else
+  echo "### Buildpack cache detection: No cached dependencies found"
+  exit 0 # Indicate that the buildpacks are fine by accepting the app
+fi
