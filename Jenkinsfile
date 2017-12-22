@@ -223,45 +223,41 @@ pipeline {
         }
         stage('verify_no_overwrite') {
             when {
-                expression { return params.PUBLISH_S3 && true /*noOverwrites()*/ }
+                expression { return params.PUBLISH_S3 && noOverwrites() }
             }
             steps {
-                withAWS(region: params.S3_REGION) {
-                    withCredentials([usernamePassword(
-                        credentialsId: params.S3_CREDENTIALS,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                    )]) {
-                        script {
-                            def stdout = new StringBuilder()
-                            def stderr = new StringBuilder()
-                            def makeVersions = '/usr/bin/make show-versions'.execute()
+                withCredentials([usernamePassword(
+                    credentialsId: params.S3_CREDENTIALS,
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                )]) {
+                    sh """
+                    #!/bin/sh
 
-                            makeVersions.consumeProcessOutput(stdout, stderr)
-                            makeVersions.waitForOrKill(1000) // Cargo culted this timeout
+                    set +o xtrace
+                    set -o errexit
 
-                            println(stdout)
-                            println(stderr)
+                    PREFIX=sle
+                    if echo '${params.FISSILE_STEMCELL}' | grep -qv 'fissile-stemcell-sle'; then
+                        echo 'Setting overwrite protection prefix to openSUSE'
+                        PREFIX=opensuse
+                    fi
 
-                            def pattern = Pattern.compile('/^App Version\\s+=\\s+(.*)$')
-                            def lines = stdout.readLines()
-                            Object result = lines.findResult { line -> pattern.matcher(line) }
-                            if (result == null) {
-                                println("failed to look up version of scf")
-                                System.exit(1)
-                            }
+                    BUCKET=\$(aws s3 ls '${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}')
+                    if test \$? -ne 0; then
+                        echo 'Failed to fetch bucket list'
+                        echo "\${BUCKET}"
+                        exit 1
+                    fi
 
-                            Matcher match = (Matcher)result
-                            def expectedVersion = "${match[1]}"
-                            println("found expected version: ${expectedVersion}")
-
-                            def files = s3FindFiles(bucket: "${params.S3_BUCKET}", path: "${params.S3_PREFIX}${distSubDir()}", glob: "scf-${expectedVersion}*amd64*")
-                            if (files.count() > 0) {
-                                println("found a file that matches our current version: ${files[0].name}")
-                                System.exit(1)
-                            }
-                        }
-                    }
+                    CURRENT_VERSION=\$(make show-versions | awk '/^App Version/ { print \$4 }')
+                    SEARCH="scf-\${PREFIX}-\${CURRENT_VERSION}.*\\\\.zip"
+                    echo "Searching for version: \${SEARCH}"
+                    if echo \${BUCKET} | grep \$SEARCH; then
+                        echo 'Search version was found, bailing to prevent overwrite of artifacts!'
+                        exit 1
+                    fi
+                    """
                 }
             }
         }
