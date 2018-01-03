@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
-import java.util.regex.Pattern
-import java.util.regex.Matcher
 
 String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
@@ -215,50 +213,7 @@ pipeline {
             build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
           }
         }
-        stage('verify_no_overwrite') {
-            when {
-                expression { return params.PUBLISH_S3 && true /*noOverwrites()*/ }
-            }
-            steps {
-                withAWS(region: params.S3_REGION) {
-                    withCredentials([usernamePassword(
-                        credentialsId: params.S3_CREDENTIALS,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                    )]) {
-                        script {
-                            def stdout = new StringBuilder()
-                            def stderr = new StringBuilder()
-                            def makeVersions = '/usr/bin/make show-versions'.execute()
 
-                            makeVersions.consumeProcessOutput(stdout, stderr)
-                            makeVersions.waitForOrKill(1000) // Cargo culted this timeout
-
-                            println(stdout)
-                            println(stderr)
-
-                            def pattern = Pattern.compile('/^App Version\\s+=\\s+(.*)$')
-                            def lines = stdout.readLines()
-                            Object result = lines.findResult { line -> pattern.matcher(line) }
-                            if (result == null) {
-                                println("failed to look up version of scf")
-                                System.exit(1)
-                            }
-
-                            Matcher match = (Matcher)result
-                            def expectedVersion = "${match[1]}"
-                            println("found expected version: ${expectedVersion}")
-
-                            def files = s3FindFiles(bucket: "${params.S3_BUCKET}", path: "${params.S3_PREFIX}${distSubDir()}", glob: "scf-${expectedVersion}*amd64*")
-                            if (files.count() > 0) {
-                                println("found a file that matches our current version: ${files[0].name}")
-                                System.exit(1)
-                            }
-                        }
-                    }
-                }
-            }
-        }
         stage('wipe') {
             when {
                 expression { return params.WIPE }
@@ -267,6 +222,7 @@ pipeline {
                 deleteDir()
             }
         }
+
         stage('clean') {
             when {
                 expression { return params.CLEAN }
@@ -346,6 +302,36 @@ pipeline {
                 '''
             }
         }
+
+        stage('verify_no_overwrite') {
+            when {
+                expression { return params.PUBLISH_S3 && noOverwrites() }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            def expectedVersion = sh(script: '''make show-versions | awk '/^App Version/ { print $4 }' ''', returnStdout: true).trim()
+                            if (expectedVersion == null || expectedVersion == '') {
+                                error "Failed to find expected version"
+                            }
+                            echo "Found expected version: ${expectedVersion}"
+
+                            def glob = "*scf-${params.USE_SLES_STEMCELL ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
+                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
+                            if (files.size() > 0) {
+                                error "found a file that matches our current version: ${files[0].name}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('build') {
             steps {
                 withCredentials([usernamePassword(
