@@ -1406,6 +1406,9 @@ configuration:
       - apiGroups: [""]
         resources: [services]
         verbs: [get]
+      - apiGroups: [apps]
+        resources: [statefulsets]
+        verbs: [get]
       secrets-role:
       - apiGroups: [""]
         resources: [secrets]
