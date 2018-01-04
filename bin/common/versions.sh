@@ -5,7 +5,7 @@ set -o errexit -o nounset
 # This file is sourced everywhere one or more of the versions are
 # needed.
 
-# Used in: bin/dev/install_tool.sh
+# Used in: bin/dev/install_tools.sh
 
 export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
