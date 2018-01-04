@@ -172,15 +172,10 @@ pipeline {
             defaultValue: 'splatform',
             description: 'Docker organization to publish to',
         )
-        string(
-            name: 'FISSILE_STEMCELL',
-            defaultValue: '',
-            description: 'Override the .envrc configured stemcell. .envrc is used if left blank.',
-        )
-        string(
-            name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '',
-            description: 'Override the .envrc configured stemcell version. .envrc is used if left blank.',
+        booleanParam(
+            name: 'USE_SLES_STEMCELL',
+            defaultValue: false,
+            description: 'Generates a build with the SLES stemcell',
         )
         booleanParam(
             name: 'TRIGGER_SLES_BUILD',
@@ -197,8 +192,7 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
-        FISSILE_STEMCELL = "${params.FISSILE_STEMCELL}"
-        FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
+        USE_SLES_STEMCELL = "${params.USE_SLES_STEMCELL}"
     }
 
     stages {
@@ -356,7 +350,7 @@ pipeline {
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
                     suffix=""
-                    if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
+                    if [ "${params.USE_SLES_STEMCELL}" == "false" ]; then
                         suffix="-opensuse"
                     fi
 
