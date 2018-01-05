@@ -72,6 +72,15 @@ String distPrefix() {
     }
 }
 
+Boolean noOverwrites() {
+    switch (env.BRANCH_NAME) {
+        case 'master':
+            return true
+        default:
+            return false
+    }
+}
+
 pipeline {
     agent { label ((["scf"] + (params.AGENT_LABELS ? params.AGENT_LABELS : "").tokenize()).join("&&")) }
     options {
@@ -204,6 +213,7 @@ pipeline {
             build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
           }
         }
+
         stage('wipe') {
             when {
                 expression { return params.WIPE }
@@ -212,6 +222,7 @@ pipeline {
                 deleteDir()
             }
         }
+
         stage('clean') {
             when {
                 expression { return params.CLEAN }
@@ -291,6 +302,36 @@ pipeline {
                 '''
             }
         }
+
+        stage('verify_no_overwrite') {
+            when {
+                expression { return params.PUBLISH_S3 && noOverwrites() }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            def expectedVersion = sh(script: '''make show-versions | awk '/^App Version/ { print $4 }' ''', returnStdout: true).trim()
+                            if (expectedVersion == null || expectedVersion == '') {
+                                error "Failed to find expected version"
+                            }
+                            echo "Found expected version: ${expectedVersion}"
+
+                            def glob = "*scf-${params.USE_SLES_STEMCELL ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
+                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
+                            if (files.size() > 0) {
+                                error "found a file that matches our current version: ${files[0].name}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('build') {
             steps {
                 withCredentials([usernamePassword(
