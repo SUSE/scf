@@ -22,7 +22,12 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 # Used in: .envrc
 
-export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-21.g0757523-29.55}
+if [ "${USE_SLES_STEMCELL:-false}" == "false" ]
+then
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-21.g0757523-29.55}
+else
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-5.g5fc0351-0.56}
+fi
 
 # Used in: bin/generate-dev-certs.sh
 
