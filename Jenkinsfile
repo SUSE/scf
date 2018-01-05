@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
+import java.util.regex.Pattern
+import java.util.regex.Matcher
 
 String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
@@ -69,6 +71,15 @@ String distPrefix() {
             return ''
         }
         return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+    }
+}
+
+Boolean noOverwrites() {
+    switch (env.BRANCH_NAME) {
+        case 'master':
+            return true
+        default:
+            return false
     }
 }
 
@@ -203,6 +214,46 @@ pipeline {
           steps {
             build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
           }
+        }
+        stage('verify_no_overwrite') {
+            when {
+                expression { return params.PUBLISH_S3 && noOverwrites() }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.S3_CREDENTIALS,
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                )]) {
+                    sh """
+                    #!/bin/sh
+
+                    set +o xtrace
+                    set -o errexit
+
+                    PREFIX=sle
+                    if echo '${params.FISSILE_STEMCELL}' | grep -qv 'fissile-stemcell-sle'; then
+                        echo 'Setting overwrite protection prefix to openSUSE'
+                        PREFIX=opensuse
+                    fi
+
+                    BUCKET=\$(aws s3 ls '${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}')
+                    if test \$? -ne 0; then
+                        echo 'Failed to fetch bucket list'
+                        echo "\${BUCKET}"
+                        exit 1
+                    fi
+
+                    CURRENT_VERSION=\$(make show-versions | awk '/^App Version/ { print \$4 }')
+                    SEARCH="scf-\${PREFIX}-\${CURRENT_VERSION}.*\\\\.zip"
+                    echo "Searching for version: \${SEARCH}"
+                    if echo \${BUCKET} | grep \$SEARCH; then
+                        echo 'Search version was found, bailing to prevent overwrite of artifacts!'
+                        exit 1
+                    fi
+                    """
+                }
+            }
         }
         stage('wipe') {
             when {
