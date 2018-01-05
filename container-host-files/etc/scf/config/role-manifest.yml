@@ -2437,7 +2437,7 @@ configuration:
     properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_UPLOADER_CRT))"'
     properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_KEY))"'
-    properties.capi.nsync.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
+    properties.capi.nsync.lifecycle_bundles: '["buildpack/((SUSE_STACK)):buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker:docker_app_lifecycle/docker_app_lifecycle.tgz"]'
     properties.capi.stager.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((CC_SERVER_CRT))"'
