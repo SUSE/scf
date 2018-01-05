@@ -183,15 +183,10 @@ pipeline {
             defaultValue: 'splatform',
             description: 'Docker organization to publish to',
         )
-        string(
-            name: 'FISSILE_STEMCELL',
-            defaultValue: '',
-            description: 'Override the .envrc configured stemcell. .envrc is used if left blank.',
-        )
-        string(
-            name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '',
-            description: 'Override the .envrc configured stemcell version. .envrc is used if left blank.',
+        booleanParam(
+            name: 'USE_SLES_STEMCELL',
+            defaultValue: false,
+            description: 'Generates a build with the SLES stemcell',
         )
         booleanParam(
             name: 'TRIGGER_SLES_BUILD',
@@ -208,8 +203,7 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
-        FISSILE_STEMCELL = "${params.FISSILE_STEMCELL}"
-        FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
+        USE_SLES_STEMCELL = "${params.USE_SLES_STEMCELL}"
     }
 
     stages {
@@ -348,6 +342,36 @@ pipeline {
                 '''
             }
         }
+
+        stage('verify_no_overwrite') {
+            when {
+                expression { return params.PUBLISH_S3 && noOverwrites() }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            def expectedVersion = sh(script: '''make show-versions | awk '/^App Version/ { print $4 }' ''', returnStdout: true).trim()
+                            if (expectedVersion == null || expectedVersion == '') {
+                                error "Failed to find expected version"
+                            }
+                            echo "Found expected version: ${expectedVersion}"
+
+                            def glob = "*scf-${params.USE_SLES_STEMCELL ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
+                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
+                            if (files.size() > 0) {
+                                error "found a file that matches our current version: ${files[0].name}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('build') {
             steps {
                 withCredentials([usernamePassword(
@@ -407,7 +431,7 @@ pipeline {
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
                     suffix=""
-                    if echo "${params.FISSILE_STEMCELL}" | grep -qv "fissile-stemcell-sle"; then
+                    if [ "${params.USE_SLES_STEMCELL}" == "false" ]; then
                         suffix="-opensuse"
                     fi
 

@@ -1370,7 +1370,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
+      properties.scf.secrets.variables: '((DOMAIN))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1405,6 +1405,9 @@ configuration:
         verbs: [get, list, patch]
       - apiGroups: [""]
         resources: [services]
+        verbs: [get]
+      - apiGroups: [apps]
+        resources: [statefulsets]
         verbs: [get]
       secrets-role:
       - apiGroups: [""]
@@ -1875,34 +1878,6 @@ configuration:
       runtime configuration.
     immutable: true
     required: false
-  - name: KUBE_SIZING_API_COUNT
-    description: >
-      The number of api replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_BLOBSTORE_COUNT
-    description: >
-      The number of blobstore replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_CC_UPLOADER_COUNT
-    description: >
-      The number of cc-uploader replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_CF_USB_COUNT
-    description: >
-      The number of cf-usb replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_API_COUNT
-    description: >
-      The number of diego-api replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_BRAIN_COUNT
-    description: >
-      The number of diego-brain replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_CELL_COUNT
-    description: >
-      The number of diego-cell replicas deployed.
-      This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_NATS_COUNT
     description: >
       The number of nats replicas deployed.

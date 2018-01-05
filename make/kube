@@ -45,10 +45,10 @@ if [ "${BUILD_TARGET}" = "helm" ]; then
     fi
 
     cat > "${FISSILE_OUTPUT_DIR}/Chart.yaml" << EOF
-apiVersion: v1
+apiVersion: ${APP_VERSION}
 description: A Helm chart for SUSE Cloud Foundry
 name: cf${chart_name_suffix:-}
-version: ${APP_VERSION}
+version: ${GIT_TAG}
 EOF
     cp NOTES.txt  "${FISSILE_OUTPUT_DIR}/templates/"
 elif [ "${BUILD_TARGET}" = "kube" ]; then
