@@ -22,12 +22,6 @@ properties:
     org: test-brain-org
     space: test-brain-space
   capi:
-    nsync:
-      lifecycle_bundles:
-        - "buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/opensuse42:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "buildpack/sle12:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        - "docker:docker_app_lifecycle/docker_app_lifecycle.tgz"
     tps:
       listener_enabled: false # Remove in CF 274
       watcher:
@@ -46,11 +40,6 @@ properties:
     - public_networks
     - dns
     diego:
-      lifecycle_bundles:
-        buildpack/cflinuxfs2: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-        buildpack/opensuse42: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-        buildpack/sle12: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-        docker: docker_app_lifecycle/docker_app_lifecycle.tgz
       # "Enabling secure communication between Cloud Controller and Diego" claims that these temporary
       # settings will become the default in CF 274, but as of CF 278 they are still necessary.
       # https://docs.google.com/document/d/1pdxC1DqROqk72BDw--6b5v2r0K7Jpp9l-FbO6tlkQDs/edit#heading=h.yh800xsnqw7t
@@ -131,13 +120,6 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
-    stacks:
-    - name: cflinuxfs2
-      description: Cloud Foundry Linux-based filesystem
-    - name: opensuse42
-      description: openSUSE-based filesystem
-    - name: sle12
-      description: SLE-based filesystem
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -218,10 +200,6 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      preloaded_rootfses:
-        - cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar
-        - opensuse42:/var/vcap/packages/opensuse42/rootfs.tar
-        - sle12:/var/vcap/packages/cf-sle12/rootfs.tar
       require_tls: true
     route_emitter:
       local_mode: true
@@ -247,10 +225,6 @@ properties:
     graph_cleanup_threshold_in_mb: 3000
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    persistent_image_list:
-    - /var/vcap/packages/cflinuxfs2/rootfs.tar
-    - /var/vcap/packages/opensuse42/rootfs.tar
-    - /var/vcap/packages/cf-sle12/rootfs.tar
     image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
     image_plugin_extra_args:
     - --config=/var/vcap/jobs/grootfs/config/grootfs_config.yml

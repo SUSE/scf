@@ -5,11 +5,11 @@ set -o errexit -o nounset
 # This file is sourced everywhere one or more of the versions are
 # needed.
 
-# Used in: bin/dev/install_tool.sh
+# Used in: bin/dev/install_tools.sh
 
 export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.1.0+29.gb9072e5"
+export FISSILE_VERSION="5.1.0+34.g69e5000"
 export HELM_VERSION="2.6.2"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.8.2"
@@ -22,7 +22,12 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 # Used in: .envrc
 
-export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-21.g0757523-29.55}
+if [ "${USE_SLES_STEMCELL:-false}" == "false" ]
+then
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-21.g0757523-29.55}
+else
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-5.g5fc0351-0.56}
+fi
 
 # Used in: bin/generate-dev-certs.sh
 

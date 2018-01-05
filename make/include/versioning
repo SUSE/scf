@@ -19,3 +19,4 @@ GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $NF }' )}
 export ARTIFACT_NAME=${ARTIFACT_NAME:-$(basename $(git config --get remote.origin.url) .git | sed s/^scf-//)}
 export APP_VERSION=${GIT_TAG}+cf${CF_VERSION}.${GIT_COMMITS}.${GIT_SHA}
 export DOCKER_APP_VERSION=$(echo ${APP_VERSION} | tr + -)
+export GIT_TAG

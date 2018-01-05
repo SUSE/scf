@@ -1370,7 +1370,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SIZING_API_COUNT))((KUBE_SIZING_BLOBSTORE_COUNT))((KUBE_SIZING_CC_UPLOADER_COUNT))((KUBE_SIZING_CF_USB_COUNT))((KUBE_SIZING_DIEGO_API_COUNT))((KUBE_SIZING_DIEGO_BRAIN_COUNT))((KUBE_SIZING_DIEGO_CELL_COUNT))'
+      properties.scf.secrets.variables: '((DOMAIN))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1405,6 +1405,9 @@ configuration:
         verbs: [get, list, patch]
       - apiGroups: [""]
         resources: [services]
+        verbs: [get]
+      - apiGroups: [apps]
+        resources: [statefulsets]
         verbs: [get]
       secrets-role:
       - apiGroups: [""]
@@ -1875,34 +1878,6 @@ configuration:
       runtime configuration.
     immutable: true
     required: false
-  - name: KUBE_SIZING_API_COUNT
-    description: >
-      The number of api replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_BLOBSTORE_COUNT
-    description: >
-      The number of blobstore replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_CC_UPLOADER_COUNT
-    description: >
-      The number of cc-uploader replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_CF_USB_COUNT
-    description: >
-      The number of cf-usb replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_API_COUNT
-    description: >
-      The number of diego-api replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_BRAIN_COUNT
-    description: >
-      The number of diego-brain replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_DIEGO_CELL_COUNT
-    description: >
-      The number of diego-cell replicas deployed.
-      This value is set automatically by the helm charts of SCF.
   - name: KUBE_SIZING_NATS_COUNT
     description: >
       The number of nats replicas deployed.
@@ -2028,7 +2003,7 @@ configuration:
       user. To change the cluster's log level set the parameter `LOG_LEVEL`
       instead, from which this one is derived.
   - name: NGINX_MAX_REQUEST_BODY_SIZE
-    default: 1536
+    default: 2048
     description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
     required: true
   - name: NO_PROXY
@@ -2197,6 +2172,15 @@ configuration:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
+  - name: SUSE_STACK
+    default: opensuse42
+    type: environment
+  - name: SUSE_STACK_DESCRIPTION
+    default: openSUSE-based filesystem
+    type: environment
+  - name: SUSE_STACK_DIRNAME
+    default: opensuse42
+    type: environment
   - name: SYSLOG_ADAPT_CERT
     secret: true
     generator:
@@ -2428,6 +2412,7 @@ configuration:
     properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_UPLOADER_CRT))"'
     properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_KEY))"'
+    properties.capi.nsync.lifecycle_bundles: '["buildpack/((SUSE_STACK)):buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2:buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker:docker_app_lifecycle/docker_app_lifecycle.tgz"]'
     properties.capi.stager.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.capi.stager.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.stager.bbs.client_cert: '"((CC_SERVER_CRT))"'
@@ -2465,6 +2450,7 @@ configuration:
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBE_SERVICE_DOMAIN_SUFFIX)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
+    properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
@@ -2488,6 +2474,7 @@ configuration:
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore.((KUBE_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
@@ -2550,6 +2537,7 @@ configuration:
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
     properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
     properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))'
@@ -2582,6 +2570,7 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
