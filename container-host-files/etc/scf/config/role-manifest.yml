@@ -1471,8 +1471,6 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - auctioneer_server
       role_name: diego-brain
     description: PEM-encoded server certificate
     required: true
@@ -1551,8 +1549,6 @@ configuration:
       id: bbs_server_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - bbs_server
       role_name: diego-api
     description: PEM-encoded client certificate.
     required: true
@@ -1592,8 +1588,6 @@ configuration:
       id: blobstore_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - blobstore_tls
       role_name: blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
     required: true
@@ -1638,8 +1632,6 @@ configuration:
       id: cc_uploader_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - cc_uploader
       role_name: cc-uploader
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
     required: true
@@ -1660,8 +1652,6 @@ configuration:
       id: "usb_broker_server_cert"
       type: Certificate
       value_type: certificate
-      subject_names:
-      - cfUsbBrokerServer
       role_name: cf-usb
     description: PEM-encoded broker server certificate.
   - name: CF_USB_BROKER_SERVER_KEY
@@ -1748,7 +1738,6 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - rep_client
       - diego-locket.{{.KUBERNETES_NAMESPACE}}
     description: PEM-encoded client certificate
     required: true
@@ -2080,8 +2069,6 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - rep_server
       role_name: diego-cell
     description: PEM-encoded server certificate
     required: true
@@ -2117,10 +2104,6 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - router_ssl
-      - router
-      - "router.{{.KUBE_SERVICE_DOMAIN_SUFFIX}}"
-      - "{{.DOMAIN}}"
       - "*.{{.DOMAIN}}"
     description: The public ssl cert for ssl termination.
     required: true
