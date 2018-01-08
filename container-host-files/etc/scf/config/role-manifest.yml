@@ -2269,6 +2269,12 @@ configuration:
       type: Password
     description: The password for UAA access by the Routing API.
     required: true
+  - name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Used for third party service dashboard SSO.
   - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
     secret: true
     immutable: true
@@ -2637,6 +2643,7 @@ configuration:
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
