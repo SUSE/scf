@@ -119,17 +119,30 @@ a working system.
     # see the Troubleshooting guide.
     k logs -f cf:^api-[0-9]
     ```
-3. Changing the default STEMCELL
+3. Changing the default STEMCELL and STACK
 
-   The default stemcell is set to opensuse.
-   To build with an alternative stemcell the environment variables `FISSILE_STEMCELL` and FISSILE_STEMCELL_VERSION need to be set manually.
-   After changing the stemcell you have to remove the contents of `~vagrant/.fissile/compilation` and `~vagrant/sfc/.fissile/compilation` inside the vagrant box. Afterwards recompile scf (for details see section "2. Building the system").
-   
+   The default stemcell and stack are set to OpenSUSE. The versions are defined
+   in `bin/common/versions.sh`.
+
+   To build with the SLES stemcell and stack, the environment variable
+   `USE_SLES_BASE` must be set to `true` before you enter the `scf` directory.
+   This allows direnv to configure the various stemcell and stack env vars. The
+   `FISSILE_DOCKER_REPOSITORY` env var will need to be set, and Docker configured
+   to login to the repository.
+
+   After changing the stemcell you have to remove the contents of
+   `~vagrant/.fissile/compilation` and `~vagrant/scf/.fissile/compilation` inside
+   the vagrant box. Afterwards recompile scf (for details see section "2. Building
+   the system").
+
    **Example:**
 
    ```
-   $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
-   $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
+   $ cd ~
+   $ export USE_SLES_BASE=true
+   $ export FISSILE_DOCKER_REPOSITORY=registry.example.com
+   $ docker login ${FISSILE_DOCKER_REPOSITORY} -u username -p password
+   $ cd scf
    ```
 
 3. Environment variables to configure `vagrant up` (optional)
