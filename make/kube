@@ -7,7 +7,7 @@ cd "${GIT_ROOT}"
 source .envrc
 source ${GIT_ROOT}/make/include/versioning
 
-if [ "${USE_SLES_BASE}" = "false" ]; then
+if [ "${USE_SLE_BASE}" = "false" ]; then
     FISSILE_DEFAULTS_FILE="bin/settings/opensuse42.env"
 else
     FISSILE_DEFAULTS_FILE="bin/settings/sle12.env"

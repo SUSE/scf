@@ -104,7 +104,7 @@ a working system.
     cd scf
 
     # This runs a combination of bosh & fissile in order to create the docker
-    # images and helm charts you'll need. Once this step is done you can see 
+    # images and helm charts you'll need. Once this step is done you can see
     # images available via "docker images"
     make vagrant-prep
     # This is the final step, where it will install the uaa helm chart into the 'uaa' namespace
@@ -124,8 +124,8 @@ a working system.
    The default stemcell and stack are set to OpenSUSE. The versions are defined
    in `bin/common/versions.sh`.
 
-   To build with the SLES stemcell and stack, the environment variable
-   `USE_SLES_BASE` must be set to `true` before you enter the `scf` directory.
+   To build with the SLE stemcell and stack, the environment variable
+   `USE_SLE_BASE` must be set to `true` before you enter the `scf` directory.
    This allows direnv to configure the various stemcell and stack env vars. The
    `FISSILE_DOCKER_REPOSITORY` env var will need to be set, and Docker configured
    to login to the repository.
@@ -139,7 +139,7 @@ a working system.
 
    ```
    $ cd ~
-   $ export USE_SLES_BASE=true
+   $ export USE_SLE_BASE=true
    $ export FISSILE_DOCKER_REPOSITORY=registry.example.com
    $ docker login ${FISSILE_DOCKER_REPOSITORY} -u username -p password
    $ cd scf
@@ -180,8 +180,8 @@ a working system.
       `wicked ifreload all` and wait for wicked to apply the changes.
     - `VAGRANT_DHCP`: Set this to any value when using virtual networking (as opposed to bridged networking)
       in order to let your VM receive an IP via DHCP in the virtual network. If this environment variable is
-      unset, the VM will instead obtain the IP 192.168.77.77. 
-   
+      unset, the VM will instead obtain the IP 192.168.77.77.
+
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
