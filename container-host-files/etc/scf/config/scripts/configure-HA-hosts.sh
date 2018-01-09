@@ -44,9 +44,24 @@ find_cluster_ha_hosts() {
     else
         # Find the number of replicas we have
         local statefulset_name replicas i
-        statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | json_get [\'metadata\'][\'annotations\'][\'kubernetes.io/created-by\']  | json_get [\'reference\'][\'name\'])"
-        replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | json_get [\'spec\'][\'replicas\'])
+        for ((i = 0 ; i < 5 ; i ++)) ; do
+            statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | json_get [\'metadata\'][\'annotations\'][\'kubernetes.io/created-by\']  | json_get [\'reference\'][\'name\'])"
+            replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | json_get [\'spec\'][\'replicas\'])
 
+	    if [ "${statefulset_name}" != "" -a "${replicas}" != "" ]; then
+                break
+	    fi
+
+            if [ "${statefulset_name}" == "" ]; then
+                echo "Cannot get statefulset name from kubernetes API, retrying" >&2
+            fi
+            if [ "${replicas}" == "" ]; then
+                echo "Cannot get replicas from kubernetes API, retrying" >&2
+            fi
+
+	    sleep 1
+	done
+        
         if [ "${statefulset_name}" == "" ]; then
             echo "Cannot get statefulset name from kubernetes API, exit" >&2
             exit 1
@@ -55,7 +70,7 @@ find_cluster_ha_hosts() {
             echo "Cannot get replicas from kubernetes API, exit" >&2
             exit 1
         fi
-        
+
         # Return a list of all replicas
         local hosts=""
         for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
