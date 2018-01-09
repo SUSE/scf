@@ -1453,8 +1453,6 @@ configuration:
       id: auctioneer_rep_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - auctioneer_rep
     description: PEM-encoded certificate
     required: true
   - name: AUCTIONEER_REP_KEY
@@ -1495,8 +1493,6 @@ configuration:
       id: bbs_auctioneer_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - bbs_auctioneer
     description: PEM-encoded certificate
     required: true
   - name: BBS_AUCTIONEER_KEY
@@ -1513,8 +1509,6 @@ configuration:
       id: bbs_client_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - bbs_client
     description: PEM-encoded client certificate.
     required: true
   - name: BBS_CLIENT_KEY
@@ -1531,8 +1525,6 @@ configuration:
       id: bbs_rep_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - bbs_rep
     description: PEM-encoded certificate
     required: true
   - name: BBS_REP_KEY
@@ -2206,8 +2198,6 @@ configuration:
       id: syslog_sched_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - syslog_adapter
     description: PEM-encoded certificate
     required: true
   - name: SYSLOG_SCHED_KEY
@@ -2228,8 +2218,6 @@ configuration:
       id: tps_cc_client_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - tpsCCClient
     description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
     required: true
   - name: TPS_CC_CLIENT_KEY
@@ -2246,8 +2234,6 @@ configuration:
       id: trafficcontroller_cert
       type: Certificate
       value_type: certificate
-      subject_names:
-      - trafficcontroller
     description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
     required: true
   - name: TRAFFICCONTROLLER_KEY
