@@ -48,11 +48,11 @@ find_cluster_ha_hosts() {
         replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | json_get [\'spec\'][\'replicas\'])
 
         if [ "${statefulset_name}" == "" ]; then
-            echo "Cannot get statefulset name from kubernetes API, exit"
+            echo "Cannot get statefulset name from kubernetes API, exit" >&2
             exit 1
         fi
         if [ "${replicas}" == "" ]; then
-            echo "Cannot get replicas from kubernetes API, exit"
+            echo "Cannot get replicas from kubernetes API, exit" >&2
             exit 1
         fi
         
