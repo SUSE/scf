@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [2.6.10-rc3] - 2018-01-05
+### Changed
+- Combine variables controlling openSUSE vs SLES builds.
+
 ## [2.6.9-rc2] - 2018-01-05
 ### Changed
 - Helm versions no longer include the build information in the semver
