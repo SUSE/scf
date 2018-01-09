@@ -159,12 +159,13 @@ else
         --password <%= password %>
 fi
 
-user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')
 
 <% authorities.each do |authority| %>
-    if uaac curl -k "/Users/${user_id}" | grep -A999 '{' | jq -r '.groups[].display' | grep --quiet '<%= authority %>' ; then
+    if uaac user get <%= username %> -a groups | grep --quiet '^    display: <%= authority %>$' ; then
         status "User already in group %s, skipping" '<%= authority %>'
     else
+        user_id=$(uaac user get <%= username %> | awk '/^  id:/ { print $2 }')
+
         status "Adding users to authority %s" '<%= authority %>'
         if ! uaac group get '<%= authority %>' 2>/dev/null >/dev/null ; then
             uaac group add '<%= authority %>'
