@@ -7,8 +7,11 @@ cd "${GIT_ROOT}"
 source .envrc
 source ${GIT_ROOT}/make/include/versioning
 
-SUSE_STACK=${SUSE_STACK:-opensuse42}
-FISSILE_DEFAULTS_FILE="bin/settings/${SUSE_STACK}.env"
+if [ "${USE_SLE_BASE}" = "false" ]; then
+    FISSILE_DEFAULTS_FILE="bin/settings/opensuse42.env"
+else
+    FISSILE_DEFAULTS_FILE="bin/settings/sle12.env"
+fi
 
 DOMAIN=${DOMAIN:-}
 
