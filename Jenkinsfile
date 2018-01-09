@@ -182,9 +182,9 @@ pipeline {
             description: 'Docker organization to publish to',
         )
         booleanParam(
-            name: 'USE_SLES_STEMCELL',
+            name: 'USE_SLE_BASE',
             defaultValue: false,
-            description: 'Generates a build with the SLES stemcell',
+            description: 'Generates a build with the SLE stemcell and stack',
         )
         booleanParam(
             name: 'TRIGGER_SLES_BUILD',
@@ -201,7 +201,7 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
-        USE_SLES_STEMCELL = "${params.USE_SLES_STEMCELL}"
+        USE_SLE_BASE = "${params.USE_SLE_BASE}"
     }
 
     stages {
@@ -321,7 +321,7 @@ pipeline {
                             }
                             echo "Found expected version: ${expectedVersion}"
 
-                            def glob = "*scf-${params.USE_SLES_STEMCELL ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
+                            def glob = "*scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
                             def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
@@ -391,7 +391,7 @@ pipeline {
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
                     suffix=""
-                    if [ "${params.USE_SLES_STEMCELL}" == "false" ]; then
+                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
                         suffix="-opensuse"
                     fi
 

@@ -22,7 +22,7 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 # Used in: .envrc
 
-if [ "${USE_SLES_STEMCELL:-false}" == "false" ]
+if [ "${USE_SLE_BASE:-false}" == "false" ]
 then
 	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.2-21.g0757523-29.55}
 else

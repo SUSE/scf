@@ -5,7 +5,7 @@ distribution based on the open source version but with several very key
 differences:
 
 * Uses [fissile](https://github.com/suse/fissile) to containerize the CF components, for running on top of Kubernetes (and Docker)
-* CF Components run on an OpenSUSE Stemcell
+* CF Components run on an openSUSE Stemcell
 * CF Apps optionally can run on a preview of the OpenSUSE Stack (rootfs + buildpacks)
 
 # Disclaimer
@@ -104,7 +104,7 @@ a working system.
     cd scf
 
     # This runs a combination of bosh & fissile in order to create the docker
-    # images and helm charts you'll need. Once this step is done you can see 
+    # images and helm charts you'll need. Once this step is done you can see
     # images available via "docker images"
     make vagrant-prep
     # This is the final step, where it will install the uaa helm chart into the 'uaa' namespace
@@ -119,17 +119,30 @@ a working system.
     # see the Troubleshooting guide.
     k logs -f cf:^api-[0-9]
     ```
-3. Changing the default STEMCELL
+3. Changing the default STEMCELL and STACK
 
-   The default stemcell is set to opensuse.
-   To build with an alternative stemcell the environment variables `FISSILE_STEMCELL` and FISSILE_STEMCELL_VERSION need to be set manually.
-   After changing the stemcell you have to remove the contents of `~vagrant/.fissile/compilation` and `~vagrant/sfc/.fissile/compilation` inside the vagrant box. Afterwards recompile scf (for details see section "2. Building the system").
-   
+   The default stemcell and stack are set to OpenSUSE. The versions are defined
+   in `bin/common/versions.sh`.
+
+   To build with the SLE stemcell and stack, the environment variable
+   `USE_SLE_BASE` must be set to `true` before you enter the `scf` directory.
+   This allows direnv to configure the various stemcell and stack env vars. The
+   `FISSILE_DOCKER_REPOSITORY` env var will need to be set, and Docker configured
+   to login to the repository.
+
+   After changing the stemcell you have to remove the contents of
+   `~vagrant/.fissile/compilation` and `~vagrant/scf/.fissile/compilation` inside
+   the vagrant box. Afterwards recompile scf (for details see section "2. Building
+   the system").
+
    **Example:**
 
    ```
-   $ export FISSILE_STEMCELL_VERSION=42.2-6.ga651b2d-28.31
-   $ export FISSILE_STEMCELL=splatform/fissile-stemcell-opensuse:$FISSILE_STEMCELL_VERSION
+   $ cd ~
+   $ export USE_SLE_BASE=true
+   $ export FISSILE_DOCKER_REPOSITORY=registry.example.com
+   $ docker login ${FISSILE_DOCKER_REPOSITORY} -u username -p password
+   $ cd scf
    ```
 
 3. Environment variables to configure `vagrant up` (optional)
@@ -167,8 +180,8 @@ a working system.
       `wicked ifreload all` and wait for wicked to apply the changes.
     - `VAGRANT_DHCP`: Set this to any value when using virtual networking (as opposed to bridged networking)
       in order to let your VM receive an IP via DHCP in the virtual network. If this environment variable is
-      unset, the VM will instead obtain the IP 192.168.77.77. 
-   
+      unset, the VM will instead obtain the IP 192.168.77.77.
+
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
 
