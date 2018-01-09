@@ -5,7 +5,7 @@ distribution based on the open source version but with several very key
 differences:
 
 * Uses [fissile](https://github.com/suse/fissile) to containerize the CF components, for running on top of Kubernetes (and Docker)
-* CF Components run on an OpenSUSE Stemcell
+* CF Components run on an openSUSE Stemcell
 * CF Apps optionally can run on a preview of the OpenSUSE Stack (rootfs + buildpacks)
 
 # Disclaimer
