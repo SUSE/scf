@@ -34,4 +34,4 @@ if [ -d /tests ]; then
 fi
 
 set -x
-testbrain run ${PARAM}
+testbrain run --timeout 1200 ${PARAM} 
