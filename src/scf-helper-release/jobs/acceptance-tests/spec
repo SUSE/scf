@@ -7,10 +7,12 @@ packages:
   - golang1.8.3
   - cli
   - acceptance-tests
+  - cli-network-policy-plugin
 
 templates:
   run.erb: bin/run
   config.json.erb: bin/config.json
+  pre-start.erb: bin/pre-start
 
 properties:
   acceptance_tests.api:
