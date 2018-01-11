@@ -6,6 +6,7 @@
 # used for initial config
 MAIN_CONFIG="90-vcap.conf"
 RSYSLOG_CONF_DIR="/etc/rsyslog.d"
+PID_FILE="/var/run/rsyslogd.monit.pid"
 
 # used for adding individual logs
 BACKUP_WATCH_DIR="/var/vcap/sys/log" #in case no ENV variable is set for RSYSLOG_FORWARDER_WATCH_DIR
@@ -166,11 +167,11 @@ else
       echo initial config for forwarding exists
 fi
 
-#make sure that configurations (per log-file) are added to the rsyslog.d folder
+# make sure that configurations (per log-file) are added to the rsyslog.d folder
 if searchTargetDir "${RSYSLOG_FORWARDER_WATCH_DIR}"; then
-        if test -r /var/run/rsyslog.pid; then
-                if test -d "/proc/$(cat /var/run/rsyslog.pid)"; then
-                        service rsyslog restart
+        if test -r "${PID_FILE}"; then
+                if test -d "/proc/$(cat "${PID_FILE}")"; then
+                        monit restart rsyslogd
                 fi
         fi
 fi
