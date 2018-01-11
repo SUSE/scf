@@ -38,13 +38,15 @@ if [ -z "${SCF_LOG_HOST}" ]; then
 fi
 
 function appendToCron {
-	echo appending to cron
+        echo appending to cron
         crontab -l > tempcrontab
-        echo "export RSYSLOG_FORWARDER_WATCH_DIR=${RSYSLOG_FORWARDER_WATCH_DIR}" >> "${SCRIPT_FILE}"
-        echo "export SCF_LOG_HOST=${SCF_LOG_HOST}" >> "${SCRIPT_FILE}"
-        echo "export SCF_LOG_PORT=${SCF_LOG_PORT}" >> "${SCRIPT_FILE}"
-        echo "export SCF_LOG_PREFIX=${SCF_LOG_PREFIX}" >> "${SCRIPT_FILE}"
-        echo "export SCF_LOG_PROTOCOL=${SCF_LOG_PROTOCOL}" >> "${SCRIPT_FILE}"
+        sed 's@^\s*@@' >>"${SCRIPT_FILE}" <<-EOF
+                export RSYSLOG_FORWARDER_WATCH_DIR=${RSYSLOG_FORWARDER_WATCH_DIR}
+                export SCF_LOG_HOST=${SCF_LOG_HOST}
+                export SCF_LOG_PORT=${SCF_LOG_PORT}
+                export SCF_LOG_PREFIX=${SCF_LOG_PREFIX}
+                export SCF_LOG_PROTOCOL=${SCF_LOG_PROTOCOL}
+	EOF
         cat "$0" >> "${SCRIPT_FILE}"
         echo "*/1 * * * * /usr/bin/env bash ${SCRIPT_FILE} >> /dev/null 2>&1" >> tempcrontab
         crontab tempcrontab
