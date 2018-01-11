@@ -103,6 +103,9 @@ def main
   STDOUT.puts "\nCheck clustering".cyan
   check_clustering(manifest, bosh_properties)
 
+  STDOUT.puts "\nAll BOSH roles must forward syslog".cyan
+  check_roles_forward_syslog(manifest)
+
   STDOUT.puts "\nThe run.env references of docker roles must use only declared params".cyan
   check_docker_run_env(manifest, global_variables)
 
@@ -288,6 +291,16 @@ end
 
 def has_script(r,script)
   (r['environment_scripts'] || []).include? script
+end
+
+# Checks that all BOSH roles have the syslog forwarding script
+def check_roles_forward_syslog(manifest)
+  manifest['roles'].each do |role|
+    next unless role.fetch('type', 'bosh').downcase == 'bosh'
+    next if role.fetch('scripts', []).include? 'scripts/forward_logfiles.sh'
+    STDOUT.puts "role #{role['name'].red} does not include forward_logfiles.sh"
+    @has_errors += 1
+  end
 end
 
 # Checks if all role manifest params are being used in a template
