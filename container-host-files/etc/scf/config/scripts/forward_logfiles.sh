@@ -99,8 +99,8 @@ function initialConfig {
                                                                 # (If this is reached, messages will spill to disk until the low watermark is reached).
                 \$ActionQueueTimeoutEnqueue 0                   # Discard messages if the queue + disk is full
                 \$ActionQueueSaveOnShutdown on                  # Save in-memory data to disk if rsyslog shuts down
-                :app-name, startswith, "vcap-" @${SCF_LOG_PREFIX}${SCF_LOG_HOST}:${SCF_LOG_PORT};RFC5424Format
-                :app-name, startswith, "vcap-" ~                # Stop writing SCF message logs to /var/log
+                :app-name, startswith, "vcap." @${SCF_LOG_PREFIX}${SCF_LOG_HOST}:${SCF_LOG_PORT};RFC5424Format
+                :app-name, startswith, "vcap." ~                # Stop writing SCF message logs to /var/log
 	EOF
                 echo "Rsyslog forwarder: Could not create ${MAIN_CONFIG} in ${RSYSLOG_CONF_DIR}" >> "${PB_OUT}"
                 exit 0
@@ -154,7 +154,7 @@ function createTargetConf {
         sed 's@^\s*@@' >"${TARGET_NAME}" <<-EOF
                 input(type="imfile"
                 File="${1}"
-                Tag="vcap-${TARGET_BASENAME}"
+                Tag="vcap.${TARGET_BASENAME}"
                 Severity="info"
                 Facility="local7"
                 PersistStateInterval="1000"
