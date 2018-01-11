@@ -4,13 +4,14 @@
 # host
 
 # used for initial config
-MAIN_CONFIG="90-vcap.conf"
+CONF_OFFSET="10" # Before 50-default.conf to avoid re-logging our output
+MAIN_CONFIG="${CONF_OFFSET}-vcap.conf"
 RSYSLOG_CONF_DIR="/etc/rsyslog.d"
 PID_FILE="/var/run/rsyslogd.monit.pid"
 
 # used for adding individual logs
 BACKUP_WATCH_DIR="/var/vcap/sys/log" #in case no ENV variable is set for RSYSLOG_FORWARDER_WATCH_DIR
-RSYSLOG_CONF_PREFIX="91-vcap"
+RSYSLOG_CONF_PREFIX="$((CONF_OFFSET + 1))-vcap"
 IGNORE_DIR="gocode"
 TARGET_NAME=
 TARGET_BASENAME=
@@ -64,6 +65,9 @@ fi
 # create the file that will forward all messages to the configured log
 # destination
 function initialConfig {
+        # Place to spool logs if the upstream server is down
+        mkdir -p /var/vcap/sys/rsyslog/buffered
+        chown syslog:adm /var/vcap/sys/rsyslog/buffered
 
 	case "${SCF_LOG_PROTOCOL}" in
 	    udp)
@@ -78,14 +82,23 @@ function initialConfig {
 		;;
 	esac
 
-        if ! cat <<-EOF | sed 's@^\s*@@' >$RSYSLOG_CONF_DIR/$MAIN_CONFIG ; then
+        if ! sed 's@^\s*@@' >"${RSYSLOG_CONF_DIR}/${MAIN_CONFIG}" <<-EOF ; then
                 module(load="imfile" mode="polling")
-                \$template RFC5424Format,"<13>%protocol-version% 2016-07-20T09:03:00.329650+00:00 %HOSTNAME% %app-name% - - - %msg%\n"
-                \$ActionFileDefaultTemplate RFC5424Format
+                \$template RFC5424Format,"<%pri%>1 %timestamp:::date-rfc3339% %hostname% %app-name% - - - %msg:::drop-last-lf%"
                 \$RepeatedMsgReduction on
-                \$ActionQueueType LinkedList
-                *.* @${SCF_LOG_PREFIX}${SCF_LOG_HOST}:${SCF_LOG_PORT}
-                :app-name, contains, "vcap" ${HOME}
+                \$MaxMessageSize 4k                             # default is 2k
+                \$WorkDirectory /var/vcap/sys/rsyslog/buffered  # where messages should be buffered on disk
+                \$ActionResumeRetryCount -1                     # Try until the server becomes available
+                \$ActionQueueType LinkedList                    # Allocate on-demand
+                \$ActionQueueFileName agg_backlog               # Spill to disk if queue is full
+                \$ActionQueueMaxDiskSpace 32m                   # Max size for disk queue
+                \$ActionQueueLowWaterMark 2000                  # Num messages. Assuming avg size of 512B, this is 1MiB.
+                \$ActionQueueHighWaterMark 8000                 # Num messages. Assuming avg size of 512B, this is 4MiB.
+                                                                # (If this is reached, messages will spill to disk until the low watermark is reached).
+                \$ActionQueueTimeoutEnqueue 0                   # Discard messages if the queue + disk is full
+                \$ActionQueueSaveOnShutdown on                  # Save in-memory data to disk if rsyslog shuts down
+                :app-name, startswith, "vcap-" @${SCF_LOG_PREFIX}${SCF_LOG_HOST}:${SCF_LOG_PORT};RFC5424Format
+                :app-name, startswith, "vcap-" ~                # Stop writing SCF message logs to /var/log
 	EOF
                 echo "Rsyslog forwarder: Could not create ${MAIN_CONFIG} in ${RSYSLOG_CONF_DIR}" >> "${PB_OUT}"
                 exit 0
@@ -136,12 +149,14 @@ function searchTargetDir {
 function createTargetConf {
         # We need to strip leading whitespace introduced by the heredoc (because
         # it doesn't strip leading spaces, just tabs)
-        cat <<-EOF | sed 's@^\s*@@' >${TARGET_NAME}
-            \$InputFileName ${1}
-            \$InputFileTag vcap-${TARGET_BASENAME}
-            \$InputFileStateFile ${TARGET_BASENAME}_state
-            \$InputFileFacility local7
-            \$InputRunFileMonitor
+        sed 's@^\s*@@' >"${TARGET_NAME}" <<-EOF
+                input(type="imfile"
+                File="${1}"
+                Tag="vcap-${TARGET_BASENAME}"
+                Severity="info"
+                Facility="local7"
+                PersistStateInterval="1000"
+                reopenOnTruncate="on")
 	EOF
 }
 
