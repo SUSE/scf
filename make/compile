@@ -5,6 +5,7 @@ set -o errexit -o nounset
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 SCF_PACKAGE_COMPILATION_CACHE=${SCF_PACKAGE_COMPILATION_CACHE:-''}
+STEMCELL_HASH="$(echo -n "${FISSILE_STEMCELL}" | sha1sum | awk '{ print $1 }')"
 
 # Return a list of desired packages with their versions, as in package/00000000
 _get_package_version_list() {
@@ -28,19 +29,19 @@ _cache() {
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
-        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
+        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${STEMCELL_HASH}/${package_hash}.tar.xz"
         test -e "${archive}" && {
             # Don't recreate an archive that already exists
             echo "Found:   ${archive}"
             continue
         }
-        test -d "${FISSILE_WORK_DIR}/compilation/${package_hash}/compiled" || {
+        test -d "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}/compiled" || {
             echo "Missing: ${package_hash}/compiled"
             continue
         }
         mkdir -p "$(dirname "${archive}")"
         echo "Creating ${archive}"
-        ionice -c 3 nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}/" compiled
+        ionice -c 3 nice tar cJf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}/" compiled
     done
 
     echo "Cache saved to ${SCF_PACKAGE_COMPILATION_CACHE}"
@@ -52,36 +53,29 @@ cache() {
 
 restore() {
     test -z "${SCF_PACKAGE_COMPILATION_CACHE}" && return
-    test -d "${FISSILE_WORK_DIR}/compilation/" && return
+    test -d "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/" && return
 
-    mkdir -p "${FISSILE_WORK_DIR}/compilation/"
+    mkdir -p "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/"
     mkdir -p "${SCF_PACKAGE_COMPILATION_CACHE}"
 
     stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore start
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
-        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_hash}.tar.xz"
-        if ! test -r "${archive}" -a -s "${archive}" ; then
-            old_archive="${SCF_PACKAGE_COMPILATION_CACHE}/${package_version}/compiled.tar"
-            if test -r "${old_archive}" -a -s "${old_archive}" ; then
-                # Fall back to old-style archive until all the caches are reasonably full
-                archive="${old_archive}"
-            fi
-        fi
+        archive="${SCF_PACKAGE_COMPILATION_CACHE}/${STEMCELL_HASH}/${package_hash}.tar.xz"
         if ! test -r "${archive}" -a -s "${archive}" ; then
             echo "Missing:   ${archive}"
             continue
         fi
         echo "Extracting ${archive}"
-        mkdir -p "${FISSILE_WORK_DIR}/compilation/${package_hash}"
+        mkdir -p "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}"
 
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) start
-        rm -rf "${FISSILE_WORK_DIR}/compilation/${package_hash}/compiled"
+        rm -rf "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}/compiled"
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) done
 
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) start
-        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${package_hash}"
+        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}"
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) done
     done
 
@@ -100,7 +94,7 @@ clean() {
     fi
     test -d "${SCF_PACKAGE_COMPILATION_CACHE}/" || return
     existing_packages=""
-    for path in "${SCF_PACKAGE_COMPILATION_CACHE}/"* ; do
+    for path in "${SCF_PACKAGE_COMPILATION_CACHE}/${STEMCELL_HASH}/"* ; do
         test -e "${path}" || continue  # in case expansion failed
         hash=$(basename "${path}")
         existing_packages="${existing_packages} ${hash}"
@@ -111,7 +105,26 @@ clean() {
     done
     for unneeded_package in ${existing_packages} ; do
         echo "Removing ${unneeded_package}"
-        rm -rf "${SCF_PACKAGE_COMPILATION_CACHE}/${unneeded_package}"
+        rm -rf "${SCF_PACKAGE_COMPILATION_CACHE}/${STEMCELL_HASH}/${unneeded_package}"
+    done
+
+    # Remove compilation caches from different stemcells
+    for i in "${SCF_PACKAGE_COMPILATION_CACHE}"/* ; do
+	i="${i##*/}"
+        if test "${#i}" != "${#STEMCELL_HASH}" ; then
+            continue # Wrong length, this isn't a hash
+        fi
+        if ! test -d "${i}" ; then
+            continue
+        fi
+        if test "${i}" == "${STEMCELL_HASH}" ; then
+            continue
+        fi
+        if test -n "$(echo "${i}" | tr -d 0-9a-f)" ; then
+            continue # Not a valid checksum
+        fi
+        echo "Removing obsolete stemcell cache ${i}"
+        rm -rf "${SCF_PACKAGE_COMPILATION_CACHE}/${i}"
     done
 
     # And now the local cache. Same as above, just baked into of fissile.
