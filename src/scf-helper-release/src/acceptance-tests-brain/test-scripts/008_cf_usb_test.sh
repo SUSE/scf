@@ -41,7 +41,7 @@ function get_port
 function wait_on_port
 {
     endpoint="${CF_TCP_DOMAIN}:${1}"
-    for (( i = 0; i < 12 ; i++ )) ; do
+    for (( i = 0; i < 60 ; i++ )) ; do
 	if curl --fail -s -o /dev/null "${endpoint}" ; then
             break
 	fi
