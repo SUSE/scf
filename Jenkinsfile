@@ -404,8 +404,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac
+                        --set kube.storage_class.persistent=hostpath
 
                     get_uaa_secret () {
                         kubectl get secret secret --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
@@ -431,8 +430,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac
+                        --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...
                     set +o xtrace
