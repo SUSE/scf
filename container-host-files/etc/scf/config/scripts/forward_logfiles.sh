@@ -114,37 +114,24 @@ function initialConfig {
 
 # check if more logs to be monitored by rsyslog have come into existence since the last run
 function searchTargetDir {
-        filesAdded=1
-        for file in "$1"/*
-        do
-                if [ -d "${file}" ]; then
-                        ignored=false
-                        for ignore in ${IGNORE_DIR}
-                        do
-                                if [[ "${file}" == "${RSYSLOG_FORWARDER_WATCH_DIR}/${ignore}" ]]; then
-                                        echo "Ignoring ${file} directory"
-                                        ignored=true
-                                fi
-                        done;
-                        if [ "${ignored}" == false ]; then
-                                if searchTargetDir "${file}"; then
-                                        filesAdded=0
-                                fi
-                        fi
-                else
-                        if [ "${file: -4}" == ".log" ]; then
-                                targetName "${file}"
-                                if checkConfigExists "${file}"; then
-                                        echo "${TARGET_NAME} exists"
-                                else
-                                        echo "Creating ${TARGET_NAME}"
-                                        createTargetConf "${file}"
-                                        filesAdded=0
-                                fi
-                        fi
-                fi
+        local dir file filesAdded=1
+        local args=( "$1" )
+        for dir in ${IGNORE_DIR} ; do
+                args=( "${args[@]}" '(' -name "${dir}" -a -prune ')' -o )
         done
-        return "${filesAdded}"
+        args=( "${args[@]}" '(' -name '*.log' -a -type f -a -print0 ')' )
+        while IFS= read -r -d '' file ; do
+                TARGET_BASENAME="$(basename "$1" .log)"
+                TARGET_NAME="${RSYSLOG_CONF_DIR}/${RSYSLOG_CONF_PREFIX}-${TARGET_BASENAME}.conf"
+                if checkConfigExists ; then
+                        echo "${TARGET_NAME} exists"
+                else
+                        echo "Creating ${TARGET_NAME}"
+                        createTargetConf "${file}"
+                        filesAdded=0
+                fi
+        done < <(find "${args[@]}")
+        return ${filesAdded}
 }
 
 #Create the rsyslog configuration file inside rsysconf.d
@@ -162,18 +149,8 @@ function createTargetConf {
 	EOF
 }
 
-function targetName {
-        filename="$(basename "$1")"
-        TARGET_BASENAME="${filename%.*}"
-}
-
 function checkConfigExists {
-        TARGET_NAME="${RSYSLOG_CONF_DIR}/${RSYSLOG_CONF_PREFIX}-${TARGET_BASENAME}.conf"
-        if [ -f "${TARGET_NAME}" ]; then
-                return 0
-        else
-                return 1
-        fi
+        test -f "${TARGET_NAME}"
 }
 
 #check if the forwarding conf is set up
