@@ -9,6 +9,8 @@ require 'json'
 require 'pathname'
 require_relative 'vagrant-setup/common'
 
+DEFAULT_CONFIG_PATH = File.join(File.dirname(__FILE__), '../container-host-files/etc/scf/config/')
+
 def main
   STDOUT.sync = true
   @has_errors = 0
@@ -20,9 +22,9 @@ def main
   bosh_properties = YAML.load(ARGF.read)
   # :: hash (release -> hash (job -> hash (property -> default)))
 
-  manifest_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/role-manifest.yml'))
-  light_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/opinions.yml'))
-  dark_opinions_file = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/dark-opinions.yml'))
+  manifest_file = ENV.fetch('FISSILE_ROLE_MANIFEST', File.expand_path(File.join(DEFAULT_CONFIG_PATH, 'role-manifest.yml')))
+  light_opinions_file = ENV.fetch('FISSILE_LIGHT_OPINIONS', File.expand_path(File.join(DEFAULT_CONFIG_PATH, 'opinions.yml')))
+  dark_opinions_file = ENV.fetch('FISSILE_DARK_OPINIONS', File.expand_path(File.join(DEFAULT_CONFIG_PATH, 'dark-opinions.yml')))
 
   manifest = Common.load_role_manifest(manifest_file)
   light = YAML.load_file(light_opinions_file)
@@ -74,9 +76,19 @@ def main
   check_light_defaults(light, global_defaults)
 
   STDOUT.puts "\nAll vars in env files must exist in the role manifest".cyan
-  env_dir = File.expand_path(File.join(__FILE__, '../settings'))
-  all_env_files = Dir.glob(File.join(env_dir, "**/*.env"))
-  dev_env = Common.collect_dev_env(all_env_files)
+  # Try a few ways to find the env dir
+  env_dir = %w(../../../../bin/settings env).
+    map { |relpath| File.join(File.dirname(manifest_file), relpath) }.
+    find { |path| Dir.exist? path }
+
+  if env_dir.nil?
+    STDOUT.puts "\nFailed to find environment directory".red
+    @has_errors += 1
+    dev_env = {}
+  else
+    all_env_files = Dir.glob(File.join(env_dir, "**/*.env"))
+    dev_env = Common.collect_dev_env(all_env_files)
+  end
   check_env_files(manifest, dev_env)
 
   STDOUT.puts "\nAll role manifest params must be used".cyan
@@ -98,7 +110,7 @@ def main
   check_non_templates(manifest)
 
   STDOUT.puts "\nAll of the scripts must be used".cyan
-  check_role_manifest_scripts(manifest)
+  check_role_manifest_scripts(manifest, manifest_file)
 
   STDOUT.puts "\nCheck clustering".cyan
   check_clustering(manifest, bosh_properties)
@@ -189,11 +201,15 @@ def check_nondocker_run_env(manifest)
 end
 
 # Makes sure that all scripts are being used in the role manifest
-def check_role_manifest_scripts(manifest)
-  manifest_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/'))
-  scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/scripts'))
+def check_role_manifest_scripts(manifest, manifest_file)
+  manifest_dir = File.dirname(manifest_file)
+  scripts_dir = File.expand_path(File.join(manifest_dir, 'scripts'))
 
   scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
+  if scripts.empty?
+    STDOUT.puts "#{"Warning".yellow}: No scripts found in #{scripts_dir.yellow}"
+    @has_warnings += 1
+  end
 
   scripts.each do |script|
     relative_path = Pathname.new(script).relative_path_from(Pathname.new(manifest_dir))
