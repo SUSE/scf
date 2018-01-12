@@ -4,39 +4,39 @@ properties:
     admin_user: admin
     skip_ssl_validation: true
     backend: diego
-    include_apps: true
-    include_backend_compatibility: true
-    include_container_networking: true
-    include_detect: true
-    include_diego_docker: true
-    include_diego_ssh: true
-    include_internet_dependent: true
-    include_persistent_app: true
-    include_privileged_container_support: true
-    include_route_services: true
-    include_routing: true
-    include_security_groups: true
-    include_services: true
-    include_sso: true
-    include_tasks: true
-    include_v3: true
-    # Disabled set for debugging
-    # include_apps: false
-    # include_backend_compatibility: false
-    # include_container_networking: false
-    # include_detect: false
-    # include_diego_docker: false
-    # include_diego_ssh: false
-    # include_internet_dependent: false
+    # include_apps: true
+    # include_backend_compatibility: true
+    # include_container_networking: true
+    # include_detect: true
+    # include_diego_docker: true
+    # include_diego_ssh: true
+    # include_internet_dependent: true
     # include_persistent_app: true
-    # include_privileged_container_support: false
-    # include_route_services: false
-    # include_routing: false
-    # include_security_groups: false
+    # include_privileged_container_support: true
+    # include_route_services: true
+    # include_routing: true
+    # include_security_groups: true
     # include_services: true
     # include_sso: true
-    # include_tasks: false
-    # include_v3: false
+    # include_tasks: true
+    # include_v3: true
+    # Disabled set for debugging
+    include_apps: false
+    include_backend_compatibility: false
+    include_container_networking: false
+    include_detect: false
+    include_diego_docker: false
+    include_diego_ssh: false
+    include_internet_dependent: false
+    include_persistent_app: true
+    include_privileged_container_support: false
+    include_route_services: false
+    include_routing: false
+    include_security_groups: false
+    include_services: true
+    include_sso: true
+    include_tasks: false
+    include_v3: false
     default_timeout: 300
   acceptance_tests_brain:
     user: admin
@@ -412,6 +412,7 @@ properties:
       - openid
       - cloud_controller.read
       - cloud_controller.write
+      - cloud_controller_service_permissions.read
       - password.write
       - uaa.user
       - approvals.me
