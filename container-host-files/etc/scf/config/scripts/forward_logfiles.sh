@@ -121,7 +121,7 @@ function searchTargetDir {
         done
         args=( "${args[@]}" '(' -name '*.log' -a -type f -a -print0 ')' )
         while IFS= read -r -d '' file ; do
-                TARGET_BASENAME="$(basename "$1" .log)"
+                TARGET_BASENAME="$(basename "${file}" .log)"
                 TARGET_NAME="${RSYSLOG_CONF_DIR}/${RSYSLOG_CONF_PREFIX}-${TARGET_BASENAME}.conf"
                 if checkConfigExists ; then
                         echo "${TARGET_NAME} exists"
