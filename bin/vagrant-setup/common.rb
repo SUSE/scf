@@ -175,6 +175,7 @@ class Common
     return true if key =~ /^properties.ccdb.roles/
     return true if key =~ /^properties.uaadb.roles/
     return true if key =~ /^properties.uaa.clients/
+    return true if key =~ /^properties.uaa.jwt.policy.keys/
     return true if key =~ /^properties.cc.quota_definitions/
     false
   end
