@@ -20,6 +20,14 @@ ALL_SUITES='
     v3
 '
 
+if test -n "$(type -p jq)" ; then
+    ALL_SUITES="$(
+        cat /var/vcap/jobs-src/acceptance-tests/config_spec.json | \
+        jq -r '.properties.acceptance_tests | to_entries | .[].key ' | \
+        perl -n -e ' m/^include_(.*)/ && print $1 . "\n" '
+    )"
+fi
+
 declare -A suites
 mode='invalid'
 CATS_SUITES="${CATS_SUITES}," # Ensure we can always remove something
