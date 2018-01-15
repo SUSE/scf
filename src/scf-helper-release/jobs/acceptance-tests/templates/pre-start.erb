@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /usr/bin/env bash
 
 set -o errexit
 set -o nounset
@@ -8,3 +8,12 @@ PATH=$PATH:/var/vcap/packages/cli/bin
 cf api --skip-ssl-validation "https://api.$DOMAIN"
 cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
 cf enable-feature-flag diego_docker
+
+# Allow connections to ourselves
+IP="$(host "api.${DOMAIN}" | tail -n1 | awk '{ print $NF }')"
+if test -n "${IP}" && test -z "${IP//[0-9.]/}" ; then
+    # We have an address for hairpin to the cluster endpoint
+    cf create-security-group loopback <(echo "[{\"destination\":\"${IP}\",\"protocol\":\"all\"}]")
+    cf bind-staging-security-group loopback
+    cf bind-running-security-group loopback
+fi
