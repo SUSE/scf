@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)} 
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 SOURCE_OUTPUT_DIR=$GIT_ROOT/source-output
 OSC_TARGET=OSCTEMP
 OSC_BASE_PATH=Cloud:Platform:sources:scf
-mkdir -p "${GIT_ROOT/$OSC_TARGET}"
-pushd "${GIT_ROOT/$OSC_TARGET}" > /dev/null
+mkdir -p "${GIT_ROOT}/${OSC_TARGET}"
+pushd "${GIT_ROOT}/${OSC_TARGET}" > /dev/null
 rm -Rfv "${OSC_BASE_PATH}"
 osc checkout -M "${OSC_BASE_PATH}"
 pushd "${OSC_BASE_PATH}" > /dev/null
 
 # create or update new obs packages
 PACKAGES=()
-for FILE in $(ls "${SOURCE_OUTPUT_DIR}/*.tar.gz")
+for FILE in $(ls ${SOURCE_OUTPUT_DIR}/*.tar.gz)
 do
   TMP=${FILE%.tar.gz}
   PACKAGE_NAME="${TMP##*/}"
