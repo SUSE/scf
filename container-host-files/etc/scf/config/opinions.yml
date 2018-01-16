@@ -6,7 +6,6 @@ properties:
     backend: diego
     include_apps: true
     include_backend_compatibility: true
-    include_container_networking: true
     include_detect: true
     include_diego_docker: true
     include_diego_ssh: true
