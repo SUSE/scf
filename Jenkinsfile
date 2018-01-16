@@ -118,7 +118,7 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_SMOKE',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run smoke tests',
         )
         booleanParam(
@@ -128,7 +128,7 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_CATS',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
         )
         booleanParam(
