@@ -6,7 +6,7 @@ String ipAddress() {
 }
 
 String domain() {
-    return ipAddress() + ".nip.io"
+    return ipAddress() + ".xip.io"
 }
 
 String jobBaseName() {
@@ -118,7 +118,7 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_SMOKE',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run smoke tests',
         )
         booleanParam(
@@ -128,7 +128,7 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_CATS',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
         )
         booleanParam(
