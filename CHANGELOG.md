@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [2.6.11] - 2018-01-17
+### Changed
+- Helm charts now are published by ci with the correct registry.
+
 ## [2.6.10-rc3] - 2018-01-05
 ### Changed
 - Combine variables controlling openSUSE vs SLES builds.
