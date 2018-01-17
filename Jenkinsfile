@@ -5,8 +5,12 @@ String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
 }
 
+String ipAddressDash() {
+    return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }' | tr . -").trim()
+}
+
 String domain() {
-    return ipAddress().replaceAll(".", "-") + ".nipio.followyourhart.ca"
+    return ipAddressDash() + ".nipio.followyourhart.ca"
 }
 
 String jobBaseName() {
