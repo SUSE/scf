@@ -6,7 +6,7 @@ String ipAddress() {
 }
 
 String domain() {
-    return ipAddress().replaceAll(".", "-") + ".nipio.followyourheart.ca"
+    return ipAddress().replaceAll(".", "-") + ".nipio.followyourhart.ca"
 }
 
 String jobBaseName() {
