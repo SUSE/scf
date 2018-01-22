@@ -2,7 +2,7 @@
 
 set -e -x
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.7)
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.8.3)
 export PATH=${GOROOT}/bin:${PATH}
 
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
@@ -16,10 +16,6 @@ export CONFIG=/var/vcap/jobs/acceptance-tests/bin/config.json
 <% if_p("acceptance_tests.cf_dial_timeout_in_seconds") do |timeout| %>
 export CF_DIAL_TIMEOUT=<%= timeout %>
 <% end %>
-
-export CF_PLUGIN_HOME=$(mktemp -d)
-
-cf install-plugin /var/vcap/packages/cli-network-policy-plugin/plugin/network-policy-plugin-linux64 -f
 
 mkdir -p /var/vcap/sys/log/acceptance_tests
 rm -rf /var/vcap/sys/log/acceptance_tests/*
@@ -60,7 +56,7 @@ echo "Acceptance Tests Complete; exit status: $EXITSTATUS"
 for i in /var/vcap/sys/log/acceptance_tests/*; do
   if [ -e "$i" ]
   then
-    mv $i $i.log # needed to make download-logs work
+    mv $i $i.log # needed to make download-logs work
   fi
 done
 

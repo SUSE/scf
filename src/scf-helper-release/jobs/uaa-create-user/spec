@@ -33,3 +33,6 @@ properties:
     description: List of user authorities to create in the SCF zone
   uaa.user.default_groups:
     description: The list of default user groups for new users
+  uaa.clients.cc-service-dashboards.scope:
+    description: "Used to grant scope for SSO clients for service brokers"
+    default: openid,cloud_controller_service_permissions.read
