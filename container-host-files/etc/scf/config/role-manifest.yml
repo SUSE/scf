@@ -1198,6 +1198,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_persi_nfsdriver.sh
+  - scripts/patches/nfs_volume_libdir.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
