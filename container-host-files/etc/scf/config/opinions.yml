@@ -58,17 +58,6 @@ properties:
     default_staging_security_groups:
     - public_networks
     - dns
-    diego:
-      # "Enabling secure communication between Cloud Controller and Diego" claims that these temporary
-      # settings will become the default in CF 274, but as of CF 278 they are still necessary.
-      # https://docs.google.com/document/d/1pdxC1DqROqk72BDw--6b5v2r0K7Jpp9l-FbO6tlkQDs/edit#heading=h.yh800xsnqw7t
-      temporary_local_apps: true                 # Remove in CF 274
-      temporary_cc_uploader_mtls: true           # Remove in CF 274
-      temporary_droplet_download_mtls: true      # Remove in CF 274
-      temporary_local_staging: true              # Remove in CF 274
-      temporary_local_sync: true                 # Remove in CF 274
-      temporary_local_tasks: true                # Remove in CF 274
-      temporary_local_tps: true                  # Remove in CF 274
     droplets:
       blobstore_type: webdav
       webdav_config:
