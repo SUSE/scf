@@ -1918,6 +1918,7 @@ configuration:
     description: The password for the MySQL server admin user.
     required: true
   - name: MYSQL_CCDB_ROLE_PASSWORD
+    previous_names: [CCDB_ROLE_PASSWORD]
     secret: true
     immutable: true
     generator:
