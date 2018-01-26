@@ -24,7 +24,8 @@ index cfac8f1c6..9432ad95f 100644
 +            end
              created = true
            elsif buildpack.locked
-             logger.info "Buildpack #{name} locked, not updated"PATCH
+             logger.info "Buildpack #{name} locked, not updated"
+PATCH
 
 touch "${SENTINEL}"
 
