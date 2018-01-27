@@ -13,6 +13,31 @@ String jobBaseName() {
     return env.JOB_BASE_NAME.toLowerCase()
 }
 
+void setBuildStatus(String context, String status) {
+    def description = null
+    switch (status) {
+        case 'pending':
+            description = 'Tests running'
+            break
+        case 'success':
+            description = 'Tests passed'
+            break
+        case 'failure':
+            description = 'Tests failed'
+            break
+        default:
+            // Also covers 'error' case
+            description = 'Unknown error occurred'
+            break
+    }
+
+    githubNotify credentialsId: 'creds-github-suse-cf-ci-bot',
+                 context: "jenkins/${context}",
+                 description: description,
+                 status: status.toUpperCase(),
+                 targetUrl: env.BUILD_URL
+}
+
 void runTest(String testName) {
     sh """
         kube_overrides() {
@@ -449,7 +474,16 @@ pipeline {
                 expression { return params.TEST_SMOKE }
             }
             steps {
+                setBuildStatus('smoke', 'pending')
                 runTest('smoke-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('smoke', 'success')
+                }
+                failure {
+                    setBuildStatus('smoke', 'failure')
+                }
             }
         }
 
@@ -458,7 +492,16 @@ pipeline {
                 expression { return params.TEST_BRAIN }
             }
             steps {
+                setBuildStatus('brain', 'pending')
                 runTest('acceptance-tests-brain')
+            }
+            post {
+                success {
+                    setBuildStatus('brain', 'success')
+                }
+                failure {
+                    setBuildStatus('brain', 'failure')
+                }
             }
         }
 
@@ -467,7 +510,16 @@ pipeline {
                 expression { return params.TEST_CATS }
             }
             steps {
+                setBuildStatus('cats', 'pending')
                 runTest('acceptance-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('cats', 'success')
+                }
+                failure {
+                    setBuildStatus('cats', 'failure')
+                }
             }
         }
 
