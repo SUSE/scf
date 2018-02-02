@@ -115,6 +115,8 @@ roles:
     release_name: nats
     provides:
       nats: {}
+  - name: avahi-aliases
+    release_name: scf-helper
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -154,6 +156,10 @@ roles:
                 values:
                 - nats
             topologyKey: "beta.kubernetes.io/os"
+  configuration:
+    templates:
+      properties.scf.minicap: '((MINICAP))'
+      properties.scf.nats_url: 'nats://nats:((NATS_PASSWORD))@((NATS_SERVICE_HOST)):4222'
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1903,6 +1909,9 @@ configuration:
       value_type: private_key
     description: PEM-encoded key.
     required: true
+  - name: MINICAP
+    default: true
+    type: environment
   - name: MONIT_PASSWORD
     secret: true
     immutable: true
@@ -1988,6 +1997,8 @@ configuration:
       type: Password
     description: The password for access to NATS.
     required: true
+  - name: NATS_SERVICE_HOST
+    type: environment
   - name: NGINX_LOG_LEVEL
     type: environment
     description: >

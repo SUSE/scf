@@ -88,3 +88,9 @@
 [submodule "src/cf-syslog-drain-release"]
 	path = src/cf-syslog-drain-release
 	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git
+[submodule "src/scf-helper-release/src/github.com/nats-io/go-nats"]
+	path = src/scf-helper-release/src/github.com/nats-io/go-nats
+	url = https://github.com/nats-io/go-nats
+[submodule "src/scf-helper-release/src/github.com/nats-io/nuid"]
+	path = src/scf-helper-release/src/github.com/nats-io/nuid
+	url = https://github.com/nats-io/nuid

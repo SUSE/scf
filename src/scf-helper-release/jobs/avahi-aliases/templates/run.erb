@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -o errexit
+set -x
+
+run_dir=/var/vcap/sys/run/avahi-aliases
+log_dir=/var/vcap/sys/log/avahi-aliases
+pidfile=$run_dir/avahi-aliases.pid
+
+mkdir -p ${run_dir}
+mkdir -p ${log_dir}
+
+touch /avahi-aliases
+
+echo $$ > $pidfile
+
+exec /var/vcap/packages/avahi-aliases/bin/avahi-aliases <%= p("scf.nats_url") %> \
+     2> >(tee -a $log_dir/avahi-aliases.stderr.log | logger -p user.error -t scf.avahi-aliases) \
+     1> >(tee -a $log_dir/avahi-aliases.stdout.log | logger -t scf.avahi-aliases)

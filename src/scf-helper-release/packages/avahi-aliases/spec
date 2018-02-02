@@ -1,0 +1,7 @@
+---
+name: avahi-aliases
+dependencies:
+- golang1.8
+files:
+- avahi-aliases/*
+- github.com/nats-io/**/*
