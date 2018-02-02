@@ -1,0 +1,10 @@
+# This file represents the CNAME aliases for the current host. It gets
+# read by avahi_publisher upon every change.
+
+## known aliases
+api.$fqdn
+login.$fqdn
+uaa.$fqdn
+
+## app aliases (auto-filled by appmdns).
+## do not add anything below.

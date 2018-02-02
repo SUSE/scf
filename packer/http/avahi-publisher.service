@@ -1,0 +1,7 @@
+[Unit]
+Description=Avahi Publishier
+Requires=avahi-daemon.socket
+After=avahi-daemon.socket
+
+[Service]
+ExecStart=/usr/bin/python /home/scf/bin/avahi-publisher.py
