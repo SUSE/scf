@@ -267,6 +267,39 @@
         },
         {
             "type": "file",
+            "only": ["minicap"],
+            "source": "http/avahi-aliases",
+            "destination": "/tmp/avahi-aliases"
+        },
+        {
+            "type": "file",
+            "only": ["minicap"],
+            "source": "http/avahi-publisher.py",
+            "destination": "/tmp/avahi-publisher.py"
+        },
+        {
+            "type": "file",
+            "only": ["minicap"],
+            "source": "http/avahi-publisher.service",
+            "destination": "/tmp/avahi-publisher.service"
+        },
+        {
+            "type": "shell",
+            "only": ["minicap"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "# Configure DHCP for eth1",
+                "cp /etc/sysconfig/network/ifcfg-eth0 /etc/sysconfig/network/ifcfg-eth1",
+                "zypper --non-interactive install --no-confirm avahi python-avahi",
+                "mv /tmp/avahi-publisher.service /etc/systemd/system/multi-user.target.wants/",
+                "mkdir -p /home/scf/bin",
+                "mv /tmp/avahi-publisher.py /home/scf/bin/",
+                "mkdir -p /home/scf/etc",
+                "mv /tmp/avahi-aliases /home/scf/etc/"
+            ]
+        },
+        {
+            "type": "file",
             "only": ["jenkins-slave"],
             "source": "http/controller-manager-jenkins-overrides.conf",
             "destination": "/etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf"
