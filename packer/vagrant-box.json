@@ -76,6 +76,37 @@
             ]
         },
         {
+            "name": "minicap",
+            "type": "virtualbox-iso",
+            "headless": true,
+            "vm_name": "minicap-{{isotime \"20060102-1504\"}}",
+            "guest_os_type": "OpenSUSE_64",
+            "guest_additions_mode": "disable",
+            "disk_size": 120480,
+            "hard_drive_interface": "sata",
+            "hard_drive_nonrotational": true,
+            "hard_drive_discard": true,
+            "ssh_username": "scf",
+            "ssh_password": "changeme",
+            "shutdown_command": "echo changeme | sudo -S shutdown -P now",
+            "iso_url": "{{user `iso_url`}}",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "http_directory": "{{user `http_directory`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "10240", "--cpus", "2" ],
+                [ "modifyvm", "{{.Name}}", "--nic2", "hostonly", "--hostonlyadapter2", "vboxnet0" ]
+            ],
+            "boot_command": [
+                "<esc><enter><wait>",
+                "linux lang=en_US textmode=1 ",
+                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/minicap-autoyast.xml ",
+                "<enter><wait>"
+            ]
+        },
+        {
             "name": "vagrant-libvirt",
             "type": "qemu",
             "headless": true,
@@ -290,7 +321,7 @@
         },
         {
             "type": "shell",
-            "only": ["jenkins-slave", "scf-cached-libvirt"],
+            "only": ["jenkins-slave", "scf-cached-libvirt", "minicap"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/install-helm.sh",
