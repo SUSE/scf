@@ -5,6 +5,7 @@
 api.$fqdn
 login.$fqdn
 uaa.$fqdn
+cf.uaa.$fqdn
 
 ## app aliases (auto-filled by appmdns).
 ## do not add anything below.

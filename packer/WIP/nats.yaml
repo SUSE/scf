@@ -1,0 +1,184 @@
+---
+# The nats role contains the following jobs:
+#
+# - global-properties: Dummy BOSH job used to host global parameters that are
+#   required to configure SCF
+#
+# - nats: The NATS server provides publish-subscribe messaging system for the
+#   Cloud Controller, the DEA , HM9000, and other Cloud Foundry components.
+#
+# - avahi-aliases: Record routes for avahi-publisher (MINICAP only)
+#
+# Also: metron_agent
+
+{{- if gt (int .Values.sizing.nats.count) 3 }}
+_maxReplicas: {{ fail "nats cannot have more than 3 instances" }}
+{{- end }}
+
+{{- if and .Values.sizing.HA (and (ne (int .Values.sizing.nats.count) 1) (lt (int .Values.sizing.nats.count) 2)) }}
+_minHAReplicas: {{ fail "nats must have at least 2 instances for HA" }}
+{{- end }}
+
+{{- if lt (int .Values.sizing.nats.count) 1 }}
+_minReplicas: {{ fail "nats must have at least 1 instances" }}
+{{- end }}
+
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "nats"
+  labels:
+    skiff-role-name: "nats"
+spec:
+  replicas: {{ if and .Values.sizing.HA (eq (int .Values.sizing.nats.count) 1) -}} 2 {{- else -}} {{ .Values.sizing.nats.count }} {{- end }}
+  serviceName: "nats-set"
+  template:
+    metadata:
+      annotations:
+        {{- if not (or (gt (int .Capabilities.KubeVersion.Major) 1) (and (eq (int .Capabilities.KubeVersion.Major) 1) (ge (int .Capabilities.KubeVersion.Minor) 6))) }}
+        scheduler.alpha.kubernetes.io/affinity: "{\"podAntiAffinity\":{\"preferredDuringSchedulingIgnoredDuringExecution\":[{\"podAffinityTerm\":{\"labelSelector\":{\"matchExpressions\":[{\"key\":\"skiff-role-name\",\"operator\":\"In\",\"values\":[\"nats\"]}]},\"topologyKey\":\"beta.kubernetes.io/os\"},\"weight\":100}]}}"
+        {{- end }}
+      labels:
+        skiff-role-name: "nats"
+      name: "nats"
+    spec:
+      {{- if or (gt (int .Capabilities.KubeVersion.Major) 1) (and (eq (int .Capabilities.KubeVersion.Major) 1) (ge (int .Capabilities.KubeVersion.Minor) 6)) }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: "skiff-role-name"
+                  operator: "In"
+                  values:
+                  - "nats"
+              topologyKey: "beta.kubernetes.io/os"
+            weight: 100
+      {{- end }}
+      containers:
+      - env:
+        - name: "CATS_SUITES"
+          value: {{ .Values.env.CATS_SUITES | quote }}
+        - name: "INTERNAL_CA_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-cert"
+              name: "secret"
+        - name: "INTERNAL_CA_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "internal-ca-key"
+              name: "secret"
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: "KUBE_AZ"
+          value: "z1"
+        - name: "KUBE_SERVICE_DOMAIN_SUFFIX"
+          value: {{ .Values.env.KUBE_SERVICE_DOMAIN_SUFFIX | quote }}
+        - name: "KUBE_SIZING_NATS_COUNT"
+          value: {{ .Values.sizing.nats.count | quote }}
+        - name: "METRON_CERT"
+          valueFrom:
+            secretKeyRef:
+              key: "metron-cert"
+              name: "secret"
+        - name: "METRON_KEY"
+          valueFrom:
+            secretKeyRef:
+              key: "metron-key"
+              name: "secret"
+        - name: "MINICAP"
+          value: "true"
+        - name: "MONIT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "monit-password"
+              name: "secret"
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "nats-password"
+              name: "secret"
+        - name: "RELEASE_REVISION"
+          value: {{ .Release.Revision | quote }}
+        - name: "SCF_LOG_HOST"
+          value: {{ .Values.env.SCF_LOG_HOST | quote }}
+        - name: "SCF_LOG_PORT"
+          value: {{ .Values.env.SCF_LOG_PORT | quote }}
+        - name: "SCF_LOG_PROTOCOL"
+          value: {{ required "SCF_LOG_PROTOCOL configuration missing" .Values.env.SCF_LOG_PROTOCOL | quote }}
+        image: "{{ .Values.kube.registry.hostname }}/{{ .Values.kube.organization }}/scf-nats:9756856be1cd2d81d940901f7bcfc11654c87aaa"
+        livenessProbe: ~
+        name: "nats"
+        ports:
+        - containerPort: 4222
+          name: "nats"
+          protocol: "TCP"
+        - containerPort: 4223
+          name: "nats-routes"
+          protocol: "TCP"
+        readinessProbe:
+          tcpSocket:
+            port: 4222
+        resources: ~
+        securityContext: ~
+        volumeMounts:
+        - mountPath: /avahi-aliases
+          name: avahi-aliases
+      volumes:
+      - name: avahi-aliases
+        hostPath:
+          path: /home/scf/etc/avahi-aliases
+          type: File
+      dnsPolicy: "ClusterFirst"
+      imagePullSecrets:
+      - name: "registry-credentials"
+      restartPolicy: "Always"
+  {{- if or (gt (int .Capabilities.KubeVersion.Major) 1) (and (eq (int .Capabilities.KubeVersion.Major) 1) (ge (int .Capabilities.KubeVersion.Minor) 7)) }}
+  updateStrategy:
+    type: "RollingUpdate"
+  {{- end }}
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "nats-set"
+  spec:
+    {{- if not .Values.services.loadbalanced }}
+    clusterIP: "None"
+    {{- end }}
+    ports:
+    - name: "nats"
+      port: 4222
+      protocol: "TCP"
+      targetPort: 0
+    - name: "nats-routes"
+      port: 4223
+      protocol: "TCP"
+      targetPort: 0
+    selector:
+      skiff-role-name: "nats"
+    type: {{ if .Values.services.loadbalanced }} LoadBalancer {{ else }} ClusterIP {{ end }}
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "nats"
+  spec:
+    ports:
+    - name: "nats"
+      port: 4222
+      protocol: "TCP"
+      targetPort: "nats"
+    - name: "nats-routes"
+      port: 4223
+      protocol: "TCP"
+      targetPort: "nats-routes"
+    selector:
+      skiff-role-name: "nats"
+    type: {{ if .Values.services.loadbalanced }} LoadBalancer {{ else }} ClusterIP {{ end }}
+kind: "List"

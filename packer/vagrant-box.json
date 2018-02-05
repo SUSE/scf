@@ -290,12 +290,21 @@
             "inline": [
                 "# Configure DHCP for eth1",
                 "cp /etc/sysconfig/network/ifcfg-eth0 /etc/sysconfig/network/ifcfg-eth1",
-                "zypper --non-interactive install --no-confirm avahi python-avahi",
+
+                "zypper --non-interactive install --no-confirm avahi python-avahi dnsmasq",
+                "# Disable all IPv6 publishing in avahi",
+                "perl -p -i -e 's/^#?(use-ipv6|publish-a+-onipv[46])=(.*)/$1=no/' /etc/avahi/avahi-daemon.conf",
+                "systemctl enable avahi-daemon.service",
+
                 "mv /tmp/avahi-publisher.service /etc/systemd/system/multi-user.target.wants/",
                 "mkdir -p /home/scf/bin",
                 "mv /tmp/avahi-publisher.py /home/scf/bin/",
                 "mkdir -p /home/scf/etc",
-                "mv /tmp/avahi-aliases /home/scf/etc/"
+                "mv /tmp/avahi-aliases /home/scf/etc/",
+
+                "# Configure dnsmasq",
+                "perl -p -i -e 's/^#(no-resolv|log-queries)/$1/' /etc/dnsmasq.conf",
+                "systemctl enable dnsmasq.service"
             ]
         },
         {
