@@ -2546,7 +2546,7 @@ configuration:
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
     properties.domain: '"((DOMAIN))"'
-    properties.doppler.addr: '"doppler.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.doppler.addr: '"doppler-set.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
