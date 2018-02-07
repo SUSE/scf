@@ -120,7 +120,7 @@ roles:
   processes:
   - name: metron_agent
   - name: nats
-  tags: ['clustered']
+  tags: [indexed]
   run:
     scaling:
       min: 1
@@ -586,7 +586,7 @@ roles:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: routing-api
-  tags: [clustered]
+  tags: [indexed]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -637,7 +637,7 @@ roles:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
-  tags: [clustered]
+  tags: [indexed]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
