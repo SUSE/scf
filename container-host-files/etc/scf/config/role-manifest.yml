@@ -1240,9 +1240,6 @@ roles:
       ha: 3
     capabilities: [ALL]
     persistent-volumes:
-    - path: /var/vcap/data/garden
-      tag: garden-data
-      size: 50
     - path: /var/vcap/data/grootfs
       tag: grootfs-data
       size: 50
