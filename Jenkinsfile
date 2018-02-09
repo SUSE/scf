@@ -13,6 +13,35 @@ String jobBaseName() {
     return env.JOB_BASE_NAME.toLowerCase()
 }
 
+void setBuildStatus(String context, String status) {
+    def description = null
+    switch (status) {
+        case 'pending':
+            description = 'Tests running'
+            break
+        case 'success':
+            description = 'Tests passed'
+            break
+        case 'failure':
+            description = 'Tests failed'
+            break
+        default:
+            // Also covers 'error' case
+            description = 'Unknown error occurred'
+            break
+    }
+
+    try {
+    githubNotify credentialsId: 'creds-github-suse-cf-ci-bot',
+                 context: "jenkins/${context}",
+                 description: description,
+                 status: status.toUpperCase(),
+                 targetUrl: env.BUILD_URL
+    } catch (IllegalArgumentException e) {
+      echo "Can't notify github status (can't infer git data)"
+    }
+}
+
 void runTest(String testName) {
     sh """
         kube_overrides() {
@@ -118,17 +147,17 @@ pipeline {
         )
         booleanParam(
             name: 'TEST_SMOKE',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run smoke tests',
         )
         booleanParam(
             name: 'TEST_BRAIN',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
             name: 'TEST_CATS',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
         )
         booleanParam(
@@ -404,8 +433,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac
+                        --set kube.storage_class.persistent=hostpath
 
                     get_uaa_secret () {
                         kubectl get secret secret --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
@@ -431,8 +459,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set kube.external_ip=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac
+                        --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...
                     set +o xtrace
@@ -451,7 +478,16 @@ pipeline {
                 expression { return params.TEST_SMOKE }
             }
             steps {
+                setBuildStatus('smoke', 'pending')
                 runTest('smoke-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('smoke', 'success')
+                }
+                failure {
+                    setBuildStatus('smoke', 'failure')
+                }
             }
         }
 
@@ -460,7 +496,16 @@ pipeline {
                 expression { return params.TEST_BRAIN }
             }
             steps {
+                setBuildStatus('brain', 'pending')
                 runTest('acceptance-tests-brain')
+            }
+            post {
+                success {
+                    setBuildStatus('brain', 'success')
+                }
+                failure {
+                    setBuildStatus('brain', 'failure')
+                }
             }
         }
 
@@ -469,7 +514,16 @@ pipeline {
                 expression { return params.TEST_CATS }
             }
             steps {
+                setBuildStatus('cats', 'pending')
                 runTest('acceptance-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('cats', 'success')
+                }
+                failure {
+                    setBuildStatus('cats', 'failure')
+                }
             }
         }
 
@@ -563,6 +617,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                             def encodedCapBundleUri = java.net.URLEncoder.encode("https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}", "UTF-8")
                             def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
 
+                            echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                             echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
                     }

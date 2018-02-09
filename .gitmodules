@@ -1,6 +1,6 @@
 [submodule "src/diego-release"]
 	path = src/diego-release
-	url = https://github.com/cloudfoundry-incubator/diego-release.git
+	url = https://github.com/cloudfoundry/diego-release.git
 [submodule "src/cf-mysql-release"]
 	path = src/cf-mysql-release
 	url = https://github.com/cloudfoundry/cf-mysql-release.git
@@ -9,7 +9,7 @@
 	url = https://github.com/cloudfoundry/cflinuxfs2-release.git
 [submodule "src/routing-release"]
 	path = src/routing-release
-	url = https://github.com/cloudfoundry-incubator/routing-release.git
+	url = https://github.com/cloudfoundry/routing-release.git
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
@@ -84,7 +84,7 @@
 	url = https://github.com/SUSE/cf-java-buildpack-release.git
 [submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/SUSE/cf-acceptance-tests.git
+	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
 [submodule "src/cf-syslog-drain-release"]
 	path = src/cf-syslog-drain-release
 	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git

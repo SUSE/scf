@@ -3,7 +3,6 @@ name: global-properties
 description: Dummy BOSH job used to host global parameters that are required to configure SCF
 
 templates:
-  run.erb: bin/run
   readiness-diego-api.sh: bin/readiness/diego-api
   readiness-etcd.sh: bin/readiness/etcd
 

@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.11",
+        "version": "2.0.12",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",

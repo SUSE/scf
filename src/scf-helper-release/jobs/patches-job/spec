@@ -2,9 +2,6 @@
 name: patch-properties
 description: Dummy BOSH job used to host parameters that are used in SCF patches for upstream bugs
 
-templates:
-  run.erb: bin/run
-
 packages:
 
 properties:

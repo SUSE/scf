@@ -5,7 +5,7 @@ set -o errexit -o nounset
 NAMESPACE="cf"
 POD_NAME=$1
 if [ ! -f "output/kube/bosh-task/${POD_NAME}.yaml" ]; then
-    echo 1>&2 There is no bosh-task for ${POD_NAME}.
+    echo 1>&2 There is no bosh-task for "${POD_NAME}".
     exit 1
 fi
 
@@ -53,7 +53,7 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
 i=0
 
-while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o=json | jq -r .status.phase)" != "Running" ]
+while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
 do
   i=$((i + 1))
   if [ ${i} -gt 30 ]

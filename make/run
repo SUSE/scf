@@ -81,7 +81,6 @@ helm install output/helm \
      --set "env.UAA_PORT=${UAA_PORT}" \
      --set "env.UAA_CA_CERT=${CA_CERT}" \
      --set "kube.external_ip=$(dig +short ${DOMAIN})" \
-     --set "kube.auth=rbac" \
      "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
