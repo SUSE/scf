@@ -31,11 +31,15 @@ void setBuildStatus(String context, String status) {
             break
     }
 
+    try {
     githubNotify credentialsId: 'creds-github-suse-cf-ci-bot',
                  context: "jenkins/${context}",
                  description: description,
                  status: status.toUpperCase(),
                  targetUrl: env.BUILD_URL
+    } catch (IllegalArgumentException e) {
+      echo "Can't notify github status (can't infer git data)"
+    }
 }
 
 void runTest(String testName) {
