@@ -1,45 +1,10 @@
 #!/usr/bin/env bash
 
-# Upgrade a running UAA using the current chart in
-# src/uaa-fissile-release/helm. Assumes that only one revision is
-# currently running. If more than one runs the last per helm's sorting
-# order is chosen. (See **)
-
 set -o errexit -o nounset
 
-NAMESPACE="uaa"
-
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-cd "${GIT_ROOT}/src/uaa-fissile-release"
-GIT_ROOT=$(pwd)
 
-# Argument? (**)
-RELEASE=$(helm list --namespace "${NAMESPACE}" | awk '{ print $1 }' | tail -n 1)
-echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
-#exit
+. "${GIT_ROOT}/.envrc"
+. "${GIT_ROOT}/src/uaa-fissile-release/.envrc"
 
-stampy "${GIT_ROOT}/uaa_metrics.csv" "$0" make-run start
-stampy "${GIT_ROOT}/uaa_metrics.csv" "$0" make-run::upgrade start
-
-DOMAIN=${DOMAIN:-}
-DEFAULTS_ENV=env/defaults.env
-
-if test -n "${DOMAIN}"; then
-    TMP="$(mktemp -d)"
-    cp "${DEFAULTS_ENV}" "${TMP}"
-    trap "rm -rf ${TMP}" EXIT
-    DEFAULTS_ENV="${TMP}/$(basename "${DEFAULTS_ENV}")"
-    sed -i "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" "${DEFAULTS_ENV}"
-fi
-
-source "${DEFAULTS_ENV}"
-
-helm upgrade ${RELEASE} helm \
-     --namespace "${NAMESPACE}" \
-     --set "env.DOMAIN=${DOMAIN}" \
-     --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
-     --set "kube.external_ip=$(dig +short ${DOMAIN})" \
-     --set "kube.auth=rbac"
-
-stampy "${GIT_ROOT}/uaa_metrics.csv" "$0" make-run::upgrade end
-stampy "${GIT_ROOT}/uaa_metrics.csv" "$0" make-run 'done'
+make -C "${GIT_ROOT}/src/uaa-fissile-release" upgrade
