@@ -138,13 +138,11 @@ update_submodule routing-release "${ROUTING_RELEASE}" src
 
 
 update_submodule cf-mysql-release "" src
-update_submodule grootfs-release  "" src
 
 echo
 echo
 echo ATTENTION, two releases not automatically bumped, no automatic information available
 echo '* cf-mysql - look at the diego release notes'
-echo '* grootfs  - look at the cf release notes, and cross-check with garden-runc release'
 echo Both have been cloned to ease the operation
 echo
 echo

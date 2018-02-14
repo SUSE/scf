@@ -139,9 +139,6 @@ scf-helper-release:
 capi-release:
 	make/bosh-release src/capi-release
 
-grootfs-release:
-	make/bosh-release src/grootfs-release
-
 loggregator-release:
 	make/bosh-release src/loggregator-release
 
@@ -204,7 +201,6 @@ releases: \
 	python-buildpack-release \
 	ruby-buildpack-release \
 	staticfile-buildpack-release \
-	grootfs-release \
 	uaa-releases \
 	${NULL}
 
