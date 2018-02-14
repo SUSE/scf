@@ -233,15 +233,6 @@ properties:
     graph_cleanup_threshold_in_mb: 3000
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
-    image_plugin_extra_args:
-    - --config=/var/vcap/jobs/grootfs/config/grootfs_config.yml
-    # if we have capi.nsync.diego_privileged_containers and
-    # capi.stager.diego_privileged_containers set to true, the following 2
-    # properties need to be set
-    privileged_image_plugin: "/var/vcap/packages/grootfs/bin/grootfs"
-    privileged_image_plugin_extra_args:
-    - --config=/var/vcap/jobs/grootfs/config/privileged_grootfs_config.yml
   fissile:
     monit:
       user: "admin"

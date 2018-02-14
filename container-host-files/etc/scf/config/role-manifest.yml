@@ -1223,8 +1223,6 @@ roles:
     release_name: cf-sle12
   - name: metron_agent
     release_name: loggregator
-  - name: grootfs
-    release_name: grootfs
   - name: nfsv3driver
     release_name: nfs-volume
   processes:
