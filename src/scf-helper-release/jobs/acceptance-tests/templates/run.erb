@@ -45,11 +45,10 @@ noColorFlag=<%= properties.acceptance_tests.enable_color ? "" : "-noColor" %>
 set +e
 bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose \
   -nodes=$nodes -skipPackage=helpers $skips -keepGoing \
-  > /var/vcap/sys/log/acceptance_tests.log \
+  > >( tee /var/vcap/sys/log/acceptance_tests.log ) \
   2> /var/vcap/sys/log/acceptance_tests.err.log
 EXITSTATUS=$?
 set -e
-tail -c 905696 /var/vcap/sys/log/acceptance_tests.log
 
 echo "Acceptance Tests Complete; exit status: $EXITSTATUS"
 
