@@ -448,7 +448,7 @@ pipeline {
 		    }
 
                     get_uaa_secret () {
-                        kubectl get secret "$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
+                        kubectl get secret "\$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
                     }
 
                     has_internal_ca() {
