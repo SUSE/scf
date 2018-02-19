@@ -3,7 +3,7 @@
 
 String capSecret() {
     return sh(returnStdout: true,
-              script: "kubectl get pod api-0 --namespace cf -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'").trim()
+              script: "kubectl get pod api-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'").trim()
 }
 
 String ipAddress() {

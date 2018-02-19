@@ -41,7 +41,7 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
 # Replace the fixed secret in the relevant task definition with the
 # actual name as pulled from the cluster under test.
 
-capsecret="$(kubectl get pod api-0 --namespace cf -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}')"
+capsecret="$(kubectl get pod api-0 --namespace "${NAMESPACE}" -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}')"
 #echo cap-secret = $capsecret
 
 remove_test_config () { rm test.yaml ; }
