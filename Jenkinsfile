@@ -1,6 +1,11 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
 
+String capSecret() {
+    return sh(returnStdout: true,
+              script: "kubectl get pod api-0 --namespace cf -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'").trim()
+}
+
 String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
 }
@@ -49,6 +54,7 @@ void runTest(String testName) {
                 require 'yaml'
                 require 'json'
                 domain = '${domain()}'
+                capsecret = '${capSecret()}'
                 obj = YAML.load_file('\$1')
                 obj['spec']['containers'].each do |container|
                     container['env'].each do |env|
@@ -56,6 +62,8 @@ void runTest(String testName) {
                         value = domain          if env['name'] == 'DOMAIN'
                         value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
                         env['value'] = value.to_s
+
+			env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom']
                     end
                 end
                 puts obj.to_json
