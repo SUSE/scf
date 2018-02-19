@@ -443,8 +443,12 @@ pipeline {
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
+		    get_uaa_secret_name () {
+		        kubectl get pod mysql-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'
+		    }
+
                     get_uaa_secret () {
-                        kubectl get secret secret --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
+                        kubectl get secret "$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
                     }
 
                     has_internal_ca() {
