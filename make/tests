@@ -38,8 +38,20 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" end
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
 
+# Replace the fixed secret in the relevant task definition with the
+# actual name as pulled from the cluster under test.
+
+capsecret="$(kubectl get pod api-0 --namespace cf -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}')"
+#echo cap-secret = $capsecret
+
+remove_test_config () { rm test.yaml ; }
+sed < "output/kube/bosh-task/${POD_NAME}.yaml" \
+    > test.yaml \
+    "s|name: \"secret\"|name: \"${capsecret}\"|"
+trap remove_test_config EXIT
+
 # Delete left-over pod/definition from previous runs, then create/run
-kubectl delete --namespace="${NAMESPACE}" --filename="output/kube/bosh-task/${POD_NAME}.yaml" \
+kubectl delete --namespace="${NAMESPACE}" --filename="test.yaml" \
     2> /dev/null || /bin/true
 
 echo "Waiting for pod ${POD_NAME} to be deleted..."
@@ -47,7 +59,7 @@ while has_pod ; do
     sleep 1
 done
 
-kubectl create --namespace="${NAMESPACE}" --filename="output/kube/bosh-task/${POD_NAME}.yaml"
+kubectl create --namespace="${NAMESPACE}" --filename="test.yaml"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
