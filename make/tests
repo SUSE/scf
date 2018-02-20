@@ -51,15 +51,15 @@ done
 # actual name as pulled from the cluster under test.
 
 capsecret="$(kubectl get pod api-0 --namespace "${NAMESPACE}" -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}')"
-#echo cap-secret = $capsecret
 
 CONFIG=$(mktemp)
 sed < "output/kube/bosh-task/${POD_NAME}.yaml" \
     > "${CONFIG}" \
     "s|name: \"secret\"|name: \"${capsecret}\"|"
 
+remove_test_config () { rm "${CONFIG}" ; }
+trap remove_test_config EXIT
 kubectl create --namespace="${NAMESPACE}" --filename="${CONFIG}"
-rm "${CONFIG}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
