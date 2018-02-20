@@ -176,6 +176,7 @@ roles:
   - name: mariadb_ctrl
   - name: galera-healthcheck
   - name: gra-log-purger-executable
+  tags: [clustered]
   run:
     scaling:
       min: 1
