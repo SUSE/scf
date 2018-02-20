@@ -48,17 +48,17 @@ source "${NETWORK_ENV}"
 UAA_CA_CERT="$(get_uaa_secret ${UAA_CA_CERT} | base64 -d -)"
 
 helm upgrade ${RELEASE} output/helm \
-     --namespace ${NAMESPACE} \
-     --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
-     --set "env.DOMAIN=${DOMAIN}" \
-     --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
-     --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
-     --set "env.UAA_HOST=${UAA_HOST}" \
-     --set "env.UAA_PORT=${UAA_PORT}" \
+    --namespace ${NAMESPACE} \
+    --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
+    --set "env.DOMAIN=${DOMAIN}" \
+    --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
+    --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
+    --set "env.UAA_HOST=${UAA_HOST}" \
+    --set "env.UAA_PORT=${UAA_PORT}" \
     --set "env.UAA_CA_CERT=${UAA_CA_CERT}" \
-     --set "kube.external_ip=$(dig +short ${DOMAIN})" \
-     --set "kube.auth=rbac" \
-     "$@"
+    --set "kube.external_ip=$(dig +short ${DOMAIN})" \
+    --set "kube.auth=rbac" \
+    "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade end
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run 'done'
