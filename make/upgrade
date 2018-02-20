@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Upgrade a running CF using the current chart in output/helm. Assumes
+# that only one revision is currently running. If more than one runs
+# the last per helm's sorting order is chosen. (See **)
+
+set -o errexit -o nounset
+
+NAMESPACE="cf"
+UAA_NAMESPACE="uaa"
+UAA_CA_CERT=internal-ca-cert
+
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+cd "${GIT_ROOT}"
+
+# Determine the kube revision of the chart controlling the specified namespace.
+release_version() { helm list --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
+
+get_uaa_secret () {
+    kubectl get secret secret-$(release_version "${UAA_NAMESPACE}") \
+	--namespace "${UAA_NAMESPACE}" \
+	-o jsonpath="{.data['$1']}"
+}
+
+# Argument? (**)
+RELEASE=$(helm list --namespace "${NAMESPACE}" -q | tail -n 1)
+echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
+
+DOMAIN=${DOMAIN:-}
+NETWORK_ENV=bin/settings/network.env
+if test -n "${DOMAIN}"; then
+    TMP=$(mktemp -d)
+    cp "${NETWORK_ENV}" "${TMP}"
+    trap "rm -rf ${TMP}" EXIT
+    NETWORK_ENV="${TMP}/$(basename "${NETWORK_ENV}")"
+    sed -e "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" \
+        -e "s/^UAA_HOST=.*/UAA_HOST=uaa.${DOMAIN}/" \
+        -e "s/^TCP_DOMAIN=.*/TCP_DOMAIN=tcp.${DOMAIN}/" \
+        -i "${NETWORK_ENV}"
+fi
+source bin/settings/settings.env
+source "${NETWORK_ENV}"
+
+UAA_CA_CERT="$(get_uaa_secret ${UAA_CA_CERT} | base64 -d -)"
+
+helm upgrade ${RELEASE} output/helm \
+    --namespace ${NAMESPACE} \
+    --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
+    --set "env.DOMAIN=${DOMAIN}" \
+    --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
+    --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
+    --set "env.UAA_HOST=${UAA_HOST}" \
+    --set "env.UAA_PORT=${UAA_PORT}" \
+    --set "env.UAA_CA_CERT=${UAA_CA_CERT}" \
+    --set "kube.external_ip=$(dig +short ${DOMAIN})" \
+    --set "kube.auth=rbac" \
+    "$@"
+
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade end
+stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run 'done'
