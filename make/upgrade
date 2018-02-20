@@ -23,9 +23,8 @@ get_uaa_secret () {
 }
 
 # Argument? (**)
-RELEASE=$(helm list --namespace "${NAMESPACE}" | awk '{ print $1 }' | tail -n 1)
+RELEASE=$(helm list --namespace "${NAMESPACE}" -q | tail -n 1)
 echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
-#exit
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
