@@ -63,7 +63,7 @@ void runTest(String testName) {
                         value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
                         env['value'] = value.to_s
 
-			env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom']
+			env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom'] && env['valueFrom']['secretKeyRef']
                     end
                 end
                 puts obj.to_json
