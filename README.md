@@ -560,7 +560,7 @@ here.
     On the host machine run
 
     ```bash
-    diff-releases.sh
+    bin/diff-releases.sh
     ```
 
     This command will place the log output and differences for the
