@@ -83,7 +83,8 @@ helm install output/helm \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}" \
      --set "env.UAA_CA_CERT=${CA_CERT}" \
-     --set "kube.external_ip=$(dig +short ${DOMAIN})" \
+     --set "kube.external_ips[0]=$(dig +short ${DOMAIN})" \
+     --set "kube.external_ips[1]=192.0.2.42" \
      "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
