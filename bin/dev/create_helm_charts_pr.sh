@@ -56,6 +56,9 @@ cp -r ../bundle/helm/uaa${suffix:-} stable/
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/cf/values.yaml
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/uaa/values.yaml
 
+sed -i 's@^\(\s\+\)organization:\s\+".*"$@\1organization: "cap"@' stable/cf/values.yaml
+sed -i 's@^\(\s\+\)organization:\s\+".*"$@\1organization: "cap"@' stable/uaa/values.yaml
+
 $HUB config user.email "cf-ci-bot@suse.de"
 $HUB config user.name "${GITHUB_USER}"
 $HUB checkout -b $bundle
