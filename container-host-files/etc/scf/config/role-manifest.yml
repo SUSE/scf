@@ -830,6 +830,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/cc_clock_wait_for_api_ready.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
