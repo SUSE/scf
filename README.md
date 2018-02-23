@@ -540,9 +540,13 @@ here.
 
     It places the version information it used in a subdirectory `_work`.
 
-    If it mentions submodules it has no information for manual
-    matching of versions to commit is the order of the day. Where
-    possible the script will have created at least a clone to start from.
+    `ATTENTION`: The script may mention submodules it has no
+    information about, making manual matching of versions to commit
+    the order of the day. Where possible the script will have created
+    at least a clone of the release to start from.
+
+    Currently these are `uaa-release`, `cf-acceptance-tests`,
+    `cf-smoke-tests-release`, and `nfs-volume-release`.
 
 1. Next up, we need the BOSH releases for the cloned and bumped submodules. Run
 
