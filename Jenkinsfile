@@ -470,7 +470,7 @@ pipeline {
                         --set env.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
-                        --set kube.external_ip=${ipAddress()} \
+                        --set "kube.external_ips[0]=${ipAddress()}" \
                         --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...
