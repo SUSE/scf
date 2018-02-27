@@ -9,7 +9,7 @@ set -o errexit -o nounset
 
 export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.1.0+71.g7cfb0d6"
+export FISSILE_VERSION="5.1.0+78.g6e8627e"
 export HELM_VERSION="2.6.2"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.8.2"
