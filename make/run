@@ -74,6 +74,9 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
+# The extra IP address for `kube.external_ips` is to ensure that we can
+# create services binding to multiple addresses correctly.  It points at
+# an address that shouldn't exist in real life.
 helm install output/helm \
      --namespace ${NAMESPACE} \
      --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
@@ -83,8 +86,8 @@ helm install output/helm \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}" \
      --set "env.UAA_CA_CERT=${CA_CERT}" \
-     --set "kube.external_ips[0]=$(dig +short ${DOMAIN})" \
-     --set "kube.external_ips[1]=192.0.2.42" \
+     --set "kube.external_ips[0]=192.0.2.42" \
+     --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
      "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
