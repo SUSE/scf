@@ -13,15 +13,23 @@ RELEASE=$1
 # gem install csv2json yaml2json orderedhash
 # brew install jq
 
-CF_RELEASE=https://raw.githubusercontent.com/cloudfoundry/cf-release/master/releases/cf-$RELEASE.yml
-COMMIT_HASH=$(curl $CF_RELEASE 2>/dev/null | yaml2json | jq '"X"+.commit_hash')
+CF_DEPLOYMENT=https://raw.githubusercontent.com/cloudfoundry/cf-deployment/v${RELEASE}/cf-deployment.yml
 
-COMPAT=https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v10.csv
-
-# Save, for debugging
+# Save, comms to update-releases
 mkdir -p ${GIT_ROOT}/_work
-curl $COMPAT 2>/dev/null >  ${GIT_ROOT}/_work/compatibility.csv
 
-RELEASE_INFO=$(curl $COMPAT 2>/dev/null | perl -pe '$. == 1 or s/,/,X/g' | csv2json | jq -c "map( select(.[\"cf-release-commit-sha\"] | contains($COMMIT_HASH)))|.[-1]")
+curl $CF_DEPLOYMENT 2>/dev/null \
+    > ${GIT_ROOT}/_work/deployment.yml
 
-echo $RELEASE_INFO | jq . | perl -pe 's/"X/"/'
+cat ${GIT_ROOT}/_work/deployment.yml \
+    | perl -ne 's#.*/([^/]+-release)\?v=(.*)#$1: $2# && print' \
+    | grep -v .-buildpack-release \
+    | sed -e 's/: /,/' \
+    > ${GIT_ROOT}/_work/release.csv
+
+( echo name,version ; cat ${GIT_ROOT}/_work/release.csv ) \
+    | csv2json \
+    > ${GIT_ROOT}/_work/release.json
+
+cat ${GIT_ROOT}/_work/release.csv
+exit

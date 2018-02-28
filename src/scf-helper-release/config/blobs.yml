@@ -1,29 +1,29 @@
 ---
 container-networking/v0-14-0-network-policy-plugin-linux64:
-  object_id: 8fb4ea2d-7f93-4ea4-bfeb-c7b973c2d6b9
+  object_id: v0-14-0-network-policy-plugin-linux64
   sha: df087aee2480e2ec67a6b0433fddd351b9f2cc21
   size: 8472248
-cli/cf-cli_6.31.0_linux_x86-64.tgz:
-  size: 6045122
-  object_id: 234ea85b-4584-409a-b267-d891d9c0eaa6
-  sha: a8c3621b6d34c765e918efdce60e1cbf17ab9f37
+cli/cf-cli_6.33.1_linux_x86-64.tgz:
+  object_id: cf-cli_6.33.1_linux_x86-64.tgz
+  sha: 36d599d1e540c94f31740f6fac49adbf032a22a3
+  size: 6223742
 golang/go1.7.4.linux-amd64.tar.gz:
-  size: 84021919
-  object_id: 783849db-2186-488f-459f-28d2f22d7b64
+  object_id: go1.7.4.linux-amd64.tar.gz
   sha: 2e5baf03d1590e048c84d1d5b4b6f2540efaaea1
+  size: 84021919
 golang/go1.8.3.linux-amd64.tar.gz:
-  size: 90029041
-  object_id: 7c7afa17-ac33-43f5-9a1b-5ecc01cde3a1
+  object_id: go1.8.3.linux-amd64.tar.gz
   sha: 838c415896ef5ecd395dfabde5e7e6f8ac943c8e
+  size: 90029041
 ruby-2.3/bundler-1.11.2.gem:
-  object_id: 5853a4d1-8574-4a5d-ab0b-d72831a79a48
+  object_id: bundler-1.11.2.gem
   sha: 8eb956dec72da753d3d2a2126c78508b17af434e
   size: 263168
 ruby-2.3/ruby-2.3.1.tar.gz:
-  object_id: 95a32294-6f17-45b7-8911-ef6729195536
+  object_id: ruby-2.3.1.tar.gz
   sha: c39b4001f7acb4e334cb60a0f4df72d434bef711
   size: 17797997
 ruby-2.3/rubygems-2.6.4.tgz:
-  object_id: 5e1e754b-85ec-495c-806e-dccf6daec0aa
+  object_id: rubygems-2.6.4.tgz
   sha: 8ef39e536af2ecd20b0e7a95765fa6a485087ac8
   size: 478582
