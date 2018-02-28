@@ -13,12 +13,12 @@ RELEASE=$1
 # gem install csv2json yaml2json orderedhash
 # brew install jq
 
-CF_RELEASE=https://raw.githubusercontent.com/cloudfoundry/cf-deployment/v${RELEASE}/cf-deployment.yml
+CF_DEPLOYMENT=https://raw.githubusercontent.com/cloudfoundry/cf-deployment/v${RELEASE}/cf-deployment.yml
 
 # Save, comms to update-releases
 mkdir -p ${GIT_ROOT}/_work
 
-curl $CF_RELEASE 2>/dev/null \
+curl $CF_DEPLOYMENT 2>/dev/null \
     > ${GIT_ROOT}/_work/deployment.yml
 
 cat ${GIT_ROOT}/_work/deployment.yml \

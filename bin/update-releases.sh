@@ -17,12 +17,12 @@ mkdir -p ${GIT_ROOT}/_work
 echo "${VERSION_INFO}" > ${GIT_ROOT}/_work/VERSION_INFO
 
 release_ref () {
-    release="${1}"
+    local release="${1}"
     echo "${VERSION_INFO}" | awk -F , "/$release/ { print \$2 }"
 }
 
 release_origin() {
-    release=${1}
+    local release=${1}
     case $release in
 	*-buildpack-*)
 	    where=$(git -C ${GIT_ROOT}/src/buildpacks/$release remote -v | grep fetch | awk '{ print $2 }' | uniq)
@@ -35,7 +35,7 @@ release_origin() {
 }
 
 get_submodule_ref () {
-    release=${1}
+    local release=${1}
     dir="${2:-$release}"
     ref=$(release_ref $release)
     echo "${release}" = "${ref}" '@' "$(release_origin $dir)" \
@@ -50,9 +50,9 @@ update_submodule () {
     echo _____________________________ "Updating Submodule ${1}"
     echo ............................. "Updating to commit ${2}"
     echo ............................. "Updating rootdir . ${3}"
-	release_name=${1}
-	commit_id=${2}
-	root_dir=${3}
+	local release_name=${1}
+	local commit_id=${2}
+	local root_dir=${3}
     echo ............................. "Updating for ..... ${GIT_ROOT}"
     echo ............................. "Updating directory ${GIT_ROOT}/${root_dir}/${release_name}"
     echo
@@ -81,25 +81,6 @@ for release_name in \
     statsd-injector-release
 do
 	clone_dir=${GIT_ROOT}/src/${release_name}-clone
-	if test -e "${clone_dir}"
-	then
-		echo "${clone_dir} already exists from previous upgrade."
-		exit 1
-	fi
-done
-
-BUILDPACK_SUBMODULES="go-buildpack-release \
-                      binary-buildpack-release \
-                      nodejs-buildpack-release \
-                      ruby-buildpack-release \
-                      php-buildpack-release \
-                      python-buildpack-release \
-                      staticfile-buildpack-release \
-                      java-buildpack-release"
-
-for release_name in ${BUILDPACK_SUBMODULES}
-do
-	clone_dir=${GIT_ROOT}/src/buildpacks/${release_name}-clone
 	if test -e "${clone_dir}"
 	then
 		echo "${clone_dir} already exists from previous upgrade."
@@ -139,24 +120,6 @@ update_submodule statsd-injector-release "${STATSDI_RELEASE}" src
 
 # Note: Buildpacks are bumped independently of the core CF, they are
 #       our own forks anyway, to support SUSE.
-#
-# GO_BUILDPACK_RELEASE=$(get_submodule_ref go-buildpack-release)
-# BINARY_BUILDPACK_RELEASE=$(get_submodule_ref binary-buildpack-release)
-# NODEJS_BUILDPACK_RELEASE=$(get_submodule_ref nodejs-buildpack-release)
-# RUBY_BUILDPACK_RELEASE=$(get_submodule_ref ruby-buildpack-release)
-# PHP_BUILDPACK_RELEASE=$(get_submodule_ref php-buildpack-release)
-# PYTHON_BUILDPACK_RELEASE=$(get_submodule_ref python-buildpack-release)
-# STATICFILE_BUILDPACK_RELEASE=$(get_submodule_ref staticfile-buildpack-release)
-# JAVA_BUILDPACK_RELEASE=$(get_submodule_ref java-buildpack-release)
-#
-# update_submodule go-buildpack-release "${GO_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule binary-buildpack-release "${BINARY_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule nodejs-buildpack-release "${NODEJS_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule ruby-buildpack-release "${RUBY_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule php-buildpack-release "${PHP_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule python-buildpack-release "${PYTHON_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule staticfile-buildpack-release "${STATICFILE_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule java-buildpack-release "${JAVA_BUILDPACK_RELEASE}" src/buildpacks
 
 echo
 echo
