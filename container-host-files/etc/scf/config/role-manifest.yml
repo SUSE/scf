@@ -23,7 +23,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 69
     virtual-cpus: 2
     exposed-ports:
     - name: scheduler-health
@@ -56,7 +56,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 93
     virtual-cpus: 2
     exposed-ports:
     - name: rlp
@@ -87,7 +87,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 78
     virtual-cpus: 2
     exposed-ports:
     - name: adapter
@@ -129,7 +129,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 60
     virtual-cpus: 2
     exposed-ports:
     - name: nats
@@ -188,7 +188,7 @@ roles:
       tag: mysql-data
       size: 20
     shared-volumes: []
-    memory: 3072
+    memory: 2841
     virtual-cpus: 2
     exposed-ports:
     - name: mysql
@@ -270,7 +270,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 63
     virtual-cpus: 2
     exposed-ports:
     - name: mysql-proxy
@@ -323,7 +323,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 117
     virtual-cpus: 2
     exposed-ports:
     - name: 'usb'
@@ -377,7 +377,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 90
     virtual-cpus: 2
     exposed-ports:
     - name: locket
@@ -424,7 +424,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 138
     virtual-cpus: 2
     exposed-ports:
     - name: cell-bbs-api
@@ -482,7 +482,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 135
     virtual-cpus: 4
     exposed-ports:
     - name: router
@@ -555,7 +555,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 99
     virtual-cpus: 2
     exposed-ports:
     - name: healthcheck
@@ -613,7 +613,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 114
     virtual-cpus: 4
     exposed-ports:
     - name: routing-api
@@ -696,7 +696,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 2560
+    memory: 2421
     virtual-cpus: 4
     exposed-ports:
     - name: api
@@ -761,7 +761,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 753
     virtual-cpus: 2
     exposed-ports: []
     affinity:
@@ -808,7 +808,7 @@ roles:
       tag: blobstore-data
       size: 50
     shared-volumes: []
-    memory: 1536
+    memory: 420
     virtual-cpus: 2
     exposed-ports:
     - name: blobstore-ext
@@ -852,7 +852,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 789
     virtual-cpus: 2
     exposed-ports: []
     affinity:
@@ -891,7 +891,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 390
     virtual-cpus: 2
     exposed-ports:
     - name: dropsonde-udp
@@ -965,7 +965,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 153
     virtual-cpus: 2
     exposed-ports:
     - name: dropsonde
@@ -1019,7 +1019,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 99
     virtual-cpus: 4
     exposed-ports:
     - name: diego-auction
@@ -1069,7 +1069,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 512
+    memory: 129
     virtual-cpus: 4
     exposed-ports:
     - name: cc-up-listen-ssl
@@ -1123,7 +1123,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 256
+    memory: 123
     virtual-cpus: 2
     exposed-ports:
     - name: diego-ssh
@@ -1173,7 +1173,7 @@ roles:
     capabilities: [ALL]
     persistent-volumes: []
     shared-volumes: []
-    memory: 128
+    memory: 63
     virtual-cpus: 2
     exposed-ports:
     - name: nfsbroker
@@ -1242,7 +1242,7 @@ roles:
       tag: grootfs-data
       size: 50
     shared-volumes: []
-    memory: 4096
+    memory: 4677
     virtual-cpus: 4
     exposed-ports:
     - name: rep-server
@@ -1305,7 +1305,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 144
     virtual-cpus: 2
     exposed-ports: []
 - name: acceptance-tests
@@ -1328,7 +1328,7 @@ roles:
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
-    memory: 1024
+    memory: 876
     virtual-cpus: 2
     exposed-ports: []
   configuration:
