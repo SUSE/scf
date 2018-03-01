@@ -298,12 +298,9 @@ Typically Vagrant box deployments encounter one of few problems:
 
 # Deploying SCF on Kubernetes
 
-After careful consideration of the difficulty of the current install, we decided not
-to detail the instructions to install on bare K8s because it still requires far too
-much knowledge of SCF related systems and troubleshooting.
-
-Please be patient while we work on a set of [Helm](https://github.com/kubernetes/helm)
-charts that will help people easily install on any Kubernetes.
+SCF is deployed via [Helm](https://github.com/kubernetes/helm) on Kubernetes.
+Please see the wiki page for [installation instructions](https://github.com/SUSE/scf/wiki/How-to-Install-SCF)
+if you have a running Kubernetes already.
 
 ## Makefile targets
 
