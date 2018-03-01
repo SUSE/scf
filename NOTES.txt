@@ -19,3 +19,6 @@
         [1;36mwatch -c 'kubectl get pods --namespace {{ .Release.Namespace }}'[0m
 
     to monitor continuously.
+
+    The online documentation (release notes, deployment guide) can be found at
+        [1;36mhttps://www.suse.com/documentation/cloud-application-platform-1[0m
