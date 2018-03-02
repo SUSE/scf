@@ -14,7 +14,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
 
 # Determine the kube revision of the chart controlling the specified namespace.
-release_version() { helm list --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
+release_version() { helm list -d -r --max 1 --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
 
 get_uaa_secret () {
     kubectl get secret secret-$(release_version "${UAA_NAMESPACE}") \
@@ -23,7 +23,7 @@ get_uaa_secret () {
 }
 
 # Argument? (**)
-RELEASE=$(helm list --namespace "${NAMESPACE}" -q | tail -n 1)
+RELEASE=$(helm list list -d -r --max 1 --namespace "${NAMESPACE}" -q | tail -n 1)
 echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start

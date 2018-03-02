@@ -12,6 +12,6 @@ has_namespace() {
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop start
 if has_namespace ; then
     kubectl delete namespace "${NAMESPACE}"
-    helm delete $(helm list --namespace  "${NAMESPACE}" -q)
+    helm delete $(helm list --max 20 --namespace  "${NAMESPACE}" -q)
 fi
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop 'done'
