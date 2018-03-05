@@ -9,7 +9,7 @@ UAA_NAMESPACE="uaa"
 CA_CERT=internal-ca-cert
 
 # Determine the kube revision of the chart controlling the specified namespace.
-release_version() { helm list -d -r --max 1 --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
+release_version() { helm list --date --reverse --max 1 --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
 
 has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
