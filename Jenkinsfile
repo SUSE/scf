@@ -63,7 +63,7 @@ void runTest(String testName) {
                         value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
                         env['value'] = value.to_s
 
-			env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom'] && env['valueFrom']['secretKeyRef']
+                        env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom'] && env['valueFrom']['secretKeyRef']
                     end
                 end
                 puts obj.to_json
@@ -443,9 +443,9 @@ pipeline {
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
-		    get_uaa_secret_name () {
-		        kubectl get pod mysql-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'
-		    }
+                    get_uaa_secret_name () {
+                        kubectl get pod mysql-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'
+                    }
 
                     get_uaa_secret () {
                         kubectl get secret "\$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
@@ -461,6 +461,9 @@ pipeline {
 
                     UAA_CA_CERT="\$(get_uaa_secret internal-ca-cert | base64 -d -)"
 
+                    # The extra IP address is to check that the code to set up multiple
+                    # addresses for services is working correctly; it isn't used in
+                    # actual routing.
                     helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
@@ -470,7 +473,8 @@ pipeline {
                         --set env.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
-                        --set kube.external_ip=${ipAddress()} \
+                        --set "kube.external_ips[0]=192.0.2.84" \
+                        --set "kube.external_ips[1]=${ipAddress()}" \
                         --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...

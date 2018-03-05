@@ -298,12 +298,9 @@ Typically Vagrant box deployments encounter one of few problems:
 
 # Deploying SCF on Kubernetes
 
-After careful consideration of the difficulty of the current install, we decided not
-to detail the instructions to install on bare K8s because it still requires far too
-much knowledge of SCF related systems and troubleshooting.
-
-Please be patient while we work on a set of [Helm](https://github.com/kubernetes/helm)
-charts that will help people easily install on any Kubernetes.
+SCF is deployed via [Helm](https://github.com/kubernetes/helm) on Kubernetes.
+Please see the wiki page for [installation instructions](https://github.com/SUSE/scf/wiki/How-to-Install-SCF)
+if you have a running Kubernetes already.
 
 ## Makefile targets
 
@@ -538,6 +535,16 @@ here.
     to bump to the specified release of CF. This pulls the information
     about compatible releases, creates clones and bumps them.
 
+    It places the version information it used in a subdirectory `_work`.
+
+    `ATTENTION`: The script may mention submodules it has no
+    information about, making manual matching of versions to commit
+    the order of the day. Where possible the script will have created
+    at least a clone of the release to start from.
+
+    Currently these are `uaa-release`, `cf-acceptance-tests`,
+    `cf-smoke-tests-release`, and `nfs-volume-release`.
+
 1. Next up, we need the BOSH releases for the cloned and bumped submodules. Run
 
     ```bash
@@ -545,7 +552,7 @@ here.
     ```
 
     This command will place the log output for the individual releases
-    into the sub directory `LOG/ccr`.
+    into the sub directory `_work/LOG/ccr`.
 
 1. With this done we can now compare the BOSH releases of originals
    and clones, telling us what properties have changed (added,
@@ -554,11 +561,11 @@ here.
     On the host machine run
 
     ```bash
-    diff-releases.sh
+    bin/diff-releases.sh
     ```
 
     This command will place the log output and differences for the
-    individual releases into the sub directory `LOG/dr`.
+    individual releases into the sub directory `_work/LOG/dr`.
 
 1. Act on configuration changes:
 

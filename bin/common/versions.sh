@@ -9,7 +9,7 @@ set -o errexit -o nounset
 
 export BOSH_CLI_VERSION="39747e9d1fbc1d32af3672f903b6c4b73e1e1a9e"
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.1.0+71.g7cfb0d6"
+export FISSILE_VERSION="5.1.0+78.g6e8627e"
 export HELM_VERSION="2.6.2"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.8.2"
@@ -24,9 +24,9 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 if [ "${USE_SLE_BASE:-false}" == "false" ]
 then
-	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-3.gc7b3cc2-29.96}
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-3.gc7b3cc2-29.103}
 else
-	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-7.g66370f0-0.82}
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-7.g66370f0-0.86}
 fi
 
 # Used in: bin/generate-dev-certs.sh
@@ -35,7 +35,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
-export CF_VERSION=1.9.0
+export CF_VERSION=1.15.0
 
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################

@@ -256,10 +256,6 @@ properties:
   router:
     enable_ssl: true
     extra_headers_to_log: null
-    logrotate:
-      freq_min: 20
-      rotate: 5
-      size: 3M
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
