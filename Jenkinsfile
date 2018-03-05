@@ -87,7 +87,11 @@ String distSubDir() {
         "${CHANGE_ID}"
         return 'prs/'
     } catch (Exception ex) {
-        switch (env.BRANCH_NAME) {
+        string branch = params.BRANCH_NAME
+        if (branch == "" || branch == null) {
+            branch = env.BRANCH_NAME
+        }
+        switch (env.branch) {
             case 'develop':
                 return 'develop/'
             case 'master':
@@ -102,10 +106,14 @@ String distPrefix() {
     try {
         return "PR-${CHANGE_ID}-"
     } catch (Exception ex) {
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+        string branch = params.BRANCH_NAME
+        if (branch == "" || branch == null) {
+            branch = env.BRANCH_NAME
+        }
+        if (branch == 'develop' || branch == 'master') {
             return ''
         }
-        return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        return java.net.URLEncoder.encode("${branch}-", "UTF-8")
     }
 }
 
@@ -243,12 +251,19 @@ pipeline {
 
     stages {
         stage('trigger_sles_build') {
-          when {
+            when {
                 expression { return params.TRIGGER_SLES_BUILD }
-          }
-          steps {
-            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
-          }
+            }
+            steps {
+                build(
+                    job: 'scf-sles-trigger',
+                    wait: false,
+                    parameters: [
+                        string(name: 'JOB_NAME', value: env.JOB_NAME),
+                        string(name: 'BRANCH_NAME', value: params.BRANCH_NAME ? params.BRANCH_NAME : env.BRANCH_NAME),
+                    ]
+                )
+            }
         }
 
         stage('wipe') {
