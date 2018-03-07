@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [2.7.1] - 2018-03-06
+### Added
+- Allow more than one IP address for external IPs
+- MySQL now a clustered role
+- More configurations for UAA logging level
+
+### Changed
+- To address CVE-2018-1221, bumped CF Deployment to 1.15 and routing-release to 0.172.0
+- Bumped UAA to v55.0
+- Bumped SLE12 & openSuse stacks
+- Bumped buildpack versions to latest
+
+### Fixed
+- Make the cloud controller clock role wait until the API is ready
+
 ## [2.7.0] - 2018-02-09
 ### Added
 - Add ability to rename immutable secrets
