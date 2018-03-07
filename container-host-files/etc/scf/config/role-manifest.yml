@@ -26,7 +26,7 @@ roles:
     memory: 69
     virtual-cpus: 2
     exposed-ports:
-    - name: scheduler-health
+    - name: sched-health
       protocol: TCP
       external: 8080
       internal: 8080
@@ -563,11 +563,12 @@ roles:
       external: 2341
       internal: 80
       public: true
-    - name: tcp-routing
+    - name: tcp-route
       protocol: TCP
-      external: 20000-20008
       internal: 20000-20008
       public: true
+      count-configurable: true
+      max: 20
     healthcheck:
       readiness:
         url: http://container-ip/health
@@ -1072,7 +1073,7 @@ roles:
     memory: 129
     virtual-cpus: 4
     exposed-ports:
-    - name: cc-up-listen-ssl
+    - name: cc-up-listen
       protocol: TCP
       external: 9091
       internal: 9091
@@ -1868,6 +1869,14 @@ configuration:
     description: >
       The number of nats replicas deployed.
       This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX
+    description: >
+      Highest internal TCP routing port.
+      This value is set automatically by the helm charts of SCF.
+  - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN
+    description: >
+      Lowest internal TCP routing port.
+      This value is set automatically by the helm charts of SCF.
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2077,10 +2086,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
-  - name: RESERVABLE_PORTS
-    default: 20000-20008
-    description: Modifying this value will break TCP port forwarding.
     required: true
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
@@ -2608,7 +2613,7 @@ configuration:
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
-    properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((RESERVABLE_PORTS))"}]'
+    properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: "mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
