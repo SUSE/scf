@@ -27,12 +27,22 @@ run:
 	make/uaa-wait
 	make/run
 
+upgrade:
+	make/uaa-upgrade
+	make/uaa-wait
+	make/upgrade
+
+wait:
+	make/wait cf
+
 validate:
 	make/validate
 
 stop:
 	make/stop
 	make/uaa-stop
+	make/wait cf
+	make/wait uaa
 
 vagrant-box:
 	make/vagrant-box
@@ -78,6 +88,9 @@ uaa-wait:
 
 uaa-stop:
 	make/uaa-stop
+
+uaa-upgrade:
+	make/uaa-upgrade
 
 uaa-compile: ${FISSILE_BINARY}
 	make/compile restore
@@ -138,9 +151,6 @@ scf-helper-release:
 
 capi-release:
 	make/bosh-release src/capi-release
-
-grootfs-release:
-	make/bosh-release src/grootfs-release
 
 loggregator-release:
 	make/bosh-release src/loggregator-release
@@ -204,7 +214,6 @@ releases: \
 	python-buildpack-release \
 	ruby-buildpack-release \
 	staticfile-buildpack-release \
-	grootfs-release \
 	uaa-releases \
 	${NULL}
 

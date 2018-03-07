@@ -16,19 +16,43 @@ VERSION_INFO=$("${GIT_ROOT}/bin/get-cf-versions.sh" "${RELEASE}")
 mkdir -p ${GIT_ROOT}/_work
 echo "${VERSION_INFO}" > ${GIT_ROOT}/_work/VERSION_INFO
 
-CF_RELEASE=$(echo "${VERSION_INFO}" | jq -r .[\"cf-release-commit-sha\"])
-DIEGO_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"diego-release-version\"])
-CFLINUXFS2_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"cflinuxfs2-release-version\"])
-GARDEN_RUNC_RELEASE=v$(echo "${VERSION_INFO}" | jq -r .[\"garden-runc-release-version\"])
+release_ref () {
+    local release="${1}"
+    echo "${VERSION_INFO}" | awk -F , "/$release/ { print \$2 }"
+}
+
+release_origin() {
+    local release=${1}
+    case $release in
+	*-buildpack-*)
+	    where=$(git -C ${GIT_ROOT}/src/buildpacks/$release remote -v | grep fetch | awk '{ print $2 }' | uniq)
+	    ;;
+	*)
+	    where=$(git -C ${GIT_ROOT}/src/$release remote -v | grep fetch| awk '{ print $2 }' | uniq)
+	    ;;
+    esac
+    echo "${where}"
+}
+
+get_submodule_ref () {
+    local release=${1}
+    dir="${2:-$release}"
+    ref=$(release_ref $release)
+    echo "${release}" = "${ref}" '@' "$(release_origin $dir)" \
+        >> ${GIT_ROOT}/_work/SUBMODULE_REFERENCES
+    echo "${ref}"
+}
+
+echo > ${GIT_ROOT}/_work/SUBMODULE_REFERENCES    ""
 
 update_submodule () {
     echo
     echo _____________________________ "Updating Submodule ${1}"
     echo ............................. "Updating to commit ${2}"
     echo ............................. "Updating rootdir . ${3}"
-	release_name=${1}
-	commit_id=${2}
-	root_dir=${3}
+	local release_name=${1}
+	local commit_id=${2}
+	local root_dir=${3}
     echo ............................. "Updating for ..... ${GIT_ROOT}"
     echo ............................. "Updating directory ${GIT_ROOT}/${root_dir}/${release_name}"
     echo
@@ -42,7 +66,19 @@ update_submodule () {
 	git submodule update --init --recursive
 }
 
-for release_name in nats-release consul-release loggregator-release capi-release diego-release etcd-release garden-runc-release
+for release_name in \
+    capi-release \
+    cf-mysql-release \
+    cf-smoke-tests-release \
+    cf-syslog-drain-release \
+    cflinuxf2-release \
+    diego-release \
+    garden-runc-release \
+    loggregator-release \
+    nats-release \
+    nfs-volume-release \
+    routing-release \
+    statsd-injector-release
 do
 	clone_dir=${GIT_ROOT}/src/${release_name}-clone
 	if test -e "${clone_dir}"
@@ -52,99 +88,53 @@ do
 	fi
 done
 
-BUILDPACK_SUBMODULES="go-buildpack-release \
-                      binary-buildpack-release \
-                      nodejs-buildpack-release \
-                      ruby-buildpack-release \
-                      php-buildpack-release \
-                      python-buildpack-release \
-                      staticfile-buildpack-release \
-                      java-buildpack-release"
+# Note `v`-prefix on the version tags
+CFLINUXFS2_RELEASE=v$(get_submodule_ref cflinuxfs2-release)
+DIEGO_RELEASE=v$(get_submodule_ref diego-release)
+GARDEN_RUNC_RELEASE=v$(get_submodule_ref garden-runc-release)
+LOGGREGATOR_RELEASE=v$(get_submodule_ref loggregator-release)
+MYSQL_RELEASE=v$(get_submodule_ref cf-mysql-release)
+NATS_RELEASE=v$(get_submodule_ref nats-release)
+STATSDI_RELEASE=v$(get_submodule_ref statsd-injector-release)
+SYSLOG_DRAIN_RELEASE=v$(get_submodule_ref cf-syslog-drain-release)
 
-for release_name in ${BUILDPACK_SUBMODULES}
-do
-	clone_dir=${GIT_ROOT}/src/buildpacks/${release_name}-clone
-	if test -e "${clone_dir}"
-	then
-		echo "${clone_dir} already exists from previous upgrade."
-		exit 1
-	fi
-done
+# And version tags without any prefix
+CAPI_RELEASE=$(get_submodule_ref capi-release)
+ROUTING_RELEASE=$(get_submodule_ref cf-routing-release routing-release)
 
-update_submodule diego-release "${DIEGO_RELEASE}" src
-update_submodule cflinuxfs2-release "${CFLINUXFS2_RELEASE}" src
+# cf-smoke-tests-release -- no tags, manual, clone at least
+# nfs-volume-release -- manual, not in deployment
+
+update_submodule capi-release "${CAPI_RELEASE}" src
+update_submodule cf-mysql-release "${MYSQL_RELEASE}" src
+update_submodule cf-smoke-tests-release "" src
+update_submodule cf-syslog-drain-release "${SYSLOG_DRAIN_RELEASE}" src
+update_submodule cflinuxfs2-release  "${CFLINUXFS2_RELEASE}"  src
+update_submodule diego-release       "${DIEGO_RELEASE}"       src
 update_submodule garden-runc-release "${GARDEN_RUNC_RELEASE}" src
-
-CF_RELEASE_VERSION_INFO=$(curl --silent "https://api.github.com/repos/cloudfoundry/cf-release/contents/src?ref=${CF_RELEASE}")
-
-echo > ${GIT_ROOT}/_work/CF_RELEASE_VERSION_INFO "${CF_RELEASE_VERSION_INFO}"
-echo > ${GIT_ROOT}/_work/SUBMODULE_REFERENCES    ""
-
-get_submodule_ref () {
-	version_info=${1}
-	release=${2}
-
-	case $release in
-	    *-buildpack-*)
-		where=$(git -C ${GIT_ROOT}/src/buildpacks/$release remote -v | grep fetch | awk '{ print $2 }' | uniq)
-		;;
-	    *)
-		where=$(git -C ${GIT_ROOT}/src/$release remote -v | grep fetch| awk '{ print $2 }' | uniq)
-		;;
-	esac
-
-    echo "${release}" = $(echo "${version_info}" | jq -r ".[] | select(.name == \"${release}\") | .sha") '@' $where \
-        >> ${GIT_ROOT}/_work/SUBMODULE_REFERENCES
-
-	echo "${version_info}" | jq -r ".[] | select(.name == \"${release}\") | .sha"
-}
+update_submodule loggregator-release "${LOGGREGATOR_RELEASE}" src
+update_submodule nats-release "${NATS_RELEASE}" src
+update_submodule nfs-volume-release "" src
+update_submodule routing-release "${ROUTING_RELEASE}" src
+update_submodule statsd-injector-release "${STATSDI_RELEASE}" src
 
 # Note: Buildpacks are bumped independently of the core CF, they are
 #       our own forks anyway, to support SUSE.
-#
-# GO_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" go-buildpack-release)
-# BINARY_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" binary-buildpack-release)
-# NODEJS_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nodejs-buildpack-release)
-# RUBY_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" ruby-buildpack-release)
-# PHP_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" php-buildpack-release)
-# PYTHON_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" python-buildpack-release)
-# STATICFILE_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" staticfile-buildpack-release)
-# JAVA_BUILDPACK_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" java-buildpack-release)
-
-CAPI_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" capi-release)
-CONSUL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" consul-release)
-ETCD_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" etcd-release)
-LOGGREGATOR_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" loggregator-release)
-NATS_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" nats-release)
-
-#CFMYSQL_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" cf-mysql-release)
-ROUTING_RELEASE=$(get_submodule_ref "${CF_RELEASE_VERSION_INFO}" routing-release)
-
-# update_submodule go-buildpack-release "${GO_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule binary-buildpack-release "${BINARY_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule nodejs-buildpack-release "${NODEJS_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule ruby-buildpack-release "${RUBY_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule php-buildpack-release "${PHP_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule python-buildpack-release "${PYTHON_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule staticfile-buildpack-release "${STATICFILE_BUILDPACK_RELEASE}" src/buildpacks
-# update_submodule java-buildpack-release "${JAVA_BUILDPACK_RELEASE}" src/buildpacks
-
-update_submodule capi-release "${CAPI_RELEASE}" src
-update_submodule consul-release "${CONSUL_RELEASE}" src
-update_submodule etcd-release "${ETCD_RELEASE}" src
-update_submodule loggregator "${LOGGREGATOR_RELEASE}" src
-update_submodule nats-release "${NATS_RELEASE}" src
-update_submodule routing-release "${ROUTING_RELEASE}" src
-
-
-update_submodule cf-mysql-release "" src
-update_submodule grootfs-release  "" src
 
 echo
 echo
-echo ATTENTION, two releases not automatically bumped, no automatic information available
-echo '* cf-mysql - look at the diego release notes'
-echo '* grootfs  - look at the cf release notes, and cross-check with garden-runc release'
-echo Both have been cloned to ease the operation
+echo "ATTENTION, several releases were __not__ automatically bumped,"
+echo "for various reasons. See below."
+echo ""
+echo "* uaa-release            - see src/uaa-fissile-release"
+echo "* cf-acceptance-tests    - see src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"
+echo "               ATTENTION: Branch tag must match CF version (${RELEASE})."
+echo '* cf-smoke-tests-release - no tags, manually match version to commit'
+echo '* nfs-volume-release     - no version known, not part of the standard deployment'
+echo
+echo "For the releases below clones were made, providing a starting point"
+echo
+echo '* cf-smoke-tests-release'
+echo '* nfs-volume-release'
 echo
 echo

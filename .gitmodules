@@ -43,9 +43,6 @@
 [submodule "src/buildpacks/staticfile-buildpack-release"]
 	path = src/buildpacks/staticfile-buildpack-release
 	url = https://github.com/SUSE/cf-staticfile-buildpack-release.git
-[submodule "src/grootfs-release"]
-	path = src/grootfs-release
-	url = https://github.com/cloudfoundry/grootfs-release.git
 [submodule "src/cf-opensuse42-release"]
 	path = src/cf-opensuse42-release
 	url = https://github.com/SUSE/cf-opensuse42-release.git
