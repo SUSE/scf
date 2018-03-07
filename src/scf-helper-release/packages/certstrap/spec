@@ -1,7 +1,0 @@
----
-name: certstrap
-
-files:
-  - certstrap/**/*
-dependencies:
-  - golang1.10
