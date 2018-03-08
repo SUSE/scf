@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [2.7.2] - 2018-03-07
+
+### Changed
+- Bumped fissile to 5.1.0+89
+
 ## [2.7.1] - 2018-03-06
 ### Added
 - Allow more than one IP address for external IPs
