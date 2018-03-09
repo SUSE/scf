@@ -128,6 +128,70 @@ roles:
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
+- name: consul
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: consul_agent
+    release_name: consul
+    consumes:
+      consul_common: {}
+      consul_server: {}
+    provides:
+      consul_common: {}
+      consul_server: {}
+  processes:
+  - name: metron_agent
+  tags: [clustered]
+  run:
+    scaling:
+      min: 1
+      max: 1
+      ha: 1
+      must_be_odd: true
+    memory: 256
+    virtual-cpus: 1
+    exposed-ports:
+    - name: consul-server
+      external: 8300
+      internal: 8300
+      protocol: TCP
+    - name: consul-http
+      external: 8500
+      internal: 8500
+      protocol: TCP
+    - name: serf-tcp
+      extenral: 8301
+      internal: 8301
+      protocol: TCP
+    - name: serf-udp
+      extenral: 8301
+      internal: 8301
+      protocol: UDP
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: skiff-role-name
+              operator: In
+              values: [ consul ]
+  configuration:
+    templates:
+      properties.consul.agent.mode: server
+      properties.consul.agent.node_name_includes_id: false
+      properties.consul.agent_cert: ((CONSUL_SERVER_CERT))
+      properties.consul.agent_key: ((CONSUL_SERVER_KEY))
+      properties.consul.encrypt_keys: "[((CONSUL_SERVER_ENCRYPT_KEY))]"
+      properties.consul.server_cert: ((CONSUL_SERVER_CERT))
+      properties.consul.server_key: ((CONSUL_SERVER_KEY))
+
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1660,6 +1724,47 @@ configuration:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
+  - name: CONSUL_CLIENT_CERT
+    secret: true
+    generator:
+      id: consul_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded consul client certificate
+    required: true
+  - name: CONSUL_CLIENT_KEY
+    secret: true
+    generator:
+      id: consul_client_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded consul client key
+    required: true
+  - name: CONSUL_SERVER_CERT
+    secret: true
+    generator:
+      id: consul_server_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - "*.consul-set"
+      - "server.dc1.{{.KUBE_SERVICE_DOMAIN_SUFFIX}}"
+    description: PEM-encoded server certificate
+    required: true
+  - name: CONSUL_SERVER_ENCRYPT_KEY
+    secret: true
+    generator:
+      type: Password
+    description: Consul server encryption key
+    required: true
+  - name: CONSUL_SERVER_KEY
+    secret: true
+    generator:
+      id: consul_server_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key
+    required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
     # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
@@ -1824,6 +1929,12 @@ configuration:
     type: environment
   - name: KUBE_COMPONENT_NAME
     type: environment
+  - name: KUBE_CONSUL_CLUSTER_IPS
+    type: environment
+    description: >
+      A comma-separated list of IP addresses for the machines of the consul sub-cluster.
+      This parameter cannot be set by the user.
+      Its value is automatically computed during cluster setup.
   - name: KUBE_NATS_CLUSTER_IPS
     type: environment
     description: >
@@ -2458,6 +2569,11 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.consul.agent.domain: ((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
+    properties.consul.agent_cert: ((CONSUL_CLIENT_CERT))
+    properties.consul.agent_key: ((CONSUL_CLIENT_KEY))
+    properties.consul.ca_cert: ((INTERNAL_CA_CERT))
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.

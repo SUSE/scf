@@ -79,3 +79,6 @@
 [submodule "src/postgres-release"]
 	path = src/postgres-release
 	url = https://github.com/cloudfoundry/postgres-release.git
+[submodule "src/consul-release"]
+	path = src/consul-release
+	url = https://github.com/cloudfoundry-incubator/consul-release.git
