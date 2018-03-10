@@ -131,6 +131,9 @@ usb-release:
 nfs-volume-release:
 	make/bosh-release src/nfs-volume-release
 
+postgres-release:
+	make/bosh-release src/postgres-release
+
 cflinuxfs2-release:
 	make/bosh-release src/cflinuxfs2-release
 
@@ -199,6 +202,7 @@ releases: \
 	cf-opensuse42-release \
 	cf-sle12-release \
 	cf-syslog-drain-release \
+	postgres-release \
 	routing-release \
 	scf-helper-release \
 	capi-release \
