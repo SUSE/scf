@@ -40,6 +40,10 @@ mkdir bundle
 wget -O bundle.zip "${CAP_BUNDLE}"
 unzip -d bundle/ bundle.zip
 bundle=$(basename "$CAP_BUNDLE" .zip)
+bundle_readable=$(printf '%b' "${bundle//%/\\x}")
+product=`echo $bundle_readable | cut -d+ -f1`
+pr_title="Release $product"
+pr_description="Publish Helm charts for release $product created from $bundle_readable.zip built in Jenkins run $SOURCE_BUILD."
 
 if [ -d bundle/helm/cf-opensuse ]; then
   suffix="-opensuse"
@@ -67,4 +71,4 @@ $HUB commit -m "Submitting "$bundle
 $HUB push origin $bundle
 
 # Open a Pull Request, head: current branch, base: master
-$HUB pull-request -m "$bundle submitted by $SOURCE_BUILD" -b master
+$HUB pull-request -m "$(printf "$pr_title\n\n$pr_description")" -b master
