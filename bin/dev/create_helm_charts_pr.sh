@@ -40,6 +40,7 @@ mkdir bundle
 wget -O bundle.zip "${CAP_BUNDLE}"
 unzip -d bundle/ bundle.zip
 bundle=$(basename "$CAP_BUNDLE" .zip)
+bundle_readable="${bundle//%2B/ and }"
 
 if [ -d bundle/helm/cf-opensuse ]; then
   suffix="-opensuse"
@@ -68,3 +69,4 @@ $HUB push origin $bundle
 
 # Open a Pull Request, head: current branch, base: master
 $HUB pull-request -m "$bundle submitted by $SOURCE_BUILD" -b master
+$HUB pull-request -m "$(printf "$bundle_readable\n\nCreated by $SOURCE_BUILD")" -b master
