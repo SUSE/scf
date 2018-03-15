@@ -29,6 +29,18 @@ roles:
     - name: sched-health
       protocol: TCP
       internal: 8080
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-scheduler
+            topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
@@ -60,6 +72,18 @@ roles:
     - name: rlp
       protocol: TCP
       internal: 8082
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-rlp
+            topologyKey: "beta.kubernetes.io/os"
 - name: syslog-adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -92,6 +116,18 @@ roles:
     - name: adapter-health
       protocol: TCP
       internal: 8080
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-adapter
+            topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
