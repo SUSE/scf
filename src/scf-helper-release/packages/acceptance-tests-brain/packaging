@@ -19,9 +19,9 @@ function extract()
 
     case "$type" in
     "zip")  unzip $1 -d $2 ;;
-    "tgz")  tar zxvf $1 -C $2 --wildcards --transform 's@.*/@@' --exclude '*.txt' ;;
+    "tgz")  tar zxvf $1 -C $2 --wildcards --transform 's@.*/@@' --exclude '*.txt' --exclude '*.md' ;;
     "gz")   gunzip $1 ; mv `echo $1|rev|cut -f 2- -d "."|rev` $2 ;;
-    "bzip") tar jxvf $1 -C $2 --wildcards --transform 's@.*/@@' --exclude '*.txt' ;;
+    "bzip") tar jxvf $1 -C $2 --wildcards --transform 's@.*/@@' --exclude '*.txt' --exclude '*.md' ;;
     esac
 }
 
