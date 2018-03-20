@@ -8,17 +8,17 @@ NAMESPACE="cf"
 UAA_NAMESPACE="uaa"
 CA_CERT=internal-ca-cert
 
-# Determine the kube revision of the chart controlling the specified namespace.
-release_version() { helm list --date --reverse --max 1 --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
-
 has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
 }
 
+get_uaa_secret_name() {
+    kubectl get pod mysql-0 --namespace "${UAA_NAMESPACE}" \
+            -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}'
+}
+
 get_uaa_secret () {
-    kubectl get secret secret-$(release_version "${UAA_NAMESPACE}") \
-	--namespace "${UAA_NAMESPACE}" \
-	-o jsonpath="{.data['$1']}"
+    kubectl get secret $(get_uaa_secret_name) --namespace "${UAA_NAMESPACE}" -o jsonpath="{.data['$1']}"
 }
 
 has_internal_ca() {
@@ -79,13 +79,13 @@ source "${NETWORK_ENV}"
 # an address that shouldn't exist in real life.
 helm install output/helm \
      --namespace ${NAMESPACE} \
-     --set "env.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
      --set "env.DOMAIN=${DOMAIN}" \
      --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
-     --set "env.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
      --set "env.UAA_HOST=${UAA_HOST}" \
      --set "env.UAA_PORT=${UAA_PORT}" \
-     --set "env.UAA_CA_CERT=${CA_CERT}" \
+     --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
+     --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
+     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
      --set "kube.external_ips[0]=192.0.2.42" \
      --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
      "$@"
