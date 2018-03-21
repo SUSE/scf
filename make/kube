@@ -37,9 +37,9 @@ fi
 if [ "${BUILD_TARGET}" = "kube" ]; then
     # Overrides when generating kube config files instead of helm charts.
     FISSILE_OUTPUT_DIR="${PWD}/output/kube"
-    FISSILE_DEFAULTS_FILE="${FISSILE_DEFAULTS_FILE},bin/settings/settings.env,${NETWORK_ENV}"
     USE_SECRETS_GENERATOR=
 fi
+FISSILE_DEFAULTS_FILE="${FISSILE_DEFAULTS_FILE},bin/settings/settings.env,${NETWORK_ENV}"
 
 rm -rf "${FISSILE_OUTPUT_DIR}"
 
