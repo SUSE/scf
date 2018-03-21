@@ -304,12 +304,15 @@ pipeline {
                     docker ps --filter=status=exited  --quiet | xargs --no-run-if-empty docker rm
                     docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm || true
                     docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm
+                    # Force delete anything fissile
+                    docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f || true
+                    docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f
 
-                    while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
+                    while docker ps -a --format '{{.Names}}' | grep -E -- '-scf_|-uaa_'; do
                         sleep 1
                     done
 
-                    helm list --all --short | grep -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
+                    helm list --all --short | grep -E -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
