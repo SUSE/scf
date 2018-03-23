@@ -1291,7 +1291,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.scf.secrets.variables: '((DOMAIN))'
+      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SECRETS_GENERATION_COUNTER))((KUBE_SECRETS_GENERATION_NAME))'
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1332,7 +1332,7 @@ configuration:
         verbs: [get]
       secrets-role:
       - apiGroups: [""]
-        resources: [secrets]
+        resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
     accounts:
       default:
@@ -1773,6 +1773,10 @@ configuration:
       A comma-separated list of IP addresses for the machines of the nats sub-cluster.
       This parameter cannot be set by the user.
       Its value is automatically computed during cluster setup.
+  - name: KUBE_SECRETS_GENERATION_COUNTER
+    type: environment
+  - name: KUBE_SECRETS_GENERATION_NAME
+    type: environment
   - name: KUBE_SERVICE_DOMAIN_SUFFIX
     description: >
       The Kubernetes-internal domain suffix (svc.<namespace>.cluster.local or

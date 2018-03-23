@@ -7,7 +7,7 @@ mkdir -p "${BIN_DIR}"
 
 cp -a "${BOSH_COMPILE_TARGET}/scf-config/role-manifest.yml" "${BOSH_INSTALL_TARGET}"
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.8)
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
 export GOPATH=${BOSH_COMPILE_TARGET}
 export PATH=$GOROOT/bin:$PATH
 

@@ -67,7 +67,7 @@ rm \
 
 # # ## ### ##### ######## test brain itself
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.7)
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
 export GOPATH=${BOSH_COMPILE_TARGET}
 export PATH=$GOROOT/bin:$PATH
 
