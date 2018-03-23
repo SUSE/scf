@@ -2,8 +2,19 @@
 
 ## [Unreleased]
 
-## [2.7.2] - 2018-03-07
+## [2.7.3] - 2018-03-23
+### Added
+- TCP routing ports are now configurable and can be templatized
+- CPU limits can now be set
+- Kubernetes annotations enabled so operators can specify which nodes particular roles can run on
 
+### Changed
+- Bumped fissile to 5.1.0+128
+
+### Fixed
+- Changed how secrets are generated for rotation after 2.7.1 and 2.7.2 ran into problems during upgrades
+
+## [2.7.2] - 2018-03-07
 ### Changed
 - Bumped fissile to 5.1.0+89
 
