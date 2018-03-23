@@ -63,7 +63,12 @@ void runTest(String testName) {
                         value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
                         env['value'] = value.to_s
 
-                        env['valueFrom']['secretKeyRef']['name'] = capsecret if env['valueFrom'] && env['valueFrom']['secretKeyRef']
+                        # only generated secrets live in the versioned secret; all user provided secrets are in `secrets`
+                        unless %w(CLUSTER_ADMIN_PASSWORD UAA_ADMIN_CLIENT_SECRET UAA_CA_CERT).include? env['name']
+                            if env['valueFrom'] && env['valueFrom']['secretKeyRef']
+                                env['valueFrom']['secretKeyRef']['name'] = capsecret
+                            end
+                        end
                     end
                 end
                 puts obj.to_json
@@ -304,12 +309,15 @@ pipeline {
                     docker ps --filter=status=exited  --quiet | xargs --no-run-if-empty docker rm
                     docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm || true
                     docker ps --filter=status=created --quiet | xargs --no-run-if-empty docker rm
+                    # Force delete anything fissile
+                    docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f || true
+                    docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f
 
-                    while docker ps -a --format '{{.Names}}' | grep -- '-scf_|-uaa_'; do
+                    while docker ps -a --format '{{.Names}}' | grep -E -- '-scf_|-uaa_'; do
                         sleep 1
                     done
 
-                    helm list --all --short | grep -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
+                    helm list --all --short | grep -E -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
@@ -435,11 +443,11 @@ pipeline {
                     helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set env.DOMAIN=${domain()} \
-                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
                         --set kube.external_ip=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
@@ -467,12 +475,12 @@ pipeline {
                     helm install output/unzipped/helm/cf\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --set env.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set env.DOMAIN=${domain()} \
-                        --set env.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set env.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
                         --set "kube.external_ips[0]=192.0.2.84" \
                         --set "kube.external_ips[1]=${ipAddress()}" \
                         --set kube.storage_class.persistent=hostpath
