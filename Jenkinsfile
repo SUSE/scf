@@ -444,7 +444,6 @@ pipeline {
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
@@ -476,7 +475,6 @@ pipeline {
                         --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
                         --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
