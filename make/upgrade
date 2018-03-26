@@ -53,7 +53,8 @@ helm upgrade ${RELEASE} output/helm \
     --set "env.UAA_HOST=${UAA_HOST}" \
     --set "env.UAA_PORT=${UAA_PORT}" \
     --set "kube.auth=rbac" \
-    --set "kube.external_ip=$(dig +short "${DOMAIN}")" \
+    --set "kube.external_ips[0]=192.0.2.42" \
+    --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
     --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
     --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
     --set "secrets.UAA_CA_CERT=${UAA_CA_CERT}" \
