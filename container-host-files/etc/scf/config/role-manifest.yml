@@ -2182,7 +2182,6 @@ configuration:
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CA_CERT
-    immutable: true
     description: The CA certificate for UAA
     secret: true
   - name: UAA_CC_CLIENT_SECRET
