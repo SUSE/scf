@@ -1231,8 +1231,8 @@ roles:
       protocol: TCP
       internal: 7590
     healthcheck:
-      readiness:
-        url: http://container-ip:1800/ping # rep HTTP server
+        command:
+          - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1256,7 +1256,11 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.tls.cert: ((REP_SERVER_CERT))
+      properties.tls.key: ((REP_SERVER_KEY))
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -2054,6 +2058,7 @@ configuration:
       type: Certificate
       value_type: certificate
       role_name: diego-cell
+      subject_names: [ 127.0.0.1 ]
     description: PEM-encoded server certificate
     required: true
   - name: REP_SERVER_KEY
@@ -2062,6 +2067,7 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: private_key
+      subject_names: [ 127.0.0.1 ]
     description: PEM-encoded server key
     required: true
   - name: ROOTFS_TRUSTED_CERTS
@@ -2460,6 +2466,8 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
+    properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
     properties.diego.auctioneer.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
@@ -2487,7 +2495,9 @@ configuration:
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy.{{KUBE_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
+    properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
+    properties.diego.bbs.sql.db_host: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2495,17 +2505,10 @@ configuration:
     properties.diego.locket.sql.db_host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
-    properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
-    properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
-    properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2521,8 +2524,10 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
+    properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
+    properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler-set.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
