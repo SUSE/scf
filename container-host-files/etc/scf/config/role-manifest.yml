@@ -2274,9 +2274,6 @@ configuration:
       type: Password
     description: The password for UAA access by the TCP router.
     required: true
-  - name: UAA_HOST
-    description: The host name of the UAA server (root zone)
-    required: true
   - name: UAA_PORT
     default: 2793
     description: The tcp port the UAA server (root zone) listens on for requests.
@@ -2382,7 +2379,7 @@ configuration:
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
-    properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
+    properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).uaa.((DOMAIN))
     properties.ccdb.address: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
@@ -2462,7 +2459,7 @@ configuration:
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
+    properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))/oauth/token
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler-set.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -2494,7 +2491,7 @@ configuration:
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+    properties.login.url: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))
     properties.metron_agent.zone: '"((KUBE_AZ))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
@@ -2551,8 +2548,8 @@ configuration:
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_KEY))"'
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
-    properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
+    properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))
+    properties.scf.uaa.root-zone.url: https://uaa.((DOMAIN)):((UAA_PORT))
     properties.scf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
     properties.scf_set_proxy.running_https_proxy: '"((HTTPS_PROXY))"'
     properties.scf_set_proxy.running_no_proxy: '"((NO_PROXY))"'
@@ -2577,25 +2574,25 @@ configuration:
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
+    properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))/login
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
-    properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+    properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
-    properties.uaa.clients.login.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+    properties.uaa.clients.login.redirect-uri: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
     properties.uaa.clients.scf_auto_config.secret: '"((UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET))"'
-    properties.uaa.clients.ssh-proxy.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
+    properties.uaa.clients.ssh-proxy.redirect-uri: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))/login
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
-    properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT)) # For loggregator
+    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).uaa.((DOMAIN))'
+    properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT)) # For loggregator
     properties.uaa.port: ((UAA_PORT))
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
-    properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+    properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).uaa.((DOMAIN))
+    properties.uaa.url: https://((KUBERNETES_NAMESPACE)).uaa.((DOMAIN)):((UAA_PORT))
     properties.version: '"((CLUSTER_VERSION))"'
