@@ -1,11 +1,6 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
 
-String capSecret() {
-    return sh(returnStdout: true,
-              script: "kubectl get pod api-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'").trim()
-}
-
 String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
 }
@@ -49,32 +44,6 @@ void setBuildStatus(String context, String status) {
 
 void runTest(String testName) {
     sh """
-        kube_overrides() {
-            ruby <<EOF
-                require 'yaml'
-                require 'json'
-                domain = '${domain()}'
-                capsecret = '${capSecret()}'
-                obj = YAML.load_file('\$1')
-                obj['spec']['containers'].each do |container|
-                    container['env'].each do |env|
-                        value = env['value']
-                        value = domain          if env['name'] == 'DOMAIN'
-                        value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
-                        env['value'] = value.to_s
-
-                        # only generated secrets live in the versioned secret; all user provided secrets are in `secrets`
-                        unless %w(CLUSTER_ADMIN_PASSWORD UAA_ADMIN_CLIENT_SECRET UAA_CA_CERT).include? env['name']
-                            if env['valueFrom'] && env['valueFrom']['secretKeyRef']
-                                env['valueFrom']['secretKeyRef']['name'] = capsecret
-                            end
-                        end
-                    end
-                end
-                puts obj.to_json
-EOF
-        }
-
         image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
         kubectl run \
@@ -82,7 +51,7 @@ EOF
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
+            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
             "${testName}"
     """
 }
