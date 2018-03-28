@@ -6,10 +6,6 @@
     To target this endpoint run
         [1;36mcf api --skip-ssl-validation https://api.{{ .Values.env.DOMAIN }}[0m
 
-    Your administrative credentials are:
-        Username: [1;36madmin[0m
-        Password: [1;36m{{ .Values.env.CLUSTER_ADMIN_PASSWORD }}[0m
-
     Please remember, it may take some time for everything to come online.
 
     You can use
