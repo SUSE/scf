@@ -50,12 +50,8 @@ done
 # Replace the fixed secret in the relevant task definition with the
 # actual name as pulled from the cluster under test.
 
-capsecret="$(kubectl get pod api-0 --namespace "${NAMESPACE}" -o jsonpath='{@.spec.containers[0].env[?(@.name=="MONIT_PASSWORD")].valueFrom.secretKeyRef.name}')"
-
 CONFIG=$(mktemp)
-sed < "output/kube/bosh-task/${POD_NAME}.yaml" \
-    > "${CONFIG}" \
-    "s|name: \"secret\"|name: \"${capsecret}\"|"
+ruby bin/kube_overrides.rb "${NAMESPACE}" "${DOMAIN:-}" "output/kube/bosh-task/${POD_NAME}.yaml" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
