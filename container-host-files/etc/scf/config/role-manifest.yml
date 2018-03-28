@@ -240,9 +240,8 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
-      # mysql-proxy should be active/passive, but it looks like it is round-robin right now, which doesn't work
-      # ha: 2
+      max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
