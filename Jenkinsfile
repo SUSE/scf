@@ -417,7 +417,7 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
                     get_uaa_secret_name () {
