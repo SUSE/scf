@@ -399,7 +399,7 @@ pipeline {
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-*linux-amd64*.zip -d output/unzipped
+                    unzip -e output/scf-*amd64*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
