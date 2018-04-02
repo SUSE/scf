@@ -12,25 +12,22 @@ UAA_NAMESPACE="uaa"
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
 
-get_uaa_secret_name() {
-    ev="$1"
-    kubectl get pods \
-	--namespace "${UAA_NAMESPACE}" \
-	-o jsonpath='{.items[*].spec.containers[?(.name=="uaa")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.name}'
-}
+get_secret () {
+    local ns="$1"
+    local pod="$2"
+    local ev="$3"
 
-get_uaa_secret_key() {
-    ev="$1"
-    kubectl get pods \
-	--namespace "${UAA_NAMESPACE}" \
-	-o jsonpath='{.items[*].spec.containers[?(.name=="uaa")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.key}'
-}
+    name="$(kubectl get pods \
+	--namespace "${ns}" \
+	-o jsonpath='{.items[*].spec.containers[?(.name=="'${pod}'")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.name}')"
 
-get_uaa_secret () {
-    ev="$1"
-    kubectl get secret $(get_uaa_secret_name "${ev}") \
-	--namespace "${UAA_NAMESPACE}" \
-	-o jsonpath="{.data['$(get_uaa_secret_key "${ev}")']}"
+    key="$(kubectl get pods \
+	--namespace "${ns}" \
+	-o jsonpath='{.items[*].spec.containers[?(.name=="'${pod}'")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.key}')"
+
+    kubectl get secret "${name}" \
+	--namespace "${ns}" \
+	-o jsonpath="{.data['${key}']}"
 }
 
 # Argument? (**)
@@ -55,7 +52,7 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
-UAA_CA_CERT="$(get_uaa_secret "INTERNAL_CA_CERT" | base64 -d -)"
+UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT" | base64 -d -)"
 
 helm upgrade ${RELEASE} output/helm \
     --namespace ${NAMESPACE} \
