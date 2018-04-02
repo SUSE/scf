@@ -8,16 +8,24 @@ set -o errexit -o nounset
 
 NAMESPACE="cf"
 UAA_NAMESPACE="uaa"
-UAA_CA_CERT=internal-ca-cert
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
 
-# Determine the kube revision of the chart controlling the specified namespace.
-release_version() { helm list --date --reverse --max 1 --namespace "$1" | awk '{ print $2 }' | tail -n 1 ; }
+get_uaa_secret_name() {
+    kubectl get pods \
+	--namespace "${UAA_NAMESPACE}" \
+	-o jsonpath='{.items[*].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}'
+}
+
+get_uaa_secret_key() {
+    kubectl get pods \
+	--namespace "${UAA_NAMESPACE}" \
+	-o jsonpath='{.items[*].spec.containers[?(.name=="uaa")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.key}'
+}
 
 get_uaa_secret () {
-    kubectl get secret secret-$(release_version "${UAA_NAMESPACE}") \
+    kubectl get secret $(get_uaa_secret_name) \
 	--namespace "${UAA_NAMESPACE}" \
 	-o jsonpath="{.data['$1']}"
 }
@@ -44,7 +52,7 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
-UAA_CA_CERT="$(get_uaa_secret ${UAA_CA_CERT} | base64 -d -)"
+UAA_CA_CERT="$(get_uaa_secret $(get_uaa_secret_key) | base64 -d -)"
 
 helm upgrade ${RELEASE} output/helm \
     --namespace ${NAMESPACE} \
