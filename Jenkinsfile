@@ -420,23 +420,17 @@ pipeline {
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
-                    get_uaa_secret_name () {
-                        kubectl get pod mysql-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'
-                    }
-
-                    get_uaa_secret () {
-                        kubectl get secret "\$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
-                    }
+                    . make/include/secrets
 
                     has_internal_ca() {
-                        test "\$(get_uaa_secret internal-ca-cert)" != ""
+                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
                     until has_internal_ca ; do
                         sleep 10
                     done
 
-                    UAA_CA_CERT="\$(get_uaa_secret internal-ca-cert | base64 -d -)"
+                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
 
                     # The extra IP address is to check that the code to set up multiple
                     # addresses for services is working correctly; it isn't used in
