@@ -27,7 +27,7 @@ get_secret () {
 
     kubectl get secret "${name}" \
 	--namespace "${ns}" \
-	-o jsonpath="{.data['${key}']}"
+	-o jsonpath="{.data['${key}']}" | base64 -d -
 }
 
 # Argument? (**)
@@ -52,7 +52,7 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
-UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT" | base64 -d -)"
+UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
 
 helm upgrade ${RELEASE} output/helm \
     --namespace ${NAMESPACE} \
