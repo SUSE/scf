@@ -12,23 +12,7 @@ UAA_NAMESPACE="uaa"
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
 
-get_secret () {
-    local ns="$1"
-    local pod="$2"
-    local ev="$3"
-
-    name="$(kubectl get pods \
-	--namespace "${ns}" \
-	-o jsonpath='{.items[*].spec.containers[?(.name=="'${pod}'")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.name}')"
-
-    key="$(kubectl get pods \
-	--namespace "${ns}" \
-	-o jsonpath='{.items[*].spec.containers[?(.name=="'${pod}'")].env[?(.name=="'${ev}'")].valueFrom.secretKeyRef.key}')"
-
-    kubectl get secret "${name}" \
-	--namespace "${ns}" \
-	-o jsonpath="{.data['${key}']}" | base64 -d -
-}
+. make/include/secrets
 
 # Argument? (**)
 RELEASE=$(helm list --date --reverse --max 1 --namespace "${NAMESPACE}" -q | tail -n 1)
