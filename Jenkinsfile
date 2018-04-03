@@ -1,11 +1,6 @@
 #!/usr/bin/env groovy
 // vim: set et sw=4 ts=4 :
 
-String capSecret() {
-    return sh(returnStdout: true,
-              script: "kubectl get pod api-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'").trim()
-}
-
 String ipAddress() {
     return sh(returnStdout: true, script: "ip -4 -o addr show eth0 | awk '{ print \$4 }' | awk -F/ '{ print \$1 }'").trim()
 }
@@ -49,32 +44,6 @@ void setBuildStatus(String context, String status) {
 
 void runTest(String testName) {
     sh """
-        kube_overrides() {
-            ruby <<EOF
-                require 'yaml'
-                require 'json'
-                domain = '${domain()}'
-                capsecret = '${capSecret()}'
-                obj = YAML.load_file('\$1')
-                obj['spec']['containers'].each do |container|
-                    container['env'].each do |env|
-                        value = env['value']
-                        value = domain          if env['name'] == 'DOMAIN'
-                        value = "tcp.#{domain}" if env['name'] == 'TCP_DOMAIN'
-                        env['value'] = value.to_s
-
-                        # only generated secrets live in the versioned secret; all user provided secrets are in `secrets`
-                        unless %w(CLUSTER_ADMIN_PASSWORD UAA_ADMIN_CLIENT_SECRET UAA_CA_CERT).include? env['name']
-                            if env['valueFrom'] && env['valueFrom']['secretKeyRef']
-                                env['valueFrom']['secretKeyRef']['name'] = capsecret
-                            end
-                        end
-                    end
-                end
-                puts obj.to_json
-EOF
-        }
-
         image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
         kubectl run \
@@ -82,7 +51,7 @@ EOF
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(kube_overrides output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
+            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
             "${testName}"
     """
 }
@@ -430,7 +399,7 @@ pipeline {
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-*linux-amd64*.zip -d output/unzipped
+                    unzip -e output/scf-*amd64*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
@@ -448,26 +417,20 @@ pipeline {
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set kube.external_ip=${ipAddress()} \
+                        --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
-                    get_uaa_secret_name () {
-                        kubectl get pod mysql-0 --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath='{@.spec.containers[0].env[?(@.name==\"MONIT_PASSWORD\")].valueFrom.secretKeyRef.name}'
-                    }
-
-                    get_uaa_secret () {
-                        kubectl get secret "\$(get_uaa_secret_name)" --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa -o jsonpath="{.data['\$1']}"
-                    }
+                    . make/include/secrets
 
                     has_internal_ca() {
-                        test "\$(get_uaa_secret internal-ca-cert)" != ""
+                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
                     until has_internal_ca ; do
                         sleep 10
                     done
 
-                    UAA_CA_CERT="\$(get_uaa_secret internal-ca-cert | base64 -d -)"
+                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
 
                     # The extra IP address is to check that the code to set up multiple
                     # addresses for services is working correctly; it isn't used in

@@ -240,9 +240,8 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
-      # mysql-proxy should be active/passive, but it looks like it is round-robin right now, which doesn't work
-      # ha: 2
+      max: 3
+      ha: 2
     capabilities: []
     persistent-volumes: []
     shared-volumes: []
@@ -2182,7 +2181,6 @@ configuration:
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CA_CERT
-    immutable: true
     description: The CA certificate for UAA
     secret: true
   - name: UAA_CC_CLIENT_SECRET
