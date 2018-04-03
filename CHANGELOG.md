@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [2.8.0] - 2018-04-03
+
+### Added
+- Added mysql-proxy for UAA
+- Exposed more log variables for UAA
+
+### Changed
+- Bumped SLE12 stack
+- Bumped fissile to 5.2.0+6
+- Variable kube.external_ip now changed to kube.external_ips
+
+### Fixed
+- Addressed issue with how pods were indexed with invalid formatting 
+
 ## [2.7.3] - 2018-03-23
 ### Added
 - TCP routing ports are now configurable and can be templatized
