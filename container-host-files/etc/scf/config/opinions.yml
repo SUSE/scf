@@ -58,6 +58,10 @@ properties:
     default_staging_security_groups:
     - public_networks
     - dns
+    diego:
+      nsync_url: http://unused.invalid/
+      stager_url: http://unused.invalid/
+      tps_url: http://unused.invalid/
     droplets:
       blobstore_type: webdav
       webdav_config:
