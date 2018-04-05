@@ -1258,6 +1258,10 @@ roles:
     templates:
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
+      properties.loggregator.cert: ((REP_SERVER_CERT))
+      properties.loggregator.key: ((REP_SERVER_KEY))
+      properties.loggregator.use_v2_api: true
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.cert: ((REP_SERVER_CERT))
       properties.tls.key: ((REP_SERVER_KEY))
