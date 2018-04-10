@@ -1656,6 +1656,7 @@ configuration:
     required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
+    # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
     immutable: true
     generator:
       type: Password
@@ -1829,6 +1830,7 @@ configuration:
       The Kubernetes-internal domain suffix (svc.<namespace>.cluster.local or
       equivalent) to use.  If not specified, it will be auto-detected from the
       runtime configuration.
+    # It makes no sense to have this be mutable; we can't move the deployment across kubernetes clusters
     immutable: true
     required: false
   - name: KUBE_SIZING_NATS_COUNT
@@ -2215,6 +2217,7 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
+    # We haven't figured out the interaction with UAA yet
     immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
@@ -2281,6 +2284,7 @@ configuration:
     required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
+    # We haven't figured out rotating secrets around UAA yet
     immutable: true
     generator:
       type: Password
