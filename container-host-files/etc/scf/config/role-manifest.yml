@@ -2217,8 +2217,6 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
-    # We haven't figured out the interaction with UAA yet
-    immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CA_CERT
@@ -2284,8 +2282,6 @@ configuration:
     required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
-    # We haven't figured out rotating secrets around UAA yet
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
