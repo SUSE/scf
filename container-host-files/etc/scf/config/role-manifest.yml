@@ -792,6 +792,7 @@ roles:
   - name: blobstore_url_signer
   - name: route_registrar
   - name: metron_agent
+  tags: [indexed]
   run:
     scaling:
       min: 1
@@ -1200,6 +1201,7 @@ roles:
   - name: rep
   - name: route_emitter
   - name: garden
+  tags: [indexed]
   run:
     scaling:
       min: 1
