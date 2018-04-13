@@ -141,7 +141,6 @@
         <service>kube-proxy</service>
         <service>kube-scheduler</service>
         <service>kubelet</service>
-        <service>sshd</service>
       </enable>
     </services>
   </services-manager>
@@ -160,6 +159,16 @@
         <chrooted config:type="boolean">true</chrooted>
       </script>
     </chroot-scripts>
+    <init-scripts config:type="list">
+      <script>
+        <filename>enable-sshd.sh</filename>
+        <source><![CDATA[#!/bin/bash
+          # Delay sshd startup to after the reboot, to ensure that packer does
+          # not attempt to connect before everything is ready
+          systemctl enable --now sshd.service
+        ]]></source>
+      </script>
+    </init-scripts>
   </scripts>
 
   <groups config:type="list">
