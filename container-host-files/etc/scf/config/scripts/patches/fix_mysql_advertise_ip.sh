@@ -19,7 +19,7 @@ index 514acdd5..80bb6b0e 100644
  wsrep_on                        = ON
  wsrep_provider                  = /var/vcap/packages/mariadb/lib/plugin/libgalera_smm.so
 -wsrep_provider_options          = "gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=FALSE;pc.checksum=TRUE"
-+wsrep_provider_options          = "gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=TRUE;pc.checksum=TRUE;ist.recv_addr=<%= discover_external_ip %>:4568"
++wsrep_provider_options          = "gcache.size=<%= p('cf_mysql.mysql.gcache_size') %>M;pc.recovery=FALSE;pc.checksum=TRUE;ist.recv_addr=<%= discover_external_ip %>:4568"
  wsrep_cluster_address           = gcomm://<%= cluster_ips.join(",") %>
  wsrep_node_address              = <%= node_host %>:<%= p('cf_mysql.mysql.galera_port') %>
  wsrep_node_name                 = <%= name %>/<%= index %>
