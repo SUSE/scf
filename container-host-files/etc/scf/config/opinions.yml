@@ -176,7 +176,6 @@ properties:
     proxy:
       api_force_https: false
       api_username: 'mysql_proxy'
-      healthcheck_timeout_millis: 30000
   diego:
     auctioneer:
       rep:
