@@ -792,7 +792,9 @@ roles:
   - name: blobstore_url_signer
   - name: route_registrar
   - name: metron_agent
-  tags: [indexed]
+  tags:
+  - indexed
+  # This role is indexed to have access to volume claim templates for its persistent volume.
   run:
     scaling:
       min: 1
@@ -1201,7 +1203,9 @@ roles:
   - name: rep
   - name: route_emitter
   - name: garden
-  tags: [indexed]
+  tags:
+  - indexed
+  # This role is indexed to have access to volume claim templates for its persistent volume.
   run:
     scaling:
       min: 1
