@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# test changes
 set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
