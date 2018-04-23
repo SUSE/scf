@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit -o nounset
+# just another test change
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
