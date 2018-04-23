@@ -22,27 +22,42 @@ if [ "$1" == "-f" ]; then
 fi
 
 NS=${1-scf}
-DONE=${KLOG}/${NS}/done
+DONE="${KLOG}/${NS}/done"
 
-[ "${FORCE}" == "1" ] && rm ${DONE} 2> /dev/null || true
+if [ "${FORCE}" == "1" ] ; then
+    rm -f "${DONE}" 2> /dev/null
+fi
 
-if [ ! -f ${DONE} ]; then
-    mkdir -p ${KLOG}/${NS}
-    rm -rf ${KLOG}/${NS}/*
+if [ ! -f "${DONE}" ]; then
+    mkdir -p "${KLOG}/${NS}"
+    rm -rf "${KLOG:?}/${NS:?}/"*
 
-    PODS=$(kubectl get pods --namespace ${NS} -o name | sed 's/pods\///')
+    PODS=$(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///')
 
     for POD in ${PODS}; do
-        if $(kubectl exec ${POD} --namespace ${NS} -- bash -c "[ -d /var/vcap/sys/log ]"); then
-            DIR=${KLOG}/${NS}/${POD}
-            mkdir -p ${DIR}
-            cd ${DIR}
-            echo Fetching logs for ${POD}
-            kubectl exec ${POD} --namespace ${NS} -- bash -c "cd /var/vcap/sys/log && tar cf - *" | tar xf -
+        DIR=${KLOG}/${NS}/${POD}
+
+        mkdir -p "${DIR}"
+
+        # Get the CF logs inside the pod if there are any
+        if [ "$(kubectl get pod "${POD}" --namespace "${NS}" --output=jsonpath='{.status.phase}')" != 'Succeeded' ] && \
+                kubectl exec "${POD}" --namespace "${NS}" -- bash -c "[ -d /var/vcap/sys/log ]" 2> /dev/null; then
+            # Mask the exit status of tar because it complains if files were written while it was reading them
+            kubectl exec "${POD}" --namespace "${NS}" -- bash -c "cd /var/vcap/sys/log && (tar --warning=no-file-changed -cf - * || true)" | ( cd "${DIR}" && tar xf -)
         fi
+
+        # Get the pod logs - previous may not be there if it was successful on the first run.
+        # Unfortunately we can't get anything past the previous one
+        kubectl logs "${POD}" --namespace "${NS}" > "${DIR}/kube.log"
+        kubectl logs "${POD}" --namespace "${NS}" --previous > "${DIR}/kube-previous.log" 2> /dev/null || true
+        kubectl describe pods "${POD}" --namespace "${NS}" > "${DIR}/describe-pod"
     done
-    gunzip -r ${KLOG}
-    touch ${DONE}
+    gunzip -r "${KLOG}"
+
+    kubectl get all --export=true --namespace "${NS}" -o yaml > "${KLOG}/${NS}/resources.yaml"
+    kubectl get events --export=true --namespace "${NS}" -o yaml > "${KLOG}/${NS}/events.yaml"
+
+    touch "${DONE}"
 fi
 
 NEWLINE=0
