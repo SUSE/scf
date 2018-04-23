@@ -34,7 +34,7 @@ if [ ! -f ${DONE} ]; then
 
     for POD in ${PODS}; do
         if $(kubectl exec ${POD} --namespace ${NS} -- bash -c "[ -d /var/vcap/sys/log ]"); then
-            DIR=${KLOG}/${NS}/${POD%-*-*}
+            DIR=${KLOG}/${NS}/${POD}
             mkdir -p ${DIR}
             cd ${DIR}
             echo Fetching logs for ${POD}
