@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 cd "${GIT_ROOT}"
-#test changes
+#test changes 2
 
 . make/include/secrets
 
