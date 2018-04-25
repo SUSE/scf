@@ -308,6 +308,7 @@ roles:
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1943,6 +1944,10 @@ configuration:
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
+    required: true
+  - name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
+    default: 30000
+    description: The time allowed for the MySQL server to respond to healthcheck queries, in milliseconds.
     required: true
   - name: MYSQL_ROUTING_API_PASSWORD
     secret: true
