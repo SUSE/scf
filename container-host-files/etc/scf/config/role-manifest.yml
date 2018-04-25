@@ -794,7 +794,7 @@ roles:
   - name: metron_agent
   tags:
   - indexed
-  # Role needs LB => indexed
+  # Role needs LB (Single name for access from API) => indexed
   run:
     scaling:
       min: 1
@@ -1205,7 +1205,7 @@ roles:
   - name: garden
   tags:
   - clustered
-  # Role needs volume claim templates, no LB => clustered
+  # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
       min: 1
