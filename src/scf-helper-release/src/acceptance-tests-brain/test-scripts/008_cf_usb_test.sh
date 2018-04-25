@@ -148,7 +148,12 @@ cf bind-staging-security-group internal-services-workaround
 
 ## --(1)-- Create and configure the mysql server
 
-cf push --no-start --no-route --health-check-type none "${SERVER_APP}" -o mysql/mysql-server
+# Use MySQL 8.0.3, as MySQL defaults to the sha2 authentication plugin in 8.0.4
+# which isn't supported by github.com/go-sql-driver/mysql (the MySQL driver in
+# use in the USB broker).
+# https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_default_authentication_plugin
+# https://github.com/go-sql-driver/mysql/issues/785
+cf push --no-start --no-route --health-check-type none "${SERVER_APP}" -o mysql/mysql-server:8.0.3
 cf map-route "${SERVER_APP}" "${CF_TCP_DOMAIN}" --random-port | tee "${TMP}/mysql"
 cf set-env   "${SERVER_APP}" MYSQL_ROOT_PASSWORD "${MYSQL_PASS}"
 cf set-env   "${SERVER_APP}" MYSQL_ROOT_HOST '%'
