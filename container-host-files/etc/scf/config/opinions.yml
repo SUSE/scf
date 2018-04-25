@@ -222,6 +222,10 @@ properties:
   enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0
+  fissile:
+    monit:
+      user: "admin"
+      port: 2289
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
@@ -234,12 +238,8 @@ properties:
     graph_cleanup_threshold_in_mb: 3000
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-  fissile:
-    monit:
-      user: "admin"
-      port: 2289
-  scf:
-    skip_cert_verify_external: false
+  loggregator:
+    use_v2_api: true
   metron_agent:
     deployment: scf-deployment
   nats:
@@ -285,6 +285,8 @@ properties:
           cn: 'api'
         client:
           adapter_cn: 'syslog_adapter'
+  scf:
+    skip_cert_verify_external: false
   smoke_tests:
     user: 'admin'
     org: smoke-test-org

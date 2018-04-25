@@ -1258,10 +1258,6 @@ roles:
     templates:
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-      properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
-      properties.loggregator.cert: ((REP_SERVER_CERT))
-      properties.loggregator.key: ((REP_SERVER_KEY))
-      properties.loggregator.use_v2_api: true
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.cert: ((REP_SERVER_CERT))
       properties.tls.key: ((REP_SERVER_KEY))
@@ -1858,6 +1854,22 @@ configuration:
     description: >
       Lowest internal TCP routing port.
       This value is set automatically by the helm charts of SCF.
+  - name: LOGGREGATOR_CLIENT_CERT
+    secret: true
+    generator:
+      id: loggregator_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate for loggregator mutual authentication
+    required: true
+  - name: LOGGREGATOR_CLIENT_KEY
+    secret: true
+    generator:
+      id: loggregator_client_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded client key for loggregator mutual authentication
+    required: true
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2550,6 +2562,9 @@ configuration:
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.locks.locket.hostname: diego-locket.((KUBERNETES_NAMESPACE))
+    properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
+    properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
+    properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
     properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
@@ -2602,6 +2617,7 @@ configuration:
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: "mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"
