@@ -1529,6 +1529,16 @@ configuration:
   - name: CATS_SUITES
     internal: true
     description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
+  - name: CC_DB_CURRENT_KEY_LABEL
+    description: The key used to encrypt entries in the CC database
+    default: ""
+  - name: CC_DB_ENCRYPTION_KEYS
+    description: A map of labels and encryption keys
+    secret: true
+    # This is a quoted tilde so it results in a tilde in the CC yaml file, not a nil value in this file.
+    # A real example would be something like: "{key0: Chieh1quaela3iaN}", and the CC_DB_CURRENT_KEY_LABEL
+    # would be set to "key0".
+    default: "~"
   - name: CC_SERVER_CRT
     secret: true
     generator:
@@ -2347,6 +2357,8 @@ configuration:
     properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore.((KUBE_SERVICE_DOMAIN_SUFFIX)):4443
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
+    properties.cc.database_encryption.current_key_label: '"((CC_DB_CURRENT_KEY_LABEL))"'
+    properties.cc.database_encryption.keys: ((CC_DB_ENCRYPTION_KEYS))
     properties.cc.db_encryption_key: '"((DB_ENCRYPTION_KEY))"'
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
