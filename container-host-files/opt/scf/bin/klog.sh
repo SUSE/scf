@@ -58,6 +58,8 @@ if [ ! -f "${DONE}" ]; then
         kubectl logs "${POD}" --namespace "${NS}" --previous > "${DIR}/kube-previous.log" 2> /dev/null || true
         kubectl describe pods "${POD}" --namespace "${NS}" > "${DIR}/describe-pod.txt"
     done
+
+    # Unzip any logrotated files so the lookup can read them
     gunzip -r "${KLOG}"
 
     kubectl get all --export=true --namespace "${NS}" -o yaml > "${KLOG}/${NS}/resources.yaml"
