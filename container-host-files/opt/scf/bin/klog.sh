@@ -29,8 +29,8 @@ if [ "${FORCE}" == "1" ] ; then
 fi
 
 if [ ! -f "${DONE}" ]; then
+    rm -rf "${KLOG:?}/${NS:?}"
     mkdir -p "${KLOG}/${NS}"
-    rm -rf "${KLOG:?}/${NS:?}/"*
 
     PODS=$(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///')
 
