@@ -49,8 +49,7 @@ if [ ! -f "${DONE}" ]; then
 
         # Get the CF logs inside the pod if there are any
         if [ "$(get_phase)" != 'Succeeded' ] && check_for_log_dir; then
-            # Mask the exit status of tar because it complains if files were written while it was reading them
-            kubectl exec "${POD}" --namespace "${NS}" -- bash -c "cd /var/vcap/sys/log && (tar --warning=no-file-changed -cf - * || true)" | ( cd "${DIR}" && tar xf -)
+            kubectl cp --namespace "${NS}" "${POD}":/var/vcap/sys/log/ "${DIR}/" 2> /dev/null
         fi
 
         # Get the pod logs - previous may not be there if it was successful on the first run.
