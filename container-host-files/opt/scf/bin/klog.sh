@@ -28,6 +28,14 @@ if [ "${FORCE}" == "1" ] ; then
     rm -f "${DONE}" 2> /dev/null
 fi
 
+function get_phase() {
+  kubectl get pod "${POD}" --namespace "${NS}" --output=jsonpath='{.status.phase}'
+}
+
+function check_for_log_dir() {
+  kubectl exec "${POD}" --namespace "${NS}" -- bash -c "[ -d /var/vcap/sys/log ]" 2> /dev/null
+}
+
 if [ ! -f "${DONE}" ]; then
     rm -rf "${KLOG:?}/${NS:?}"
     mkdir -p "${KLOG}/${NS}"
@@ -40,8 +48,7 @@ if [ ! -f "${DONE}" ]; then
         mkdir -p "${DIR}"
 
         # Get the CF logs inside the pod if there are any
-        if [ "$(kubectl get pod "${POD}" --namespace "${NS}" --output=jsonpath='{.status.phase}')" != 'Succeeded' ] && \
-                kubectl exec "${POD}" --namespace "${NS}" -- bash -c "[ -d /var/vcap/sys/log ]" 2> /dev/null; then
+        if [ "$(get_phase)" != 'Succeeded' ] && check_for_log_dir; then
             # Mask the exit status of tar because it complains if files were written while it was reading them
             kubectl exec "${POD}" --namespace "${NS}" -- bash -c "cd /var/vcap/sys/log && (tar --warning=no-file-changed -cf - * || true)" | ( cd "${DIR}" && tar xf -)
         fi
