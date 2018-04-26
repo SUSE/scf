@@ -40,9 +40,9 @@ if [ ! -f "${DONE}" ]; then
     rm -rf "${KLOG:?}/${NS:?}"
     mkdir -p "${KLOG}/${NS}"
 
-    PODS=$(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///')
+    PODS=($(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///'))
 
-    for POD in ${PODS}; do
+    for POD in "${PODS[@]}"; do
         DIR=${KLOG}/${NS}/${POD}
 
         mkdir -p "${DIR}"
