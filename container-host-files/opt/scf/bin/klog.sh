@@ -50,7 +50,7 @@ if [ ! -f "${DONE}" ]; then
         # Unfortunately we can't get anything past the previous one
         kubectl logs "${POD}" --namespace "${NS}" > "${DIR}/kube.log"
         kubectl logs "${POD}" --namespace "${NS}" --previous > "${DIR}/kube-previous.log" 2> /dev/null || true
-        kubectl describe pods "${POD}" --namespace "${NS}" > "${DIR}/describe-pod"
+        kubectl describe pods "${POD}" --namespace "${NS}" > "${DIR}/describe-pod.txt"
     done
     gunzip -r "${KLOG}"
 
