@@ -43,7 +43,7 @@ if [ ! -f "${DONE}" ]; then
     PODS=($(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///'))
 
     for POD in "${PODS[@]}"; do
-        DIR=${KLOG}/${NS}/${POD}
+        DIR="${KLOG}/${NS}/${POD}"
 
         mkdir -p "${DIR}"
 
@@ -70,7 +70,7 @@ NEWLINE=0
 function lookfor {
     read PATTERN
 
-    cd ${KLOG}
+    cd "${KLOG}"
     if grep -c -r -F "${PATTERN}" > .grep; then
         [ "${NEWLINE}" == "1" ] && echo
         NEWLINE=1
@@ -80,7 +80,7 @@ function lookfor {
         grep -v :0$ .grep
 
         while read INFO; do
-            echo ${INFO}
+            echo "${INFO}"
         done
     fi
 }
