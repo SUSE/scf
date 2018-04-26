@@ -22,34 +22,57 @@ if [ "$1" == "-f" ]; then
 fi
 
 NS=${1-scf}
-DONE=${KLOG}/${NS}/done
+DONE="${KLOG}/${NS}/done"
 
-[ "${FORCE}" == "1" ] && rm ${DONE} 2> /dev/null || true
+if [ "${FORCE}" == "1" ] ; then
+    rm -f "${DONE}" 2> /dev/null
+fi
 
-if [ ! -f ${DONE} ]; then
-    mkdir -p ${KLOG}/${NS}
-    rm -rf ${KLOG}/${NS}/*
+function get_phase() {
+  kubectl get pod "${POD}" --namespace "${NS}" --output=jsonpath='{.status.phase}'
+}
 
-    PODS=$(kubectl get pods --namespace ${NS} -o name | sed 's/pods\///')
+function check_for_log_dir() {
+  kubectl exec "${POD}" --namespace "${NS}" -- bash -c "[ -d /var/vcap/sys/log ]" 2> /dev/null
+}
 
-    for POD in ${PODS}; do
-        if $(kubectl exec ${POD} --namespace ${NS} -- bash -c "[ -d /var/vcap/sys/log ]"); then
-            DIR=${KLOG}/${NS}/${POD%-*-*}
-            mkdir -p ${DIR}
-            cd ${DIR}
-            echo Fetching logs for ${POD}
-            kubectl exec ${POD} --namespace ${NS} -- bash -c "cd /var/vcap/sys/log && tar cf - *" | tar xf -
+if [ ! -f "${DONE}" ]; then
+    rm -rf "${KLOG:?}/${NS:?}"
+    mkdir -p "${KLOG}/${NS}"
+
+    PODS=($(kubectl get pods --namespace "${NS}" --output name --show-all=true | sed 's/pods\///'))
+
+    for POD in "${PODS[@]}"; do
+        DIR="${KLOG}/${NS}/${POD}"
+
+        mkdir -p "${DIR}"
+
+        # Get the CF logs inside the pod if there are any
+        if [ "$(get_phase)" != 'Succeeded' ] && check_for_log_dir; then
+            kubectl cp --namespace "${NS}" "${POD}":/var/vcap/sys/log/ "${DIR}/" 2> /dev/null
         fi
+
+        # Get the pod logs - previous may not be there if it was successful on the first run.
+        # Unfortunately we can't get anything past the previous one
+        kubectl logs "${POD}" --namespace "${NS}" > "${DIR}/kube.log"
+        kubectl logs "${POD}" --namespace "${NS}" --previous > "${DIR}/kube-previous.log" 2> /dev/null || true
+        kubectl describe pods "${POD}" --namespace "${NS}" > "${DIR}/describe-pod.txt"
     done
-    gunzip -r ${KLOG}
-    touch ${DONE}
+
+    # Unzip any logrotated files so the lookup can read them
+    gunzip -r "${KLOG}"
+
+    kubectl get all --export=true --namespace "${NS}" -o yaml > "${KLOG}/${NS}/resources.yaml"
+    kubectl get events --export=true --namespace "${NS}" -o yaml > "${KLOG}/${NS}/events.yaml"
+
+    touch "${DONE}"
 fi
 
 NEWLINE=0
 function lookfor {
     read PATTERN
 
-    cd ${KLOG}
+    cd "${KLOG}"
     if grep -c -r -F "${PATTERN}" > .grep; then
         [ "${NEWLINE}" == "1" ] && echo
         NEWLINE=1
@@ -59,7 +82,7 @@ function lookfor {
         grep -v :0$ .grep
 
         while read INFO; do
-            echo ${INFO}
+            echo "${INFO}"
         done
     fi
 }
