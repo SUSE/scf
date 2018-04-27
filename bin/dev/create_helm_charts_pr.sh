@@ -12,7 +12,7 @@ if [ -z "$GITHUB_USER"  ]; then
   exit 1
 fi
 
-if [ -z "$GITHUB_PASSWORD" ]; then
+if [ -z "$GITHUB_PASSWORD" ] && [ -z "${GITHUB_TOKEN}" ] ; then
   echo "GITHUB_PASSWORD environment variable not set"
   exit 1
 fi
