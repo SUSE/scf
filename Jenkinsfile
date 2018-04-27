@@ -377,7 +377,7 @@ pipeline {
                     source ${PWD}/.envrc
                     set -x
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/scf-*.zip
+                    rm -f output/scf-{sle,opensuse}-*.zip
                     make helm bundle-dist
                 '''
             }
@@ -399,7 +399,7 @@ pipeline {
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-*.zip -d output/unzipped
+                    unzip -e output/scf-{sle,opensuse}-*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
@@ -587,7 +587,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: 'output/scf-*.zip')
+                            def files = findFiles(glob: 'output/scf-{sle,opensuse}-*.zip')
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
