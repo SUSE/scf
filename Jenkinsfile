@@ -128,6 +128,11 @@ pipeline {
             description: 'Enable publishing to amazon s3',
         )
         booleanParam(
+            name: 'TEST_ROTATE',
+            defaultValue: true,
+            description: 'Trigger secret rotation via helm upgrade',
+        )
+        booleanParam(
             name: 'TEST_SMOKE',
             defaultValue: true,
             description: 'Run smoke tests',
@@ -465,6 +470,68 @@ pipeline {
                     done
                     kubectl get pods --all-namespaces
                 """
+            }
+        }
+
+        stage('rotate') {
+            when {
+                expression { return params.TEST_ROTATE }
+            }
+            steps {
+                setBuildStatus('secret rotation', 'pending')
+                runTest('smoke-tests')
+                sh """
+                    set -e +x
+                    source \${PWD}/.envrc
+                    set -x
+
+                    suffix=""
+                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
+                        suffix="-opensuse"
+                    fi
+
+                    # Run helm upgrade with a new kube setting to test that secrets are regenerated
+
+                    RELEASE="\$(helm list --date --reverse --max 1 --namespace "${jobBaseName()}-${BUILD_NUMBER}-scf" -q | tail -n 1)"
+                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
+
+                    # The extra IP address is to check that the code to set up multiple
+                    # addresses for services is working correctly; it isn't used in
+                    # actual routing.
+                    helm upgrade "\${RELEASE}" output/unzipped/helm/cf\${suffix} \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
+                        --set "kube.external_ips[0]=192.0.2.84" \
+                        --set "kube.external_ips[1]=${ipAddress()}" \
+                        --set kube.storage_class.persistent=hostpath \
+                        --set kube.secrets_generation_counter=2
+
+                    # Ensure old pods have time to terminate
+                    sleep 60
+
+                    echo Waiting for all pods to be ready after the 'upgrade'...
+                    set +o xtrace
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
+                            sleep 10
+                        done
+                    done
+                    kubectl get pods --all-namespaces
+                """
+
+            }
+            post {
+                success {
+                    setBuildStatus('secret rotation', 'success')
+                }
+                failure {
+                    setBuildStatus('secret rotation', 'failure')
+                }
             }
         }
 
