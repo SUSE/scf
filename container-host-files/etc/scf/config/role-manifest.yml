@@ -1457,7 +1457,6 @@ configuration:
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
@@ -1537,14 +1536,12 @@ configuration:
     required: true
   - name: BLOBSTORE_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
     required: true
   - name: BLOBSTORE_SECURE_LINK
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
@@ -1568,7 +1565,6 @@ configuration:
     required: true
   - name: BULK_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the bulk api.
@@ -1630,7 +1626,6 @@ configuration:
     description: PEM-encoded broker server key.
   - name: CF_USB_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     example: password
@@ -1641,7 +1636,6 @@ configuration:
     required: true
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
-    immutable: true
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
@@ -1662,6 +1656,7 @@ configuration:
     required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
+    # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
     immutable: true
     generator:
       type: Password
@@ -1787,7 +1782,6 @@ configuration:
     description: Location of the proxy to use for regular web access.
   - name: INTERNAL_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
@@ -1836,6 +1830,7 @@ configuration:
       The Kubernetes-internal domain suffix (svc.<namespace>.cluster.local or
       equivalent) to use.  If not specified, it will be auto-detected from the
       runtime configuration.
+    # It makes no sense to have this be mutable; we can't move the deployment across kubernetes clusters
     immutable: true
     required: false
   - name: KUBE_SIZING_NATS_COUNT
@@ -1882,14 +1877,12 @@ configuration:
     required: true
   - name: MONIT_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Password used for the monit API.
     required: true
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
@@ -1897,21 +1890,18 @@ configuration:
   - name: MYSQL_CCDB_ROLE_PASSWORD
     previous_names: [CCDB_ROLE_PASSWORD]
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
     required: true
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     example: password
     description: The password for access to the usb config database.
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the cluster logger health user.
@@ -1919,20 +1909,17 @@ configuration:
   - name: MYSQL_DIEGO_LOCKET_PASSWORD
     description: Database password for the diego locket service.
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
     required: true
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
@@ -1940,13 +1927,11 @@ configuration:
   - name: MYSQL_PERSI_NFS_PASSWORD
     description: 'Database password for storing broker state for the Persi NFS Broker'
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
@@ -1957,14 +1942,12 @@ configuration:
     required: true
   - name: MYSQL_ROUTING_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by the routing-api
     required: true
   - name: NATS_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to NATS.
@@ -1989,7 +1972,6 @@ configuration:
   - name: PERSI_NFS_BROKER_PASSWORD
     description: 'Basic auth password to verify on incoming Service Broker requests'
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
@@ -2033,7 +2015,6 @@ configuration:
     description: "LDAP service account password (required for LDAP integration only)"
     default: "-"
     secret: true
-    immutable: true
   - name: PERSI_NFS_DRIVER_LDAP_PORT
     description: "LDAP server port (required for LDAP integration only)"
     default: "389"
@@ -2075,7 +2056,6 @@ configuration:
     description: How to handle the x-forwarded-client-cert (XFCC) HTTP header. Supported values are always_forward, forward, and sanitize_set. See https://docs.cloudfoundry.org/concepts/http-routing.html for more information.
   - name: ROUTER_SERVICES_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
@@ -2100,7 +2080,6 @@ configuration:
     required: true
   - name: ROUTER_STATUS_PASSWORD
     secret: true
-    immutable: true
     generator:
       id: router_status_password
       type: Password
@@ -2129,7 +2108,6 @@ configuration:
     required: true
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
@@ -2239,7 +2217,6 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
-    immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CA_CERT
@@ -2247,89 +2224,76 @@ configuration:
     secret: true
   - name: UAA_CC_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
     required: true
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
     required: true
   - name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Used for third party service dashboard SSO.
   - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Used for fetching service key values from CredHub.
     required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Universal Service Broker.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
     required: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
     required: true
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
     required: true
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
     required: true
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
     required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
     required: true
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
     required: true
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
