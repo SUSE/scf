@@ -792,6 +792,9 @@ roles:
   - name: blobstore_url_signer
   - name: route_registrar
   - name: metron_agent
+  tags:
+  - indexed
+  # Role needs LB (Single name for access from API) => indexed
   run:
     scaling:
       min: 1
@@ -1200,6 +1203,9 @@ roles:
   - name: rep
   - name: route_emitter
   - name: garden
+  tags:
+  - clustered
+  # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
       min: 1
