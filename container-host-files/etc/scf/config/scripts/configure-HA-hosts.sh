@@ -45,7 +45,7 @@ find_cluster_ha_hosts() {
         # Find the number of replicas we have
         local statefulset_name replicas i
         for ((i = 0 ; i < 5 ; i ++)) ; do
-            statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | json_get [\'metadata\'][\'annotations\'][\'kubernetes.io/created-by\']  | json_get [\'reference\'][\'name\'])"
+            statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | json_get [\'metadata\'][\'labels\'][\'skiff-role-name\'])"
             replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | json_get [\'spec\'][\'replicas\'])
 
 	    if [ "${statefulset_name}" != "" -a "${replicas}" != "" ]; then
@@ -61,7 +61,7 @@ find_cluster_ha_hosts() {
 
 	    sleep 1
 	done
-        
+
         if [ "${statefulset_name}" == "" ]; then
             echo "Cannot get statefulset name from kubernetes API, exit" >&2
             exit 1
