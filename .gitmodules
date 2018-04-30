@@ -82,3 +82,6 @@
 [submodule "src/cf-syslog-drain-release"]
 	path = src/cf-syslog-drain-release
 	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git
+[submodule "src/cf-networking-release"]
+	path = src/cf-networking-release
+	url = https://github.com/cloudfoundry/cf-networking-release.git

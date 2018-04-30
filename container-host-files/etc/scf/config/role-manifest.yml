@@ -419,6 +419,8 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
+  - name: silk-controller
+    release_name: cf-networking
   processes:
   - name: bbs
   - name: metron_agent
@@ -458,6 +460,19 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.cf_networking.silk_controller.ca_cert: ((INTERNAL_CA_CERT))
+      properties.cf_networking.silk_controller.database.host: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.cf_networking.silk_controller.database.name: network_connectivity
+      properties.cf_networking.silk_controller.database.password: ((MYSQL_NETWORKING_SILK_CONTROLLER_PASSWORD))
+      properties.cf_networking.silk_controller.database.port: 3306
+      properties.cf_networking.silk_controller.database.port: network_connectivity
+      properties.cf_networking.silk_controller.database.type: mysql
+      properties.cf_networking.silk_controller.database.username: network_connectivity
+      properties.cf_networking.silk_controller.server_cert: ((NETWORKING_SILK_CONTROLLER_CERT))
+      properties.cf_networking.silk_controller.server_key: ((NETWORKING_SILK_CONTROLLER_KEY))
+      properties.cf_networking.silk_daemon.ca_cert: ((INTERNAL_CA_CERT))
+      properties.cf_networking.silk_daemon.client_cert: ((NETWORKING_SILK_CONTROLLER_CERT))
+      properties.cf_networking.silk_daemon.client_key: ((NETWORKING_SILK_CONTROLLER_KEY))
       properties.diego.bbs.advertisement_base_hostname: ((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: router
   environment_scripts:
@@ -681,6 +696,10 @@ roles:
     release_name: java-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
+  - name: policy-server
+    release_name: cf-networking
+  - name: policy-server-internal
+    release_name: cf-networking
   processes:
   - name: cloud_controller_ng
   - name: cloud_controller_worker_local_1
@@ -730,7 +749,22 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.cf_networking.policy_server.database.host: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.cf_networking.policy_server.database.name: network_policy
+      properties.cf_networking.policy_server.database.password: ((MYSQL_NETWORKING_VXLAN_POLICY_SERVER_PASSWORD))
+      properties.cf_networking.policy_server.database.port: 3306
+      properties.cf_networking.policy_server.database.type: mysql
+      properties.cf_networking.policy_server.database.username: network_policy
+      properties.cf_networking.policy_server.uaa_ca: ((UAA_CA_CERT))
+      properties.cf_networking.policy_server.uaa_client_secret: ((UAA_CLIENTS_NETWORKING_VXLAN_POLICY_SERVER_SECRET))
+      properties.cf_networking.policy_server_internal.ca_cert: ((INTERNAL_CA_CERT))
+      properties.cf_networking.policy_server_internal.server_cert: ((NETWORKING_POLICY_SERVER_CERT))
+      properties.cf_networking.policy_server_internal.server_key: ((NETWORKING_POLICY_SERVER_KEY))
+      properties.route_registrar.routes: >
+        [
+          {"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"},
+          {"name":"policy-server", "port":4002, "registration_interval": "20s", "uris":["api.((DOMAIN))/networking"]}
+        ]
 - name: cc-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1198,6 +1232,16 @@ roles:
     release_name: loggregator
   - name: nfsv3driver
     release_name: nfs-volume
+  - name: garden-cni
+    release_name: cf-networking
+  - name: netmon
+    release_name: cf-networking
+  - name: vxlan-policy-agent
+    release_name: cf-networking
+  - name: silk-daemon
+    release_name: cf-networking
+  - name: cni
+    release_name: cf-networking
   processes:
   - name: metron_agent
   - name: rep
@@ -1256,6 +1300,12 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.cf_networking.silk_daemon.ca_cert: ((INTERNAL_CA_CERT))
+      properties.cf_networking.silk_daemon.client_cert: ((NETWORKING_SILK_DAEMON_CERT))
+      properties.cf_networking.silk_daemon.client_key: ((NETWORKING_SILK_DAEMON_KEY))
+      properties.cf_networking.vxlan_policy_agent.ca_cert: ((INTERNAL_CA_CERT))
+      properties.cf_networking.vxlan_policy_agent.client_cert: ((NETWORKING_VXLAN_CONTROLLER_CERT))
+      properties.cf_networking.vxlan_policy_agent.client_key: ((NETWORKING_VXLAN_CONTROLLER_KEY))
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
@@ -1957,6 +2007,20 @@ configuration:
       type: Password
     description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
     required: true
+  - name: MYSQL_NETWORKING_SILK_CONTROLLER_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to MySQL by the cf-networking silk controller.
+    required: true
+  - name: MYSQL_NETWORKING_VXLAN_POLICY_SERVER_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for access to MySQL by the cf-networking vxlan policy server.
+    required: true
   - name: MYSQL_PERSI_NFS_PASSWORD
     description: 'Database password for storing broker state for the Persi NFS Broker'
     secret: true
@@ -1988,6 +2052,70 @@ configuration:
     generator:
       type: Password
     description: The password for access to NATS.
+    required: true
+  - name: NETWORKING_POLICY_SERVER_CERT
+    secret: true
+    generator:
+      id: networking_policy_server_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_POLICY_SERVER_KEY
+    secret: true
+    generator:
+      id: networking_policy_server_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_SILK_CONTROLLER_CERT
+    secret: true
+    generator:
+      id: networking_silk_controller_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_SILK_CONTROLLER_KEY
+    secret: true
+    generator:
+      id: networking_silk_controller_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_SILK_DAEMON_CERT
+    secret: true
+    generator:
+      id: networking_silk_daemon_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_SILK_DAEMON_KEY
+    secret: true
+    generator:
+      id: networking_silk_daemon_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_VXLAN_CONTROLLER_CERT
+    secret: true
+    generator:
+      id: networking_vxlan_controller_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded certificate
+    required: true
+  - name: NETWORKING_VXLAN_CONTROLLER_KEY
+    secret: true
+    generator:
+      id: networking_vxlan_controller_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded certificate
     required: true
   - name: NGINX_LOG_LEVEL
     type: environment
@@ -2335,6 +2463,13 @@ configuration:
       type: Password
     description: The password for UAA access by the login client.
     required: true
+  - name: UAA_CLIENTS_NETWORKING_VXLAN_POLICY_SERVER_SECRET
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: The password for UAA access by the cf-networking vxlan policy server.
+    required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
     immutable: true
@@ -2480,7 +2615,17 @@ configuration:
     properties.cf.insecure_api_url: http://api.((KUBE_SERVICE_DOMAIN_SUFFIX)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: >
+      [
+        {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
+        {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
+        {"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},
+        {"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},
+        {"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
+        {"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
+        {"name":"network_policy","username":"network_policy","password":"((MYSQL_NETWORKING_VXLAN_POLICY_SERVER_PASSWORD))"},
+        {"name":"network_connectivity","username":"network_connectivity","password":"((MYSQL_NETWORKING_SILK_CONTROLLER_PASSWORD))"}
+      ]
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
@@ -2672,6 +2817,7 @@ configuration:
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
     properties.uaa.clients.login.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
+    properties.uaa.clients.networking_vxlan_policy_server.secret: ((UAA_CLIENTS_NETWORKING_VXLAN_POLICY_SERVER_SECRET))
     properties.uaa.clients.scf_auto_config.secret: '"((UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.ssh-proxy.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'

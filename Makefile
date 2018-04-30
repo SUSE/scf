@@ -122,6 +122,9 @@ garden-release:
 mysql-release:
 	RUBY_VERSION=2.3.1 make/bosh-release src/cf-mysql-release
 
+networking-release:
+	make/bosh-release src/cf-networking-release
+
 smoke-tests-release:
 	make/bosh-release src/cf-smoke-tests-release
 
@@ -192,6 +195,7 @@ releases: \
 	diego-release \
 	garden-release \
 	mysql-release \
+	networking-release \
 	smoke-tests-release \
 	usb-release \
 	nfs-volume-release \
