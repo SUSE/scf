@@ -22,8 +22,6 @@ roles:
       max: 1
       ha: 1
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 69
     virtual-cpus: 2
     exposed-ports:
@@ -66,8 +64,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 93
     virtual-cpus: 2
     exposed-ports:
@@ -108,8 +104,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 78
     virtual-cpus: 2
     exposed-ports:
@@ -159,8 +153,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 60
     virtual-cpus: 2
     exposed-ports:
@@ -212,11 +204,11 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/store
+      type: persistent
       tag: mysql-data
       size: 20
-    shared-volumes: []
     memory: 2841
     virtual-cpus: 2
     exposed-ports:
@@ -285,8 +277,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 63
     virtual-cpus: 2
     exposed-ports:
@@ -333,8 +323,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 117
     virtual-cpus: 2
     exposed-ports:
@@ -384,8 +372,6 @@ roles:
       max: 3
       ha: 3
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 90
     virtual-cpus: 2
     exposed-ports:
@@ -429,8 +415,6 @@ roles:
       ha: 3
       must_be_odd: true
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 138
     virtual-cpus: 2
     exposed-ports:
@@ -483,8 +467,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 135
     virtual-cpus: 4
     exposed-ports:
@@ -555,8 +537,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 99
     virtual-cpus: 2
     exposed-ports:
@@ -614,8 +594,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 114
     virtual-cpus: 4
     exposed-ports:
@@ -695,8 +673,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 2421
     virtual-cpus: 4
     exposed-ports:
@@ -754,8 +730,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 753
     virtual-cpus: 2
     exposed-ports: []
@@ -801,11 +775,11 @@ roles:
       max: 1
       # Not HA capable; use external HA storage instead
     capabilities: []
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/store
+      type: persistent
       tag: blobstore-data
       size: 50
-    shared-volumes: []
     memory: 420
     virtual-cpus: 2
     exposed-ports:
@@ -844,8 +818,6 @@ roles:
       min: 1
       max: 1 # Max is 1 per the description of the clock job
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 789
     virtual-cpus: 2
     exposed-ports: []
@@ -884,8 +856,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 390
     virtual-cpus: 2
     exposed-ports:
@@ -948,8 +918,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 153
     virtual-cpus: 2
     exposed-ports:
@@ -999,8 +967,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 99
     virtual-cpus: 4
     exposed-ports:
@@ -1048,8 +1014,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 129
     virtual-cpus: 4
     exposed-ports:
@@ -1099,8 +1063,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 123
     virtual-cpus: 2
     exposed-ports:
@@ -1146,8 +1108,6 @@ roles:
       min: 1
       max: 3
     capabilities: [ALL]
-    persistent-volumes: []
-    shared-volumes: []
     memory: 63
     virtual-cpus: 2
     exposed-ports:
@@ -1213,11 +1173,14 @@ roles:
       # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
       ha: 3
     capabilities: [ALL]
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/data/grootfs
+      type: persistent
       tag: grootfs-data
       size: 50
-    shared-volumes: []
+    - path: /sys/fs/cgroup
+      type: host
+      tag: host-cgroup
     memory: 4677
     virtual-cpus: 4
     exposed-ports:
@@ -1273,8 +1236,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 144
     virtual-cpus: 2
     exposed-ports: []
@@ -1296,8 +1257,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 876
     virtual-cpus: 2
     exposed-ports: []
@@ -1320,8 +1279,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
@@ -1337,8 +1294,6 @@ roles:
       max: 1
     flight-stage: pre-flight
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
@@ -1366,8 +1321,6 @@ roles:
       max: 1
     flight-stage: post-flight
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
