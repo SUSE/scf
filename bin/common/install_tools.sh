@@ -41,12 +41,17 @@ chmod a+x "${SCF_BIN_DIR}/kk"
 chmod a+x "${SCF_BIN_DIR}/helm"
 
 # The vagrant deployment runs this script privileged, so init helm as vagrant user if they exist.
-if systemctl is-active kube-apiserver.service ; then
+if systemctl list-unit-files kube-apiserver.service | grep --quiet enabled ; then
   if [[ $(id -u) -eq 0 ]] && id -u vagrant &>/dev/null; then
     do_as_vagrant="sudo -iu vagrant"
   else
     do_as_vagrant=""
   fi
+
+  # Wait for kube-apiserver to actually be ready
+  while ! systemctl is-active kube-apiserver.service ; do
+    sleep 1
+  done
 
   echo "Installing tiller for helm ..."
   ${do_as_vagrant} helm init
