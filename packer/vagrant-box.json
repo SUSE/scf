@@ -284,6 +284,8 @@
                 "scripts/install-certstrap.sh",
                 "scripts/usr-local-bin-to-path.sh",
                 "scripts/create-kube-certs.sh",
+                "scripts/wait-for-kube.sh",
+                "scripts/setup-service-account.sh",
                 "scripts/create-kubedns.sh"
             ],
             "start_retry_timeout": "7m"
