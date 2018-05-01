@@ -65,7 +65,7 @@
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
             "vboxmanage": [
-                [ "modifyvm", "{{.Name}}", "--memory", "1024" ]
+                [ "modifyvm", "{{.Name}}", "--memory", "2048" ]
             ],
             "boot_command": [
                 "<esc><enter><wait>",
