@@ -465,7 +465,6 @@ roles:
       properties.cf_networking.silk_controller.database.name: network_connectivity
       properties.cf_networking.silk_controller.database.password: ((MYSQL_NETWORKING_SILK_CONTROLLER_PASSWORD))
       properties.cf_networking.silk_controller.database.port: 3306
-      properties.cf_networking.silk_controller.database.port: network_connectivity
       properties.cf_networking.silk_controller.database.type: mysql
       properties.cf_networking.silk_controller.database.username: network_connectivity
       properties.cf_networking.silk_controller.server_cert: ((NETWORKING_SILK_CONTROLLER_CERT))
@@ -749,6 +748,7 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.cf_networking.policy_server.cc_hostname: api.((KUBE_SERVICE_DOMAIN_SUFFIX))
       properties.cf_networking.policy_server.database.host: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
       properties.cf_networking.policy_server.database.name: network_policy
       properties.cf_networking.policy_server.database.password: ((MYSQL_NETWORKING_VXLAN_POLICY_SERVER_PASSWORD))
@@ -756,7 +756,10 @@ roles:
       properties.cf_networking.policy_server.database.type: mysql
       properties.cf_networking.policy_server.database.username: network_policy
       properties.cf_networking.policy_server.uaa_ca: ((UAA_CA_CERT))
+      properties.cf_networking.policy_server.uaa_client: networking_vxlan_policy_server
       properties.cf_networking.policy_server.uaa_client_secret: ((UAA_CLIENTS_NETWORKING_VXLAN_POLICY_SERVER_SECRET))
+      properties.cf_networking.policy_server.uaa_hostname: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
+      properties.cf_networking.policy_server.uaa_port: ((UAA_PORT))
       properties.cf_networking.policy_server_internal.ca_cert: ((INTERNAL_CA_CERT))
       properties.cf_networking.policy_server_internal.server_cert: ((NETWORKING_POLICY_SERVER_CERT))
       properties.cf_networking.policy_server_internal.server_key: ((NETWORKING_POLICY_SERVER_KEY))
@@ -1300,6 +1303,8 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.cf_networking.policy_server.hostname: diego-cell.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.cf_networking.silk_controller.hostname: diego-cell.((KUBE_SERVICE_DOMAIN_SUFFIX))
       properties.cf_networking.silk_daemon.ca_cert: ((INTERNAL_CA_CERT))
       properties.cf_networking.silk_daemon.client_cert: ((NETWORKING_SILK_DAEMON_CERT))
       properties.cf_networking.silk_daemon.client_key: ((NETWORKING_SILK_DAEMON_KEY))

@@ -1,8 +1,8 @@
 ---
-container-networking/v0-14-0-network-policy-plugin-linux64:
-  object_id: v0-14-0-network-policy-plugin-linux64
-  sha: df087aee2480e2ec67a6b0433fddd351b9f2cc21
-  size: 8472248
+container-networking/v1-6-1-network-policy-plugin-linux64:
+  object_id: v1-6-1-network-policy-plugin-linux64
+  sha: 2dd83782f0c4ff11ed95104da48197e53dd362c4
+  size: 9327625
 cli/cf-cli_6.33.1_linux_x86-64.tgz:
   object_id: cf-cli_6.33.1_linux_x86-64.tgz
   sha: 36d599d1e540c94f31740f6fac49adbf032a22a3
