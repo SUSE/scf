@@ -23,3 +23,15 @@ http/vagrant-autoyast.xml: http/autoyast.xml.tpl
 	txtplate --input http/autoyast.xml.tpl \
 	         --output http/vagrant-autoyast.xml \
 	         vagrant-templating.json
+
+# Install locally-built vagrant images
+vagrant-install-libvirt:
+	FILE="scf-libvirt-v$$(jq -r .variables.version vagrant-box.json).box" && \
+	URL="https://cf-opensusefs2.s3.amazonaws.com/vagrant/$${FILE}" && \
+	vagrant box add --force --provider libvirt --name "$${URL}" "$${FILE}" && \
+	virsh vol-delete --pool default "$${URL//\//-VAGRANTSLASH-}_vagrant_box_image_0.img"
+
+vagrant-install-virtualbox:
+	FILE="scf-virtualbox-v$$(jq -r .variables.version vagrant-box.json).box" && \
+	URL="https://cf-opensusefs2.s3.amazonaws.com/vagrant/$${FILE}" && \
+	vagrant box add --force --provider virtualbox --name "$${URL}" "$${FILE}"

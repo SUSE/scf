@@ -65,7 +65,7 @@
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
             "vboxmanage": [
-                [ "modifyvm", "{{.Name}}", "--memory", "1024" ]
+                [ "modifyvm", "{{.Name}}", "--memory", "2048" ]
             ],
             "boot_command": [
                 "<esc><enter><wait>",
@@ -284,6 +284,8 @@
                 "scripts/install-certstrap.sh",
                 "scripts/usr-local-bin-to-path.sh",
                 "scripts/create-kube-certs.sh",
+                "scripts/wait-for-kube.sh",
+                "scripts/setup-service-account.sh",
                 "scripts/create-kubedns.sh"
             ],
             "start_retry_timeout": "7m"
