@@ -335,7 +335,7 @@ pipeline {
                             }
                             echo "Found expected version: ${expectedVersion}"
 
-                            def glob = "*scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-${expectedVersion}.*-amd64.zip"
+                            def glob = "*scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-${expectedVersion}.*.zip"
                             def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
@@ -376,8 +376,13 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
+                    if [ "$USE_SLE_BASE" == "true" ]; then
+                        OS="sle"
+                    else
+                        OS="opensuse"
+                    fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/scf-*amd64*.zip
+                    rm -f output/scf-${OS}-*.zip
                     make helm bundle-dist
                 '''
             }
@@ -393,21 +398,24 @@ pipeline {
                     source \${PWD}/.envrc
                     set -x
 
+                    suffix=""
+                    if [ "${params.USE_SLE_BASE}" == "true" ]; then
+                        OS="sle"
+                    else
+                        OS="opensuse"
+                        suffix="-opensuse"
+                    fi
+
                     kubectl delete storageclass hostpath || /bin/true
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-*amd64*.zip -d output/unzipped
+                    unzip -e output/scf-\${OS}-*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
-
-                    suffix=""
-                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
-                        suffix="-opensuse"
-                    fi
 
                     helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
@@ -587,7 +595,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: 'output/scf-*amd64*.zip')
+                            def files = findFiles(glob: 'output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*.zip')
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
