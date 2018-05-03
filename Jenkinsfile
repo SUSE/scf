@@ -382,7 +382,7 @@ pipeline {
                         OS="opensuse"
                     fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/scf-$OS-*.zip
+                    rm -f output/scf-${OS}-*.zip
                     make helm bundle-dist
                 '''
             }
@@ -399,7 +399,7 @@ pipeline {
                     set -x
 
                     suffix=""
-                    if [ "$USE_SLE_BASE" == "true" ]; then
+                    if [ "${params.USE_SLE_BASE}" == "true" ]; then
                         OS="sle"
                     else
                         OS="opensuse"
@@ -412,7 +412,7 @@ pipeline {
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-$OS-*.zip -d output/unzipped
+                    unzip -e output/scf-\${OS}-*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
