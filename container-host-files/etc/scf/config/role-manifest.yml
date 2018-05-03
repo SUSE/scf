@@ -1702,6 +1702,9 @@ configuration:
     default: false
     description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
     required: true
+  - name: GARDEN_APPARMOR_PROFILE
+    default: garden-default
+    description: AppArmor profile name for garden-runc; set this to empty string to disable AppArmor support
   - name: GARDEN_DOCKER_REGISTRY
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
@@ -2443,6 +2446,7 @@ configuration:
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler-set.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
+    properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
