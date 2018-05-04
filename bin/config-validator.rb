@@ -279,6 +279,14 @@ def check_clustering(manifest, bosh_properties)
     (role['jobs'] || []).each do |job|
       job_name = job['name']
       release_name = job['release_name']
+      unless bosh_properties.has_key? release_name
+        STDOUT.puts "Role #{role['name']} has job #{job_name} from unknown release #{release_name}"
+      end
+      unless bosh_properties[release_name].has_key? job_name
+        STDOUT.puts "Role #{role['name']} has job #{job_name} not in release #{release_name}"
+        @has_errors += 1
+        next
+      end
       bosh_properties[release_name][job_name].each_key do |property|
         (rparams["properties." + property] || []).each do |param|
           next unless /^KUBE_(SERVICE_DOMAIN_SUFFIX|.*_CLUSTER_IPS)$/ =~ param

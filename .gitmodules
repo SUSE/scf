@@ -13,9 +13,6 @@
 [submodule "src/garden-runc-release"]
 	path = src/garden-runc-release
 	url = https://github.com/cloudfoundry/garden-runc-release.git
-[submodule "src/scf-helper-release/src/certstrap"]
-	path = src/scf-helper-release/src/certstrap
-	url = https://github.com/hpcloud/certstrap
 [submodule "src/nats-release"]
 	path = src/nats-release
 	url = https://github.com/cloudfoundry/nats-release.git

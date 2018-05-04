@@ -1,5 +1,0 @@
-applications:
-- name: goenv
-  memory: 32M
-  env:
-    GOVERSION: go1.7

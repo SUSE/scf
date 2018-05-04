@@ -26,4 +26,5 @@ perl -p -i -e 's@^(KUBELET_ARGS=)"(.*)"@\1"\2 --cluster-dns=10.254.0.254 --clust
 # Enable RBAC for kubernetes
 perl -p -i -e 's@^(KUBE_API_ARGS=)"(.*)"@\1"\2 --authorization-mode=RBAC"@' /etc/kubernetes/apiserver
 
+systemctl daemon-reload
 systemctl restart etcd.service kube-apiserver.service kube-controller-manager.service kube-proxy.service kube-scheduler.service kubelet.service

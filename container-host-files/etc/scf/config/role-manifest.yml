@@ -5,6 +5,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -21,14 +22,24 @@ roles:
       max: 1
       ha: 1
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 69
     virtual-cpus: 2
     exposed-ports:
     - name: sched-health
       protocol: TCP
       internal: 8080
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-scheduler
+            topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
@@ -37,6 +48,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -52,19 +64,30 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 93
     virtual-cpus: 2
     exposed-ports:
     - name: rlp
       protocol: TCP
       internal: 8082
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-rlp
+            topologyKey: "beta.kubernetes.io/os"
 - name: syslog-adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -81,8 +104,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 78
     virtual-cpus: 2
     exposed-ports:
@@ -92,6 +113,18 @@ roles:
     - name: adapter-health
       protocol: TCP
       internal: 8080
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - syslog-adapter
+            topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
         url: http://container-ip:8080/health
@@ -100,6 +133,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -119,8 +153,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 60
     virtual-cpus: 2
     exposed-ports:
@@ -151,6 +183,7 @@ roles:
   - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/enable_mysql_galera_bootstrap.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -171,11 +204,11 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/store
+      type: persistent
       tag: mysql-data
       size: 20
-    shared-volumes: []
     memory: 2841
     virtual-cpus: 2
     exposed-ports:
@@ -225,6 +258,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -243,8 +277,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 63
     virtual-cpus: 2
     exposed-ports:
@@ -266,6 +298,7 @@ roles:
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -290,8 +323,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 117
     virtual-cpus: 2
     exposed-ports:
@@ -322,6 +353,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -340,8 +372,6 @@ roles:
       max: 3
       ha: 3
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 90
     virtual-cpus: 2
     exposed-ports:
@@ -385,8 +415,6 @@ roles:
       ha: 3
       must_be_odd: true
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 138
     virtual-cpus: 2
     exposed-ports:
@@ -439,8 +467,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 135
     virtual-cpus: 4
     exposed-ports:
@@ -490,6 +516,7 @@ roles:
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -510,8 +537,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 99
     virtual-cpus: 2
     exposed-ports:
@@ -569,8 +594,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 114
     virtual-cpus: 4
     exposed-ports:
@@ -650,8 +673,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 2421
     virtual-cpus: 4
     exposed-ports:
@@ -709,8 +730,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 753
     virtual-cpus: 2
     exposed-ports: []
@@ -747,17 +766,20 @@ roles:
   - name: blobstore_url_signer
   - name: route_registrar
   - name: metron_agent
+  tags:
+  - indexed
+  # Role needs LB (Single name for access from API) => indexed
   run:
     scaling:
       min: 1
       max: 1
       # Not HA capable; use external HA storage instead
     capabilities: []
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/store
+      type: persistent
       tag: blobstore-data
       size: 50
-    shared-volumes: []
     memory: 420
     virtual-cpus: 2
     exposed-ports:
@@ -796,8 +818,6 @@ roles:
       min: 1
       max: 1 # Max is 1 per the description of the clock job
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 789
     virtual-cpus: 2
     exposed-ports: []
@@ -818,6 +838,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -835,8 +856,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 390
     virtual-cpus: 2
     exposed-ports:
@@ -899,8 +918,6 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 153
     virtual-cpus: 2
     exposed-ports:
@@ -931,6 +948,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -949,8 +967,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 99
     virtual-cpus: 4
     exposed-ports:
@@ -975,6 +991,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -997,8 +1014,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 129
     virtual-cpus: 4
     exposed-ports:
@@ -1026,6 +1041,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1047,8 +1063,6 @@ roles:
       max: 3
       ha: 2
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 123
     virtual-cpus: 2
     exposed-ports:
@@ -1094,8 +1108,6 @@ roles:
       min: 1
       max: 3
     capabilities: [ALL]
-    persistent-volumes: []
-    shared-volumes: []
     memory: 63
     virtual-cpus: 2
     exposed-ports:
@@ -1151,6 +1163,9 @@ roles:
   - name: rep
   - name: route_emitter
   - name: garden
+  tags:
+  - clustered
+  # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
       min: 1
@@ -1158,11 +1173,14 @@ roles:
       # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
       ha: 3
     capabilities: [ALL]
-    persistent-volumes:
+    volumes:
     - path: /var/vcap/data/grootfs
+      type: persistent
       tag: grootfs-data
       size: 50
-    shared-volumes: []
+    - path: /sys/fs/cgroup
+      type: host
+      tag: host-cgroup
     memory: 4677
     virtual-cpus: 4
     exposed-ports:
@@ -1176,8 +1194,8 @@ roles:
       protocol: TCP
       internal: 7590
     healthcheck:
-      readiness:
-        url: http://container-ip:1800/ping # rep HTTP server
+        command:
+          - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1201,7 +1219,11 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      properties.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.tls.cert: ((REP_SERVER_CERT))
+      properties.tls.key: ((REP_SERVER_KEY))
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -1218,8 +1240,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 144
     virtual-cpus: 2
     exposed-ports: []
@@ -1241,8 +1261,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 876
     virtual-cpus: 2
     exposed-ports: []
@@ -1265,8 +1283,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 1024
     virtual-cpus: 2
     exposed-ports: []
@@ -1282,8 +1298,6 @@ roles:
       max: 1
     flight-stage: pre-flight
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
@@ -1311,8 +1325,6 @@ roles:
       max: 1
     flight-stage: post-flight
     capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
@@ -1402,7 +1414,6 @@ configuration:
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
@@ -1482,14 +1493,12 @@ configuration:
     required: true
   - name: BLOBSTORE_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
     required: true
   - name: BLOBSTORE_SECURE_LINK
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
@@ -1513,7 +1522,6 @@ configuration:
     required: true
   - name: BULK_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the bulk api.
@@ -1575,7 +1583,6 @@ configuration:
     description: PEM-encoded broker server key.
   - name: CF_USB_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     example: password
@@ -1586,7 +1593,6 @@ configuration:
     required: true
   - name: CLUSTER_ADMIN_PASSWORD
     secret: true
-    immutable: true
     description: The password for the cluster administrator.
     required: true
   - name: CLUSTER_BUILD
@@ -1607,6 +1613,7 @@ configuration:
     required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
+    # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
     immutable: true
     generator:
       type: Password
@@ -1699,6 +1706,9 @@ configuration:
     default: false
     description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
     required: true
+  - name: GARDEN_APPARMOR_PROFILE
+    default: garden-default
+    description: AppArmor profile name for garden-runc; set this to empty string to disable AppArmor support
   - name: GARDEN_DOCKER_REGISTRY
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
@@ -1732,7 +1742,6 @@ configuration:
     description: Location of the proxy to use for regular web access.
   - name: INTERNAL_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
@@ -1781,6 +1790,7 @@ configuration:
       The Kubernetes-internal domain suffix (svc.<namespace>.cluster.local or
       equivalent) to use.  If not specified, it will be auto-detected from the
       runtime configuration.
+    # It makes no sense to have this be mutable; we can't move the deployment across kubernetes clusters
     immutable: true
     required: false
   - name: KUBE_SIZING_NATS_COUNT
@@ -1795,6 +1805,22 @@ configuration:
     description: >
       Lowest internal TCP routing port.
       This value is set automatically by the helm charts of SCF.
+  - name: LOGGREGATOR_CLIENT_CERT
+    secret: true
+    generator:
+      id: loggregator_client_cert
+      type: Certificate
+      value_type: certificate
+    description: PEM-encoded client certificate for loggregator mutual authentication
+    required: true
+  - name: LOGGREGATOR_CLIENT_KEY
+    secret: true
+    generator:
+      id: loggregator_client_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded client key for loggregator mutual authentication
+    required: true
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -1827,14 +1853,12 @@ configuration:
     required: true
   - name: MONIT_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Password used for the monit API.
     required: true
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
@@ -1842,21 +1866,18 @@ configuration:
   - name: MYSQL_CCDB_ROLE_PASSWORD
     previous_names: [CCDB_ROLE_PASSWORD]
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
     required: true
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     example: password
     description: The password for access to the usb config database.
   - name: MYSQL_CLUSTER_HEALTH_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for the cluster logger health user.
@@ -1864,20 +1885,17 @@ configuration:
   - name: MYSQL_DIEGO_LOCKET_PASSWORD
     description: Database password for the diego locket service.
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
     required: true
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
@@ -1885,27 +1903,27 @@ configuration:
   - name: MYSQL_PERSI_NFS_PASSWORD
     description: 'Database password for storing broker state for the Persi NFS Broker'
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
     required: true
+  - name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
+    default: 30000
+    description: The time allowed for the MySQL server to respond to healthcheck queries, in milliseconds.
+    required: true
   - name: MYSQL_ROUTING_API_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to MySQL by the routing-api
     required: true
   - name: NATS_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to NATS.
@@ -1930,7 +1948,6 @@ configuration:
   - name: PERSI_NFS_BROKER_PASSWORD
     description: 'Basic auth password to verify on incoming Service Broker requests'
     secret: true
-    immutable: true
     generator:
       type: Password
     required: true
@@ -1974,7 +1991,6 @@ configuration:
     description: "LDAP service account password (required for LDAP integration only)"
     default: "-"
     secret: true
-    immutable: true
   - name: PERSI_NFS_DRIVER_LDAP_PORT
     description: "LDAP server port (required for LDAP integration only)"
     default: "389"
@@ -1995,6 +2011,7 @@ configuration:
       type: Certificate
       value_type: certificate
       role_name: diego-cell
+      subject_names: [ 127.0.0.1 ]
     description: PEM-encoded server certificate
     required: true
   - name: REP_SERVER_KEY
@@ -2003,6 +2020,7 @@ configuration:
       id: rep_server_cert
       type: Certificate
       value_type: private_key
+      subject_names: [ 127.0.0.1 ]
     description: PEM-encoded server key
     required: true
   - name: ROOTFS_TRUSTED_CERTS
@@ -2011,9 +2029,11 @@ configuration:
   - name: ROUTER_BALANCING_ALGORITHM
     default: 'round-robin'
     description: The algorithm used by the router to distribute requests for a route across backends. Supported values are round-robin and least-connection.
+  - name: ROUTER_FORWARDED_CLIENT_CERT
+    default: 'always_forward'
+    description: How to handle the x-forwarded-client-cert (XFCC) HTTP header. Supported values are always_forward, forward, and sanitize_set. See https://docs.cloudfoundry.org/concepts/http-routing.html for more information.
   - name: ROUTER_SERVICES_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
@@ -2038,7 +2058,6 @@ configuration:
     required: true
   - name: ROUTER_STATUS_PASSWORD
     secret: true
-    immutable: true
     generator:
       id: router_status_password
       type: Password
@@ -2067,7 +2086,6 @@ configuration:
     required: true
   - name: STAGING_UPLOAD_PASSWORD
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
@@ -2177,7 +2195,6 @@ configuration:
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
     secret: true
-    immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
   - name: UAA_CA_CERT
@@ -2185,89 +2202,76 @@ configuration:
     secret: true
   - name: UAA_CC_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
     required: true
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
     required: true
   - name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Used for third party service dashboard SSO.
   - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: Used for fetching service key values from CredHub.
     required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Universal Service Broker.
   - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
     required: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
     required: true
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
     required: true
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
     required: true
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
     required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
     required: true
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
     required: true
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
-    immutable: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
@@ -2398,6 +2402,8 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
+    properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
     properties.diego.auctioneer.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
@@ -2425,7 +2431,9 @@ configuration:
     properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
-    properties.diego.bbs.sql.db_connection_string: '"((={{ }}=))diego:{{MYSQL_DIEGO_PASSWORD}}@tcp(mysql-proxy.{{KUBE_SERVICE_DOMAIN_SUFFIX}}:3306)/diego{{=(( ))=}}"'
+    properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
+    properties.diego.bbs.sql.db_host: mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2433,17 +2441,10 @@ configuration:
     properties.diego.locket.sql.db_host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
-    properties.diego.rep.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.rep.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.rep.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.rep.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
-    properties.diego.rep.server_cert: '"((REP_SERVER_CERT))"'
-    properties.diego.rep.server_key: '"((REP_SERVER_KEY))"'
-    properties.diego.rep.trusted_certs: '((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2459,11 +2460,14 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
+    properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
+    properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.diego.ssh_proxy.uaa_token_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/oauth/token
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler-set.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
+    properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
@@ -2478,6 +2482,10 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBE_SERVICE_DOMAIN_SUFFIX))
+    properties.locks.locket.hostname: diego-locket.((KUBERNETES_NAMESPACE))
+    properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
+    properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
+    properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
     properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
@@ -2520,6 +2528,7 @@ configuration:
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
+    properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
@@ -2529,6 +2538,7 @@ configuration:
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: "mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"

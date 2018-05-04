@@ -19,7 +19,7 @@ else
     echo "Unkown stemcell operating system: ${FISSILE_STEMCELL}"
     exit 1
 fi
-ARCHIVE="${GIT_ROOT}/output/scf-${stemcell_os}-${APP_VERSION}-amd64.zip"
+ARCHIVE="${GIT_ROOT}/output/scf-${stemcell_os}-${APP_VERSION}.zip"
 
 echo Packaging, taking $APP_VERSION ...
 
