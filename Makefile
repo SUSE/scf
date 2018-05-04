@@ -192,33 +192,33 @@ staticfile-buildpack-release:
 	make/bosh-release src/buildpacks/staticfile-buildpack-release
 
 releases: \
-	diego-release \
-	garden-release \
-	mysql-release \
-	smoke-tests-release \
-	usb-release \
-	nfs-volume-release \
-	cflinuxfs2-release \
+	binary-buildpack-release \
+	capi-release \
 	cf-opensuse42-release \
 	cf-sle12-release \
 	cf-syslog-drain-release \
-	postgres-release \
-	routing-release \
-	scf-helper-release \
-	capi-release \
-	loggregator-release \
-	nats-release \
-	statsd-injector-release \
-	binary-buildpack-release \
+	cflinuxfs2-release \
+	diego-release \
 	dotnet-core-buildpack-release \
+	garden-release \
 	go-buildpack-release \
 	java-buildpack-release \
+	loggregator-release \
+	mysql-release \
+	nats-release \
+	nfs-volume-release \
 	nodejs-buildpack-release \
 	php-buildpack-release \
+	postgres-release \
 	python-buildpack-release \
+	routing-release \
 	ruby-buildpack-release \
+	scf-helper-release \
+	smoke-tests-release \
 	staticfile-buildpack-release \
+	statsd-injector-release \
 	uaa-releases \
+	usb-release \
 	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
