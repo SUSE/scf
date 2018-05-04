@@ -12,129 +12,129 @@ RELEASE=${1}
 
 VERSION_INFO=$("${GIT_ROOT}/bin/get-cf-versions.sh" "${RELEASE}")
 
+declare -A MISSING_REASONS=(
+    [uaa-release]="see src/uaa-fissile-release"
+    [consul-release]="not used"
+    [cf-networking-release]="not used"
+)
+
+declare -A REMAINING_REASONS=(
+    [src/buildpacks/binary-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/dotnet-core-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/go-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/java-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/nodejs-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/php-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/python-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/ruby-buildpack-release]="buildpacks bumped separately"
+    [src/buildpacks/staticfile-buildpack-release]="buildpacks bumped separately"
+    [src/cf-opensuse42-release]="stacks bumped separately"
+    [src/cf-sle12-release]="stacks bumped separately"
+    [src/cf-usb/cf-usb-release]="not upstream"
+    [src/scf-helper-release]="not upstream"
+    [src/nfs-volume-release]="non-standard"
+)
+
 # Save, for debugging
-mkdir -p ${GIT_ROOT}/_work
-echo "${VERSION_INFO}" > ${GIT_ROOT}/_work/VERSION_INFO
+mkdir -p "${GIT_ROOT}/_work"
+echo "${VERSION_INFO}" > "${GIT_ROOT}/_work/VERSION_INFO"
 
-release_ref () {
-    local release="${1}"
-    echo "${VERSION_INFO}" | awk -F , "/$release/ { print \$2 }"
-}
+# Dump the versions into a bash associative array for looping
+declare -A release_versions
+while IFS=, read -r release_name release_version ; do
+    release_versions[${release_name}]=${release_version}
+done < <(echo "${VERSION_INFO}")
 
-release_origin() {
-    local release=${1}
-    case $release in
-	*-buildpack-*)
-	    where=$(git -C ${GIT_ROOT}/src/buildpacks/$release remote -v | grep fetch | awk '{ print $2 }' | uniq)
-	    ;;
-	*)
-	    where=$(git -C ${GIT_ROOT}/src/$release remote -v | grep fetch| awk '{ print $2 }' | uniq)
-	    ;;
-    esac
-    echo "${where}"
-}
-
-get_submodule_ref () {
-    local release=${1}
-    dir="${2:-$release}"
-    ref=$(release_ref $release)
-    echo "${release}" = "${ref}" '@' "$(release_origin $dir)" \
-        >> ${GIT_ROOT}/_work/SUBMODULE_REFERENCES
-    echo "${ref}"
-}
-
-echo > ${GIT_ROOT}/_work/SUBMODULE_REFERENCES    ""
-
-update_submodule () {
-    echo
-    echo _____________________________ "Updating Submodule ${1}"
-    echo ............................. "Updating to commit ${2}"
-    echo ............................. "Updating rootdir . ${3}"
-	local release_name=${1}
-	local commit_id=${2}
-	local root_dir=${3}
-    echo ............................. "Updating for ..... ${GIT_ROOT}"
-    echo ............................. "Updating directory ${GIT_ROOT}/${root_dir}/${release_name}"
-    echo
-	cd "${GIT_ROOT}/${root_dir}/${release_name}"
-	git fetch --all
-	cd "${GIT_ROOT}"
-	git clone "${root_dir}/${release_name}" "${root_dir}/${release_name}-clone" --recursive
-	cd "${root_dir}/${release_name}-clone"
-	git fetch --all
-	git checkout "${commit_id}"
-	git submodule update --init --recursive
-}
-
-for release_name in \
-    capi-release \
-    cf-mysql-release \
-    cf-smoke-tests-release \
-    cf-syslog-drain-release \
-    cflinuxf2-release \
-    diego-release \
-    garden-runc-release \
-    loggregator-release \
-    nats-release \
-    nfs-volume-release \
-    routing-release \
-    statsd-injector-release
-do
-	clone_dir=${GIT_ROOT}/src/${release_name}-clone
-	if test -e "${clone_dir}"
-	then
-		echo "${clone_dir} already exists from previous upgrade."
-		exit 1
-	fi
+# Mapping of release name to path
+declare -A release_paths
+# paths that are yet to be bumped
+declare -A remaining_paths
+for dir in ${FISSILE_RELEASE//,/ } ; do
+    origin="$(git -C "${dir}" remote get-url origin)"
+    name="$(basename "${origin}" .git)"
+    release_paths["${name}"]="${dir}"
+    # We often fork locally with a cf- prefix
+    release_paths["${name#cf-}"]="${dir}"
+    # And "routing-release" is for some reason mapped as "cf-routing-release" in the manifest
+    release_paths["cf-${name#cf-}"]="${dir}"
+    # Track what releases we haven't bumped
+    remaining_paths["${dir}"]=yes
 done
 
-# Note `v`-prefix on the version tags
-CFLINUXFS2_RELEASE=v$(get_submodule_ref cflinuxfs2-release)
-DIEGO_RELEASE=v$(get_submodule_ref diego-release)
-GARDEN_RUNC_RELEASE=v$(get_submodule_ref garden-runc-release)
-LOGGREGATOR_RELEASE=v$(get_submodule_ref loggregator-release)
-MYSQL_RELEASE=v$(get_submodule_ref cf-mysql-release)
-NATS_RELEASE=v$(get_submodule_ref nats-release)
-STATSDI_RELEASE=v$(get_submodule_ref statsd-injector-release)
-SYSLOG_DRAIN_RELEASE=v$(get_submodule_ref cf-syslog-drain-release)
+# Given a release name (as in, upstream repo name), find the desired version
+release_ref () {
+    local release="${1}"
+    echo "${release_versions[${release}]}"
+}
 
-# And version tags without any prefix
-CAPI_RELEASE=$(get_submodule_ref capi-release)
-ROUTING_RELEASE=$(get_submodule_ref cf-routing-release routing-release)
+# Given a release name (as in, upstream repo name), find the directory
+release_dir () {
+    echo "${release_paths[${1}]}"
+}
 
-# cf-smoke-tests-release -- no tags, manual, clone at least
-# nfs-volume-release -- manual, not in deployment
+declare -a missing_releases
 
-update_submodule capi-release "${CAPI_RELEASE}" src
-update_submodule cf-mysql-release "${MYSQL_RELEASE}" src
-update_submodule cf-smoke-tests-release "" src
-update_submodule cf-syslog-drain-release "${SYSLOG_DRAIN_RELEASE}" src
-update_submodule cflinuxfs2-release  "${CFLINUXFS2_RELEASE}"  src
-update_submodule diego-release       "${DIEGO_RELEASE}"       src
-update_submodule garden-runc-release "${GARDEN_RUNC_RELEASE}" src
-update_submodule loggregator-release "${LOGGREGATOR_RELEASE}" src
-update_submodule nats-release "${NATS_RELEASE}" src
-update_submodule nfs-volume-release "" src
-update_submodule routing-release "${ROUTING_RELEASE}" src
-update_submodule statsd-injector-release "${STATSDI_RELEASE}" src
+update_submodule () {
+    local name="${1}"
+    local bold="\e[1m"
+    local reset="\e[0m"
+    local warn="\e[33m"
+    local okay="\e[32m"
+    local version="${release_versions[$name]}"
+    local path="${release_paths[$name]}"
+    local width=16
+    if test -z "${path}" ; then
+        printf '%b%*s %b%s%b\n' "${warn}" "${width}" "Skipping release" "${bold}" "${name}" "${reset}"
+        missing_releases[${#missing_releases[@]}]="${name}"
+        return 0
+    fi
+    unset remaining_paths["${path}"]
+    printf "Updating release %b%-*s%b at %b%-*s%b to version %b%s%b\n" \
+        "${okay}${bold}" 25 "${name}" "${reset}" \
+        "${okay}" 30 "${path#${PWD}/}" "${reset}" \
+        "${okay}" "${version}" "${reset}"
 
-# Note: Buildpacks are bumped independently of the core CF, they are
-#       our own forks anyway, to support SUSE.
+    git -C "${path}" fetch --all
+    if ! test -d "${path}-clone" ; then
+        git clone "${path}" "${path}-clone" --no-checkout
+    fi
+    git -C "${path}-clone" fetch --all
+    if test -z "$(git -C "${path}-clone" tag --list "${version}")" ; then
+        # Tag not found, try with a `v` prefix
+        version="v${version}"
+    fi
+    git -C "${path}-clone" checkout "${version}"
+    git -C "${path}-clone" submodule update --init --recursive
+}
 
-echo
-echo
-echo "ATTENTION, several releases were __not__ automatically bumped,"
-echo "for various reasons. See below."
-echo ""
-echo "* uaa-release            - see src/uaa-fissile-release"
-echo "* cf-acceptance-tests    - see src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"
-echo "               ATTENTION: Branch tag must match CF version (${RELEASE})."
-echo '* cf-smoke-tests-release - no tags, manually match version to commit'
-echo '* nfs-volume-release     - no version known, not part of the standard deployment'
-echo
-echo "For the releases below clones were made, providing a starting point"
-echo
-echo '* cf-smoke-tests-release'
-echo '* nfs-volume-release'
-echo
-echo
+for name in "${!release_versions[@]}" ; do
+    update_submodule "${name}"
+done
+
+if test "${#missing_releases[@]}" -gt 0 ; then
+    echo
+    printf "ATTENTION, some releases were missing\n"
+    {
+        printf "%b%s\t%s\t%s%b\n" "\e[0;1m" "Name" "Version" "Reason" "\e[0m"
+        for name in "${missing_releases[@]}" ; do
+            printf "%b%s\t%s\t%b\n" "\e[0;0m" \
+                "${name}" \
+                "${release_versions[${name}]}" \
+                "${MISSING_REASONS[${name}]:-\e[31;1mUNKNOWN}\e[0m"
+        done | sort 
+    } | column -t -s $'\t' | sed 's@^@      @'
+fi
+
+if test "${#remaining_paths[@]}" -gt 0 ; then
+    echo
+    printf "ATTENTION, some releases were \e[1mnot\e[0m automatically bumped\n"
+    {
+        printf "%b%s\t%s%b\n" "\e[0;1m" "Name" "Reason" "\e[0m"
+        for path in "${!remaining_paths[@]}" ; do
+            path="${path#${PWD}/}"
+            printf "%b%s\t%b\n" "\e[0;0m" \
+                "${path}" \
+                "${REMAINING_REASONS[${path}]:-\e[31;1mUNKNOWN}\e[0m"
+        done | sort
+    } | column -t -s $'\t' | sed 's@^@      @'
+fi

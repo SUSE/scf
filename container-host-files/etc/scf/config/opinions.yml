@@ -58,6 +58,10 @@ properties:
     default_staging_security_groups:
     - public_networks
     - dns
+    diego:
+      nsync_url: http://unused.invalid/
+      stager_url: http://unused.invalid/
+      tps_url: http://unused.invalid/
     droplets:
       blobstore_type: webdav
       webdav_config:
@@ -186,14 +190,13 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
-      etcd:
-        ca_cert: ""
-        client_cert: ""
-        client_key: ""
-        machines: []
       rep:
         require_tls: true
       skip_consul_lock: true
+      sql:
+        db_port: 3306
+        db_schema: diego
+        db_username: diego
     executor:
       garden:
         address: 127.0.0.1:7777
@@ -207,7 +210,6 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      require_tls: true
     route_emitter:
       local_mode: true
       nats:
@@ -220,6 +222,10 @@ properties:
   enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0
+  fissile:
+    monit:
+      user: "admin"
+      port: 2289
   garden:
     # By default we want to restrict all outbound access from containers
     # so they can't access the CF network, or other apps. Traffic to the
@@ -232,12 +238,8 @@ properties:
     graph_cleanup_threshold_in_mb: 3000
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-  fissile:
-    monit:
-      user: "admin"
-      port: 2289
-  scf:
-    skip_cert_verify_external: false
+  loggregator:
+    use_v2_api: true
   metron_agent:
     deployment: scf-deployment
   nats:
@@ -283,6 +285,8 @@ properties:
           cn: 'api'
         client:
           adapter_cn: 'syslog_adapter'
+  scf:
+    skip_cert_verify_external: false
   smoke_tests:
     user: 'admin'
     org: smoke-test-org

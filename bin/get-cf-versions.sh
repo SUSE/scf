@@ -10,7 +10,7 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 
 RELEASE=$1
 
-# gem install csv2json yaml2json orderedhash
+# gem install csv2json orderedhash
 # brew install jq
 
 CF_DEPLOYMENT=https://raw.githubusercontent.com/cloudfoundry/cf-deployment/v${RELEASE}/cf-deployment.yml
