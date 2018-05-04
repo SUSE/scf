@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [2.8.1] - 2018-05-04
+
+### Added
+- Enabled router.forwarded_client_cert variable for router
+- New syslog roles can have anti-affinity
+- mysql-proxy healthcheck timeouts are configurable 
+
+### Changed
+- Bumped UAA to v56.0
+- Bumped cf-deployment to v1.21
+- Bumped SLE12 & openSUSE stacks
+- Removed time stamp check for rsyslog
+
+### Fixed
+- MySQL HA scaling up works better
+
 ## [2.8.0] - 2018-04-03
 
 ### Added
@@ -41,7 +57,7 @@
 ### Changed
 - To address CVE-2018-1221, bumped CF Deployment to 1.15 and routing-release to 0.172.0
 - Bumped UAA to v55.0
-- Bumped SLE12 & openSuse stacks
+- Bumped SLE12 & openSUSE stacks
 - Bumped buildpack versions to latest
 
 ### Fixed
