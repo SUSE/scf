@@ -76,3 +76,6 @@
 [submodule "src/scf-helper-release"]
 	path = src/scf-helper-release
 	url = https://github.com/SUSE/scf-helper-release
+[submodule "src/postgres-release"]
+	path = src/postgres-release
+	url = https://github.com/cloudfoundry/postgres-release.git

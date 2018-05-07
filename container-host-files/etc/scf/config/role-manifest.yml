@@ -299,6 +299,55 @@ roles:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
+
+- name: postgres
+  scripts:
+  - scripts/chown_vcap_store.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: postgres
+    release_name: postgres
+    provides:
+      postgres: { as: postgres-database }
+  processes:
+  - name: postgres
+  tags: [clustered]
+  run:
+    scaling:
+      min: 1
+      max: 3
+      ha: 2
+    persistent-volumes:
+    - path: /var/vcap/store
+      tag: postgres-data
+      size: 20
+    memory: 3072
+    virtual-cpus: 2
+    exposed-ports:
+    - name: postgres
+      protocol: TCP
+      external: 5524
+      internal: 5524
+      public: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "skiff-role-name"
+                operator: In
+                values:
+                - postgres
+            topologyKey: "beta.kubernetes.io/os"
+  configuration:
+    templates:
+      properties.databases.port: 5524
+      properties.databases.roles: '[{"name":"pgadmin","password":"((POSTGRES_PASSWORD))"}]'
+
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2004,6 +2053,13 @@ configuration:
     description: "LDAP fqdn for user records we will search against when looking up user uids (required for LDAP integration only)"
     example: "cn=Users,dc=corp,dc=test,dc=com"
     default: ""
+  - name: POSTGRES_PASSWORD
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Password for Postgres administrator account
+    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
