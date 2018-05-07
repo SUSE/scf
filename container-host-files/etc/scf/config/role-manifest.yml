@@ -2057,7 +2057,6 @@ configuration:
     secret: true
     immutable: true
     generator:
-      id: postgress_password
       type: Password
     description: Password for Postgres administrator account
     required: true
