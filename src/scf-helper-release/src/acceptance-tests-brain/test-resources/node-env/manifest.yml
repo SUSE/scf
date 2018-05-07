@@ -1,3 +1,0 @@
-applications:
-- name: node-env
-  memory: 32M

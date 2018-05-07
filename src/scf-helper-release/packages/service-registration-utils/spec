@@ -1,6 +1,0 @@
----
-name: service-registration-utils
-dependencies:
-- ruby-2.3
-files:
-- service-registration-utils/**/*

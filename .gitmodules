@@ -64,21 +64,15 @@
 [submodule "src/statsd-injector-release"]
 	path = src/statsd-injector-release
 	url = https://github.com/cloudfoundry/statsd-injector-release.git
-[submodule "src/scf-helper-release/src/github.com/SUSE/testbrain"]
-	path = src/scf-helper-release/src/github.com/SUSE/testbrain
-	url = https://github.com/SUSE/testbrain.git
-[submodule "src/scf-helper-release/src/github.com/SUSE/scf-secret-generator"]
-	path = src/scf-helper-release/src/github.com/SUSE/scf-secret-generator
-	url = https://github.com/SUSE/scf-secret-generator.git
 [submodule "src/loggregator-release"]
 	path = src/loggregator-release
 	url = https://github.com/cloudfoundry/loggregator-release.git
 [submodule "src/buildpacks/java-buildpack-release"]
 	path = src/buildpacks/java-buildpack-release
 	url = https://github.com/SUSE/cf-java-buildpack-release.git
-[submodule "src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
-	path = src/scf-helper-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
 [submodule "src/cf-syslog-drain-release"]
 	path = src/cf-syslog-drain-release
 	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git
+[submodule "src/scf-helper-release"]
+	path = src/scf-helper-release
+	url = https://github.com/SUSE/scf-helper-release
