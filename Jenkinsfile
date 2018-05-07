@@ -392,11 +392,17 @@ pipeline {
             when {
                 expression { return false }
             }
+            steps {
+                echo "Doing nothing"
+            }
         }
 
         stage('smoke') {
             when {
                 expression { return false }
+            }
+            steps {
+                echo "Doing nothing"
             }
         }
 
@@ -404,11 +410,17 @@ pipeline {
             when {
                 expression { return false }
             }
+            steps {
+                echo "Doing nothing"
+            }
         }
 
         stage('cats') {
             when {
                 expression { return false }
+            }
+            steps {
+                echo "Doing nothing"
             }
         }
 
@@ -416,17 +428,26 @@ pipeline {
           when {
                 expression { return false }
           }
+          steps {
+                echo "Doing nothing"
+          }
         }
 
         stage('commit_sources') {
           when {
                 expression { return false }
           }
+          steps {
+                echo "Doing nothing"
+          }
         }
 
         stage('publish_docker') {
             when {
                 expression { return false }
+            }
+            steps {
+                echo "Doing nothing"
             }
         }
 
