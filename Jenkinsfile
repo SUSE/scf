@@ -392,15 +392,11 @@ pipeline {
             when {
                 expression { return false }
             }
-            steps {
-            }
         }
 
         stage('smoke') {
             when {
                 expression { return false }
-            }
-            steps {
             }
         }
 
@@ -408,15 +404,11 @@ pipeline {
             when {
                 expression { return false }
             }
-            steps {
-            }
         }
 
         stage('cats') {
             when {
                 expression { return false }
-            }
-            steps {
             }
         }
 
@@ -424,23 +416,17 @@ pipeline {
           when {
                 expression { return false }
           }
-          steps {
-          }
         }
 
         stage('commit_sources') {
           when {
                 expression { return false }
           }
-          steps {
-          }
         }
 
         stage('publish_docker') {
             when {
                 expression { return false }
-            }
-            steps {
             }
         }
 
