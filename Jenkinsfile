@@ -365,7 +365,7 @@ pipeline {
                     set -x
                     unset SCF_PACKAGE_COMPILATION_CACHE
 
-                    make vagrant-prep validate
+                    make releases
                 '''
             }
         }
@@ -390,233 +390,80 @@ pipeline {
 
         stage('deploy') {
             when {
-                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+                expression { return false }
             }
             steps {
-                sh """
-                    set -e +x
-                    source \${PWD}/.envrc
-                    set -x
-
-                    suffix=""
-                    if [ "${params.USE_SLE_BASE}" == "true" ]; then
-                        OS="sle"
-                    else
-                        OS="opensuse"
-                        suffix="-opensuse"
-                    fi
-
-                    kubectl delete storageclass hostpath || /bin/true
-                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
-
-                    # Unzip the bundle
-                    rm -rf output/unzipped
-                    mkdir -p output/unzipped
-                    unzip -e output/scf-\${OS}-*.zip -d output/unzipped
-
-                    # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
-                    ./output/unzipped/kube-ready-state-check.sh || /bin/true
-
-                    helm install output/unzipped/helm/uaa\${suffix} \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set kube.external_ips[0]=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath
-
-                    . make/include/secrets
-
-                    has_internal_ca() {
-                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
-                    }
-
-                    until has_internal_ca ; do
-                        sleep 10
-                    done
-
-                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
-
-                    # The extra IP address is to check that the code to set up multiple
-                    # addresses for services is working correctly; it isn't used in
-                    # actual routing.
-                    helm install output/unzipped/helm/cf\${suffix} \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
-                        --set "kube.external_ips[0]=192.0.2.84" \
-                        --set "kube.external_ips[1]=${ipAddress()}" \
-                        --set kube.storage_class.persistent=hostpath
-
-                    echo Waiting for all pods to be ready...
-                    set +o xtrace
-                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
-                    done
-                    kubectl get pods --all-namespaces
-                """
             }
         }
 
         stage('smoke') {
             when {
-                expression { return params.TEST_SMOKE }
+                expression { return false }
             }
             steps {
-                setBuildStatus('smoke', 'pending')
-                runTest('smoke-tests')
-            }
-            post {
-                success {
-                    setBuildStatus('smoke', 'success')
-                }
-                failure {
-                    setBuildStatus('smoke', 'failure')
-                }
             }
         }
 
         stage('brain') {
             when {
-                expression { return params.TEST_BRAIN }
+                expression { return false }
             }
             steps {
-                setBuildStatus('brain', 'pending')
-                runTest('acceptance-tests-brain')
-            }
-            post {
-                success {
-                    setBuildStatus('brain', 'success')
-                }
-                failure {
-                    setBuildStatus('brain', 'failure')
-                }
             }
         }
 
         stage('cats') {
             when {
-                expression { return params.TEST_CATS }
+                expression { return false }
             }
             steps {
-                setBuildStatus('cats', 'pending')
-                runTest('acceptance-tests')
-            }
-            post {
-                success {
-                    setBuildStatus('cats', 'success')
-                }
-                failure {
-                    setBuildStatus('cats', 'failure')
-                }
             }
         }
 
         stage('tar_sources') {
           when {
-                expression { return params.TAR_SOURCES }
+                expression { return false }
           }
           steps {
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    make compile-clean
-                '''
           }
         }
 
         stage('commit_sources') {
           when {
-                expression { return params.COMMIT_SOURCES }
+                expression { return false }
           }
           steps {
-                withCredentials([usernamePassword(
-                    credentialsId: params.OBS_CREDENTIALS,
-                    usernameVariable: 'OBS_CREDENTIALS_USERNAME',
-                    passwordVariable: 'OBS_CREDENTIALS_PASSWORD',
-                )]) {
-                sh '''
-                  set -e +x
-                  source ${PWD}/.envrc
-                  echo -e "[general]
-apiurl = https://api.opensuse.org
-[https://api.opensuse.org]
-user = ${OBS_CREDENTIALS_USERNAME}
-pass = ${OBS_CREDENTIALS_PASSWORD}
-" > ~/.oscrc
-                  make osc-commit-sources
-                  rm ~/.oscrc
-                '''
-                }
           }
         }
 
         stage('publish_docker') {
             when {
-                expression { return params.PUBLISH_DOCKER }
+                expression { return false }
             }
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: params.DOCKER_CREDENTIALS,
-                    usernameVariable: 'DOCKER_HUB_USERNAME',
-                    passwordVariable: 'DOCKER_HUB_PASSWORD',
-                )]) {
-                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}" '
-                }
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    set -x
-                    unset SCF_PACKAGE_COMPILATION_CACHE
-                    make publish
-                '''
             }
         }
 
         stage('publish_s3') {
             when {
-                expression { return params.PUBLISH_S3 }
+                expression { return true }
             }
             steps {
-                withAWS(region: params.S3_REGION) {
-                    withCredentials([usernamePassword(
-                        credentialsId: params.S3_CREDENTIALS,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                    )]) {
                         script {
                             def files = findFiles(glob: "output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*.zip")
+                            echo "Files: ${files}"
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
                             for ( int i = 0 ; i < files.size() ; i ++ ) {
+                                echo "Uploading file ${files[i].path}"
                                 s3Upload(
                                     file: files[i].path,
                                     bucket: "${params.S3_BUCKET}",
                                     path: "${subdir}${prefix}${files[i].name}",
                                 )
                             }
-
-                            // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                            def encodedFileName = java.net.URLEncoder.encode(files[0].name, "UTF-8")
-                            def encodedCapBundleUri = java.net.URLEncoder.encode("https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}", "UTF-8")
-                            def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                            echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                            echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
-                    }
-                }
             }
         }
     }
