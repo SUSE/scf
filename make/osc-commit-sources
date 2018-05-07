@@ -8,7 +8,7 @@ OSC_BASE_PATH=Cloud:Platform:sources:scf
 mkdir -p "${GIT_ROOT}/${OSC_TARGET}"
 pushd "${GIT_ROOT}/${OSC_TARGET}" > /dev/null
 rm -Rfv "${OSC_BASE_PATH}"
-osc checkout -M "${OSC_BASE_PATH}"
+osc checkout "${OSC_BASE_PATH}"
 pushd "${OSC_BASE_PATH}" > /dev/null
 
 # create or update new obs packages

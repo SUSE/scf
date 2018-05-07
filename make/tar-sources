@@ -55,11 +55,11 @@ rm -rf "${OUTPUTDIR}"
 mkdir -p "${OUTPUTDIR}"
 
 pushd "${BASEDIR}" > /dev/null
-for DIR in $(ls -d **/sources/var/vcap/source/* | egrep -v "$DIRECTORY_BLACKLIST"  | xargs dirname)
+for DIR in $(ls -d **/**/sources/var/vcap/source/* | egrep -v "$DIRECTORY_BLACKLIST" | xargs dirname)
 do
   SOURCE_NAME=$(ls "${DIR}")
   SOURCE_SIZE=$(du -h "${DIR}" | tail -n1)
-  RELEASE_HASH=$(echo "${DIR}" | sed -e 's/\/.*$//g')
+  RELEASE_HASH=$(echo "${DIR}" | cut -d/ -f2)
 
   # get first folder name for distinguish files later
   pushd "${GIT_ROOT}/src" > /dev/null
