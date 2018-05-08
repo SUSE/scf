@@ -530,7 +530,7 @@ pipeline {
                 sh '''
                     set -e +x
                     source ${PWD}/.envrc
-                    make compile-clean
+                    make tar-sources
                 '''
           }
         }
