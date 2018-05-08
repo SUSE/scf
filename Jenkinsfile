@@ -426,10 +426,14 @@ pipeline {
 
         stage('tar_sources') {
           when {
-                expression { return false }
+                expression { return true }
           }
           steps {
-                echo "Doing nothing"
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    make compile-clean
+                '''
           }
         }
 
