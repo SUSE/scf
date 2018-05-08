@@ -233,6 +233,9 @@ compile: ${FISSILE_BINARY}
 	make/compile cache
 
 compile-clean: clean ${FISSILE_BINARY} vagrant-prep
+	${MAKE} tar-sources
+
+tar-sources:
 	make/tar-sources
 
 osc-commit-sources:
