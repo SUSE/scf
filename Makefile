@@ -113,6 +113,9 @@ uaa-helm: ${FISSILE_BINARY}
 
 ########## BOSH RELEASE TARGETS ##########
 
+consul-release:
+	make/bosh-release src/consul-release
+
 diego-release:
 	make/bosh-release src/diego-release
 
@@ -198,6 +201,7 @@ releases: \
 	cf-sle12-release \
 	cf-syslog-drain-release \
 	cflinuxfs2-release \
+	consul-release \
 	diego-release \
 	dotnet-core-buildpack-release \
 	garden-release \
