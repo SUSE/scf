@@ -1,0 +1,29 @@
+---
+name: acceptance-tests-brain
+
+description: This job will run the testbrain CLI, running all acceptance test scripts in src/testbrain/test-scripts
+
+packages:
+  - cli
+  - acceptance-tests-brain
+
+templates:
+  run.erb: bin/run
+  environment.sh.erb: bin/environment.sh
+  pre-start.erb: bin/pre-start
+
+properties:
+  acceptance_tests_brain.domain:
+    description: The Elastic Runtime System Domain
+  acceptance_tests_brain.tcp_domain:
+    description: The Elastic Runtime TCP routing Domain
+  acceptance_tests_brain.apps_domain:
+    description: The Elastic Runtime Application Domain
+  acceptance_tests_brain.user:
+    description: The Elastic Runtime API user
+  acceptance_tests_brain.password:
+    description: The Elastic Runtime API user's password
+  acceptance_tests_brain.org:
+    description: The Elastic Runtime organization name to use when running tests
+  acceptance_tests_brain.space:
+    description: The Elastic Runtime space name to use when running tests

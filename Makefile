@@ -152,6 +152,9 @@ cf-syslog-drain-release:
 routing-release:
 	make/bosh-release src/routing-release
 
+scf-release:
+	make/bosh-release src/scf-release
+
 scf-helper-release:
 	make/bosh-release src/scf-helper-release
 
@@ -218,6 +221,7 @@ releases: \
 	routing-release \
 	ruby-buildpack-release \
 	scf-helper-release \
+	scf-release \
 	smoke-tests-release \
 	staticfile-buildpack-release \
 	statsd-injector-release \

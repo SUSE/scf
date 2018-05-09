@@ -1,0 +1,123 @@
+#!/bin/bash
+# This script uses the cf CLI to configure things like http proxies and security
+# groups for scf
+
+set -o errexit -o nounset
+
+# put the cli on the path
+export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
+
+# Default: verbose operation. Uncomment 2nd line to quiet this job
+SILENT=
+#SILENT=--silent
+
+<%
+require 'shellwords'
+env = {}
+if_p("scf_set_proxy.staging_http_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["http_proxy"] = val
+   env["staging"]["http_proxy".upcase] = val
+end
+if_p("scf_set_proxy.staging_https_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["https_proxy"] = val
+   env["staging"]["https_proxy".upcase] = val
+end
+if_p("scf_set_proxy.staging_no_proxy") do |val|
+   env["staging"] ||= {}
+   env["staging"]["no_proxy"] = val
+   env["staging"]["no_proxy".upcase] = val
+end
+if_p("scf_set_proxy.running_http_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["http_proxy"] = val
+   env["running"]["http_proxy".upcase] = val
+end
+if_p("scf_set_proxy.running_https_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["https_proxy"] = val
+   env["running"]["https_proxy".upcase] = val
+end
+if_p("scf_set_proxy.running_no_proxy") do |val|
+   env["running"] ||= {}
+   env["running"]["no_proxy"] = val
+   env["running"]["no_proxy".upcase] = val
+end
+%>
+
+# Report progress to the user; use as printf
+status() {
+    local fmt="${1}"
+    shift
+    printf "\n%b${fmt}%b\n" "\033[0;32m" "$@" "\033[0m"
+}
+
+# Report problem to the user; use as printf
+trouble() {
+    local fmt="${1}"
+    shift
+    printf "\n%b${fmt}%b\n" "\033[0;31m" "$@" "\033[0m"
+}
+
+# helper function to retry a command several times, with a delay between trials
+# usage: retry <max-tries> <delay> <command>...
+function retry () {
+    max=${1}
+    delay=${2}
+    i=0
+    shift 2
+
+    while test ${i} -lt ${max} ; do
+        printf "Trying: %s\n" "$*"
+        if "$@" ; then
+            status ' SUCCESS'
+            break
+        fi
+        trouble '  FAILED'
+        status "Waiting ${delay} ..."
+        sleep "${delay}"
+        i="$(expr ${i} + 1)"
+    done
+}
+
+CF_SKIP="<%= properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : '' %>"
+CURL_SKIP="<%= properties.ssl.skip_cert_verify ? '--insecure' : '' %>"
+
+UAA_ENDPOINT="<%= p('scf.uaa.internal-url') %>"
+API_ENDPOINT="<%= p('cf.insecure_api_url') %>"
+
+status "Waiting for CC ..."
+retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
+
+status "Waiting for UAA ..."
+retry 240 30s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
+
+insert_cf_client_auth_token.rb "$UAA_ENDPOINT" scf_auto_config:<%= p("uaa.clients.scf_auto_config.secret").shellescape %> ${CURL_SKIP}
+
+<%
+%W{staging running}.each do |runtime|
+  if env[runtime] && !env[runtime].empty? %>
+cf set-<%= runtime %>-environment-variable-group <%= env[runtime].to_json.shellescape %>
+<%end
+end %>
+
+status "Setting of external proxies complete."
+
+
+status "Waiting for persi NFS broker to be available..."
+
+NFS_BROKER_URL='<%= p("nfsbroker.url") %>'
+NFS_BROKER_USERNAME='<%= p("nfsbroker.username") %>'
+NFS_BROKER_PASSWORD='<%= p("nfsbroker.password") %>'
+
+retry 240 30s curl ${SILENT} --connect-timeout 5 --fail --header 'Accept: application/json' -u ${NFS_BROKER_USERNAME}:${NFS_BROKER_PASSWORD} ${NFS_BROKER_URL}/v2/catalog
+
+cf create-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL" || cf update-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL"
+
+status "Persi NFS configuration complete."
+
+status "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+
+status "SCF configuration complete."

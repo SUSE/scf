@@ -1,0 +1,130 @@
+---
+name: acceptance-tests
+
+description: "The acceptance tests errand can be configured to run full acceptance test suite against a specific Cloud Foundry API endpoint. Consider running smoke tests errand for a smaller set of tests."
+
+packages:
+  - golang1.10
+  - cli
+  - acceptance-tests
+  - cli-network-policy-plugin
+
+templates:
+  run.erb: bin/run
+  config.json.erb: bin/config.json
+  pre-start.erb: bin/pre-start
+
+properties:
+  acceptance_tests.api:
+    description: The Elastic Runtime API endpoint URL
+  acceptance_tests.apps_domain:
+    description: The Elastic Runtime Application Domain
+  acceptance_tests.admin_user:
+    description: The Elastic Runtime API admin user
+  acceptance_tests.admin_password:
+    description: The Elastic Runtime API admin user's password
+  acceptance_tests.skip_ssl_validation:
+    description: Toggles cli verification of the Elastic Runtime API SSL certificate
+  acceptance_tests.nodes:
+    default: 2
+    description: The number of parallel test executors to spawn. The larger the number the higher the stress on the system.
+  acceptance_tests.verbose:
+    default: false
+    description: Whether to pass the -v flag to cf-acceptance-tests
+  acceptance_tests.include_apps:
+    description: Flag to include the apps test suite.
+  acceptance_tests.include_sso:
+    description: Flag to include the services tests that integrate with SSO.
+  acceptance_tests.include_security_groups:
+    description: Flag to include the security groups test suite.
+  acceptance_tests.include_internet_dependent:
+    description: Flag to include the internet dependent test suite.
+  acceptance_tests.include_services:
+    description: Flag to include the services API test suite.
+  acceptance_tests.include_v3:
+    description: Flag to include the v3 API test suite.
+  acceptance_tests.include_tasks:
+    description: Flag to include the v3 task tests dependent on the CC task_creation feature flag.
+  acceptance_tests.include_route_services:
+    description: Flag to include the route services tests. Diego must be deployed for these tests to pass.
+  acceptance_tests.include_routing:
+    description: Flag to include the routing tests. Diego must be deployed for these tests to pass.
+  acceptance_tests.include_diego_docker:
+    description: Flag to include tests related to running Docker apps on Diego. Diego must be deployed and the CC API docker_diego feature flag must be enabled for these tests to pass.
+  acceptance_tests.include_diego_ssh:
+    description: Flag to include the diego ssh suite
+  acceptance_tests.include_zipkin:
+    description: Flag to include the zipkin test suite. include_routing must be set as well for these tests to run. For the tests to pass router.tracing.enable_zipkin must also be set to true.
+  acceptance_tests.backend:
+    description: App tests push their apps using the backend specified. If not set, tests that require a specific backend will not be run. Route service tests require this flag to be set to diego in order to run.
+  acceptance_tests.include_backend_compatibility:
+    description: Flag to inlude whether we check DEA/Diego interoperability
+  acceptance_tests.include_detect:
+    description: Flag to run tests in the detect suite
+  acceptance_tests.use_http:
+    description: Flag for using HTTP when making api and application requests rather than the default HTTPS
+  acceptance_tests.include_privileged_container_support:
+    description: Flag for running tests that depend on privileged container support being enabled in your Cloud Foundry.
+  acceptance_tests.include_container_networking:
+    description: Flag for running tests that depend on container networking support being enabled in your Cloud Foundry.
+  acceptance_tests.include_isolation_segments:
+    description: Flag for running tests that depend on having isolation segments in your Cloud Foundry.
+  acceptance_tests.isolation_segment_name:
+    description: The name of the isolation segment to use for running isolation segment tests.
+  acceptance_tests.isolation_segment_domain:
+    description: The domain that routes to the isolated router for running isolation segment tests.
+  acceptance_tests.include_persistent_app:
+    description: Flag to include the persistent app test.
+  acceptance_tests.skip_regex:
+    description: Regex for tests that should be skipped
+  acceptance_tests.default_timeout:
+    description: Default Timeout
+  acceptance_tests.cf_push_timeout:
+    description: Timeout for cf push
+  acceptance_tests.long_curl_timeout:
+    description: Timeout for long curls
+  acceptance_tests.broker_start_timeout:
+    description: Timeout for broker starts
+  acceptance_tests.async_service_operation_timeout:
+    description: Timeout for asynchronous service operations
+  acceptance_tests.enable_color:
+    description: "Enable colorized output on ginkgo."
+    default: true
+  acceptance_tests.existing_user:
+    description: "The username of an existing user. If set, the acceptance-tests will push apps and perform other actions as this user, otherwise its default behaviour is to create a temporary user for such actions."
+  acceptance_tests.existing_user_password:
+    description: "The password of the existing user. Only required if the existing user property is also being set."
+  acceptance_tests.staticfile_buildpack_name:
+    description: "The name of the staticfile buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.java_buildpack_name:
+    description: "The name of the java buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.ruby_buildpack_name:
+    description: "The name of the ruby buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.nodejs_buildpack_name:
+    description: "The name of the nodejs buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.go_buildpack_name:
+    description: "The name of the go buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.python_buildpack_name:
+    description: "The name of the python buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.php_buildpack_name:
+    description: "The name of the php buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.binary_buildpack_name:
+    description: "The name of the binary buildpack to use in acceptance tests that specify a buildpack."
+  acceptance_tests.persistent_app_host:
+    description: "The default name for the persistent app host."
+  acceptance_tests.persistent_app_space:
+    description: "The default name for the persistent app space."
+  acceptance_tests.persistent_app_org:
+    description: "The default name for the persistent app org."
+  acceptance_tests.persistent_app_quota_name:
+    description: "The default name for the persistent app quota name."
+  acceptance_tests.cf_dial_timeout_in_seconds:
+    description: "Sets the cli timeout (CF_DIAL_TIMEOUT)."
+  acceptance_tests.detect_timeout:
+    description: "Timeout for buildpack detection."
+  acceptance_tests.timeout_scale:
+    description: "Used primarily to scale default timeouts for test setup and teardown actions (e.g. creating an org) as opposed to main test actions (e.g. pushing an app)."
+  acceptance_tests.sleep_timeout:
+    description: "Configures SleepTimeout variable used by some tests that wait for some actions to happen."
+  acceptance_tests.test_password:
+    description: "Password to use for temporary user created during tests."
