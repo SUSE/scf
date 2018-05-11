@@ -1,0 +1,9 @@
+---
+name: acceptance-tests-brain
+dependencies:
+  - cli
+  - golang1.10
+files:
+  - acceptance-tests-brain/test-scripts/*
+  - acceptance-tests-brain/test-resources/**/*
+  - github.com/SUSE/testbrain/**/*

@@ -31,6 +31,7 @@ declare -A REMAINING_REASONS=(
     [src/cf-opensuse42-release]="stacks bumped separately"
     [src/cf-sle12-release]="stacks bumped separately"
     [src/cf-usb/cf-usb-release]="not upstream"
+    [src/scf-release]="not upstream"
     [src/scf-helper-release]="not upstream"
     [src/nfs-volume-release]="non-standard"
 )

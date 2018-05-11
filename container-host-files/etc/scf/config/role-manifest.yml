@@ -422,7 +422,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: cf-usb
     release_name: cf-usb
   - name: route_registrar
@@ -471,7 +471,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: locket
     release_name: diego
   - name: metron_agent
@@ -513,7 +513,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: bbs
     release_name: diego
   - name: metron_agent
@@ -566,7 +566,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: gorouter
     release_name: routing
   - name: metron_agent
@@ -634,9 +634,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: wait-for-uaa
-    release_name: scf-helper
+    release_name: scf
   - name: tcp_router
     release_name: routing
   - name: metron_agent
@@ -693,7 +693,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: metron_agent
     release_name: loggregator
   - name: routing-api
@@ -743,7 +743,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: patch-properties
     release_name: scf-helper
   - name: cloud_controller_ng
@@ -829,7 +829,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: cloud_controller_worker
     release_name: capi
   - name: metron_agent
@@ -915,7 +915,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: cloud_controller_clock
     release_name: capi
   - name: metron_agent
@@ -1011,7 +1011,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: loggregator_trafficcontroller
     release_name: loggregator
   - name: metron_agent
@@ -1066,7 +1066,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: auctioneer
     release_name: diego
   - name: metron_agent
@@ -1109,7 +1109,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: tps
     release_name: capi
   - name: cc_uploader
@@ -1159,7 +1159,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: ssh_proxy
     release_name: diego
   - name: metron_agent
@@ -1211,7 +1211,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: metron_agent
     release_name: loggregator
   - name: nfsbroker
@@ -1252,9 +1252,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: wait-for-uaa
-    release_name: scf-helper
+    release_name: scf
   - name: rep
     release_name: diego
   - name: route_emitter
@@ -1344,9 +1344,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: acceptance-tests-brain
-    release_name: scf-helper
+    release_name: scf
   run:
     scaling:
       min: 0
@@ -1365,9 +1365,9 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: acceptance-tests
-    release_name: scf-helper
+    release_name: scf
   run:
     scaling:
       min: 0
@@ -1387,7 +1387,7 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: smoke_tests
     release_name: cf-smoke-tests
   run:
@@ -1426,11 +1426,11 @@ roles:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
-    release_name: scf-helper
+    release_name: scf
   - name: uaa-create-user
-    release_name: scf-helper
+    release_name: scf
   - name: configure-scf
-    release_name: scf-helper
+    release_name: scf
   processes: []
   run:
     scaling:
