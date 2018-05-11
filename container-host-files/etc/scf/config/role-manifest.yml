@@ -1527,6 +1527,7 @@ configuration:
     required: true
   - name: BBS_ACTIVE_KEY_PASSPHRASE
     secret: true
+    immutable: true
     generator:
       type: Password
     description: The password for access to the diego BBS database.
@@ -1753,6 +1754,7 @@ configuration:
     required: true
   - name: CONSUL_SERVER_ENCRYPT_KEY
     secret: true
+    immutable: true
     generator:
       type: Password
     description: Consul server encryption key
