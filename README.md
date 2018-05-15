@@ -857,7 +857,7 @@ equivalent) can be run again with the same parameters. Some commands need to be 
 
 * apps: Run `cf set-env` again.
 * buildpack_lifecycle_buildpacks, buildpack_lifecycle_data, droplets: `cf restage` the app
-* packages: `cf push` the app (Docker apps with registry password)
+* packages: `cf delete`, then `cf push` the app (Docker apps with registry password)
 * env_groups: Run `cf set-staging-environment-variable-group` or `cf set-running-environment-variable-group` again
 * service_bindings: Run `cf unbind-service` and `cf bind-service` again
 * service_brokers: Run `cf update-service-broker` with the appropriate credentials
