@@ -509,12 +509,17 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
     release_name: scf
   - name: bbs
+    release_name: diego
+  - name: patch-properties
+    release_name: scf-helper
+  - name: cfdot
     release_name: diego
   - name: metron_agent
     release_name: loggregator
@@ -555,7 +560,12 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      # properties.bbs.hostname: '"diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBE_SERVICE_DOMAIN_SUFFIX))
+      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
+      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1062,12 +1072,17 @@ roles:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
     release_name: scf
   - name: auctioneer
+    release_name: diego
+  - name: patch-properties
+    release_name: scf-helper
+  - name: cfdot
     release_name: diego
   - name: metron_agent
     release_name: loggregator
@@ -1098,6 +1113,13 @@ roles:
                 values:
                 - diego-brain
             topologyKey: "beta.kubernetes.io/os"
+  configuration:
+    templates:
+      # properties.bbs.hostname: '"diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"' # cfdot property
+      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
+      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
 - name: cc-uploader
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1248,6 +1270,7 @@ roles:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1256,6 +1279,10 @@ roles:
   - name: wait-for-uaa
     release_name: scf
   - name: rep
+    release_name: diego
+  - name: patch-properties
+    release_name: scf-helper
+  - name: cfdot
     release_name: diego
   - name: route_emitter
     release_name: diego
@@ -1332,11 +1359,16 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      # properties.bbs.hostname: '"diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"' # cfdot property
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
+      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.key: ((REP_SERVER_KEY))
+      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
 - name: acceptance-tests-brain
   type: bosh-task
   tags: [stop-on-failure]
@@ -2570,6 +2602,8 @@ configuration:
     properties.cf_mysql.host: '"mysql-proxy.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
+    properties.cfdot.bbs.hostname: '"diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"'
+    properties.cfdot.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBE_SERVICE_DOMAIN_SUFFIX))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
