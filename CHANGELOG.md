@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [2.10.0] - 2018-05-16
+
+### Added
+- cfdot added to all diego roles
+
+### Changed
+- Bumped SLE12 & openSUSE stacks
+- Rotateable secrets are now immutable
+
+### Fixed
+- Upgrades for legacy versions that were using an older secrets generation model
+- Upgrades will handle certificates better by having the required SAN metadata
+- Apps will come back up and run after upgrade
+
 ## [2.9.0] - 2018-05-07
 
 ### Added
