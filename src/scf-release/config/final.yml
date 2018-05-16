@@ -1,5 +1,5 @@
 ---
-final_name: scf-helper
+final_name: scf
 min_cli_version: 1.5.0.pre.1001
 blobstore:
   provider: s3

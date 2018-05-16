@@ -48,9 +48,9 @@ find_cluster_ha_hosts() {
             statefulset_name="$(k8s_api api/v1 "/pods/${HOSTNAME}" | json_get [\'metadata\'][\'labels\'][\'skiff-role-name\'])"
             replicas=$(k8s_api apis/apps/v1beta1 "/statefulsets/${statefulset_name}" | json_get [\'spec\'][\'replicas\'])
 
-	    if [ "${statefulset_name}" != "" -a "${replicas}" != "" ]; then
+            if [ "${statefulset_name}" != "" -a "${replicas}" != "" ]; then
                 break
-	    fi
+            fi
 
             if [ "${statefulset_name}" == "" ]; then
                 echo "Cannot get statefulset name from kubernetes API, retrying" >&2
@@ -59,8 +59,8 @@ find_cluster_ha_hosts() {
                 echo "Cannot get replicas from kubernetes API, retrying" >&2
             fi
 
-	    sleep 1
-	done
+            sleep 1
+        done
 
         if [ "${statefulset_name}" == "" ]; then
             echo "Cannot get statefulset name from kubernetes API, exit" >&2
@@ -84,6 +84,8 @@ KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
 export KUBE_NATS_CLUSTER_IPS
 KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
 export KUBE_MYSQL_CLUSTER_IPS
+KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+export KUBE_CONSUL_CLUSTER_IPS
 
 unset json_get
 unset k8s_api
