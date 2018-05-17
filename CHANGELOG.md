@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.10.1] - 2018-05-17 
+
+### Changed
+- Disabled optional consul role
+
+### Fixed
+- Immutable config variables will not be regenerated
+
 ## [2.10.0] - 2018-05-16
 
 ### Added
