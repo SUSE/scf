@@ -165,11 +165,11 @@ roles:
       internal: 8500
       protocol: TCP
     - name: serf-tcp
-      extenral: 8301
+      external: 8301
       internal: 8301
       protocol: TCP
     - name: serf-udp
-      extenral: 8301
+      external: 8301
       internal: 8301
       protocol: UDP
   affinity:
