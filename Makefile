@@ -63,6 +63,12 @@ registry:
 secure-registries:
 	make/secure-registries
 
+redis-registrar:
+	make/tests redis-registrar
+
+redis-deregistrar:
+	make/tests redis-deregistrar
+
 smoke:
 	make/tests smoke-tests
 
@@ -197,12 +203,16 @@ ruby-buildpack-release:
 staticfile-buildpack-release:
 	make/bosh-release src/buildpacks/staticfile-buildpack-release
 
+cf-redis-release:
+	make/bosh-release src/cf-redis-release
+
 releases: \
 	binary-buildpack-release \
 	capi-release \
 	cf-opensuse42-release \
 	cf-sle12-release \
 	cf-syslog-drain-release \
+	cf-redis-release \
 	cflinuxfs2-release \
 	consul-release \
 	diego-release \
