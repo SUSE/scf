@@ -301,6 +301,8 @@ def check_clustering(manifest, bosh_properties)
       @has_errors += 1
     else
       next if has_script(role, @configure_ha)
+      # secrets-generation uses KUBE_SERVICE_DOMAIN_SUFFIX for cert generation but is not an HA role itself
+      next if role['name'] == 'secret-generation'
       STDOUT.puts "Missing #{@configure_ha.red} in role #{role['name'].red}, requested by"
       collected_params.each do |param, jobs|
         STDOUT.puts "- #{param.red}"

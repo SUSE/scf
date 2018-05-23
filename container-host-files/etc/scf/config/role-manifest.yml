@@ -1449,7 +1449,12 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.scf.secrets.variables: '((DOMAIN))((KUBE_SECRETS_GENERATION_COUNTER))((KUBE_SECRETS_GENERATION_NAME))'
+      properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
+      properties.scf.secrets.domain: ((DOMAIN))
+      properties.scf.secrets.generation: ((KUBE_SECRETS_GENERATION_COUNTER))
+      properties.scf.secrets.name: ((KUBE_SECRETS_GENERATION_NAME))
+      properties.scf.secrets.namespace: ((KUBERNETES_NAMESPACE))
+      properties.scf.secrets.service_domain_suffix: ((KUBE_SERVICE_DOMAIN_SUFFIX))
 - name: post-deployment-setup
   type: bosh-task
   environment_scripts:
@@ -1712,6 +1717,9 @@ configuration:
   - name: CDN_URI
     default: ""
     description: URI for a CDN to use for buildpack downloads.
+  - name: CERT_EXPIRATION
+    description: Expiration for generated certificates (in days)
+    default: 10950
   - name: CF_USB_BROKER_SERVER_CERT
     secret: true
     generator:
