@@ -16,6 +16,8 @@ roles:
   processes:
   - name: scheduler
   - name: metron_agent
+  tags:
+  - headless
   run:
     scaling:
       min: 1
@@ -42,7 +44,8 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
-        url: http://container-ip:8080/health
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/health
 - name: syslog-rlp
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -58,6 +61,8 @@ roles:
     release_name: loggregator
   processes:
   - name: metron_agent
+  tags:
+  - headless
   run:
     scaling: # half the number of traffic-controllers
       min: 1
@@ -98,6 +103,8 @@ roles:
   processes:
   - name: adapter
   - name: metron_agent
+  tags:
+  - headless
   run:
     scaling: # one per 500 drains
       min: 1
@@ -127,7 +134,8 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
-        url: http://container-ip:8080/health
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/health
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -146,7 +154,8 @@ roles:
       consul_server: {}
   processes:
   - name: metron_agent
-  tags: [clustered]
+  tags:
+  - headless
   run:
     scaling:
       min: 0
@@ -210,7 +219,6 @@ roles:
   processes:
   - name: metron_agent
   - name: nats
-  tags: [indexed]
   run:
     scaling:
       min: 1
@@ -261,7 +269,9 @@ roles:
   - name: mariadb_ctrl
   - name: galera-healthcheck
   - name: gra-log-purger-executable
-  tags: [clustered]
+  tags:
+  - headless
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -296,7 +306,8 @@ roles:
       internal: 4444
     healthcheck:
       readiness:
-        url: http://container-ip:9200/
+        command:
+        - curl --silent --fail http://${HOSTNAME}:9200/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -335,11 +346,13 @@ roles:
   processes:
   - name: cf-mysql-route-registrar
   - name: switchboard
+  tags:
+  - active-passive
   run:
     scaling:
       min: 1
-      max: 3
-      ha: 2
+      max: 1
+      ha: 1
     capabilities: []
     memory: 63
     virtual-cpus: 2
@@ -355,7 +368,9 @@ roles:
       internal: 1936
     healthcheck:
       readiness:
-        url: http://container-ip:1936/
+        command:
+        - curl --silent --fail http://${HOSTNAME}:1936/
+    active-passive-probe: /bin/true # Switchboard currently has no internal locking
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -377,7 +392,9 @@ roles:
       postgres: { as: postgres-database }
   processes:
   - name: postgres
-  tags: [clustered]
+  tags:
+  - headless
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -431,6 +448,8 @@ roles:
   processes:
   - name: usb
   - name: route_registrar
+  tags:
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -480,6 +499,8 @@ roles:
   processes:
   - name: bbs
   - name: metron_agent
+  tags:
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -492,6 +513,10 @@ roles:
     - name: locket
       protocol: TCP
       internal: 8891
+    healthcheck:
+      readiness:
+        command:
+        - head -c0 </dev/tcp/${HOSTNAME}/8891
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -527,6 +552,9 @@ roles:
   processes:
   - name: bbs
   - name: metron_agent
+  tags:
+  - active-passive
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -543,10 +571,7 @@ roles:
     - name: cell-bbs-dbg
       protocol: TCP
       internal: 17017
-    healthcheck:
-      readiness:
-        command:
-          - /var/vcap/jobs/global-properties/bin/readiness/diego-api
+    active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -609,7 +634,8 @@ roles:
       public: true
     healthcheck:
       readiness:
-        url: http://container-ip:8080/health
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -655,6 +681,8 @@ roles:
   processes:
   - name: tcp_router
   - name: metron_agent
+  tags:
+  - headless
   run:
     scaling:
       min: 1
@@ -677,7 +705,8 @@ roles:
       max: 20
     healthcheck:
       readiness:
-        url: http://container-ip/health
+        command:
+        - curl --silent --fail http://${HOSTNAME}/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -694,7 +723,6 @@ roles:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: routing-api
-  tags: [indexed]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -712,6 +740,9 @@ roles:
   processes:
   - name: metron_agent
   - name: routing-api
+  tags:
+  - active-passive
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -724,7 +755,6 @@ roles:
     - name: routing-api
       protocol: TCP
       internal: 3000
-    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -737,11 +767,12 @@ roles:
                 values:
                 - routing-api
             topologyKey: "beta.kubernetes.io/os"
+    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
-  tags: [indexed]
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
@@ -791,6 +822,8 @@ roles:
   - name: metron_agent
   - name: nginx_cc
   - name: statsd_injector
+  tags:
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -810,12 +843,9 @@ roles:
       protocol: TCP
       internal: 8125
     healthcheck:
-      liveness:
-        timeout: 3000 # pre-start migration can take forever
-        initial_delay: 3600
-        period: 60
       readiness:
-        url: http://container-ip:9022/v2/info
+        command:
+        - curl --silent --fail http://${HOSTNAME}:9022/v2/info
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -890,9 +920,6 @@ roles:
   - name: blobstore_url_signer
   - name: route_registrar
   - name: metron_agent
-  tags:
-  - indexed
-  # Role needs LB (Single name for access from API) => indexed
   run:
     scaling:
       min: 1
@@ -973,7 +1000,8 @@ roles:
   processes:
   - name: doppler
   - name: metron_agent
-  tags: [clustered]
+  tags:
+  - headless
   run:
     scaling:
       min: 1
@@ -1000,7 +1028,8 @@ roles:
       internal: 8082
     healthcheck:
       readiness:
-        port: 8082
+        command:
+        - head -c0 </dev/tcp/${HOSTNAME}/8082
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1033,6 +1062,8 @@ roles:
   - name: loggregator_trafficcontroller
   - name: metron_agent
   - name: route_registrar
+  tag:
+  - headless
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1053,7 +1084,8 @@ roles:
       internal: 8082
     healthcheck:
       readiness:
-        url: http://container-ip:8081/set-cookie
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8081/set-cookie
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1090,6 +1122,8 @@ roles:
   processes:
   - name: auctioneer
   - name: metron_agent
+  tags:
+  - active-passive
   run:
     scaling:
       min: 1
@@ -1114,6 +1148,8 @@ roles:
                 values:
                 - diego-brain
             topologyKey: "beta.kubernetes.io/os"
+    # Auctioneer has no useful healthcheck routes; we can only use the TCP port
+    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBE_SERVICE_DOMAIN_SUFFIX))"' # cfdot property
@@ -1211,7 +1247,8 @@ roles:
       internal: 8080
     healthcheck:
       readiness:
-        url: http://container-ip:8080/v1/static/
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1239,6 +1276,8 @@ roles:
     release_name: loggregator
   - name: nfsbroker
     release_name: nfs-volume
+  tags:
+  - sequential-startup
   run:
     scaling:
       min: 1
@@ -1305,7 +1344,7 @@ roles:
   - name: route_emitter
   - name: garden
   tags:
-  - clustered
+  - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
@@ -1372,7 +1411,8 @@ roles:
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
 - name: acceptance-tests-brain
   type: bosh-task
-  tags: [stop-on-failure]
+  tags:
+  - stop-on-failure
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1391,7 +1431,8 @@ roles:
     exposed-ports: []
 - name: acceptance-tests
   type: bosh-task
-  tags: [stop-on-failure]
+  tags:
+  - stop-on-failure
   scripts:
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
@@ -1415,7 +1456,8 @@ roles:
       scf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
-  tags: [stop-on-failure]
+  tags:
+  - stop-on-failure
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
