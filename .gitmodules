@@ -88,3 +88,6 @@
 [submodule "src/consul-release"]
 	path = src/consul-release
 	url = https://github.com/cloudfoundry-incubator/consul-release.git
+[submodule "src/groot-btrfs"]
+	path = src/groot-btrfs
+	url = https://github.com/SUSE/groot-btrfs.git
