@@ -9,7 +9,7 @@ set -vx
 SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
 cf_url="${cf_url:-https://cli.run.pivotal.io/stable?release=linux64-binary&version=${CFCLI_VERSION}&source=github-rel}"
 kubectl_url="${kubectl_url:-https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl}"
-k_url="${k_url:-https://github.com/aarondl/kctl/releases/download/v${K_VERSION}/kctl-linux-amd64}"
+k_url="${k_url:-https://github.com/SUSE/kctl/releases/download/v${K_VERSION}/kctl-linux-amd64}"
 kk_url="${kk_url:-https://gist.githubusercontent.com/jandubois/40a5b3756cf4bcbed940e6156272c0af/raw/${KK_VERSION}/kk}"
 helm_url="${helm_url:-https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz}"
 
