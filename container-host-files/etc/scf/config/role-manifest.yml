@@ -383,6 +383,7 @@ roles:
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
