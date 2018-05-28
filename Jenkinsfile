@@ -46,6 +46,8 @@ void runTest(String testName) {
     sh """
         image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
+        kubectl delete pod --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf "${testName}" || true
+
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
