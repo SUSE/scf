@@ -611,6 +611,8 @@ roles:
   processes:
   - name: gorouter
   - name: metron_agent
+  tags:
+  - headless
   run:
     scaling:
       min: 1
@@ -682,8 +684,6 @@ roles:
   processes:
   - name: tcp_router
   - name: metron_agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -697,7 +697,6 @@ roles:
       protocol: TCP
       external: 2341
       internal: 80
-      public: true
     - name: tcp-route
       protocol: TCP
       internal: 20000-20008
