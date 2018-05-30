@@ -527,6 +527,11 @@ This section describes how to bump all the submodules at the same
 time. This is the easiest way because we have scripts helping us
 here.
 
+__Note:__ To bump the UAA modules start the process here. At least
+step 1 has to be done, to provide the version information.  Any time
+after step 1 enter the `src/uaa-fissile-release` and follow the
+bump instructions in the [UAA README](src/uaa-fissile-release/README.md).
+
 1. On the host machine run
 
     ```bash
