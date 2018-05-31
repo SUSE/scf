@@ -2288,7 +2288,8 @@ configuration:
     description: The log destination to talk to. This has to point to a syslog server.
   - name: SCF_LOG_PORT
     internal: true
-    description: The port used by rsyslog to talk to the log destination. If not set it defaults to 514, the standard port of syslog.
+    description: The port used by rsyslog to talk to the log destination. It defaults to 514, the standard port of syslog.
+    default: 514
   - name: SCF_LOG_PROTOCOL
     internal: true
     default: tcp
