@@ -464,11 +464,8 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...
-                    set +o xtrace
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
+                        make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
                 """
@@ -513,9 +510,7 @@ pipeline {
                     set +o xtrace
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" ; do
                         # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
+                        make/wait "\${ns}"
                     done
                     set -o xtrace
 
@@ -543,9 +538,7 @@ pipeline {
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
+                        make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
                 """
