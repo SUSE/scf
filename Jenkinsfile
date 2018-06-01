@@ -491,6 +491,14 @@ pipeline {
 
                     . make/include/secrets
 
+                    # Get the last updated secret
+                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+
+                    # Get a random secret
+                    secret_name="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o json | jq -r '.data | to_entries | .[].key | select(contains(".generator") | not) ' | sort --random-sort | head -n 1)"
+                    # And its value
+                    old_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
                     helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa\${suffix} \
@@ -541,6 +549,15 @@ pipeline {
                         make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
+
+                    # Get the secret again to see that they have been rotated
+                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+                    new_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+
+                    if test "\${old_secret_value}" = "\${new_secret_value}" ; then
+                        echo "Secret \${secret_name} not correctly rotated"
+                        exit 1
+                    fi
                 """
 
             }
