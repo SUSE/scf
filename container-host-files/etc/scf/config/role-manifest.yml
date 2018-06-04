@@ -133,6 +133,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -368,6 +369,7 @@ roles:
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -419,6 +421,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -511,6 +514,7 @@ roles:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_cfdot_properties.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -573,6 +577,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -700,6 +705,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -750,6 +756,7 @@ roles:
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -836,6 +843,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -876,6 +884,7 @@ roles:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -922,6 +931,7 @@ roles:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1018,6 +1028,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1230,6 +1241,7 @@ roles:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
@@ -1272,6 +1284,7 @@ roles:
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_cfdot_properties.sh
+  - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
