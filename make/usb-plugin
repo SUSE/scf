@@ -1,0 +1,47 @@
+#!/bin/bash
+set -o nounset
+
+# Install the suse usb plugin, if needed.
+#
+# This script is derived from part of
+#	cf-ci:qa-pipelines/tasks/usb-deploy.sh
+
+# # ## ### ##### ######## ############# #####################
+## configuration
+
+NAMESPACE="cf"
+
+USB_PLUGIN_LOCATION="https://github.com/SUSE/cf-usb-plugin/releases/download/1.0.0/cf-usb-plugin-1.0.0.0.g47b49cd-linux-amd64"
+
+# # ## ### ##### ######## ############# #####################
+## Install usb plugin, we will need it when remvoing the sidecar again.
+
+if [ $(cf plugins|grep -c usb-info) -gt 0 ] ; then
+    printf "%bCF usb plugin is installed already%b\n" "\033[0;32m" "\033[0m"
+    exit 0
+fi
+
+printf "%bCF usb plugin required, missing, starting installation ...%b\n" "\033[0;31;1m" "\033[0m"
+
+DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
+
+cf api --skip-ssl-validation "https://api.${DOMAIN}"
+cf auth admin changeme
+
+wget -O cf-usb-plugin "${USB_PLUGIN_LOCATION}"
+
+chmod u+x            ./cf-usb-plugin
+cf install-plugin -f ./cf-usb-plugin
+rm -f                ./cf-usb-plugin
+
+# Check that the plugin is now present
+if [ $(cf plugins|grep -c usb-info) -lt 1 ] ; then
+    printf "%bInstallation of CF usb plugin failed%b\n" "\033[0;31;1m" "\033[0m"
+    exit 1
+fi
+
+cf usb-target
+cf usb-info
+
+printf "%bCF usb plugin is now installed%b\n" "\033[0;32m" "\033[0m"
+exit

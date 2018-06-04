@@ -1,0 +1,57 @@
+#!/bin/bash
+set -o nounset
+
+# Install the nfs-provisioner and adjunct definitions for persistent
+# nfs storage class.
+#
+# This script is derived from part of
+#	cf-ci:qa-pipelines/tasks/usb-deploy.sh
+
+# # ## ### ##### ######## ############# #####################
+## configuration
+
+NFS_SCLASS="nfspersist"
+
+# # ## ### ##### ######## ############# #####################
+
+PROVISIONER=$(kubectl get storageclasses "${NFS_SCLASS}" -o "jsonpath={.provisioner}")
+
+if [[ ${PROVISIONER} == "nfs" ]]; then
+    printf "%bNFS provisioner and storage class are installed already%b\n" "\033[0;32m" "\033[0m"
+    exit 0
+fi
+
+printf "%bNFS provisioner and storage class required, missing, starting installation%b\n" "\033[0;31;1m" "\033[0m"
+
+SC="$(dirname $0)/assets/nfs-provisioner"
+kubectl create -f "${SC}"
+
+printf "%bWaiting for the NFS provisioner to be online...%b\n" "\033[0;32m" "\033[0m"
+sleep 10
+# Wait for default:nfs-provisioner to run properly
+$(dirname $0)/wait default
+
+# Check that the class is now present
+PROVISIONER=$(kubectl get storageclasses "${NFS_SCLASS}" -o "jsonpath={.provisioner}")
+
+if [[ ${PROVISIONER} != "nfs" ]]; then
+    printf "%bInstallation of NFS storageclass failed%b\n" "\033[0;31;1m" "\033[0m"
+    exit 1
+fi
+
+# Ensure "${NFS_SCLASS}" is the only default storageclass
+for sc in $(kubectl get storageclass | tail -n+2 | cut -f1 -d ' '); do
+  kubectl patch storageclass ${sc} -p '
+    {
+      "metadata": {
+        "annotations": {
+          "storageclass.kubernetes.io/is-default-class":
+            "'$([[ $sc == "${NFS_SCLASS}" ]] && echo true || echo false)'"
+        }
+      }
+    }
+  '
+done
+
+printf "%bNFS provisioner and storage class are now installed%b\n" "\033[0;32m" "\033[0m"
+exit

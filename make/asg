@@ -1,0 +1,28 @@
+#!/bin/bash
+set -o nounset
+
+# Install a TCP application security group
+#
+# This script is derived from part of
+#	cf-ci:qa-pipelines/tasks/usb-deploy.sh
+
+name="$1"
+destination="$2"
+ports="$3"
+
+echo > "$$-asg.json" \
+    "[{ \"destination\": \"${destination}\", \"protocol\": \"tcp\", \"ports\": \"${ports}\" }]"
+
+if cf security-groups | grep "${name}" > /dev/null
+then
+    cf update-security-group "${name}" "$$-asg.json"
+else
+    cf create-security-group "${name}" "$$-asg.json"
+fi
+
+cf bind-running-security-group "${name}"
+cf bind-staging-security-group "${name}"
+
+rm "$$-asg.json"
+
+exit

@@ -1,0 +1,47 @@
+#!/bin/bash
+set -o nounset
+
+service="$1"
+
+# Test that a named service is visible and that we can create
+# instances for it.
+#
+# This script is derived from part of
+#	cf-ci:qa-pipelines/tasks/usb-deploy.sh
+
+NAMESPACE="cf"
+
+DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
+
+# # ## ### ##### ######## ############# #####################
+
+cf api --skip-ssl-validation "https://api.${DOMAIN}"
+cf auth admin changeme
+
+## Note: We need a targeted space for marketplace and the other
+## service operations to work.
+
+cf create-org      "${service}-test-org"
+cf create-space -o "${service}-test-org"    "${service}-test-space"
+cf target       -o "${service}-test-org" -s "${service}-test-space"
+
+echo
+printf "%bChecking marketplace for '$service'%b\n" "\033[0;32m" "\033[0m"
+cf marketplace | grep "${service}"
+sleep 1
+echo
+
+cf create-service "${service}" default "${service}-test"
+sleep 1
+
+echo
+printf "%bChecking services for '${service}-test'%b\n" "\033[0;32m" "\033[0m"
+cf services | grep "${service}-test"
+sleep 1
+echo
+
+cf delete-service -f "${service}-test"
+cf delete-space   -f "${service}-test-space"
+cf delete-org     -f "${service}-test-org"
+
+exit
