@@ -9,7 +9,7 @@ set -o nounset
 # # ## ### ##### ######## ############# #####################
 ## configuration
 
-NAMESPACE="cf"
+NAMESPACE="${NAMESPACE:-cf}"
 
 USB_PLUGIN_LOCATION="https://github.com/SUSE/cf-usb-plugin/releases/download/1.0.0/cf-usb-plugin-1.0.0.0.g47b49cd-linux-amd64"
 
@@ -23,10 +23,11 @@ fi
 
 printf "%bCF usb plugin required, missing, starting installation ...%b\n" "\033[0;31;1m" "\033[0m"
 
+PASS="$(kubectl -n scf get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
 DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 cf api --skip-ssl-validation "https://api.${DOMAIN}"
-cf auth admin changeme
+cf auth admin "${PASS}"
 
 wget -O cf-usb-plugin "${USB_PLUGIN_LOCATION}"
 

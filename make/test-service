@@ -9,14 +9,15 @@ service="$1"
 # This script is derived from part of
 #	cf-ci:qa-pipelines/tasks/usb-deploy.sh
 
-NAMESPACE="cf"
+NAMESPACE="${NAMESPACE:-cf}"
 
+PASS="$(kubectl -n scf get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
 DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 # # ## ### ##### ######## ############# #####################
 
 cf api --skip-ssl-validation "https://api.${DOMAIN}"
-cf auth admin changeme
+cf auth admin "${PASS}"
 
 ## Note: We need a targeted space for marketplace and the other
 ## service operations to work.

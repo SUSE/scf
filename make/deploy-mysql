@@ -7,8 +7,8 @@ set -o nounset
 # # ## ### ##### ######## ############# #####################
 ## configuration
 
-NAMESPACE="cf"
-UAA_NAMESPACE="uaa"
+NAMESPACE="${NAMESPACE:-cf}"
+UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
 
 USB_PLUGIN_LOCATION="https://github.com/SUSE/cf-usb-plugin/releases/download/1.0.0/cf-usb-plugin-1.0.0.0.g47b49cd-linux-amd64"
 
@@ -21,6 +21,7 @@ DB_EXTERNAL_IP=192.168.77.77
 
 NFS_SCLASS="nfspersist"
 
+PASS="$(kubectl -n scf get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
 DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 # # ## ### ##### ######## ############# #####################
@@ -31,7 +32,7 @@ DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spe
 # - Need an app security group so that apps using the new service can talk with its instances.
 
 cf api --skip-ssl-validation "https://api.${DOMAIN}"
-cf auth admin changeme
+cf auth admin "${PASS}"
 
 $(dirname $0)/nfs-storageclass
 $(dirname $0)/usb-plugin
@@ -82,7 +83,7 @@ $(dirname $0)/wait mysql
 
 COMMON_SIDECAR_PARAMS=(
   --set "env.CF_ADMIN_USER=admin"
-  --set "env.CF_ADMIN_PASSWORD=changeme"
+  --set "env.CF_ADMIN_PASSWORD=${PASS}"
   --set "env.CF_DOMAIN=${DOMAIN}"
   --set "env.CF_CA_CERT=${CF_CERT}"
   --set "env.UAA_CA_CERT=${UAA_CERT}"
