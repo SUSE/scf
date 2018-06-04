@@ -494,8 +494,8 @@ pipeline {
                     # Get the last updated secret
                     secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
 
-                    # Get a random secret
-                    secret_name="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o json | jq -r '.data | to_entries | .[].key | select(contains(".generator") | not) ' | sort --random-sort | head -n 1)"
+                    # Get a random secret that should be rotated (TODO: choose this better)
+                    secret_name=internal-ca-cert
                     # And its value
                     old_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
 
