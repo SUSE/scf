@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset -o errexit
+set -o nounset
 
 # Install the suse usb plugin, if needed.
 #
@@ -23,7 +23,7 @@ fi
 
 printf "%bCF usb plugin required, missing, starting installation ...%b\n" "\033[0;31;1m" "\033[0m"
 
-PASS="$(kubectl -n scf get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
+PASS="$(kubectl --namespace "${NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
 DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 cf api --skip-ssl-validation "https://api.${DOMAIN}"

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset -o errexit
+set -o nounset
 
 # Install a TCP application security group
 #

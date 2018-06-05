@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset -o errexit
+set -o nounset
 
 # This script is derived from part of
 #	cf-ci:qa-pipelines/tasks/usb-deploy.sh

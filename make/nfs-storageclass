@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset -o errexit
+set -o nounset
 
 # Install the nfs-provisioner and adjunct definitions for persistent
 # nfs storage class.
