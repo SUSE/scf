@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset
+set -o nounset -o errexit
 
 service="$1"
 
