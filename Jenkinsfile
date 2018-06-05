@@ -46,6 +46,8 @@ void runTest(String testName) {
     sh """
         image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
 
+        kubectl delete pod --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf "${testName}" || true
+
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
             --attach \
@@ -126,6 +128,11 @@ pipeline {
             name: 'PUBLISH_S3',
             defaultValue: true,
             description: 'Enable publishing to amazon s3',
+        )
+        booleanParam(
+            name: 'TEST_ROTATE',
+            defaultValue: true,
+            description: 'Trigger secret rotation via helm upgrade',
         )
         booleanParam(
             name: 'TEST_SMOKE',
@@ -457,14 +464,110 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath
 
                     echo Waiting for all pods to be ready...
-                    set +o xtrace
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
-                        while ! ( kubectl get pods -n "\${ns}" | awk '{ if (match(\$2, /^([0-9]+)\\/([0-9]+)\$/, c) && c[1] != c[2]) { print ; exit 1 } }' ) ; do
-                            sleep 10
-                        done
+                        make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
                 """
+            }
+        }
+
+        stage('rotate') {
+            when {
+                expression { return params.TEST_ROTATE }
+            }
+            steps {
+                setBuildStatus('secret rotation', 'pending')
+                runTest('smoke-tests')
+                sh """
+                    set -e +x
+                    source \${PWD}/.envrc
+                    set -x
+
+                    suffix=""
+                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
+                        suffix="-opensuse"
+                    fi
+
+                    . make/include/secrets
+
+                    # Get the last updated secret
+                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+
+                    # Get a random secret that should be rotated (TODO: choose this better)
+                    secret_name=internal-ca-cert
+                    # And its value
+                    old_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+
+                    # Run helm upgrade with a new kube setting to test that secrets are regenerated
+
+                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa\${suffix} \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set kube.external_ips[0]=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --set kube.secrets_generation_counter=2
+
+                    # Ensure old pods have time to terminate
+                    sleep 60
+                    echo Waiting for all pods to be ready after the 'upgrade'...
+                    set +o xtrace
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" ; do
+                        # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
+                        make/wait "\${ns}"
+                    done
+                    set -o xtrace
+
+                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
+
+                    # The extra IP address is to check that the code to set up multiple
+                    # addresses for services is working correctly; it isn't used in
+                    # actual routing.
+                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-scf" output/unzipped/helm/cf\${suffix} \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
+                        --set "kube.external_ips[0]=192.0.2.84" \
+                        --set "kube.external_ips[1]=${ipAddress()}" \
+                        --set kube.storage_class.persistent=hostpath \
+                        --set kube.secrets_generation_counter=2
+
+                    # Ensure old pods have time to terminate
+                    sleep 60
+
+                    echo Waiting for all pods to be ready after the 'upgrade'...
+                    set +o xtrace
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                        make/wait "\${ns}"
+                    done
+                    kubectl get pods --all-namespaces
+
+                    # Get the secret again to see that they have been rotated
+                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+                    new_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+
+                    if test "\${old_secret_value}" = "\${new_secret_value}" ; then
+                        echo "Secret \${secret_name} not correctly rotated"
+                        exit 1
+                    fi
+                """
+
+            }
+            post {
+                success {
+                    setBuildStatus('secret rotation', 'success')
+                }
+                failure {
+                    setBuildStatus('secret rotation', 'failure')
+                }
             }
         }
 
