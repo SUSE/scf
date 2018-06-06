@@ -72,6 +72,11 @@ brain:
 cats:
 	make/tests acceptance-tests
 
+########## SIDECAR SERVICE TARGETS ##########
+
+mysql:
+	make/deploy-mysql
+
 ########## UAA LINK TARGETS ##########
 
 uaa-releases:
