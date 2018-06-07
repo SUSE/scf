@@ -61,8 +61,6 @@ roles:
     release_name: loggregator
   processes:
   - name: metron_agent
-  tags:
-  - headless
   run:
     scaling: # half the number of traffic-controllers
       min: 1
