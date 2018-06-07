@@ -602,6 +602,9 @@ bump instructions in the [UAA README](src/uaa-fissile-release/README.md).
 
 1. Test the release by running the `make <release-name>-release compile images run` command.
 
+1. Before committing the tested release update the line
+   `export CF_VERSION=...` in `bin/common/version.sh` to the new CF version.
+
 ### Can I suspend or resume my vagrant VM?
 
 1. Run the `vagrant reload` command.
