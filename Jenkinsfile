@@ -13,6 +13,10 @@ String jobBaseName() {
     return env.JOB_BASE_NAME.toLowerCase()
 }
 
+String getBuildLog() {
+    return currentBuild.rawBuild.getLogFile().getText()
+}
+
 void setBuildStatus(String context, String status) {
     def description = null
     switch (status) {
@@ -178,6 +182,11 @@ pipeline {
             name: 'S3_BUCKET',
             description: 'AWS S3 bucket to publish to',
             defaultValue: 'cap-release-archives',
+        )
+        string(
+            name: 'S3_LOG_BUCKET',
+            description: 'AWS S3 bucket to publish to',
+            defaultValue: 'cap-jenkins-logs',
         )
         string(
             name: 'S3_PREFIX',
@@ -731,8 +740,8 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
     }
 
     post {
-        // Send mail, but only if we're develop or master
         failure {
+            // Send mail, but only if we're develop or master
             script {
                 if ((params.NOTIFICATION_EMAIL != null) && (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master')) {
                     try {
@@ -757,6 +766,30 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     }
                 }
             }
-        }
+	    // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
+	    script {
+                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+		    writeFile(file: 'the-build.log', text: getBuildLog())
+		    sh 'bin/clean-jenkins-log'
+		    withAWS(region: params.S3_REGION) {
+			withCredentials([usernamePassword(
+			    credentialsId: params.S3_CREDENTIALS,
+			    usernameVariable: 'AWS_ACCESS_KEY_ID',
+			    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+			)]) {
+			    script {
+				def subdir = "${params.S3_PREFIX}${distSubDir()}"
+				def prefix = distPrefix()
+				s3Upload(
+				    file: 'the-clean-build.log',
+				    bucket: "${params.S3_LOG_BUCKET}",
+				    path: "${subdir}${prefix}${env.BUILD_TAG}",
+				)
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
 }

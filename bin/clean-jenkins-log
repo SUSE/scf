@@ -1,0 +1,6 @@
+#!/bin/bash
+cat the-build.log \
+    | sed \
+    -e 's|ha:////[a-zA-Z0-9/+][a-zA-Z0-9/+]*||' \
+    -e 's/\[[^m]*m//g' \
+    > the-clean-build.log
