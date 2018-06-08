@@ -214,6 +214,12 @@ pipeline {
             defaultValue: '',
             description: 'Extra labels for Jenkins slave selection',
         )
+        credentials(
+            name: 'NOTIFICATION_EMAIL',
+            description: 'E-mail address to send failure notifications to; mail will not be sent for PRs',
+            defaultValue: 'cred-scf-email-notification',
+            required: false,
+        )
     }
 
     environment {
@@ -718,6 +724,36 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                             echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                             echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        // Send mail, but only if we're develop or master
+        failure {
+            script {
+                if ((params.NOTIFICATION_EMAIL != null) && (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master')) {
+                    try {
+                        withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                            mail(
+                                subject: "Jenkins failure: ${env.JOB_NAME} #${env.BUILD_ID}",
+                                from: env.NOTIFICATION_EMAIL,
+                                to: env.NOTIFICATION_EMAIL,
+                                body: ("""
+                                Jenkins build failed: ${env.JOB_NAME} on branch ${env.BRANCH_NAME} after ${currentBuild.durationString}
+
+                                See logs on ${currentBuild.absoluteUrl}console
+                                """).toString().replaceAll('\n[ \t]*', '\n'),
+                            )
+                        }
+                        echo 'Build failure notification mail sent'
+                    } catch (e) {
+                        // Jenkins normally doesn't catch any exceptions here; catch it manually so we can see when
+                        // there is an error with the mail queuing.  Note that succeeding past this does not mean
+                        // the mail was successfully delivered.
+                        echo "${e}"
                     }
                 }
             }
