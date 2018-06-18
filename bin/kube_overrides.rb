@@ -43,27 +43,29 @@ obj['spec']['containers'].each do |container|
         env['valueFrom']['secretKeyRef']['name'] = current_secrets_name
       end
     end
-    overrides.each do |k, v|
-      child = container
-      k[0...-1].each do |elem|
-        child[elem] ||= {}
-        child = child[elem]
+  end
+
+  overrides.each do |k, v|
+    child = container
+    k[0...-1].each do |elem|
+      child[elem] ||= {}
+      child = child[elem]
+    end
+    if k[0...1] == %w(env)
+      # Deal with the environment list specially, because the syntax isn't what
+      # humans normally want.
+      # The environment is actually in a list of hashes with "name" and "value"
+      # keys.  Erase any elements with the same name, and then append it.
+      child.reject! do |elem|
+        elem['name'] == k.last
       end
-      case child
-      when Array
-        # Deal with the environment list specially
-        child.reject! do |elem|
-          elem['name'] == k.last
-        end
-        child << {
-          'name'  => k.last,
-          'value' => v,
-        }
-      when Hash
-        child[k.last] = v
-      else
-        raise ArgumentError, "Don't know how to deal with a #{child.class} from #{k}"
-      end
+      child << {
+        'name'  => k.last,
+        'value' => v,
+      }
+    else
+      # Normal key/value override, e.g. to change the image pull policy
+      child[k.last] = v
     end
   end
 end
