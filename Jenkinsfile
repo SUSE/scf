@@ -769,7 +769,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
 	    // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
 	    script {
                 if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
-		    writeFile(file: 'the-build.log', text: getBuildLog())
+		    writeFile(file: 'build.log', text: getBuildLog())
 		    sh 'bin/clean-jenkins-log'
 		    withAWS(region: params.S3_REGION) {
 			withCredentials([usernamePassword(
@@ -781,7 +781,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
 				def subdir = "${params.S3_PREFIX}${distSubDir()}"
 				def prefix = distPrefix()
 				s3Upload(
-				    file: 'the-clean-build.log',
+				    file: 'cleaned-build.log',
 				    bucket: "${params.S3_LOG_BUCKET}",
 				    path: "${subdir}${prefix}${env.BUILD_TAG}",
 				)
