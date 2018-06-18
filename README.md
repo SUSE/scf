@@ -380,14 +380,19 @@ To exclude the bundled tests match against names starting with 3 digits followed
 
 #### How do I run a subset of Cloud Foundry acceptance tests?
 
-Deploy `acceptance-tests` after modifying the environment block to include `CATS_SUITES=-suite,+suite`.    Each suite is
-separated by a comma.    The modifiers apply until the next modifier is seen, and have the following meanings:
+Run `make/tests acceptance-tests env.CATS_SUITES="-suite,+suite" env.CATS_FOCUS="regular expression"`
+directly.  Each suite is separated by a comma.  The modifiers apply until the next modifier is seen,
+and have the following meanings:
 
 Modifier | Meaning
 --- | ---
 `+` | Enable the following suites
 `-` | Disable the following suites
 `=` | Disable all suites, and enable the following suites
+
+The `CATS_FOCUS` parameter is passed to [ginkgo] as a `-focus` parameter.
+
+[ginkgo]: http://onsi.github.io/ginkgo/#the-ginkgo-cli
 
 ### `fissile` refuses to create images that already exist. How do I recreate images?
 

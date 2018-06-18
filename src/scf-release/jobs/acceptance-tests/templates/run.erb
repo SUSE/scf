@@ -41,10 +41,14 @@ skips=
 
 verbose=<%= properties.acceptance_tests.verbose ? "-v" : "" %>
 noColorFlag=<%= properties.acceptance_tests.enable_color ? "" : "-noColor" %>
+focus=()
+if test -n "${CATS_FOCUS:-}" ; then
+  focus=( -focus "${CATS_FOCUS}" )
+fi
 
 set +e
 bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose \
-  -nodes=$nodes -skipPackage=helpers $skips -keepGoing \
+  -nodes=$nodes -skipPackage=helpers $skips -keepGoing "${focus[@]}" \
   > >( tee /var/vcap/sys/log/acceptance_tests.log ) \
   2> /var/vcap/sys/log/acceptance_tests.err.log
 EXITSTATUS=$?

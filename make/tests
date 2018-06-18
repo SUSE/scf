@@ -8,6 +8,7 @@ if [ ! -f "output/kube/bosh-task/${POD_NAME}.yaml" ]; then
     echo 1>&2 There is no bosh-task for "${POD_NAME}".
     exit 1
 fi
+shift
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
@@ -51,7 +52,7 @@ done
 # actual name as pulled from the cluster under test.
 
 CONFIG=$(mktemp)
-ruby bin/kube_overrides.rb "${NAMESPACE}" "${DOMAIN:-}" "output/kube/bosh-task/${POD_NAME}.yaml" > "${CONFIG}"
+ruby bin/kube_overrides.rb "${NAMESPACE}" "${DOMAIN:-}" "output/kube/bosh-task/${POD_NAME}.yaml" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
