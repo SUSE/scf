@@ -15,7 +15,8 @@ cd "${GIT_ROOT}"
 . make/include/secrets
 
 # Argument? (**)
-RELEASE=$(helm list --date --reverse --max 1 --namespace "${NAMESPACE}" -q | tail -n 1)
+# Setting the helm name to the namespace makes cleanup easier
+RELEASE=${NAMESPACE}
 echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
@@ -46,7 +47,7 @@ helm upgrade ${RELEASE} output/helm \
     --set "env.UAA_PORT=${UAA_PORT}" \
     --set "kube.auth=rbac" \
     --set "kube.external_ips[0]=192.0.2.42" \
-    --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
+    --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")" \
     --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
     --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
     --set "secrets.UAA_CA_CERT=${UAA_CA_CERT}" \
