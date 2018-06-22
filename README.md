@@ -45,6 +45,7 @@ Table of Contents
    * [Development FAQ](#development-faq)
       * [Where do I find logs?](#where-do-i-find-logs)
       * [How do I clear all data and begin anew without rebuilding everything?](#how-do-i-clear-all-data-and-begin-anew-without-rebuilding-everything)
+      * [How do I tear down a cluster on a cloud provider?](#how-do-i-tear-down-a-cluster-on-a-cloud-provider)
       * [How do I run smoke and acceptance tests?](#how-do-i-run-smoke-and-acceptance-tests)
          * [How do I run a subset of SCF acceptance tests?](#how-do-i-run-a-subset-of-scf-acceptance-tests)
          * [How do I run a subset of Cloud Foundry acceptance tests?](#how-do-i-run-a-subset-of-cloud-foundry-acceptance-tests)
@@ -350,6 +351,42 @@ On the Vagrant box, run the following commands:
 make stop
 make run
 ```
+
+### How do I tear down a cluster on a cloud provider?
+
+The [SCF secret generator](https://github.com/SUSE/scf-secret-generator)
+creates secrets in the CF and UAA namespaces, and helm doesn't know about
+these, which means they won't be deleted if the release is deleted.  The best
+way to remove everything is to run the following commands:
+
+```bash
+helm delete --purge ${CF_RELEASE_NAME}
+kubectl delete namespace ${CF_NAMESPACE}
+helm delete --purge ${UAA_RELEASE_NAME}
+kubectl delete namespace ${UAA_NAMESPACE}
+```
+
+However, busy systems may encounter timeouts when the release is deleted:
+
+```bash
+$ helm delete --purge scf
+E0622 02:27:17.555417   14014 portforward.go:178] lost connection to pod
+Error: transport is closing
+```
+
+In this case, deleting the StatefulSets before anything else will make the
+operation more likely to succeed:
+
+```bash
+kubectl delete statefulsets --all --namespace ${CF_NAMESPACE}
+helm delete --purge ${CF_RELEASE_NAME}
+kubectl delete namespace ${CF_NAMESPACE}
+kubectl delete statefulsets --all --namespace ${UAA_NAMESPACE}
+helm delete --purge ${UAA_RELEASE_NAME}
+kubectl delete namespace ${UAA_NAMESPACE}
+```
+
+Note that this needs kubectl v1.9.6 or newer for the `delete statefulsets` command to work.
 
 ### How do I run smoke and acceptance tests?
 
