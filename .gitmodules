@@ -91,3 +91,6 @@
 [submodule "src/groot-btrfs"]
 	path = src/groot-btrfs
 	url = https://github.com/SUSE/groot-btrfs.git
+[submodule "src/app-autoscaler-release"]
+	path = src/app-autoscaler-release
+	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
