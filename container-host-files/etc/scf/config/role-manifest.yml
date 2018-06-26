@@ -1993,8 +1993,11 @@ configuration:
     default: "postgres"
     description: ""
   - name: AUTOSCALER_DB_ROLE_PASSWORD
-    default: "password"
-    description: ""
+    secret: true
+    generator:
+      type: Password
+    description: The password for app-autoscaler postgres database.
+    required: true
   - name: AUTOSCALER_DB_ROLE_TAG
     default: "default"
     description: ""
@@ -2249,8 +2252,11 @@ configuration:
     default: 5000
     description: ""
   - name: AUTOSCALER_SERVICE_BROKER_PASSWORD
-    default: "password"
-    description: ""
+    secret: true
+    generator:
+      type: Password
+    description: The password for the app-autoscaler service broker.
+    required: true
   - name: AUTOSCALER_SERVICE_BROKER_PORT
     default: 6107
     description: broker port
