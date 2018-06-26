@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [2.11.0] - 2018-06-26
+
+### Added
+- Certificate expiration now configurable
+- Added support for manual rotation of cloud controller database keys
+- New active/passive role management for pods
+- Exposed router.client_cert_validation property
+
+### Changed
+- Bumped cf-deployment to 1.36
+- Bumped UAA to v59
+- Bumped diego-release to 2.8.0
+- Bumped SLE12 & openSUSE stacks
+- Bumped ruby-buildpack to 1.7.18.2
+- Bumped go-buildpack to 1.8.22.1
+- Bumped kubectl to 1.8.2
+- Use namespace for helm install name
+
+### Fixed
+- Load balancer for Azure now usable
+- Updated role manifest validation to let secrets generator use KUBE_SERVICE_DOMAIN_SUFFIX without configuring HA itself
+- SCF_LOG_PORT now set to default of 514
+- Fixed issue during upgrade whereby USB did not receive updated password info
+- Patched monit_rsyslogd timestamp
+
 ## [2.10.1] - 2018-05-17 
 
 ### Changed
