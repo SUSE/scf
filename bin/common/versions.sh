@@ -9,10 +9,10 @@ set -o errexit -o nounset
 
 export BOSH_CLI_VERSION="fcaa9c6caff58ab8da8c56481320681cdea492ee"
 export CFCLI_VERSION="6.21.1"
-export FISSILE_VERSION="5.2.0+68.gb06a43d"
-export HELM_VERSION="2.6.2"
+export FISSILE_VERSION="5.3.0+12.g64ec547"
+export HELM_VERSION="2.9.1"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
-export KUBECTL_VERSION="1.8.2"
+export KUBECTL_VERSION="1.9.6"
 export K_VERSION="0.0.12"
 export STAMPY_VERSION="0.0.0.22.gbb93bf3"
 export UBUNTU_VERSION="14.04"
@@ -24,9 +24,9 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 if [ "${USE_SLE_BASE:-false}" == "false" ]
 then
-	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-5.g9215f81-30.16}
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-develop-42.3-6.g1785bff-30.51}
 else
-	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-7.g66370f0-0.92}
+	export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-7.g66370f0-0.116}
 fi
 
 # Used in: bin/generate-dev-certs.sh
@@ -35,7 +35,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
-export CF_VERSION=1.15.0
+export CF_VERSION=1.36.0
 
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################

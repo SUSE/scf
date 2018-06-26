@@ -71,6 +71,7 @@ source "${NETWORK_ENV}"
 # create services binding to multiple addresses correctly.  It points at
 # an address that shouldn't exist in real life.
 helm install output/helm \
+     --name ${NAMESPACE} \
      --namespace ${NAMESPACE} \
      --set "env.DOMAIN=${DOMAIN}" \
      --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
@@ -80,7 +81,7 @@ helm install output/helm \
      --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
      --set "secrets.UAA_CA_CERT=${CA_CERT}" \
      --set "kube.external_ips[0]=192.0.2.42" \
-     --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
+     --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")" \
      "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end

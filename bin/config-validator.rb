@@ -289,7 +289,7 @@ def check_clustering(manifest, bosh_properties)
       end
       bosh_properties[release_name][job_name].each_key do |property|
         (rparams["properties." + property] || []).each do |param|
-          next unless /^KUBE_(SERVICE_DOMAIN_SUFFIX|.*_CLUSTER_IPS)$/ =~ param
+          next unless /^(KUBERNETES_CLUSTER_DOMAIN|KUBE_.*_CLUSTER_IPS)$/ =~ param
           collected_params[param] << [job_name, release_name]
         end
       end
@@ -301,6 +301,8 @@ def check_clustering(manifest, bosh_properties)
       @has_errors += 1
     else
       next if has_script(role, @configure_ha)
+      # secrets-generation uses KUBERNETES_CLUSTER_DOMAIN for cert generation but is not an HA role itself
+      next if role['name'] == 'secret-generation'
       STDOUT.puts "Missing #{@configure_ha.red} in role #{role['name'].red}, requested by"
       collected_params.each do |param, jobs|
         STDOUT.puts "- #{param.red}"

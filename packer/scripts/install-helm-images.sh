@@ -3,7 +3,7 @@
 set -o errexit
 set -o xtrace
 
-wget -O /tmp/txtplate https://github.com/aarondl/txtplate/releases/download/v0.0.4/txtplate-linux-amd64
+wget -O /tmp/txtplate https://github.com/SUSE/txtplate/releases/download/v0.0.4/txtplate-linux-amd64
 chmod +x /tmp/txtplate
 
 get_helm_images() {

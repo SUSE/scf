@@ -24,12 +24,12 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh
 
 run:
 	make/uaa-run
-	make/uaa-wait
+	make/wait uaa
 	make/run
 
 upgrade:
 	make/uaa-upgrade
-	make/uaa-wait
+	make/wait uaa
 	make/upgrade
 
 wait:
@@ -72,6 +72,11 @@ brain:
 cats:
 	make/tests acceptance-tests
 
+########## SIDECAR SERVICE TARGETS ##########
+
+mysql:
+	make/deploy-mysql
+
 ########## UAA LINK TARGETS ##########
 
 uaa-releases:
@@ -84,7 +89,7 @@ uaa-run:
 	make/uaa-run
 
 uaa-wait:
-	make/uaa-wait
+	make/wait uaa
 
 uaa-stop:
 	make/uaa-stop

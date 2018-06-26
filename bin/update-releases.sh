@@ -32,6 +32,7 @@ declare -A REMAINING_REASONS=(
     [src/cf-sle12-release]="stacks bumped separately"
     [src/cf-usb/cf-usb-release]="not upstream"
     [src/scf-release]="not upstream"
+    [src/postgres-release]="non-standard"
     [src/scf-helper-release]="not upstream"
     [src/nfs-volume-release]="non-standard"
 )
