@@ -2758,7 +2758,7 @@ configuration:
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
     properties.garden.image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
-    properties.garden.image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--store-path", "/var/vcap/data/grootfs/store/unprivileged", "--drax-bin=/var/vcap/packages/groot-btrfs/bin/drax", "--btrfs-progs-path", "/var/vcap/packages/btrfs-progs/bin/", "--config", "/var/vcap/jobs/groot-btrfs/conf/groot-btrfs.yaml"]((/GARDEN_USE_BTRFS))
+    properties.garden.image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs.yaml"]((/GARDEN_USE_BTRFS))
     properties.garden.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.garden.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
@@ -2766,9 +2766,7 @@ configuration:
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.garden.privileged_image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
-    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--store-path", "/var/vcap/data/grootfs/store/privileged", "--drax-bin=/var/vcap/packages/groot-btrfs/bin/drax", "--btrfs-progs-path", "/var/vcap/packages/btrfs-progs/bin/", "--config", "/var/vcap/jobs/groot-btrfs/conf/groot-btrfs.yaml"]((/GARDEN_USE_BTRFS))
-    properties.groot_btrfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
-    properties.groot_btrfs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_USE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
