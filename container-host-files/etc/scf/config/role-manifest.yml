@@ -1436,8 +1436,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    memory: 144
-    virtual-cpus: 2
     exposed-ports: []
 - name: acceptance-tests
   type: bosh-task
@@ -1458,8 +1456,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    memory: 876
-    virtual-cpus: 2
     exposed-ports: []
   configuration:
     templates:
@@ -1481,8 +1477,6 @@ roles:
       max: 1
     flight-stage: manual
     capabilities: []
-    memory: 1024
-    virtual-cpus: 2
     exposed-ports: []
 - name: secret-generation
   type: bosh-task
