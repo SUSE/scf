@@ -1338,6 +1338,8 @@ roles:
     release_name: diego
   - name: garden
     release_name: garden-runc
+  - name: groot-btrfs
+    release_name: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
     release_name: cflinuxfs2
   - name: opensuse42-rootfs-setup
@@ -1969,16 +1971,12 @@ configuration:
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
     required: true
-  - name: GARDEN_INSECURE_DOCKER_REGISTRIES
-    default: ''
-    description: "Whitelist of IP:PORT tuples and CIDR subnet masks. Pulling from docker registries with self signed certificates will not be permitted if the registry's address is not listed here."
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
-  - name: GARDEN_ROOTFS_DRIVER
-    default: btrfs
-    description: The filesystem driver to use (btrfs or overlay-xfs).
-    required: true
+  - name: GARDEN_USE_BTRFS
+    default: ""
+    description: An empty value means BTRFS is used. Set to "false" to use overlay-xfs.
   - name: GO_LOG_LEVEL
     type: environment
     description: >
@@ -1998,6 +1996,12 @@ configuration:
   - name: HTTP_PROXY
     required: false
     description: Location of the proxy to use for regular web access.
+  - name: INSECURE_DOCKER_REGISTRIES
+    default: ''
+    example: '"docker-registry.example.com:80", "hello.example.org:443"'
+    description: >
+      A comma-separated whitelist of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
+      Each registry must be quoted separately.
   - name: INTERNAL_API_PASSWORD
     secret: true
     generator:
@@ -2354,12 +2358,6 @@ configuration:
     default: tcp
     description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
     required: true
-  - name: STAGER_INSECURE_DOCKER_REGISTRIES
-    default: ''
-    example: '"docker-registry.example.com:80", "hello.example.org:443"'
-    description: >
-      A comma-separated list of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
-      Each registry must be quoted separately.
   - name: STAGING_TIMEOUT
     default: 900
     description: Timeout for staging an app, in seconds.
@@ -2630,7 +2628,7 @@ configuration:
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
-    properties.cc.diego.insecure_docker_registry_list: '[((STAGER_INSECURE_DOCKER_REGISTRIES))]'
+    properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
@@ -2753,14 +2751,17 @@ configuration:
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
-    properties.garden.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
+    properties.garden.image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
+    properties.garden.image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs.yaml"]((/GARDEN_USE_BTRFS))
+    properties.garden.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.garden.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
-    properties.grootfs.driver: '((GARDEN_ROOTFS_DRIVER))'
-    properties.grootfs.insecure_docker_registry_list: '[((GARDEN_INSECURE_DOCKER_REGISTRIES))]'
+    properties.garden.privileged_image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
+    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_USE_BTRFS))
+    properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.locks.locket.hostname: diego-locket.((KUBERNETES_NAMESPACE))
