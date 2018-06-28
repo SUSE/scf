@@ -429,7 +429,7 @@ pipeline {
                     fi
 
                     kubectl delete storageclass hostpath || /bin/true
-                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath"},"provisioner":"kubernetes.io/host-path"}'
+                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath","annotations":{"storageclass.kubernetes.io/is-default-class":"true"}},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
                     rm -rf output/unzipped
