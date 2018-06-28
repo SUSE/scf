@@ -13,9 +13,6 @@ roles:
     release_name: cf-syslog-drain
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: scheduler
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -59,8 +56,6 @@ roles:
     release_name: loggregator
   - name: reverse_log_proxy
     release_name: loggregator
-  processes:
-  - name: metron_agent
   run:
     scaling: # half the number of traffic-controllers
       min: 1
@@ -98,9 +93,6 @@ roles:
     release_name: cf-syslog-drain
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: adapter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -151,8 +143,6 @@ roles:
     provides:
       consul_common: {}
       consul_server: {}
-  processes:
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -215,9 +205,6 @@ roles:
       nats: {}
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: metron_agent
-  - name: nats
   run:
     scaling:
       min: 1
@@ -264,10 +251,6 @@ roles:
     release_name: cf-mysql
     provides:
       mysql: {}
-  processes:
-  - name: mariadb_ctrl
-  - name: galera-healthcheck
-  - name: gra-log-purger-executable
   tags:
   - headless
   - sequential-startup
@@ -342,9 +325,6 @@ roles:
     release_name: cf-mysql
     provides:
       proxy: {}
-  processes:
-  - name: cf-mysql-route-registrar
-  - name: switchboard
   tags:
   - active-passive
   run:
@@ -390,8 +370,6 @@ roles:
     release_name: postgres
     provides:
       postgres: { as: postgres-database }
-  processes:
-  - name: postgres
   tags:
   - headless
   - sequential-startup
@@ -446,9 +424,6 @@ roles:
     release_name: cf-usb
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: usb
-  - name: route_registrar
   tags:
   - sequential-startup
   run:
@@ -497,9 +472,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
   tags:
   - sequential-startup
   run:
@@ -551,9 +523,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
   tags:
   - active-passive
   - sequential-startup
@@ -610,9 +579,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: gorouter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -683,9 +649,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: tcp_router
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -740,9 +703,6 @@ roles:
     release_name: loggregator
   - name: routing-api
     release_name: routing
-  processes:
-  - name: metron_agent
-  - name: routing-api
   tags:
   - active-passive
   - sequential-startup
@@ -818,14 +778,6 @@ roles:
     release_name: java-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
-  processes:
-  - name: cloud_controller_ng
-  - name: cloud_controller_worker_local_1
-  - name: cloud_controller_worker_local_2
-  - name: route_registrar
-  - name: metron_agent
-  - name: nginx_cc
-  - name: statsd_injector
   tags:
   - sequential-startup
   run:
@@ -880,9 +832,6 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: cloud_controller_worker_1
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -921,11 +870,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: blobstore_nginx
-  - name: blobstore_url_signer
-  - name: route_registrar
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -967,10 +911,6 @@ roles:
     release_name: loggregator
   - name: statsd_injector
     release_name: statsd-injector
-  processes:
-  - name: cloud_controller_clock
-  - name: metron_agent
-  - name: statsd_injector
   run:
     scaling:
       min: 1
@@ -1004,9 +944,6 @@ roles:
     release_name: loggregator
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: doppler
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -1066,10 +1003,6 @@ roles:
     release_name: loggregator
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: loggregator_trafficcontroller
-  - name: metron_agent
-  - name: route_registrar
   tag:
   - headless
   configuration:
@@ -1127,9 +1060,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: auctioneer
-  - name: metron_agent
   tags:
   - active-passive
   run:
@@ -1183,11 +1113,6 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: cc_uploader
-  - name: tps_listener
-  - name: tps_watcher
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -1233,10 +1158,6 @@ roles:
     release_name: loggregator
   - name: file_server
     release_name: diego
-  processes:
-  - name: file_server
-  - name: metron_agent
-  - name: ssh_proxy
   run:
     scaling:
       min: 1
@@ -1351,11 +1272,6 @@ roles:
     release_name: loggregator
   - name: nfsv3driver
     release_name: nfs-volume
-  processes:
-  - name: metron_agent
-  - name: rep
-  - name: route_emitter
-  - name: garden
   tags:
   - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
@@ -1487,7 +1403,6 @@ roles:
   jobs:
   - name: generate-secrets
     release_name: scf-helper
-  processes: []
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   run:
@@ -1522,7 +1437,6 @@ roles:
     release_name: scf
   - name: configure-scf
     release_name: scf
-  processes: []
   run:
     scaling:
       min: 1
