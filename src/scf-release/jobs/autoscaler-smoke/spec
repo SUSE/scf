@@ -1,0 +1,53 @@
+---
+name: autoscaler-smoke
+
+description: >
+  Smoke tests for the app-autoscaler release
+
+packages:
+- cli
+- acceptance-tests # For the test apps
+
+templates:
+  run.erb: bin/run
+  pre-start.erb: bin/pre-start
+
+properties:
+  smoke_tests.autoscaler_service_broker_endpoint:
+    description: AutoScaler API endpoint (including scheme and port)
+    example: https://autoscalerservicebroker.bosh-lite.com/
+  smoke_tests.api:
+    description: Cloud Controller API endpoint
+    example: api.bosh-lite.com
+  smoke_tests.user:
+    description: >
+      Name of a user in your CF instance with admin credentials. This admin user
+      must have the doppler.firehose scope if running the logging firehose tests
+    example: admin
+  smoke_tests.password:
+    description: Password of the admin user above.
+  smoke_tests.apps_domain:
+    description: >
+      A shared domain that tests can use to create subdomains that will route to
+      applications also created in the tests.
+    example: bosh-lite.com
+  smoke_tests.skip_ssl_validation:
+    description: >
+      Set to true if using an invalid (e.g. self-signed) cert for traffic routed
+      to your CF instance; this is generally always true for BOSH-Lite
+      deployments of CF.
+    default: false
+  autoscaler.service_broker.username:
+    description: username to authenticate with service broker
+  autoscaler.service_broker.password:
+    description: password to authenticate with service broker
+  autoscaler.smoke.service_name:
+    description: >
+      The name of the registered auto-scaler service, use cf marketplace to
+      determine the name.
+    default: autoscaler
+  autoscaler.smoke.service_plan:
+    description: >
+      The plan name of the registered auto-scaler service, use cf marketplace
+      to determine the plan.
+    default: autoscaler-free-plan

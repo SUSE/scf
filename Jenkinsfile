@@ -149,6 +149,11 @@ pipeline {
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
+            name: 'TEST_SCALER',
+            defaultValue: true,
+            description: 'Run app-autoscaler smoke test',
+        )
+        booleanParam(
             name: 'TEST_CATS',
             defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
@@ -618,6 +623,24 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('brain', 'failure')
+                }
+            }
+        }
+
+        stage('scaler') {
+            when {
+                expression { return params.TEST_SCALER }
+            }
+            steps {
+                setBuildStatus('scaler', 'pending')
+                runTest('scaler-smoke')
+            }
+            post {
+                success {
+                    setBuildStatus('scaler', 'success')
+                }
+                failure {
+                    setBuildStatus('scaler', 'failure')
                 }
             }
         }

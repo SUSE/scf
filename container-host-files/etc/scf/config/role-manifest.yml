@@ -1697,6 +1697,29 @@ roles:
       internal: 6102
     healthcheck:
       readiness:
+- name: autoscaler-smoke
+  type: bosh-task
+  tags:
+  - stop-on-failure
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release_name: scf-helper
+  - name: authorize-internal-ca
+    release_name: scf
+  - name: autoscaler-smoke
+    release_name: scf
+  run:
+    scaling:
+      min: 0
+      max: 1
+    flight-stage: manual
+  configuration:
+    templates:
+      properties.smoke_tests.api: api.((DOMAIN))
+      properties.smoke_tests.apps_domain: ((DOMAIN))
+      properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
+      properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
+      properties.smoke_tests.skip_ssl_validation: false
 
 configuration:
   auth:
