@@ -1,0 +1,200 @@
+---
+# nfs-test-server role
+
+apiVersion: "apps/v1beta1"
+kind: "StatefulSet"
+metadata:
+  name: "nfs-test-server"
+  labels:
+    skiff-role-name: "nfs-test-server"
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  serviceName: "nfs-test-server-set"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        skiff-role-name: "nfs-test-server"
+      name: "nfs-test-server"
+    spec:
+      containers:
+      - image: "splatform/nfs-test-server:latest"
+        lifecycle:
+        livenessProbe: ~
+        name: "nfs-test-server"
+        ports:
+        - containerPort: 111
+          name: "sunrpc-sock"
+          protocol: "TCP"
+        - containerPort: 111
+          name: "sunrpc-dgram"
+          protocol: "UDP"
+        - containerPort: 662
+          name: "pftp-sock"
+          protocol: "TCP"
+        - containerPort: 662
+          name: "pftp-dgram"
+          protocol: "UDP"
+        - containerPort: 875
+          name: "ipcsrv1-sock"
+          protocol: "TCP"
+        - containerPort: 875
+          name: "ipcsrv1-dgram"
+          protocol: "UDP"
+        - containerPort: 2049
+          name: "nfs-sock"
+          protocol: "TCP"
+        - containerPort: 2049
+          name: "nfs-dgram"
+          protocol: "UDP"
+        - containerPort: 32769
+          name: "fnetrpc-dgram"
+          protocol: "UDP"
+        - containerPort: 32803
+          name: "unknown-sock"
+          protocol: "TCP"
+        - containerPort: 892
+          name: "ipcsrv2-sock"
+          protocol: "TCP"
+        - containerPort: 892
+          name: "ipcsrv2-dgram"
+          protocol: "UDP"
+        securityContext:
+          privileged: true
+        volumeMounts: 
+        - mountPath: "/exports/foo"
+          name: "nfs-data"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      terminationGracePeriodSeconds: 600
+      volumes: ~
+  volumeClaimTemplates:
+  - metadata:
+      name: "nfs-data"
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "persistent"
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "50G"
+---
+apiVersion: "v1"
+items:
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "nfs-test-server-set"
+  spec:
+    clusterIP: "None"
+    ports:
+    - port: 111
+      name: "sunrpc-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 111
+      name: "sunrpc-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    - port: 662
+      name: "pftp-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 662
+      name: "pftp-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    - port: 875
+      name: "ipcsrv1-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 875
+      name: "ipcsrv1-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    - port: 2049
+      name: "nfs-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 2049
+      name: "nfs-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    - port: 32769
+      name: "fnetrpc-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    - port: 32803
+      name: "unknown-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 892
+      name: "ipcsrv2-sock"
+      targetPort: 0
+      protocol: "TCP"
+    - port: 892
+      name: "ipcsrv2-dgram"
+      targetPort: 0
+      protocol: "UDP"
+    selector:
+      skiff-role-name: "nfs-test-server"
+- apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "nfs-test-server"
+  spec:
+    ports:
+    - port: 111
+      name: "sunrpc-sock"
+      targetPort: "sunrpc-sock"
+      protocol: "TCP"
+    - port: 111
+      name: "sunrpc-dgram"
+      targetPort: "sunrpc-dgram"
+      protocol: "UDP"
+    - port: 662
+      name: "pftp-sock"
+      targetPort: "pftp-sock"
+      protocol: "TCP"
+    - port: 662
+      name: "pftp-dgram"
+      targetPort: "pftp-dgram"
+      protocol: "UDP"
+    - port: 875
+      name: "ipcsrv1-sock"
+      targetPort: "ipcsrv1-sock"
+      protocol: "TCP"
+    - port: 875
+      name: "ipcsrv1-dgram"
+      targetPort: "ipcsrv1-dgram"
+      protocol: "UDP"
+    - port: 2049
+      name: "nfs-sock"
+      targetPort: "nfs-sock"
+      protocol: "TCP"
+    - port: 2049
+      name: "nfs-dgram"
+      targetPort: "nfs-dgram"
+      protocol: "UDP"
+    - port: 32769
+      name: "fnetrpc-dgram"
+      targetPort: "fnetrpc-dgram"
+      protocol: "UDP"
+    - port: 32803
+      name: "unknown-sock"
+      targetPort: "unknown-sock"
+      protocol: "TCP"
+    - port: 892
+      name: "ipcsrv2-sock"
+      targetPort: "ipcsrv2-sock"
+      protocol: "TCP"
+    - port: 892
+      name: "ipcsrv2-dgram"
+      targetPort: "ipcsrv2-dgram"
+      protocol: "UDP"
+    selector:
+      skiff-role-name: "nfs-test-server"
+kind: "List"

@@ -1439,6 +1439,7 @@ roles:
     flight-stage: manual
     capabilities: []
     exposed-ports: []
+    service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1738,11 +1739,26 @@ configuration:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
+      test-role:
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [create, get, delete]
+      - apiGroups: [apps]
+        resources: [statefulsets]
+        verbs: [create, get, update, delete]
+      - apiGroups: [""]
+        resources: ["pods/exec"]
+        verbs: [create, delete]
+      - apiGroups: [""]
+        resources: ["pods/log"]
+        verbs: [create, delete, get, list]
     accounts:
       default:
         roles: [configgin-role]
       secret-generator:
         roles: [configgin-role, secrets-role]
+      test-brain:
+        roles: [configgin-role, test-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []
@@ -2723,6 +2739,8 @@ configuration:
       The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user.
       Its value is supplied by the kubernetes runtime.
+  - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
+    type: environment
   - name: KUBE_AZ
     type: environment
     default: "z1"
@@ -3273,7 +3291,9 @@ configuration:
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.namespace: '"((KUBERNETES_NAMESPACE))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    properties.acceptance_tests_brain.storage_class: '"((KUBERNETES_STORAGE_CLASS_PERSISTENT))"'
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'

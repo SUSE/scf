@@ -1,0 +1,15 @@
+set -e
+
+#VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+VERSION=v1.9.6
+
+echo Retrieving kubetcl ${VERSION}
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/${VERSION}/bin/linux/amd64/kubectl
+
+BIN_DIR=${BOSH_INSTALL_TARGET}/bin
+
+mkdir -p ${BIN_DIR}
+
+cp kubectl ${BIN_DIR}/kubectl
+chmod 755  ${BIN_DIR}/kubectl
