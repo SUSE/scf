@@ -209,16 +209,6 @@ class Common
     ).include? key
   end
 
-  def self.special_use(key)
-    # Detect env var keys that are special (they are defined, but not
-    # used in the role-manifest. They are needed and used in scripts).
-    %w(
-      SCF_LOG_HOST
-      SCF_LOG_PORT
-      SCF_LOG_PROTOCOL
-    ).include? key
-  end
-
   def product_version
     return @product_version if @product_version
     product_version = open("#{@scf_root_dir}/VERSION").read.strip
