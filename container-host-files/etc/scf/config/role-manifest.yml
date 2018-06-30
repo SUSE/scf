@@ -424,52 +424,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: diego-locket
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: locket
-    release_name: diego
-  - name: metron_agent
-    release_name: loggregator
-  tags:
-  - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 3
-    capabilities: []
-    memory: 90
-    virtual-cpus: 2
-    exposed-ports:
-    - name: locket
-      protocol: TCP
-      internal: 8891
-    healthcheck:
-      readiness:
-        command:
-        - head -c0 </dev/tcp/${HOSTNAME}/8891
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-locket
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -491,6 +445,8 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
+  - name: locket
+    release_name: diego
   tags:
   - active-passive
   - sequential-startup
@@ -501,7 +457,7 @@ roles:
       ha: 3
       must_be_odd: true
     capabilities: []
-    memory: 138
+    memory: 310
     virtual-cpus: 2
     exposed-ports:
     - name: cell-bbs-api
@@ -510,7 +466,14 @@ roles:
     - name: cell-bbs-dbg
       protocol: TCP
       internal: 17017
+    - name: locket
+      protocol: TCP
+      internal: 8891
     active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
+    healthcheck:
+      readiness:
+        command:
+        - head -c0 </dev/tcp/${HOSTNAME}/8891
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -527,7 +490,7 @@ roles:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -1059,7 +1022,7 @@ roles:
   configuration:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -1298,7 +1261,7 @@ roles:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -2482,7 +2445,8 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - diego-locket.{{.KUBERNETES_NAMESPACE}}
+      - diego-api.{{.KUBERNETES_NAMESPACE}}
+      - 127.0.0.1
     description: PEM-encoded client certificate
     required: true
   - name: DIEGO_CLIENT_KEY
@@ -3374,7 +3338,7 @@ configuration:
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.capi.tps.traffic_controller_url: ws://loggregator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.capi.tps.watcher.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -3442,7 +3406,7 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cfdot.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.cfdot.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"'
+    properties.cfdot.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
@@ -3458,7 +3422,7 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.auctioneer.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
@@ -3471,7 +3435,6 @@ configuration:
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
-    properties.diego.bbs.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
@@ -3489,7 +3452,7 @@ configuration:
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.locket.api_location: diego-api.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
@@ -3532,7 +3495,7 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.locks.locket.hostname: diego-locket.((KUBERNETES_NAMESPACE))
+    properties.locks.locket.hostname: diego-api.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
@@ -3584,7 +3547,7 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]((/ROUTER_TLS_PEM))'
-    properties.routing_api.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.routing_api.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
