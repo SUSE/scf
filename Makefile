@@ -72,6 +72,9 @@ brain:
 cats:
 	make/tests acceptance-tests
 
+scaler-smoke:
+	make/tests autoscaler-smoke
+
 ########## SIDECAR SERVICE TARGETS ##########
 
 mysql:
@@ -178,6 +181,9 @@ nats-release:
 statsd-injector-release:
 	make/bosh-release src/statsd-injector-release
 
+app-autoscaler-release:
+	make/bosh-release src/app-autoscaler-release
+
 binary-buildpack-release:
 	make/bosh-release src/buildpacks/binary-buildpack-release
 
@@ -236,6 +242,7 @@ releases: \
 	statsd-injector-release \
 	uaa-releases \
 	usb-release \
+	app-autoscaler-release \
 	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########

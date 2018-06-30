@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+PATH=$PATH:/var/vcap/packages/cli/bin
+
+cf api \
+    <% if_p('smoke_tests.skip_ssl_validation') { puts '--skip-ssl-validation' } %> \
+    'https://<%= p('smoke_tests.api') %>'
+
+cf auth '<%= p('smoke_tests.user') %>' '<%= p('smoke_tests.password') %>'

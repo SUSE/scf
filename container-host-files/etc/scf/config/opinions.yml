@@ -395,3 +395,4 @@ properties:
       - roles
       - user_attributes
       - uaa.offline_token
+   
