@@ -9,7 +9,7 @@ STEMCELL_HASH="$(echo -n "${FISSILE_STEMCELL}" | sha1sum | awk '{ print $1 }')"
 
 # Return a list of desired packages with their versions, as in package/00000000
 _get_package_version_list() {
-    fissile show release | grep -v 'Dev release' | grep -F '(' | cut -d: -f1 | sort -u | while read package hash ; do
+    fissile show release | grep -vE '(Dev|Final) release' | grep -F '(' | cut -d: -f1 | sort -u | while read package hash ; do
         hash=$(echo "${hash}" | tr -c -d 0-9a-f)
         echo "${package}/${hash}"
     done
