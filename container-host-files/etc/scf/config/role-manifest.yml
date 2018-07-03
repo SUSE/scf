@@ -2645,6 +2645,12 @@ configuration:
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
     required: true
+  - name: ENABLE_SECURITY_EVENT_LOGGING
+    default: "false"
+    description: >
+      By default, Cloud Foundry does not enable Cloud Controller request logging.
+      To enable this feature, you must set this property to "true".
+      You can learn more about the format of the logs here https://docs.cloudfoundry.org/loggregator/cc-uaa-logging.html#cc 
   - name: FORCE_FORWARDED_PROTO_AS_HTTPS
     default: false
     description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
@@ -3530,6 +3536,7 @@ configuration:
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.security_event_logging.enabled: '"((ENABLE_SECURITY_EVENT_LOGGING))"'
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
