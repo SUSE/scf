@@ -633,7 +633,7 @@ pipeline {
             }
             steps {
                 setBuildStatus('scaler', 'pending')
-                runTest('scaler-smoke')
+                runTest('autoscaler-smoke')
             }
             post {
                 success {
