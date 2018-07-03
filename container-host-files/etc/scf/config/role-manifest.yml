@@ -43,43 +43,6 @@ roles:
       readiness:
         command:
         - curl --silent --fail http://${HOSTNAME}:8080/health
-- name: syslog-rlp
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: metron_agent
-    release_name: loggregator
-  - name: reverse_log_proxy
-    release_name: loggregator
-  run:
-    scaling: # half the number of traffic-controllers
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 93
-    virtual-cpus: 2
-    exposed-ports:
-    - name: rlp
-      protocol: TCP
-      internal: 8082
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - syslog-rlp
-            topologyKey: "beta.kubernetes.io/os"
 - name: syslog-adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -917,7 +880,7 @@ roles:
                 values:
                 - doppler
             topologyKey: "beta.kubernetes.io/os"
-- name: loggregator
+- name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -932,26 +895,28 @@ roles:
     release_name: loggregator
   - name: metron_agent
     release_name: loggregator
+  - name: reverse_log_proxy
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
   tag:
   - headless
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       min: 1
       max: 65535
       ha: 2
     capabilities: []
-    memory: 153
+    memory: 250
     virtual-cpus: 2
     exposed-ports:
     - name: dropsonde
       protocol: TCP
       internal: 8081
-    - name: grpc
+    - name: rlp
       protocol: TCP
       internal: 8082
     healthcheck:
@@ -968,7 +933,7 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
-                - loggregator
+                - log-api
             topologyKey: "beta.kubernetes.io/os"
 - name: diego-brain
   environment_scripts:
@@ -3364,7 +3329,7 @@ configuration:
     properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_KEY))"'
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://loggregator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.traffic_controller_url: ws://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.capi.tps.watcher.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -3398,7 +3363,7 @@ configuration:
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.loggregator.internal_url: http://loggregator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.cc.loggregator.internal_url: http://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
