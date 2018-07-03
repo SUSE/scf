@@ -544,21 +544,39 @@ pipeline {
 
                     UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
 
+                    UPGRADE_ARGS=(
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
+                        --set env.DOMAIN=${domain()}
+                        --set env.UAA_HOST=uaa.${domain()}
+                        --set env.UAA_PORT=2793
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret
+                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}"
+                        --set kube.storage_class.persistent=hostpath
+                        --set kube.secrets_generation_counter=2
+                    )
+
                     # The extra IP address is to check that the code to set up multiple
                     # addresses for services is working correctly; it isn't used in
                     # actual routing.
+                    UPGRADE_ARGS=(
+                        "\${UPGRADE_ARGS[@]}"
+                        --set "kube.external_ips[0]=192.0.2.84"
+                        --set "kube.external_ips[1]=${ipAddress()}"
+                    )
+
+                    # Enable the autoscaler so we can run it through smoke tests
+                    for f in output/unzipped/helm/cf\${suffix}/templates/autoscaler-* ; do
+                        f="\${f##*/}" # strip leading directories
+                        f="\${f%.*}"  # strip file extension
+                        UPGRADE_ARGS=(
+                            "\${UPGRADE_ARGS[@]}"
+                            --set "sizing.\${f//-/_}.count=1"
+                        )
+                    done
+
                     helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-scf" output/unzipped/helm/cf\${suffix} \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
-                        --set "kube.external_ips[0]=192.0.2.84" \
-                        --set "kube.external_ips[1]=${ipAddress()}" \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.secrets_generation_counter=2
+                        "\${UPGRADE_ARGS[@]}"
 
                     # Ensure old pods have time to terminate
                     sleep 60
@@ -629,7 +647,10 @@ pipeline {
 
         stage('scaler') {
             when {
-                expression { return params.TEST_SCALER }
+                // Since we have autoescaler off by default, don't bother
+                // testing the autoscaler unless we've rotated the secrets
+                // (which also enables the autoscaler)
+                expression { return params.TEST_SCALER && params.TEST_ROTATE }
             }
             steps {
                 setBuildStatus('scaler', 'pending')
