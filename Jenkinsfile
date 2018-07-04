@@ -476,6 +476,7 @@ pipeline {
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
+                        --set env.INSECURE_DOCKER_REGISTRIES=insecure-registry.${domain()}:20005 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
                         --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
@@ -549,6 +550,7 @@ pipeline {
                         --set env.DOMAIN=${domain()}
                         --set env.UAA_HOST=uaa.${domain()}
                         --set env.UAA_PORT=2793
+                        --set env.INSECURE_DOCKER_REGISTRIES=insecure-registry.${domain()}:20005 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret
                         --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}"

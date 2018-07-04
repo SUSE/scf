@@ -1412,7 +1412,7 @@ roles:
   configuration:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
+      properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
@@ -3545,7 +3545,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
-    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
@@ -3561,7 +3561,7 @@ configuration:
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cfdot.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cfdot.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"'
-    properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
     properties.consul.agent_cert: ((CONSUL_CLIENT_CERT))
@@ -3692,7 +3692,7 @@ configuration:
     properties.nfsv3driver.ldap_svc_user: '"((PERSI_NFS_DRIVER_LDAP_USER))"'
     properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
+    properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
