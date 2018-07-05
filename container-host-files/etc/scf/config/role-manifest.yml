@@ -1733,8 +1733,6 @@ configuration:
   - name: AUTOSCALER_API_SERVER_INFO_SUPPORT_URL
     default: ""
     description: ""
-  - name: AUTOSCALER_API_SERVER_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -1942,8 +1940,6 @@ configuration:
   - name: AUTOSCALER_EVENT_GENERATOR_LOGGING_LEVEL
     default: info
     description: ""
-  - name: AUTOSCALER_EVENT_GENERATOR_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -1986,8 +1982,6 @@ configuration:
   - name: AUTOSCALER_METRICS_COLLECTOR_LOGGIN_LEVEL
     default: "info"
     description: ""
-  - name: AUTOSCALER_METRICS_COLLECTOR_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -2026,8 +2020,6 @@ configuration:
   - name: AUTOSCALER_PRUNER_LOGGING_LEVEL
     default: "info"
     description: ""
-  - name: AUTOSCALER_PRUNER_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS
     default: 30
     description: ""
@@ -2055,8 +2047,6 @@ configuration:
   - name: AUTOSCALER_SCALING_ENGINE_LOGGING_LEVEL
     default: "info"
     description: ""
-  - name: AUTOSCALER_SCALING_ENGINE_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL
     default: "600s"
     description: ""
@@ -2084,8 +2074,6 @@ configuration:
   - name: AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT
     default: 3
     description: ""
-  - name: AUTOSCALER_SCHEDULER_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
     default: 1000
     description: ""
@@ -2103,8 +2091,6 @@ configuration:
     generator:
       type: Password
     description: The password for the app-autoscaler service broker.
-  - name: AUTOSCALER_SERVICE_BROKER_REQUIRE_CONSUL
-    default: false
   - name: AUTOSCALER_SERVICE_BROKER_USERNAME
     default: "username"
     description: ""
@@ -3031,7 +3017,6 @@ configuration:
     properties.autoscaler.api_server.public_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
     properties.autoscaler.api_server.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY))"'
-    properties.autoscaler.api_server.require_consul: '"((AUTOSCALER_API_SERVER_REQUIRE_CONSUL))"'
     properties.autoscaler.api_server.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
@@ -3084,7 +3069,6 @@ configuration:
     properties.autoscaler.eventgenerator.metricscollector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_KEY))"'
     properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.eventgenerator.require_consul: '"((AUTOSCALER_EVENT_GENERATOR_REQUIRE_CONSUL))"'
     properties.autoscaler.eventgenerator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
@@ -3110,7 +3094,6 @@ configuration:
     properties.autoscaler.metricscollector.collector.save_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL))"'
     properties.autoscaler.metricscollector.enable_db_lock: '"((AUTOSCALER_METRICS_COLLECTOR_ENABLE_DB_LOCK))"'
     properties.autoscaler.metricscollector.logging.level: '"((AUTOSCALER_METRICS_COLLECTOR_LOGGIN_LEVEL))"'
-    properties.autoscaler.metricscollector.require_consul: '"((AUTOSCALER_METRICS_COLLECTOR_REQUIRE_CONSUL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_KEY))"'
     properties.autoscaler.policy_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3129,7 +3112,6 @@ configuration:
     properties.autoscaler.pruner.lock.lock_retry_interval: '"((AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL))"'
     properties.autoscaler.pruner.lock.lock_ttl: '"((AUTOSCALER_PRUNER_LOCK_TTL))"'
     properties.autoscaler.pruner.logging.level: '"((AUTOSCALER_PRUNER_LOGGING_LEVEL))"'
-    properties.autoscaler.pruner.require_consul: '"((AUTOSCALER_PRUNER_REQUIRE_CONSUL))"'
     properties.autoscaler.pruner.scaling_engine_db.cutoff_days: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
     properties.autoscaler.pruner.scaling_engine_db.refresh_interval: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.scalingengine.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3137,7 +3119,6 @@ configuration:
     properties.autoscaler.scalingengine.defaultCoolDownSecs: '((AUTOSCALER_DEFAULT_COOLDOWN_SECS))'
     properties.autoscaler.scalingengine.lockSize: '"((AUTOSCALER_SCALING_ENGINE_LOCK_SIZE))"'
     properties.autoscaler.scalingengine.logging.level: '"((AUTOSCALER_SCALING_ENGINE_LOGGING_LEVEL))"'
-    properties.autoscaler.scalingengine.require_consul: '"((AUTOSCALER_SCALING_ENGINE_REQUIRE_CONSUL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_KEY))"'
     properties.autoscaler.scalingengine.synchronizer.active_schedule_sync_interval: '"((AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL))"'
@@ -3153,7 +3134,6 @@ configuration:
     properties.autoscaler.scheduler.job_reschedule_interval_millisecond: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND))"'
     properties.autoscaler.scheduler.job_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.notification_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT))"'
-    properties.autoscaler.scheduler.require_consul: '"((AUTOSCALER_SCHEDULER_REQUIRE_CONSUL))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
@@ -3181,7 +3161,6 @@ configuration:
     properties.autoscaler.service_broker.public_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.service_broker.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY))"'
-    properties.autoscaler.service_broker.require_consul: '"((AUTOSCALER_SERVICE_BROKER_REQUIRE_CONSUL))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
     properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_ASAPI_SERVER_KEY))"'
     properties.autoscaler.service_broker.username: '"((AUTOSCALER_SERVICE_BROKER_USERNAME))"'

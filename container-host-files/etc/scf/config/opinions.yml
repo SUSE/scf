@@ -55,6 +55,20 @@ properties:
       port: 5432
     scheduler_db:
       port: 5432
+    api_server:
+      require_consul: false
+    eventgenerator:
+      require_consul: false
+    metricscollector:
+      require_consul: false
+    pruner:
+      require_consul: false
+    scalingengine:
+      require_consul: false
+    scheduler: 
+      require_consul: false
+    service_broker:
+      require_consul: false
   capi:
     tps:
       watcher:
