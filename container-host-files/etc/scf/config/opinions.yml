@@ -40,6 +40,21 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
+  autoscaler:
+    appmetrics_db:
+      port: 5432
+    binding_db:
+      port: 5432
+    instancemetrics_db:
+      port: 5432
+    lock_db:
+      port: 5432
+    policy_db:
+      port: 5432
+    scalingengine_db:
+      port: 5432
+    scheduler_db:
+      port: 5432
   capi:
     tps:
       watcher:
