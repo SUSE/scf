@@ -13,9 +13,6 @@ roles:
     release_name: cf-syslog-drain
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: scheduler
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -59,8 +56,6 @@ roles:
     release_name: loggregator
   - name: reverse_log_proxy
     release_name: loggregator
-  processes:
-  - name: metron_agent
   run:
     scaling: # half the number of traffic-controllers
       min: 1
@@ -98,9 +93,6 @@ roles:
     release_name: cf-syslog-drain
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: adapter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -151,8 +143,6 @@ roles:
     provides:
       consul_common: {}
       consul_server: {}
-  processes:
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -199,7 +189,6 @@ roles:
       properties.consul.encrypt_keys: "[((CONSUL_SERVER_ENCRYPT_KEY))]"
       properties.consul.server_cert: ((CONSUL_SERVER_CERT))
       properties.consul.server_key: ((CONSUL_SERVER_KEY))
-
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -215,9 +204,6 @@ roles:
       nats: {}
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: metron_agent
-  - name: nats
   run:
     scaling:
       min: 1
@@ -264,10 +250,6 @@ roles:
     release_name: cf-mysql
     provides:
       mysql: {}
-  processes:
-  - name: mariadb_ctrl
-  - name: galera-healthcheck
-  - name: gra-log-purger-executable
   tags:
   - headless
   - sequential-startup
@@ -342,9 +324,6 @@ roles:
     release_name: cf-mysql
     provides:
       proxy: {}
-  processes:
-  - name: cf-mysql-route-registrar
-  - name: switchboard
   tags:
   - active-passive
   run:
@@ -377,7 +356,6 @@ roles:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
-
 - name: postgres
   scripts:
   - scripts/chown_vcap_store.sh
@@ -390,8 +368,6 @@ roles:
     release_name: postgres
     provides:
       postgres: { as: postgres-database }
-  processes:
-  - name: postgres
   tags:
   - headless
   - sequential-startup
@@ -429,7 +405,6 @@ roles:
     templates:
       properties.databases.port: 5524
       properties.databases.roles: '[{"name":"pgadmin","password":"((POSTGRES_PASSWORD))"}]'
-
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -446,9 +421,6 @@ roles:
     release_name: cf-usb
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: usb
-  - name: route_registrar
   tags:
   - sequential-startup
   run:
@@ -497,9 +469,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
   tags:
   - sequential-startup
   run:
@@ -551,9 +520,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
   tags:
   - active-passive
   - sequential-startup
@@ -610,9 +576,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: gorouter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -683,9 +646,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: tcp_router
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -740,9 +700,6 @@ roles:
     release_name: loggregator
   - name: routing-api
     release_name: routing
-  processes:
-  - name: metron_agent
-  - name: routing-api
   tags:
   - active-passive
   - sequential-startup
@@ -818,14 +775,6 @@ roles:
     release_name: java-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
-  processes:
-  - name: cloud_controller_ng
-  - name: cloud_controller_worker_local_1
-  - name: cloud_controller_worker_local_2
-  - name: route_registrar
-  - name: metron_agent
-  - name: nginx_cc
-  - name: statsd_injector
   tags:
   - sequential-startup
   run:
@@ -880,9 +829,6 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: cloud_controller_worker_1
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -921,11 +867,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: blobstore_nginx
-  - name: blobstore_url_signer
-  - name: route_registrar
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -967,10 +908,6 @@ roles:
     release_name: loggregator
   - name: statsd_injector
     release_name: statsd-injector
-  processes:
-  - name: cloud_controller_clock
-  - name: metron_agent
-  - name: statsd_injector
   run:
     scaling:
       min: 1
@@ -1004,9 +941,6 @@ roles:
     release_name: loggregator
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: doppler
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -1066,10 +1000,6 @@ roles:
     release_name: loggregator
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: loggregator_trafficcontroller
-  - name: metron_agent
-  - name: route_registrar
   tag:
   - headless
   configuration:
@@ -1127,9 +1057,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: auctioneer
-  - name: metron_agent
   tags:
   - active-passive
   run:
@@ -1183,11 +1110,6 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: cc_uploader
-  - name: tps_listener
-  - name: tps_watcher
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -1233,10 +1155,6 @@ roles:
     release_name: loggregator
   - name: file_server
     release_name: diego
-  processes:
-  - name: file_server
-  - name: metron_agent
-  - name: ssh_proxy
   run:
     scaling:
       min: 1
@@ -1350,11 +1268,6 @@ roles:
     release_name: loggregator
   - name: nfsv3driver
     release_name: nfs-volume
-  processes:
-  - name: metron_agent
-  - name: rep
-  - name: route_emitter
-  - name: garden
   tags:
   - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
@@ -1520,7 +1433,6 @@ roles:
     release_name: scf
   - name: configure-scf
     release_name: scf
-  processes: []
   run:
     scaling:
       min: 1
@@ -1530,7 +1442,6 @@ roles:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
-
 # cf app-autoscaler
 - name: autoscaler-postgres
   scripts:
@@ -1542,8 +1453,6 @@ roles:
     release_name: scf-helper
   - name: postgres
     release_name: postgres
-  processes:
-  - name: postgres
   run:
     scaling:
       min: 0
@@ -1586,10 +1495,6 @@ roles:
     release_name: app-autoscaler
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: route_registrar
-  - name: apiserver
-  - name: servicebroker
   run:
     scaling:
       min: 0
@@ -1637,9 +1542,6 @@ roles:
     release_name: app-autoscaler
   - name: eventgenerator
     release_name: app-autoscaler
-  processes:
-  - name: metricscollector
-  - name: eventgenerator
   run:
     scaling:
       min: 0
@@ -1672,10 +1574,6 @@ roles:
     release_name: app-autoscaler
   - name: pruner
     release_name: app-autoscaler
-  processes:
-  - name: scalingengine
-  - name: scheduler
-  - name: pruner
   run:
     scaling:
       min: 0
@@ -1720,7 +1618,6 @@ roles:
       properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
       properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
       properties.smoke_tests.skip_ssl_validation: false
-
 configuration:
   auth:
     roles:
@@ -1759,7 +1656,6 @@ configuration:
       type: SSH
       value_type: private_key
     description: PEM encoded RSA private key used to identify host.
-    required: true
   - name: APP_SSH_KEY_FINGERPRINT
     secret: true
     generator:
@@ -1767,7 +1663,6 @@ configuration:
       type: SSH
       value_type: fingerprint
     description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
-    required: true
   - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
@@ -1779,7 +1674,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
-    required: true
   - name: AUCTIONEER_REP_KEY
     secret: true
     generator:
@@ -1787,7 +1681,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key
-    required: true
   - name: AUCTIONEER_SERVER_CERT
     secret: true
     generator:
@@ -1796,7 +1689,6 @@ configuration:
       value_type: certificate
       role_name: diego-brain
     description: PEM-encoded server certificate
-    required: true
   - name: AUCTIONEER_SERVER_KEY
     secret: true
     generator:
@@ -1804,7 +1696,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
     # app-autoscaler
   - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
     default: 100
@@ -1815,7 +1706,6 @@ configuration:
   - name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
     default: 0
     description: ""
-  
   - name: AUTOSCALER_API_SERVER_INFO_BUILD
     default: "beta"
     description: ""
@@ -1845,15 +1735,12 @@ configuration:
   - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
- 
   - name: AUTOSCALER_APPMETRICS_DB_PORT
     default: 5432
     description: ""
-  
   - name: AUTOSCALER_APPMETRICS_DB_SCHEME
     default: "postgres"
     description: ""
-
   - name: AUTOSCALER_ASACTORS_CLIENT_CERT
     secret: true
     generator:
@@ -1863,7 +1750,6 @@ configuration:
       subject_names:
       - as_actors_client
     description: PEM-encoded certificate
-    required: true
   - name: AUTOSCALER_ASACTORS_CLIENT_KEY
     secret: true
     generator:
@@ -1871,8 +1757,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
-
   - name: AUTOSCALER_ASACTORS_SERVER_CERT
     secret: true
     generator:
@@ -1882,8 +1766,6 @@ configuration:
       subject_names:
       - "autoscaler-actors.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
     description: PEM-encoded server certificate
-    required: true
-
   - name: AUTOSCALER_ASACTORS_SERVER_KEY
     secret: true
     generator:
@@ -1891,8 +1773,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
-  
   - name: AUTOSCALER_ASAPI_CLIENT_CERT
     secret: true
     generator:
@@ -1902,7 +1782,6 @@ configuration:
       subject_names:
       - as_api_client
     description: PEM-encoded certificate
-    required: true
   - name: AUTOSCALER_ASAPI_CLIENT_KEY
     secret: true
     generator:
@@ -1910,8 +1789,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
-
   - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
     secret: true
     generator:
@@ -1921,7 +1798,6 @@ configuration:
       subject_names:
       - "autoscaler.{{.DOMAIN}}"
     description: PEM-encoded server certificate
-    required: true
   - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY
     secret: true
     generator:
@@ -1929,8 +1805,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
-
   - name: AUTOSCALER_ASAPI_SERVER_CERT
     secret: true
     generator:
@@ -1940,7 +1814,6 @@ configuration:
       subject_names:
       - "autoscaler-api.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
     description: PEM-encoded server certificate
-    required: true
   - name: AUTOSCALER_ASAPI_SERVER_KEY
     secret: true
     generator:
@@ -1948,8 +1821,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
-
   - name: AUTOSCALER_ASMETRICS_CLIENT_CERT
     secret: true
     generator:
@@ -1959,7 +1830,6 @@ configuration:
       subject_names:
       - as_metrics_client
     description: PEM-encoded certificate
-    required: true
   - name: AUTOSCALER_ASMETRICS_CLIENT_KEY
     secret: true
     generator:
@@ -1967,8 +1837,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
-
   - name: AUTOSCALER_ASMETRICS_SERVER_CERT
     secret: true
     generator:
@@ -1978,7 +1846,6 @@ configuration:
       subject_names:
       - "autoscaler-metrics.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
     description: PEM-encoded server certificate
-    required: true
   - name: AUTOSCALER_ASMETRICS_SERVER_KEY
     secret: true
     generator:
@@ -1986,26 +1853,21 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
-  
   - name: AUTOSCALER_BINDING_DB_PORT
     default: 5432
     description: ""
   - name: AUTOSCALER_BINDING_DB_SCHEME
     default: "postgres"
     description: ""
-
   - name: AUTOSCALER_CF_GRANT_TYPE
     default: "password"
     description: "password or client_credentials"
-
   - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
     default: true
     description: ""
   - name: AUTOSCALER_CF_USERNAME
     default: "admin"
     description: ""
-
   - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
     default: 1000
     description: ""
@@ -2020,7 +1882,6 @@ configuration:
     generator:
       type: Password
     description: The password for app-autoscaler postgres database.
-    required: true
   - name: AUTOSCALER_DB_ROLE_TAG
     default: "default"
     description: ""
@@ -2089,7 +1950,6 @@ configuration:
   - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
- 
   - name: AUTOSCALER_INSTANCE_METRICS_DB_PORT
     default: 5432
     description: ""
@@ -2105,14 +1965,12 @@ configuration:
   - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
-  
   - name: AUTOSCALER_LOCK_DB_PORT
     default: 5432
     description: ""
   - name: AUTOSCALER_LOCK_DB_SCHEME
     default: "postgres"
     description: ""
-
   - name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
     default: "30s"
     description: ""
@@ -2128,7 +1986,6 @@ configuration:
   - name: AUTOSCALER_METRICS_COLLECTOR_ENABLE_DB_LOCK
     default: true
     description: ""
- 
   - name: AUTOSCALER_METRICS_COLLECTOR_LOGGIN_LEVEL
     default: "info"
     description: ""
@@ -2137,7 +1994,6 @@ configuration:
     description: ""
   - name: AUTOSCALER_METRICS_COLLECTOR_REQUIRE_CONSUL
     default: false
-  
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -2147,11 +2003,9 @@ configuration:
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
-  
   - name: AUTOSCALER_POLICY_DB_PORT
     default: 5432
     description: ""
-  
   - name: AUTOSCALER_POLICY_DB_SCHEME
     default: "postgres"
     description: ""
@@ -2192,7 +2046,6 @@ configuration:
   - name: AUTOSCALER_SCALING_ENGINE_CONSUL_CLUSTER
     default: http://127.0.0.1:8500
     description: ""
-  
   - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -2202,22 +2055,18 @@ configuration:
   - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
-  
   - name: AUTOSCALER_SCALING_ENGINE_DB_PORT
     default: 5432
     description: ""
-  
   - name: AUTOSCALER_SCALING_ENGINE_DB_SCHEME
     default: "postgres"
     description: ""
-  
   - name: AUTOSCALER_SCALING_ENGINE_LOCK_SIZE
     default: 32
     description: ""
   - name: AUTOSCALER_SCALING_ENGINE_LOGGING_LEVEL
     default: "info"
     description: ""
-  
   - name: AUTOSCALER_SCALING_ENGINE_PORT
     default: 6104
     description: ""
@@ -2229,7 +2078,6 @@ configuration:
   - name: AUTOSCALER_SCHEDULER_CONSUL_TTL
     default: 20
     description: ""
-   
   - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
     description: ""
@@ -2239,11 +2087,9 @@ configuration:
   - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
     description: ""
-  
   - name: AUTOSCALER_SCHEDULER_DB_PORT
     default: 5432
     description: ""
-  
   - name: AUTOSCALER_SCHEDULER_DB_SCHEME
     default: "postgres"
     description: ""
@@ -2270,7 +2116,6 @@ configuration:
   - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
     default: 0
     description: ""
- 
   - name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
     default: 5000
     description: ""
@@ -2279,7 +2124,6 @@ configuration:
     generator:
       type: Password
     description: The password for the app-autoscaler service broker.
-    required: true
   - name: AUTOSCALER_SERVICE_BROKER_PORT
     default: 6107
     description: broker port
@@ -2291,7 +2135,6 @@ configuration:
   - name: AUTOSCALER_SERVICE_BROKER_USERNAME
     default: "username"
     description: ""
-
   - name: AUTOSCALER_UAA_CLIENT_ID
     default: "autoscaler_client_id"
     description: "the uaa client id used by autoscaler"
@@ -2305,7 +2148,6 @@ configuration:
     generator:
       type: Password
     description: The password for access to the diego BBS database.
-    required: true
   - name: BBS_AUCTIONEER_CERT
     secret: true
     generator:
@@ -2313,7 +2155,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
-    required: true
   - name: BBS_AUCTIONEER_KEY
     secret: true
     generator:
@@ -2321,7 +2162,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key
-    required: true
   - name: BBS_CLIENT_CRT
     secret: true
     generator:
@@ -2329,7 +2169,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate.
-    required: true
   - name: BBS_CLIENT_KEY
     secret: true
     generator:
@@ -2337,7 +2176,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key.
-    required: true
   - name: BBS_REP_CERT
     secret: true
     generator:
@@ -2345,7 +2183,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
-    required: true
   - name: BBS_REP_KEY
     secret: true
     generator:
@@ -2353,7 +2190,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key
-    required: true
   - name: BBS_SERVER_CRT
     secret: true
     generator:
@@ -2362,7 +2198,6 @@ configuration:
       value_type: certificate
       role_name: diego-api
     description: PEM-encoded client certificate.
-    required: true
   - name: BBS_SERVER_KEY
     secret: true
     generator:
@@ -2370,7 +2205,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key.
-    required: true
   - name: BLOBSTORE_ACCESS_RULES
     default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
     description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
@@ -2384,13 +2218,11 @@ configuration:
     generator:
       type: Password
     description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
-    required: true
   - name: BLOBSTORE_SECURE_LINK
     secret: true
     generator:
       type: Password
     description: The secret used for signing URLs between Cloud Controller and blobstore.
-    required: true
   - name: BLOBSTORE_TLS_CERT
     secret: true
     generator:
@@ -2399,7 +2231,6 @@ configuration:
       value_type: certificate
       role_name: blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
-    required: true
   - name: BLOBSTORE_TLS_KEY
     secret: true
     generator:
@@ -2407,13 +2238,11 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
-    required: true
   - name: BULK_API_PASSWORD
     secret: true
     generator:
       type: Password
     description: The password for the bulk api.
-    required: true
   - name: CATS_SUITES
     internal: true
     description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
@@ -2435,7 +2264,6 @@ configuration:
       value_type: certificate
       role_name: api
     description: The PEM-encoded certificate for internal cloud controller traffic.
-    required: true
   - name: CC_SERVER_KEY
     secret: true
     generator:
@@ -2443,7 +2271,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The PEM-encoded private key for internal cloud controller traffic.
-    required: true
   - name: CC_UPLOADER_CRT
     secret: true
     generator:
@@ -2452,7 +2279,6 @@ configuration:
       value_type: certificate
       role_name: cc-uploader
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
-    required: true
   - name: CC_UPLOADER_KEY
     secret: true
     generator:
@@ -2460,7 +2286,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The PEM-encoded private key for internal cloud controller uploader traffic.
-    required: true
   - name: CDN_URI
     default: ""
     description: URI for a CDN to use for buildpack downloads.
@@ -2519,7 +2344,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded consul client certificate
-    required: true
   - name: CONSUL_CLIENT_KEY
     secret: true
     generator:
@@ -2527,7 +2351,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded consul client key
-    required: true
   - name: CONSUL_SERVER_CERT
     secret: true
     generator:
@@ -2538,14 +2361,12 @@ configuration:
       - "*.consul-set"
       - "server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
     description: PEM-encoded server certificate
-    required: true
   - name: CONSUL_SERVER_ENCRYPT_KEY
     secret: true
     immutable: true
     generator:
       type: Password
     description: Consul server encryption key
-    required: true
   - name: CONSUL_SERVER_KEY
     secret: true
     generator:
@@ -2553,7 +2374,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
     # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
@@ -2561,7 +2381,6 @@ configuration:
     generator:
       type: Password
     description: Key for encrypting sensitive values in the Cloud Controller database.
-    required: true
   - name: DEFAULT_APP_DISK_IN_MB
     default: 1024
     description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
@@ -2602,7 +2421,6 @@ configuration:
       subject_names:
       - diego-locket.{{.KUBERNETES_NAMESPACE}}
     description: PEM-encoded client certificate
-    required: true
   - name: DIEGO_CLIENT_KEY
     secret: true
     generator:
@@ -2610,7 +2428,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key
-    required: true
   - name: DISABLE_CUSTOM_BUILDPACKS
     default: false
     description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
@@ -2632,7 +2449,6 @@ configuration:
       subject_names:
       - doppler
     description: PEM-encoded certificate.
-    required: true
   - name: DOPPLER_KEY
     secret: true
     generator:
@@ -2640,7 +2456,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
   - name: DROPLET_MAX_STAGED_STORED
     default: 5
     description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
@@ -2698,7 +2513,6 @@ configuration:
     generator:
       type: Password
     description: Basic auth password for access to the Cloud Controller's internal API.
-    required: true
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
@@ -2706,7 +2520,6 @@ configuration:
       type: CACertificate
       value_type: certificate
     description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
-    required: true
   - name: INTERNAL_CA_KEY
     secret: true
     generator:
@@ -2714,7 +2527,6 @@ configuration:
       type: CACertificate
       value_type: private_key
     description: PEM-encoded CA key.
-    required: true
   - name: KUBERNETES_CLUSTER_DOMAIN
     type: environment
   - name: KUBERNETES_NAMESPACE
@@ -2765,7 +2577,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate for loggregator mutual authentication
-    required: true
   - name: LOGGREGATOR_CLIENT_KEY
     secret: true
     generator:
@@ -2773,7 +2584,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key for loggregator mutual authentication
-    required: true
   - name: LOG_LEVEL
     default: info
     description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
@@ -2795,7 +2605,6 @@ configuration:
       subject_names:
       - metron
     description: PEM-encoded certificate.
-    required: true
   - name: METRON_KEY
     secret: true
     generator:
@@ -2803,26 +2612,22 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
   - name: MONIT_PASSWORD
     secret: true
     generator:
       type: Password
     description: Password used for the monit API.
-    required: true
   - name: MYSQL_ADMIN_PASSWORD
     secret: true
     generator:
       type: Password
     description: The password for the MySQL server admin user.
-    required: true
   - name: MYSQL_CCDB_ROLE_PASSWORD
     previous_names: [CCDB_ROLE_PASSWORD]
     secret: true
     generator:
       type: Password
     description: The password for access to the Cloud Controller database.
-    required: true
   - name: MYSQL_CF_USB_PASSWORD
     secret: true
     generator:
@@ -2834,37 +2639,31 @@ configuration:
     generator:
       type: Password
     description: The password for the cluster logger health user.
-    required: true
   - name: MYSQL_DIEGO_LOCKET_PASSWORD
     description: Database password for the diego locket service.
     secret: true
     generator:
       type: Password
-    required: true
   - name: MYSQL_DIEGO_PASSWORD
     secret: true
     generator:
       type: Password
     description: The password for access to MySQL by diego.
-    required: true
   - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
     secret: true
     generator:
       type: Password
     description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
-    required: true
   - name: MYSQL_PERSI_NFS_PASSWORD
     description: 'Database password for storing broker state for the Persi NFS Broker'
     secret: true
     generator:
       type: Password
-    required: true
   - name: MYSQL_PROXY_ADMIN_PASSWORD
     secret: true
     generator:
       type: Password
     description: The password for Basic Auth used to secure the MySQL proxy API.
-    required: true
   - name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
     default: 30000
     description: The time allowed for the MySQL server to respond to healthcheck queries, in milliseconds.
@@ -2874,13 +2673,11 @@ configuration:
     generator:
       type: Password
     description: The password for access to MySQL by the routing-api
-    required: true
   - name: NATS_PASSWORD
     secret: true
     generator:
       type: Password
     description: The password for access to NATS.
-    required: true
   - name: NGINX_LOG_LEVEL
     type: environment
     description: >
@@ -2903,7 +2700,6 @@ configuration:
     secret: true
     generator:
       type: Password
-    required: true
   - name: PERSI_NFS_DEFAULT_OPTIONS
     description: > 
       Comma separated list of default values for nfs mount options. 
@@ -2963,7 +2759,6 @@ configuration:
     generator:
       type: Password
     description: Password for Postgres administrator account
-    required: true
   - name: REP_SERVER_CERT
     secret: true
     generator:
@@ -2973,7 +2768,6 @@ configuration:
       role_name: diego-cell
       subject_names: [ 127.0.0.1 ]
     description: PEM-encoded server certificate
-    required: true
   - name: REP_SERVER_KEY
     secret: true
     generator:
@@ -2981,7 +2775,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded server key
-    required: true
   - name: ROOTFS_TRUSTED_CERTS
     default: ''
     description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
@@ -2999,7 +2792,6 @@ configuration:
     generator:
       type: Password
     description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
-    required: true
   - name: ROUTER_SSL_CERT
     secret: true
     generator:
@@ -3009,7 +2801,6 @@ configuration:
       subject_names:
       - "*.{{.DOMAIN}}"
     description: The public ssl cert for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
-    required: true
   - name: ROUTER_SSL_KEY
     secret: true
     generator:
@@ -3017,14 +2808,12 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The private ssl key for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
-    required: true
   - name: ROUTER_STATUS_PASSWORD
     secret: true
     generator:
       id: router_status_password
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
-    required: true
   - name: ROUTER_TLS_PEM
     description: Array of private keys and certificates used for TLS handshakes with downstream clients. Each element in the array is an object containing fields 'private_key' and 'cert_chain', each of which supports a PEM block. This setting overrides ROUTER_SSL_CERT and ROUTER_SSL_KEY.
     example: |
@@ -3058,7 +2847,6 @@ configuration:
     generator:
       type: Password
     description: The password for access to the uploader of staged droplets.
-    required: true
   - name: SUPPORT_ADDRESS
     default: support@example.com
     description: Support contact information for the cluster
@@ -3081,7 +2869,6 @@ configuration:
       subject_names:
       - syslog_adapter
     description: PEM-encoded certificate
-    required: true
   - name: SYSLOG_ADAPT_KEY
     secret: true
     generator:
@@ -3089,7 +2876,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
   - name: SYSLOG_RLP_CERT
     secret: true
     generator:
@@ -3099,7 +2885,6 @@ configuration:
       subject_names:
       - syslog_rlp
     description: PEM-encoded certificate
-    required: true
   - name: SYSLOG_RLP_KEY
     secret: true
     generator:
@@ -3107,7 +2892,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
   - name: SYSLOG_SCHED_CERT
     secret: true
     generator:
@@ -3115,7 +2899,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate
-    required: true
   - name: SYSLOG_SCHED_KEY
     secret: true
     generator:
@@ -3123,7 +2906,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key.
-    required: true
   - name: TCP_DOMAIN
     example: tcp.my-scf-cluster.com
     required: true
@@ -3135,7 +2917,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
-    required: true
   - name: TPS_CC_CLIENT_KEY
     secret: true
     generator:
@@ -3143,7 +2924,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded client key for internal communication between the cloud controller and TPS.
-    required: true
   - name: TRAFFICCONTROLLER_CERT
     secret: true
     generator:
@@ -3151,7 +2931,6 @@ configuration:
       type: Certificate
       value_type: certificate
     description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
-    required: true
   - name: TRAFFICCONTROLLER_KEY
     secret: true
     generator:
@@ -3159,7 +2938,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: PEM-encoded key for communication with the traffic controller of the log infra structure.
-    required: true
   - name: TRUSTED_CERTS
     description: Concatenation of trusted CA certificates to be made available on the cell.
   - name: UAA_ADMIN_CLIENT_SECRET
@@ -3174,13 +2952,11 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller.
-    required: true
   - name: UAA_CLIENTS_CC_ROUTING_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the Routing API.
-    required: true
   - name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
     secret: true
     generator:
@@ -3191,7 +2967,6 @@ configuration:
     generator:
       type: Password
     description: Used for fetching service key values from CredHub.
-    required: true
   - name: UAA_CLIENTS_CF_USB_SECRET
     secret: true
     generator:
@@ -3202,49 +2977,41 @@ configuration:
     generator:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
-    required: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the SSH proxy.
-    required: true
   - name: UAA_CLIENTS_DOPPLER_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by doppler.
-    required: true
   - name: UAA_CLIENTS_GOROUTER_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the gorouter.
-    required: true
   - name: UAA_CLIENTS_LOGIN_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the login client.
-    required: true
   - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the task creating the cluster administrator user
-    required: true
   - name: UAA_CLIENTS_TCP_EMITTER_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the TCP emitter.
-    required: true
   - name: UAA_CLIENTS_TCP_ROUTER_SECRET
     secret: true
     generator:
       type: Password
     description: The password for UAA access by the TCP router.
-    required: true
   - name: UAA_HOST
     description: The host name of the UAA server (root zone)
     required: true
@@ -3259,7 +3026,6 @@ configuration:
     default: false
     description: Whether or not to use privileged containers for staging tasks.
     required: true
-
   templates:
     az: '"((KUBE_AZ))"'
     id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_COMPONENT_INDEX))-((KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
