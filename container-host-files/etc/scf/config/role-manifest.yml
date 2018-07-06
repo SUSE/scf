@@ -3617,7 +3617,6 @@ configuration:
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]((/ROUTER_TLS_PEM))'
     properties.routing_api.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
-    properties.routing_api.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
@@ -3690,5 +3689,3 @@ configuration:
     properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.version: '"((CLUSTER_VERSION))"'
-
-    
