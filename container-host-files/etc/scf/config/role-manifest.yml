@@ -1,48 +1,5 @@
 ---
 roles:
-- name: syslog-scheduler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: scheduler
-    release_name: cf-syslog-drain
-  - name: metron_agent
-    release_name: loggregator
-  tags:
-  - headless
-  run:
-    scaling:
-      min: 1
-      max: 1
-      ha: 1
-    capabilities: []
-    memory: 69
-    virtual-cpus: 2
-    exposed-ports:
-    - name: sched-health
-      protocol: TCP
-      internal: 8080
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - syslog-scheduler
-            topologyKey: "beta.kubernetes.io/os"
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
 - name: adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -764,44 +721,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"singleton-blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["singleton-blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: cc-clock
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/cc_clock_wait_for_api_ready.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: cloud_controller_clock
-    release_name: capi
-  - name: metron_agent
-    release_name: loggregator
-  - name: statsd_injector
-    release_name: statsd-injector
-  run:
-    scaling:
-      min: 1
-      max: 1 # Max is 1 per the description of the clock job
-    capabilities: []
-    memory: 789
-    virtual-cpus: 2
-    exposed-ports: []
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-clock
-            topologyKey: "beta.kubernetes.io/os"
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -912,7 +831,7 @@ roles:
                 values:
                 - log-api
             topologyKey: "beta.kubernetes.io/os"
-- name: diego-brain
+- name: scheduler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -920,33 +839,57 @@ roles:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_cfdot_properties.sh
+  - scripts/patches/cc_clock_wait_for_api_ready.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
     release_name: scf
-  - name: auctioneer
-    release_name: diego
   - name: patch-properties
     release_name: scf-helper
+  - name: auctioneer
+    release_name: diego
+  - name: ssh_proxy
+    release_name: diego
   - name: cfdot
     release_name: diego
+  - name: tps
+    release_name: capi
+  - name: scheduler
+    release_name: cf-syslog-drain
+  - name: cloud_controller_clock
+    release_name: capi
+  - name: statsd_injector
+    release_name: statsd-injector
   - name: metron_agent
     release_name: loggregator
   tags:
   - active-passive
+  # syslog-scheduler was "headless"
   run:
     scaling:
       min: 1
       max: 3
       ha: 2
+      # syslog-scheduler (and cc-clock) had a max of 1
     capabilities: []
-    memory: 99
+    memory: 1220
     virtual-cpus: 4
     exposed-ports:
     - name: diego-auction
       protocol: TCP
       internal: 9016
+    - name: diego-ssh
+      protocol: TCP
+      internal: 2222
+      public: true
+    - name: sched-health
+      protocol: TCP
+      internal: 8080
+    healthcheck:
+      readiness:
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -957,7 +900,7 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
-                - diego-brain
+                - scheduler
             topologyKey: "beta.kubernetes.io/os"
     # Auctioneer has no useful healthcheck routes; we can only use the TCP port
     active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
@@ -968,83 +911,6 @@ roles:
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
-- name: cc-uploader
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: tps
-    release_name: capi
-  - name: metron_agent
-    release_name: loggregator
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 129
-    virtual-cpus: 4
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-uploader
-            topologyKey: "beta.kubernetes.io/os"
-- name: diego-access
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: ssh_proxy
-    release_name: diego
-  - name: metron_agent
-    release_name: loggregator
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 123
-    virtual-cpus: 2
-    exposed-ports:
-    - name: diego-ssh
-      protocol: TCP
-      internal: 2222
-      public: true
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-access
-            topologyKey: "beta.kubernetes.io/os"
 - name: nfs-broker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1563,7 +1429,7 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
-      role_name: diego-brain
+      role_name: scheduler
     description: PEM-encoded server certificate
     required: true
   - name: AUCTIONEER_SERVER_KEY
@@ -3353,7 +3219,7 @@ configuration:
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.auctioneer.api_location: diego-brain.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
+    properties.diego.bbs.auctioneer.api_location: scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
