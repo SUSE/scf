@@ -581,58 +581,11 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-- name: routing-api
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: metron_agent
-    release_name: loggregator
-  - name: routing-api
-    release_name: routing
-  tags:
-  - active-passive
-  - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 114
-    virtual-cpus: 4
-    exposed-ports:
-    - name: routing-api
-      protocol: TCP
-      internal: 3000
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - routing-api
-            topologyKey: "beta.kubernetes.io/os"
-    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
-    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
-  configuration:
-    templates:
-      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
+  - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
@@ -650,8 +603,14 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
+  - name: cc_uploader
+    release_name: capi
   - name: route_registrar
     release_name: routing
+  - name: routing-api
+    release_name: routing
+  - name: file_server
+    release_name: diego
   - name: statsd_injector
     release_name: statsd-injector
   - name: go-buildpack
@@ -673,6 +632,7 @@ roles:
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
   tags:
+  - active-passive
   - sequential-startup
   run:
     scaling:
@@ -680,7 +640,7 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    memory: 2421
+    memory: 2600
     virtual-cpus: 4
     exposed-ports:
     - name: api
@@ -692,10 +652,25 @@ roles:
     - name: statsd
       protocol: TCP
       internal: 8125
+    - name: routing-api
+      protocol: TCP
+      internal: 3000
+    - name: diego-files
+      protocol: TCP
+      internal: 8080
+    - name: cc-up-listen
+      protocol: TCP
+      internal: 9091
+    - name: cc-up-dbg
+      protocol: TCP
+      internal: 17018
+    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
     healthcheck:
       readiness:
         command:
         - curl --silent --fail http://${HOSTNAME}:9022/v2/info
+        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -710,7 +685,9 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.routing_api.url: 'http://127.0.0.1'
 - name: cc-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1005,8 +982,6 @@ roles:
     release_name: scf
   - name: tps
     release_name: capi
-  - name: cc_uploader
-    release_name: capi
   - name: metron_agent
     release_name: loggregator
   run:
@@ -1017,13 +992,6 @@ roles:
     capabilities: []
     memory: 129
     virtual-cpus: 4
-    exposed-ports:
-    - name: cc-up-listen
-      protocol: TCP
-      internal: 9091
-    - name: cc-up-dbg
-      protocol: TCP
-      internal: 17018
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1052,8 +1020,6 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  - name: file_server
-    release_name: diego
   run:
     scaling:
       min: 1
@@ -1067,13 +1033,6 @@ roles:
       protocol: TCP
       internal: 2222
       public: true
-    - name: diego-files
-      protocol: TCP
-      internal: 8080
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -2260,7 +2219,7 @@ configuration:
       id: cc_uploader_cert
       type: Certificate
       value_type: certificate
-      role_name: cc-uploader
+      role_name: api
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
     required: true
   - name: CC_UPLOADER_KEY
@@ -3321,9 +3280,9 @@ configuration:
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
-    properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.cc_uploader_https_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -3459,7 +3418,7 @@ configuration:
     properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_USE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
-    properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.internal_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.locks.locket.hostname: diego-api.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
@@ -3522,8 +3481,8 @@ configuration:
     properties.routing_api.sqldb.host: "database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.routing_api.url: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.uri: '"http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.url: '"http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_KEY))"'
