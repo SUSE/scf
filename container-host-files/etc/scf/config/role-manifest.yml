@@ -3267,7 +3267,9 @@ configuration:
     ip: '"((IP_ADDRESS))"'
     networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
-    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
+    # We include INTERNAL_CA_KEY here so validation doesn't complain that it's not being used.
+    # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
@@ -3725,7 +3727,7 @@ configuration:
     properties.scalablesyslog.scheduler.tls.client.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_KEY))"'
-    properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))"'
+    properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
     properties.scf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'

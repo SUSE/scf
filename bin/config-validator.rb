@@ -340,7 +340,8 @@ def check_rm_variables(manifest)
   end
 
   manifest['configuration']['variables'].each do |variable|
-    next if Common.special_use(variable['name'])
+    # "internal" variables are defined but not used in the role manifest. They are referenced directly in scripts.
+    next if variable['internal']
     found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
     end
