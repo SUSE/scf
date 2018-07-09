@@ -94,3 +94,9 @@
 [submodule "src/app-autoscaler-release"]
 	path = src/app-autoscaler-release
 	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
+[submodule "src/scf-release/src/github.com/nats-io/go-nats"]
+	path = src/scf-release/src/github.com/nats-io/go-nats
+	url = https://github.com/nats-io/go-nats
+[submodule "src/scf-release/src/github.com/nats-io/nuid"]
+	path = src/scf-release/src/github.com/nats-io/nuid
+	url = https://github.com/nats-io/nuid

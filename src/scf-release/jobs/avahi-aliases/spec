@@ -1,0 +1,16 @@
+---
+name: avahi-aliases
+
+description: Record routes for avahi-publisher (MINICAP only)
+
+packages:
+- avahi-aliases
+
+templates:
+  run.erb: bin/run
+
+properties:
+  scf.minicap:
+    description: "Flag to indicate that this is a MINICAP setup"
+  scf.nats_url:
+    description: "The NATS URL to connect to for route registration messages"

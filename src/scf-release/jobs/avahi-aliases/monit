@@ -1,0 +1,6 @@
+<% if p("scf.minicap") %>
+check process avahi-aliases
+  with pidfile /var/vcap/sys/run/avahi-aliases/avahi-aliases.pid
+  start program /var/vcap/jobs/avahi-aliases/bin/run
+  stop program "/bin/sh -c 'kill -s SIGTERM `cat /var/vcap/sys/run/avahi-aliases/avahi-aliases.pid`'"
+<% end %>
