@@ -3,6 +3,7 @@
 
 ## known aliases
 api.$fqdn
+doppler.$fqdn
 login.$fqdn
 uaa.$fqdn
 cf.uaa.$fqdn
