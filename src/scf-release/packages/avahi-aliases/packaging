@@ -5,7 +5,7 @@ BIN_DIR=${BOSH_INSTALL_TARGET}/bin
 
 mkdir -p "${BIN_DIR}"
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.8)
+export GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
 export GOPATH=${BOSH_COMPILE_TARGET}
 export PATH=$GOROOT/bin:$PATH
 

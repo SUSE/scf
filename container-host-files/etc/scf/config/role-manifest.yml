@@ -213,8 +213,6 @@ roles:
     release_name: nats
     provides:
       nats: {}
-  - name: avahi-aliases
-    release_name: scf-helper
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -247,10 +245,6 @@ roles:
                 values:
                 - nats
             topologyKey: "beta.kubernetes.io/os"
-  configuration:
-    templates:
-      properties.scf.minicap: '((MINICAP))'
-      properties.scf.nats_url: 'nats://nats:((NATS_PASSWORD))@((NATS_SERVICE_HOST)):4222'
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -614,6 +608,8 @@ roles:
     release_name: scf
   - name: gorouter
     release_name: routing
+  - name: avahi-aliases
+    release_name: scf
   - name: metron_agent
     release_name: loggregator
   processes:
@@ -668,6 +664,10 @@ roles:
                 values:
                 - router
             topologyKey: "beta.kubernetes.io/os"
+  configuration:
+    templates:
+      properties.scf.minicap: '((MINICAP))'
+      properties.scf.nats_url: 'nats://nats:((NATS_PASSWORD))@((NATS_SERVICE_HOST)):4222'
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
