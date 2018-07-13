@@ -95,7 +95,7 @@
             "http_directory": "{{user `http_directory`}}",
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "vboxmanage": [
-                [ "modifyvm", "{{.Name}}", "--memory", "10240", "--cpus", "2" ],
+                [ "modifyvm", "{{.Name}}", "--memory", "10240", "--cpus", "4" ],
                 [ "modifyvm", "{{.Name}}", "--nic2", "hostonly", "--hostonlyadapter2", "vboxnet0" ]
             ],
             "boot_command": [
