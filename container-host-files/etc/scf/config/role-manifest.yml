@@ -1546,7 +1546,7 @@ roles:
   - name: postgres
   run:
     scaling:
-      min: 1
+      min: 0
       max: 3
       ha: 2
     capabilities: []
@@ -1592,7 +1592,7 @@ roles:
   - name: servicebroker
   run:
     scaling:
-      min: 1
+      min: 0
       max: 3
       ha: 2
     capabilities: []
@@ -1642,7 +1642,7 @@ roles:
   - name: eventgenerator
   run:
     scaling:
-      min: 1
+      min: 0
       max: 3
       ha: 2
     capabilities: []
@@ -1678,7 +1678,7 @@ roles:
   - name: pruner
   run:
     scaling:
-      min: 1
+      min: 0
       max: 3
       ha: 2
     capabilities: []
