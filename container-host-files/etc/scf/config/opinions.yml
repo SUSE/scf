@@ -228,12 +228,13 @@ properties:
     # internet and services is configured using proper CF security group
     # rules.
     deny_networks: [0.0.0.0/0]
+    listen_address: 0.0.0.0:7777
+    listen_network: tcp
+  grootfs:
     # Garden should at least be able to cache the cflinuxfs2 rootfs
     # to avoid copy operations on every garden healthcheck from rep
     # when there is no app running with the healthcheck rootfs.
-    graph_cleanup_threshold_in_mb: 3000
-    listen_address: 0.0.0.0:7777
-    listen_network: tcp
+    reserved_space_for_other_jobs_in_mb: 3000
   loggregator:
     use_v2_api: true
   metron_agent:
