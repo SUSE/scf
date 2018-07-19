@@ -78,3 +78,7 @@ mv "${BOSH_COMPILE_TARGET}/github.com" "${BOSH_COMPILE_TARGET}/src/github.com"
 
 # We currently have no way of getting a valid version number, as we have no git repo
 GOBIN="${BIN_DIR}" go install -ldflags="-X main.version=0.0.0" github.com/SUSE/testbrain
+
+# Install the mysql client into the package
+zypper install -y mariadb-client
+cp /usr/bin/mysql ${BIN_DIR}

@@ -38,17 +38,17 @@ function get_port
     echo "${port}"
 }
 
-function wait_on_port
+function wait_on_database
 {
-    endpoint="${CF_TCP_DOMAIN}:${1}"
+    # args = port user password
     for (( i = 0; i < 60 ; i++ )) ; do
-	if curl --fail -s -o /dev/null "${endpoint}" ; then
+	if mysql -u"${2}" -p"${3}" -P "${1}" -h "${CF_TCP_DOMAIN}" > /dev/null ; then
             break
 	fi
 	sleep 5
     done
     # Last try, any error will abort the test
-    curl "${endpoint}"
+     mysql -u"${2}" -p"${3}" -P "${1}" -h "${CF_TCP_DOMAIN}"
 }
 
 ## # # ## ### Tracing and common configuration ### ## # #
@@ -160,8 +160,7 @@ cf set-env   "${SERVER_APP}" MYSQL_ROOT_HOST '%'
 cf start     "${SERVER_APP}"
 
 MYSQL_PORT="$(get_port mysql)"
-
-wait_on_port "${MYSQL_PORT}"
+wait_on_database "${MYSQL_PORT}" "${MYSQL_USER}" "${MYSQL_PASS}"
 
 ## --(2)-- Create and configure the mysql client sidecar for usb.
 
