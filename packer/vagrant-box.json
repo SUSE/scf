@@ -363,8 +363,14 @@
             "start_retry_timeout": "7m"
         },
         {
+            "type": "file",
+            "only": ["minicap"],
+            "source": "http/scf-helmchart.zip",
+            "destination": "/tmp/scf-helmchart.zip"
+        },
+        {
             "type": "shell",
-            "only": ["scf-cached-libvirt"],
+            "only": ["scf-cached-libvirt", "minicap"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/install-cf.sh",

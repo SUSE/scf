@@ -14,7 +14,7 @@ get_helm_images() {
         DIR=$(dirname "${i}")
         grep --fixed-string --no-filename 'image:' ${DIR}/templates/* \
             | sed 's@\.Values@@g' \
-            | /tmp/txtplate "${DIR}/values.yaml" "${VALUES}" \
+            | /tmp/txtplate "${DIR}/values.yaml" ${VALUES} \
             | grep --extended --only-matching '([^"/[:space:]]+/)?[^"/[:space:]]+/[^:[:space:]]+:[a-zA-Z0-9\._-]+' \
             | xargs --no-run-if-empty -n1 docker pull
     done
@@ -29,6 +29,6 @@ cat > /tmp/values.json <<EOF
 }
 EOF
 
-get_helm_images /home/scf/helm /tmp/values.json
+get_helm_images /home/scf/helm
 get_helm_images /home/scf/console /tmp/values.json
 get_helm_images /home/scf/console/charts/mariadb /tmp/values.json

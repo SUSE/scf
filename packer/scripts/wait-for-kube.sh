@@ -14,3 +14,4 @@ done
 while ! kubectl get ns kube-system >& /dev/null; do
   sleep .1
 done
+sleep 3
