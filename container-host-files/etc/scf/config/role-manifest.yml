@@ -1,91 +1,6 @@
 ---
 roles:
-- name: syslog-scheduler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: scheduler
-    release_name: cf-syslog-drain
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: scheduler
-  - name: metron_agent
-  tags:
-  - headless
-  run:
-    scaling:
-      min: 1
-      max: 1
-      ha: 1
-    capabilities: []
-    memory: 69
-    virtual-cpus: 2
-    exposed-ports:
-    - name: sched-health
-      protocol: TCP
-      internal: 8080
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - syslog-scheduler
-            topologyKey: "beta.kubernetes.io/os"
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
-- name: syslog-rlp
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: metron_agent
-    release_name: loggregator
-  - name: reverse_log_proxy
-    release_name: loggregator
-  processes:
-  - name: metron_agent
-  run:
-    scaling: # half the number of traffic-controllers
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 93
-    virtual-cpus: 2
-    exposed-ports:
-    - name: rlp
-      protocol: TCP
-      internal: 8082
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - syslog-rlp
-            topologyKey: "beta.kubernetes.io/os"
-- name: syslog-adapter
+- name: adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -98,9 +13,6 @@ roles:
     release_name: cf-syslog-drain
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: adapter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -128,7 +40,7 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
-                - syslog-adapter
+                - adapter
             topologyKey: "beta.kubernetes.io/os"
     healthcheck:
       readiness:
@@ -151,8 +63,6 @@ roles:
     provides:
       consul_common: {}
       consul_server: {}
-  processes:
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -215,9 +125,6 @@ roles:
       nats: {}
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: metron_agent
-  - name: nats
   run:
     scaling:
       min: 1
@@ -245,7 +152,7 @@ roles:
                 values:
                 - nats
             topologyKey: "beta.kubernetes.io/os"
-- name: mysql
+- name: database
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -264,10 +171,10 @@ roles:
     release_name: cf-mysql
     provides:
       mysql: {}
-  processes:
-  - name: mariadb_ctrl
-  - name: galera-healthcheck
-  - name: gra-log-purger-executable
+  - name: proxy
+    release_name: cf-mysql
+    provides:
+      proxy: {}
   tags:
   - headless
   - sequential-startup
@@ -282,12 +189,12 @@ roles:
       type: persistent
       tag: mysql-data
       size: 20
-    memory: 2841
+    memory: 2950
     virtual-cpus: 2
     exposed-ports:
     - name: mysql
       protocol: TCP
-      internal: 3306
+      internal: 13306
     - name: galera-tcp
       protocol: TCP
       internal: 4567
@@ -303,10 +210,20 @@ roles:
     - name: xtrabackup
       protocol: TCP
       internal: 4444
+    - name: mysql-proxy
+      protocol: TCP
+      internal: 3306
+    - name: api
+      protocol: TCP
+      internal: 80
+    - name: healthck-proxy
+      protocol: TCP
+      internal: 1936
     healthcheck:
       readiness:
         command:
         - curl --silent --fail http://${HOSTNAME}:9200/
+        - curl --silent --fail http://${HOSTNAME}:1936/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -327,55 +244,6 @@ roles:
       properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-- name: mysql-proxy
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: patch-properties
-    release_name: scf-helper
-  - name: proxy
-    release_name: cf-mysql
-    provides:
-      proxy: {}
-  processes:
-  - name: cf-mysql-route-registrar
-  - name: switchboard
-  tags:
-  - active-passive
-  run:
-    scaling:
-      min: 1
-      max: 1
-      ha: 1
-    capabilities: []
-    memory: 63
-    virtual-cpus: 2
-    exposed-ports:
-    - name: mysql-proxy
-      protocol: TCP
-      internal: 3306
-    - name: api
-      protocol: TCP
-      internal: 80
-    - name: healthcheck
-      protocol: TCP
-      internal: 1936
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail http://${HOSTNAME}:1936/
-    active-passive-probe: /bin/true # Switchboard currently has no internal locking
-  configuration:
-    templates:
-      properties.cf_mysql.external_host: ((DOMAIN))
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 
 - name: postgres
@@ -390,8 +258,6 @@ roles:
     release_name: postgres
     provides:
       postgres: { as: postgres-database }
-  processes:
-  - name: postgres
   tags:
   - headless
   - sequential-startup
@@ -446,9 +312,6 @@ roles:
     release_name: cf-usb
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: usb
-  - name: route_registrar
   tags:
   - sequential-startup
   run:
@@ -481,55 +344,6 @@ roles:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: diego-locket
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: locket
-    release_name: diego
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
-  tags:
-  - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 3
-    capabilities: []
-    memory: 90
-    virtual-cpus: 2
-    exposed-ports:
-    - name: locket
-      protocol: TCP
-      internal: 8891
-    healthcheck:
-      readiness:
-        command:
-        - head -c0 </dev/tcp/${HOSTNAME}/8891
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-locket
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -551,9 +365,8 @@ roles:
     release_name: diego
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: bbs
-  - name: metron_agent
+  - name: locket
+    release_name: diego
   tags:
   - active-passive
   - sequential-startup
@@ -564,7 +377,7 @@ roles:
       ha: 3
       must_be_odd: true
     capabilities: []
-    memory: 138
+    memory: 310
     virtual-cpus: 2
     exposed-ports:
     - name: cell-bbs-api
@@ -573,7 +386,14 @@ roles:
     - name: cell-bbs-dbg
       protocol: TCP
       internal: 17017
+    - name: locket
+      protocol: TCP
+      internal: 8891
     active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
+    healthcheck:
+      readiness:
+        command:
+        - head -c0 </dev/tcp/${HOSTNAME}/8891
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -590,7 +410,7 @@ roles:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -610,9 +430,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: gorouter
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -683,9 +500,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: tcp_router
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -724,61 +538,11 @@ roles:
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
-- name: routing-api
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: metron_agent
-    release_name: loggregator
-  - name: routing-api
-    release_name: routing
-  processes:
-  - name: metron_agent
-  - name: routing-api
-  tags:
-  - active-passive
-  - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 114
-    virtual-cpus: 4
-    exposed-ports:
-    - name: routing-api
-      protocol: TCP
-      internal: 3000
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - routing-api
-            topologyKey: "beta.kubernetes.io/os"
-    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
-    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
-  configuration:
-    templates:
-      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
 - name: api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
+  - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
@@ -796,8 +560,14 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
+  - name: cc_uploader
+    release_name: capi
   - name: route_registrar
     release_name: routing
+  - name: routing-api
+    release_name: routing
+  - name: file_server
+    release_name: diego
   - name: statsd_injector
     release_name: statsd-injector
   - name: go-buildpack
@@ -818,15 +588,8 @@ roles:
     release_name: java-buildpack
   - name: dotnet-core-buildpack
     release_name: dotnet-core-buildpack
-  processes:
-  - name: cloud_controller_ng
-  - name: cloud_controller_worker_local_1
-  - name: cloud_controller_worker_local_2
-  - name: route_registrar
-  - name: metron_agent
-  - name: nginx_cc
-  - name: statsd_injector
   tags:
+  - active-passive
   - sequential-startup
   run:
     scaling:
@@ -834,7 +597,7 @@ roles:
       max: 65535
       ha: 2
     capabilities: []
-    memory: 2421
+    memory: 2600
     virtual-cpus: 4
     exposed-ports:
     - name: api
@@ -846,10 +609,25 @@ roles:
     - name: statsd
       protocol: TCP
       internal: 8125
+    - name: routing-api
+      protocol: TCP
+      internal: 3000
+    - name: diego-files
+      protocol: TCP
+      internal: 8080
+    - name: cc-up-listen
+      protocol: TCP
+      internal: 9091
+    - name: cc-up-dbg
+      protocol: TCP
+      internal: 17018
+    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
     healthcheck:
       readiness:
         command:
         - curl --silent --fail http://${HOSTNAME}:9022/v2/info
+        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -864,7 +642,9 @@ roles:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
+      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.routing_api.url: 'http://127.0.0.1'
 - name: cc-worker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -880,9 +660,6 @@ roles:
     release_name: capi
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: cloud_controller_worker_1
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -904,7 +681,7 @@ roles:
                 values:
                 - cc-worker
             topologyKey: "beta.kubernetes.io/os"
-- name: blobstore
+- name: singleton-blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -921,11 +698,6 @@ roles:
     release_name: routing
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: blobstore_nginx
-  - name: blobstore_url_signer
-  - name: route_registrar
-  - name: metron_agent
   run:
     scaling:
       min: 1
@@ -948,49 +720,7 @@ roles:
       internal: 4443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: cc-clock
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/cc_clock_wait_for_api_ready.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: cloud_controller_clock
-    release_name: capi
-  - name: metron_agent
-    release_name: loggregator
-  - name: statsd_injector
-    release_name: statsd-injector
-  processes:
-  - name: cloud_controller_clock
-  - name: metron_agent
-  - name: statsd_injector
-  run:
-    scaling:
-      min: 1
-      max: 1 # Max is 1 per the description of the clock job
-    capabilities: []
-    memory: 789
-    virtual-cpus: 2
-    exposed-ports: []
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-clock
-            topologyKey: "beta.kubernetes.io/os"
+      properties.route_registrar.routes: '[{"name":"singleton-blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["singleton-blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1004,9 +734,6 @@ roles:
     release_name: loggregator
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: doppler
-  - name: metron_agent
   tags:
   - headless
   run:
@@ -1049,7 +776,7 @@ roles:
                 values:
                 - doppler
             topologyKey: "beta.kubernetes.io/os"
-- name: loggregator
+- name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -1064,30 +791,28 @@ roles:
     release_name: loggregator
   - name: metron_agent
     release_name: loggregator
+  - name: reverse_log_proxy
+    release_name: loggregator
   - name: route_registrar
     release_name: routing
-  processes:
-  - name: loggregator_trafficcontroller
-  - name: metron_agent
-  - name: route_registrar
   tag:
   - headless
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"loggregator", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
   run:
     scaling:
       min: 1
       max: 65535
       ha: 2
     capabilities: []
-    memory: 153
+    memory: 250
     virtual-cpus: 2
     exposed-ports:
     - name: dropsonde
       protocol: TCP
       internal: 8081
-    - name: grpc
+    - name: rlp
       protocol: TCP
       internal: 8082
     healthcheck:
@@ -1104,9 +829,9 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
-                - loggregator
+                - log-api
             topologyKey: "beta.kubernetes.io/os"
-- name: diego-brain
+- name: scheduler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -1114,36 +839,57 @@ roles:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_cfdot_properties.sh
+  - scripts/patches/cc_clock_wait_for_api_ready.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release_name: scf-helper
   - name: authorize-internal-ca
     release_name: scf
-  - name: auctioneer
-    release_name: diego
   - name: patch-properties
     release_name: scf-helper
+  - name: auctioneer
+    release_name: diego
+  - name: ssh_proxy
+    release_name: diego
   - name: cfdot
     release_name: diego
+  - name: tps
+    release_name: capi
+  - name: scheduler
+    release_name: cf-syslog-drain
+  - name: cloud_controller_clock
+    release_name: capi
+  - name: statsd_injector
+    release_name: statsd-injector
   - name: metron_agent
     release_name: loggregator
-  processes:
-  - name: auctioneer
-  - name: metron_agent
   tags:
   - active-passive
+  # syslog-scheduler was "headless"
   run:
     scaling:
       min: 1
       max: 3
       ha: 2
+      # syslog-scheduler (and cc-clock) had a max of 1
     capabilities: []
-    memory: 99
+    memory: 1220
     virtual-cpus: 4
     exposed-ports:
     - name: diego-auction
       protocol: TCP
       internal: 9016
+    - name: diego-ssh
+      protocol: TCP
+      internal: 2222
+      public: true
+    - name: sched-health
+      protocol: TCP
+      internal: 8080
+    healthcheck:
+      readiness:
+        command:
+        - curl --silent --fail http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1154,121 +900,17 @@ roles:
               - key: "skiff-role-name"
                 operator: In
                 values:
-                - diego-brain
+                - scheduler
             topologyKey: "beta.kubernetes.io/os"
     # Auctioneer has no useful healthcheck routes; we can only use the TCP port
     active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
-- name: cc-uploader
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: tps
-    release_name: capi
-  - name: cc_uploader
-    release_name: capi
-  - name: metron_agent
-    release_name: loggregator
-  processes:
-  - name: cc_uploader
-  - name: tps_listener
-  - name: tps_watcher
-  - name: metron_agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 129
-    virtual-cpus: 4
-    exposed-ports:
-    - name: cc-up-listen
-      protocol: TCP
-      internal: 9091
-    - name: cc-up-dbg
-      protocol: TCP
-      internal: 17018
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-uploader
-            topologyKey: "beta.kubernetes.io/os"
-- name: diego-access
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  - scripts/go_log_level.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
-  - name: authorize-internal-ca
-    release_name: scf
-  - name: ssh_proxy
-    release_name: diego
-  - name: metron_agent
-    release_name: loggregator
-  - name: file_server
-    release_name: diego
-  processes:
-  - name: file_server
-  - name: metron_agent
-  - name: ssh_proxy
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 123
-    virtual-cpus: 2
-    exposed-ports:
-    - name: diego-ssh
-      protocol: TCP
-      internal: 2222
-      public: true
-    - name: diego-files
-      protocol: TCP
-      internal: 8080
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-access
-            topologyKey: "beta.kubernetes.io/os"
 - name: nfs-broker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1350,11 +992,6 @@ roles:
     release_name: loggregator
   - name: nfsv3driver
     release_name: nfs-volume
-  processes:
-  - name: metron_agent
-  - name: rep
-  - name: route_emitter
-  - name: garden
   tags:
   - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
@@ -1414,7 +1051,7 @@ roles:
       # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: ((#TRUSTED_CERTS))"((TRUSTED_CERTS))"((/TRUSTED_CERTS))
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"' # cfdot property
+      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -1485,7 +1122,6 @@ roles:
   jobs:
   - name: generate-secrets
     release_name: scf-helper
-  processes: []
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   run:
@@ -1520,7 +1156,6 @@ roles:
     release_name: scf
   - name: configure-scf
     release_name: scf
-  processes: []
   run:
     scaling:
       min: 1
@@ -1794,7 +1429,7 @@ configuration:
       id: auctioneer_server_cert
       type: Certificate
       value_type: certificate
-      role_name: diego-brain
+      role_name: scheduler
     description: PEM-encoded server certificate
     required: true
   - name: AUCTIONEER_SERVER_KEY
@@ -2397,7 +2032,7 @@ configuration:
       id: blobstore_cert
       type: Certificate
       value_type: certificate
-      role_name: blobstore
+      role_name: singleton-blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
     required: true
   - name: BLOBSTORE_TLS_KEY
@@ -2450,7 +2085,7 @@ configuration:
       id: cc_uploader_cert
       type: Certificate
       value_type: certificate
-      role_name: cc-uploader
+      role_name: api
     description: The PEM-encoded certificate for internal cloud controller uploader traffic.
     required: true
   - name: CC_UPLOADER_KEY
@@ -2600,7 +2235,8 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - diego-locket.{{.KUBERNETES_NAMESPACE}}
+      - diego-api.{{.KUBERNETES_NAMESPACE}}
+      - 127.0.0.1
     description: PEM-encoded client certificate
     required: true
   - name: DIEGO_CLIENT_KEY
@@ -3079,7 +2715,7 @@ configuration:
       type: Certificate
       value_type: certificate
       subject_names:
-      - syslog_adapter
+      - adapter
     description: PEM-encoded certificate
     required: true
   - name: SYSLOG_ADAPT_KEY
@@ -3491,16 +3127,16 @@ configuration:
     properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_KEY))"'
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://loggregator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.capi.tps.traffic_controller_url: ws://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.watcher.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
-    properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.buildpacks.webdav_config.private_endpoint: https://singleton-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.buildpacks.webdav_config.public_endpoint: '"https://singleton-blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.database_encryption.current_key_label: '"((CC_DB_CURRENT_KEY_LABEL))"'
     properties.cc.database_encryption.keys: ((CC_DB_ENCRYPTION_KEYS))
@@ -3510,9 +3146,9 @@ configuration:
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
-    properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.cc_uploader_https_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -3520,12 +3156,12 @@ configuration:
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
-    properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.droplets.webdav_config.private_endpoint: https://singleton-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.droplets.webdav_config.public_endpoint: '"https://singleton-blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.loggregator.internal_url: http://loggregator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.cc.loggregator.internal_url: http://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3533,17 +3169,17 @@ configuration:
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
-    properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.packages.webdav_config.private_endpoint: https://singleton-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.packages.webdav_config.public_endpoint: '"https://singleton-blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
-    properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.resource_pool.webdav_config.private_endpoint: https://singleton-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.resource_pool.webdav_config.public_endpoint: '"https://singleton-blobstore.((DOMAIN))"'
     properties.cc.security_event_logging.enabled: '"((ENABLE_SECURITY_EVENT_LOGGING))"'
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -3551,16 +3187,16 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: 'database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
-    properties.cf_mysql.host: '"mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.cf_mysql.host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cfdot.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.cfdot.locket.hostname: '"diego-locket.((KUBERNETES_NAMESPACE))"'
+    properties.cfdot.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
@@ -3576,20 +3212,19 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.auctioneer.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
     properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
     properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.auctioneer.api_location: diego-brain.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
+    properties.diego.bbs.auctioneer.api_location: scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
-    properties.diego.bbs.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
@@ -3597,17 +3232,17 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.locket.api_location: diego-api.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
@@ -3649,8 +3284,8 @@ configuration:
     properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_USE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
-    properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.locks.locket.hostname: diego-locket.((KUBERNETES_NAMESPACE))
+    properties.internal_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.locks.locket.hostname: diego-api.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
@@ -3675,7 +3310,7 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: 'database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -3702,19 +3337,18 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]((/ROUTER_TLS_PEM))'
-    properties.routing_api.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
-    properties.routing_api.locket.api_location: diego-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.routing_api.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
-    properties.routing_api.sqldb.host: "mysql-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.routing_api.sqldb.host: "database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.routing_api.url: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.uri: '"http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.url: '"http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_KEY))"'
@@ -3776,5 +3410,3 @@ configuration:
     properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.version: '"((CLUSTER_VERSION))"'
-
-    

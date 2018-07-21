@@ -166,6 +166,7 @@ properties:
       port: 8081
       protocol: http
     mysql:
+      port: 13306
       startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
@@ -186,6 +187,8 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
+      locket:
+        api_location: 127.0.0.1:8891
       rep:
         require_tls: true
       skip_consul_lock: true
