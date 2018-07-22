@@ -84,3 +84,7 @@ go install github.com/docker/distribution/cmd/registry
 # docker-uploader needs to run without ld-linux.so
 CGO_ENABLED=0 go install test-resources/docker-uploader
 test -x "${GOBIN}/docker-uploader"
+
+# Install the mysql client into the package
+zypper install -y mariadb-client
+cp /usr/bin/mysql ${BIN_DIR}
