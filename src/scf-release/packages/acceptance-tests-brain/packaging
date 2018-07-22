@@ -75,9 +75,15 @@ export PATH=$GOROOT/bin:$PATH
 # We can't use a symlink because go doesn't like those
 mkdir -p "${BOSH_COMPILE_TARGET}/src"
 mv "${BOSH_COMPILE_TARGET}/github.com" "${BOSH_COMPILE_TARGET}/src/github.com"
+mv test-resources "${BOSH_COMPILE_TARGET}/src/test-resources"
 
 # We currently have no way of getting a valid version number, as we have no git repo
-GOBIN="${BIN_DIR}" go install -ldflags="-X main.version=0.0.0" github.com/SUSE/testbrain
+export GOBIN="${BIN_DIR}"
+go install -ldflags="-X main.version=0.0.0" github.com/SUSE/testbrain
+go install github.com/docker/distribution/cmd/registry
+# docker-uploader needs to run without ld-linux.so
+CGO_ENABLED=0 go install test-resources/docker-uploader
+test -x "${GOBIN}/docker-uploader"
 
 # Install the mysql client into the package
 zypper install -y mariadb-client

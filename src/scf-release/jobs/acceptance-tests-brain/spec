@@ -6,6 +6,7 @@ description: This job will run the testbrain CLI, running all acceptance test sc
 packages:
   - cli
   - acceptance-tests-brain
+  - docker-distribution
 
 templates:
   run.erb: bin/run

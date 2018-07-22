@@ -21,10 +21,7 @@ if test -n "${DOMAIN}"; then
     cp "${NETWORK_ENV}" "${TMP}"
     trap "rm -rf ${TMP}" EXIT
     NETWORK_ENV="${TMP}/$(basename "${NETWORK_ENV}")"
-    sed -e "s/^DOMAIN=.*/DOMAIN=${DOMAIN}/" \
-        -e "s/^UAA_HOST=.*/UAA_HOST=uaa.${DOMAIN}/" \
-        -e "s/^TCP_DOMAIN=.*/TCP_DOMAIN=tcp.${DOMAIN}/" \
-        -i "${NETWORK_ENV}"
+    sed -e "s/\\bcf-dev.io/${DOMAIN}/g" -i "${NETWORK_ENV}"
 fi
 
 BUILD_TARGET=kube
