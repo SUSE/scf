@@ -128,7 +128,7 @@ properties:
     staging_upload_user: staging_user
     system_hostnames:
     - api
-    - blobstore
+    - singleton-blobstore
     - doppler
     - loggregator
     - login
