@@ -41,34 +41,77 @@ properties:
     org: test-brain-org
     space: test-brain-space
   autoscaler:
+    api_server:
+      db_config:
+        idle_timeout: 100
+        max_connections: 10
+        min_connections: 0
+      info:
+        build: "beta"
+        description: "Provides autoscaling capabilities based on policies, for apps deployed on Cloud Foundry"
+        name: "SCF App Autoscaler"
+        support_url: "https://github.com/SUSE/scf"
+      require_consul: false
     appmetrics_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
       port: 5432
     binding_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
       port: 5432
+    cf:
+      client_id: "autoscaler_client_id"
+      grant_type: "password"
+      username: "admin"
+    eventgenerator:
+      enable_db_lock: "true"
+      require_consul: false
     instancemetrics_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
       port: 5432
     lock_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
       port: 5432
-    policy_db:
-      port: 5432
-    scalingengine_db:
-      port: 5432
-    scheduler_db:
-      port: 5432
-    api_server:
-      require_consul: false
-    eventgenerator:
-      require_consul: false
     metricscollector:
+      collector:
+        save_interval: "30s"
+      enable_db_lock: "true"
       require_consul: false
+    policy_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
+      port: 5432
     pruner:
+      enable_db_lock: "true"
       require_consul: false
     scalingengine:
+      consul:
+        cluster: "http://127.0.0.1:8500"
       require_consul: false
-    scheduler: 
+    scalingengine_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
+      port: 5432
+    scheduler:
+      job_reschedule_interval_millisecond: "100"
+      job_reschedule_maxcount: "6"
+      notification_reschedule_maxcount: "3"
       require_consul: false
+    scheduler_db:
+      databases: [{"name": "autoscaler", "tag": "default"}]
+      db_scheme: "postgres"
+      port: 5432
     service_broker:
+      db_config:
+        idle_timeout: 1000
+        max_connections: 10
+        min_connections: 0
+      http_request_timeout: 5000
       require_consul: false
+      username: "username"
   capi:
     tps:
       watcher:
