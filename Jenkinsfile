@@ -57,7 +57,7 @@ void runTest(String testName) {
             --attach \
             --restart=Never \
             --image=\${image} \
-            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml")" \
+            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath")" \
             "${testName}"
     """
 }

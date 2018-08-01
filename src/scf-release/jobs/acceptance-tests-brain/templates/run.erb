@@ -3,6 +3,7 @@
 set -o errexit
 
 export PATH="/var/vcap/packages/cli/bin:${PATH}"
+export PATH="/var/vcap/packages/kubectl/bin:${PATH}"
 export PATH="/var/vcap/packages/acceptance-tests-brain/bin:${PATH}"
 
 source /var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
@@ -10,6 +11,12 @@ source /var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
 export BRAIN=/var/vcap/packages/acceptance-tests-brain
 export ASSETS="${BRAIN}/test-resources"
 export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
+
+# Announce the versions of the helper apps used by this job. This also
+# causes an early abort if these are somehow missing, or not
+# accessible/found through the PATH.
+cf version
+kubectl version
 
 shopt -s nullglob
 for i in "${ASSETS}/plugins/"*; do

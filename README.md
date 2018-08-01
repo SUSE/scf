@@ -763,7 +763,7 @@ docker run -d --name nfs \
     -p 892:892/udp \
     -p 892:892/tcp \
     --privileged \
-    viovanov/nfs-server /exports/foo
+    splatform/nfs-test-server /exports/foo
 ```
 
 ### Allow access to the NFS server
