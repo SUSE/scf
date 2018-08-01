@@ -1315,6 +1315,7 @@ roles:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
   - scripts/go_log_level.sh
+  - scripts/configure-garden-filesystem.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -2658,6 +2659,10 @@ configuration:
   - name: GARDEN_APPARMOR_PROFILE
     default: garden-default
     description: AppArmor profile name for garden-runc; set this to empty string to disable AppArmor support
+  - name: GARDEN_DISABLE_BTRFS
+    default: ""
+    description: An empty value means BTRFS is used. It's set to "true" by a script if GARDEN_ROOTFS_DRIVER is set to overlay-xfs.
+    type: environment
   - name: GARDEN_DOCKER_REGISTRY
     default: registry-1.docker.io
     description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
@@ -2665,9 +2670,11 @@ configuration:
   - name: GARDEN_LINUX_DNS_SERVER
     default: ""
     description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
-  - name: GARDEN_USE_BTRFS
-    default: ""
-    description: An empty value means BTRFS is used. Set to "false" to use overlay-xfs.
+  - name: GARDEN_ROOTFS_DRIVER
+    default: btrfs
+    description: The filesystem driver to use (btrfs or overlay-xfs).
+    required: true
+    internal: true
   - name: GO_LOG_LEVEL
     type: environment
     description: >
@@ -3637,16 +3644,16 @@ configuration:
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
     properties.garden.https_proxy: '"((HTTPS_PROXY))"'
-    properties.garden.image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
-    properties.garden.image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs.yaml"]((/GARDEN_USE_BTRFS))
+    properties.garden.image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
+    properties.garden.image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs.yaml"]((/GARDEN_DISABLE_BTRFS))
     properties.garden.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.garden.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
     properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
-    properties.garden.privileged_image_plugin: "((^GARDEN_USE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_USE_BTRFS))"
-    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_USE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_USE_BTRFS))
+    properties.garden.privileged_image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
+    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_DISABLE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
