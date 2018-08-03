@@ -350,6 +350,25 @@ def check_rm_variables(manifest)
     STDOUT.puts "role manifest variable #{variable['name'].red} was not found in any role manifest template"
     @has_errors += 1
   end
+
+  manifest['configuration']['variables'].each do |variable|
+    no_description = variable["description"].to_s.strip.empty? 
+
+    next unless no_description
+
+    STDOUT.puts "role manifest variable #{variable['name'].red} has an empty description"
+    @has_errors += 1
+  end
+
+  manifest['configuration']['variables'].each do |variable|
+    is_generated = !variable["generator"].nil? 
+    is_marked_required = variable["required"]
+
+    next unless is_generated && is_marked_required
+
+    STDOUT.puts "role manifest variable #{variable['name'].red} is generated and has 'required: true'"
+    @has_errors += 1
+  end
 end
 
 def global_variables(manifest)
