@@ -1445,6 +1445,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: metricscollector
     release: app-autoscaler
   - name: eventgenerator
@@ -1478,6 +1480,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: scalingengine
     release: app-autoscaler
   - name: scheduler
@@ -1822,17 +1826,6 @@ configuration:
     default: "postgres"
     description: ""
 
-  - name: AUTOSCALER_CF_GRANT_TYPE
-    default: "password"
-    description: "password or client_credentials"
-
-  - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
-    default: true
-    description: ""
-  - name: AUTOSCALER_CF_USERNAME
-    default: "admin"
-    description: ""
-
   - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
     default: 1000
     description: ""
@@ -2119,9 +2112,6 @@ configuration:
     default: "username"
     description: ""
 
-  - name: AUTOSCALER_UAA_CLIENT_ID
-    default: "autoscaler_client_id"
-    description: "the uaa client id used by autoscaler"
   - name: AUTOSCALER_UAA_CLIENT_SECRET
     default: "autoscaler_client_secret"
     description: "the uaa client secret used by autoscaler"
@@ -3165,12 +3155,7 @@ configuration:
     properties.autoscaler.binding_db.port: '"((AUTOSCALER_BINDING_DB_PORT))"'
     properties.autoscaler.binding_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.cf.api: '"https://api.((DOMAIN))"'
-    properties.autoscaler.cf.client_id: '"((AUTOSCALER_UAA_CLIENT_ID))"'
-    properties.autoscaler.cf.grant_type: '"((AUTOSCALER_CF_GRANT_TYPE))"'
-    properties.autoscaler.cf.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
-    properties.autoscaler.cf.skip_ssl_validation: '((AUTOSCALER_CF_SKIP_SSL_VALIDATION))'
-    properties.autoscaler.cf.username: '"((AUTOSCALER_CF_USERNAME))"'
     properties.autoscaler.eventgenerator.aggregator.aggregator_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL))"'
     properties.autoscaler.eventgenerator.aggregator.app_metric_channel_size: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE))"'
     properties.autoscaler.eventgenerator.aggregator.app_monitor_channel_size: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE))'
@@ -3586,6 +3571,7 @@ configuration:
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
+    properties.uaa.clients.app_autoscaler.secret: ((AUTOSCALER_UAA_CLIENT_SECRET))
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET))"'
     properties.uaa.clients.cc_routing.secret: '"((UAA_CLIENTS_CC_ROUTING_SECRET))"'
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'

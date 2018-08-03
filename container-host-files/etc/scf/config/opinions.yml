@@ -40,6 +40,12 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
+  autoscaler:
+    cf:
+      client_id: app_autoscaler
+      grant_type: client_credentials
+      password: "" # unused
+      username: "" # unused
   capi:
     tps:
       watcher:
@@ -306,6 +312,10 @@ properties:
       # Note that these clients are overridden in the dev-only UAA role; that is
       # instead used to bootstrap the default zone, whereas all of these clients
       # go into the SCF zone.
+      app_autoscaler:
+        # Requires read-only admin to look up stats, and write admin to do scaling
+        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin
+        authorized-grant-types: client_credentials
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
