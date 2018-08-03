@@ -117,7 +117,7 @@ function test_cleanup() {
     # - temp directory
 
     cf delete-service -f "${SERVICE_INSTANCE}"
-    yes | cf usb delete-driver-endpoint "${SERVICE_TYPE}"
+    yes | cf usb-delete-driver-endpoint "${SERVICE_TYPE}"
     cf delete -f "${SIDECAR_APP}"
     cf delete -f "${SERVER_APP}"
     cf unbind-running-security-group internal-services-workaround
@@ -164,7 +164,7 @@ wait_on_database "${MYSQL_PORT}" "${MYSQL_USER}" "${MYSQL_PASS}"
 
 ## --(2)-- Create and configure the mysql client sidecar for usb.
 
-cf push "${SIDECAR_APP}" --no-start -o splatform/cf-usb-sidecar-dev-mysql
+cf push "${SIDECAR_APP}" --no-start -o registry.suse.com/cap/cf-usb-sidecar-mysql:1.0.1
 
 # Use a secret key that will be used by the USB to talk to your
 # sidecar, and set the connection parameters for the mysql client
@@ -179,7 +179,7 @@ cf start   "${SIDECAR_APP}"
 
 # --(3)-- Create a driver endpoint to the mysql sidecar (== service type)
 # Note that the -c ":" is required as a workaround to a known issue
-cf usb create-driver-endpoint "${SERVICE_TYPE}" \
+cf usb-create-driver-endpoint "${SERVICE_TYPE}" \
     "https://${SIDECAR_APP}.${CF_DOMAIN}" \
     "${SIDECAR_API_KEY}" \
     -c ":"
