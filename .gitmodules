@@ -45,7 +45,7 @@
 	url = https://github.com/SUSE/cf-opensuse42-release.git
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
-	url = https://github.com/SUSE/uaa-fissile-release
+	url = https://github.com/mook-as/uaa-fissile-release
 [submodule "src/cf-usb"]
 	path = src/cf-usb
 	url = https://github.com/SUSE/cf-usb
@@ -75,7 +75,7 @@
 	url = https://github.com/SUSE/cf-java-buildpack-release.git
 [submodule "src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
 	path = src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
+	url = https://github.com/mook-as/cf-acceptance-tests.git
 [submodule "src/cf-syslog-drain-release"]
 	path = src/cf-syslog-drain-release
 	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git
