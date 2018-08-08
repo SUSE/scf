@@ -397,7 +397,7 @@ def check_bosh_properties(defs, bosh_properties, check_type)
 
     next if property_exists_in_bosh?(bosh_property, bosh_properties)
     STDOUT.puts "#{check_type} #{bosh_property.red} was not found in any bosh release"
-    @has_errors += 1
+    #@has_errors += 1
   end
 end
 
