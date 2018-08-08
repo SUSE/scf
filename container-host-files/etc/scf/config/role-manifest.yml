@@ -11,6 +11,12 @@ instance_groups:
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
+    properties:
+      bosh_containerization:
+        ports:
+        - name: sched-health
+          protocol: TCP
+          internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -21,10 +27,6 @@ instance_groups:
     capabilities: []
     memory: 69
     virtual-cpus: 2
-    exposed-ports:
-    - name: sched-health
-      protocol: TCP
-      internal: 8080
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -52,6 +54,15 @@ instance_groups:
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
+    properties:
+      bosh_containerization:
+        ports:
+        - name: adapter
+          protocol: TCP
+          internal: 4443
+        - name: adapter-health
+          protocol: TCP
+          internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -62,13 +73,6 @@ instance_groups:
     capabilities: []
     memory: 78
     virtual-cpus: 2
-    exposed-ports:
-    - name: adapter
-      protocol: TCP
-      internal: 4443
-    - name: adapter-health
-      protocol: TCP
-      internal: 8080
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -102,8 +106,25 @@ instance_groups:
     provides:
       consul_common: {}
       consul_server: {}
-  tags:
-  - headless
+    properties:
+      bosh_containerization:
+        ports:
+        - name: consul-server
+          external: 8300
+          internal: 8300
+          protocol: TCP
+        - name: consul-http
+          external: 8500
+          internal: 8500
+          protocol: TCP
+        - name: serf-tcp
+          external: 8301
+          internal: 8301
+          protocol: TCP
+        - name: serf-udp
+          external: 8301
+          internal: 8301
+          protocol: UDP
   run:
     scaling:
       min: 0
@@ -112,23 +133,6 @@ instance_groups:
       must_be_odd: true
     memory: 256
     virtual-cpus: 1
-    exposed-ports:
-    - name: consul-server
-      external: 8300
-      internal: 8300
-      protocol: TCP
-    - name: consul-http
-      external: 8500
-      internal: 8500
-      protocol: TCP
-    - name: serf-tcp
-      external: 8301
-      internal: 8301
-      protocol: TCP
-    - name: serf-udp
-      external: 8301
-      internal: 8301
-      protocol: UDP
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -162,6 +166,15 @@ instance_groups:
     release: nats
     provides:
       nats: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nats
+          protocol: TCP
+          internal: 4222
+        - name: nats-routes
+          protocol: TCP
+          internal: 4223
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -172,13 +185,6 @@ instance_groups:
     capabilities: []
     memory: 60
     virtual-cpus: 2
-    exposed-ports:
-    - name: nats
-      protocol: TCP
-      internal: 4222
-    - name: nats-routes
-      protocol: TCP
-      internal: 4223
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -210,10 +216,43 @@ instance_groups:
     release: cf-mysql
     provides:
       mysql: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: mysql
+          protocol: TCP
+          internal: 13306
+        - name: galera-tcp
+          protocol: TCP
+          internal: 4567
+        - name: galera-udp
+          protocol: UDP
+          internal: 4567
+        - name: galera-ist
+          protocol: TCP
+          internal: 4568
+        - name: healthcheck
+          protocol: TCP
+          internal: 9200
+        - name: xtrabackup
+          protocol: TCP
+          internal: 4444
   - name: proxy
     release: cf-mysql
     provides:
       proxy: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api-proxy
+          protocol: TCP
+          internal: 8080
+        - name: mysql-proxy
+          protocol: TCP
+          internal: 3306
+        - name: healthck-proxy
+          protocol: TCP
+          internal: 1936
   tags:
   - sequential-startup
   run:
@@ -229,34 +268,6 @@ instance_groups:
       size: 20
     memory: 2950
     virtual-cpus: 2
-    exposed-ports:
-    - name: mysql
-      protocol: TCP
-      internal: 13306
-    - name: galera-tcp
-      protocol: TCP
-      internal: 4567
-    - name: galera-udp
-      protocol: UDP
-      internal: 4567
-    - name: galera-ist
-      protocol: TCP
-      internal: 4568
-    - name: healthcheck
-      protocol: TCP
-      internal: 9200
-    - name: xtrabackup
-      protocol: TCP
-      internal: 4444
-    - name: mysql-proxy
-      protocol: TCP
-      internal: 3306
-    - name: api-proxy
-      protocol: TCP
-      internal: 8080
-    - name: healthck-proxy
-      protocol: TCP
-      internal: 1936
     healthcheck:
       readiness:
         command:
@@ -296,6 +307,12 @@ instance_groups:
     release: postgres
     provides:
       postgres: { as: postgres-database }
+    properties:
+      bosh_containerization:
+        ports:
+        - name: postgres
+          protocol: TCP
+          internal: 5524
   tags:
   - sequential-startup
   run:
@@ -310,12 +327,6 @@ instance_groups:
       size: 20
     memory: 3072
     virtual-cpus: 2
-    exposed-ports:
-    - name: postgres
-      protocol: TCP
-      external: 5524
-      internal: 5524
-      public: false
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -347,6 +358,15 @@ instance_groups:
     release: scf
   - name: cf-usb
     release: cf-usb
+    properties:
+      bosh_containerization:
+        ports:
+        - name: usb
+          protocol: TCP
+          internal: 24054
+        - name: usb2
+          protocol: TCP
+          internal: 24053
   - name: route_registrar
     release: routing
   tags:
@@ -359,13 +379,6 @@ instance_groups:
     capabilities: []
     memory: 117
     virtual-cpus: 2
-    exposed-ports:
-    - name: 'usb'
-      protocol: 'TCP'
-      internal: 24054
-    - name: 'usb2'
-      protocol: 'TCP'
-      internal: 24053
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -395,6 +408,15 @@ instance_groups:
     release: scf
   - name: bbs
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: cell-bbs-api
+          protocol: TCP
+          internal: 8889
+        - name: cell-bbs-dbg
+          protocol: TCP
+          internal: 17017
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -403,6 +425,12 @@ instance_groups:
     release: loggregator-agent
   - name: locket
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: locket
+          protocol: TCP
+          internal: 8891
   tags:
   - active-passive
   - sequential-startup
@@ -414,16 +442,6 @@ instance_groups:
     capabilities: []
     memory: 310
     virtual-cpus: 2
-    exposed-ports:
-    - name: cell-bbs-api
-      protocol: TCP
-      internal: 8889
-    - name: cell-bbs-dbg
-      protocol: TCP
-      internal: 17017
-    - name: locket
-      protocol: TCP
-      internal: 8891
     active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
     healthcheck:
       readiness:
@@ -463,6 +481,23 @@ instance_groups:
     release: scf
   - name: gorouter
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: router
+          protocol: TCP
+          external: 80
+          internal: 8000
+          public: true
+        - name: router-ssl
+          protocol: TCP
+          internal: 443
+          public: true
+        - name: doppler-ssl
+          protocol: TCP
+          external: 4443
+          internal: 443
+          public: true
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -473,21 +508,6 @@ instance_groups:
     capabilities: []
     memory: 135
     virtual-cpus: 4
-    exposed-ports:
-    - name: router
-      protocol: TCP
-      external: 80
-      internal: 8000
-      public: true
-    - name: router-ssl
-      protocol: TCP
-      internal: 443
-      public: true
-    - name: doppler-ssl
-      protocol: TCP
-      external: 4443
-      internal: 443
-      public: true
     healthcheck:
       readiness:
         command:
@@ -532,6 +552,19 @@ instance_groups:
     release: scf
   - name: tcp_router
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: healthcheck
+          protocol: TCP
+          external: 2341
+          internal: 8080
+        - name: tcp-route
+          protocol: TCP
+          internal: 20000-20008
+          public: true
+          count-configurable: true
+          max: 20
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -542,17 +575,6 @@ instance_groups:
     capabilities: []
     memory: 99
     virtual-cpus: 2
-    exposed-ports:
-    - name: healthcheck
-      protocol: TCP
-      external: 2341
-      internal: 8080
-    - name: tcp-route
-      protocol: TCP
-      internal: 20000-20008
-      public: true
-      count-configurable: true
-      max: 20
     healthcheck:
       readiness:
         command:
@@ -588,6 +610,12 @@ instance_groups:
     release: loggregator-agent
   - name: routing-api
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: routing-api
+          protocol: TCP
+          internal: 3000
   tags:
   - active-passive
   - sequential-startup
@@ -599,10 +627,6 @@ instance_groups:
     capabilities: []
     memory: 114
     virtual-cpus: 4
-    exposed-ports:
-    - name: routing-api
-      protocol: TCP
-      internal: 3000
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -639,6 +663,18 @@ instance_groups:
     release: scf-helper
   - name: cloud_controller_ng
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api
+          protocol: TCP
+          internal: 9022
+        - name: api-tls
+          protocol: TCP
+          internal: 9023
+        - name: statsd
+          protocol: TCP
+          internal: 8125
   - name: loggregator_agent
     release: loggregator-agent
   - name: route_registrar
@@ -673,16 +709,6 @@ instance_groups:
     capabilities: []
     memory: 2421
     virtual-cpus: 4
-    exposed-ports:
-    - name: api
-      protocol: TCP
-      internal: 9022
-    - name: api-tls
-      protocol: TCP
-      internal: 9023
-    - name: statsd
-      protocol: TCP
-      internal: 8125
     healthcheck:
       readiness:
         command:
@@ -725,7 +751,6 @@ instance_groups:
     capabilities: []
     memory: 753
     virtual-cpus: 2
-    exposed-ports: []
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -751,6 +776,15 @@ instance_groups:
     release: scf-helper
   - name: blobstore
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: blobstore-ext
+          protocol: TCP
+          internal: 8080
+        - name: blobstore
+          protocol: TCP
+          internal: 4443
   - name: route_registrar
     release: routing
   - name: loggregator_agent
@@ -768,13 +802,6 @@ instance_groups:
       size: 50
     memory: 420
     virtual-cpus: 2
-    exposed-ports:
-    - name: blobstore-ext
-      protocol: TCP
-      internal: 8080
-    - name: blobstore
-      protocol: TCP
-      internal: 4443
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -804,7 +831,6 @@ instance_groups:
     capabilities: []
     memory: 789
     virtual-cpus: 2
-    exposed-ports: []
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -828,10 +854,26 @@ instance_groups:
     release: scf-helper
   - name: doppler
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: dropsonde-udp
+          protocol: UDP
+          internal: 3457
+        - name: dropsonde-tcp
+          protocol: TCP
+          internal: 3458
+        - name: doppler-tls
+          protocol: TCP
+          internal: 3459
+        - name: doppler-ws
+          protocol: TCP
+          internal: 8081
+        - name: doppler-grpc
+          protocol: TCP
+          internal: 8082
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -840,22 +882,6 @@ instance_groups:
     capabilities: []
     memory: 390
     virtual-cpus: 2
-    exposed-ports:
-    - name: dropsonde-udp
-      protocol: UDP
-      internal: 3457
-    - name: dropsonde-tcp
-      protocol: TCP
-      internal: 3458
-    - name: doppler-tls
-      protocol: TCP
-      internal: 3459
-    - name: doppler-ws
-      protocol: TCP
-      internal: 8081
-    - name: doppler-grpc
-      protocol: TCP
-      internal: 8082
     healthcheck:
       readiness:
         command:
@@ -885,10 +911,22 @@ instance_groups:
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: dropsonde
+          protocol: TCP
+          internal: 8081
   - name: loggregator_agent
     release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rlp
+          protocol: TCP
+          internal: 8082
   - name: route_registrar
     release: routing
   configuration:
@@ -902,13 +940,6 @@ instance_groups:
     capabilities: []
     memory: 250
     virtual-cpus: 2
-    exposed-ports:
-    - name: dropsonde
-      protocol: TCP
-      internal: 8081
-    - name: rlp
-      protocol: TCP
-      internal: 8082
     healthcheck:
       readiness:
         command:
@@ -939,6 +970,12 @@ instance_groups:
     release: scf
   - name: auctioneer
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-auction
+          protocol: TCP
+          internal: 9016
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -955,10 +992,6 @@ instance_groups:
     capabilities: []
     memory: 99
     virtual-cpus: 4
-    exposed-ports:
-    - name: diego-auction
-      protocol: TCP
-      internal: 9016
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -996,6 +1029,15 @@ instance_groups:
     release: capi
   - name: cc_uploader
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: cc-up-listen
+          protocol: TCP
+          internal: 9091
+        - name: cc-up-dbg
+          protocol: TCP
+          internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -1006,13 +1048,6 @@ instance_groups:
     capabilities: []
     memory: 129
     virtual-cpus: 4
-    exposed-ports:
-    - name: cc-up-listen
-      protocol: TCP
-      internal: 9091
-    - name: cc-up-dbg
-      protocol: TCP
-      internal: 17018
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1039,10 +1074,23 @@ instance_groups:
     release: scf
   - name: ssh_proxy
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-ssh
+          protocol: TCP
+          internal: 2222
+          public: true
   - name: loggregator_agent
     release: loggregator-agent
   - name: file_server
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-files
+          protocol: TCP
+          internal: 8080
   run:
     scaling:
       min: 1
@@ -1051,14 +1099,6 @@ instance_groups:
     capabilities: []
     memory: 123
     virtual-cpus: 2
-    exposed-ports:
-    - name: diego-ssh
-      protocol: TCP
-      internal: 2222
-      public: true
-    - name: diego-files
-      protocol: TCP
-      internal: 8080
     healthcheck:
       readiness:
         command:
@@ -1091,6 +1131,12 @@ instance_groups:
     release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nfsbroker
+          protocol: TCP
+          internal: 8999
   tags:
   - sequential-startup
   run:
@@ -1101,10 +1147,6 @@ instance_groups:
     capabilities: [ALL]
     memory: 63
     virtual-cpus: 2
-    exposed-ports:
-    - name: nfsbroker
-      protocol: TCP
-      internal: 8999
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1137,6 +1179,12 @@ instance_groups:
     release: scf
   - name: rep
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rep-server
+          protocol: TCP
+          internal: 1801
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -1157,6 +1205,15 @@ instance_groups:
     release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nfs-driver
+          protocol: TCP
+          internal: 7589
+        - name: nfs-admin
+          protocol: TCP
+          internal: 7590
   # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
@@ -1175,16 +1232,6 @@ instance_groups:
       tag: host-cgroup
     memory: 4677
     virtual-cpus: 4
-    exposed-ports:
-    - name: rep-server
-      protocol: TCP
-      internal: 1801
-    - name: nfs-driver
-      protocol: TCP
-      internal: 7589
-    - name: nfs-admin
-      protocol: TCP
-      internal: 7590
     healthcheck:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
@@ -1238,7 +1285,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
     service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
@@ -1259,7 +1305,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1281,7 +1326,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1297,7 +1341,6 @@ instance_groups:
     capabilities: []
     memory: 256
     virtual-cpus: 1
-    exposed-ports: []
     service-account: secret-generator
   configuration:
     templates:
@@ -1391,6 +1434,13 @@ instance_groups:
     release: scf-helper
   - name: postgres
     release: postgres
+    properties:
+      bosh_containerization:
+        ports:
+        - name: postgres
+          protocol: TCP
+          external: 5432
+          internal: 5432
   processes:
   - name: postgres
   run:
@@ -1407,11 +1457,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports:
-    - name: postgres
-      protocol: TCP
-      external: 5432
-      internal: 5432
     healthcheck:
       readiness:
   configuration:
@@ -1427,12 +1472,36 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties  # needs to be first so images use it for processing monit templates
     release: scf-helper
   - name: apiserver
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api  # apiserverport
+          protocol: TCP
+          external: 7100
+          internal: 7100
+        - name: api-public  # apiserverpublicport
+          protocol: TCP
+          external: 7106
+          internal: 7106
+          public: true
   - name: servicebroker
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: broker
+          protocol: TCP
+          external: 7107
+          internal: 7107
+        - name: broker-public  # brokerpublicport
+          protocol: TCP
+          external: 7101
+          internal: 7101
+          public: true
   - name: route_registrar
     release: routing
   processes:
@@ -1449,25 +1518,6 @@ instance_groups:
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
-    exposed-ports:
-    - name: api #apiserverport
-      protocol: TCP
-      external: 7100
-      internal: 7100
-    - name: api-public #apiserverpublicport
-      protocol: TCP
-      external: 7106
-      internal: 7106
-      public: true
-    - name: broker
-      protocol: TCP
-      external: 7107
-      internal: 7107
-    - name: broker-public #brokerpublicport
-      protocol: TCP
-      external: 7101
-      internal: 7101
-      public: true
     healthcheck:
       readiness:
   configuration:
@@ -1486,8 +1536,22 @@ instance_groups:
     release: scf
   - name: metricscollector
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: metrics  # metricscollectorport
+          protocol: TCP
+          external: 7103
+          internal: 7103
   - name: eventgenerator
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: eventgen  # eventgenereatorport
+          protocol: TCP
+          external: 7105
+          internal: 7105
   processes:
   - name: metricscollector
   - name: eventgenerator
@@ -1501,15 +1565,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 4
-    exposed-ports:
-    - name: metrics #metricscollectorport
-      protocol: TCP
-      external: 7103
-      internal: 7103
-    - name: eventgen #eventgenereatorport
-      protocol: TCP
-      external: 7105
-      internal: 7105
     healthcheck:
       readiness:
 - name: autoscaler-actors
@@ -1525,8 +1580,22 @@ instance_groups:
     release: scf
   - name: scalingengine
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: scaling-engine  # scalingengineport
+          protocol: TCP
+          external: 7104
+          internal: 7104
   - name: scheduler
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: scheduler  # schedulerport
+          protocol: TCP
+          external: 7102
+          internal: 7102
   - name: pruner
     release: app-autoscaler
   processes:
@@ -1543,15 +1612,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports:
-    - name: scaling-engine #scalingengineport
-      protocol: TCP
-      external: 7104
-      internal: 7104
-    - name: scheduler #schedulerport
-      protocol: TCP
-      external: 7102
-      internal: 7102
     healthcheck:
       readiness:
 - name: autoscaler-smoke
