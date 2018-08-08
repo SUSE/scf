@@ -13,8 +13,6 @@ instance_groups:
     release: cf-syslog-drain
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -56,8 +54,6 @@ instance_groups:
     release: cf-syslog-drain
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling: # one per 500 drains
       min: 1
@@ -219,7 +215,6 @@ instance_groups:
     provides:
       proxy: {}
   tags:
-  - headless
   - sequential-startup
   run:
     scaling:
@@ -302,7 +297,6 @@ instance_groups:
     provides:
       postgres: { as: postgres-database }
   tags:
-  - headless
   - sequential-startup
   run:
     scaling:
@@ -471,8 +465,6 @@ instance_groups:
     release: routing
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -899,8 +891,6 @@ instance_groups:
     release: loggregator
   - name: route_registrar
     release: routing
-  tag:
-  - headless
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1167,8 +1157,6 @@ instance_groups:
     release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
-  tags:
-  - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
