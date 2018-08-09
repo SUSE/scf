@@ -18,8 +18,8 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1
-      ha: 1
+      max: 3
+      ha: 2
     capabilities: []
     memory: 69
     virtual-cpus: 2
@@ -808,7 +808,8 @@ roles:
   run:
     scaling:
       min: 1
-      max: 1 # Max is 1 per the description of the clock job
+      max: 3
+      ha: 2
     capabilities: []
     memory: 789
     virtual-cpus: 2
