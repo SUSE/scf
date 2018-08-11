@@ -263,6 +263,7 @@ properties:
   router:
     enable_ssl: true
     extra_headers_to_log: null
+    port: 8000
     requested_route_registration_interval_in_seconds: null
     route_services_timeout: null
     secure_cookies: null
@@ -305,6 +306,8 @@ properties:
     skip_cert_verify: false
   tcp:
     enabled: true
+  tcp_router:
+    health_check_port: 8080
   traffic_controller:
     locked_memory_limit: kernel
   uaa:

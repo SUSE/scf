@@ -256,9 +256,9 @@ instance_groups:
     - name: mysql-proxy
       protocol: TCP
       internal: 3306
-    - name: api
+    - name: api-proxy
       protocol: TCP
-      internal: 80
+      internal: 8080
     - name: healthck-proxy
       protocol: TCP
       internal: 1936
@@ -485,13 +485,14 @@ instance_groups:
     exposed-ports:
     - name: router
       protocol: TCP
-      internal: 80
+      external: 80
+      internal: 8000
       public: true
-    - name: router2
+    - name: router-ssl
       protocol: TCP
       internal: 443
       public: true
-    - name: router3
+    - name: doppler-ssl
       protocol: TCP
       external: 4443
       internal: 443
@@ -554,7 +555,7 @@ instance_groups:
     - name: healthcheck
       protocol: TCP
       external: 2341
-      internal: 80
+      internal: 8080
     - name: tcp-route
       protocol: TCP
       internal: 20000-20008
@@ -564,7 +565,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}/health
+        - curl --silent --fail http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
