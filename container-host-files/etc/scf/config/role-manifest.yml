@@ -1,5 +1,5 @@
 ---
-roles:
+instance_groups:
 - name: syslog-scheduler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -8,11 +8,11 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: scheduler
-    release_name: cf-syslog-drain
+    release: cf-syslog-drain
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   tags:
   - headless
   run:
@@ -51,11 +51,11 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: adapter
-    release_name: cf-syslog-drain
+    release: cf-syslog-drain
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   tags:
   - headless
   run:
@@ -97,9 +97,9 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: consul_agent
-    release_name: consul
+    release: consul
     consumes:
       consul_common: {}
       consul_server: {}
@@ -161,13 +161,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: nats
-    release_name: nats
+    release: nats
     provides:
       nats: {}
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   run:
     scaling:
       min: 1
@@ -207,15 +207,15 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: patch-properties
-    release_name: scf-helper
+    release: scf-helper
   - name: mysql
-    release_name: cf-mysql
+    release: cf-mysql
     provides:
       mysql: {}
   - name: proxy
-    release_name: cf-mysql
+    release: cf-mysql
     provides:
       proxy: {}
   tags:
@@ -296,9 +296,9 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: postgres
-    release_name: postgres
+    release: postgres
     provides:
       postgres: { as: postgres-database }
   tags:
@@ -348,13 +348,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: cf-usb
-    release_name: cf-usb
+    release: cf-usb
   - name: route_registrar
-    release_name: routing
+    release: routing
   tags:
   - sequential-startup
   run:
@@ -397,19 +397,19 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: bbs
-    release_name: diego
+    release: diego
   - name: patch-properties
-    release_name: scf-helper
+    release: scf-helper
   - name: cfdot
-    release_name: diego
+    release: diego
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: locket
-    release_name: diego
+    release: diego
   tags:
   - active-passive
   - sequential-startup
@@ -466,13 +466,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: gorouter
-    release_name: routing
+    release: routing
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   tags:
   - headless
   run:
@@ -534,15 +534,15 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: wait-for-uaa
-    release_name: scf
+    release: scf
   - name: tcp_router
-    release_name: routing
+    release: routing
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   run:
     scaling:
       min: 1
@@ -590,13 +590,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: routing-api
-    release_name: routing
+    release: routing
   tags:
   - active-passive
   - sequential-startup
@@ -641,37 +641,37 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: patch-properties
-    release_name: scf-helper
+    release: scf-helper
   - name: cloud_controller_ng
-    release_name: capi
+    release: capi
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: route_registrar
-    release_name: routing
+    release: routing
   - name: statsd_injector
-    release_name: statsd-injector
+    release: statsd-injector
   - name: go-buildpack
-    release_name: go-buildpack
+    release: go-buildpack
   - name: binary-buildpack
-    release_name: binary-buildpack
+    release: binary-buildpack
   - name: nodejs-buildpack
-    release_name: nodejs-buildpack
+    release: nodejs-buildpack
   - name: ruby-buildpack
-    release_name: ruby-buildpack
+    release: ruby-buildpack
   - name: php-buildpack
-    release_name: php-buildpack
+    release: php-buildpack
   - name: python-buildpack
-    release_name: python-buildpack
+    release: python-buildpack
   - name: staticfile-buildpack
-    release_name: staticfile-buildpack
+    release: staticfile-buildpack
   - name: java-buildpack
-    release_name: java-buildpack
+    release: java-buildpack
   - name: dotnet-core-buildpack
-    release_name: dotnet-core-buildpack
+    release: dotnet-core-buildpack
   tags:
   - sequential-startup
   run:
@@ -719,13 +719,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: cloud_controller_worker
-    release_name: capi
+    release: capi
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   run:
     scaling:
       min: 1
@@ -757,13 +757,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: blobstore
-    release_name: capi
+    release: capi
   - name: route_registrar
-    release_name: routing
+    release: routing
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   run:
     scaling:
       min: 1
@@ -796,15 +796,15 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: cloud_controller_clock
-    release_name: capi
+    release: capi
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: statsd_injector
-    release_name: statsd-injector
+    release: statsd-injector
   run:
     scaling:
       min: 1
@@ -833,11 +833,11 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: doppler
-    release_name: loggregator
+    release: loggregator
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   tags:
   - headless
   run:
@@ -888,17 +888,17 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: loggregator_trafficcontroller
-    release_name: loggregator
+    release: loggregator
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: reverse_log_proxy
-    release_name: loggregator
+    release: loggregator
   - name: route_registrar
-    release_name: routing
+    release: routing
   tag:
   - headless
   configuration:
@@ -945,17 +945,17 @@ roles:
   - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: auctioneer
-    release_name: diego
+    release: diego
   - name: patch-properties
-    release_name: scf-helper
+    release: scf-helper
   - name: cfdot
-    release_name: diego
+    release: diego
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   tags:
   - active-passive
   run:
@@ -1000,15 +1000,15 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: tps
-    release_name: capi
+    release: capi
   - name: cc_uploader
-    release_name: capi
+    release: capi
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   run:
     scaling:
       min: 1
@@ -1045,15 +1045,15 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: ssh_proxy
-    release_name: diego
+    release: diego
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: file_server
-    release_name: diego
+    release: diego
   run:
     scaling:
       min: 1
@@ -1095,13 +1095,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: nfsbroker
-    release_name: nfs-volume
+    release: nfs-volume
   tags:
   - sequential-startup
   run:
@@ -1142,33 +1142,33 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: wait-for-uaa
-    release_name: scf
+    release: scf
   - name: rep
-    release_name: diego
+    release: diego
   - name: patch-properties
-    release_name: scf-helper
+    release: scf-helper
   - name: cfdot
-    release_name: diego
+    release: diego
   - name: route_emitter
-    release_name: diego
+    release: diego
   - name: garden
-    release_name: garden-runc
+    release: garden-runc
   - name: groot-btrfs
-    release_name: groot-btrfs
+    release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
-    release_name: cflinuxfs2
+    release: cflinuxfs2
   - name: opensuse42-rootfs-setup
-    release_name: cf-opensuse42
+    release: cf-opensuse42
   - name: cf-sle12-setup
-    release_name: cf-sle12
+    release: cf-sle12
   - name: metron_agent
-    release_name: loggregator
+    release: loggregator
   - name: nfsv3driver
-    release_name: nfs-volume
+    release: nfs-volume
   tags:
   - headless
   # Role needs volume claim templates (see storage below), no LB => clustered
@@ -1241,11 +1241,11 @@ roles:
   - stop-on-failure
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: acceptance-tests-brain
-    release_name: scf
+    release: scf
   run:
     scaling:
       min: 0
@@ -1262,11 +1262,11 @@ roles:
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: acceptance-tests
-    release_name: scf
+    release: scf
   run:
     scaling:
       min: 0
@@ -1283,11 +1283,11 @@ roles:
   - stop-on-failure
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: smoke_tests
-    release_name: cf-smoke-tests
+    release: cf-smoke-tests
   run:
     scaling:
       min: 0
@@ -1299,7 +1299,7 @@ roles:
   type: bosh-task
   jobs:
   - name: generate-secrets
-    release_name: scf-helper
+    release: scf-helper
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   run:
@@ -1327,13 +1327,13 @@ roles:
   - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: uaa-create-user
-    release_name: scf
+    release: scf
   - name: configure-scf
-    release_name: scf
+    release: scf
   run:
     scaling:
       min: 1
@@ -1352,9 +1352,9 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: postgres
-    release_name: postgres
+    release: postgres
   processes:
   - name: postgres
   run:
@@ -1392,13 +1392,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: apiserver
-    release_name: app-autoscaler
+    release: app-autoscaler
   - name: servicebroker
-    release_name: app-autoscaler
+    release: app-autoscaler
   - name: route_registrar
-    release_name: routing
+    release: routing
   processes:
   - name: route_registrar
   - name: apiserver
@@ -1445,11 +1445,11 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: metricscollector
-    release_name: app-autoscaler
+    release: app-autoscaler
   - name: eventgenerator
-    release_name: app-autoscaler
+    release: app-autoscaler
   processes:
   - name: metricscollector
   - name: eventgenerator
@@ -1478,13 +1478,13 @@ roles:
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: scalingengine
-    release_name: app-autoscaler
+    release: app-autoscaler
   - name: scheduler
-    release_name: app-autoscaler
+    release: app-autoscaler
   - name: pruner
-    release_name: app-autoscaler
+    release: app-autoscaler
   processes:
   - name: scalingengine
   - name: scheduler
@@ -1516,11 +1516,11 @@ roles:
   - stop-on-failure
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: scf-helper
+    release: scf-helper
   - name: authorize-internal-ca
-    release_name: scf
+    release: scf
   - name: autoscaler-smoke
-    release_name: scf
+    release: scf
   run:
     scaling:
       min: 0
