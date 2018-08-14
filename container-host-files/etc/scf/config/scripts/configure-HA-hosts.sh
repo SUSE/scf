@@ -31,16 +31,17 @@ json_get() {
 
 
 find_cluster_ha_hosts() {
-    local component_name this_component hosts
+    local component_name this_component hosts job
     component_name="${1}"
+    job="${2}"
     this_component="$(cat /var/vcap/instance/name)"
 
     if test "${this_component}" != "${component_name}" ; then
         # Requesting a different component, use DNS name
-        echo "[\"${component_name}.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}\"]"
+        echo "[\"${component_name}-${job}.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}\"]"
     elif test "${KUBE_COMPONENT_INDEX}" == "0" ; then
         # This is index 0; don't look for other replicas, this needs to bootstrap
-        echo "[${component_name}-0.${component_name}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}]"
+        echo "[${component_name}-0.${component_name}-${job}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}]"
     else
         # Find the number of replicas we have
         local statefulset_name replicas i
@@ -74,17 +75,17 @@ find_cluster_ha_hosts() {
         # Return a list of all replicas
         local hosts=""
         for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
-            hosts="${hosts},${component_name}-${i}.${component_name}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}"
+            hosts="${hosts},${component_name}-${i}.${component_name}-${job}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}"
         done
         echo "[${hosts#,}]"
     fi
 }
 
-KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats nats)"
 export KUBE_NATS_CLUSTER_IPS
-KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts database mysql)"
 export KUBE_MYSQL_CLUSTER_IPS
-KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul consul-agent)"
 export KUBE_CONSUL_CLUSTER_IPS
 
 unset json_get
