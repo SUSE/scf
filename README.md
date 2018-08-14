@@ -45,6 +45,7 @@ Table of Contents
    * [Development FAQ](#development-faq)
       * [Where do I find logs?](#where-do-i-find-logs)
       * [How do I clear all data and begin anew without rebuilding everything?](#how-do-i-clear-all-data-and-begin-anew-without-rebuilding-everything)
+      * [How do I tear down a cluster on a cloud provider?](#how-do-i-tear-down-a-cluster-on-a-cloud-provider)
       * [How do I run smoke and acceptance tests?](#how-do-i-run-smoke-and-acceptance-tests)
          * [How do I run a subset of SCF acceptance tests?](#how-do-i-run-a-subset-of-scf-acceptance-tests)
          * [How do I run a subset of Cloud Foundry acceptance tests?](#how-do-i-run-a-subset-of-cloud-foundry-acceptance-tests)
@@ -59,7 +60,6 @@ Table of Contents
       * [Can I suspend or resume my vagrant VM?](#can-i-suspend-or-resume-my-vagrant-vm)
       * [How do I develop an upstream PR?](#how-do-i-develop-an-upstream-pr)
       * [How do I publish SCF and BOSH images?](#how-do-i-publish-scf-and-bosh-images)
-      * [How do I generate certs for pre-built Docker images?](#how-do-i-generate-certs-for-prebuilt-docker-images)
       * [How do I use an authenticated registry for my Docker images?](#how-do-i-use-an-authenticated-registry-for-my-docker-images)
       * [Using Persi NFS](#using-persi-nfs)
       * [How do I rotate the CCDB secrets?](#how-do-i-rotate-the-ccdb-secrets)
@@ -351,6 +351,42 @@ make stop
 make run
 ```
 
+### How do I tear down a cluster on a cloud provider?
+
+The [SCF secret generator](https://github.com/SUSE/scf-secret-generator)
+creates secrets in the CF and UAA namespaces, and helm doesn't know about
+these, which means they won't be deleted if the release is deleted.  The best
+way to remove everything is to run the following commands:
+
+```bash
+helm delete --purge ${CF_RELEASE_NAME}
+kubectl delete namespace ${CF_NAMESPACE}
+helm delete --purge ${UAA_RELEASE_NAME}
+kubectl delete namespace ${UAA_NAMESPACE}
+```
+
+However, busy systems may encounter timeouts when the release is deleted:
+
+```bash
+$ helm delete --purge scf
+E0622 02:27:17.555417   14014 portforward.go:178] lost connection to pod
+Error: transport is closing
+```
+
+In this case, deleting the StatefulSets before anything else will make the
+operation more likely to succeed:
+
+```bash
+kubectl delete statefulsets --all --namespace ${CF_NAMESPACE}
+helm delete --purge ${CF_RELEASE_NAME}
+kubectl delete namespace ${CF_NAMESPACE}
+kubectl delete statefulsets --all --namespace ${UAA_NAMESPACE}
+helm delete --purge ${UAA_RELEASE_NAME}
+kubectl delete namespace ${UAA_NAMESPACE}
+```
+
+Note that this needs kubectl v1.9.6 or newer for the `delete statefulsets` command to work.
+
 ### How do I run smoke and acceptance tests?
 
 On the Vagrant box, when `pod-status` reports all roles are running, enable `diego_docker` support with
@@ -430,7 +466,7 @@ You can access any URL or endpoint that references this address from your host.
 1. Use the role manifest to expose the port for the mysql proxy role
 2. The MySQL instance is exposed at `192.168.77.77:3306`.
 3. The default username is: `root`.
-4. You can find the default password in the `MYSQL_ADMIN_PASSWORD` environment variable in the `~/scf/bin/settings/settings.env` file on the Vagrant box.
+4. You can find the password in the kubernetes secret.
 
 ### How do I add a new BOSH release to SCF?
 
@@ -442,9 +478,7 @@ You can access any URL or endpoint that references this address from your host.
     1. Add exposed environment variables (`yaml path: /configuration/variables`).
     1. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
 
-1. Add defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
-1. If you need any extra default certificates, add them to `~/scf/bin/settings/certs.env`.
-1. Add generation code for the certs to `~/scf/bin/generate-dev-certs.sh`.
+1. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
 1. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
 1. Change the `./Makefile` so it builds the new release:
     1. Add a new target `<release-name>-release`.
@@ -505,9 +539,7 @@ host> git push origin develop # or whatever your remote and branch are called
         1. `yaml path: /configuration/templates`
         1. `yaml path: /roles/*/configuration/templates`
 
-1. Add defaults for your new settings in `~/scf/bin/settings/settings.env`.
-1. If you need any extra default certificates, add them to `~/scf/bin/dev-certs.env`.
-1. Add generation code for the certificates here: `~/scf/bin/generate-dev-certs.sh`
+1. Add development defaults for your new settings in `~/scf/bin/settings/settings.env`.
 1. Rebuild the role images that need this new setting:
 
     ```bash
@@ -592,9 +624,6 @@ bump instructions in the [UAA README](src/uaa-fissile-release/README.md).
 
     Define any secrets in the dark opinions file `./container-host-files/etc/scf/config/dark-opinions.yml` and expose them as environment variables.
 
-        * If you need any extra default certificates, add them here: `~/scf/bin/dev-certs.env`.
-        * Add generation code for the certificates here: `~/scf/bin/generate-dev-certs.sh`.
-
 1. Evaluate role changes:
 
     1. Consult the release notes of the new version of the release.
@@ -638,16 +667,6 @@ bump instructions in the [UAA README](src/uaa-fissile-release/README.md).
 
     ```bash
     make tag publish IMAGE_REGISTRY=docker.example.com/
-    ```
-
-## How do I generate certs for pre-built Docker images?
-
-1. Download the [scf-cert-generator.sh](https://github.com/SUSE/scf/blob/develop/docker-images/cert-generator/scf-cert-generator.sh) script
-1. Run it, setting the command line options according to your cluster
-1. Provide the resulting YAML file to helm as a values.yaml file:
-
-    ```bash
-    helm install ... -f scf-cert-values.yaml
     ```
 
 ## How do I use an authenticated registry for my Docker images?
@@ -744,7 +763,7 @@ docker run -d --name nfs \
     -p 892:892/udp \
     -p 892:892/tcp \
     --privileged \
-    viovanov/nfs-server /exports/foo
+    splatform/nfs-test-server /exports/foo
 ```
 
 ### Allow access to the NFS server

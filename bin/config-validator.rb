@@ -37,7 +37,7 @@ def main
   if manifest['configuration'] && manifest['configuration']['templates']
     templates['__global__'] = manifest['configuration']['templates']
   end
-  manifest['roles'].each do |r|
+  manifest['instance_groups'].each do |r|
     next unless r['configuration']
     next unless r['configuration']['templates']
     templates[r['name']] = r['configuration']['templates']
@@ -143,7 +143,7 @@ def main
 end
 
 def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
-  role_count = manifest['roles'].length
+  role_count = manifest['instance_groups'].length
   bosh_properties_count = bosh_properties.inject([]) do |all_props, (_, jobs)|
     jobs.inject(all_props) do |all_props, (_, properties)|
       all_props << properties
@@ -174,7 +174,7 @@ def check_docker_run_env(manifest, global_variables)
   # parameters, and the bogus parameters themselves.  We ignore the
   # proxy parts, these are ok.
 
-  manifest['roles'].each do |role|
+  manifest['instance_groups'].each do |role|
     next unless role['type'] == 'docker'
     next unless role['run']
     next unless role['run']['env']
@@ -190,7 +190,7 @@ end
 
 # Makes sure that no non-docker roles have run.env
 def check_nondocker_run_env(manifest)
-  manifest['roles'].each do |role|
+  manifest['instance_groups'].each do |role|
     next if role['type'] == 'docker'
     next unless role['run']
     next unless role['run']['env']
@@ -214,7 +214,7 @@ def check_role_manifest_scripts(manifest, manifest_file)
   scripts.each do |script|
     relative_path = Pathname.new(script).relative_path_from(Pathname.new(manifest_dir))
 
-    found = manifest['roles'].any? do |r|
+    found = manifest['instance_groups'].any? do |r|
       (r['scripts'] || []).concat(r['post_config_scripts'] || []).concat(r['environment_scripts'] || []).include?(relative_path.to_s)
     end
 
@@ -264,7 +264,7 @@ def check_clustering(manifest, bosh_properties)
   #     - Determine parameters used by template
   #       - Collect /_CLUSTER_IPS$/
 
-  manifest['roles'].each do |role|
+  manifest['instance_groups'].each do |role|
     rparams = params.dup
     if role['configuration'] && role['configuration']['templates']
       role['configuration']['templates'].each do |property, template|
@@ -278,7 +278,7 @@ def check_clustering(manifest, bosh_properties)
 
     (role['jobs'] || []).each do |job|
       job_name = job['name']
-      release_name = job['release_name']
+      release_name = job['release']
       unless bosh_properties.has_key? release_name
         STDOUT.puts "Role #{role['name']} has job #{job_name} from unknown release #{release_name}"
       end
@@ -321,7 +321,7 @@ end
 
 # Checks that all BOSH roles have the syslog forwarding script
 def check_roles_forward_syslog(manifest)
-  manifest['roles'].each do |role|
+  manifest['instance_groups'].each do |role|
     next unless role.fetch('type', 'bosh').downcase == 'bosh'
     next if role.fetch('scripts', []).include? 'scripts/forward_logfiles.sh'
     STDOUT.puts "role #{role['name'].red} does not include forward_logfiles.sh"
@@ -333,14 +333,15 @@ end
 def check_rm_variables(manifest)
   templates = manifest['configuration']['templates'].values
 
-  manifest['roles'].each do |r|
+  manifest['instance_groups'].each do |r|
     next unless r['configuration']
     next unless r['configuration']['templates']
     templates << r['configuration']['templates'].values
   end
 
   manifest['configuration']['variables'].each do |variable|
-    next if Common.special_use(variable['name'])
+    # "internal" variables are defined but not used in the role manifest. They are referenced directly in scripts.
+    next if variable['internal']
     found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
     end
@@ -621,33 +622,33 @@ end
 
 # Loaded structure
 ##
-# the_roles.roles[].name				/string
-# the_roles.roles[].type				/string (*)
-# the_roles.roles[].scripts[]				/string
-# the_roles.roles[].jobs[].name				/string
-# the_roles.roles[].jobs[].release_name			/string
-# the_roles.roles[].processes[].name			/string
-# the_roles.roles[].configuration.variables[].name	/string
-# the_roles.roles[].configuration.variables[].default	/string
-# the_roles.roles[].configuration.templates.<any>	/string
-# the_roles.roles[].run.capabilities[]			/string
-# the_roles.roles[].run.flight-stage			/string (**)
-# the_roles.roles[].run.persistent-volumes[].path	/string, mountpoint
-# the_roles.roles[].run.persistent-volumes[].size	/float [GB]
-# the_roles.roles[].run.shared-volumes[].path		/string, mountpoint
-# the_roles.roles[].run.shared-volumes[].size		/float [GB]
-# the_roles.roles[].run.shared-volumes[].tag		/string
-# the_roles.roles[].run.memory				/float [MB]
-# the_roles.roles[].run.virtual-cpus			/int
-# the_roles.roles[].run.scaling.indexed			/int
-# the_roles.roles[].run.scaling.min			/int
-# the_roles.roles[].run.scaling.max			/int
-# the_roles.roles[].run.exposed-ports[].name		/string
-# the_roles.roles[].run.exposed-ports[].protocol	/string
-# the_roles.roles[].run.exposed-ports[].source	/int
-# the_roles.roles[].run.exposed-ports[].target	/int
-# the_roles.roles[].run.exposed-ports[].public	/bool
-# the_roles.roles[].run.hosts.<any>			/string (name -> ip-addr)
+# the_roles.instance_groups[].name				/string
+# the_roles.instance_groups[].type				/string (*)
+# the_roles.instance_groups[].scripts[]				/string
+# the_roles.instance_groups[].jobs[].name			/string
+# the_roles.instance_groups[].jobs[].release     		/string
+# the_roles.instance_groups[].processes[].name			/string
+# the_roles.instance_groups[].configuration.variables[].name	/string
+# the_roles.instance_groups[].configuration.variables[].default	/string
+# the_roles.instance_groups[].configuration.templates.<any>	/string
+# the_roles.instance_groups[].run.capabilities[]		/string
+# the_roles.instance_groups[].run.flight-stage			/string (**)
+# the_roles.instance_groups[].run.persistent-volumes[].path	/string, mountpoint
+# the_roles.instance_groups[].run.persistent-volumes[].size	/float [GB]
+# the_roles.instance_groups[].run.shared-volumes[].path		/string, mountpoint
+# the_roles.instance_groups[].run.shared-volumes[].size		/float [GB]
+# the_roles.instance_groups[].run.shared-volumes[].tag		/string
+# the_roles.instance_groups[].run.memory			/float [MB]
+# the_roles.instance_groups[].run.virtual-cpus			/int
+# the_roles.instance_groups[].run.scaling.indexed		/int
+# the_roles.instance_groups[].run.scaling.min			/int
+# the_roles.instance_groups[].run.scaling.max			/int
+# the_roles.instance_groups[].run.exposed-ports[].name		/string
+# the_roles.instance_groups[].run.exposed-ports[].protocol	/string
+# the_roles.instance_groups[].run.exposed-ports[].source	/int
+# the_roles.instance_groups[].run.exposed-ports[].target	/int
+# the_roles.instance_groups[].run.exposed-ports[].public	/bool
+# the_roles.instance_groups[].run.hosts.<any>			/string (name -> ip-addr)
 # the_roles.configuration.variables[].name		/string
 # the_roles.configuration.variables[].default		/string
 # the_roles.configuration.variables[].example		/string

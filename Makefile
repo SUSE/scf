@@ -72,6 +72,9 @@ brain:
 cats:
 	make/tests acceptance-tests
 
+scaler-smoke:
+	make/tests autoscaler-smoke
+
 ########## SIDECAR SERVICE TARGETS ##########
 
 mysql:
@@ -127,6 +130,9 @@ diego-release:
 garden-release:
 	make/bosh-release src/garden-runc-release
 
+groot-btrfs-release:
+	make/bosh-release src/groot-btrfs/groot-btrfs-release
+
 mysql-release:
 	RUBY_VERSION=2.3.1 make/bosh-release src/cf-mysql-release
 
@@ -175,6 +181,9 @@ nats-release:
 statsd-injector-release:
 	make/bosh-release src/statsd-injector-release
 
+app-autoscaler-release:
+	make/bosh-release src/app-autoscaler-release
+
 binary-buildpack-release:
 	make/bosh-release src/buildpacks/binary-buildpack-release
 
@@ -214,6 +223,7 @@ releases: \
 	dotnet-core-buildpack-release \
 	garden-release \
 	go-buildpack-release \
+	groot-btrfs-release \
 	java-buildpack-release \
 	loggregator-release \
 	mysql-release \
@@ -232,6 +242,7 @@ releases: \
 	statsd-injector-release \
 	uaa-releases \
 	usb-release \
+	app-autoscaler-release \
 	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########

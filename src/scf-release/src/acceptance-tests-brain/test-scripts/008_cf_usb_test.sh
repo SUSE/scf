@@ -38,17 +38,17 @@ function get_port
     echo "${port}"
 }
 
-function wait_on_port
+function wait_on_database
 {
-    endpoint="${CF_TCP_DOMAIN}:${1}"
+    # args = port user password
     for (( i = 0; i < 60 ; i++ )) ; do
-	if curl --fail -s -o /dev/null "${endpoint}" ; then
+	if mysql -u"${2}" -p"${3}" -P "${1}" -h "${CF_TCP_DOMAIN}" > /dev/null ; then
             break
 	fi
 	sleep 5
     done
     # Last try, any error will abort the test
-    curl "${endpoint}"
+     mysql -u"${2}" -p"${3}" -P "${1}" -h "${CF_TCP_DOMAIN}"
 }
 
 ## # # ## ### Tracing and common configuration ### ## # #
@@ -117,7 +117,7 @@ function test_cleanup() {
     # - temp directory
 
     cf delete-service -f "${SERVICE_INSTANCE}"
-    yes | cf usb delete-driver-endpoint "${SERVICE_TYPE}"
+    yes | cf usb-delete-driver-endpoint "${SERVICE_TYPE}"
     cf delete -f "${SIDECAR_APP}"
     cf delete -f "${SERVER_APP}"
     cf unbind-running-security-group internal-services-workaround
@@ -160,12 +160,11 @@ cf set-env   "${SERVER_APP}" MYSQL_ROOT_HOST '%'
 cf start     "${SERVER_APP}"
 
 MYSQL_PORT="$(get_port mysql)"
-
-wait_on_port "${MYSQL_PORT}"
+wait_on_database "${MYSQL_PORT}" "${MYSQL_USER}" "${MYSQL_PASS}"
 
 ## --(2)-- Create and configure the mysql client sidecar for usb.
 
-cf push "${SIDECAR_APP}" --no-start -o splatform/cf-usb-sidecar-dev-mysql
+cf push "${SIDECAR_APP}" --no-start -o registry.suse.com/cap/cf-usb-sidecar-mysql:1.0.1
 
 # Use a secret key that will be used by the USB to talk to your
 # sidecar, and set the connection parameters for the mysql client
@@ -180,7 +179,7 @@ cf start   "${SIDECAR_APP}"
 
 # --(3)-- Create a driver endpoint to the mysql sidecar (== service type)
 # Note that the -c ":" is required as a workaround to a known issue
-cf usb create-driver-endpoint "${SERVICE_TYPE}" \
+cf usb-create-driver-endpoint "${SERVICE_TYPE}" \
     "https://${SIDECAR_APP}.${CF_DOMAIN}" \
     "${SIDECAR_API_KEY}" \
     -c ":"

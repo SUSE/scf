@@ -5,7 +5,9 @@ description: This job will run the testbrain CLI, running all acceptance test sc
 
 packages:
   - cli
+  - kubectl
   - acceptance-tests-brain
+  - docker-distribution
 
 templates:
   run.erb: bin/run
@@ -27,3 +29,7 @@ properties:
     description: The Elastic Runtime organization name to use when running tests
   acceptance_tests_brain.space:
     description: The Elastic Runtime space name to use when running tests
+  acceptance_tests_brain.storage_class:
+    description: Name of the storage class to use in the creation of persistent volumes
+  acceptance_tests_brain.namespace:
+    description: The k8s namespace the test role is run inside of

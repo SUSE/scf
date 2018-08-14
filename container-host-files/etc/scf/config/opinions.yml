@@ -40,6 +40,12 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
+  autoscaler:
+    cf:
+      client_id: app_autoscaler
+      grant_type: client_credentials
+      password: "" # unused
+      username: "" # unused
   capi:
     tps:
       watcher:
@@ -104,8 +110,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-    security_event_logging:
-      enabled: null
     security_group_definitions:
     - name: public_networks
       rules:
@@ -168,6 +172,7 @@ properties:
       port: 8081
       protocol: http
     mysql:
+      port: 13306
       startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
@@ -188,6 +193,8 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
+      locket:
+        api_location: 127.0.0.1:8891
       rep:
         require_tls: true
       skip_consul_lock: true
@@ -230,12 +237,13 @@ properties:
     # internet and services is configured using proper CF security group
     # rules.
     deny_networks: [0.0.0.0/0]
+    listen_address: 0.0.0.0:7777
+    listen_network: tcp
+  grootfs:
     # Garden should at least be able to cache the cflinuxfs2 rootfs
     # to avoid copy operations on every garden healthcheck from rep
     # when there is no app running with the healthcheck rootfs.
-    graph_cleanup_threshold_in_mb: 3000
-    listen_address: 0.0.0.0:7777
-    listen_network: tcp
+    reserved_space_for_other_jobs_in_mb: 3000
   loggregator:
     use_v2_api: true
   metron_agent:
@@ -304,6 +312,10 @@ properties:
       # Note that these clients are overridden in the dev-only UAA role; that is
       # instead used to bootstrap the default zone, whereas all of these clients
       # go into the SCF zone.
+      app_autoscaler:
+        # Requires read-only admin to look up stats, and write admin to do scaling
+        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin
+        authorized-grant-types: client_credentials
       cc_routing:
         authorities: routing.router_groups.read
         authorized-grant-types: client_credentials
@@ -395,3 +407,4 @@ properties:
       - roles
       - user_attributes
       - uaa.offline_token
+   

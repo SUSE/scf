@@ -1,0 +1,12 @@
+#!/bin/bash
+set -o errexit -o xtrace -o nounset
+
+export GOROOT="$(readlink -nf /var/vcap/packages/golang*)"
+export PATH="${PATH}:${GOROOT}/bin"
+export GOPATH="${BOSH_COMPILE_TARGET}"
+export GOBIN="${BOSH_INSTALL_TARGET}/bin"
+
+mkdir -p "${GOBIN}"
+mkdir -p "${BOSH_COMPILE_TARGET}/src"
+mv "${BOSH_COMPILE_TARGET}/github.com" "${BOSH_COMPILE_TARGET}/src/github.com"
+go install github.com/docker/distribution/cmd/registry

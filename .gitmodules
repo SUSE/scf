@@ -88,3 +88,15 @@
 [submodule "src/consul-release"]
 	path = src/consul-release
 	url = https://github.com/cloudfoundry-incubator/consul-release.git
+[submodule "src/groot-btrfs"]
+	path = src/groot-btrfs
+	url = https://github.com/SUSE/groot-btrfs.git
+[submodule "src/app-autoscaler-release"]
+	path = src/app-autoscaler-release
+	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
+[submodule "src/scf-release/src/github.com/docker/distribution"]
+	path = src/scf-release/src/github.com/docker/distribution
+	url = https://github.com/docker/distribution.git
+[submodule "src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests"]
+	path = src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests
+	url = https://github.com/cloudfoundry/persi-acceptance-tests.git

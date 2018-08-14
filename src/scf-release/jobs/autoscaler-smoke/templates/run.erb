@@ -1,0 +1,100 @@
+#!/bin/bash
+
+set -o errexit -o nounset -o xtrace
+shopt -s nullglob
+
+export PATH="/var/vcap/packages/cli/bin:${PATH}"
+
+APP="dora-$(uuidgen)"
+ORG="ORG-$(uuidgen)"
+SPACE="SPACE-$(uuidgen)"
+BROKER="SCALER-$(uuidgen)"
+SERVICE="SERVICE-$(uuidgen)"
+URL="http://${APP}.<%= p('smoke_tests.apps_domain') %>"
+
+cleanup() {
+    set +o errexit
+    cf unbind-service "${APP}" "${SERVICE}"
+    cf delete-org -f "${ORG}"
+    cf delete-service-broker "${BROKER}" -f
+}
+
+trap cleanup EXIT
+
+cf create-org "${ORG}"
+cf create-space "${SPACE}" -o "${ORG}"
+cf target -o "${ORG}" -s "${SPACE}"
+cf push "${APP}" --no-start \
+    -p /var/vcap/packages/acceptance-tests/src/github.com/cloudfoundry/cf-acceptance-tests/assets/dora
+
+
+cf create-service-broker "${BROKER}" \
+    '<%= p('autoscaler.service_broker.username') %>' \
+    '<%= p('autoscaler.service_broker.password') %>' \
+    '<%= p('smoke_tests.autoscaler_service_broker_endpoint') %>'
+
+cf service-access
+cf enable-service-access \
+    '<%= p('autoscaler.smoke.service_name') %>' \
+    -p '<%= p('autoscaler.smoke.service_plan') %>'
+cf create-service \
+    '<%= p('autoscaler.smoke.service_name') %>' \
+    '<%= p('autoscaler.smoke.service_plan') %>' \
+    "${SERVICE}"
+cf bind-service "${APP}" "${SERVICE}" -c ' {
+    "instance_min_count": 1,
+    "instance_max_count": 4,
+    "scaling_rules": [{
+        "metric_type": "memoryused",
+        "stat_window_secs": 60,
+        "breach_duration_secs": 60,
+        "threshold": 10,
+        "operator": ">=",
+        "cool_down_secs": 300,
+        "adjustment": "+1"
+    }]
+} '
+cf start "${APP}"
+
+# We don't need xtrace while waiting for things
+set +o xtrace
+echo
+
+printf "Waiting for the app to start..."
+while ! curl --silent "${URL}/" | grep Dora ; do
+    printf "."
+    sleep 1
+done
+printf "\nApp started.\n"
+
+get_count() {
+    cf curl /v2/apps/$(cf app --guid "${APP}") | jq .entity.instances
+}
+
+printf "Checking that we initially have one instance...\n"
+count="$(get_count)"
+if ! test "${count}" -eq 1 ; then
+    printf "App has %d instances!\n" "${count}"
+    cf app "${APP}"
+    exit 1
+fi
+
+cf app "${APP}"
+printf "Causing memory stress...\n"
+curl -X POST "${URL}/stress_testers?vm=10&vm-bytes=100M"
+printf "Waiting for new instances to start..."
+for (( i = 0 ; i < $(( 60 * 2 / 5)) ; i ++ )) ; do
+    if test "$(get_count)" -gt 1 ; then
+        break
+    fi
+    printf "."
+    sleep 5
+done
+printf "\n"
+cf app "${APP}"
+if test "$(get_count)" -gt 1 ; then
+    printf "%bInstances increased.%b\n" "\e[0;32m" "\e[0m"
+else
+    printf "%bFailed to increase instances.%b\n" "\e[0;31m" "\e[0m" >&2
+    exit 1
+fi
