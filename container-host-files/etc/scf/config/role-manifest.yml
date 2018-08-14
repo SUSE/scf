@@ -2235,6 +2235,11 @@ configuration:
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
     required: true
+
+  - name: BROKER_CLIENT_TIMEOUT_SECONDS
+    default: "70"
+    description: "For requests to service brokers, this is the HTTP (open and read) timeout setting, in seconds."
+
   - name: BULK_API_PASSWORD
     secret: true
     generator:
@@ -3335,6 +3340,7 @@ configuration:
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
+    properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443

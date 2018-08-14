@@ -45,7 +45,6 @@ properties:
       watcher:
         skip_consul_lock: true
   cc:
-    broker_client_timeout_seconds: 70
     buildpacks:
       blobstore_type: webdav
       webdav_config:
