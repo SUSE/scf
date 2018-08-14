@@ -81,7 +81,7 @@ fi
 
 cf app "${APP}"
 printf "Causing memory stress...\n"
-curl -X POST "${URL}/stress_testers?vm=10"
+curl -X POST "${URL}/stress_testers?vm=10&vm-bytes=100M"
 printf "Waiting for new instances to start..."
 for (( i = 0 ; i < $(( 60 * 2 / 5)) ; i ++ )) ; do
     if test "$(get_count)" -gt 1 ; then
@@ -90,5 +90,11 @@ for (( i = 0 ; i < $(( 60 * 2 / 5)) ; i ++ )) ; do
     printf "."
     sleep 5
 done
-printf "\nInstances increased.\n"
+printf "\n"
 cf app "${APP}"
+if test "$(get_count)" -gt 1 ; then
+    printf "%bInstances increased.%b\n" "\e[0;32m" "\e[0m"
+else
+    printf "%bFailed to increase instances.%b\n" "\e[0;31m" "\e[0m" >&2
+    exit 1
+fi
