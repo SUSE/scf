@@ -2235,11 +2235,9 @@ configuration:
       value_type: private_key
     description: The PEM-encoded private key for signing TLS/SSL traffic.
     required: true
-
   - name: BROKER_CLIENT_TIMEOUT_SECONDS
     default: "70"
     description: "For requests to service brokers, this is the HTTP (open and read) timeout setting, in seconds."
-
   - name: BULK_API_PASSWORD
     secret: true
     generator:
