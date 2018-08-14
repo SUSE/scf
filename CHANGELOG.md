@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [2.12.0] - 2018-08-14
+
+### Added
+- App-autoscaler included (off by default)
+- Groot-btrfs now available
+- Enabled cloud controller security events
+- nfs-broker can now be HA
+
+### Changed
+- Realigned cf role composition more inline with upstream
+- database role combines previous mysql and mysql-proxy roles
+- diego-locket role merged into diego-api
+- log-api role combines loggregator and syslog-rlp roles
+- Renamed syslog-adapter role to adapter
+- Removed processes list from all roles
+- Removed duplicate routing_api.locket.api_location property
+- Persistent StorageClass now the default
+- Bumped garden-runc-release to 1.15.1 to rely on go-nats
+- Bumped ruby-buildpack to 1.7.21.1
+- Bumped SLE12 & openSUSE stacks
+- Bumped kubectl to 1.9.6
+- Bumped cf-cli to 6.37.0
+
+### Fixed
+- INTERNAL_CA_KEY not included in every pod by default
+- Better mechanism for waiting on MySQL
+
 ## [2.11.0] - 2018-06-26
 
 ### Added
