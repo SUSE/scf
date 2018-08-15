@@ -2051,7 +2051,9 @@ configuration:
     default: false
     description: "Whether autoscaler is provided as a cloudfoundry service, default is false."
   - name: AUTOSCALER_UAA_CLIENT_SECRET
-    default: "autoscaler_client_secret"
+    secret: true
+    generator:
+      type: Password
     description: "the uaa client secret used by autoscaler"
   #end of autoscaler
   - name: BBS_ACTIVE_KEY_PASSPHRASE
