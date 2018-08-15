@@ -1809,6 +1809,9 @@ configuration:
   - name: AUTOSCALER_BINDING_DB_SCHEME
     default: "postgres"
     description: "The autoscaler servicebroker database server port"
+  - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
+    default: true
+    description: ""
   - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
     default: 1000
     description: "The maximum connection number the autoscaler-postgres server could serve"
@@ -3095,6 +3098,7 @@ configuration:
     properties.autoscaler.binding_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.cf.api: '"https://api.((DOMAIN))"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
+    properties.autoscaler.cf.skip_ssl_validation: '((AUTOSCALER_CF_SKIP_SSL_VALIDATION))'
     properties.autoscaler.eventgenerator.aggregator.aggregator_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL))"'
     properties.autoscaler.eventgenerator.aggregator.app_metric_channel_size: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE))"'
     properties.autoscaler.eventgenerator.aggregator.app_monitor_channel_size: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE))'
