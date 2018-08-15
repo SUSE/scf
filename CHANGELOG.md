@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [2.12.1] - 2018-08-15
+
+### Changed
+- Bumped SLE12 & openSUSE stacks
+
 ## [2.12.0] - 2018-08-14
 
 ### Added
@@ -18,7 +23,6 @@
 - Renamed syslog-adapter role to adapter
 - Removed processes list from all roles
 - Removed duplicate routing_api.locket.api_location property
-- Persistent StorageClass now the default
 - Bumped garden-runc-release to 1.15.1 to rely on go-nats
 - Bumped ruby-buildpack to 1.7.21.1
 - Bumped SLE12 & openSUSE stacks
