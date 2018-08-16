@@ -393,7 +393,6 @@ instance_groups:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_cfdot_properties.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -450,9 +449,9 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -942,7 +941,6 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -986,8 +984,8 @@ instance_groups:
     active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -1138,7 +1136,6 @@ instance_groups:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_cfdot_properties.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1225,10 +1222,10 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -3384,8 +3381,6 @@ configuration:
     properties.cf_mysql.host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
-    properties.cfdot.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.cfdot.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
