@@ -11,7 +11,7 @@ cd "$PATCH_DIR"
 
 patch --force -p3 <<'PATCH'
 diff --git jobs/blobstore/templates/pre-start.sh.erb jobs/blobstore/templates/pre-start.sh.erb
-index 431b2dc..35bab6c 100644
+index 20b3140..1cf5a58 100644
 --- jobs/blobstore/templates/pre-start.sh.erb
 +++ jobs/blobstore/templates/pre-start.sh.erb
 @@ -9,7 +9,7 @@ function setup_blobstore_directories {
@@ -20,18 +20,25 @@ index 431b2dc..35bab6c 100644
    local data_tmp_dir=$data_dir/tmp/uploads
 -  local nginx_webdav_dir=/var/vcap/packages/nginx_webdav
 +  local packages_dir=/var/vcap/packages
- 
+
    mkdir -p $run_dir
    mkdir -p $log_dir
-@@ -17,7 +17,7 @@ function setup_blobstore_directories {
-   mkdir -p $store_tmp_dir
+@@ -18,12 +18,12 @@ function setup_blobstore_directories {
    mkdir -p $data_dir
    mkdir -p $data_tmp_dir
--  chown -R vcap:vcap $run_dir $log_dir $store_dir $store_tmp_dir $data_dir $data_tmp_dir $nginx_webdav_dir "${nginx_webdav_dir}/.."
-+  chown -R -L vcap:vcap $run_dir $log_dir $store_dir $store_tmp_dir $data_dir $data_tmp_dir $packages_dir
- }
- 
- setup_blobstore_directories
+
+-  local dirs="$run_dir $log_dir $store_dir $store_tmp_dir $data_dir $data_tmp_dir $nginx_webdav_dir ${nginx_webdav_dir}/.."
+-  local num_needing_chown=$(find $dirs -not -user vcap -or -not -group vcap | wc -l)
++  local dirs="$run_dir $log_dir $store_dir $store_tmp_dir $data_dir $data_tmp_dir $packages_dir"
++  local num_needing_chown=$(find -L $dirs -not -user vcap -or -not -group vcap | wc -l)
+
+   if [ $num_needing_chown -gt 0 ]; then
+     echo "chowning ${num_needing_chown} files to vcap:vcap"
+-    find $dirs -not -user vcap -or -not -group vcap | xargs chown vcap:vcap
++    find -L $dirs -not -user vcap -or -not -group vcap | xargs chown vcap:vcap
+   else
+     echo "no chowning needed, all relevant files are vcap:vcap already"
+   fi
 PATCH
 
 touch "${SENTINEL}"

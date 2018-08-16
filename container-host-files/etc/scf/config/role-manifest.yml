@@ -1073,7 +1073,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
+        - curl --silent --fail --head http://${HOSTNAME}:8080/v1/static/file_server/bin/file-server
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
