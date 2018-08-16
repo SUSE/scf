@@ -172,6 +172,9 @@ scf-helper-release:
 capi-release:
 	make/bosh-release src/capi-release
 
+loggregator-agent-release:
+	make/bosh-release src/loggregator-agent-release
+
 loggregator-release:
 	make/bosh-release src/loggregator-release
 
@@ -225,6 +228,7 @@ releases: \
 	go-buildpack-release \
 	groot-btrfs-release \
 	java-buildpack-release \
+	loggregator-agent-release \
 	loggregator-release \
 	mysql-release \
 	nats-release \

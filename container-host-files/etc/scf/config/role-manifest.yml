@@ -11,8 +11,8 @@ instance_groups:
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -54,8 +54,8 @@ instance_groups:
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -166,8 +166,8 @@ instance_groups:
     release: nats
     provides:
       nats: {}
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -406,8 +406,8 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: locket
     release: diego
   tags:
@@ -470,8 +470,8 @@ instance_groups:
     release: scf
   - name: gorouter
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -541,8 +541,8 @@ instance_groups:
     release: scf
   - name: tcp_router
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -593,8 +593,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: routing-api
     release: routing
   tags:
@@ -648,8 +648,8 @@ instance_groups:
     release: scf-helper
   - name: cloud_controller_ng
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: route_registrar
     release: routing
   - name: statsd_injector
@@ -724,8 +724,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -762,8 +762,8 @@ instance_groups:
     release: capi
   - name: route_registrar
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -801,8 +801,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_clock
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: statsd_injector
     release: statsd-injector
   run:
@@ -836,8 +836,8 @@ instance_groups:
     release: scf-helper
   - name: doppler
     release: loggregator
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -893,8 +893,8 @@ instance_groups:
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
   - name: route_registrar
@@ -954,8 +954,8 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - active-passive
   run:
@@ -1007,8 +1007,8 @@ instance_groups:
     release: capi
   - name: cc_uploader
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -1050,8 +1050,8 @@ instance_groups:
     release: scf
   - name: ssh_proxy
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: file_server
     release: diego
   run:
@@ -1098,8 +1098,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
   tags:
@@ -1165,8 +1165,8 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
   tags:
@@ -2585,6 +2585,24 @@ configuration:
     description: >
       Lowest internal TCP routing port.
       This value is set automatically by the helm charts of SCF.
+  - name: LOGGREGATOR_AGENT_CERT
+    secret: true
+    generator:
+      id: loggregator_agent_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - metron
+    description: PEM-encoded certificate.
+    required: true
+  - name: LOGGREGATOR_AGENT_KEY
+    secret: true
+    generator:
+      id: loggregator_agent_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded key.
+    required: true
   - name: LOGGREGATOR_CLIENT_CERT
     secret: true
     generator:
@@ -2612,24 +2630,6 @@ configuration:
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
-    required: true
-  - name: METRON_CERT
-    secret: true
-    generator:
-      id: metron_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - metron
-    description: PEM-encoded certificate.
-    required: true
-  - name: METRON_KEY
-    secret: true
-    generator:
-      id: metron_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
     required: true
   - name: MONIT_PASSWORD
     secret: true
@@ -3478,13 +3478,13 @@ configuration:
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
+    properties.loggregator.tls.agent.cert: '"((LOGGREGATOR_AGENT_CERT))"'
+    properties.loggregator.tls.agent.key: '"((LOGGREGATOR_AGENT_KEY))"'
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
     properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
-    properties.loggregator.tls.metron.cert: '"((METRON_CERT))"'
-    properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.reverse_log_proxy.cert: '"((SYSLOG_RLP_CERT))"'
     properties.loggregator.tls.reverse_log_proxy.key: '"((SYSLOG_RLP_KEY))"'
     properties.loggregator.tls.statsd_injector.cert: '"((CC_SERVER_CRT))"'
@@ -3493,7 +3493,6 @@ configuration:
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.metron_agent.zone: '"((KUBE_AZ))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
@@ -3600,3 +3599,5 @@ configuration:
     properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.version: '"((CLUSTER_VERSION))"'
+    # Really a loggregator_agent job property
+    properties.zone: '"((KUBE_AZ))"'
