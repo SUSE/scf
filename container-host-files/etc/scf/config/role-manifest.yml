@@ -42,7 +42,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -88,7 +88,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -265,8 +265,8 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:9200/
-        - curl --silent --fail http://${HOSTNAME}:1936/
+        - curl --silent --fail --head http://${HOSTNAME}:9200/
+        - curl --silent --fail --head http://${HOSTNAME}:1936/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -499,7 +499,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -564,7 +564,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -694,7 +694,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:9022/v2/info
+        - curl --silent --fail --head http://${HOSTNAME}:9022/v2/info
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -921,7 +921,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8081/set-cookie
+        - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
