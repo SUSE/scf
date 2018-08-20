@@ -291,7 +291,7 @@ properties:
         api:
           cn: 'api'
         client:
-          adapter_cn: 'syslog_adapter'
+          adapter_cn: adapter
   scf:
     skip_cert_verify_external: false
   smoke_tests:

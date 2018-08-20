@@ -2907,7 +2907,8 @@ configuration:
       value_type: certificate
       subject_names:
       - adapter
-      - syslog_adapter
+      # The CN must be listed in the BOSH property
+      # scalablesyslog.scheduler.tls.client.adapter_cn
     description: PEM-encoded certificate
     required: true
   - name: SYSLOG_ADAPT_KEY
