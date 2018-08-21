@@ -11,8 +11,8 @@ instance_groups:
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -42,7 +42,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -54,8 +54,8 @@ instance_groups:
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -88,7 +88,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -166,8 +166,8 @@ instance_groups:
     release: nats
     provides:
       nats: {}
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -265,8 +265,8 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:9200/
-        - curl --silent --fail http://${HOSTNAME}:1936/
+        - curl --silent --fail --head http://${HOSTNAME}:9200/
+        - curl --silent --fail --head http://${HOSTNAME}:1936/
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -393,7 +393,6 @@ instance_groups:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_cfdot_properties.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -406,8 +405,8 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: locket
     release: diego
   tags:
@@ -450,9 +449,9 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -470,8 +469,8 @@ instance_groups:
     release: scf
   - name: gorouter
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -500,7 +499,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -541,8 +540,8 @@ instance_groups:
     release: scf
   - name: tcp_router
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -565,7 +564,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/health
+        - curl --silent --fail --head http://${HOSTNAME}:8080/health
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -593,8 +592,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: routing-api
     release: routing
   tags:
@@ -648,8 +647,8 @@ instance_groups:
     release: scf-helper
   - name: cloud_controller_ng
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: route_registrar
     release: routing
   - name: statsd_injector
@@ -695,7 +694,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:9022/v2/info
+        - curl --silent --fail --head http://${HOSTNAME}:9022/v2/info
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -724,8 +723,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -762,8 +761,8 @@ instance_groups:
     release: capi
   - name: route_registrar
     release: routing
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -801,8 +800,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_clock
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: statsd_injector
     release: statsd-injector
   run:
@@ -837,8 +836,8 @@ instance_groups:
     release: scf-helper
   - name: doppler
     release: loggregator
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - headless
   run:
@@ -894,8 +893,8 @@ instance_groups:
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
   - name: route_registrar
@@ -923,7 +922,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8081/set-cookie
+        - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -943,7 +942,6 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cfdot_properties.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -955,8 +953,8 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   tags:
   - active-passive
   run:
@@ -987,8 +985,8 @@ instance_groups:
     active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
@@ -1008,8 +1006,8 @@ instance_groups:
     release: capi
   - name: cc_uploader
     release: capi
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   run:
     scaling:
       min: 1
@@ -1051,8 +1049,8 @@ instance_groups:
     release: scf
   - name: ssh_proxy
     release: diego
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: file_server
     release: diego
   run:
@@ -1074,7 +1072,7 @@ instance_groups:
     healthcheck:
       readiness:
         command:
-        - curl --silent --fail http://${HOSTNAME}:8080/v1/static/
+        - curl --silent --fail --head http://${HOSTNAME}:8080/v1/static/file_server/bin/file-server
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1099,8 +1097,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
   tags:
@@ -1139,7 +1137,6 @@ instance_groups:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
-  - scripts/patches/fix_cfdot_properties.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1166,8 +1163,8 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
-  - name: metron_agent
-    release: loggregator
+  - name: loggregator_agent
+    release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
   tags:
@@ -1226,10 +1223,10 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      # properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      # properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"' # cfdot property
+      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -2586,6 +2583,24 @@ configuration:
     description: >
       Lowest internal TCP routing port.
       This value is set automatically by the helm charts of SCF.
+  - name: LOGGREGATOR_AGENT_CERT
+    secret: true
+    generator:
+      id: loggregator_agent_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - metron
+    description: PEM-encoded certificate.
+    required: true
+  - name: LOGGREGATOR_AGENT_KEY
+    secret: true
+    generator:
+      id: loggregator_agent_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded key.
+    required: true
   - name: LOGGREGATOR_CLIENT_CERT
     secret: true
     generator:
@@ -2613,24 +2628,6 @@ configuration:
   - name: MAX_HEALTH_CHECK_TIMEOUT
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
-    required: true
-  - name: METRON_CERT
-    secret: true
-    generator:
-      id: metron_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - metron
-    description: PEM-encoded certificate.
-    required: true
-  - name: METRON_KEY
-    secret: true
-    generator:
-      id: metron_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
     required: true
   - name: MONIT_PASSWORD
     secret: true
@@ -3386,8 +3383,6 @@ configuration:
     properties.cf_mysql.host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
-    properties.cfdot.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.cfdot.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
@@ -3480,13 +3475,13 @@ configuration:
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
+    properties.loggregator.tls.agent.cert: '"((LOGGREGATOR_AGENT_CERT))"'
+    properties.loggregator.tls.agent.key: '"((LOGGREGATOR_AGENT_KEY))"'
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
     properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
     properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
-    properties.loggregator.tls.metron.cert: '"((METRON_CERT))"'
-    properties.loggregator.tls.metron.key: '"((METRON_KEY))"'
     properties.loggregator.tls.reverse_log_proxy.cert: '"((SYSLOG_RLP_CERT))"'
     properties.loggregator.tls.reverse_log_proxy.key: '"((SYSLOG_RLP_KEY))"'
     properties.loggregator.tls.statsd_injector.cert: '"((CC_SERVER_CRT))"'
@@ -3495,7 +3490,6 @@ configuration:
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.metron_agent.zone: '"((KUBE_AZ))"'
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
@@ -3602,3 +3596,5 @@ configuration:
     properties.uaa.token_endpoint: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.version: '"((CLUSTER_VERSION))"'
+    # Really a loggregator_agent job property
+    properties.zone: '"((KUBE_AZ))"'

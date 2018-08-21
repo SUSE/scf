@@ -100,3 +100,6 @@
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests
 	url = https://github.com/cloudfoundry/persi-acceptance-tests.git
+[submodule "src/loggregator-agent-release"]
+	path = src/loggregator-agent-release
+	url = https://github.com/cloudfoundry/loggregator-agent-release.git
