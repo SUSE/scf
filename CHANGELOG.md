@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [2.12.3] - 2018-08-22
+
+### Added
+- Allow HA for cc-clock and syslog-scheduler roles (2 default/3 max)
+
+### Changed
+- Changed internal ports to avoid privileged ports in Kubernetes, though diego-cell and nfs-broker containers still rely on privileged access
+- Bumped cf-deployment to 2.7.0
+- Bumped capi-release to 1.61.0
+- Bumped cf-syslog-drain-release to 7.0
+- Bumped cflinuxfs2-release to 1.227.0
+- Bumped consule-release to 195
+- Bumped diego-release to 2.12.1
+- Bumped routing-release to 0.179.0
+- Bumped uaa-release to 60.2
+- Bumped loggregator to 103
+- Bumped SLE12 & openSUSE stacks
+
+### Fixed
+- syslog-adapter added to syslog adapter cert
+
+## [2.12.2] - 2018-08-16
+
+## Changed
+- Bumped SLE12 & openSUSE stacks
+
 ## [2.12.1] - 2018-08-15
 
 ### Changed
