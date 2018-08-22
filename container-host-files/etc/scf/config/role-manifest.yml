@@ -1251,7 +1251,7 @@ instance_groups:
     flight-stage: manual
     capabilities: []
     exposed-ports: []
-    service-account: test-brain
+    service-account: default
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1568,11 +1568,9 @@ configuration:
         verbs: [create, delete, get, list]
     accounts:
       default:
-        roles: [configgin-role]
+        roles: [configgin-role, test-role]
       secret-generator:
         roles: [configgin-role, secrets-role]
-      test-brain:
-        roles: [configgin-role, test-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []
