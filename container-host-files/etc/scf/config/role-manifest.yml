@@ -1381,7 +1381,7 @@ instance_groups:
     templates:
       properties.databases.databases: '[{"name":"((AUTOSCALER_DB_NAME))","tag":"((AUTOSCALER_DB_ROLE_TAG))"}]'
       properties.databases.max_connections : '"((AUTOSCALER_DATABASE_MAX_CONNECTIONS))"'
-      properties.databases.port: '"((AUTOSCALER_POLICY_DB_PORT))"'
+      properties.databases.port: 5432
       properties.databases.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
 - name: autoscaler-api
   environment_scripts:
@@ -1643,13 +1643,13 @@ configuration:
     # app-autoscaler
   - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
     default: 100
-    description: "The timeout for idle connection of apiserver database, the unit is second"
+    description: "Idle connection timeout for the Autoscaler API Server database, in seconds."
   - name: AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS
     default: 10
-    description: "The maximum connection number of apiserver database"
+    description: "The maximum number of connections to the Autoscaler API Server database."
   - name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
     default: 0
-    description: "The minimum connection number of apiserver database"
+    description: "The minimum number of connections to the Autoscaler API Server database."
   - name: AUTOSCALER_API_SERVER_INFO_BUILD
     default: "beta"
     description: "The build version of autoscaler. It should be defined when it is deployed to a product environment"
@@ -1664,19 +1664,13 @@ configuration:
     description: "The support url of autoscaler where the users could find support information. It should be defined when it is deployed to a product environment"
   - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The the maximum amount of time a connection may be reused for appmetrics database"
+    description: "The maximum age of a connection that can be reused for the Autoscaler App_Metrics database."
   - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum connection number of appmetrics database"
+    description: "The maximum number of connections to the Autoscaler App_Metrics database."
   - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The minimum connection number of appmetrics database"
-  - name: AUTOSCALER_APPMETRICS_DB_PORT
-    default: 5432
-    description: "The tcp port of appmetrics database serves on"
-  - name: AUTOSCALER_APPMETRICS_DB_SCHEME
-    default: "postgres"
-    description: "The scheme of appmetrics postgres database"
+    description: "The minimum number of connections to the Autoscaler App_Metrics database."
   - name: AUTOSCALER_ASACTORS_CLIENT_CERT
     secret: true
     generator:
@@ -1685,7 +1679,7 @@ configuration:
       value_type: certificate
       subject_names:
       - as_actors_client
-    description: "The PEM-encoded tls certificate for any clients to connect to autoscaler asactors(including scheduler and scalingengine)"
+    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler Actors. This includes the Autoscaler Scheduler and the Scaling Engine."
     required: true
   - name: AUTOSCALER_ASACTORS_CLIENT_KEY
     secret: true
@@ -1693,7 +1687,7 @@ configuration:
       id: as_actors_client_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for any clients to connect to autoscaler asactors(including scheduler and scalingengine)"
+    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler Actors. This includes the Autoscaler Scheduler and the Scaling Engine."
     required: true
   - name: AUTOSCALER_ASACTORS_SERVER_CERT
     secret: true
@@ -1703,7 +1697,7 @@ configuration:
       value_type: certificate
       subject_names:
       - "autoscaler-actors.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "The PEM-encoded tls certificate for autoscaler asactors https server(including scheduler and scalingengine)"
+    description: "A PEM-encoded TLS certificate of the Autoscaler Actors https server. This includes the Autoscaler Scheduler and the Scaling Engine."
     required: true
   - name: AUTOSCALER_ASACTORS_SERVER_KEY
     secret: true
@@ -1711,7 +1705,7 @@ configuration:
       id: as_actors_server_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for autoscaler asactors https server(including scheduler and scalingengine)"
+    description: "A PEM-encoded TLS key of the Autoscaler Actors https server. This includes the Autoscaler Scheduler and the Scaling Engine."
     required: true
   - name: AUTOSCALER_ASAPI_CLIENT_CERT
     secret: true
@@ -1721,7 +1715,7 @@ configuration:
       value_type: certificate
       subject_names:
       - as_api_client
-    description: "The PEM-encoded tls certificate for any clients to connect to autoscaler asapi(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler API. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASAPI_CLIENT_KEY
     secret: true
@@ -1729,7 +1723,7 @@ configuration:
       id: as_api_client_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for any clients to connect to autoscaler asapi(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler API. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
     secret: true
@@ -1739,7 +1733,7 @@ configuration:
       value_type: certificate
       subject_names:
       - "autoscaler.{{.DOMAIN}}"
-    description: "The PEM-encoded tls certificate for autoscaler asactors public https server(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS certificate of the Autoscaler API public https server. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY
     secret: true
@@ -1747,7 +1741,7 @@ configuration:
       id: as_api_public_server_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for autoscaler asactors public https server(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS key of the Autoscaler API public https server. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASAPI_SERVER_CERT
     secret: true
@@ -1757,7 +1751,7 @@ configuration:
       value_type: certificate
       subject_names:
       - "autoscaler-api.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "The PEM-encoded tls certificate for autoscaler asapi https server(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS certificate of the Autoscaler API https server. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASAPI_SERVER_KEY
     secret: true
@@ -1765,7 +1759,7 @@ configuration:
       id: as_api_server_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for autoscaler asapi https server(including apiserver and servicebroker)"
+    description: "A PEM-encoded TLS key of the Autoscaler API https server. This includes the Autoscaler ApiServer and the Service Broker."
     required: true
   - name: AUTOSCALER_ASMETRICS_CLIENT_CERT
     secret: true
@@ -1775,7 +1769,7 @@ configuration:
       value_type: certificate
       subject_names:
       - as_metrics_client
-    description: "The PEM-encoded tls certificate for any clients to connect to autoscaler asmetrics(including metricscollector and eventgenerator)"
+    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler Metrics. This includes the Autoscaler Metrics Collector and Event Generator."
     required: true
   - name: AUTOSCALER_ASMETRICS_CLIENT_KEY
     secret: true
@@ -1783,7 +1777,7 @@ configuration:
       id: as_metrics_client_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for any clients to connect to autoscaler asmetrics(including metricscollector and eventgenerator)"
+    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler Metrics. This includes the Autoscaler Metrics Collector and Event Generator."
     required: true
   - name: AUTOSCALER_ASMETRICS_SERVER_CERT
     secret: true
@@ -1793,7 +1787,7 @@ configuration:
       value_type: certificate
       subject_names:
       - "autoscaler-metrics.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "The PEM-encoded tls certificate for autoscaler asmetrics https server(including metricscollector and eventgenerator)"
+    description: "A PEM-encoded TLS certificate of the Autoscaler Metrics https server. This includes the Autoscaler Metrics Collector and Event Generator."
     required: true
   - name: AUTOSCALER_ASMETRICS_SERVER_KEY
     secret: true
@@ -1801,20 +1795,14 @@ configuration:
       id: as_metrics_server_cert
       type: Certificate
       value_type: private_key
-    description: "The PEM-encoded tls key for autoscaler asmetrics https server(including metricscollector and eventgenerator)"
+    description: "A PEM-encoded TLS key of the Autoscaler Metrics https server. This includes the Autoscaler Metrics Collector and Event Generator."
     required: true
-  - name: AUTOSCALER_BINDING_DB_PORT
-    default: 5432
-    description: "The autoscaler servicebroker database server port"
-  - name: AUTOSCALER_BINDING_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler servicebroker database server port"
   - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
     default: true
     description: ""
   - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
     default: 1000
-    description: "The maximum connection number the autoscaler-postgres server could serve"
+    description: "The maximum number of connections the autoscaler-postgres server could serve."
   - name: AUTOSCALER_DB_NAME
     default: "autoscaler"
     description: "The database name used by autoscaler"
@@ -1835,19 +1823,19 @@ configuration:
     description: "The database role tag of autoscaler postgres database"
   - name: AUTOSCALER_DEFAULT_BREACH_DURATION_SECS
     default: 300
-    description: "The default breach duration for eventgenerator of autoscaler"
+    description: "The default breach duration for eventgenerator of autoscaler, in seconds."
   - name: AUTOSCALER_DEFAULT_COOLDOWN_SECS
     default: 300
-    description: "The default cooldown seconds between two scaling action for eventgenerator of autoscaler"              
+    description: "The default cooldown duration between two scaling action for eventgenerator of autoscaler, in seconds."              
   - name: AUTOSCALER_DEFAULT_STAT_WINDOW_SECS
     default: 300
-    description: "The default statistic window seconds between two scaling action for eventgenerator of autoscaler"   
+    description: "The default statistic window duration between two scaling action for eventgenerator of autoscaler, in seconds."   
   - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE
     default: 1000
-    description: "The size of golang channel used by autoscaler eventgenerator.metricpoller as a buffer to save metrics by batch"
+    description: "The size of golang channel used by autoscaler eventgenerator.metricpoller as a buffer to save metrics by batch."
   - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE
     default: 200
-    description: "The size of golang channel used by autoscaler eventgenerator.aggregator and eventgenerator.metricpoller to exchange data"
+    description: "The size of golang channel used by autoscaler eventgenerator.aggregator and eventgenerator.metricpoller to exchange data."
   - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL
     default: "40s"
     description: "The duration defines how long does autoscaler eventgenerator aggregate appmetrics"
@@ -1883,34 +1871,22 @@ configuration:
     description: "log level: debug, info, error, fatal"
   - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The maximum lifetime of instance metrics database connection in connection pool"
+    description: "The maximum age of a connection that can be reused for the Autoscaler Instance_Metrics database."
   - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum idle instance metrics database connections in connection pool"
+    description: "The maximum number of idle connections to the Autoscaler Instance_Metrics database."
   - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The maximum number of instance metrics database connections in connection pool"
-  - name: AUTOSCALER_INSTANCE_METRICS_DB_PORT
-    default: 5432
-    description: "The autoscaler instance metrics database server port"
-  - name: AUTOSCALER_INSTANCE_METRICS_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler instance metrics database scheme"
+    description: "The maximum number of connections to the Autoscaler Instance_Metrics database."
   - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The maximum lifetime of lock database connection in connection pool"
+    description: "The maximum age of a connection that can be reused for the Autoscaler lock database."
   - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum idle lock database connections in connection pool"
+    description: "The maximum number of idle connections to the Autoscaler lock database."
   - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The maximum number of lock database connections in connection pool"
-  - name: AUTOSCALER_LOCK_DB_PORT
-    default: 5432
-    description: "The autoscaler lock database server port"
-  - name: AUTOSCALER_LOCK_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler lock database scheme"
+    description: "The maximum number of connections to the Autoscaler lock database."
   - name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
     default: "30s"
     description: "The duration defines how long does metricscollector aggregate collected instance metrics"
@@ -1928,19 +1904,13 @@ configuration:
     description: "log level: debug, info, error, fatal"
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The maximum lifetime of policy database connection in connection pool"
+    description: "The maximum age of a connection that can be reused for the Autoscaler policy database."
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum idle policy database connections in connection pool"
+    description: "The maximum number of idle connections to the Autoscaler policy database."
   - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The maximum number of policy database connections in connection pool"
-  - name: AUTOSCALER_POLICY_DB_PORT
-    default: 5432
-    description: "The autoscaler policy database server port"
-  - name: AUTOSCALER_POLICY_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler policy database scheme"
+    description: "The maximum number of connections to the Autoscaler policy database."
   - name: AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS
     default: 30
     description: "The duration defines how many days of appmetrics data does autoscaler pruner kept for each pruning"
@@ -1974,20 +1944,13 @@ configuration:
   
   - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The maximum lifetime of scalingengine database connection in connection pool"
+    description: "The maximum age of a connection that can be reused for the Autoscaler scaling_engine database."
   - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum idle scalingengine database connections in connection pool"
+    description: "The maximum number of idle connections to the Autoscaler scaling_engine database."
   - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The maximum number of scalingengine database connections in connection pool"
-  - name: AUTOSCALER_SCALING_ENGINE_DB_PORT
-    default: 5432
-    description: "The autoscaler scalingengine database server port"
-  
-  - name: AUTOSCALER_SCALING_ENGINE_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler scalingengine database scheme"
+    description: "The maximum number of connections to the Autoscaler scaling_engine database."
   - name: AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL
     description: "the time interval to emit health metrics"
     default: 15s
@@ -2007,20 +1970,13 @@ configuration:
    
   - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
     default: "60s"
-    description: "The maximum lifetime of scheduler database connection in connection pool"
+    description: "The maximum age of a connection that can be reused for the Autoscaler scheduler database."
   - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
     default: 10
-    description: "The maximum idle scheduler database connections in connection pool"
+    description: "The maximum number of idle connections to the Autoscaler scheduler database."
   - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
     default: 100
-    description: "The maximum number of scheduler database connections in connection pool"
-  - name: AUTOSCALER_SCHEDULER_DB_PORT
-    default: 5432
-    description: "The autoscaler scheduler database server port"
-  
-  - name: AUTOSCALER_SCHEDULER_DB_SCHEME
-    default: "postgres"
-    description: "The autoscaler scheduler database scheme"
+    description: "The maximum number of connections to the Autoscaler scaling_engine database."
   - name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND
     default: 100
     description: "Rescheduling interval for quartz job in milliseconds"
@@ -2032,13 +1988,13 @@ configuration:
     description: "Maximum number of notification sent to scaling engine for job re-schedule"
   - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
     default: 1000
-    description: "The maximum time of a idle connection in milliseconds in servicebroker database connections pool"
+    description: "Idle connection timeout for the Autoscaler servicebroker database, in seconds."
   - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS
     default: 10
-    description: "The maximum connections in servicebroker database connections pool"
+    description: "The maximum number of connections to the Autoscaler servicebroker database."
   - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
     default: 0
-    description: "The minimum connections in servicebroker database connections pool"
+    description: "The minimum number of connections to the Autoscaler servicebroker database."
  
   - name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
     default: 5000
@@ -3085,16 +3041,12 @@ configuration:
     properties.autoscaler.api_server.service_offering_enabled: '((AUTOSCALER_SERVICE_OFFERING_ENABLED))'
     properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.appmetrics_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.appmetrics_db.db_scheme: '"((AUTOSCALER_APPMETRICS_DB_SCHEME))"'
-    properties.autoscaler.appmetrics_db.port: '"((AUTOSCALER_APPMETRICS_DB_PORT))"'
     properties.autoscaler.appmetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.appmetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.appmetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.appmetrics_db_connection_config.max_open_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
     properties.autoscaler.binding_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.binding_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.binding_db.db_scheme: '"((AUTOSCALER_BINDING_DB_SCHEME))"'
-    properties.autoscaler.binding_db.port: '"((AUTOSCALER_BINDING_DB_PORT))"'
     properties.autoscaler.binding_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.cf.api: '"https://api.((DOMAIN))"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
@@ -3127,16 +3079,12 @@ configuration:
     properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_KEY))"'
     properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.instancemetrics_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.instancemetrics_db.db_scheme: '"((AUTOSCALER_INSTANCE_METRICS_DB_SCHEME))"'
-    properties.autoscaler.instancemetrics_db.port: '"((AUTOSCALER_INSTANCE_METRICS_DB_PORT))"'
     properties.autoscaler.instancemetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.instancemetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.instancemetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.instancemetrics_db_connection_config.max_open_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
     properties.autoscaler.lock_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.lock_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.lock_db.db_scheme: '"((AUTOSCALER_LOCK_DB_SCHEME))"'
-    properties.autoscaler.lock_db.port: '"((AUTOSCALER_LOCK_DB_PORT))"'
     properties.autoscaler.lock_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.lock_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.lock_db_connection_config.max_idle_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3151,8 +3099,6 @@ configuration:
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_KEY))"'
     properties.autoscaler.policy_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.policy_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.policy_db.db_scheme: '"((AUTOSCALER_POLICY_DB_SCHEME))"'
-    properties.autoscaler.policy_db.port: '"((AUTOSCALER_POLICY_DB_PORT))"'
     properties.autoscaler.policy_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3178,8 +3124,6 @@ configuration:
     properties.autoscaler.scalingengine.synchronizer.active_schedule_sync_interval: '"((AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL))"'
     properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scalingengine_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.scalingengine_db.db_scheme: '"((AUTOSCALER_SCALING_ENGINE_DB_SCHEME))"'
-    properties.autoscaler.scalingengine_db.port: '"((AUTOSCALER_SCALING_ENGINE_DB_PORT))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.scalingengine_db_connection_config.max_idle_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3196,8 +3140,6 @@ configuration:
     properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_ASACTORS_SERVER_KEY))"'
     properties.autoscaler.scheduler_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler_db.databases: '[{"name": "((AUTOSCALER_DB_NAME))", "tag": "((AUTOSCALER_DB_TAG))"}]'
-    properties.autoscaler.scheduler_db.db_scheme: '"((AUTOSCALER_SCHEDULER_DB_SCHEME))"'
-    properties.autoscaler.scheduler_db.port: '"((AUTOSCALER_SCHEDULER_DB_PORT))"'
     properties.autoscaler.scheduler_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_ROLE_PASSWORD))", "tag": "((AUTOSCALER_DB_ROLE_TAG))"}]'
     properties.autoscaler.scheduler_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.scheduler_db_connection_config.max_idle_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'

@@ -60,6 +60,12 @@ properties:
         port: 7102
       scaling_engine:
         port: 7104
+    appmetrics_db:
+      port: 5432
+      db_scheme: postgres
+    binding_db:
+      port: 5432
+      db_scheme: postgres
     eventgenerator:
       metricscollector:
         port: 7103
@@ -68,21 +74,36 @@ properties:
         port: 7104
       server:
         port: 7105
+    instancemetrics_db:
+      port: 5432
+      db_scheme: postgres
+    lock_db:
+      port: 5432
+      db_scheme: postgres
     metricscollector:
       server:
         port: 7103
       require_consul: false
+    policy_db:
+      port: 5432
+      db_scheme: postgres
     pruner:
       require_consul: false
     scalingengine:
       require_consul: false
       server:
         port: 7104
+    scalingengine_db:
+      port: 5432
+      db_scheme: postgres
     scheduler:
       port: 7102
       require_consul: false
       scaling_engine:
         port: 7104
+    scheduler_db:
+      port: 5432
+      db_scheme: postgres
     service_broker:
       username: username
       api_server:
