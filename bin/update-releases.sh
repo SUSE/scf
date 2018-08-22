@@ -16,6 +16,8 @@ declare -A MISSING_REASONS=(
     [uaa-release]="see src/uaa-fissile-release"
     [consul-release]="not used"
     [cf-networking-release]="not used"
+    [bpm-release]="not used"
+    [silk-release]="not used"
 )
 
 declare -A REMAINING_REASONS=(
