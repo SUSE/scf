@@ -62,6 +62,27 @@ void runTest(String testName) {
     """
 }
 
+void runTestBrain(String testName) {
+    sh """
+        image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
+	namespace=${jobBaseName()}-${BUILD_NUMBER}-scf
+
+        kubectl delete pod --namespace=\${namespace} "${testName}" || true
+
+	sed < "bin/dev/psp-rbac-testbrain.yaml" \
+	    -e "s|namespace: scf|namespace: \${namespace}|" | \
+	    kubectl apply -f -
+
+        kubectl run \
+            --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
+            --attach \
+            --restart=Never \
+            --image=\${image} \
+            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath" | sed -e 's|"serviceAccountName":"default"|"serviceAccountName":"suse-cap-test-brain-account"|')" \
+            "${testName}"
+    """
+}
+
 String distSubDir() {
     try {
         "${CHANGE_ID}"
@@ -635,7 +656,7 @@ pipeline {
             }
             steps {
                 setBuildStatus('brain', 'pending')
-                runTest('acceptance-tests-brain')
+                runTestBrain('acceptance-tests-brain')
             }
             post {
                 success {
