@@ -10,6 +10,12 @@ if [ ! -f "output/kube/bosh-task/${POD_NAME}.yaml" ]; then
 fi
 shift
 
+# Detect special case of brain tests
+case ${POD_NAME} in
+    *brain*) BRAIN=/bin/true  ;;
+    *)       BRAIN=/bin/false ;;
+esac
+
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
 
@@ -43,6 +49,20 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
 kubectl delete --namespace="${NAMESPACE}" --filename="output/kube/bosh-task/${POD_NAME}.yaml" \
     2> /dev/null || /bin/true
 
+PSPCONFIG=$(mktemp)
+remove_test_config () { rm -f "${PSPCONFIG}" ; }
+trap remove_test_config EXIT
+
+if $BRAIN ; then
+    # Configure the SA etc for the actual namespace used.
+    sed < "bin/dev/psp-rbac-testbrain.yaml" > "${PSPCONFIG}" \
+	-e "s|namespace: scf|namespace: ${NAMESPACE}|"
+
+    # Delete leftovers based on the new namespace.
+    kubectl delete --namespace="${NAMESPACE}" --filename="${PSPCONFIG}" \
+    2> /dev/null || /bin/true
+fi
+
 echo "Waiting for pod ${POD_NAME} to be deleted..."
 while has_pod ; do
     sleep 1
@@ -54,8 +74,19 @@ done
 CONFIG=$(mktemp)
 ruby bin/kube_overrides.rb "${NAMESPACE}" "${DOMAIN:-}" "output/kube/bosh-task/${POD_NAME}.yaml" "$@" > "${CONFIG}"
 
-remove_test_config () { rm "${CONFIG}" ; }
+remove_test_config () { rm -f "${CONFIG}" "${PSPCONFIG}" ; }
 trap remove_test_config EXIT
+
+if $BRAIN ; then
+    # Redirect task to the new service account with its PSP
+    sed < "${CONFIG}" > $$ \
+	-e 's|"serviceAccountName":"default"|"serviceAccountName":"suse-cap-test-brain-account"|'
+    mv $$ "${CONFIG}"
+
+    # Enter the new SA and associated objects.
+    kubectl create --namespace="${NAMESPACE}" --filename="${PSPCONFIG}"
+fi
+
 kubectl create --namespace="${NAMESPACE}" --filename="${CONFIG}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end

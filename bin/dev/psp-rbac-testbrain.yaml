@@ -1,7 +1,7 @@
 # # ##
 ## Objects specified in this file
 #
-# 1. ServiceAccount     "suse.cap.test-brain.account"
+# 1. ServiceAccount     "suse-cap-test-brain-account"
 # 2. Role               "suse:cap:test-brain:base-role"
 # 3. Role               "suse:cap:test-brain:nfs-role"
 # 4. RoleBinding        "suse:cap:test-brain:bind:base-role"  -- 2 <~> 1
@@ -22,7 +22,7 @@
 #
 ## Description
 #
-# The service account 'suse.cap.test-brain.account' (1) is linked to
+# The service account 'suse-cap-test-brain-account' (1) is linked to
 # the roles 'suse:cap:test-brain:base-role' (1) and
 # 'suse:cap:test-brain:nfs-role' (2) via role bindings (4, 5), for the
 # necessary operation permissions.
@@ -44,7 +44,7 @@
 apiVersion: "v1"
 kind: "ServiceAccount"
 metadata:
-  name: "suse.cap.test-brain.account"
+  name: "suse-cap-test-brain-account"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1beta1"
 kind: "Role"
@@ -117,7 +117,7 @@ metadata:
   name: "suse:cap:test-brain:bind:base-role"
 subjects:
 - kind: "ServiceAccount"
-  name: "suse.cap.test-brain.account"
+  name: "suse-cap-test-brain-account"
 roleRef:
   kind: "Role"
   name: "suse:cap:test-brain:base-role"
@@ -129,7 +129,7 @@ metadata:
   name: "suse:cap:test-brain:bind:nfs-role"
 subjects:
 - kind: "ServiceAccount"
-  name: "suse.cap.test-brain.account"
+  name: "suse-cap-test-brain-account"
 roleRef:
   kind: "Role"
   name: "suse:cap:test-brain:nfs-role"
@@ -223,5 +223,5 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
-  name: suse.cap.test-brain.account
+  name: suse-cap-test-brain-account
   namespace: scf
