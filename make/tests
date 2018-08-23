@@ -58,7 +58,7 @@ done
 # actual name as pulled from the cluster under test.
 
 CONFIG=$(mktemp)
-DOMAIN="$(helm get values "${RELEASE}" --all | y2j | jq -r .env.DOMAIN)"
+DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
 ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
