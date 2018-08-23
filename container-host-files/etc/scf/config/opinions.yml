@@ -61,9 +61,11 @@ properties:
       scaling_engine:
         port: 7104
     appmetrics_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     binding_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     eventgenerator:
@@ -75,9 +77,11 @@ properties:
       server:
         port: 7105
     instancemetrics_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     lock_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     metricscollector:
@@ -85,15 +89,19 @@ properties:
         port: 7103
       require_consul: false
     policy_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     pruner:
       require_consul: false
     scalingengine:
+      health:
+        port: 8083
       require_consul: false
       server:
         port: 7104
     scalingengine_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     scheduler:
@@ -102,6 +110,7 @@ properties:
       scaling_engine:
         port: 7104
     scheduler_db:
+      databases: '[{"name": "autoscaler", "tag": "default"}]'
       port: 5432
       db_scheme: postgres
     service_broker:
