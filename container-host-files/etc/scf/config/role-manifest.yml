@@ -1251,7 +1251,7 @@ instance_groups:
     flight-stage: manual
     capabilities: []
     exposed-ports: []
-    service-account: test-brain
+    service-account: default
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1553,26 +1553,11 @@ configuration:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role:
-      - apiGroups: [""]
-        resources: [services]
-        verbs: [create, get, delete]
-      - apiGroups: [apps]
-        resources: [statefulsets]
-        verbs: [create, get, update, delete]
-      - apiGroups: [""]
-        resources: ["pods/exec"]
-        verbs: [create, delete]
-      - apiGroups: [""]
-        resources: ["pods/log"]
-        verbs: [create, delete, get, list]
     accounts:
       default:
         roles: [configgin-role]
       secret-generator:
         roles: [configgin-role, secrets-role]
-      test-brain:
-        roles: [configgin-role, test-role]
   variables:
   - name: ALLOWED_CORS_DOMAINS
     default: []
