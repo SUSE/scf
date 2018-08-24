@@ -168,7 +168,6 @@ spec:
     - azureDisk
     - azureFile
     - vsphereVolume
-  allowedFlexVolumes: []
   allowedHostPaths:
     # Note: We don't allow hostPath volumes above, but set this to a path we
     # control anyway as a belt+braces protection. /dev/null may be a better
@@ -185,7 +184,7 @@ spec:
     rule: RunAsAny
   # Privilege Escalation
   #allowPrivilegeEscalation: false	   <<< default in suse.caasp.psp.unprivileged
-  allowPrivilegeEscalation: true
+  allowPrivilegeEscalation: false
   #defaultAllowPrivilegeEscalation: false  <<< default in suse.caasp.psp.unprivileged
   # Capabilities
   allowedCapabilities: []
