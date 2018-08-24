@@ -71,7 +71,7 @@ void runTestBrain(String testName) {
 
 	sed < "bin/dev/psp-rbac-testbrain.yaml" \
 	    -e "s|namespace: scf|namespace: \${namespace}|" | \
-	    kubectl apply -f -
+	    kubectl apply --namespace="\${namespace}" -f -
 
         kubectl run \
             --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
