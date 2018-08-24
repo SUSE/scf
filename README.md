@@ -567,7 +567,7 @@ here.
 __Note:__ To bump the UAA modules start the process here. At least
 step 1 has to be done, to provide the version information.  Any time
 after step 1 enter the `src/uaa-fissile-release` and follow the
-bump instructions in the [UAA README](src/uaa-fissile-release/README.md).
+bump instructions in the [UAA README](https://github.com/SUSE/uaa-fissile-release/blob/master/README.md).
 
 1. On the host machine run
 
