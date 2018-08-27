@@ -2373,6 +2373,9 @@ configuration:
       by the user. To change the cluster's log level set the parameter
       `LOG_LEVEL` instead, from which this one is derived.
   - name: HELM_IS_INSTALL
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set directly from the Release.IsInstall Helm property.
     type: environment
   - name: HOSTNAME
     description: >
@@ -2414,6 +2417,11 @@ configuration:
     description: PEM-encoded CA key.
     required: true
   - name: KUBERNETES_CLUSTER_DOMAIN
+    description: >
+      The cluster domain used by Kubernetes.
+      If left empty, each container will try to determine the correct value based on /etc/resolv.conf
+      You can read more about it in the Kubernetes Documentation https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+    example: cluster.local
     type: environment
   - name: KUBERNETES_NAMESPACE
     type: environment
@@ -2423,13 +2431,19 @@ configuration:
       Its value is supplied by the kubernetes runtime.
   - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
     type: environment
+    description: >
+      Storage class used for SCF acceptance tests.
   - name: KUBE_AZ
+    description: >
+      A string representing the availability zone a container is running in.
+      Shouldn't be changed from its default value of z1.
     type: environment
     default: "z1"
   - name: KUBE_COMPONENT_INDEX
     type: environment
-  - name: KUBE_COMPONENT_NAME
-    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set to a numeric index for roles with multiple replicas.
   - name: KUBE_CONSUL_CLUSTER_IPS
     type: environment
     description: >
@@ -2444,7 +2458,13 @@ configuration:
       Its value is automatically computed during cluster setup.
   - name: KUBE_SECRETS_GENERATION_COUNTER
     type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's automatically set to the kube.secrets_generation_counter Helm value, which controls secret rotation.
   - name: KUBE_SECRETS_GENERATION_NAME
+    description: >
+      This is an environment variable built-in by fissile.
+      Its default value is 'secret-1' and cannot be set by the user.
     type: environment
   - name: KUBE_SIZING_NATS_COUNT
     description: >
@@ -2765,12 +2785,22 @@ configuration:
     required: true
   - name: SUSE_STACK
     default: opensuse42
+    description: >
+      This controls which SUSE stack is built into SCF.
+      Depending on the build, this can be an openSUSE or SLE stack.
+      Cannot be set by the user. 
     type: environment
   - name: SUSE_STACK_DESCRIPTION
     default: openSUSE-based filesystem
+    description: >
+      During build this is set to an appropriate description for the SUSE stack built into SCF.
+      Cannot be set by the user.
     type: environment
   - name: SUSE_STACK_DIRNAME
     default: opensuse42
+    description: >
+      During build this is set to the directory that contains the SUSE stack built into SCF.
+      Cannot be set by the user.
     type: environment
   - name: SYSLOG_ADAPT_CERT
     secret: true
@@ -2964,10 +2994,10 @@ configuration:
 
   templates:
     az: '"((KUBE_AZ))"'
-    id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_COMPONENT_INDEX))-((KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
+    id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_KEY here so validation doesn't complain that it's not being used.
     # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
