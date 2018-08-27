@@ -3,6 +3,8 @@
 set -o errexit -o nounset
 
 NAMESPACE="${NAMESPACE:-cf}"
+UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
+
 POD_NAME=$1
 
 find_test() {
@@ -20,6 +22,17 @@ find_test() {
 
 TEST_FILE="$(find_test)"
 shift
+
+if [ "${POD_NAME}" == "acceptance-tests" ]; then
+    UAA_COUNT=$(kubectl get sts --namespace "${UAA_NAMESPACE}" uaa -o jsonpath='{.status.replicas}')
+    if [ ${UAA_COUNT} -gt 1 ]; then
+        echo -e "\033[36mThe SSO lifecycle tests are known to fail with UAA in HA mode.\033[0m"
+        echo -e "\033[36mMake you have disabled the tests with e.g. \033[32menv.CATS_SUITES=-sso\033[0m"
+        echo ""
+        echo "See https://github.com/cloudfoundry/cf-acceptance-tests/issues/328"
+        echo ""
+    fi
+fi
 
 GIT_ROOT=${GIT_ROOT:-$(git -C "$(dirname "${0}")" rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
