@@ -195,7 +195,7 @@ instance_groups:
                 values:
                 - nats
             topologyKey: "beta.kubernetes.io/os"
-- name: database
+- name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -3205,7 +3205,7 @@ configuration:
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -3213,12 +3213,12 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
-    properties.cf_mysql.host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
@@ -3256,13 +3256,13 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
@@ -3333,7 +3333,7 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -3367,7 +3367,7 @@ configuration:
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
-    properties.routing_api.sqldb.host: "database-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.routing_api.sqldb.host: "mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
