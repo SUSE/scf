@@ -46,12 +46,99 @@ properties:
       grant_type: client_credentials
       password: "" # unused
       username: "" # unused
+    api_server:
+      eventgenerator:
+        port: 7105
+      metrics_collector:
+        port: 7103
+      port: 7100
+      publicPort: 7106
+      require_consul: false
+      service_broker:
+        port: 7107
+      scheduler:
+        port: 7102
+      scaling_engine:
+        port: 7104
+    appmetrics_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    binding_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    eventgenerator:
+      metricscollector:
+        port: 7103
+      require_consul: false
+      scaling_engine:
+        port: 7104
+      server:
+        port: 7105
+    instancemetrics_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    lock_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    metricscollector:
+      server:
+        port: 7103
+      require_consul: false
+    policy_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    pruner:
+      require_consul: false
+    scalingengine:
+      health:
+        port: 8083
+      require_consul: false
+      server:
+        port: 7104
+    scalingengine_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    scheduler:
+      port: 7102
+      require_consul: false
+      scaling_engine:
+        port: 7104
+    scheduler_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    service_broker:
+      username: username
+      api_server:
+        port: 7100
+      port: 7107
+      publicPort: 7101
+      require_consul: false
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
-    broker_client_timeout_seconds: 70
     buildpacks:
       blobstore_type: webdav
       webdav_config:

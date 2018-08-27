@@ -2,15 +2,26 @@
 
 set -o errexit -o nounset
 
-NAMESPACE="cf"
+NAMESPACE="${NAMESPACE:-cf}"
 POD_NAME=$1
-if [ ! -f "output/kube/bosh-task/${POD_NAME}.yaml" ]; then
+
+find_test() {
+    local dir file
+    for dir in output/kube kube/cf-opensuse ; do
+        file="${dir}/bosh-task/${POD_NAME}.yaml"
+        if [ -f "${file}" ] ; then
+            echo "${file}"
+            return 0
+        fi
+    done
     echo 1>&2 There is no bosh-task for "${POD_NAME}".
     exit 1
-fi
+}
+
+TEST_FILE="$(find_test)"
 shift
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+GIT_ROOT=${GIT_ROOT:-$(git -C "$(dirname "${0}")" rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
 
 has_namespace() {
@@ -30,17 +41,12 @@ else
     exit 1
 fi
 
-stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" start
-
-source "${GIT_ROOT}/bin/settings/settings.env"
-source "${GIT_ROOT}/bin/settings/network.env"
-
-stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::setup" end
+RELEASE="$(helm list --namespace "${NAMESPACE}" --short --max 1)"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
 
 # Delete left-over pod/definition from previous runs, then create/run
-kubectl delete --namespace="${NAMESPACE}" --filename="output/kube/bosh-task/${POD_NAME}.yaml" \
+kubectl delete --namespace="${NAMESPACE}" --filename="${TEST_FILE}" \
     2> /dev/null || /bin/true
 
 echo "Waiting for pod ${POD_NAME} to be deleted..."
@@ -52,7 +58,8 @@ done
 # actual name as pulled from the cluster under test.
 
 CONFIG=$(mktemp)
-ruby bin/kube_overrides.rb "${NAMESPACE}" "${DOMAIN:-}" "output/kube/bosh-task/${POD_NAME}.yaml" "$@" > "${CONFIG}"
+DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
+ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
