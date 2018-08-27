@@ -43,7 +43,7 @@
 
 ### Changed
 - Realigned cf role composition more inline with upstream
-- database role combines previous mysql and mysql-proxy roles
+- mysql-proxy role has been merged into the mysql role
 - diego-locket role merged into diego-api
 - log-api role combines loggregator and syslog-rlp roles
 - Renamed syslog-adapter role to adapter
