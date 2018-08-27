@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [2.13.0] - 2018-08-27
+
+### Added
+- broker_client_timeout_seconds variable exposed
+
+### Changed
+- Bumped app-autoscaler-release to 8d6cb15
+- Bumped openSUSE stack
+
+### Fixed
+- Reverted changes to database role rename based on issue with volumes during upgrade
+- CF version number in filename properly updated
+
 ## [2.12.3] - 2018-08-22
 
 ### Added
