@@ -483,6 +483,7 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        pod-security-policy: privileged
         ports:
         - name: router
           protocol: TCP
@@ -1133,6 +1134,7 @@ instance_groups:
     release: nfs-volume
     properties:
       bosh_containerization:
+        pod-security-policy: privileged
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1193,6 +1195,9 @@ instance_groups:
     release: diego
   - name: garden
     release: garden-runc
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
   - name: groot-btrfs
     release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
