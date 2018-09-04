@@ -250,11 +250,9 @@ pipeline {
 
 	      println currentBuild
 	      println currentBuild.changeSets
-	      //println currentBuild.getProperties().toString()
 	      println currentBuild.changeSets.getClass()
 	      println currentBuild.rawBuild.changeSets
 	      println currentBuild.rawBuild.changeSets.getClass()
-	      //println currentBuild.changeSets.getProperties().toString()
 
               for (set in currentBuild.changeSets) {
                 def entries = set.items
