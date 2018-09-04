@@ -248,6 +248,9 @@ pipeline {
             script {
 	      def all_files = new ArrayList()
 
+	      println currentBuild
+	      println currentBuild.changeSets
+
               for (set in currentBuild.changeSets) {
                 def entries = set.items
                 println entries
