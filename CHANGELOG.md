@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [2.13.1] - 2018-09-04
+
+### Changed
+- Bumped go & Ruby buildpacks
+- Bumped SLE12 & openSUSE stacks
+
+### Fixed
+- fissile now uses port numbers for exposed services, addressing a Kubernetes behaviour spotted during upgrades
+- Provide warnings when HA UAA relies on SSO lifecycle tests
+
 ## [2.13.0] - 2018-08-27
 
 ### Added
