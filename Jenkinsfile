@@ -253,6 +253,11 @@ pipeline {
 	      println currentBuild.changeSets.getClass()
 	      println currentBuild.rawBuild.changeSets
 	      println currentBuild.rawBuild.changeSets.getClass()
+	      println currentBuild.previousBuild
+	      println currentBuild.previousBuild.id
+	      println currentBuild.previousBuild.displayName
+	      println currentBuild.previousBuild.description
+	      println currentBuild.previousBuild.changeSets
 
               for (set in currentBuild.changeSets) {
                 def entries = set.items
