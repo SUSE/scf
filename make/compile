@@ -25,7 +25,7 @@ get_package_version_list() {
 }
 
 _cache() {
-    test -z "${SCF_PACKAGE_COMPILATION_CACHE}" && return
+    test -n "${SCF_DISABLE_PACKAGE_COMPILATION_CACHE+x}" && return
 
     for package_version in $(get_package_version_list) ; do
         package_hash="${package_version##*/}"
