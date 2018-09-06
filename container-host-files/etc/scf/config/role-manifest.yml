@@ -1342,7 +1342,56 @@ instance_groups:
     memory: 256
     virtual-cpus: 1
     exposed-ports: []
-
+- name: credhub-user
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/credhub_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: credhub
+    release: credhub-user
+  - name: route_registrar
+    release: routing
+  run:
+    scaling:
+      min: 0
+      max: 1
+      ha: 1
+    capabilities: []
+    persistent-volumes: []
+    shared-volumes: []
+    memory: 256
+    virtual-cpus: 2
+    exposed-ports:
+    - name: api #apiserverport
+      protocol: TCP
+      external: 8844
+      internal: 8844
+    healthcheck:
+      readiness:
+  configuration:
+    templates:
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+      properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+      properties.credhub.authorization.acls.enabled: false
+      properties.credhub.data_storage.database: "credhub_user"
+      properties.credhub.data_storage.host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
+      properties.credhub.data_storage.port: 3306
+      properties.credhub.data_storage.require_tls: false
+      properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
+      properties.credhub.data_storage.type: "mysql"
+      properties.credhub.data_storage.username: "credhub_user"
+      properties.credhub.encryption.keys: '[{"provider_name":"internal-provider", "active":true, "key_properties":{"encryption_password":"((CREDHUB_ENCRYPT_KEY))"}}]'
+      properties.credhub.encryption.providers: '[{"name":"internal-provider", "type":"internal"}]'
+      properties.credhub.log_level: '"((CREDHUB_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+      properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_KEY))"}'
+      properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 # cf app-autoscaler
 - name: autoscaler-postgres
   scripts:
@@ -2251,6 +2300,38 @@ configuration:
       value_type: private_key
     description: PEM-encoded server key
     required: true
+  - name: CREDHUB_ENCRYPT_KEY
+    secret: true
+    immutable: true
+    generator:
+      type: Password
+    description: Credhub encryption key
+    required: true
+  - name: CREDHUB_LOG_LEVEL
+    type: environment
+    description: >
+      The log level for credhub. This parameter is not supposed to be set
+      by the user. To change the cluster's log level set the parameter
+      `LOG_LEVEL` instead, from which this one is derived.
+  - name: CREDHUB_SERVER_CERT
+    secret: true
+    generator:
+      id: credhub_server_cert
+      type: Certificate
+      value_type: certificate
+      subject_names:
+      - "credhub-set"
+      - "server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
+    description: PEM-encoded server certificate
+    required: true
+  - name: CREDHUB_SERVER_KEY
+    secret: true
+    generator:
+      id: credhub_server_cert
+      type: Certificate
+      value_type: private_key
+    description: PEM-encoded server key
+    required: true
   - name: DB_ENCRYPTION_KEY
     secret: true
     # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
@@ -2540,6 +2621,12 @@ configuration:
     generator:
       type: Password
     description: The password for the cluster logger health user.
+    required: true
+  - name: MYSQL_CREDHUB_USER_PASSWORD
+    secret: true
+    generator:
+      type: Password
+    description: The password for access to the credhub-user database.
     required: true
   - name: MYSQL_DIEGO_LOCKET_PASSWORD
     description: Database password for the diego locket service.
@@ -2911,6 +2998,12 @@ configuration:
       type: Password
     description: The password for UAA access by the Cloud Controller for fetching usernames.
     required: true
+  - name: UAA_CLIENTS_CREDHUB_USER_CLI_SECRET
+    secret: true
+    generator:
+      type: Password
+    description: The password for UAA access by the client for the user-accessible credhub
+    required: true
   - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
     secret: true
     generator:
@@ -3226,7 +3319,7 @@ configuration:
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
@@ -3421,6 +3514,7 @@ configuration:
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
+    properties.uaa.clients.credhub_user_cli.secret: '"((UAA_CLIENTS_CREDHUB_USER_CLI_SECRET))"'
     properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
