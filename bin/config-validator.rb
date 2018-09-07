@@ -95,7 +95,7 @@ def main
   check_rm_variables(manifest)
 
   STDOUT.puts "\nAll role manifest params must be sorted".cyan
-  check_sort manifest['configuration']['variables'].map { |v| v['name'] }, "variables"
+  check_sort manifest['variables'].map { |v| v['name'] }, "variables"
 
   STDOUT.puts "\nAll role manifest templates must use only declared params".cyan
   check_rm_templates(templates, manifest, global_variables)
@@ -154,7 +154,7 @@ def print_report(manifest, bosh_properties, templates, light, dark, dev_env)
   end.flatten.length
   scripts_dir = File.expand_path(File.join(__FILE__, '../../container-host-files/etc/scf/config/scripts'))
   scripts = Dir.glob(File.join(scripts_dir, "**/*")).reject { |fn| File.directory?(fn) }
-  rm_parameters = manifest['configuration']['variables']
+  rm_parameters = manifest['variables']
 
   STDOUT.puts "\nConfiguration info:"
   STDOUT.puts "#{role_count.to_s.rjust(10, ' ').cyan} roles"
@@ -226,7 +226,7 @@ end
 
 # Checks that all of the env vars in the dev env files are declared in the role manifest
 def check_env_files(role_manifest, dev_env)
-  vars = role_manifest['configuration']['variables']
+  vars = role_manifest['variables']
   dev_env.each_pair do |name, (env_file, value)|
     next if Common.special_env(name)
     i = vars.find_index{ |x| x['name'] == name }
@@ -339,9 +339,9 @@ def check_rm_variables(manifest)
     templates << r['configuration']['templates'].values
   end
 
-  manifest['configuration']['variables'].each do |variable|
+  manifest['variables'].each do |variable|
     # "internal" variables are defined but not used in the role manifest. They are referenced directly in scripts.
-    next if variable['internal']
+    next if variable["options"] && variable['options']['internal']
     found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
     end
@@ -354,7 +354,7 @@ end
 
 def global_variables(manifest)
   variables = {}
-  manifest['configuration']['variables'].each do |var|
+  manifest['variables'].each do |var|
     variables[var['name']] = nil
   end
   variables
@@ -649,10 +649,10 @@ end
 # the_roles.instance_groups[].run.exposed-ports[].target	/int
 # the_roles.instance_groups[].run.exposed-ports[].public	/bool
 # the_roles.instance_groups[].run.hosts.<any>			/string (name -> ip-addr)
-# the_roles.configuration.variables[].name		/string
-# the_roles.configuration.variables[].default		/string
-# the_roles.configuration.variables[].example		/string
-# the_roles.configuration.variables[].secret		/bool
+# the_roles.variables[].name		/string
+# the_roles.variables[].default		/string
+# the_roles.variables[].example		/string
+# the_roles.variables[].secret		/bool
 # the_roles.configuration.templates.<any>		/string (key -> value)
 
 # (Ad *) Allowed: 'bosh' (default), 'bosh-task', and 'docker'
