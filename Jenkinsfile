@@ -223,6 +223,11 @@ pipeline {
             defaultValue: false,
             description: 'Trigger a SLES version of this job',
         )
+        booleanParam(
+            name: 'STARTED_BY_TRIGGER',
+            defaultValue: false,
+            description: 'Guard to ensure master builds are started by a trigger',
+        )
         string(
             name: 'AGENT_LABELS',
             defaultValue: '',
@@ -243,6 +248,16 @@ pipeline {
     }
 
     stages {
+        stage('ensure_triggered_master') {
+          steps {
+            script {
+	      if (env.BRANCH_NAME == 'master' && !params.STARTED_BY_TRIGGER) {
+	        error "Master build without trigger flag"
+	      }
+            }
+          }
+        }
+
         stage('trigger_sles_build') {
           when {
                 expression { return params.TRIGGER_SLES_BUILD }
