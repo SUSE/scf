@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.13.2] - 2018-09-10
+
+### Changed
+- Bumped configgin
+
+### Fixed
+- configgin can now find lower-numbered role pods to help with upgrades
+
 ## [2.13.1] - 2018-09-04
 
 ### Changed
