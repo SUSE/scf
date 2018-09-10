@@ -1274,6 +1274,7 @@ instance_groups:
     exposed-ports: []
   configuration:
     templates:
+      properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
@@ -1578,6 +1579,11 @@ configuration:
       test-brain:
         roles: [configgin-role, test-role]
   variables:
+  - name: ACCEPTANCE_TEST_NODES
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      acceptance tests. The larger the number the higher the stress on the system.
   - name: ALLOWED_CORS_DOMAINS
     default: []
     description: List of domains (including scheme) from which Cross-Origin requests will be accepted, a * can be used as a wildcard for any part of a domain.
