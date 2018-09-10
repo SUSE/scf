@@ -249,13 +249,16 @@ pipeline {
 
     stages {
         stage('ensure_triggered_master') {
-          steps {
-            script {
-	      if (env.BRANCH_NAME == 'master' && !params.STARTED_BY_TRIGGER) {
-	        error "Master build without trigger flag"
-	      }
+            when {
+                expression { return env.BRANCH_NAME == 'master' }
             }
-          }
+            steps {
+                script {
+                    if (!params.STARTED_BY_TRIGGER) {
+                        error "Master build without trigger flag"
+                    }
+                }
+            }
         }
 
         stage('trigger_sles_build') {
