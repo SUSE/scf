@@ -1472,7 +1472,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties  # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
   - name: apiserver
     release: app-autoscaler
@@ -2913,7 +2913,7 @@ variables:
       The log level for credhub. This parameter is not supposed to be set
       by the user. To change the cluster's log level set the parameter
       `LOG_LEVEL` instead, from which this one is derived.
-  type: environment
+    type: environment
 - name: CREDHUB_SERVER_CERT
   options:
     secret: true

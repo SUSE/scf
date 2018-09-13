@@ -341,7 +341,7 @@ def check_rm_variables(manifest)
 
   manifest['variables'].each do |variable|
     # "internal" variables are defined but not used in the role manifest. They are referenced directly in scripts.
-    next if variable["options"] && variable['options']['internal']
+    next if variable['options'] && variable['options']['internal']
     found = templates.any? do |template|
       Common.parameters_in_template(template).include?(variable['name'])
     end
