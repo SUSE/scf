@@ -1677,10 +1677,10 @@ configuration:
         roles: [configgin-role, test-role]
   templates:
     az: '"((KUBE_AZ))"'
-    id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_COMPONENT_INDEX))-((KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
+    id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
     # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
@@ -1929,8 +1929,8 @@ configuration:
     properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
-    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
+    properties.cf.api_url: https://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
+    properties.cf.insecure_api_url: http://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
@@ -2151,6 +2151,12 @@ configuration:
     # Really a loggregator_agent job property
     properties.zone: '"((KUBE_AZ))"'
 variables:
+- name: ACCEPTANCE_TEST_NODES
+  options:
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      acceptance tests. The larger the number the higher the stress on the system.
 - name: ALLOWED_CORS_DOMAINS
   options:
     default: []
@@ -2195,7 +2201,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: diego-brain
+    role_name: diego-brain-auctioneer
     description: PEM-encoded server certificate
     required: true
   type: certificate
@@ -2271,7 +2277,8 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-actors.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: A PEM-encoded TLS certificate of the Autoscaler Actors https server.
       This includes the Autoscaler Scheduler and the Scaling Engine.
     required: true
@@ -2319,7 +2326,8 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-api.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-api-apiserver.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-api-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: A PEM-encoded TLS certificate of the Autoscaler API https server.
       This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -2351,7 +2359,8 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-metrics.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-metrics-metricscollector.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-metrics-eventgenerator.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: A PEM-encoded TLS certificate of the Autoscaler Metrics https server.
       This includes the Autoscaler Metrics Collector and Event Generator.
     required: true
@@ -2701,7 +2710,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: diego-api
+    role_name: diego-api-bbs
     description: PEM-encoded client certificate.
     required: true
   type: certificate
@@ -2739,7 +2748,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: blobstore
+    role_name: blobstore-blobstore
     description: The PEM-encoded certificate (optionally as a certificate chain) for
       serving blobs over TLS/SSL.
     required: true
@@ -2778,7 +2787,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: api
+    role_name: api-cloud-controller-ng
     description: The PEM-encoded certificate for internal cloud controller traffic.
     required: true
   type: certificate
@@ -2791,7 +2800,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: cc-uploader
+    role_name: cc-uploader-cc-uploader
     description: The PEM-encoded certificate for internal cloud controller uploader
       traffic.
     required: true
@@ -2814,7 +2823,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: cf-usb
+    role_name: cf-usb-cf-usb
     description: PEM-encoded broker server certificate.
   type: certificate
 - name: CF_USB_BROKER_SERVER_CERT_KEY
@@ -2874,7 +2883,7 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - "*.consul-set"
+    - "*.consul-consul-agent-set"
     - server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: PEM-encoded server certificate
     required: true
@@ -2979,7 +2988,7 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - diego-api.{{.KUBERNETES_NAMESPACE}}
+    - diego-api-locket.{{.KUBERNETES_NAMESPACE}}
     - 127.0.0.1
     description: PEM-encoded client certificate
     required: true
@@ -3080,6 +3089,9 @@ variables:
 - name: HELM_IS_INSTALL
   options:
     type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set directly from the Release.IsInstall Helm property.
 - name: HOSTNAME
   options:
     description: 'The host name of the container.  This should be automatic and should
@@ -3126,6 +3138,10 @@ variables:
 - name: KUBERNETES_CLUSTER_DOMAIN
   options:
     type: environment
+    description: >
+      The cluster domain used by Kubernetes.
+      If left empty, each container will try to determine the correct value based on /etc/resolv.conf
+      You can read more about it in the Kubernetes Documentation https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
 - name: KUBERNETES_NAMESPACE
   options:
     type: environment
@@ -3137,16 +3153,21 @@ variables:
 - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
   options:
     type: environment
+    description: >
+      Storage class used for SCF acceptance tests.
 - name: KUBE_AZ
   options:
     type: environment
     default: z1
+    description: >
+      A string representing the availability zone a container is running in.
+      Shouldn't be changed from its default value of z1.
 - name: KUBE_COMPONENT_INDEX
   options:
     type: environment
-- name: KUBE_COMPONENT_NAME
-  options:
-    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set to a numeric index for roles with multiple replicas.
 - name: KUBE_CONSUL_CLUSTER_IPS
   options:
     type: environment
@@ -3166,9 +3187,15 @@ variables:
 - name: KUBE_SECRETS_GENERATION_COUNTER
   options:
     type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's automatically set to the kube.secrets_generation_counter Helm value, which controls secret rotation.
 - name: KUBE_SECRETS_GENERATION_NAME
   options:
     type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      Its default value is 'secret-1' and cannot be set by the user.
 - name: KUBE_SIZING_NATS_COUNT
   options:
     description: 'The number of nats replicas deployed. This value is set automatically
@@ -3261,6 +3288,12 @@ variables:
   options:
     secret: true
     description: The password for the cluster logger health user.
+    required: true
+  type: password
+- name: MYSQL_CREDHUB_USER_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the credhub-user database.
     required: true
   type: password
 - name: MYSQL_DIEGO_LOCKET_PASSWORD
@@ -3547,14 +3580,24 @@ variables:
   options:
     default: opensuse42
     type: environment
+    description: >
+      This controls which SUSE stack is built into SCF.
+      Depending on the build, this can be an openSUSE or SLE stack.
+      Cannot be set by the user.
 - name: SUSE_STACK_DESCRIPTION
   options:
     default: openSUSE-based filesystem
     type: environment
+    description: >
+      During build this is set to an appropriate description for the SUSE stack built into SCF.
+      Cannot be set by the user.
 - name: SUSE_STACK_DIRNAME
   options:
     default: opensuse42
     type: environment
+    description: >
+      During build this is set to the directory that contains the SUSE stack built into SCF.
+      Cannot be set by the user.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
@@ -3675,6 +3718,12 @@ variables:
     secret: true
     description: The password for UAA access by the Cloud Controller for fetching
       usernames.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CREDHUB_USER_CLI_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the client for the user-accessible credhub
     required: true
   type: password
 - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
