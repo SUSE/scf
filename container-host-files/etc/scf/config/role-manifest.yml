@@ -2508,8 +2508,9 @@ variables:
 - name: AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD
   options:
     default: streaming
-    description: 'The method type of the Autoscaler Metrics Collector to fetch metrics
-      from cloudfoundry: polling or streaming.'
+    description: >
+      The method type of the Autoscaler Metrics Collector to fetch metrics
+      from cloudfoundry: polling or streaming.
 - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -3081,11 +3082,9 @@ variables:
 - name: GO_LOG_LEVEL
   options:
     type: environment
-    description: 'The log level for go components. This parameter is not supposed
-      to be set by the user. To change the cluster''s log level set the parameter
+    description: The log level for go components. This parameter is not supposed
+      to be set by the user. To change the cluster's log level set the parameter
       `LOG_LEVEL` instead, from which this one is derived.
-
-'
 - name: HELM_IS_INSTALL
   options:
     type: environment
@@ -3094,10 +3093,8 @@ variables:
       It's set directly from the Release.IsInstall Helm property.
 - name: HOSTNAME
   options:
-    description: 'The host name of the container.  This should be automatic and should
+    description: The host name of the container.  This should be automatic and should
       not be prompted.
-
-'
     type: environment
 - name: HTTPS_PROXY
   options:
@@ -3111,10 +3108,9 @@ variables:
   options:
     default: ''
     example: '"docker-registry.example.com:80", "hello.example.org:443"'
-    description: 'A comma-separated whitelist of insecure Docker registries in the
-      form of ''<HOSTNAME|IP>:PORT''. Each registry must be quoted separately.
-
-'
+    description: >
+      A comma-separated whitelist of insecure Docker registries in the
+      form of '<HOSTNAME|IP>:PORT'. Each registry must be quoted separately.
 - name: INTERNAL_API_PASSWORD
   options:
     secret: true
@@ -3145,11 +3141,9 @@ variables:
 - name: KUBERNETES_NAMESPACE
   options:
     type: environment
-    description: 'The name of the kubernetes namespace all components will run in.
+    description: The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user. Its value is supplied by the kubernetes
       runtime.
-
-'
 - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
   options:
     type: environment
@@ -3171,19 +3165,15 @@ variables:
 - name: KUBE_CONSUL_CLUSTER_IPS
   options:
     type: environment
-    description: 'A comma-separated list of IP addresses for the machines of the consul
+    description: A comma-separated list of IP addresses for the machines of the consul
       sub-cluster. This parameter cannot be set by the user. Its value is automatically
       computed during cluster setup.
-
-'
 - name: KUBE_NATS_CLUSTER_IPS
   options:
     type: environment
-    description: 'A comma-separated list of IP addresses for the machines of the nats
+    description: A comma-separated list of IP addresses for the machines of the nats
       sub-cluster. This parameter cannot be set by the user. Its value is automatically
       computed during cluster setup.
-
-'
 - name: KUBE_SECRETS_GENERATION_COUNTER
   options:
     type: environment
@@ -3198,22 +3188,16 @@ variables:
       Its default value is 'secret-1' and cannot be set by the user.
 - name: KUBE_SIZING_NATS_COUNT
   options:
-    description: 'The number of nats replicas deployed. This value is set automatically
+    description: The number of nats replicas deployed. This value is set automatically
       by the helm charts of SCF.
-
-'
 - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX
   options:
-    description: 'Highest internal TCP routing port. This value is set automatically
+    description: Highest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
-
-'
 - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN
   options:
-    description: 'Lowest internal TCP routing port. This value is set automatically
+    description: Lowest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
-
-'
 - name: LOGGREGATOR_AGENT_CERT
   options:
     secret: true
@@ -3243,8 +3227,8 @@ variables:
 - name: LOG_LEVEL
   options:
     default: info
-    description: 'The cluster''s log level: off, fatal, error, warn, info, debug,
-      debug1, debug2.'
+    description: >
+      The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2.
     required: true
 - name: MAX_APP_DISK_IN_MB
   options:
@@ -3347,11 +3331,9 @@ variables:
 - name: NGINX_LOG_LEVEL
   options:
     type: environment
-    description: 'The log level for nginx. This parameter is not supposed to be set
-      by the user. To change the cluster''s log level set the parameter `LOG_LEVEL`
+    description: The log level for nginx. This parameter is not supposed to be set
+      by the user. To change the cluster's log level set the parameter `LOG_LEVEL`
       instead, from which this one is derived.
-
-'
 - name: NGINX_MAX_REQUEST_BODY_SIZE
   options:
     default: 2048
@@ -3381,47 +3363,40 @@ variables:
   type: password
 - name: PERSI_NFS_DEFAULT_OPTIONS
   options:
-    description: 'Comma separated list of default values for nfs mount options.  If
+    description: Comma separated list of default values for nfs mount options.  If
       a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS,  then
-      this default value will be set and it won''t be overridable.
-
-'
+      this default value will be set and it won't be overridable.
 - name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
   options:
-    description: 'Comma separated list of white-listed options that may be accepted
-      in the mount_config options. Note a specific ''sloppy_mount:true'' volume option
-      tells the driver to ignore non-white-listed options, while a ''sloppy_mount:false''
+    description: >
+      Comma separated list of white-listed options that may be accepted
+      in the mount_config options. Note a specific 'sloppy_mount:true' volume option
+      tells the driver to ignore non-white-listed options, while a 'sloppy_mount:false'
       tells the driver to fail fast instead when receiving a non-white-listed option."
-
-'
     example: allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname
     default: auto_cache
 - name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
   options:
-    description: 'Comma separated list of white-listed options that may be configured
-      in supported in the  mount_config.source URL query params
-
-'
+    description: Comma separated list of white-listed options that may be configured
+      in supported in the  mount_config.source URL query params.
     example: uid,gid,auto-traverse-mounts,dircache
     default: uid,gid
 - name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
   options:
-    description: 'Comma separated list default values for options that may be configured
-      in the mount_config options, formatted as ''option:default''. If an option is
+    description: >
+      Comma separated list default values for options that may be configured
+      in the mount_config options, formatted as 'option:default'. If an option is
       not specified in the volume mount, or the option is not white-listed, then the
       specified default value will be used instead.
-
-'
     example: allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true
     default: auto_cache:true
 - name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
   options:
-    description: 'Comma separated list of default values for options in the source
-      URL query params, formatted as ''option:default''. If an option is not specified
+    description: >
+      Comma separated list of default values for options in the source
+      URL query params, formatted as 'option:default'. If an option is not specified
       in the volume mount,  or the option is not white-listed, then the specified
       default value will be applied.
-
-'
 - name: PERSI_NFS_DRIVER_DISABLE
   options:
     description: Disable Persi NFS driver
