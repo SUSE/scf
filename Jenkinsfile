@@ -830,30 +830,30 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     }
                 }
             }
-	    // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
-	    script {
-                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
-		    writeFile(file: 'build.log', text: getBuildLog())
-		    sh 'bin/clean-jenkins-log'
-		    withAWS(region: params.S3_REGION) {
-			withCredentials([usernamePassword(
-			    credentialsId: params.S3_CREDENTIALS,
-			    usernameVariable: 'AWS_ACCESS_KEY_ID',
-			    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-			)]) {
-			    script {
-				def subdir = "${params.S3_PREFIX}${distSubDir()}"
-				def prefix = distPrefix()
-				s3Upload(
-				    file: 'cleaned-build.log',
-				    bucket: "${params.S3_LOG_BUCKET}",
-				    path: "${subdir}${prefix}${env.BUILD_TAG}",
-				)
-			    }
-			}
-		    }
-		}
-	    }
-	}
+            // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
+            script {
+                if ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') && fileExists('bin/clean-jenkins-log')) {
+                    writeFile(file: 'build.log', text: getBuildLog())
+                    sh 'bin/clean-jenkins-log'
+                    withAWS(region: params.S3_REGION) {
+                        withCredentials([usernamePassword(
+                            credentialsId: params.S3_CREDENTIALS,
+                            usernameVariable: 'AWS_ACCESS_KEY_ID',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                        )]) {
+                            script {
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}"
+                                def prefix = distPrefix()
+                                s3Upload(
+                                    file: 'cleaned-build.log',
+                                    bucket: "${params.S3_LOG_BUCKET}",
+                                    path: "${subdir}${prefix}${env.BUILD_TAG}",
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
