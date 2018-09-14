@@ -11,10 +11,14 @@ instance_groups:
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
+    properties:
+      bosh_containerization:
+        ports:
+        - name: sched-health
+          protocol: TCP
+          internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -23,10 +27,6 @@ instance_groups:
     capabilities: []
     memory: 69
     virtual-cpus: 2
-    exposed-ports:
-    - name: sched-health
-      protocol: TCP
-      internal: 8080
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -54,10 +54,17 @@ instance_groups:
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
+    properties:
+      bosh_containerization:
+        ports:
+        - name: adapter
+          protocol: TCP
+          internal: 4443
+        - name: adapter-health
+          protocol: TCP
+          internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling: # one per 500 drains
       min: 1
@@ -66,13 +73,6 @@ instance_groups:
     capabilities: []
     memory: 78
     virtual-cpus: 2
-    exposed-ports:
-    - name: adapter
-      protocol: TCP
-      internal: 4443
-    - name: adapter-health
-      protocol: TCP
-      internal: 8080
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -106,8 +106,25 @@ instance_groups:
     provides:
       consul_common: {}
       consul_server: {}
-  tags:
-  - headless
+    properties:
+      bosh_containerization:
+        ports:
+        - name: consul-server
+          external: 8300
+          internal: 8300
+          protocol: TCP
+        - name: consul-http
+          external: 8500
+          internal: 8500
+          protocol: TCP
+        - name: serf-tcp
+          external: 8301
+          internal: 8301
+          protocol: TCP
+        - name: serf-udp
+          external: 8301
+          internal: 8301
+          protocol: UDP
   run:
     scaling:
       min: 0
@@ -116,23 +133,6 @@ instance_groups:
       must_be_odd: true
     memory: 256
     virtual-cpus: 1
-    exposed-ports:
-    - name: consul-server
-      external: 8300
-      internal: 8300
-      protocol: TCP
-    - name: consul-http
-      external: 8500
-      internal: 8500
-      protocol: TCP
-    - name: serf-tcp
-      external: 8301
-      internal: 8301
-      protocol: TCP
-    - name: serf-udp
-      external: 8301
-      internal: 8301
-      protocol: UDP
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -148,10 +148,10 @@ instance_groups:
       properties.consul.agent.mode: server
       properties.consul.agent.node_name_includes_id: false
       properties.consul.agent_cert: ((CONSUL_SERVER_CERT))
-      properties.consul.agent_key: ((CONSUL_SERVER_KEY))
+      properties.consul.agent_key: ((CONSUL_SERVER_CERT_KEY))
       properties.consul.encrypt_keys: "[((CONSUL_SERVER_ENCRYPT_KEY))]"
       properties.consul.server_cert: ((CONSUL_SERVER_CERT))
-      properties.consul.server_key: ((CONSUL_SERVER_KEY))
+      properties.consul.server_key: ((CONSUL_SERVER_CERT_KEY))
 
 - name: nats
   environment_scripts:
@@ -166,6 +166,15 @@ instance_groups:
     release: nats
     provides:
       nats: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nats
+          protocol: TCP
+          internal: 4222
+        - name: nats-routes
+          protocol: TCP
+          internal: 4223
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -176,13 +185,6 @@ instance_groups:
     capabilities: []
     memory: 60
     virtual-cpus: 2
-    exposed-ports:
-    - name: nats
-      protocol: TCP
-      internal: 4222
-    - name: nats-routes
-      protocol: TCP
-      internal: 4223
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -214,12 +216,44 @@ instance_groups:
     release: cf-mysql
     provides:
       mysql: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: mysql
+          protocol: TCP
+          internal: 13306
+        - name: galera-tcp
+          protocol: TCP
+          internal: 4567
+        - name: galera-udp
+          protocol: UDP
+          internal: 4567
+        - name: galera-ist
+          protocol: TCP
+          internal: 4568
+        - name: healthcheck
+          protocol: TCP
+          internal: 9200
+        - name: xtrabackup
+          protocol: TCP
+          internal: 4444
   - name: proxy
     release: cf-mysql
     provides:
       proxy: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api-proxy
+          protocol: TCP
+          internal: 8080
+        - name: mysql-proxy
+          protocol: TCP
+          internal: 3306
+        - name: healthck-proxy
+          protocol: TCP
+          internal: 1936
   tags:
-  - headless
   - sequential-startup
   run:
     scaling:
@@ -234,34 +268,6 @@ instance_groups:
       size: 20
     memory: 2950
     virtual-cpus: 2
-    exposed-ports:
-    - name: mysql
-      protocol: TCP
-      internal: 13306
-    - name: galera-tcp
-      protocol: TCP
-      internal: 4567
-    - name: galera-udp
-      protocol: UDP
-      internal: 4567
-    - name: galera-ist
-      protocol: TCP
-      internal: 4568
-    - name: healthcheck
-      protocol: TCP
-      internal: 9200
-    - name: xtrabackup
-      protocol: TCP
-      internal: 4444
-    - name: mysql-proxy
-      protocol: TCP
-      internal: 3306
-    - name: api-proxy
-      protocol: TCP
-      internal: 8080
-    - name: healthck-proxy
-      protocol: TCP
-      internal: 1936
     healthcheck:
       readiness:
         command:
@@ -301,8 +307,13 @@ instance_groups:
     release: postgres
     provides:
       postgres: { as: postgres-database }
+    properties:
+      bosh_containerization:
+        ports:
+        - name: postgres
+          protocol: TCP
+          internal: 5524
   tags:
-  - headless
   - sequential-startup
   run:
     scaling:
@@ -316,12 +327,6 @@ instance_groups:
       size: 20
     memory: 3072
     virtual-cpus: 2
-    exposed-ports:
-    - name: postgres
-      protocol: TCP
-      external: 5524
-      internal: 5524
-      public: false
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -353,6 +358,15 @@ instance_groups:
     release: scf
   - name: cf-usb
     release: cf-usb
+    properties:
+      bosh_containerization:
+        ports:
+        - name: usb
+          protocol: TCP
+          internal: 24054
+        - name: usb2
+          protocol: TCP
+          internal: 24053
   - name: route_registrar
     release: routing
   tags:
@@ -365,13 +379,6 @@ instance_groups:
     capabilities: []
     memory: 117
     virtual-cpus: 2
-    exposed-ports:
-    - name: 'usb'
-      protocol: 'TCP'
-      internal: 24054
-    - name: 'usb2'
-      protocol: 'TCP'
-      internal: 24053
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -401,6 +408,15 @@ instance_groups:
     release: scf
   - name: bbs
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: cell-bbs-api
+          protocol: TCP
+          internal: 8889
+        - name: cell-bbs-dbg
+          protocol: TCP
+          internal: 17017
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -409,6 +425,12 @@ instance_groups:
     release: loggregator-agent
   - name: locket
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: locket
+          protocol: TCP
+          internal: 8891
   tags:
   - active-passive
   - sequential-startup
@@ -420,16 +442,6 @@ instance_groups:
     capabilities: []
     memory: 310
     virtual-cpus: 2
-    exposed-ports:
-    - name: cell-bbs-api
-      protocol: TCP
-      internal: 8889
-    - name: cell-bbs-dbg
-      protocol: TCP
-      internal: 17017
-    - name: locket
-      protocol: TCP
-      internal: 8891
     active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
     healthcheck:
       readiness:
@@ -449,12 +461,12 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
-      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -469,10 +481,25 @@ instance_groups:
     release: scf
   - name: gorouter
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: router
+          protocol: TCP
+          external: 80
+          internal: 8000
+          public: true
+        - name: router-ssl
+          protocol: TCP
+          internal: 443
+          public: true
+        - name: doppler-ssl
+          protocol: TCP
+          external: 4443
+          internal: 443
+          public: true
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -481,21 +508,6 @@ instance_groups:
     capabilities: []
     memory: 135
     virtual-cpus: 4
-    exposed-ports:
-    - name: router
-      protocol: TCP
-      external: 80
-      internal: 8000
-      public: true
-    - name: router-ssl
-      protocol: TCP
-      internal: 443
-      public: true
-    - name: doppler-ssl
-      protocol: TCP
-      external: 4443
-      internal: 443
-      public: true
     healthcheck:
       readiness:
         command:
@@ -540,6 +552,19 @@ instance_groups:
     release: scf
   - name: tcp_router
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: healthcheck
+          protocol: TCP
+          external: 2341
+          internal: 8080
+        - name: tcp-route
+          protocol: TCP
+          internal: 20000-20008
+          public: true
+          count-configurable: true
+          max: 20
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -550,17 +575,6 @@ instance_groups:
     capabilities: []
     memory: 99
     virtual-cpus: 2
-    exposed-ports:
-    - name: healthcheck
-      protocol: TCP
-      external: 2341
-      internal: 8080
-    - name: tcp-route
-      protocol: TCP
-      internal: 20000-20008
-      public: true
-      count-configurable: true
-      max: 20
     healthcheck:
       readiness:
         command:
@@ -596,6 +610,12 @@ instance_groups:
     release: loggregator-agent
   - name: routing-api
     release: routing
+    properties:
+      bosh_containerization:
+        ports:
+        - name: routing-api
+          protocol: TCP
+          internal: 3000
   tags:
   - active-passive
   - sequential-startup
@@ -607,10 +627,6 @@ instance_groups:
     capabilities: []
     memory: 114
     virtual-cpus: 4
-    exposed-ports:
-    - name: routing-api
-      protocol: TCP
-      internal: 3000
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -647,6 +663,18 @@ instance_groups:
     release: scf-helper
   - name: cloud_controller_ng
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api
+          protocol: TCP
+          internal: 9022
+        - name: api-tls
+          protocol: TCP
+          internal: 9023
+        - name: statsd
+          protocol: TCP
+          internal: 8125
   - name: loggregator_agent
     release: loggregator-agent
   - name: route_registrar
@@ -681,16 +709,6 @@ instance_groups:
     capabilities: []
     memory: 2421
     virtual-cpus: 4
-    exposed-ports:
-    - name: api
-      protocol: TCP
-      internal: 9022
-    - name: api-tls
-      protocol: TCP
-      internal: 9023
-    - name: statsd
-      protocol: TCP
-      internal: 8125
     healthcheck:
       readiness:
         command:
@@ -733,7 +751,6 @@ instance_groups:
     capabilities: []
     memory: 753
     virtual-cpus: 2
-    exposed-ports: []
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -759,6 +776,15 @@ instance_groups:
     release: scf-helper
   - name: blobstore
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: blobstore-ext
+          protocol: TCP
+          internal: 8080
+        - name: blobstore
+          protocol: TCP
+          internal: 4443
   - name: route_registrar
     release: routing
   - name: loggregator_agent
@@ -776,13 +802,6 @@ instance_groups:
       size: 50
     memory: 420
     virtual-cpus: 2
-    exposed-ports:
-    - name: blobstore-ext
-      protocol: TCP
-      internal: 8080
-    - name: blobstore
-      protocol: TCP
-      internal: 4443
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -812,7 +831,6 @@ instance_groups:
     capabilities: []
     memory: 789
     virtual-cpus: 2
-    exposed-ports: []
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -836,10 +854,26 @@ instance_groups:
     release: scf-helper
   - name: doppler
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: dropsonde-udp
+          protocol: UDP
+          internal: 3457
+        - name: dropsonde-tcp
+          protocol: TCP
+          internal: 3458
+        - name: doppler-tls
+          protocol: TCP
+          internal: 3459
+        - name: doppler-ws
+          protocol: TCP
+          internal: 8081
+        - name: doppler-grpc
+          protocol: TCP
+          internal: 8082
   - name: loggregator_agent
     release: loggregator-agent
-  tags:
-  - headless
   run:
     scaling:
       min: 1
@@ -848,22 +882,6 @@ instance_groups:
     capabilities: []
     memory: 390
     virtual-cpus: 2
-    exposed-ports:
-    - name: dropsonde-udp
-      protocol: UDP
-      internal: 3457
-    - name: dropsonde-tcp
-      protocol: TCP
-      internal: 3458
-    - name: doppler-tls
-      protocol: TCP
-      internal: 3459
-    - name: doppler-ws
-      protocol: TCP
-      internal: 8081
-    - name: doppler-grpc
-      protocol: TCP
-      internal: 8082
     healthcheck:
       readiness:
         command:
@@ -893,14 +911,24 @@ instance_groups:
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: dropsonde
+          protocol: TCP
+          internal: 8081
   - name: loggregator_agent
     release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rlp
+          protocol: TCP
+          internal: 8082
   - name: route_registrar
     release: routing
-  tag:
-  - headless
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -912,13 +940,6 @@ instance_groups:
     capabilities: []
     memory: 250
     virtual-cpus: 2
-    exposed-ports:
-    - name: dropsonde
-      protocol: TCP
-      internal: 8081
-    - name: rlp
-      protocol: TCP
-      internal: 8082
     healthcheck:
       readiness:
         command:
@@ -949,6 +970,12 @@ instance_groups:
     release: scf
   - name: auctioneer
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-auction
+          protocol: TCP
+          internal: 9016
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -965,10 +992,6 @@ instance_groups:
     capabilities: []
     memory: 99
     virtual-cpus: 4
-    exposed-ports:
-    - name: diego-auction
-      protocol: TCP
-      internal: 9016
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -985,11 +1008,11 @@ instance_groups:
     active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
-      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
-      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: cc-uploader
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1006,6 +1029,15 @@ instance_groups:
     release: capi
   - name: cc_uploader
     release: capi
+    properties:
+      bosh_containerization:
+        ports:
+        - name: cc-up-listen
+          protocol: TCP
+          internal: 9091
+        - name: cc-up-dbg
+          protocol: TCP
+          internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
   run:
@@ -1016,13 +1048,6 @@ instance_groups:
     capabilities: []
     memory: 129
     virtual-cpus: 4
-    exposed-ports:
-    - name: cc-up-listen
-      protocol: TCP
-      internal: 9091
-    - name: cc-up-dbg
-      protocol: TCP
-      internal: 17018
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1049,10 +1074,23 @@ instance_groups:
     release: scf
   - name: ssh_proxy
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-ssh
+          protocol: TCP
+          internal: 2222
+          public: true
   - name: loggregator_agent
     release: loggregator-agent
   - name: file_server
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-files
+          protocol: TCP
+          internal: 8080
   run:
     scaling:
       min: 1
@@ -1061,14 +1099,6 @@ instance_groups:
     capabilities: []
     memory: 123
     virtual-cpus: 2
-    exposed-ports:
-    - name: diego-ssh
-      protocol: TCP
-      internal: 2222
-      public: true
-    - name: diego-files
-      protocol: TCP
-      internal: 8080
     healthcheck:
       readiness:
         command:
@@ -1101,6 +1131,12 @@ instance_groups:
     release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nfsbroker
+          protocol: TCP
+          internal: 8999
   tags:
   - sequential-startup
   run:
@@ -1111,10 +1147,6 @@ instance_groups:
     capabilities: [ALL]
     memory: 63
     virtual-cpus: 2
-    exposed-ports:
-    - name: nfsbroker
-      protocol: TCP
-      internal: 8999
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -1147,6 +1179,12 @@ instance_groups:
     release: scf
   - name: rep
     release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rep-server
+          protocol: TCP
+          internal: 1801
   - name: patch-properties
     release: scf-helper
   - name: cfdot
@@ -1167,8 +1205,15 @@ instance_groups:
     release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
-  tags:
-  - headless
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nfs-driver
+          protocol: TCP
+          internal: 7589
+        - name: nfs-admin
+          protocol: TCP
+          internal: 7590
   # Role needs volume claim templates (see storage below), no LB => clustered
   run:
     scaling:
@@ -1187,16 +1232,6 @@ instance_groups:
       tag: host-cgroup
     memory: 4677
     virtual-cpus: 4
-    exposed-ports:
-    - name: rep-server
-      protocol: TCP
-      internal: 1801
-    - name: nfs-driver
-      protocol: TCP
-      internal: 7589
-    - name: nfs-admin
-      protocol: TCP
-      internal: 7590
     healthcheck:
         command:
           - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
@@ -1223,16 +1258,16 @@ instance_groups:
             topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
-      properties.bbs.hostname: '"diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
-      properties.tls.key: ((REP_SERVER_KEY))
-      properties.tls.private_key: '"((BBS_REP_KEY))"'                       # cfdot property
+      properties.tls.key: ((REP_SERVER_CERT_KEY))
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: acceptance-tests-brain
   type: bosh-task
   tags:
@@ -1250,7 +1285,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
     service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
@@ -1271,7 +1305,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1293,7 +1326,6 @@ instance_groups:
       max: 1
     flight-stage: manual
     capabilities: []
-    exposed-ports: []
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1309,7 +1341,6 @@ instance_groups:
     capabilities: []
     memory: 256
     virtual-cpus: 1
-    exposed-ports: []
     service-account: secret-generator
   configuration:
     templates:
@@ -1390,7 +1421,7 @@ instance_groups:
       properties.credhub.encryption.keys: '[{"provider_name":"internal-provider", "active":true, "key_properties":{"encryption_password":"((CREDHUB_ENCRYPT_KEY))"}}]'
       properties.credhub.encryption.providers: '[{"name":"internal-provider", "type":"internal"}]'
       properties.credhub.log_level: '"((CREDHUB_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-      properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_KEY))"}'
+      properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_CERT_KEY))"}'
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 # cf app-autoscaler
 - name: autoscaler-postgres
@@ -1403,6 +1434,13 @@ instance_groups:
     release: scf-helper
   - name: postgres
     release: postgres
+    properties:
+      bosh_containerization:
+        ports:
+        - name: postgres
+          protocol: TCP
+          external: 5432
+          internal: 5432
   processes:
   - name: postgres
   run:
@@ -1419,11 +1457,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports:
-    - name: postgres
-      protocol: TCP
-      external: 5432
-      internal: 5432
     healthcheck:
       readiness:
   configuration:
@@ -1443,8 +1476,32 @@ instance_groups:
     release: scf-helper
   - name: apiserver
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api  # apiserverport
+          protocol: TCP
+          external: 7100
+          internal: 7100
+        - name: api-public  # apiserverpublicport
+          protocol: TCP
+          external: 7106
+          internal: 7106
+          public: true
   - name: servicebroker
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: broker
+          protocol: TCP
+          external: 7107
+          internal: 7107
+        - name: broker-public  # brokerpublicport
+          protocol: TCP
+          external: 7101
+          internal: 7101
+          public: true
   - name: route_registrar
     release: routing
   processes:
@@ -1461,25 +1518,6 @@ instance_groups:
     shared-volumes: []
     memory: 256
     virtual-cpus: 2
-    exposed-ports:
-    - name: api #apiserverport
-      protocol: TCP
-      external: 7100
-      internal: 7100
-    - name: api-public #apiserverpublicport
-      protocol: TCP
-      external: 7106
-      internal: 7106
-      public: true
-    - name: broker
-      protocol: TCP
-      external: 7107
-      internal: 7107
-    - name: broker-public #brokerpublicport
-      protocol: TCP
-      external: 7101
-      internal: 7101
-      public: true
     healthcheck:
       readiness:
   configuration:
@@ -1498,8 +1536,22 @@ instance_groups:
     release: scf
   - name: metricscollector
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: metrics  # metricscollectorport
+          protocol: TCP
+          external: 7103
+          internal: 7103
   - name: eventgenerator
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: eventgen  # eventgenereatorport
+          protocol: TCP
+          external: 7105
+          internal: 7105
   processes:
   - name: metricscollector
   - name: eventgenerator
@@ -1513,15 +1565,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 4
-    exposed-ports:
-    - name: metrics #metricscollectorport
-      protocol: TCP
-      external: 7103
-      internal: 7103
-    - name: eventgen #eventgenereatorport
-      protocol: TCP
-      external: 7105
-      internal: 7105
     healthcheck:
       readiness:
 - name: autoscaler-actors
@@ -1537,8 +1580,22 @@ instance_groups:
     release: scf
   - name: scalingengine
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: scaling-engine  # scalingengineport
+          protocol: TCP
+          external: 7104
+          internal: 7104
   - name: scheduler
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: scheduler  # schedulerport
+          protocol: TCP
+          external: 7102
+          internal: 7102
   - name: pruner
     release: app-autoscaler
   processes:
@@ -1555,15 +1612,6 @@ instance_groups:
     shared-volumes: []
     memory: 1024
     virtual-cpus: 2
-    exposed-ports:
-    - name: scaling-engine #scalingengineport
-      protocol: TCP
-      external: 7104
-      internal: 7104
-    - name: scheduler #schedulerport
-      protocol: TCP
-      external: 7102
-      internal: 7102
     healthcheck:
       readiness:
 - name: autoscaler-smoke
@@ -1627,1450 +1675,16 @@ configuration:
         roles: [configgin-role, secrets-role]
       test-brain:
         roles: [configgin-role, test-role]
-  variables:
-  - name: ACCEPTANCE_TEST_NODES
-    default: 4
-    description: >
-      The number of parallel test executors to spawn for Cloud Foundry
-      acceptance tests. The larger the number the higher the stress on the system.
-  - name: ALLOWED_CORS_DOMAINS
-    default: []
-    description: List of domains (including scheme) from which Cross-Origin requests will be accepted, a * can be used as a wildcard for any part of a domain.
-    required: true
-  - name: ALLOW_APP_SSH_ACCESS
-    default: true
-    description: Allow users to change the value of the app-level allow_ssh attribute.
-    required: true
-  - name: APP_SSH_KEY
-    secret: true
-    generator:
-      id: app_ssh
-      type: SSH
-      value_type: private_key
-    description: PEM encoded RSA private key used to identify host.
-    required: true
-  - name: APP_SSH_KEY_FINGERPRINT
-    secret: true
-    generator:
-      id: app_ssh
-      type: SSH
-      value_type: fingerprint
-    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections to application instances.
-    required: true
-  - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
-    default: 1200
-    description: Extra token expiry time while uploading big apps, in seconds.
-    required: true
-  - name: AUCTIONEER_REP_CERT
-    secret: true
-    generator:
-      id: auctioneer_rep_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-    required: true
-  - name: AUCTIONEER_REP_KEY
-    secret: true
-    generator:
-      id: auctioneer_rep_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key
-    required: true
-  - name: AUCTIONEER_SERVER_CERT
-    secret: true
-    generator:
-      id: auctioneer_server_cert
-      type: Certificate
-      value_type: certificate
-      role_name: diego-brain
-    description: PEM-encoded server certificate
-    required: true
-  - name: AUCTIONEER_SERVER_KEY
-    secret: true
-    generator:
-      id: auctioneer_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key
-    required: true
-    # app-autoscaler
-  - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
-    default: 100
-    description: "Idle connection timeout for the Autoscaler API Server database, in seconds."
-  - name: AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS
-    default: 10
-    description: "The maximum number of connections to the Autoscaler API Server database."
-  - name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
-    default: 0
-    description: "The minimum number of connections to the Autoscaler API Server database."
-  - name: AUTOSCALER_API_SERVER_INFO_BUILD
-    default: "beta"
-    description: "The build version of Autoscaler. It should be defined when it is deployed to a product environment."
-  - name: AUTOSCALER_API_SERVER_INFO_DESCRIPTION
-    default: "autoscaler"
-    description: "The description of Autoscaler. It should be defined when it is deployed to a product environment."
-  - name: AUTOSCALER_API_SERVER_INFO_NAME
-    default: "autoscalerapiserver"
-    description: "The name of the Autoscaler API Server. It should be defined when it is deployed to a product environment."
-  - name: AUTOSCALER_API_SERVER_INFO_SUPPORT_URL
-    default: ""
-    description: "The support url of autoscaler where the users could find support information. It should be defined when it is deployed to a product environment."
-  - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler appmetrics database."
-  - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of connections to the Autoscaler appmetrics database."
-  - name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The minimum number of connections to the Autoscaler appmetrics database."
-  - name: AUTOSCALER_ASACTORS_CLIENT_CERT
-    secret: true
-    generator:
-      id: as_actors_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - as_actors_client
-    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler Actors. This includes the Autoscaler Scheduler and the Scaling Engine."
-    required: true
-  - name: AUTOSCALER_ASACTORS_CLIENT_KEY
-    secret: true
-    generator:
-      id: as_actors_client_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler Actors. This includes the Autoscaler Scheduler and the Scaling Engine."
-    required: true
-  - name: AUTOSCALER_ASACTORS_SERVER_CERT
-    secret: true
-    generator:
-      id: as_actors_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "autoscaler-actors.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "A PEM-encoded TLS certificate of the Autoscaler Actors https server. This includes the Autoscaler Scheduler and the Scaling Engine."
-    required: true
-  - name: AUTOSCALER_ASACTORS_SERVER_KEY
-    secret: true
-    generator:
-      id: as_actors_server_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key of the Autoscaler Actors https server. This includes the Autoscaler Scheduler and the Scaling Engine."
-    required: true
-  - name: AUTOSCALER_ASAPI_CLIENT_CERT
-    secret: true
-    generator:
-      id: as_api_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - as_api_client
-    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler API. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASAPI_CLIENT_KEY
-    secret: true
-    generator:
-      id: as_api_client_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler API. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
-    secret: true
-    generator:
-      id: as_api_public_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "autoscaler.{{.DOMAIN}}"
-    description: "A PEM-encoded TLS certificate of the Autoscaler API public https server. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY
-    secret: true
-    generator:
-      id: as_api_public_server_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key of the Autoscaler API public https server. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASAPI_SERVER_CERT
-    secret: true
-    generator:
-      id: as_api_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "autoscaler-api.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "A PEM-encoded TLS certificate of the Autoscaler API https server. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASAPI_SERVER_KEY
-    secret: true
-    generator:
-      id: as_api_server_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key of the Autoscaler API https server. This includes the Autoscaler ApiServer and the Service Broker."
-    required: true
-  - name: AUTOSCALER_ASMETRICS_CLIENT_CERT
-    secret: true
-    generator:
-      id: as_metrics_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - as_metrics_client
-    description: "A PEM-encoded TLS certificate for clients to connect to the Autoscaler Metrics. This includes the Autoscaler Metrics Collector and Event Generator."
-    required: true
-  - name: AUTOSCALER_ASMETRICS_CLIENT_KEY
-    secret: true
-    generator:
-      id: as_metrics_client_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key for clients to connect to the Autoscaler Metrics. This includes the Autoscaler Metrics Collector and Event Generator."
-    required: true
-  - name: AUTOSCALER_ASMETRICS_SERVER_CERT
-    secret: true
-    generator:
-      id: as_metrics_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "autoscaler-metrics.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: "A PEM-encoded TLS certificate of the Autoscaler Metrics https server. This includes the Autoscaler Metrics Collector and Event Generator."
-    required: true
-  - name: AUTOSCALER_ASMETRICS_SERVER_KEY
-    secret: true
-    generator:
-      id: as_metrics_server_cert
-      type: Certificate
-      value_type: private_key
-    description: "A PEM-encoded TLS key of the Autoscaler Metrics https server. This includes the Autoscaler Metrics Collector and Event Generator."
-    required: true
-  - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
-    default: true
-    description: "Whether to skip ssl validation when Autoscaler components to communicate with CloudFoundry components."
-  - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
-    default: 1000
-    description: "The maximum number of connections the Autoscaler postgres database server could serve."
-  - name: AUTOSCALER_DB_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: "The password for the Autoscaler postgres database."
-    required: true
-  - name: AUTOSCALER_DEFAULT_BREACH_DURATION_SECS
-    default: 300
-    description: "The default breach duration for the Autoscaler Event Generator, in seconds.The breach duration means the App Autoscaler won’t take the desired adjustment until the application has been breaching the Autoscaler policy for a period longer than breach_duration_secs setting."
-  - name: AUTOSCALER_DEFAULT_COOLDOWN_SECS
-    default: 300
-    description: "The default cooldown duration between two scaling action for the Autoscaler Event Generator, in seconds."              
-  - name: AUTOSCALER_DEFAULT_STAT_WINDOW_SECS
-    default: 300
-    description: "The default statistic window duration between two scaling action for the Autoscaler Event Generator, in seconds."   
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE
-    default: 1000
-    description: "The size of golang channel used by the Autoscaler Event Generator as a buffer to save metrics by batch."
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE
-    default: 200
-    description: "The size of golang channel used by the Autoscaler Event Generator to exchange data."
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL
-    default: "40s"
-    description: "The duration defines how long does Autoscaler Event Generator aggregate appmetrics."
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT
-    default: 20
-    description: "The number of metricpollers in Autoscaler Event Generator."
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL
-    default: "40s"
-    description: "The duration defines how long does the Autoscaler Event Generator reload data from policy database."
-  - name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL
-    default: "5s"
-    description: "The duration defines how long does the Autoscaler Event Generator save appmetrics to database by batch."
-  - name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL
-    default: "5m"
-    description: "The initial exponential back off interval for the circuit breaker of the Autoscaler Event Generator."
-  - name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL
-    default: "120m"
-    description: "The maximum exponential back off interval for the circuit breaker of the Autoscaler Event Generator."
-  - name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT
-    default: 3
-    description: "The number of consecutive failure to trip the circuit down for the circuit breaker of the Autoscaler Event Generator."
-  - name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL
-    default: "40s"
-    description: "The duration defines how long does the Autoscaler Event Generator evaluate appmetrics."
-  - name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT
-    default: 20
-    description: "The number of evaluators in the Autoscaler Event Generator."
-  - name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE
-    default: 200
-    description: "The size of golang channel used by the Autoscaler Event Generator App Evaluation Manager to pass triggers to evaluators."
-  - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler instance metrics database."
-  - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of idle connections to the Autoscaler instance metrics database."
-  - name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The maximum number of connections to the Autoscaler instance metrics database."
-  - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler lock database."
-  - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of idle connections to the Autoscaler lock database."
-  - name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The maximum number of connections to the Autoscaler lock database."
-  - name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
-    default: "30s"
-    description: "The duration defines how long does the Autoscaler Metrics Collector aggregate collected instance metrics."
-  - name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL
-    default: "60s"
-    description: "The duration defines how long does the Autoscaler Metrics Collector reload data from policy database."
-  - name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL
-    default: "30s"
-    description: "The duration defines how long does the Autoscaler Metrics Collector save instance metrics to database by batch."
-  - name: AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD
-    default: "streaming"
-    description: "The method type of the Autoscaler Metrics Collector to fetch metrics from cloudfoundry: polling or streaming."
-  - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler policy database."
-  - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of idle connections to the Autoscaler policy database."
-  - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The maximum number of connections to the Autoscaler policy database."
-  - name: AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS
-    default: 30
-    description: "The duration defines how many days of appmetrics data does the Autoscaler Pruner kept for each pruning."
-  - name: AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL
-    default: "24h"
-    description: "The duration between two pruning opertions for appmetrics database in the Autoscaler Pruner."
-  - name: AUTOSCALER_PRUNER_ENABLE_DB_LOCK
-    default: true
-    description: "Whether to enable the Autoscaler Pruner's db lock. If there are more than one pruners, the value should be true"
-  - name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS
-    default: 30
-    description: "The duration defines how many days of instance metrics data does the Autoscaler Pruner kept for each pruning."
-  - name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL
-    default: "24h"
-    description: "The duration between two pruning opertions for instance metrics database in the Autoscaler Pruner."
-  - name: AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL
-    default: "10s"
-    description: "The interval for each Autoscaler Pruner instance to retry to get database lock."
-  - name: AUTOSCALER_PRUNER_LOCK_TTL
-    default: "15s"
-    description: "The maximum duration of a Autoscaler Pruner instance could hold the database lock."
-  - name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS
-    default: 30
-    description: "The duration defines how many days of the scaling history data does the Autoscaler Pruner kept for each pruning."
-  - name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL
-    default: "24h"
-    description: "The duration between two pruning opertions for scalingengine database in the Autoscaler Pruner."
-  
-  - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler Scaling Engine database."
-  - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of idle connections to the Autoscaler Scaling Engine database."
-  - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The maximum number of connections to the Autoscaler Scaling Engine database."
-  - name: AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL
-    description: The time interval to emit health metrics for the Autoscaler Scaling Engine."
-    default: 15s
-  - name: AUTOSCALER_SCALING_ENGINE_LOCK_SIZE
-    default: 32
-    description: "The lock number of the Autoscaler Scaling Engine to do synchronization for multiple scaling requests."
-  
-  - name: AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL
-    default: "600s"
-    description: "The duration defines how long does the Autoscaler Scaling Engine to synchronize its schedules with the Autoscaler Scheduler database."
-   
-  - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-    default: "60s"
-    description: "The maximum age of a connection that can be reused for the Autoscaler Scheduler database."
-  - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-    default: 10
-    description: "The maximum number of idle connections to the Autoscaler Scheduler database."
-  - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-    default: 100
-    description: "The maximum number of connections to the Autoscaler Scaling Engine database."
-  - name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND
-    default: 100
-    description: "Rescheduling interval for quartz job for the Autoscaler Scheduler, in milliseconds."
-  - name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT
-    default: 6
-    description: "Maximum number of jobs can be re-scheduled in the Autoscaler Scheduler."
-  - name: AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT
-    default: 3
-    description: "Maximum number of notification sent to Autoscaler Scaling Engine for job re-schedule."
-  - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
-    default: 1000
-    description: "Idle connection timeout for the Autoscaler Service Broker database, in seconds."
-  - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS
-    default: 10
-    description: "The maximum number of connections to the Autoscaler Service Broker database."
-  - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
-    default: 0
-    description: "The minimum number of connections to the Autoscaler Service Broker database."
- 
-  - name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
-    default: 5000
-    description: "The timeout in milliseconds for http request from Autoscaler Service Broker to other Autoscaler components."
-  - name: AUTOSCALER_SERVICE_BROKER_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: "The password for the Autoscaler Service Broker."
-    required: true
-  
-  - name: AUTOSCALER_SERVICE_OFFERING_ENABLED
-    default: false
-    description: "Whether Autoscaler is provided as a cloudfoundry service, default is false."
-  - name: AUTOSCALER_UAA_CLIENT_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: "the uaa client secret used by Autoscaler."
-  #end of autoscaler
-  - name: BBS_ACTIVE_KEY_PASSPHRASE
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: The password for access to the diego BBS database.
-    required: true
-  - name: BBS_AUCTIONEER_CERT
-    secret: true
-    generator:
-      id: bbs_auctioneer_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-    required: true
-  - name: BBS_AUCTIONEER_KEY
-    secret: true
-    generator:
-      id: bbs_auctioneer_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key
-    required: true
-  - name: BBS_CLIENT_CRT
-    secret: true
-    generator:
-      id: bbs_client_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate.
-    required: true
-  - name: BBS_CLIENT_KEY
-    secret: true
-    generator:
-      id: bbs_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key.
-    required: true
-  - name: BBS_REP_CERT
-    secret: true
-    generator:
-      id: bbs_rep_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-    required: true
-  - name: BBS_REP_KEY
-    secret: true
-    generator:
-      id: bbs_rep_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key
-    required: true
-  - name: BBS_SERVER_CRT
-    secret: true
-    generator:
-      id: bbs_server_cert
-      type: Certificate
-      value_type: certificate
-      role_name: diego-api
-    description: PEM-encoded client certificate.
-    required: true
-  - name: BBS_SERVER_KEY
-    secret: true
-    generator:
-      id: bbs_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key.
-    required: true
-  - name: BLOBSTORE_ACCESS_RULES
-    default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
-    description: List of allow / deny rules for the blobstore internal server. Will be followed by 'deny all'. Each entry must be follow by a semicolon.
-    required: true
-  - name: BLOBSTORE_MAX_UPLOAD_SIZE
-    default: 5000
-    description: Maximal allowed file size for upload to blobstore, in megabytes.
-    required: true
-  - name: BLOBSTORE_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The basic auth password that Cloud Controller uses to connect to the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric (URL-safe).
-    required: true
-  - name: BLOBSTORE_SECURE_LINK
-    secret: true
-    generator:
-      type: Password
-    description: The secret used for signing URLs between Cloud Controller and blobstore.
-    required: true
-  - name: BLOBSTORE_TLS_CERT
-    secret: true
-    generator:
-      id: blobstore_cert
-      type: Certificate
-      value_type: certificate
-      role_name: blobstore
-    description: The PEM-encoded certificate (optionally as a certificate chain) for serving blobs over TLS/SSL.
-    required: true
-  - name: BLOBSTORE_TLS_KEY
-    secret: true
-    generator:
-      id: blobstore_cert
-      type: Certificate
-      value_type: private_key
-    description: The PEM-encoded private key for signing TLS/SSL traffic.
-    required: true
-  - name: BROKER_CLIENT_TIMEOUT_SECONDS
-    default: "70"
-    description: "For requests to service brokers, this is the HTTP (open and read) timeout setting, in seconds."
-  - name: BULK_API_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for the bulk api.
-    required: true
-  - name: CATS_SUITES
-    internal: true
-    description: The set of CAT test suites to run. If not specified it falls back to a hardwired set of suites.
-  - name: CC_DB_CURRENT_KEY_LABEL
-    description: The key used to encrypt entries in the CC database
-    default: ""
-  - name: CC_DB_ENCRYPTION_KEYS
-    description: A map of labels and encryption keys
-    secret: true
-    # This is a quoted tilde so it results in a tilde in the CC yaml file, not a nil value in this file.
-    # A real example would be something like: "{key0: Chieh1quaela3iaN}", and the CC_DB_CURRENT_KEY_LABEL
-    # would be set to "key0".
-    default: "~"
-  - name: CC_SERVER_CRT
-    secret: true
-    generator:
-      id: cc_mutual_cert
-      type: Certificate
-      value_type: certificate
-      role_name: api
-    description: The PEM-encoded certificate for internal cloud controller traffic.
-    required: true
-  - name: CC_SERVER_KEY
-    secret: true
-    generator:
-      id: cc_mutual_cert
-      type: Certificate
-      value_type: private_key
-    description: The PEM-encoded private key for internal cloud controller traffic.
-    required: true
-  - name: CC_UPLOADER_CRT
-    secret: true
-    generator:
-      id: cc_uploader_cert
-      type: Certificate
-      value_type: certificate
-      role_name: cc-uploader
-    description: The PEM-encoded certificate for internal cloud controller uploader traffic.
-    required: true
-  - name: CC_UPLOADER_KEY
-    secret: true
-    generator:
-      id: cc_uploader_cert
-      type: Certificate
-      value_type: private_key
-    description: The PEM-encoded private key for internal cloud controller uploader traffic.
-    required: true
-  - name: CDN_URI
-    default: ""
-    description: URI for a CDN to use for buildpack downloads.
-  - name: CERT_EXPIRATION
-    description: Expiration for generated certificates (in days)
-    default: 10950
-  - name: CF_USB_BROKER_SERVER_CERT
-    secret: true
-    generator:
-      id: "usb_broker_server_cert"
-      type: Certificate
-      value_type: certificate
-      role_name: cf-usb
-    description: PEM-encoded broker server certificate.
-  - name: CF_USB_BROKER_SERVER_KEY
-    secret: true
-    generator:
-      id: "usb_broker_server_cert"
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded broker server key.
-  - name: CF_USB_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    example: password
-    description: The password for access to the Universal Service Broker.
-  - name: CLUSTER_ADMIN_AUTHORITIES
-    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
-    description: The Oauth2 authorities available to the cluster administrator.
-    required: true
-  - name: CLUSTER_ADMIN_PASSWORD
-    secret: true
-    description: The password for the cluster administrator.
-    required: true
-  - name: CLUSTER_BUILD
-    default: 2.0.2
-    description: "'build' attribute in the /v2/info endpoint"
-    required: true
-  - name: CLUSTER_DESCRIPTION
-    default: SUSE Cloud Foundry
-    description: "'description' attribute in the /v2/info endpoint"
-    required: true
-  - name: CLUSTER_NAME
-    default: SCF
-    description: "'name' attribute in the /v2/info endpoint"
-    required: true
-  - name: CLUSTER_VERSION
-    default: 2
-    description: "'version' attribute in the /v2/info endpoint"
-    required: true
-  - name: CONSUL_CLIENT_CERT
-    secret: true
-    generator:
-      id: consul_client_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded consul client certificate
-    required: true
-  - name: CONSUL_CLIENT_KEY
-    secret: true
-    generator:
-      id: consul_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded consul client key
-    required: true
-  - name: CONSUL_SERVER_CERT
-    secret: true
-    generator:
-      id: consul_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "*.consul-set"
-      - "server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: PEM-encoded server certificate
-    required: true
-  - name: CONSUL_SERVER_ENCRYPT_KEY
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Consul server encryption key
-    required: true
-  - name: CONSUL_SERVER_KEY
-    secret: true
-    generator:
-      id: consul_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key
-    required: true
-  - name: CREDHUB_ENCRYPT_KEY
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Credhub encryption key
-    required: true
-  - name: CREDHUB_LOG_LEVEL
-    type: environment
-    description: >
-      The log level for credhub. This parameter is not supposed to be set
-      by the user. To change the cluster's log level set the parameter
-      `LOG_LEVEL` instead, from which this one is derived.
-  - name: CREDHUB_SERVER_CERT
-    secret: true
-    generator:
-      id: credhub_server_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "credhub-set"
-      - "server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
-    description: PEM-encoded server certificate
-    required: true
-  - name: CREDHUB_SERVER_KEY
-    secret: true
-    generator:
-      id: credhub_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key
-    required: true
-  - name: DB_ENCRYPTION_KEY
-    secret: true
-    # Immutable until we figure out how to keep the previous value for `cc.database_encryption.keys`
-    immutable: true
-    generator:
-      type: Password
-    description: Key for encrypting sensitive values in the Cloud Controller database.
-    required: true
-  - name: DEFAULT_APP_DISK_IN_MB
-    default: 1024
-    description: The standard amount of disk (in MB) given to an application when not overriden by the user via manifest, command line, etc.
-    required: true
-  - name: DEFAULT_APP_MEMORY
-    default: 1024
-    description: The standard amount of memory (in MB) given to an application when not overriden by the user via manifest, command line, etc.
-    required: true
-  - name: DEFAULT_APP_SSH_ACCESS
-    default: true
-    description: If set apps pushed to spaces that allow SSH access will have SSH enabled by default.
-    required: true
-  - name: DEFAULT_STACK
-    default: sle12
-    description: The default stack to use if no custom stack is specified by an app.
-  - name: DIEGO_CELL_DISK_CAPACITY_MB
-    default: auto
-    description: The container disk capacity the cell should manage. If this capacity is larger than the actual disk quota of the cell component, over-provisioning will occur.
-    required: true
-  - name: DIEGO_CELL_MEMORY_CAPACITY_MB
-    default: auto
-    description: The memory capacity the cell should manage. If this capacity is larger than the actual memory of the cell component, over-provisioning will occur.
-    required: true
-  - name: DIEGO_CELL_NETWORK_MTU
-    default: "1400"
-    description: Maximum network transmission unit length in bytes for application containers.
-    required: true
-  - name: DIEGO_CELL_SUBNET
-    default: 10.38.0.0/16
-    description: A CIDR subnet mask specifying the range of subnets available to be assigned to containers.
-    required: true
-  - name: DIEGO_CLIENT_CERT
-    secret: true
-    generator:
-      id: rep_client_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - diego-api.{{.KUBERNETES_NAMESPACE}}
-      - 127.0.0.1
-    description: PEM-encoded client certificate
-    required: true
-  - name: DIEGO_CLIENT_KEY
-    secret: true
-    generator:
-      id: rep_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key
-    required: true
-  - name: DISABLE_CUSTOM_BUILDPACKS
-    default: false
-    description: Disable external buildpacks. Only admin buildpacks and system buildpacks will be available to users.
-    required: true
-  - name: DNS_HEALTH_CHECK_HOST
-    default: 127.0.0.1
-    description: The host to ping for confirmation of DNS resolution.
-    required: true
-  - name: DOMAIN
-    example: my-scf-cluster.com
-    required: true
-    description: Base domain of the SCF cluster.
-  - name: DOPPLER_CERT
-    secret: true
-    generator:
-      id: doppler_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - doppler
-    description: PEM-encoded certificate.
-    required: true
-  - name: DOPPLER_KEY
-    secret: true
-    generator:
-      id: doppler_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
-  - name: DROPLET_MAX_STAGED_STORED
-    default: 5
-    description: The number of versions of an application to keep. You will be able to rollback to this amount of versions.
-    required: true
-  - name: ENABLE_SECURITY_EVENT_LOGGING
-    default: "false"
-    description: >
-      By default, Cloud Foundry does not enable Cloud Controller request logging.
-      To enable this feature, you must set this property to "true".
-      You can learn more about the format of the logs here https://docs.cloudfoundry.org/loggregator/cc-uaa-logging.html#cc 
-  - name: FORCE_FORWARDED_PROTO_AS_HTTPS
-    default: false
-    description: Enables setting the X-Forwarded-Proto header if SSL termination happened upstream and the header value was set incorrectly. When this property is set to true, the gorouter sets the header X-Forwarded-Proto to https. When this value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol of the incoming request.
-    required: true
-  - name: GARDEN_APPARMOR_PROFILE
-    default: garden-default
-    description: AppArmor profile name for garden-runc; set this to empty string to disable AppArmor support
-  - name: GARDEN_DISABLE_BTRFS
-    default: ""
-    description: An empty value means BTRFS is used. It's set to "true" by a script if GARDEN_ROOTFS_DRIVER is set to overlay-xfs.
-    type: environment
-  - name: GARDEN_DOCKER_REGISTRY
-    default: registry-1.docker.io
-    description: URL pointing to the Docker registry used for fetching Docker images. If not set, the Docker service default is used.
-    required: true
-  - name: GARDEN_LINUX_DNS_SERVER
-    default: ""
-    description: 'Override DNS servers to be used in containers; defaults to the same as the host.'
-  - name: GARDEN_ROOTFS_DRIVER
-    default: btrfs
-    description: The filesystem driver to use (btrfs or overlay-xfs).
-    required: true
-    internal: true
-  - name: GO_LOG_LEVEL
-    type: environment
-    description: >
-      The log level for go components. This parameter is not supposed to be set
-      by the user. To change the cluster's log level set the parameter
-      `LOG_LEVEL` instead, from which this one is derived.
-  - name: HELM_IS_INSTALL
-    type: environment
-  - name: HOSTNAME
-    description: >
-      The host name of the container.  This should be automatic and should not
-      be prompted.
-    type: environment
-  - name: HTTPS_PROXY
-    required: false
-    description: Location of the proxy to use for secure web access.
-  - name: HTTP_PROXY
-    required: false
-    description: Location of the proxy to use for regular web access.
-  - name: INSECURE_DOCKER_REGISTRIES
-    default: ''
-    example: '"docker-registry.example.com:80", "hello.example.org:443"'
-    description: >
-      A comma-separated whitelist of insecure Docker registries in the form of '<HOSTNAME|IP>:PORT'.
-      Each registry must be quoted separately.
-  - name: INTERNAL_API_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: Basic auth password for access to the Cloud Controller's internal API.
-    required: true
-  - name: INTERNAL_CA_CERT
-    secret: true
-    generator:
-      id: cacert
-      type: CACertificate
-      value_type: certificate
-    description: PEM-encoded CA certificate used to sign the TLS certificate used by all components to secure their communications.
-    required: true
-  - name: INTERNAL_CA_KEY
-    secret: true
-    generator:
-      id: cacert
-      type: CACertificate
-      value_type: private_key
-    description: PEM-encoded CA key.
-    required: true
-  - name: KUBERNETES_CLUSTER_DOMAIN
-    type: environment
-  - name: KUBERNETES_NAMESPACE
-    type: environment
-    description: >
-      The name of the kubernetes namespace all components will run in.
-      This parameter cannot be set by the user.
-      Its value is supplied by the kubernetes runtime.
-  - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
-    type: environment
-  - name: KUBE_AZ
-    type: environment
-    default: "z1"
-  - name: KUBE_COMPONENT_INDEX
-    type: environment
-  - name: KUBE_COMPONENT_NAME
-    type: environment
-  - name: KUBE_CONSUL_CLUSTER_IPS
-    type: environment
-    description: >
-      A comma-separated list of IP addresses for the machines of the consul sub-cluster.
-      This parameter cannot be set by the user.
-      Its value is automatically computed during cluster setup.
-  - name: KUBE_NATS_CLUSTER_IPS
-    type: environment
-    description: >
-      A comma-separated list of IP addresses for the machines of the nats sub-cluster.
-      This parameter cannot be set by the user.
-      Its value is automatically computed during cluster setup.
-  - name: KUBE_SECRETS_GENERATION_COUNTER
-    type: environment
-  - name: KUBE_SECRETS_GENERATION_NAME
-    type: environment
-  - name: KUBE_SIZING_NATS_COUNT
-    description: >
-      The number of nats replicas deployed.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX
-    description: >
-      Highest internal TCP routing port.
-      This value is set automatically by the helm charts of SCF.
-  - name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN
-    description: >
-      Lowest internal TCP routing port.
-      This value is set automatically by the helm charts of SCF.
-  - name: LOGGREGATOR_AGENT_CERT
-    secret: true
-    generator:
-      id: loggregator_agent_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - metron
-    description: PEM-encoded certificate.
-    required: true
-  - name: LOGGREGATOR_AGENT_KEY
-    secret: true
-    generator:
-      id: loggregator_agent_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
-  - name: LOGGREGATOR_CLIENT_CERT
-    secret: true
-    generator:
-      id: loggregator_client_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate for loggregator mutual authentication
-    required: true
-  - name: LOGGREGATOR_CLIENT_KEY
-    secret: true
-    generator:
-      id: loggregator_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key for loggregator mutual authentication
-    required: true
-  - name: LOG_LEVEL
-    default: info
-    description: "The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2."
-    required: true
-  - name: MAX_APP_DISK_IN_MB
-    default: 2048
-    description: The maximum amount of disk a user can request for an application via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for the standard amount.
-    required: true
-  - name: MAX_HEALTH_CHECK_TIMEOUT
-    default: 180
-    description: Maximum health check timeout that can be set for an app, in seconds.
-    required: true
-  - name: MONIT_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: Password used for the monit API.
-    required: true
-  - name: MYSQL_ADMIN_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for the MySQL server admin user.
-    required: true
-  - name: MYSQL_CCDB_ROLE_PASSWORD
-    previous_names: [CCDB_ROLE_PASSWORD]
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to the Cloud Controller database.
-    required: true
-  - name: MYSQL_CF_USB_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    example: password
-    description: The password for access to the usb config database.
-  - name: MYSQL_CLUSTER_HEALTH_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for the cluster logger health user.
-    required: true
-  - name: MYSQL_CREDHUB_USER_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to the credhub-user database.
-    required: true
-  - name: MYSQL_DIEGO_LOCKET_PASSWORD
-    description: Database password for the diego locket service.
-    secret: true
-    generator:
-      type: Password
-    required: true
-  - name: MYSQL_DIEGO_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to MySQL by diego.
-    required: true
-  - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
-    required: true
-  - name: MYSQL_PERSI_NFS_PASSWORD
-    description: 'Database password for storing broker state for the Persi NFS Broker'
-    secret: true
-    generator:
-      type: Password
-    required: true
-  - name: MYSQL_PROXY_ADMIN_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for Basic Auth used to secure the MySQL proxy API.
-    required: true
-  - name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
-    default: 30000
-    description: The time allowed for the MySQL server to respond to healthcheck queries, in milliseconds.
-    required: true
-  - name: MYSQL_ROUTING_API_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to MySQL by the routing-api
-    required: true
-  - name: NATS_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to NATS.
-    required: true
-  - name: NGINX_LOG_LEVEL
-    type: environment
-    description: >
-      The log level for nginx. This parameter is not supposed to be set by the
-      user. To change the cluster's log level set the parameter `LOG_LEVEL`
-      instead, from which this one is derived.
-  - name: NGINX_MAX_REQUEST_BODY_SIZE
-    default: 2048
-    description: Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field, in megabytes. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size. This limits application uploads, buildpack uploads, etc.
-    required: true
-  - name: NO_PROXY
-    description: Comma separated list of IP addresses and domains which should not be directoed through a proxy, if any.
-    required: false
-  - name: PERSI_NFS_ALLOWED_OPTIONS
-    description: 'Comma separated list of white-listed options that may be set during create or bind operations.'
-    example: 'uid,gid,allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,fsname,username,password'
-    default: 'uid,gid,auto_cache,username,password'
-  - name: PERSI_NFS_BROKER_PASSWORD
-    description: 'Basic auth password to verify on incoming Service Broker requests'
-    secret: true
-    generator:
-      type: Password
-    required: true
-  - name: PERSI_NFS_DEFAULT_OPTIONS
-    description: > 
-      Comma separated list of default values for nfs mount options. 
-      If a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS, 
-      then this default value will be set and it won't be overridable.
-  - name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
-    description: >
-      Comma separated list of white-listed options that may be accepted in the mount_config options.
-      Note a specific 'sloppy_mount:true' volume option tells the driver to ignore non-white-listed options,
-      while a 'sloppy_mount:false' tells the driver to fail fast instead when receiving a non-white-listed option."
-    example: "allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname"
-    default: "auto_cache"
-  - name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
-    description: >
-      Comma separated list of white-listed options that may be configured in supported in the 
-      mount_config.source URL query params
-    example: 'uid,gid,auto-traverse-mounts,dircache'
-    default: 'uid,gid'
-  - name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
-    description: >
-      Comma separated list default values for options that may be configured in the mount_config options,
-      formatted as 'option:default'. If an option is not specified in the volume mount, or the option is
-      not white-listed, then the specified default value will be used instead.
-    example: "allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true"
-    default: "auto_cache:true"
-  - name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
-    description: >
-      Comma separated list of default values for options in the source URL query params,
-      formatted as 'option:default'. If an option is not specified in the volume mount, 
-      or the option is not white-listed, then the specified default value will be applied.
-  - name: PERSI_NFS_DRIVER_DISABLE
-    description: "Disable Persi NFS driver"
-    default: "false"
-  - name: PERSI_NFS_DRIVER_LDAP_HOST
-    description: "LDAP server host name or ip address (required for LDAP integration only)"
-    default: ""
-  - name: PERSI_NFS_DRIVER_LDAP_PASSWORD
-    description: "LDAP service account password (required for LDAP integration only)"
-    default: "-"
-    secret: true
-  - name: PERSI_NFS_DRIVER_LDAP_PORT
-    description: "LDAP server port (required for LDAP integration only)"
-    default: "389"
-  - name: PERSI_NFS_DRIVER_LDAP_PROTOCOL
-    description: "LDAP server protocol (required for LDAP integration only)"
-    default: tcp
-  - name: PERSI_NFS_DRIVER_LDAP_USER
-    description: "LDAP service account user name (required for LDAP integration only)"
-    default: ""
-  - name: PERSI_NFS_DRIVER_LDAP_USER_FQDN
-    description: "LDAP fqdn for user records we will search against when looking up user uids (required for LDAP integration only)"
-    example: "cn=Users,dc=corp,dc=test,dc=com"
-    default: ""
-  - name: POSTGRES_PASSWORD
-    secret: true
-    immutable: true
-    generator:
-      type: Password
-    description: Password for Postgres administrator account
-    required: true
-  - name: REP_SERVER_CERT
-    secret: true
-    generator:
-      id: rep_server_cert
-      type: Certificate
-      value_type: certificate
-      role_name: diego-cell
-      subject_names: [ 127.0.0.1 ]
-    description: PEM-encoded server certificate
-    required: true
-  - name: REP_SERVER_KEY
-    secret: true
-    generator:
-      id: rep_server_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded server key
-    required: true
-  - name: ROOTFS_TRUSTED_CERTS
-    default: ''
-    description: Certficates to add to the rootfs trust store. Multiple certs are possible by concatenating their definitions into one big block of text.
-  - name: ROUTER_BALANCING_ALGORITHM
-    default: 'round-robin'
-    description: The algorithm used by the router to distribute requests for a route across backends. Supported values are round-robin and least-connection.
-  - name: ROUTER_CLIENT_CERT_VALIDATION
-    description: How to handle client certificates. Supported values are none, request, or require. See https://docs.cloudfoundry.org/adminguide/securing-traffic.html#gorouter_mutual_auth for more information.
-    default: request
-  - name: ROUTER_FORWARDED_CLIENT_CERT
-    default: 'always_forward'
-    description: How to handle the x-forwarded-client-cert (XFCC) HTTP header. Supported values are always_forward, forward, and sanitize_set. See https://docs.cloudfoundry.org/concepts/http-routing.html for more information.
-  - name: ROUTER_SERVICES_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: Support for route services is disabled when no value is configured. A robust passphrase is recommended.
-    required: true
-  - name: ROUTER_SSL_CERT
-    secret: true
-    generator:
-      id: router_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - "*.{{.DOMAIN}}"
-    description: The public ssl cert for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
-    required: true
-  - name: ROUTER_SSL_KEY
-    secret: true
-    generator:
-      id: router_cert
-      type: Certificate
-      value_type: private_key
-    description: The private ssl key for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
-    required: true
-  - name: ROUTER_STATUS_PASSWORD
-    secret: true
-    generator:
-      id: router_status_password
-      type: Password
-    description: Password for HTTP basic auth to the varz/status endpoint.
-    required: true
-  - name: ROUTER_TLS_PEM
-    description: Array of private keys and certificates used for TLS handshakes with downstream clients. Each element in the array is an object containing fields 'private_key' and 'cert_chain', each of which supports a PEM block. This setting overrides ROUTER_SSL_CERT and ROUTER_SSL_KEY.
-    example: |
-      - cert_chain: |
-          -----BEGIN CERTIFICATE-----
-          -----END CERTIFICATE-----
-          -----BEGIN CERTIFICATE-----
-          -----END CERTIFICATE-----
-        private_key: |
-          -----BEGIN RSA PRIVATE KEY-----
-          -----END RSA PRIVATE KEY-----
-    secret: true
-  - name: SCF_LOG_HOST
-    internal: true
-    description: The log destination to talk to. This has to point to a syslog server.
-  - name: SCF_LOG_PORT
-    internal: true
-    description: The port used by rsyslog to talk to the log destination. It defaults to 514, the standard port of syslog.
-    default: 514
-  - name: SCF_LOG_PROTOCOL
-    internal: true
-    default: tcp
-    description: The protocol used by rsyslog to talk to the log destination. The allowed values are tcp, and udp. The default is tcp.
-    required: true
-  - name: STAGING_TIMEOUT
-    default: 900
-    description: Timeout for staging an app, in seconds.
-    required: true
-  - name: STAGING_UPLOAD_PASSWORD
-    secret: true
-    generator:
-      type: Password
-    description: The password for access to the uploader of staged droplets.
-    required: true
-  - name: SUPPORT_ADDRESS
-    default: support@example.com
-    description: Support contact information for the cluster
-    required: true
-  - name: SUSE_STACK
-    default: opensuse42
-    type: environment
-  - name: SUSE_STACK_DESCRIPTION
-    default: openSUSE-based filesystem
-    type: environment
-  - name: SUSE_STACK_DIRNAME
-    default: opensuse42
-    type: environment
-  - name: SYSLOG_ADAPT_CERT
-    secret: true
-    generator:
-      id: syslog_adapt_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - adapter
-      # The CN must be listed in the BOSH property
-      # scalablesyslog.scheduler.tls.client.adapter_cn
-    description: PEM-encoded certificate
-    required: true
-  - name: SYSLOG_ADAPT_KEY
-    secret: true
-    generator:
-      id: syslog_adapt_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
-  - name: SYSLOG_RLP_CERT
-    secret: true
-    generator:
-      id: syslog_rlp_cert
-      type: Certificate
-      value_type: certificate
-      subject_names:
-      - syslog_rlp
-    description: PEM-encoded certificate
-    required: true
-  - name: SYSLOG_RLP_KEY
-    secret: true
-    generator:
-      id: syslog_rlp_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
-  - name: SYSLOG_SCHED_CERT
-    secret: true
-    generator:
-      id: syslog_sched_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate
-    required: true
-  - name: SYSLOG_SCHED_KEY
-    secret: true
-    generator:
-      id: syslog_sched_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key.
-    required: true
-  - name: TCP_DOMAIN
-    example: tcp.my-scf-cluster.com
-    required: true
-    description: TCP routing domain of the SCF cluster; only used for testing;
-  - name: TPS_CC_CLIENT_CRT
-    secret: true
-    generator:
-      id: tps_cc_client_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded client certificate for internal communication between the cloud controller and TPS.
-    required: true
-  - name: TPS_CC_CLIENT_KEY
-    secret: true
-    generator:
-      id: tps_cc_client_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded client key for internal communication between the cloud controller and TPS.
-    required: true
-  - name: TRAFFICCONTROLLER_CERT
-    secret: true
-    generator:
-      id: trafficcontroller_cert
-      type: Certificate
-      value_type: certificate
-    description: PEM-encoded certificate for communication with the traffic controller of the log infra structure.
-    required: true
-  - name: TRAFFICCONTROLLER_KEY
-    secret: true
-    generator:
-      id: trafficcontroller_cert
-      type: Certificate
-      value_type: private_key
-    description: PEM-encoded key for communication with the traffic controller of the log infra structure.
-    required: true
-  - name: TRUSTED_CERTS
-    description: Concatenation of trusted CA certificates to be made available on the cell.
-  - name: UAA_ADMIN_CLIENT_SECRET
-    secret: true
-    description: The password of the admin client - a client named admin with uaa.admin as an authority.
-    required: true
-  - name: UAA_CA_CERT
-    description: The CA certificate for UAA
-    secret: true
-  - name: UAA_CC_CLIENT_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Cloud Controller.
-    required: true
-  - name: UAA_CLIENTS_CC_ROUTING_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Routing API.
-    required: true
-  - name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: Used for third party service dashboard SSO.
-  - name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: Used for fetching service key values from CredHub.
-    required: true
-  - name: UAA_CLIENTS_CF_USB_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Universal Service Broker.
-  - name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the Cloud Controller for fetching usernames.
-    required: true
-  - name: UAA_CLIENTS_CREDHUB_USER_CLI_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the client for the user-accessible credhub
-    required: true
-  - name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the SSH proxy.
-    required: true
-  - name: UAA_CLIENTS_DOPPLER_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by doppler.
-    required: true
-  - name: UAA_CLIENTS_GOROUTER_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the gorouter.
-    required: true
-  - name: UAA_CLIENTS_LOGIN_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the login client.
-    required: true
-  - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the task creating the cluster administrator user
-    required: true
-  - name: UAA_CLIENTS_TCP_EMITTER_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the TCP emitter.
-    required: true
-  - name: UAA_CLIENTS_TCP_ROUTER_SECRET
-    secret: true
-    generator:
-      type: Password
-    description: The password for UAA access by the TCP router.
-    required: true
-  - name: UAA_HOST
-    description: The host name of the UAA server (root zone)
-    required: true
-  - name: UAA_PORT
-    default: 2793
-    description: The tcp port the UAA server (root zone) listens on for requests.
-  - name: USE_DIEGO_PRIVILEGED_CONTAINERS
-    default: false
-    description: Whether or not to use privileged containers for buildpack based applications. Containers with a docker-image-based rootfs will continue to always be unprivileged.
-    required: true
-  - name: USE_STAGER_PRIVILEGED_CONTAINERS
-    default: false
-    description: Whether or not to use privileged containers for staging tasks.
-    required: true
-
   templates:
     az: '"((KUBE_AZ))"'
-    id: ((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((#KUBE_COMPONENT_INDEX))-((KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_INDEX))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((HOSTNAME))((/KUBE_COMPONENT_NAME))
+    id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
-    networks.default.dns_record_name: '"((#KUBE_COMPONENT_NAME))((KUBE_COMPONENT_NAME))((/KUBE_COMPONENT_NAME))((^KUBE_COMPONENT_NAME))((DNS_RECORD_NAME))((/KUBE_COMPONENT_NAME))"'
+    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
-    # We include INTERNAL_CA_KEY here so validation doesn't complain that it's not being used.
+    # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
     # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
-    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
@@ -3087,40 +1701,40 @@ configuration:
     properties.autoscaler.api_server.db_config.min_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS))'
     properties.autoscaler.api_server.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.eventgenerator.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_KEY))"'
-    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-metrics.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.eventgenerator.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-metrics-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.info.build: '"((AUTOSCALER_API_SERVER_INFO_BUILD))"'
     properties.autoscaler.api_server.info.description: '"((AUTOSCALER_API_SERVER_INFO_DESCRIPTION))"'
     properties.autoscaler.api_server.info.name: '"((AUTOSCALER_API_SERVER_INFO_NAME))"'
     properties.autoscaler.api_server.info.support_url: '"((AUTOSCALER_API_SERVER_INFO_SUPPORT_URL))"'
     properties.autoscaler.api_server.metrics_collector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.metrics_collector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.metrics_collector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_KEY))"'
-    properties.autoscaler.api_server.metrics_collector.host: '"autoscaler-metrics.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.metrics_collector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.metrics_collector.host: '"autoscaler-metrics-metricscollector.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.public_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
-    properties.autoscaler.api_server.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY))"'
+    properties.autoscaler.api_server.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.api_server.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
-    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-actors.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scheduler.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
-    properties.autoscaler.api_server.scheduler.host: '"autoscaler-actors.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
-    properties.autoscaler.api_server.server_key: '"((AUTOSCALER_ASAPI_SERVER_KEY))"'
+    properties.autoscaler.api_server.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
     properties.autoscaler.api_server.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.service_broker.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.api_server.service_broker.client_key: '"((AUTOSCALER_ASAPI_CLIENT_KEY))"'
-    properties.autoscaler.api_server.service_broker.host: '"autoscaler-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.service_broker.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.service_broker.host: '"autoscaler-api-servicebroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.service_offering_enabled: '((AUTOSCALER_SERVICE_OFFERING_ENABLED))'
-    properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.appmetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.appmetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.appmetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.appmetrics_db_connection_config.max_open_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.binding_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.binding_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.binding_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.cf.api: '"https://api.((DOMAIN))"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
@@ -3143,20 +1757,20 @@ configuration:
     properties.autoscaler.eventgenerator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.eventgenerator.metricscollector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
-    properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_KEY))"'
-    properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics-metricscollector.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
-    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-actors.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
-    properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_KEY))"'
-    properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
+    properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.instancemetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.instancemetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.instancemetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.instancemetrics_db_connection_config.max_open_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.lock_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.lock_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.lock_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.lock_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.lock_db_connection_config.max_idle_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3168,8 +1782,8 @@ configuration:
     properties.autoscaler.metricscollector.collector.save_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL))"'
     properties.autoscaler.metricscollector.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
-    properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_KEY))"'
-    properties.autoscaler.policy_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
+    properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3190,9 +1804,9 @@ configuration:
     properties.autoscaler.scalingengine.lockSize: '"((AUTOSCALER_SCALING_ENGINE_LOCK_SIZE))"'
     properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
-    properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_KEY))"'
+    properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
     properties.autoscaler.scalingengine.synchronizer.active_schedule_sync_interval: '"((AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL))"'
-    properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.scalingengine_db_connection_config.max_idle_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
@@ -3203,19 +1817,19 @@ configuration:
     properties.autoscaler.scheduler.notification_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_KEY))"'
-    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-actors.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
-    properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_ASACTORS_SERVER_KEY))"'
-    properties.autoscaler.scheduler_db.address: '"autoscaler-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
+    properties.autoscaler.scheduler_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scheduler_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.scheduler_db_connection_config.max_idle_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.scheduler_db_connection_config.max_open_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
     properties.autoscaler.service_broker.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.service_broker.api_server.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.service_broker.api_server.client_key: '"((AUTOSCALER_ASAPI_CLIENT_KEY))"'
-    properties.autoscaler.service_broker.api_server.host: '"autoscaler-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.service_broker.api_server.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
+    properties.autoscaler.service_broker.api_server.host: '"autoscaler-api-apiserver.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.service_broker.dashboard_redirect_uri: '"https://scalerui.((DOMAIN))"'
     properties.autoscaler.service_broker.db_config.idle_timeout: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT))'
@@ -3225,34 +1839,34 @@ configuration:
     properties.autoscaler.service_broker.password: '"((AUTOSCALER_SERVICE_BROKER_PASSWORD))"'
     properties.autoscaler.service_broker.public_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.service_broker.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
-    properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_KEY))"'
+    properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
-    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_ASAPI_SERVER_KEY))"'
-    properties.blobstore.admin_users:  '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
+    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
+    properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
     properties.blobstore.secure_link.secret: '"((BLOBSTORE_SECURE_LINK))"'
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
-    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_KEY))"'
+    properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_CERT_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
     properties.capi.cc_uploader.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.cc.client_cert: '"((CC_SERVER_CRT))"'
-    properties.capi.cc_uploader.cc.client_key: '"((CC_SERVER_KEY))"'
+    properties.capi.cc_uploader.cc.client_key: '"((CC_SERVER_CRT_KEY))"'
     properties.capi.cc_uploader.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_UPLOADER_CRT))"'
-    properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_KEY))"'
-    properties.capi.tps.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_CRT_KEY))"'
+    properties.capi.tps.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.tps.cc.client_cert: '"((TPS_CC_CLIENT_CRT))"'
-    properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_KEY))"'
-    properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_CRT_KEY))"'
+    properties.capi.tps.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
+    properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.watcher.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -3260,7 +1874,7 @@ configuration:
     properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.buildpacks.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.buildpacks.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.bulk_api_password: '"((BULK_API_PASSWORD))"'
     properties.cc.database_encryption.current_key_label: '"((CC_DB_CURRENT_KEY_LABEL))"'
@@ -3270,10 +1884,10 @@ configuration:
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.bbs.url: https://diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
-    properties.cc.diego.cc_uploader_https_url: https://cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: http://diego-access-file-server.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -3281,23 +1895,23 @@ configuration:
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.droplets.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.droplets.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.droplets.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
-    properties.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.loggregator.internal_url: http://log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.cc.loggregator.internal_url: http://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.cc.mutual_tls.private_key: '"((CC_SERVER_KEY))"'
+    properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.packages.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
-    properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
+    properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.security_event_logging.enabled: '"((ENABLE_SECURITY_EVENT_LOGGING))"'
     properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
@@ -3307,16 +1921,16 @@ configuration:
     properties.ccdb.address: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
-    properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
+    properties.cf-usb.broker.external_url: '"https://cf-usb-cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
-    properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_KEY))"'
+    properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
-    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
+    properties.cf.api_url: https://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
+    properties.cf.insecure_api_url: http://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
@@ -3324,36 +1938,36 @@ configuration:
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
     properties.consul.agent_cert: ((CONSUL_CLIENT_CERT))
-    properties.consul.agent_key: ((CONSUL_CLIENT_KEY))
+    properties.consul.agent_key: ((CONSUL_CLIENT_CERT_KEY))
     properties.consul.ca_cert: ((INTERNAL_CA_CERT))
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
-    properties.diego.auctioneer.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.auctioneer.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.auctioneer.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
-    properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_KEY))"'
+    properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_CERT_KEY))"'
     properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
-    properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_KEY))"'
-    properties.diego.bbs.auctioneer.api_location: diego-brain.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
+    properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_CERT_KEY))"'
+    properties.diego.bbs.auctioneer.api_location: diego-brain-auctioneer.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
     properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
-    properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_KEY))"'
+    properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_CERT_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
-    properties.diego.bbs.rep.client_key: '"((BBS_REP_KEY))"'
+    properties.diego.bbs.rep.client_key: '"((BBS_REP_CERT_KEY))"'
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
-    properties.diego.bbs.server_key: '"((BBS_SERVER_KEY))"'
+    properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
     properties.diego.bbs.sql.db_host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
@@ -3363,24 +1977,24 @@ configuration:
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.sql.db_host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
-    properties.diego.rep.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: diego-api.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
-    properties.diego.route_emitter.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_KEY))"'
+    properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
-    properties.diego.ssh_proxy.bbs.api_location: diego-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.ssh_proxy.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_KEY))"'
-    properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
+    properties.diego.ssh_proxy.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
@@ -3388,7 +2002,7 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.doppler.addr: '"doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
@@ -3407,24 +2021,24 @@ configuration:
     properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_DISABLE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
-    properties.internal_hostname: cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.locks.locket.hostname: diego-api.((KUBERNETES_NAMESPACE))
+    properties.internal_hostname: cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.locks.locket.hostname: diego-api-locket.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
-    properties.loggregator.key: ((LOGGREGATOR_CLIENT_KEY))
+    properties.loggregator.key: ((LOGGREGATOR_CLIENT_CERT_KEY))
     properties.loggregator.tls.agent.cert: '"((LOGGREGATOR_AGENT_CERT))"'
-    properties.loggregator.tls.agent.key: '"((LOGGREGATOR_AGENT_KEY))"'
+    properties.loggregator.tls.agent.key: '"((LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.loggregator.tls.cc_trafficcontroller.cert: ((TRAFFICCONTROLLER_CERT))
-    properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_KEY))
+    properties.loggregator.tls.cc_trafficcontroller.key: ((TRAFFICCONTROLLER_CERT_KEY))
     properties.loggregator.tls.doppler.cert: '"((DOPPLER_CERT))"'
-    properties.loggregator.tls.doppler.key: '"((DOPPLER_KEY))"'
+    properties.loggregator.tls.doppler.key: '"((DOPPLER_CERT_KEY))"'
     properties.loggregator.tls.reverse_log_proxy.cert: '"((SYSLOG_RLP_CERT))"'
-    properties.loggregator.tls.reverse_log_proxy.key: '"((SYSLOG_RLP_KEY))"'
+    properties.loggregator.tls.reverse_log_proxy.key: '"((SYSLOG_RLP_CERT_KEY))"'
     properties.loggregator.tls.statsd_injector.cert: '"((CC_SERVER_CRT))"'
-    properties.loggregator.tls.statsd_injector.key: '"((CC_SERVER_KEY))"'
+    properties.loggregator.tls.statsd_injector.key: '"((CC_SERVER_CRT_KEY))"'
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
-    properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_KEY))"'
+    properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
@@ -3436,7 +2050,7 @@ configuration:
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
-    properties.nfsbroker.url: 'http://nfs-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.nfsbroker.url: 'http://nfs-broker-nfsbroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
     properties.nfsv3driver.allowed-in-mount: '"((PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT))"'
     properties.nfsv3driver.allowed-in-source: '"((PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE))"'
     properties.nfsv3driver.default-in-mount: '"((PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT))"'
@@ -3458,31 +2072,31 @@ configuration:
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
-    properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]((/ROUTER_TLS_PEM))'
-    properties.routing_api.locket.api_location: '"diego-api.((KUBERNETES_NAMESPACE)):8891"'
+    properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_CERT_KEY))"}]((/ROUTER_TLS_PEM))'
+    properties.routing_api.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
-    properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_KEY))"'
+    properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: "mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.routing_api.url: '"http://routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
-    properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_KEY))"'
+    properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
     properties.scalablesyslog.adapter_rlp.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter_rlp.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
-    properties.scalablesyslog.adapter_rlp.tls.key: '"((SYSLOG_ADAPT_KEY))"'
+    properties.scalablesyslog.adapter_rlp.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
     properties.scalablesyslog.scheduler.tls.api.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.api.cert: '"((SYSLOG_SCHED_CERT))"'
-    properties.scalablesyslog.scheduler.tls.api.key: '"((SYSLOG_SCHED_KEY))"'
+    properties.scalablesyslog.scheduler.tls.api.key: '"((SYSLOG_SCHED_CERT_KEY))"'
     properties.scalablesyslog.scheduler.tls.client.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
-    properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_KEY))"'
+    properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_CERT_KEY))"'
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
@@ -3502,7 +2116,7 @@ configuration:
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.tls.cert: '"((DIEGO_CLIENT_CERT))"'
-    properties.tls.key: '"((DIEGO_CLIENT_KEY))"'
+    properties.tls.key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
@@ -3536,3 +2150,1616 @@ configuration:
     properties.version: '"((CLUSTER_VERSION))"'
     # Really a loggregator_agent job property
     properties.zone: '"((KUBE_AZ))"'
+variables:
+- name: ACCEPTANCE_TEST_NODES
+  options:
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      acceptance tests. The larger the number the higher the stress on the system.
+- name: ALLOWED_CORS_DOMAINS
+  options:
+    default: []
+    description: List of domains (including scheme) from which Cross-Origin requests
+      will be accepted, a * can be used as a wildcard for any part of a domain.
+    required: true
+- name: ALLOW_APP_SSH_ACCESS
+  options:
+    default: true
+    description: Allow users to change the value of the app-level allow_ssh attribute.
+    required: true
+- name: APP_SSH_KEY
+  options:
+    secret: true
+    description: PEM encoded RSA private key used to identify host.
+    required: true
+  type: ssh
+- name: APP_SSH_KEY_FINGERPRINT
+  options:
+    secret: true
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections
+      to application instances.
+    required: true
+- name: APP_TOKEN_UPLOAD_GRACE_PERIOD
+  options:
+    default: 1200
+    description: Extra token expiry time while uploading big apps, in seconds.
+    required: true
+- name: AUCTIONEER_REP_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: AUCTIONEER_REP_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: AUCTIONEER_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-brain-auctioneer
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: AUCTIONEER_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
+    required: true
+- name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
+  options:
+    default: 100
+    description: Idle connection timeout for the Autoscaler API Server database, in
+      seconds.
+- name: AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of connections to the Autoscaler API Server database.
+- name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
+  options:
+    default: 0
+    description: The minimum number of connections to the Autoscaler API Server database.
+- name: AUTOSCALER_API_SERVER_INFO_BUILD
+  options:
+    default: beta
+    description: The build version of Autoscaler. It should be defined when it is
+      deployed to a product environment.
+- name: AUTOSCALER_API_SERVER_INFO_DESCRIPTION
+  options:
+    default: autoscaler
+    description: The description of Autoscaler. It should be defined when it is deployed
+      to a product environment.
+- name: AUTOSCALER_API_SERVER_INFO_NAME
+  options:
+    default: autoscalerapiserver
+    description: The name of the Autoscaler API Server. It should be defined when
+      it is deployed to a product environment.
+- name: AUTOSCALER_API_SERVER_INFO_SUPPORT_URL
+  options:
+    default: ''
+    description: The support url of autoscaler where the users could find support
+      information. It should be defined when it is deployed to a product environment.
+- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      appmetrics database.
+- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of connections to the Autoscaler appmetrics database.
+- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The minimum number of connections to the Autoscaler appmetrics database.
+- name: AUTOSCALER_ASACTORS_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - as_actors_client
+    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
+      Actors. This includes the Autoscaler Scheduler and the Scaling Engine.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASACTORS_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for clients to connect to the Autoscaler Actors.
+      This includes the Autoscaler Scheduler and the Scaling Engine.
+    required: true
+- name: AUTOSCALER_ASACTORS_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-actors-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler Actors https server.
+      This includes the Autoscaler Scheduler and the Scaling Engine.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASACTORS_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler Actors https server. This
+      includes the Autoscaler Scheduler and the Scaling Engine.
+    required: true
+- name: AUTOSCALER_ASAPI_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - as_api_client
+    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
+      API. This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASAPI_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for clients to connect to the Autoscaler API.
+      This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+- name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler.{{.DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler API public https
+      server. This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler API public https server.
+      This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+- name: AUTOSCALER_ASAPI_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-api-apiserver.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-api-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler API https server.
+      This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASAPI_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler API https server. This includes
+      the Autoscaler ApiServer and the Service Broker.
+    required: true
+- name: AUTOSCALER_ASMETRICS_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - as_metrics_client
+    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
+      Metrics. This includes the Autoscaler Metrics Collector and Event Generator.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for clients to connect to the Autoscaler Metrics.
+      This includes the Autoscaler Metrics Collector and Event Generator.
+    required: true
+- name: AUTOSCALER_ASMETRICS_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-metrics-metricscollector.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-metrics-eventgenerator.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler Metrics https server.
+      This includes the Autoscaler Metrics Collector and Event Generator.
+    required: true
+  type: certificate
+- name: AUTOSCALER_ASMETRICS_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler Metrics https server. This
+      includes the Autoscaler Metrics Collector and Event Generator.
+    required: true
+- name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
+  options:
+    default: true
+    description: Whether to skip ssl validation when Autoscaler components to communicate
+      with CloudFoundry components.
+- name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
+  options:
+    default: 1000
+    description: The maximum number of connections the Autoscaler postgres database
+      server could serve.
+- name: AUTOSCALER_DB_PASSWORD
+  options:
+    secret: true
+    description: The password for the Autoscaler postgres database.
+    required: true
+  type: password
+- name: AUTOSCALER_DEFAULT_BREACH_DURATION_SECS
+  options:
+    default: 300
+    description: The default breach duration for the Autoscaler Event Generator, in
+      seconds.The breach duration means the App Autoscaler won’t take the desired
+      adjustment until the application has been breaching the Autoscaler policy for
+      a period longer than breach_duration_secs setting.
+- name: AUTOSCALER_DEFAULT_COOLDOWN_SECS
+  options:
+    default: 300
+    description: The default cooldown duration between two scaling action for the
+      Autoscaler Event Generator, in seconds.
+- name: AUTOSCALER_DEFAULT_STAT_WINDOW_SECS
+  options:
+    default: 300
+    description: The default statistic window duration between two scaling action
+      for the Autoscaler Event Generator, in seconds.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE
+  options:
+    default: 1000
+    description: The size of golang channel used by the Autoscaler Event Generator
+      as a buffer to save metrics by batch.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE
+  options:
+    default: 200
+    description: The size of golang channel used by the Autoscaler Event Generator
+      to exchange data.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL
+  options:
+    default: 40s
+    description: The duration defines how long does Autoscaler Event Generator aggregate
+      appmetrics.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT
+  options:
+    default: 20
+    description: The number of metricpollers in Autoscaler Event Generator.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL
+  options:
+    default: 40s
+    description: The duration defines how long does the Autoscaler Event Generator
+      reload data from policy database.
+- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL
+  options:
+    default: 5s
+    description: The duration defines how long does the Autoscaler Event Generator
+      save appmetrics to database by batch.
+- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL
+  options:
+    default: 5m
+    description: The initial exponential back off interval for the circuit breaker
+      of the Autoscaler Event Generator.
+- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL
+  options:
+    default: 120m
+    description: The maximum exponential back off interval for the circuit breaker
+      of the Autoscaler Event Generator.
+- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT
+  options:
+    default: 3
+    description: The number of consecutive failure to trip the circuit down for the
+      circuit breaker of the Autoscaler Event Generator.
+- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL
+  options:
+    default: 40s
+    description: The duration defines how long does the Autoscaler Event Generator
+      evaluate appmetrics.
+- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT
+  options:
+    default: 20
+    description: The number of evaluators in the Autoscaler Event Generator.
+- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE
+  options:
+    default: 200
+    description: The size of golang channel used by the Autoscaler Event Generator
+      App Evaluation Manager to pass triggers to evaluators.
+- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      instance metrics database.
+- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of idle connections to the Autoscaler instance
+      metrics database.
+- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The maximum number of connections to the Autoscaler instance metrics
+      database.
+- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      lock database.
+- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of idle connections to the Autoscaler lock database.
+- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The maximum number of connections to the Autoscaler lock database.
+- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
+  options:
+    default: 30s
+    description: The duration defines how long does the Autoscaler Metrics Collector
+      aggregate collected instance metrics.
+- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL
+  options:
+    default: 60s
+    description: The duration defines how long does the Autoscaler Metrics Collector
+      reload data from policy database.
+- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL
+  options:
+    default: 30s
+    description: The duration defines how long does the Autoscaler Metrics Collector
+      save instance metrics to database by batch.
+- name: AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD
+  options:
+    default: streaming
+    description: >
+      The method type of the Autoscaler Metrics Collector to fetch metrics
+      from cloudfoundry: polling or streaming.
+- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      policy database.
+- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of idle connections to the Autoscaler policy database.
+- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The maximum number of connections to the Autoscaler policy database.
+- name: AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of appmetrics data does the Autoscaler
+      Pruner kept for each pruning.
+- name: AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for appmetrics database
+      in the Autoscaler Pruner.
+- name: AUTOSCALER_PRUNER_ENABLE_DB_LOCK
+  options:
+    default: true
+    description: Whether to enable the Autoscaler Pruner's db lock. If there are more
+      than one pruners, the value should be true
+- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of instance metrics data does
+      the Autoscaler Pruner kept for each pruning.
+- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for instance metrics database
+      in the Autoscaler Pruner.
+- name: AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL
+  options:
+    default: 10s
+    description: The interval for each Autoscaler Pruner instance to retry to get
+      database lock.
+- name: AUTOSCALER_PRUNER_LOCK_TTL
+  options:
+    default: 15s
+    description: The maximum duration of a Autoscaler Pruner instance could hold the
+      database lock.
+- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of the scaling history data does
+      the Autoscaler Pruner kept for each pruning.
+- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for scalingengine database
+      in the Autoscaler Pruner.
+- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      Scaling Engine database.
+- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of idle connections to the Autoscaler Scaling
+      Engine database.
+- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The maximum number of connections to the Autoscaler Scaling Engine
+      database.
+- name: AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL
+  options:
+    description: The time interval to emit health metrics for the Autoscaler Scaling
+      Engine."
+    default: 15s
+- name: AUTOSCALER_SCALING_ENGINE_LOCK_SIZE
+  options:
+    default: 32
+    description: The lock number of the Autoscaler Scaling Engine to do synchronization
+      for multiple scaling requests.
+- name: AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL
+  options:
+    default: 600s
+    description: The duration defines how long does the Autoscaler Scaling Engine
+      to synchronize its schedules with the Autoscaler Scheduler database.
+- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
+  options:
+    default: 60s
+    description: The maximum age of a connection that can be reused for the Autoscaler
+      Scheduler database.
+- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of idle connections to the Autoscaler Scheduler
+      database.
+- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
+  options:
+    default: 100
+    description: The maximum number of connections to the Autoscaler Scaling Engine
+      database.
+- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND
+  options:
+    default: 100
+    description: Rescheduling interval for quartz job for the Autoscaler Scheduler,
+      in milliseconds.
+- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT
+  options:
+    default: 6
+    description: Maximum number of jobs can be re-scheduled in the Autoscaler Scheduler.
+- name: AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT
+  options:
+    default: 3
+    description: Maximum number of notification sent to Autoscaler Scaling Engine
+      for job re-schedule.
+- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
+  options:
+    default: 1000
+    description: Idle connection timeout for the Autoscaler Service Broker database,
+      in seconds.
+- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS
+  options:
+    default: 10
+    description: The maximum number of connections to the Autoscaler Service Broker
+      database.
+- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
+  options:
+    default: 0
+    description: The minimum number of connections to the Autoscaler Service Broker
+      database.
+- name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
+  options:
+    default: 5000
+    description: The timeout in milliseconds for http request from Autoscaler Service
+      Broker to other Autoscaler components.
+- name: AUTOSCALER_SERVICE_BROKER_PASSWORD
+  options:
+    secret: true
+    description: The password for the Autoscaler Service Broker.
+    required: true
+  type: password
+- name: AUTOSCALER_SERVICE_OFFERING_ENABLED
+  options:
+    default: false
+    description: Whether Autoscaler is provided as a cloudfoundry service, default
+      is false.
+- name: AUTOSCALER_UAA_CLIENT_SECRET
+  options:
+    secret: true
+    description: the uaa client secret used by Autoscaler.
+  type: password
+- name: BBS_ACTIVE_KEY_PASSPHRASE
+  options:
+    secret: true
+    immutable: true
+    description: The password for access to the diego BBS database.
+    required: true
+  type: password
+- name: BBS_AUCTIONEER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: BBS_AUCTIONEER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: BBS_CLIENT_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate.
+    required: true
+  type: certificate
+- name: BBS_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
+- name: BBS_REP_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: BBS_REP_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: BBS_SERVER_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-api-bbs
+    description: PEM-encoded client certificate.
+    required: true
+  type: certificate
+- name: BBS_SERVER_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
+- name: BLOBSTORE_ACCESS_RULES
+  options:
+    default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
+    description: List of allow / deny rules for the blobstore internal server. Will
+      be followed by 'deny all'. Each entry must be follow by a semicolon.
+    required: true
+- name: BLOBSTORE_MAX_UPLOAD_SIZE
+  options:
+    default: 5000
+    description: Maximal allowed file size for upload to blobstore, in megabytes.
+    required: true
+- name: BLOBSTORE_PASSWORD
+  options:
+    secret: true
+    description: The basic auth password that Cloud Controller uses to connect to
+      the blobstore server. Auto-generated if not provided. Passwords must be alphanumeric
+      (URL-safe).
+    required: true
+  type: password
+- name: BLOBSTORE_SECURE_LINK
+  options:
+    secret: true
+    description: The secret used for signing URLs between Cloud Controller and blobstore.
+    required: true
+  type: password
+- name: BLOBSTORE_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: blobstore-blobstore
+    description: The PEM-encoded certificate (optionally as a certificate chain) for
+      serving blobs over TLS/SSL.
+    required: true
+  type: certificate
+- name: BLOBSTORE_TLS_CERT_KEY
+  options:
+    secret: true
+    description: The PEM-encoded private key for signing TLS/SSL traffic.
+    required: true
+- name: BROKER_CLIENT_TIMEOUT_SECONDS
+  options:
+    default: '70'
+    description: For requests to service brokers, this is the HTTP (open and read)
+      timeout setting, in seconds.
+- name: BULK_API_PASSWORD
+  options:
+    secret: true
+    description: The password for the bulk api.
+    required: true
+  type: password
+- name: CATS_SUITES
+  options:
+    internal: true
+    description: The set of CAT test suites to run. If not specified it falls back
+      to a hardwired set of suites.
+- name: CC_DB_CURRENT_KEY_LABEL
+  options:
+    description: The key used to encrypt entries in the CC database
+    default: ''
+- name: CC_DB_ENCRYPTION_KEYS
+  options:
+    description: A map of labels and encryption keys
+    secret: true
+    default: "~"
+- name: CC_SERVER_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: api-cloud-controller-ng
+    description: The PEM-encoded certificate for internal cloud controller traffic.
+    required: true
+  type: certificate
+- name: CC_SERVER_CRT_KEY
+  options:
+    secret: true
+    description: The PEM-encoded private key for internal cloud controller traffic.
+    required: true
+- name: CC_UPLOADER_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cc-uploader-cc-uploader
+    description: The PEM-encoded certificate for internal cloud controller uploader
+      traffic.
+    required: true
+  type: certificate
+- name: CC_UPLOADER_CRT_KEY
+  options:
+    secret: true
+    description: The PEM-encoded private key for internal cloud controller uploader
+      traffic.
+    required: true
+- name: CDN_URI
+  options:
+    default: ''
+    description: URI for a CDN to use for buildpack downloads.
+- name: CERT_EXPIRATION
+  options:
+    description: Expiration for generated certificates (in days)
+    default: 10950
+- name: CF_USB_BROKER_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb-cf-usb
+    description: PEM-encoded broker server certificate.
+  type: certificate
+- name: CF_USB_BROKER_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded broker server key.
+- name: CF_USB_PASSWORD
+  options:
+    secret: true
+    example: password
+    description: The password for access to the Universal Service Broker.
+  type: password
+- name: CLUSTER_ADMIN_AUTHORITIES
+  options:
+    default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
+    description: The Oauth2 authorities available to the cluster administrator.
+    required: true
+- name: CLUSTER_ADMIN_PASSWORD
+  options:
+    secret: true
+    description: The password for the cluster administrator.
+    required: true
+- name: CLUSTER_BUILD
+  options:
+    default: 2.0.2
+    description: "'build' attribute in the /v2/info endpoint"
+    required: true
+- name: CLUSTER_DESCRIPTION
+  options:
+    default: SUSE Cloud Foundry
+    description: "'description' attribute in the /v2/info endpoint"
+    required: true
+- name: CLUSTER_NAME
+  options:
+    default: SCF
+    description: "'name' attribute in the /v2/info endpoint"
+    required: true
+- name: CLUSTER_VERSION
+  options:
+    default: 2
+    description: "'version' attribute in the /v2/info endpoint"
+    required: true
+- name: CONSUL_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded consul client certificate
+    required: true
+  type: certificate
+- name: CONSUL_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded consul client key
+    required: true
+- name: CONSUL_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "*.consul-consul-agent-set"
+    - server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: CONSUL_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
+    required: true
+- name: CONSUL_SERVER_ENCRYPT_KEY
+  options:
+    secret: true
+    immutable: true
+    description: Consul server encryption key
+    required: true
+  type: password
+- name: CREDHUB_ENCRYPT_KEY
+  options:
+    secret: true
+    immutable: true
+    description: Credhub encryption key
+    required: true
+  type: password
+- name: CREDHUB_LOG_LEVEL
+  options:
+    description: >
+      The log level for credhub. This parameter is not supposed to be set
+      by the user. To change the cluster's log level set the parameter
+      `LOG_LEVEL` instead, from which this one is derived.
+    type: environment
+- name: CREDHUB_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "credhub-set"
+    - "server.dc1.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}"
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: CREDHUB_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
+    required: true  
+- name: DB_ENCRYPTION_KEY
+  options:
+    secret: true
+    immutable: true
+    description: Key for encrypting sensitive values in the Cloud Controller database.
+    required: true
+  type: password
+- name: DEFAULT_APP_DISK_IN_MB
+  options:
+    default: 1024
+    description: The standard amount of disk (in MB) given to an application when
+      not overriden by the user via manifest, command line, etc.
+    required: true
+- name: DEFAULT_APP_MEMORY
+  options:
+    default: 1024
+    description: The standard amount of memory (in MB) given to an application when
+      not overriden by the user via manifest, command line, etc.
+    required: true
+- name: DEFAULT_APP_SSH_ACCESS
+  options:
+    default: true
+    description: If set apps pushed to spaces that allow SSH access will have SSH
+      enabled by default.
+    required: true
+- name: DEFAULT_STACK
+  options:
+    default: sle12
+    description: The default stack to use if no custom stack is specified by an app.
+- name: DIEGO_CELL_DISK_CAPACITY_MB
+  options:
+    default: auto
+    description: The container disk capacity the cell should manage. If this capacity
+      is larger than the actual disk quota of the cell component, over-provisioning
+      will occur.
+    required: true
+- name: DIEGO_CELL_MEMORY_CAPACITY_MB
+  options:
+    default: auto
+    description: The memory capacity the cell should manage. If this capacity is larger
+      than the actual memory of the cell component, over-provisioning will occur.
+    required: true
+- name: DIEGO_CELL_NETWORK_MTU
+  options:
+    default: '1400'
+    description: Maximum network transmission unit length in bytes for application
+      containers.
+    required: true
+- name: DIEGO_CELL_SUBNET
+  options:
+    default: 10.38.0.0/16
+    description: A CIDR subnet mask specifying the range of subnets available to be
+      assigned to containers.
+    required: true
+- name: DIEGO_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - diego-api-locket.{{.KUBERNETES_NAMESPACE}}
+    - 127.0.0.1
+    description: PEM-encoded client certificate
+    required: true
+  type: certificate
+- name: DIEGO_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key
+    required: true
+- name: DISABLE_CUSTOM_BUILDPACKS
+  options:
+    default: false
+    description: Disable external buildpacks. Only admin buildpacks and system buildpacks
+      will be available to users.
+    required: true
+- name: DNS_HEALTH_CHECK_HOST
+  options:
+    default: 127.0.0.1
+    description: The host to ping for confirmation of DNS resolution.
+    required: true
+- name: DOMAIN
+  options:
+    example: my-scf-cluster.com
+    required: true
+    description: Base domain of the SCF cluster.
+- name: DOPPLER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - doppler
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: DOPPLER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: DROPLET_MAX_STAGED_STORED
+  options:
+    default: 5
+    description: The number of versions of an application to keep. You will be able
+      to rollback to this amount of versions.
+    required: true
+- name: ENABLE_SECURITY_EVENT_LOGGING
+  options:
+    default: 'false'
+    description: "By default, Cloud Foundry does not enable Cloud Controller request
+      logging. To enable this feature, you must set this property to \"true\". You
+      can learn more about the format of the logs here https://docs.cloudfoundry.org/loggregator/cc-uaa-logging.html#cc
+      \n"
+- name: FORCE_FORWARDED_PROTO_AS_HTTPS
+  options:
+    default: false
+    description: Enables setting the X-Forwarded-Proto header if SSL termination happened
+      upstream and the header value was set incorrectly. When this property is set
+      to true, the gorouter sets the header X-Forwarded-Proto to https. When this
+      value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol
+      of the incoming request.
+    required: true
+- name: GARDEN_APPARMOR_PROFILE
+  options:
+    default: garden-default
+    description: AppArmor profile name for garden-runc; set this to empty string to
+      disable AppArmor support
+- name: GARDEN_DISABLE_BTRFS
+  options:
+    default: ''
+    description: An empty value means BTRFS is used. It's set to "true" by a script
+      if GARDEN_ROOTFS_DRIVER is set to overlay-xfs.
+    type: environment
+- name: GARDEN_DOCKER_REGISTRY
+  options:
+    default: registry-1.docker.io
+    description: URL pointing to the Docker registry used for fetching Docker images.
+      If not set, the Docker service default is used.
+    required: true
+- name: GARDEN_LINUX_DNS_SERVER
+  options:
+    default: ''
+    description: Override DNS servers to be used in containers; defaults to the same
+      as the host.
+- name: GARDEN_ROOTFS_DRIVER
+  options:
+    default: btrfs
+    description: The filesystem driver to use (btrfs or overlay-xfs).
+    required: true
+    internal: true
+- name: GO_LOG_LEVEL
+  options:
+    type: environment
+    description: The log level for go components. This parameter is not supposed
+      to be set by the user. To change the cluster's log level set the parameter
+      `LOG_LEVEL` instead, from which this one is derived.
+- name: HELM_IS_INSTALL
+  options:
+    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set directly from the Release.IsInstall Helm property.
+- name: HOSTNAME
+  options:
+    description: The host name of the container.  This should be automatic and should
+      not be prompted.
+    type: environment
+- name: HTTPS_PROXY
+  options:
+    required: false
+    description: Location of the proxy to use for secure web access.
+- name: HTTP_PROXY
+  options:
+    required: false
+    description: Location of the proxy to use for regular web access.
+- name: INSECURE_DOCKER_REGISTRIES
+  options:
+    default: ''
+    example: '"docker-registry.example.com:80", "hello.example.org:443"'
+    description: >
+      A comma-separated whitelist of insecure Docker registries in the
+      form of '<HOSTNAME|IP>:PORT'. Each registry must be quoted separately.
+- name: INTERNAL_API_PASSWORD
+  options:
+    secret: true
+    description: Basic auth password for access to the Cloud Controller's internal
+      API.
+    required: true
+  type: password
+- name: INTERNAL_CA_CERT
+  options:
+    secret: true
+    is_ca: true
+    description: PEM-encoded CA certificate used to sign the TLS certificate used
+      by all components to secure their communications.
+    required: true
+  type: certificate
+- name: INTERNAL_CA_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded CA key.
+    required: true
+- name: KUBERNETES_CLUSTER_DOMAIN
+  options:
+    type: environment
+    description: >
+      The cluster domain used by Kubernetes.
+      If left empty, each container will try to determine the correct value based on /etc/resolv.conf
+      You can read more about it in the Kubernetes Documentation https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+- name: KUBERNETES_NAMESPACE
+  options:
+    type: environment
+    description: The name of the kubernetes namespace all components will run in.
+      This parameter cannot be set by the user. Its value is supplied by the kubernetes
+      runtime.
+- name: KUBERNETES_STORAGE_CLASS_PERSISTENT
+  options:
+    type: environment
+    description: >
+      Storage class used for SCF acceptance tests.
+- name: KUBE_AZ
+  options:
+    type: environment
+    default: z1
+    description: >
+      A string representing the availability zone a container is running in.
+      Shouldn't be changed from its default value of z1.
+- name: KUBE_COMPONENT_INDEX
+  options:
+    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's set to a numeric index for roles with multiple replicas.
+- name: KUBE_CONSUL_CLUSTER_IPS
+  options:
+    type: environment
+    description: A comma-separated list of IP addresses for the machines of the consul
+      sub-cluster. This parameter cannot be set by the user. Its value is automatically
+      computed during cluster setup.
+- name: KUBE_NATS_CLUSTER_IPS
+  options:
+    type: environment
+    description: A comma-separated list of IP addresses for the machines of the nats
+      sub-cluster. This parameter cannot be set by the user. Its value is automatically
+      computed during cluster setup.
+- name: KUBE_SECRETS_GENERATION_COUNTER
+  options:
+    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      It's automatically set to the kube.secrets_generation_counter Helm value, which controls secret rotation.
+- name: KUBE_SECRETS_GENERATION_NAME
+  options:
+    type: environment
+    description: >
+      This is an environment variable built-in by fissile.
+      Its default value is 'secret-1' and cannot be set by the user.
+- name: KUBE_SIZING_NATS_COUNT
+  options:
+    description: The number of nats replicas deployed. This value is set automatically
+      by the helm charts of SCF.
+- name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX
+  options:
+    description: Highest internal TCP routing port. This value is set automatically
+      by the helm charts of SCF.
+- name: KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN
+  options:
+    description: Lowest internal TCP routing port. This value is set automatically
+      by the helm charts of SCF.
+- name: LOGGREGATOR_AGENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - metron
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: LOGGREGATOR_AGENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: LOGGREGATOR_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for loggregator mutual authentication
+    required: true
+  type: certificate
+- name: LOGGREGATOR_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for loggregator mutual authentication
+    required: true
+- name: LOG_LEVEL
+  options:
+    default: info
+    description: >
+      The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2.
+    required: true
+- name: MAX_APP_DISK_IN_MB
+  options:
+    default: 2048
+    description: The maximum amount of disk a user can request for an application
+      via manifest, command line, etc., in MB. See also DEFAULT_APP_DISK_IN_MB for
+      the standard amount.
+    required: true
+- name: MAX_HEALTH_CHECK_TIMEOUT
+  options:
+    default: 180
+    description: Maximum health check timeout that can be set for an app, in seconds.
+    required: true
+- name: MONIT_PASSWORD
+  options:
+    secret: true
+    description: Password used for the monit API.
+    required: true
+  type: password
+- name: MYSQL_ADMIN_PASSWORD
+  options:
+    secret: true
+    description: The password for the MySQL server admin user.
+    required: true
+  type: password
+- name: MYSQL_CCDB_ROLE_PASSWORD
+  options:
+    previous_names:
+    - CCDB_ROLE_PASSWORD
+    secret: true
+    description: The password for access to the Cloud Controller database.
+    required: true
+  type: password
+- name: MYSQL_CF_USB_PASSWORD
+  options:
+    secret: true
+    example: password
+    description: The password for access to the usb config database.
+  type: password
+- name: MYSQL_CLUSTER_HEALTH_PASSWORD
+  options:
+    secret: true
+    description: The password for the cluster logger health user.
+    required: true
+  type: password
+- name: MYSQL_CREDHUB_USER_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the credhub-user database.
+    required: true
+  type: password
+- name: MYSQL_DIEGO_LOCKET_PASSWORD
+  options:
+    description: Database password for the diego locket service.
+    secret: true
+    required: true
+  type: password
+- name: MYSQL_DIEGO_PASSWORD
+  options:
+    secret: true
+    description: The password for access to MySQL by diego.
+    required: true
+  type: password
+- name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
+  options:
+    secret: true
+    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
+    required: true
+  type: password
+- name: MYSQL_PERSI_NFS_PASSWORD
+  options:
+    description: Database password for storing broker state for the Persi NFS Broker
+    secret: true
+    required: true
+  type: password
+- name: MYSQL_PROXY_ADMIN_PASSWORD
+  options:
+    secret: true
+    description: The password for Basic Auth used to secure the MySQL proxy API.
+    required: true
+  type: password
+- name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
+  options:
+    default: 30000
+    description: The time allowed for the MySQL server to respond to healthcheck queries,
+      in milliseconds.
+    required: true
+- name: MYSQL_ROUTING_API_PASSWORD
+  options:
+    secret: true
+    description: The password for access to MySQL by the routing-api
+    required: true
+  type: password
+- name: NATS_PASSWORD
+  options:
+    secret: true
+    description: The password for access to NATS.
+    required: true
+  type: password
+- name: NGINX_LOG_LEVEL
+  options:
+    type: environment
+    description: The log level for nginx. This parameter is not supposed to be set
+      by the user. To change the cluster's log level set the parameter `LOG_LEVEL`
+      instead, from which this one is derived.
+- name: NGINX_MAX_REQUEST_BODY_SIZE
+  options:
+    default: 2048
+    description: Sets the maximum allowed size of the client request body, specified
+      in the “Content-Length” request header field, in megabytes. If the size in a
+      request exceeds the configured value, the 413 (Request Entity Too Large) error
+      is returned to the client. Please be aware that browsers cannot correctly display
+      this error. Setting size to 0 disables checking of client request body size.
+      This limits application uploads, buildpack uploads, etc.
+    required: true
+- name: NO_PROXY
+  options:
+    description: Comma separated list of IP addresses and domains which should not
+      be directoed through a proxy, if any.
+    required: false
+- name: PERSI_NFS_ALLOWED_OPTIONS
+  options:
+    description: Comma separated list of white-listed options that may be set during
+      create or bind operations.
+    example: uid,gid,allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,fsname,username,password
+    default: uid,gid,auto_cache,username,password
+- name: PERSI_NFS_BROKER_PASSWORD
+  options:
+    description: Basic auth password to verify on incoming Service Broker requests
+    secret: true
+    required: true
+  type: password
+- name: PERSI_NFS_DEFAULT_OPTIONS
+  options:
+    description: Comma separated list of default values for nfs mount options.  If
+      a default is specified with an option not included in PERSI_NFS_ALLOWED_OPTIONS,  then
+      this default value will be set and it won't be overridable.
+- name: PERSI_NFS_DRIVER_ALLOWED_IN_MOUNT
+  options:
+    description: >
+      Comma separated list of white-listed options that may be accepted
+      in the mount_config options. Note a specific 'sloppy_mount:true' volume option
+      tells the driver to ignore non-white-listed options, while a 'sloppy_mount:false'
+      tells the driver to fail fast instead when receiving a non-white-listed option."
+    example: allow_root,allow_other,nfs_uid,nfs_gid,auto_cache,sloppy_mount,fsname
+    default: auto_cache
+- name: PERSI_NFS_DRIVER_ALLOWED_IN_SOURCE
+  options:
+    description: Comma separated list of white-listed options that may be configured
+      in supported in the  mount_config.source URL query params.
+    example: uid,gid,auto-traverse-mounts,dircache
+    default: uid,gid
+- name: PERSI_NFS_DRIVER_DEFAULT_IN_MOUNT
+  options:
+    description: >
+      Comma separated list default values for options that may be configured
+      in the mount_config options, formatted as 'option:default'. If an option is
+      not specified in the volume mount, or the option is not white-listed, then the
+      specified default value will be used instead.
+    example: allow_root:false,nfs_uid:2000,nfs_gid:2000,auto_cache:true,sloppy_mount:true
+    default: auto_cache:true
+- name: PERSI_NFS_DRIVER_DEFAULT_IN_SOURCE
+  options:
+    description: >
+      Comma separated list of default values for options in the source
+      URL query params, formatted as 'option:default'. If an option is not specified
+      in the volume mount,  or the option is not white-listed, then the specified
+      default value will be applied.
+- name: PERSI_NFS_DRIVER_DISABLE
+  options:
+    description: Disable Persi NFS driver
+    default: 'false'
+- name: PERSI_NFS_DRIVER_LDAP_HOST
+  options:
+    description: LDAP server host name or ip address (required for LDAP integration
+      only)
+    default: ''
+- name: PERSI_NFS_DRIVER_LDAP_PASSWORD
+  options:
+    description: LDAP service account password (required for LDAP integration only)
+    default: "-"
+    secret: true
+- name: PERSI_NFS_DRIVER_LDAP_PORT
+  options:
+    description: LDAP server port (required for LDAP integration only)
+    default: '389'
+- name: PERSI_NFS_DRIVER_LDAP_PROTOCOL
+  options:
+    description: LDAP server protocol (required for LDAP integration only)
+    default: tcp
+- name: PERSI_NFS_DRIVER_LDAP_USER
+  options:
+    description: LDAP service account user name (required for LDAP integration only)
+    default: ''
+- name: PERSI_NFS_DRIVER_LDAP_USER_FQDN
+  options:
+    description: LDAP fqdn for user records we will search against when looking up
+      user uids (required for LDAP integration only)
+    example: cn=Users,dc=corp,dc=test,dc=com
+    default: ''
+- name: POSTGRES_PASSWORD
+  options:
+    secret: true
+    immutable: true
+    description: Password for Postgres administrator account
+    required: true
+  type: password
+- name: REP_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-cell
+    alternative_names:
+    - 127.0.0.1
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: REP_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
+    required: true
+- name: ROOTFS_TRUSTED_CERTS
+  options:
+    default: ''
+    description: Certficates to add to the rootfs trust store. Multiple certs are
+      possible by concatenating their definitions into one big block of text.
+- name: ROUTER_BALANCING_ALGORITHM
+  options:
+    default: round-robin
+    description: The algorithm used by the router to distribute requests for a route
+      across backends. Supported values are round-robin and least-connection.
+- name: ROUTER_CLIENT_CERT_VALIDATION
+  options:
+    description: How to handle client certificates. Supported values are none, request,
+      or require. See https://docs.cloudfoundry.org/adminguide/securing-traffic.html#gorouter_mutual_auth
+      for more information.
+    default: request
+- name: ROUTER_FORWARDED_CLIENT_CERT
+  options:
+    default: always_forward
+    description: How to handle the x-forwarded-client-cert (XFCC) HTTP header. Supported
+      values are always_forward, forward, and sanitize_set. See https://docs.cloudfoundry.org/concepts/http-routing.html
+      for more information.
+- name: ROUTER_SERVICES_SECRET
+  options:
+    secret: true
+    description: Support for route services is disabled when no value is configured.
+      A robust passphrase is recommended.
+    required: true
+  type: password
+- name: ROUTER_SSL_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "*.{{.DOMAIN}}"
+    description: The public ssl cert for ssl termination. Will be ignored if ROUTER_TLS_PEM
+      is set.
+    required: true
+  type: certificate
+- name: ROUTER_SSL_CERT_KEY
+  options:
+    secret: true
+    description: The private ssl key for ssl termination. Will be ignored if ROUTER_TLS_PEM
+      is set.
+    required: true
+- name: ROUTER_STATUS_PASSWORD
+  options:
+    secret: true
+    description: Password for HTTP basic auth to the varz/status endpoint.
+    required: true
+  type: password
+- name: ROUTER_TLS_PEM
+  options:
+    description: Array of private keys and certificates used for TLS handshakes with
+      downstream clients. Each element in the array is an object containing fields
+      'private_key' and 'cert_chain', each of which supports a PEM block. This setting
+      overrides ROUTER_SSL_CERT and ROUTER_SSL_KEY.
+    example: |
+      - cert_chain: |
+          -----BEGIN CERTIFICATE-----
+          -----END CERTIFICATE-----
+          -----BEGIN CERTIFICATE-----
+          -----END CERTIFICATE-----
+        private_key: |
+          -----BEGIN RSA PRIVATE KEY-----
+          -----END RSA PRIVATE KEY-----
+    secret: true
+- name: SCF_LOG_HOST
+  options:
+    internal: true
+    description: The log destination to talk to. This has to point to a syslog server.
+- name: SCF_LOG_PORT
+  options:
+    internal: true
+    description: The port used by rsyslog to talk to the log destination. It defaults
+      to 514, the standard port of syslog.
+    default: 514
+- name: SCF_LOG_PROTOCOL
+  options:
+    internal: true
+    default: tcp
+    description: The protocol used by rsyslog to talk to the log destination. The
+      allowed values are tcp, and udp. The default is tcp.
+    required: true
+- name: STAGING_TIMEOUT
+  options:
+    default: 900
+    description: Timeout for staging an app, in seconds.
+    required: true
+- name: STAGING_UPLOAD_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the uploader of staged droplets.
+    required: true
+  type: password
+- name: SUPPORT_ADDRESS
+  options:
+    default: support@example.com
+    description: Support contact information for the cluster
+    required: true
+- name: SUSE_STACK
+  options:
+    default: opensuse42
+    type: environment
+    description: >
+      This controls which SUSE stack is built into SCF.
+      Depending on the build, this can be an openSUSE or SLE stack.
+      Cannot be set by the user.
+- name: SUSE_STACK_DESCRIPTION
+  options:
+    default: openSUSE-based filesystem
+    type: environment
+    description: >
+      During build this is set to an appropriate description for the SUSE stack built into SCF.
+      Cannot be set by the user.
+- name: SUSE_STACK_DIRNAME
+  options:
+    default: opensuse42
+    type: environment
+    description: >
+      During build this is set to the directory that contains the SUSE stack built into SCF.
+      Cannot be set by the user.
+- name: SYSLOG_ADAPT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - adapter
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: SYSLOG_ADAPT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: SYSLOG_RLP_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - syslog_rlp
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: SYSLOG_RLP_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: SYSLOG_SCHED_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: SYSLOG_SCHED_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: TCP_DOMAIN
+  options:
+    example: tcp.my-scf-cluster.com
+    required: true
+    description: TCP routing domain of the SCF cluster; only used for testing;
+- name: TPS_CC_CLIENT_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for internal communication between
+      the cloud controller and TPS.
+    required: true
+  type: certificate
+- name: TPS_CC_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for internal communication between the cloud
+      controller and TPS.
+    required: true
+- name: TRAFFICCONTROLLER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate for communication with the traffic controller
+      of the log infra structure.
+    required: true
+  type: certificate
+- name: TRAFFICCONTROLLER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key for communication with the traffic controller of
+      the log infra structure.
+    required: true
+- name: TRUSTED_CERTS
+  options:
+    description: Concatenation of trusted CA certificates to be made available on
+      the cell.
+- name: UAA_ADMIN_CLIENT_SECRET
+  options:
+    secret: true
+    description: The password of the admin client - a client named admin with uaa.admin
+      as an authority.
+    required: true
+- name: UAA_CA_CERT
+  options:
+    description: The CA certificate for UAA
+    secret: true
+- name: UAA_CC_CLIENT_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the Cloud Controller.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CC_ROUTING_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the Routing API.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET
+  options:
+    secret: true
+    description: Used for third party service dashboard SSO.
+  type: password
+- name: UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET
+  options:
+    secret: true
+    description: Used for fetching service key values from CredHub.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CF_USB_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the Universal Service Broker.
+  type: password
+- name: UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the Cloud Controller for fetching
+      usernames.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CREDHUB_USER_CLI_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the client for the user-accessible credhub
+    required: true
+  type: password
+- name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the SSH proxy.
+    required: true
+  type: password
+- name: UAA_CLIENTS_DOPPLER_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by doppler.
+    required: true
+  type: password
+- name: UAA_CLIENTS_GOROUTER_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the gorouter.
+    required: true
+  type: password
+- name: UAA_CLIENTS_LOGIN_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the login client.
+    required: true
+  type: password
+- name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the task creating the cluster administrator
+      user
+    required: true
+  type: password
+- name: UAA_CLIENTS_TCP_EMITTER_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the TCP emitter.
+    required: true
+  type: password
+- name: UAA_CLIENTS_TCP_ROUTER_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the TCP router.
+    required: true
+  type: password
+- name: UAA_HOST
+  options:
+    description: The host name of the UAA server (root zone)
+    required: true
+- name: UAA_PORT
+  options:
+    default: 2793
+    description: The tcp port the UAA server (root zone) listens on for requests.
+- name: USE_DIEGO_PRIVILEGED_CONTAINERS
+  options:
+    default: false
+    description: Whether or not to use privileged containers for buildpack based applications.
+      Containers with a docker-image-based rootfs will continue to always be unprivileged.
+    required: true
+- name: USE_STAGER_PRIVILEGED_CONTAINERS
+  options:
+    default: false
+    description: Whether or not to use privileged containers for staging tasks.
+    required: true
