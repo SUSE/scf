@@ -313,9 +313,11 @@ pipeline {
                     }
 
                     get_namespaces | xargs --no-run-if-empty kubectl delete ns
+                    set +x
                     while test -n "$(get_namespaces)"; do
-                        sleep 1
+                        sleep 5
                     done
+                    set -x
 
                     # Run `docker rm` commands twice because of internal race condition:
                     # https://github.com/vmware/vic/issues/3196#issuecomment-263295426
@@ -327,9 +329,11 @@ pipeline {
                     docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f || true
                     docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f
 
+                    set +x
                     while docker ps -a --format '{{.Names}}' | grep -E -- '-scf_|-uaa_'; do
-                        sleep 1
+                        sleep 5
                     done
+                    set -x
 
                     helm list --all --short | grep -E -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
@@ -479,9 +483,11 @@ pipeline {
                         test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
+                    set +x
                     until has_internal_ca ; do
-                        sleep 10
+                        sleep 5
                     done
+                    set -x
 
                     UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
 
