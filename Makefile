@@ -124,32 +124,14 @@ uaa-helm: ${FISSILE_BINARY}
 consul-release:
 	make/bosh-release src/consul-release
 
-diego-release:
-	make/bosh-release src/diego-release
-
-garden-release:
-	make/bosh-release src/garden-runc-release
-
 groot-btrfs-release:
 	make/bosh-release src/groot-btrfs/groot-btrfs-release
-
-mysql-release:
-	RUBY_VERSION=2.3.1 make/bosh-release src/cf-mysql-release
-
-smoke-tests-release:
-	make/bosh-release src/cf-smoke-tests-release
 
 usb-release:
 	make/bosh-release src/cf-usb/cf-usb-release
 
-nfs-volume-release:
-	make/bosh-release src/nfs-volume-release
-
 postgres-release:
 	make/bosh-release src/postgres-release
-
-cflinuxfs2-release:
-	make/bosh-release src/cflinuxfs2-release
 
 cf-opensuse42-release:
 	make/bosh-release src/cf-opensuse42-release
@@ -157,33 +139,12 @@ cf-opensuse42-release:
 cf-sle12-release:
 	make/bosh-release src/cf-sle12-release
 
-cf-syslog-drain-release:
-	make/bosh-release src/cf-syslog-drain-release
-
-routing-release:
-	make/bosh-release src/routing-release
-
 scf-release:
 	make/bosh-release src/scf-release
 
 scf-helper-release:
 	cp container-host-files/etc/scf/config/role-manifest.yml src/scf-helper-release/src; \
 	make/bosh-release src/scf-helper-release
-
-capi-release:
-	make/bosh-release src/capi-release
-
-loggregator-agent-release:
-	make/bosh-release src/loggregator-agent-release
-
-loggregator-release:
-	make/bosh-release src/loggregator-release
-
-nats-release:
-	make/bosh-release src/nats-release
-
-statsd-injector-release:
-	make/bosh-release src/statsd-injector-release
 
 app-autoscaler-release:
 	make/bosh-release src/app-autoscaler-release
@@ -220,34 +181,21 @@ staticfile-buildpack-release:
 
 releases: \
 	binary-buildpack-release \
-	capi-release \
 	cf-opensuse42-release \
 	cf-sle12-release \
-	cf-syslog-drain-release \
-	cflinuxfs2-release \
 	consul-release \
-	diego-release \
 	dotnet-core-buildpack-release \
-	garden-release \
 	go-buildpack-release \
 	groot-btrfs-release \
 	java-buildpack-release \
-	loggregator-agent-release \
-	loggregator-release \
-	mysql-release \
-	nats-release \
-	nfs-volume-release \
 	nodejs-buildpack-release \
 	php-buildpack-release \
 	postgres-release \
 	python-buildpack-release \
-	routing-release \
 	ruby-buildpack-release \
 	scf-helper-release \
 	scf-release \
-	smoke-tests-release \
 	staticfile-buildpack-release \
-	statsd-injector-release \
 	uaa-releases \
 	usb-release \
 	app-autoscaler-release \
