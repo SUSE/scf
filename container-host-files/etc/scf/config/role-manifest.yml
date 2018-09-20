@@ -591,7 +591,7 @@ instance_groups:
     release: loggregator-agent
   configuration:
     templates:
-      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -641,7 +641,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
 - name: api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2070,7 +2070,8 @@ configuration:
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
-    properties.router.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
+    # We use mysql because it comes up without any other dependencies and its critical for the cluster
+    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -3008,11 +3009,6 @@ variables:
     default: false
     description: Disable external buildpacks. Only admin buildpacks and system buildpacks
       will be available to users.
-    required: true
-- name: DNS_HEALTH_CHECK_HOST
-  options:
-    default: 127.0.0.1
-    description: The host to ping for confirmation of DNS resolution.
     required: true
 - name: DOMAIN
   options:
