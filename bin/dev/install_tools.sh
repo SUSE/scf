@@ -7,7 +7,7 @@ set -vx
 SCF_BIN_DIR="${SCF_BIN_DIR:-output/bin}"
 
 # Tool locations
-s3="https://cf-opensusefs2.s3.amazonaws.com/fissile/develop"
+s3="https://cf-opensusefs2.s3.amazonaws.com/fissile/${FISSILE_FLAVOR}"
 
 # Tool versions
 thefissile="fissile-$(echo "${FISSILE_VERSION}" | sed -e 's/+/%2B/')"
