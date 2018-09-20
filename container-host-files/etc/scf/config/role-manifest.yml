@@ -13,36 +13,36 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 69
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - syslog-scheduler
+                  topologyKey: "beta.kubernetes.io/os"
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health        
         ports:
         - name: sched-health
           protocol: TCP
           internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 69
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - syslog-scheduler
-            topologyKey: "beta.kubernetes.io/os"
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: adapter
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -56,6 +56,30 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        run:
+          scaling: # one per 500 drains
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 78
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - adapter
+                  topologyKey: "beta.kubernetes.io/os"
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health
         ports:
         - name: adapter
           protocol: TCP
@@ -65,30 +89,6 @@ instance_groups:
           internal: 8080
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling: # one per 500 drains
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 78
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - adapter
-            topologyKey: "beta.kubernetes.io/os"
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8080/health
 - name: consul
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -108,6 +108,24 @@ instance_groups:
       consul_server: {}
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+            ha: 1
+            must_be_odd: true
+          memory: 256
+          virtual-cpus: 1
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: skiff-role-name
+                    operator: In
+                    values: [ consul ]      
         ports:
         - name: consul-server
           external: 8300
@@ -125,24 +143,6 @@ instance_groups:
           external: 8301
           internal: 8301
           protocol: UDP
-  run:
-    scaling:
-      min: 0
-      max: 1
-      ha: 1
-      must_be_odd: true
-    memory: 256
-    virtual-cpus: 1
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-            - key: skiff-role-name
-              operator: In
-              values: [ consul ]
   configuration:
     templates:
       properties.consul.agent.mode: server
@@ -152,7 +152,6 @@ instance_groups:
       properties.consul.encrypt_keys: "[((CONSUL_SERVER_ENCRYPT_KEY))]"
       properties.consul.server_cert: ((CONSUL_SERVER_CERT))
       properties.consul.server_key: ((CONSUL_SERVER_CERT_KEY))
-
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -168,6 +167,26 @@ instance_groups:
       nats: {}
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 60
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - nats
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: nats
           protocol: TCP
@@ -177,26 +196,6 @@ instance_groups:
           internal: 4223
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 60
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - nats
-            topologyKey: "beta.kubernetes.io/os"
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -243,6 +242,36 @@ instance_groups:
       proxy: {}
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          volumes:
+          - path: /var/vcap/store
+            type: persistent
+            tag: mysql-data
+            size: 20
+          memory: 2950
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9200/
+              - curl --silent --fail --head http://${HOSTNAME}:1936/
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - mysql
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: api-proxy
           protocol: TCP
@@ -255,36 +284,6 @@ instance_groups:
           internal: 1936
   tags:
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    volumes:
-    - path: /var/vcap/store
-      type: persistent
-      tag: mysql-data
-      size: 20
-    memory: 2950
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:9200/
-        - curl --silent --fail --head http://${HOSTNAME}:1936/
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - mysql
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.cf_mysql.external_host: ((DOMAIN))
@@ -294,7 +293,6 @@ instance_groups:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
-
 - name: postgres
   scripts:
   - scripts/chown_vcap_store.sh
@@ -309,41 +307,40 @@ instance_groups:
       postgres: { as: postgres-database }
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          volumes:
+          - path: /var/vcap/store
+            type: persistent
+            tag: postgres-data
+            size: 20
+          memory: 3072
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - postgres
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: postgres
           protocol: TCP
           internal: 5524
   tags:
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    volumes:
-    - path: /var/vcap/store
-      type: persistent
-      tag: postgres-data
-      size: 20
-    memory: 3072
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - postgres
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.databases.port: 5524
       properties.databases.roles: '[{"name":"pgadmin","password":"((POSTGRES_PASSWORD))"}]'
-
 - name: cf-usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -360,6 +357,26 @@ instance_groups:
     release: cf-usb
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 117
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - cf-usb
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: usb
           protocol: TCP
@@ -371,26 +388,6 @@ instance_groups:
     release: routing
   tags:
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 117
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cf-usb
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -410,6 +407,31 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 310
+          virtual-cpus: 2
+          active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
+          healthcheck:
+            readiness:
+              command:
+              - head -c0 </dev/tcp/${HOSTNAME}/8891
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-api
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -434,31 +456,6 @@ instance_groups:
   tags:
   - active-passive
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 310
-    virtual-cpus: 2
-    active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
-    healthcheck:
-      readiness:
-        command:
-        - head -c0 </dev/tcp/${HOSTNAME}/8891
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-api
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
@@ -483,6 +480,39 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 135
+          virtual-cpus: 4
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-cell
+                  topologyKey: "beta.kubernetes.io/os"
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - router
+                  topologyKey: "beta.kubernetes.io/os"
         pod-security-policy: privileged
         ports:
         - name: router
@@ -501,39 +531,6 @@ instance_groups:
           public: true
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 135
-    virtual-cpus: 4
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8080/health
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-cell
-            topologyKey: "beta.kubernetes.io/os"
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - router
-            topologyKey: "beta.kubernetes.io/os"
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -555,6 +552,30 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 99
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - tcp-router
+                  topologyKey: "beta.kubernetes.io/os"    
         ports:
         - name: healthcheck
           protocol: TCP
@@ -568,30 +589,6 @@ instance_groups:
           max: 20
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 99
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8080/health
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - tcp-router
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -613,6 +610,28 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 114
+          virtual-cpus: 4
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - routing-api
+                  topologyKey: "beta.kubernetes.io/os"
+          # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
+          active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
         ports:
         - name: routing-api
           protocol: TCP
@@ -620,28 +639,6 @@ instance_groups:
   tags:
   - active-passive
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 114
-    virtual-cpus: 4
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - routing-api
-            topologyKey: "beta.kubernetes.io/os"
-    # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
-    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
   configuration:
     templates:
       properties.dns_health_check_host: '"((DNS_HEALTH_CHECK_HOST))"'
@@ -666,6 +663,30 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 2421
+          virtual-cpus: 4
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9022/v2/info
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - api
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: api
           protocol: TCP
@@ -702,30 +723,6 @@ instance_groups:
     release: dotnet-core-buildpack
   tags:
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 2421
-    virtual-cpus: 4
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:9022/v2/info
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - api
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -742,28 +739,30 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 753
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - cc-worker
+                  topologyKey: "beta.kubernetes.io/os"      
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 753
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-worker
-            topologyKey: "beta.kubernetes.io/os"
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -779,6 +778,19 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            # Not HA capable; use external HA storage instead
+          capabilities: []
+          volumes:
+          - path: /var/vcap/store
+            type: persistent
+            tag: blobstore-data
+            size: 50
+          memory: 420
+          virtual-cpus: 2
         ports:
         - name: blobstore-ext
           protocol: TCP
@@ -790,19 +802,6 @@ instance_groups:
     release: routing
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 1
-      # Not HA capable; use external HA storage instead
-    capabilities: []
-    volumes:
-    - path: /var/vcap/store
-      type: persistent
-      tag: blobstore-data
-      size: 50
-    memory: 420
-    virtual-cpus: 2
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -820,30 +819,32 @@ instance_groups:
     release: scf
   - name: cloud_controller_clock
     release: capi
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 789
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - cc-clock
+                  topologyKey: "beta.kubernetes.io/os"      
   - name: loggregator_agent
     release: loggregator-agent
   - name: statsd_injector
     release: statsd-injector
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 789
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-clock
-            topologyKey: "beta.kubernetes.io/os"
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -857,6 +858,30 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 390
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - head -c0 </dev/tcp/${HOSTNAME}/8082
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - doppler
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: dropsonde-udp
           protocol: UDP
@@ -875,30 +900,6 @@ instance_groups:
           internal: 8082
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 390
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
-        command:
-        - head -c0 </dev/tcp/${HOSTNAME}/8082
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - doppler
-            topologyKey: "beta.kubernetes.io/os"
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -914,6 +915,30 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 250
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - log-api
+                  topologyKey: "beta.kubernetes.io/os"    
         ports:
         - name: dropsonde
           protocol: TCP
@@ -933,30 +958,6 @@ instance_groups:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
-  run:
-    scaling:
-      min: 1
-      max: 65535
-      ha: 2
-    capabilities: []
-    memory: 250
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - log-api
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-brain
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -973,6 +974,28 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 99
+          virtual-cpus: 4
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-brain
+                  topologyKey: "beta.kubernetes.io/os"
+          # Auctioneer has no useful healthcheck routes; we can only use the TCP port
+          active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
         ports:
         - name: diego-auction
           protocol: TCP
@@ -985,28 +1008,6 @@ instance_groups:
     release: loggregator-agent
   tags:
   - active-passive
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 99
-    virtual-cpus: 4
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-brain
-            topologyKey: "beta.kubernetes.io/os"
-    # Auctioneer has no useful healthcheck routes; we can only use the TCP port
-    active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
@@ -1032,6 +1033,26 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 129
+          virtual-cpus: 4
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - cc-uploader
+                  topologyKey: "beta.kubernetes.io/os"      
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1041,26 +1062,6 @@ instance_groups:
           internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 129
-    virtual-cpus: 4
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - cc-uploader
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-access
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1077,6 +1078,30 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 123
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/v1/static/file_server/bin/file-server
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-access
+                  topologyKey: "beta.kubernetes.io/os"    
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1092,30 +1117,6 @@ instance_groups:
         - name: diego-files
           protocol: TCP
           internal: 8080
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: []
-    memory: 123
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
-        command:
-        - curl --silent --fail --head http://${HOSTNAME}:8080/v1/static/file_server/bin/file-server
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-access
-            topologyKey: "beta.kubernetes.io/os"
 - name: nfs-broker
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1134,6 +1135,26 @@ instance_groups:
     release: nfs-volume
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: [ALL]
+          memory: 63
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - nfs-broker
+                  topologyKey: "beta.kubernetes.io/os"
         pod-security-policy: privileged
         ports:
         - name: nfsbroker
@@ -1141,26 +1162,6 @@ instance_groups:
           internal: 8999
   tags:
   - sequential-startup
-  run:
-    scaling:
-      min: 1
-      max: 3
-      ha: 2
-    capabilities: [ALL]
-    memory: 63
-    virtual-cpus: 2
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - nfs-broker
-            topologyKey: "beta.kubernetes.io/os"
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1197,6 +1198,48 @@ instance_groups:
     release: garden-runc
     properties:
       bosh_containerization:
+        # Instance group needs volume claim templates (see storage below), no LB => clustered
+        run:
+          scaling:
+            min: 1
+            max: 254
+            # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
+            ha: 3
+          capabilities: [ALL]
+          volumes:
+          - path: /var/vcap/data/grootfs
+            type: persistent
+            tag: grootfs-data
+            size: 50
+          - path: /sys/fs/cgroup
+            type: host
+            tag: host-cgroup
+          memory: 4677
+          virtual-cpus: 4
+          healthcheck:
+              command:
+                - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-cell
+                  topologyKey: "beta.kubernetes.io/os"
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - router
+                  topologyKey: "beta.kubernetes.io/os"
         pod-security-policy: privileged
   - name: groot-btrfs
     release: groot-btrfs
@@ -1219,48 +1262,6 @@ instance_groups:
         - name: nfs-admin
           protocol: TCP
           internal: 7590
-  # Role needs volume claim templates (see storage below), no LB => clustered
-  run:
-    scaling:
-      min: 1
-      max: 254
-      # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
-      ha: 3
-    capabilities: [ALL]
-    volumes:
-    - path: /var/vcap/data/grootfs
-      type: persistent
-      tag: grootfs-data
-      size: 50
-    - path: /sys/fs/cgroup
-      type: host
-      tag: host-cgroup
-    memory: 4677
-    virtual-cpus: 4
-    healthcheck:
-        command:
-          - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
-    affinity:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - diego-cell
-            topologyKey: "beta.kubernetes.io/os"
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: "skiff-role-name"
-                operator: In
-                values:
-                - router
-            topologyKey: "beta.kubernetes.io/os"
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
@@ -1284,13 +1285,15 @@ instance_groups:
     release: scf
   - name: acceptance-tests-brain
     release: scf
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
-    capabilities: []
-    service-account: test-brain
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
+          capabilities: []
+          service-account: test-brain      
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1304,16 +1307,18 @@ instance_groups:
     release: scf
   - name: acceptance-tests
     release: scf
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
-    capabilities: []
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
+          capabilities: []
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
-      scf.cats-suites: '"((CATS_SUITES))"'
+      scf.cats-suites: '"((CATS_SUITES))"'      
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -1325,28 +1330,32 @@ instance_groups:
     release: scf
   - name: smoke_tests
     release: cf-smoke-tests
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
-    capabilities: []
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
+          capabilities: []      
 - name: secret-generation
   type: bosh-task
   jobs:
   - name: generate-secrets
     release: scf-helper
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+          flight-stage: pre-flight
+          capabilities: []
+          memory: 256
+          virtual-cpus: 1
+          service-account: secret-generator      
   environment_scripts:
   - scripts/configure-HA-hosts.sh
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: pre-flight
-    capabilities: []
-    memory: 256
-    virtual-cpus: 1
-    service-account: secret-generator
   configuration:
     templates:
       properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
@@ -1369,15 +1378,17 @@ instance_groups:
     release: scf
   - name: configure-scf
     release: scf
-  run:
-    scaling:
-      min: 1
-      max: 1
-    flight-stage: post-flight
-    capabilities: []
-    memory: 256
-    virtual-cpus: 1
-    exposed-ports: []
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+          flight-stage: post-flight
+          capabilities: []
+          memory: 256
+          virtual-cpus: 1
+          exposed-ports: []      
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1390,25 +1401,27 @@ instance_groups:
     release: scf-helper
   - name: credhub
     release: credhub-user
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+            ha: 1
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 256
+          virtual-cpus: 2
+          exposed-ports:
+          - name: api #apiserverport
+            protocol: TCP
+            external: 8844
+            internal: 8844
+          healthcheck:
+            readiness:      
   - name: route_registrar
     release: routing
-  run:
-    scaling:
-      min: 0
-      max: 1
-      ha: 1
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    exposed-ports:
-    - name: api #apiserverport
-      protocol: TCP
-      external: 8844
-      internal: 8844
-    healthcheck:
-      readiness:
   configuration:
     templates:
       properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
@@ -1428,7 +1441,6 @@ instance_groups:
       properties.credhub.log_level: '"((CREDHUB_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
       properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_CERT_KEY))"}'
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
-# cf app-autoscaler
 - name: autoscaler-postgres
   scripts:
   - scripts/chown_vcap_store.sh
@@ -1441,29 +1453,27 @@ instance_groups:
     release: postgres
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          capabilities: []
+          volumes:
+          - path: /var/vcap/store
+            type: persistent
+            tag: postgres-data
+            size: 100
+          shared-volumes: []
+          memory: 1024
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
         ports:
         - name: postgres
           protocol: TCP
           external: 5432
           internal: 5432
-  processes:
-  - name: postgres
-  run:
-    scaling:
-      min: 0
-      max: 3
-      ha: 2
-    capabilities: []
-    volumes:
-    - path: /var/vcap/store
-      type: persistent
-      tag: postgres-data
-      size: 100
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
   configuration:
     templates:
       properties.databases.databases: '[{"name":"autoscaler","tag":"default"}]'
@@ -1497,6 +1507,18 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 256
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
         ports:
         - name: broker
           protocol: TCP
@@ -1509,22 +1531,6 @@ instance_groups:
           public: true
   - name: route_registrar
     release: routing
-  processes:
-  - name: route_registrar
-  - name: apiserver
-  - name: servicebroker
-  run:
-    scaling:
-      min: 0
-      max: 3
-      ha: 2
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 256
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"},{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'      
@@ -1543,6 +1549,18 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 1024
+          virtual-cpus: 4
+          healthcheck:
+            readiness:
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
@@ -1557,21 +1575,6 @@ instance_groups:
           protocol: TCP
           external: 7105
           internal: 7105
-  processes:
-  - name: metricscollector
-  - name: eventgenerator
-  run:
-    scaling:
-      min: 0
-      max: 3
-      ha: 2
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 4
-    healthcheck:
-      readiness:
 - name: autoscaler-actors
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1596,6 +1599,18 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 1024
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
@@ -1603,22 +1618,6 @@ instance_groups:
           internal: 7102
   - name: pruner
     release: app-autoscaler
-  processes:
-  - name: scalingengine
-  - name: scheduler
-  - name: pruner
-  run:
-    scaling:
-      min: 0
-      max: 3
-      ha: 2
-    capabilities: []
-    persistent-volumes: []
-    shared-volumes: []
-    memory: 1024
-    virtual-cpus: 2
-    healthcheck:
-      readiness:
 - name: autoscaler-smoke
   type: bosh-task
   tags:
@@ -1630,11 +1629,13 @@ instance_groups:
     release: scf
   - name: autoscaler-smoke
     release: scf
-  run:
-    scaling:
-      min: 0
-      max: 1
-    flight-stage: manual
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
   configuration:
     templates:
       properties.smoke_tests.api: api.((DOMAIN))
@@ -1642,7 +1643,6 @@ instance_groups:
       properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
       properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
       properties.smoke_tests.skip_ssl_validation: false
-
 configuration:
   auth:
     roles:
@@ -1699,7 +1699,6 @@ configuration:
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
-
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
     properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
