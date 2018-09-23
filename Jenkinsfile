@@ -48,17 +48,15 @@ void setBuildStatus(String context, String status) {
 
 void runTest(String testName) {
     sh """
-        image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
+        set -e +x
+        source \${PWD}/.envrc
+        set -x
 
-        kubectl delete pod --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf "${testName}" || true
+        export NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-scf
+        export UAA_NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-uaa
 
-        kubectl run \
-            --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
-            --attach \
-            --restart=Never \
-            --image=\${image} \
-            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath")" \
-            "${testName}"
+        # this will look for tests under output/kube/bosh-tasks and not in output/unzipped/...
+        make/tests "${testName}" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath"
     """
 }
 
