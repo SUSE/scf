@@ -67,6 +67,9 @@ String distSubDir() {
     } catch (Exception ex) {
         switch (env.BRANCH_NAME) {
             case 'develop':
+                if (params.IS_NIGHTLY) {
+                    return 'nightly/'
+                }
                 return 'develop/'
             case 'master':
                 return 'master/'
@@ -130,6 +133,11 @@ pipeline {
             name: 'PUBLISH_S3',
             defaultValue: true,
             description: 'Enable publishing to amazon s3',
+        )
+        booleanParam(
+            name: 'IS_NIGHTLY',
+            defaultValue: false,
+            description: 'This is a nightly build (will publish to the nightly prefix)',
         )
         booleanParam(
             name: 'TEST_ROTATE',
