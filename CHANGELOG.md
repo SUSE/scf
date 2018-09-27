@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+## [2.14.0] - 2018-09-27
+
+### Added
+- Credhub introduced as a user-accessible component (independent of future cf-deployment requirements)
+- Exposed SMTP variable to allow for account creation & password reset
+
+### Changed
+- One Kubernetes service per job now, which will require changes to role manifest YAML 
+- Bumped python & Ruby buildpacks
+- Bumped SLE12 & openSUSE stacks
+
+### Fixed
+- Kubernetes readiness check looks for both apiserver & kubelet now
+
+## [2.13.3] - 2018-09-11
+
+### Fixed
+- Error in configgin update
+
 ## [2.13.2] - 2018-09-10
 
 ### Changed
