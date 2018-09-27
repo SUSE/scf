@@ -351,12 +351,11 @@ pipeline {
             }
         }
         stage('check_for_changed_files') {
+          when {
+              expression { return (env.BRANCH_NAME != 'master') }
+          }
           steps {
             script {
-	      if (env.BRANCH_NAME == 'master') {
-	        return
-	      }
-
 	      def all_files = new HashSet<String>()
 
               // Nothing will build if no relevant files changed since
