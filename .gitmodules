@@ -103,3 +103,6 @@
 [submodule "src/loggregator-agent-release"]
 	path = src/loggregator-agent-release
 	url = https://github.com/cloudfoundry/loggregator-agent-release.git
+[submodule "src/credhub-user-release"]
+	path = src/credhub-user-release
+	url = https://github.com/SUSE/credhub-release

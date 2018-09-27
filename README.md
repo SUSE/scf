@@ -475,7 +475,7 @@ You can access any URL or endpoint that references this address from your host.
 3. Modify the `role-manifest.yml`:
 
     1. Add new roles or change existing ones
-    1. Add exposed environment variables (`yaml path: /configuration/variables`).
+    1. Add exposed environment variables (`yaml path: /variables`).
     1. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
 
 1. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
@@ -533,7 +533,7 @@ host> git push origin develop # or whatever your remote and branch are called
 
 1. Edit `./container-host-files/etc/scf/config/role-manifest.yml`:
 
-    1. Add the new exposed environment variables (`yaml path: /configuration/variables`).
+    1. Add the new exposed environment variables (`yaml path: /variables`).
     1. Add or change configuration templates:
 
         1. `yaml path: /configuration/templates`

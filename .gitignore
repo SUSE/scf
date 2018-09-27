@@ -22,3 +22,5 @@ password
 /output/
 personal-setup
 src/scf-helper-release/src/acceptance-tests-brain/test-resources/buildpack_inspector_buildpack/buildpack_inspector_buildpack-*.zip
+/OSCTEMP/
+/source-output/

@@ -48,17 +48,15 @@ void setBuildStatus(String context, String status) {
 
 void runTest(String testName) {
     sh """
-        image=\$(awk '\$1 == "image:" { print \$2 }' output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" | tr -d '"')
+        set -e +x
+        source \${PWD}/.envrc
+        set -x
 
-        kubectl delete pod --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf "${testName}" || true
+        export NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-scf
+        export UAA_NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-uaa
 
-        kubectl run \
-            --namespace=${jobBaseName()}-${BUILD_NUMBER}-scf \
-            --attach \
-            --restart=Never \
-            --image=\${image} \
-            --overrides="\$(ruby bin/kube_overrides.rb "${jobBaseName()}-${BUILD_NUMBER}-scf" "${domain()}" output/unzipped/kube/cf*/bosh-task/"${testName}.yaml" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath")" \
-            "${testName}"
+        # this will look for tests under output/kube/bosh-tasks and not in output/unzipped/...
+        make/tests "${testName}" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath"
     """
 }
 
@@ -69,6 +67,9 @@ String distSubDir() {
     } catch (Exception ex) {
         switch (env.BRANCH_NAME) {
             case 'develop':
+                if (params.IS_NIGHTLY) {
+                    return 'nightly/'
+                }
                 return 'develop/'
             case 'master':
                 return 'master/'
@@ -132,6 +133,11 @@ pipeline {
             name: 'PUBLISH_S3',
             defaultValue: true,
             description: 'Enable publishing to amazon s3',
+        )
+        booleanParam(
+            name: 'IS_NIGHTLY',
+            defaultValue: false,
+            description: 'This is a nightly build (will publish to the nightly prefix)',
         )
         booleanParam(
             name: 'TEST_ROTATE',
@@ -223,6 +229,11 @@ pipeline {
             defaultValue: false,
             description: 'Trigger a SLES version of this job',
         )
+        booleanParam(
+            name: 'STARTED_BY_TRIGGER',
+            defaultValue: false,
+            description: 'Guard to ensure master builds are started by a trigger',
+        )
         string(
             name: 'AGENT_LABELS',
             defaultValue: '',
@@ -243,6 +254,19 @@ pipeline {
     }
 
     stages {
+        stage('ensure_triggered_master') {
+            when {
+                expression { return env.BRANCH_NAME == 'master' }
+            }
+            steps {
+                script {
+                    if (!params.STARTED_BY_TRIGGER) {
+                        error "Master build without trigger flag"
+                    }
+                }
+            }
+        }
+
         stage('trigger_sles_build') {
           when {
                 expression { return params.TRIGGER_SLES_BUILD }
@@ -295,9 +319,11 @@ pipeline {
                     }
 
                     get_namespaces | xargs --no-run-if-empty kubectl delete ns
+                    set +x
                     while test -n "$(get_namespaces)"; do
-                        sleep 1
+                        sleep 5
                     done
+                    set -x
 
                     # Run `docker rm` commands twice because of internal race condition:
                     # https://github.com/vmware/vic/issues/3196#issuecomment-263295426
@@ -309,9 +335,11 @@ pipeline {
                     docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f || true
                     docker ps --filter=name=fissile --all --quiet | xargs --no-run-if-empty docker rm -f
 
+                    set +x
                     while docker ps -a --format '{{.Names}}' | grep -E -- '-scf_|-uaa_'; do
-                        sleep 1
+                        sleep 5
                     done
+                    set -x
 
                     helm list --all --short | grep -E -- '-scf|-uaa' | xargs --no-run-if-empty helm delete --purge
 
@@ -461,9 +489,11 @@ pipeline {
                         test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
+                    set +x
                     until has_internal_ca ; do
-                        sleep 10
+                        sleep 5
                     done
+                    set -x
 
                     UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
 
@@ -812,30 +842,30 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     }
                 }
             }
-	    // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
-	    script {
-                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
-		    writeFile(file: 'build.log', text: getBuildLog())
-		    sh 'bin/clean-jenkins-log'
-		    withAWS(region: params.S3_REGION) {
-			withCredentials([usernamePassword(
-			    credentialsId: params.S3_CREDENTIALS,
-			    usernameVariable: 'AWS_ACCESS_KEY_ID',
-			    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-			)]) {
-			    script {
-				def subdir = "${params.S3_PREFIX}${distSubDir()}"
-				def prefix = distPrefix()
-				s3Upload(
-				    file: 'cleaned-build.log',
-				    bucket: "${params.S3_LOG_BUCKET}",
-				    path: "${subdir}${prefix}${env.BUILD_TAG}",
-				)
-			    }
-			}
-		    }
-		}
-	    }
-	}
+            // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
+            script {
+                if ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') && fileExists('bin/clean-jenkins-log')) {
+                    writeFile(file: 'build.log', text: getBuildLog())
+                    sh 'bin/clean-jenkins-log'
+                    withAWS(region: params.S3_REGION) {
+                        withCredentials([usernamePassword(
+                            credentialsId: params.S3_CREDENTIALS,
+                            usernameVariable: 'AWS_ACCESS_KEY_ID',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                        )]) {
+                            script {
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}"
+                                def prefix = distPrefix()
+                                s3Upload(
+                                    file: 'cleaned-build.log',
+                                    bucket: "${params.S3_LOG_BUCKET}",
+                                    path: "${subdir}${prefix}${env.BUILD_TAG}",
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

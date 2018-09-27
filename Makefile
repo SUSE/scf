@@ -167,6 +167,7 @@ scf-release:
 	make/bosh-release src/scf-release
 
 scf-helper-release:
+	cp container-host-files/etc/scf/config/role-manifest.yml src/scf-helper-release/src; \
 	make/bosh-release src/scf-helper-release
 
 capi-release:
@@ -186,6 +187,9 @@ statsd-injector-release:
 
 app-autoscaler-release:
 	make/bosh-release src/app-autoscaler-release
+
+credhub-user-release:
+	make/bosh-release src/credhub-user-release
 
 binary-buildpack-release:
 	make/bosh-release src/buildpacks/binary-buildpack-release
@@ -247,6 +251,7 @@ releases: \
 	uaa-releases \
 	usb-release \
 	app-autoscaler-release \
+	credhub-user-release \
 	${NULL}
 
 ########## FISSILE BUILD TARGETS ##########
