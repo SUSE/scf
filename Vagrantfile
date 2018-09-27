@@ -136,6 +136,15 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
 
+  config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
+
+  # Make sure we can pass FISSILE_* env variables from the host
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    set -o errexit -o xtrace -o verbose
+    echo "AcceptEnv FISSILE_*" | sudo tee -a /etc/ssh/sshd_config
+    systemctl restart sshd.service
+  SHELL
+
   config.vm.provision "shell", privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
   }, path: "bin/common/write_proxy_vars_to_environment.sh"
@@ -183,7 +192,9 @@ Vagrant.configure(2) do |config|
     fi
   SHELL
 
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+  config.vm.provision "shell", privileged: false,
+                      env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV.fetch("FISSILE_COMPILATION_CACHE_CONFIG")},
+                      inline: <<-SHELL
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
