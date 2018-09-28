@@ -193,7 +193,7 @@ Vagrant.configure(2) do |config|
   SHELL
 
   config.vm.provision "shell", privileged: false,
-                      env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV.fetch("FISSILE_COMPILATION_CACHE_CONFIG")},
+                      env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
                       inline: <<-SHELL
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
