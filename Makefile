@@ -202,6 +202,9 @@ releases: \
 	credhub-user-release \
 	${NULL}
 
+diff-releases:
+	make/diff-releases
+
 ########## FISSILE BUILD TARGETS ##########
 
 # This is run from the Vagrantfile to copy in the existing compilation cache

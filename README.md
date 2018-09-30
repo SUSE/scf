@@ -558,57 +558,21 @@ host> git push origin develop # or whatever your remote and branch are called
 
 ### How do I bump the submodules for the various releases?
 
-__Note:__ Because this process involves cloning and building a release, it may take a long time.
+__Note:__ Because this process involves downloading and compiling release(s), it may take a long time.
 
-This section describes how to bump all the submodules at the same
-time. This is the easiest way because we have scripts helping us
-here.
+1. In the manifest, update the version and SHA of the release(s)
 
-__Note:__ To bump the UAA modules start the process here. At least
-step 1 has to be done, to provide the version information.  Any time
-after step 1 enter the `src/uaa-fissile-release` and follow the
-bump instructions in the [UAA README](https://github.com/SUSE/uaa-fissile-release/blob/master/README.md).
+1. Compare the BOSH releases 
 
-1. On the host machine run
 
     ```bash
-    bin/update-releases.sh <RELEASE>
+    make diff-releases
     ```
 
-    to bump to the specified release of CF. This pulls the information
-    about compatible releases, creates clones and bumps them.
-
-    It places the version information it used in a subdirectory `_work`.
-
-    `ATTENTION`: The script may mention submodules it has no
-    information about, making manual matching of versions to commit
-    the order of the day. Where possible the script will have created
-    at least a clone of the release to start from.
-
-    Currently these are `uaa-release`, `cf-acceptance-tests`,
-    `cf-smoke-tests-release`, and `nfs-volume-release`.
-
-1. Next up, we need the BOSH releases for the cloned and bumped submodules. Run
-
-    ```bash
-    bin/create-clone-releases.sh
-    ```
-
-    This command will place the log output for the individual releases
-    into the sub directory `_work/LOG/ccr`.
-
-1. With this done we can now compare the BOSH releases of originals
-   and clones, telling us what properties have changed (added,
+    This command will print all changes to releases, telling us what properties have changed (added,
    removed, changed descriptions and values, ...).
 
-    On the host machine run
-
-    ```bash
-    bin/diff-releases.sh
-    ```
-
-    This command will place the log output and differences for the
-    individual releases into the sub directory `_work/LOG/dr`.
+   > Note: don't commit the changes to the releases before you run the diff target.
 
 1. Act on configuration changes:
 
@@ -629,15 +593,12 @@ bump instructions in the [UAA README](https://github.com/SUSE/uaa-fissile-releas
     1. Consult the release notes of the new version of the release.
     1. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
-1. Bump the real submodule:
-
-    1. Bump the real submodule and begin testing.
-    1. Remove the clone you used for the release.
-
 1. Test the release by running the `make <release-name>-release compile images run` command.
 
 1. Before committing the tested release update the line
    `export CF_VERSION=...` in `bin/common/version.sh` to the new CF version.
+
+1. Cleanup the diff work dir (`/tmp/scf-releases-diff`)
 
 ### Can I suspend or resume my vagrant VM?
 
