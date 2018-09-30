@@ -102,8 +102,12 @@ properties:
           tag: "default"
       port: 5432
       db_scheme: postgres
-    pruner:
+    operator:
       require_consul: false
+      scaling_engine:
+        port: 7104
+      scheduler:
+        port: 7102
     scalingengine:
       health:
         port: 8083
