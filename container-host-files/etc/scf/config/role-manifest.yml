@@ -1186,6 +1186,7 @@ instance_groups:
     release: scf
     properties:
       bosh_containerization:
+        pod-security-policy: privileged
         run:
           scaling:
             min: 0
