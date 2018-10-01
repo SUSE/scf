@@ -1,3 +1,19 @@
+# THIS IS AN EXPERIMENTAL BRANCH FOR TESTING SCF WITH THE [EIRINI](https://github.com/cloudfoundry-incubator/eirini) PROJECT
+
+Some of the settings are hard-coded for use with the vagrant box.
+
+Before anything, create a kube namespace named eirini: `kubectl create namespace eirini`.
+
+After building and running in the usual way, push an application.
+Make sure to use the `cflinuxfs2` stack.
+
+At the moment staging happens in the diego cell.
+Routing won't work, you'll need to access the app through its kube service.
+
+> Make sure you sync and update submodules
+> The CAPI release comes from https://github.com/JulzDiverse/capi-release
+
+
 # SUSE Cloud Foundry
 
 SUSE Cloud Foundry (SCF) is a [Cloud Foundry](https://www.cloudfoundry.org)

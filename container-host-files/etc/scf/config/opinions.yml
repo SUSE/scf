@@ -183,6 +183,8 @@ properties:
       transaction_tracer:
         enabled: true
         record_sql: obfuscated
+    opi:
+     enabled: true
     packages:
       blobstore_type: webdav
       webdav_config:
@@ -347,6 +349,9 @@ properties:
     db_name: 'nfsvolume'
     service_name: 'persi-nfs'
     service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+  opi:
+    skipSslValidation: true
+    use_ingress: false
   router:
     backends:
       enable_tls: true

@@ -1,5 +1,47 @@
 ---
 instance_groups:
+
+
+- name: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: opi
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          capabilities: [ALL]
+          memory: 256
+          virtual-cpus: 2
+          exposed-ports:
+          - name: opi-server
+            protocol: TCP
+            internal: 8085
+          - name: opi-registry
+            protocol: TCP
+            internal: 8080
+            external: 5800
+            public: true
+  - name: cflinuxfs2-rootfs-setup
+    release: cflinuxfs2
+  - name: registry
+    release: eirini
+
 - name: syslog-scheduler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1911,6 +1953,10 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+
+    properties.cc.opi.url: http://eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+
+
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2068,6 +2114,23 @@ configuration:
     properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+
+
+
+    properties.opi.adminPassword: ((CLUSTER_ADMIN_PASSWORD))
+    properties.opi.ccAPI: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022
+    properties.opi.ccPassword: ((INTERNAL_API_PASSWORD))
+    properties.opi.externalEiriniAddress: eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.opi.kube_config: '((EIRINI_KUBE_CONFIG))'
+    properties.opi.kube_endpoint: '"((EIRINI_KUBE_ENDPOINT))"'
+    properties.opi.kube_namespace: ((EIRINI_KUBE_NAMESPACE))
+    properties.opi.nats_ip: nats.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.opi.nats_password: "((NATS_PASSWORD))"
+    properties.opi.registry_address: ((EIRINI_REGISTRY_ADDRESS))
+
+
+
+
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
@@ -3035,6 +3098,24 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
+
+- name: EIRINI_KUBE_CONFIG
+  options:
+    default: '{"clusters":[{"cluster":{"server":"http://192.168.77.77:8080"},"name":"kubernetes"}],"contexts":[{"context":{"cluster":"kubernetes"},"name":"local"}],"current-context":"local","kind":"Config","preferences":{},"users":[]}'
+    description: Full Kuberneted config file for the Eirini backend, in JSON format. 
+- name: EIRINI_KUBE_ENDPOINT
+  options:
+    default: '192.168.77.77'
+    description: Kubernetes endpoint used when creating an Ingress
+- name: EIRINI_KUBE_NAMESPACE
+  options:
+    default: 'eirini'
+    description: Kubernetes namespace used to create applications
+- name: EIRINI_REGISTRY_ADDRESS
+  options:
+    default: '192.168.77.77:5800'
+    description: Eirini's registry address, as it's accessed by Kubernetes
+
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'

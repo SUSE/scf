@@ -133,6 +133,12 @@ garden-release:
 groot-btrfs-release:
 	make/bosh-release src/groot-btrfs/groot-btrfs-release
 
+eirini-rootfs:
+	make/eirini-rootfs
+
+eirini-release: eirini-rootfs
+	make/bosh-release src/eirini-release
+
 mysql-release:
 	RUBY_VERSION=2.3.1 make/bosh-release src/cf-mysql-release
 
@@ -228,6 +234,7 @@ releases: \
 	consul-release \
 	diego-release \
 	dotnet-core-buildpack-release \
+	eirini-release \
 	garden-release \
 	go-buildpack-release \
 	groot-btrfs-release \

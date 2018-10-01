@@ -106,3 +106,6 @@
 [submodule "src/credhub-user-release"]
 	path = src/credhub-user-release
 	url = https://github.com/SUSE/credhub-release
+[submodule "src/eirini-release"]
+	path = src/eirini-release
+	url = https://github.com/viovanov/eirini-release.git
