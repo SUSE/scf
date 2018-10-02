@@ -1562,6 +1562,9 @@ configuration:
       - apiGroups: [""]
         resources: ["pods/log"]
         verbs: [create, delete, get, list]
+      - apiGroups: [""]
+        resources: ["secrets"]
+        verbs: [get, list]
     accounts:
       default:
         roles: [configgin-role]
