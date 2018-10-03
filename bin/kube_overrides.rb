@@ -71,5 +71,10 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
       end
     end
   end
+  if obj['kind'] == 'ClusterRoleBinding' && obj['roleRef']['kind'] == 'ClusterRole' then
+    ['metadata', 'roleRef'].each do |key|
+      obj[key]['name'] = "#{namespace}-#{obj[key]['name']}"
+    end
+  end
   puts obj.to_yaml
 end
