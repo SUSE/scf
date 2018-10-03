@@ -184,7 +184,8 @@ properties:
         enabled: true
         record_sql: obfuscated
     opi:
-     enabled: true
+      enabled: true
+      opi_staging: true
     packages:
       blobstore_type: webdav
       webdav_config:
@@ -352,6 +353,7 @@ properties:
   opi:
     skipSslValidation: true
     use_ingress: false
+    cc_uploader_ip: '1.2.3.4'
   router:
     backends:
       enable_tls: true

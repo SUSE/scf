@@ -28,19 +28,23 @@ instance_groups:
           capabilities: [ALL]
           memory: 256
           virtual-cpus: 2
-          exposed-ports:
-          - name: opi-server
-            protocol: TCP
-            internal: 8085
-          - name: opi-registry
-            protocol: TCP
-            internal: 8080
-            external: 5800
-            public: true
+        ports:
+        - name: opi-server
+          protocol: TCP
+          internal: 8085
+        - name: opi-registry
+          protocol: TCP
+          internal: 8080
+          external: 5800
+          public: true
   - name: cflinuxfs2-rootfs-setup
     release: cflinuxfs2
   - name: registry
     release: eirini
+  configuration:
+    templates:
+      properties.tls.cert: '"((EIRINI_REGISTRY_CERT))"'
+      properties.tls.key: '"((EIRINI_REGISTRY_CERT_KEY))"'    
 
 - name: syslog-scheduler
   environment_scripts:
@@ -1430,7 +1434,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          exposed-ports: []      
+          exposed-ports: []
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1954,9 +1958,9 @@ configuration:
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
 
-    properties.cc.opi.url: http://eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
-
-
+    properties.cc.opi.cc_uploader_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+    
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2115,21 +2119,17 @@ configuration:
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
 
-
-
     properties.opi.adminPassword: ((CLUSTER_ADMIN_PASSWORD))
-    properties.opi.ccAPI: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022
+    properties.opi.ccAPI: http://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022
     properties.opi.ccPassword: ((INTERNAL_API_PASSWORD))
-    properties.opi.externalEiriniAddress: eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.opi.eirini_address: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+    properties.opi.externalEiriniAddress: eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.opi.kube_config: '((EIRINI_KUBE_CONFIG))'
     properties.opi.kube_endpoint: '"((EIRINI_KUBE_ENDPOINT))"'
     properties.opi.kube_namespace: ((EIRINI_KUBE_NAMESPACE))
-    properties.opi.nats_ip: nats.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.opi.nats_ip: nats-nats.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.opi.nats_password: "((NATS_PASSWORD))"
     properties.opi.registry_address: ((EIRINI_REGISTRY_ADDRESS))
-
-
-
 
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
@@ -3115,6 +3115,18 @@ variables:
   options:
     default: '192.168.77.77:5800'
     description: Eirini's registry address, as it's accessed by Kubernetes
+- name: EIRINI_REGISTRY_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: EIRINI_REGISTRY_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
 
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:

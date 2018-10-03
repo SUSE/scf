@@ -7,9 +7,11 @@ packages:
   - cli
   - ruby-2.3
   - service-registration-utils
+  - kubectl
 
 templates:
   run.erb: bin/run
+  kube_config.erb: config/kube_config.yaml
 
 properties:
   cf.insecure_api_url:
@@ -55,3 +57,7 @@ properties:
     default: "admin"
   nfsbroker.password:
     description: "basic auth password to verify on incoming Service Broker requests"
+  opi.kube_namespace:
+    description: "The namespace used for Eirini"
+  opi.kube_config:
+    description: "Kubernetes config for setting up Eirini secrets"

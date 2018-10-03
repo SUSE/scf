@@ -136,7 +136,9 @@ groot-btrfs-release:
 eirini-rootfs:
 	make/eirini-rootfs
 
-eirini-release: eirini-rootfs
+eirini-release: eirini-rootfs eirini-release-without-rootfs
+
+eirini-release-without-rootfs:
 	make/bosh-release src/eirini-release
 
 mysql-release:

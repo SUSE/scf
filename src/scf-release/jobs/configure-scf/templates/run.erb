@@ -5,7 +5,7 @@
 set -o errexit -o nounset
 
 # put the cli on the path
-export PATH=/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
+export PATH=/var/vcap/packages/kubectl/bin:/var/vcap/packages/cli/bin:/var/vcap/packages/service-registration-utils:${PATH}
 
 # Default: verbose operation. Uncomment 2nd line to quiet this job
 SILENT=
@@ -119,5 +119,18 @@ status "Persi NFS configuration complete."
 
 status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
+
+status "Configuring Eirini staging secrets ..."
+
+export KUBECONFIG=/var/vcap/jobs/configure-scf/config/kube_config.yaml
+
+secret_name=$(kubectl get configmap secrets-config --namespace cf -o 'jsonpath={.data.current-secrets-name}')
+
+kubectl delete namespace <%= p("opi.kube_namespace") %> || true
+kubectl create namespace <%= p("opi.kube_namespace") %>
+
+kubectl get secret $secret_name --namespace=$KUBERNETES_NAMESPACE --export -o json | jq '.metadata.name = "cc-uploader-certs"' | jq '.["data"]["cc-uploader-key"] = .["data"]["cc-uploader-crt-key"]' | kubectl create --namespace=<%= p("opi.kube_namespace") %> -f -
+
+status "Eirini staging secrets configuration complete."
 
 status "SCF configuration complete."
