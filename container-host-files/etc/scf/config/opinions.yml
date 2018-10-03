@@ -40,6 +40,8 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
+  app_ssh:
+    host_key_fingerprint: "unused"
   autoscaler:
     cf:
       client_id: app_autoscaler
