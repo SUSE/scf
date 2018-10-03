@@ -978,8 +978,6 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: tps
-    release: capi
   - name: cc_uploader
     release: capi
     properties:
@@ -1598,17 +1596,6 @@ configuration:
     properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_UPLOADER_CRT))"'
     properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_CRT_KEY))"'
-    properties.capi.tps.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
-    properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
-    properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
-    properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.capi.tps.cc.client_cert: '"((TPS_CC_CLIENT_CRT))"'
-    properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_CRT_KEY))"'
-    properties.capi.tps.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -2308,18 +2295,6 @@ variables:
     secret: true
     description: the uaa client secret used by Autoscaler.
   type: password
-- name: BBS_CLIENT_CRT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    description: PEM-encoded client certificate.
-    required: true
-  type: certificate
-- name: BBS_CLIENT_CRT_KEY
-  options:
-    secret: true
-    description: PEM-encoded client key.
-    required: true
 - name: BLOBSTORE_ACCESS_RULES
   options:
     default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
@@ -3155,20 +3130,6 @@ variables:
     example: tcp.my-scf-cluster.com
     required: true
     description: TCP routing domain of the SCF cluster; only used for testing;
-- name: TPS_CC_CLIENT_CRT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    description: PEM-encoded client certificate for internal communication between
-      the cloud controller and TPS.
-    required: true
-  type: certificate
-- name: TPS_CC_CLIENT_CRT_KEY
-  options:
-    secret: true
-    description: PEM-encoded client key for internal communication between the cloud
-      controller and TPS.
-    required: true
 - name: TRAFFICCONTROLLER_CERT
   options:
     secret: true

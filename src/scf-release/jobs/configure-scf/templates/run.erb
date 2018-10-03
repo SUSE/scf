@@ -107,16 +107,6 @@ status "Setting of external proxies complete."
 
 status "Waiting for persi NFS broker to be available..."
 
-NFS_BROKER_URL='<%= p("nfsbroker.url") %>'
-NFS_BROKER_USERNAME='<%= p("nfsbroker.username") %>'
-NFS_BROKER_PASSWORD='<%= p("nfsbroker.password") %>'
-
-retry 240 30s curl ${SILENT} --connect-timeout 5 --fail --header 'Accept: application/json' -u ${NFS_BROKER_USERNAME}:${NFS_BROKER_PASSWORD} ${NFS_BROKER_URL}/v2/catalog
-
-cf create-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL" || cf update-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL"
-
-status "Persi NFS configuration complete."
-
 status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
