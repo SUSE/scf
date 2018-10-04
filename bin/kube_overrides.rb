@@ -19,6 +19,11 @@ ARGV.each do |arg|
   overrides[k.split('.')] = v
 end
 
+# first_nonempty returns the first argument that is neither nil nor empty
+def first_nonempty(*args)
+  args.compact.reject(&:empty?).first
+end
+
 YAML.load_stream (IO.read(kube_config)) do |obj|
   if obj['spec'] then
     obj['spec']['containers'].each do |container|
@@ -44,6 +49,14 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
             env['valueFrom']['secretKeyRef']['name'] = current_secrets_name
           end
         end
+      end
+
+      image = container['image']
+      if image
+        /(?:(?<registry>.*)\/)?(?<org>[^\/]+)\/(?<name>.*):(?<tag>.*)/ =~ image
+        registry = first_nonempty(ENV['FISSILE_DOCKER_REGISTRY'], registry, 'docker.io')
+        org = first_nonempty(ENV['FISSILE_DOCKER_ORG'], org)
+        container['image'] = "#{registry}/#{org}/#{name}:#{tag}"
       end
 
       overrides.each do |k, v|

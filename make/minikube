@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+set -x
+
+status() {
+    printf '%b%s%b\n' '\e[0;32m' "$1" '\e[0m'
+}
+
+wait_for_pods() {
+    status 'Waiting for pods to be ready…'
+    while true ; do
+        set +o errexit
+        kubectl get pods --all-namespaces --output='json' | jq --exit-status '
+            .items[].status.conditions |
+                select( 
+                    .[] | select( .type == "Ready" and .status == "True" ) | not
+                )
+        '
+        local status="$?"
+        set -o errexit
+        case "${status}" in
+            0) sleep 10
+               continue ;; # Some pods are not ready
+            4) break ;;               # No unready pods
+            *) printf '%bjq returned %s%b\n' '\e[0;1;31m' "${status}" '\e[0m'
+               exit 1 ;;
+        esac
+    done
+}
+
+if minikube status --format '{{.MinikubeStatus}}' 2>/dev/null | grep --silent Running ; then
+    status "Deleting existing minikube…"
+    minikube delete
+fi
+
+start_args=(
+  --vm-driver kvm2
+  --cpus 4
+  --memory 16384
+  --container-runtime cri-o
+  --vm-driver kvm2
+  --disk-size 100g
+)
+
+start_args+=(
+  --extra-config "$(echo '
+    apiserver.admission-control=
+        Initializers,
+        NamespaceLifecycle,
+        LimitRanger,
+        ServiceAccount,
+        DefaultStorageClass,
+        DefaultTolerationSeconds,
+        NodeRestriction,
+        MutatingAdmissionWebhook,
+        ValidatingAdmissionWebhook,
+        ResourceQuota,
+        PodSecurityPolicy
+        ' | tr -d '[:space:]')"
+)
+
+status 'Starting minikube…'
+minikube start "${start_args[@]}"
+
+status 'Waiting for cluster to be ready…'
+until minikube status --format '{{.ClusterStatus}}' | grep --silent Running ; do
+  sleep 30
+done
+
+status 'Setting up addons…'
+set_up_addons() {
+    local -A wanted_addons=(
+        [addon-manager]=true
+        [dashboard]=true
+        [default-storageclass]=true
+        [heapster]=true
+        [kube-dns]=true
+        [storage-provisioner]=true
+    )
+    local addon status
+
+    minikube addons list | while read _ addon status ; do
+        addon="${addon%:}"
+        if [ "${wanted_addons[${addon}]:-}" == true ] ; then
+            if [ "${status}" != enabled ] ; then
+                minikube addons enable "${addon}"
+            fi
+        else
+            if [ "${status}" != disabled ] ; then
+                minikube addons disable "${addon}"
+            fi
+        fi
+    done
+}
+set_up_addons
+
+status 'Setting up pod security policies…'
+# Create default pod security policies
+kubectl apply -f - <<EOF
+    apiVersion: v1
+    kind: List
+    items:
+    - apiVersion: policy/v1beta1
+      kind: PodSecurityPolicy
+      metadata:
+        name: default
+      spec:
+        allowPrivilegeEscalation: true
+        fsGroup:
+          rule: RunAsAny
+        runAsUser:
+          rule: RunAsAny
+        seLinux:
+          rule: RunAsAny
+        supplementalGroups:
+          rule: RunAsAny
+        volumes:
+        - '*'
+    - apiVersion: policy/v1beta1
+      kind: PodSecurityPolicy
+      metadata:
+        name: privileged
+      spec:
+        allowPrivilegeEscalation: true
+        allowedCapabilities:
+        - '*'
+        fsGroup:
+          rule: RunAsAny
+        hostIPC: true
+        hostNetwork: true
+        hostPID: true
+        hostPorts:
+        - min: 1
+          max: 65535
+        privileged: true
+        runAsUser:
+          rule: RunAsAny
+        seLinux:
+          rule: RunAsAny
+        supplementalGroups:
+          rule: RunAsAny
+        volumes:
+        - '*'
+EOF
+
+# Give privileges to internal things
+kubectl auth reconcile -f - <<EOF
+    apiVersion: v1
+    kind: List
+    items:
+    - kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: psp:privileged
+      rules:
+      - apiGroups:     [policy]
+        resources:     [podsecuritypolicies]
+        verbs:         [use]
+        resourceNames: [privileged]
+    - kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: psp:default
+      rules:
+      - apiGroups:     [policy]
+        resources:     [podsecuritypolicies]
+        verbs:         [use]
+        resourceNames: [default]
+    - kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: minikube
+        namespace: kube-system
+      roleRef:
+        kind: ClusterRole
+        name: psp:privileged
+        apiGroup: rbac.authorization.k8s.io
+      subjects:
+      # Authorize all service accounts in a namespace:
+      - kind: Group
+        apiGroup: rbac.authorization.k8s.io
+        name: system:serviceaccounts
+      - kind: Group
+        apiGroup: rbac.authorization.k8s.io
+        name: system:nodes
+EOF
+
+wait_for_pods
+
+status 'Setting up helm…'
+helm init --wait
+wait_for_pods
+
+exit 0
+- addons enabled:
+  - addon-manager
+  - dashboard
+  - default-storageclass
+  - heapster
+  - kube-dns
+  - storage-provisioner
+- `helm init --wait`
+- `make/uaa-run`
+- `make/run`
+
