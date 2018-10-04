@@ -2,19 +2,28 @@
 
 ## [Unreleased]
 
+## [2.14.1] - 2018-10-03
+
+### Changed
+- Removed no longer needed consul & postgres roles
+- Bumped SLE12 & openSUSE stacks
+
+### Fixed
+- Updated cluster role names to ensure no namespace conflicts in Kubernetes
+
 ## [2.14.0] - 2018-09-27
 
 ### Added
 - Credhub introduced as a user-accessible component (independent of future cf-deployment requirements)
-- Exposed SMTP variable to allow for account creation & password reset
+- Exposed SMTP_HOST & SMTP_FROM_ADDRESS variables to allow for account creation & password reset
 
 ### Changed
-- One Kubernetes service per job now, which will require changes to role manifest YAML 
+- One Kubernetes service per job now, whereby the service names will include both the instance group (previously the role) and job name, which impacts the role manifest YAML 
 - Bumped python & Ruby buildpacks
 - Bumped SLE12 & openSUSE stacks
 
 ### Fixed
-- Kubernetes readiness check looks for both apiserver & kubelet now
+- Kubernetes readiness check no longer looks for hyperkube explicitly
 
 ## [2.13.3] - 2018-09-11
 
