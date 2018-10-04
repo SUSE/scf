@@ -25,7 +25,7 @@ get_package_version_list() {
 }
 
 _cache() {
-    test -n "${FISSILE_COMPILATION_CACHE_CONFIG+x}" && return
+    [ "${FISSILE_COMPILATION_CACHE_CONFIG:-}" != "" ] && return
     test -n "${SCF_DISABLE_PACKAGE_COMPILATION_CACHE+x}" && return
 
     for package_version in $(get_package_version_list) ; do
@@ -53,7 +53,7 @@ cache() {
 }
 
 restore() {
-    test -n "${FISSILE_COMPILATION_CACHE_CONFIG+x}" && return
+    [ "${FISSILE_COMPILATION_CACHE_CONFIG:-}" != "" ] && return
     test -z "${SCF_PACKAGE_COMPILATION_CACHE}" && return
     test -d "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/" && return
 
@@ -90,7 +90,7 @@ restore() {
 # This affects both cache on the host, and local cache
 
 clean() {
-    test -n "${FISSILE_COMPILATION_CACHE_CONFIG+x}" && return
+    [ "${FISSILE_COMPILATION_CACHE_CONFIG:-}" != "" ] && return
     if test -z "$(echo "${SCF_PACKAGE_COMPILATION_CACHE}" | tr -d ./)" ; then
         echo "SCF_PACKAGE_COMPILATION_CACHE is empty; bailing to prevent wiping your disk" >&2
         exit 1
