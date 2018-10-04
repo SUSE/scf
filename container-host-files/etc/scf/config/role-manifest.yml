@@ -19,7 +19,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 69
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -62,7 +62,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 78
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -110,7 +110,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 60
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -190,7 +190,7 @@ instance_groups:
             type: persistent
             tag: mysql-data
             size: 20
-          memory: 2950
+          memory: 2500
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -252,7 +252,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 117
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -302,7 +302,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 310
+          memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
           healthcheck:
@@ -375,7 +375,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 135
+          memory: 128
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -447,7 +447,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 99
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -505,7 +505,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 114
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -558,7 +558,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 2421
+          memory: 3800
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -636,7 +636,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 753
+          memory: 750
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -678,7 +678,7 @@ instance_groups:
             type: persistent
             tag: blobstore-data
             size: 50
-          memory: 420
+          memory: 500
           virtual-cpus: 2
         ports:
         - name: blobstore-ext
@@ -716,7 +716,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 789
+          memory: 750
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -753,7 +753,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 390
+          memory: 410
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -810,7 +810,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 250
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -869,7 +869,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 99
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -928,7 +928,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 129
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -973,7 +973,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 123
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -1030,7 +1030,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: [ALL]
-          memory: 63
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -1103,7 +1103,7 @@ instance_groups:
           - path: /sys/fs/cgroup
             type: host
             tag: host-cgroup
-          memory: 4677
+          memory: 2800
           virtual-cpus: 4
           healthcheck:
               command:
@@ -1300,7 +1300,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 256
+          memory: 2000
           virtual-cpus: 2
           exposed-ports:
           - name: api #apiserverport
@@ -1446,7 +1446,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 1024
+          memory: 128
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -1496,7 +1496,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 1024
+          memory: 2350
           virtual-cpus: 2
           healthcheck:
             readiness:
