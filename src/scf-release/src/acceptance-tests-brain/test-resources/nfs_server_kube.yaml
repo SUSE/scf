@@ -6,7 +6,7 @@ kind: "StatefulSet"
 metadata:
   name: "nfs-test-server"
   labels:
-    skiff-role-name: "nfs-test-server"
+    app.kubernetes.io/component: "nfs-test-server"
 spec:
   podManagementPolicy: "Parallel"
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     metadata:
       annotations: {}
       labels:
-        skiff-role-name: "nfs-test-server"
+        app.kubernetes.io/component: "nfs-test-server"
       name: "nfs-test-server"
     spec:
       containers:
@@ -140,7 +140,7 @@ items:
       targetPort: 0
       protocol: "UDP"
     selector:
-      skiff-role-name: "nfs-test-server"
+      app.kubernetes.io/component: "nfs-test-server"
 - apiVersion: "v1"
   kind: "Service"
   metadata:
@@ -196,5 +196,5 @@ items:
       targetPort: "ipcsrv2-dgram"
       protocol: "UDP"
     selector:
-      skiff-role-name: "nfs-test-server"
+      app.kubernetes.io/component: "nfs-test-server"
 kind: "List"

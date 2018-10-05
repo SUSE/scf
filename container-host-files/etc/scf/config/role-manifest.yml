@@ -28,7 +28,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - syslog-scheduler
@@ -71,7 +71,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - adapter
@@ -119,7 +119,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - nats
@@ -204,7 +204,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - mysql
@@ -261,7 +261,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cf-usb
@@ -316,7 +316,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-api
@@ -388,7 +388,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-cell
@@ -397,7 +397,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - router
@@ -460,7 +460,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - tcp-router
@@ -514,7 +514,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - routing-api
@@ -571,7 +571,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - api
@@ -645,7 +645,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-worker
@@ -725,7 +725,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-clock
@@ -766,7 +766,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - doppler
@@ -823,7 +823,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - log-api
@@ -878,7 +878,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-brain
@@ -937,7 +937,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-uploader
@@ -986,7 +986,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-access
@@ -1039,7 +1039,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - nfs-broker
@@ -1115,7 +1115,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-cell
@@ -1124,7 +1124,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - router
