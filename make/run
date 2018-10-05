@@ -14,6 +14,10 @@ is_minikube() {
     kubectl get nodes -o jsonpath='{.items[].metadata.name}' | grep --silent minikube
 }
 
+supports_psp() {
+    kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
+}
+
 has_release() {
     test -n "$(helm list --all --short "${NAMESPACE}")"
 }
@@ -101,6 +105,34 @@ helm_args+=(
     --set "kube.external_ips[0]=192.0.2.42"
     --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")"
 )
+
+if supports_psp ; then
+    psp_privileged="$(kubectl get podsecuritypolicy -o json | jq -r '
+            [
+                .items[] |
+                select(
+                    .spec.allowedCapabilities // [] |
+                    contains(["*"])
+                )
+            ] |
+            first| .metadata.name
+        ')"
+    psp_nonprivileged="$(kubectl get podsecuritypolicy -o json | jq -r '
+            [
+                .items[] |
+                select(
+                    .spec.allowedCapabilities // [] |
+                    contains(["*"]) |
+                    not
+                )
+            ] |
+            first| .metadata.name
+        ')"
+    helm_args+=(
+        --set "kube.psp.privileged=${psp_privileged}"
+        --set "kube.psp.nonprivileged=${psp_nonprivileged:-${psp_privileged}}"
+    )
+fi
 
 if is_minikube ; then
     helm_args+=(
