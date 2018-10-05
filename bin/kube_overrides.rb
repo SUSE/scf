@@ -88,6 +88,9 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
     ['metadata', 'roleRef'].each do |key|
       obj[key]['name'] = "#{namespace}-#{obj[key]['name']}"
     end
+    obj['subjects'].each do |subject|
+      subject['namespace'] = namespace
+    end
   end
   puts obj.to_yaml
 end
