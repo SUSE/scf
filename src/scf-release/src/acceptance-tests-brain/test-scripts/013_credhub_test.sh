@@ -44,7 +44,12 @@ cf target -s    "${CF_SPACE}"
 # to this.
 SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-SECRET="$(kubectl get secrets --namespace "${NS}" | awk '/^secrets-/ { print $1 }')"
+# Ask a pod for the name of the relevant secret. This handles HA
+# properly, and query after a rotation as well.
+
+SECRET=$(kubectl get pods --namespace "${NS}" \
+		 -o jsonpath='{.items[*?(.metadata.name=="nats-0")].spec.containers[?(.name=="nats")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}')
+
 CH_SECRET="$(kubectl get secrets --namespace "${NS}" "${SECRET}" -o jsonpath="{.data['uaa-clients-credhub-user-cli-secret']}"|base64 -d)"
 CLIENT=credhub_user_cli
 
