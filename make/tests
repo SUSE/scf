@@ -76,7 +76,11 @@ ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
-kubectl create --namespace="${NAMESPACE}" --filename="${CONFIG}"
+
+# Use apply - Creates anything on first run.
+# On subsequent runs identical existing definitions are ignored.
+# (Ex: cluster role bindings for tests)
+kubectl apply --namespace="${NAMESPACE}" --filename="${CONFIG}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
