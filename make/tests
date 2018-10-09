@@ -102,3 +102,8 @@ kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
+
+while [ -z "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')" ]; do
+    sleep 1
+done
+exit $(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')
