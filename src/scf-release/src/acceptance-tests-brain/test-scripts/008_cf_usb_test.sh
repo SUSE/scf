@@ -88,7 +88,7 @@ cf target -s    "${CF_SPACE}"
 
 # Location of the test script. All other assets will be found relative
 # to this.
-TMP=$(mktemp -dt 008_cf_usb.XXXXXX)
+TMP="$(mktemp -dt "$(basename "${0}" .sh).XXXXXX")"
 
 MYSQL_USER=root
 MYSQL_PASS=testpass

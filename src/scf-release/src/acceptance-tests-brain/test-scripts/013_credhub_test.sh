@@ -11,7 +11,7 @@ CF_SPACE=${CF_SPACE:-space}-$(random_suffix)
 # Shorter handle, and shows up in the log.
 NS="${KUBERNETES_NAMESPACE}"
 
-CLI=credhub
+CH_CLI=credhub
 CH_SERVICE="https://credhub.${CF_DOMAIN}"
 
 ## # # ## ### Login & standard entity setup/cleanup ### ## # #
@@ -47,13 +47,21 @@ SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Ask a pod for the name of the relevant secret. This handles HA
 # properly, and query after a rotation as well.
 
+# Regarding the use of `nats` below:
+# - Wanted a central pod/job which when missing indicates/causes much
+#   bigger trouble than failing brain tests. I.e. if that is missing
+#   we should never reach the tests. Of course, there are more than
+#   just `nats` which would do. It was just the one which popped into
+#   my mind.
+
 SECRET=$(kubectl get pods --namespace "${NS}" \
 		 -o jsonpath='{.items[?(.metadata.name=="nats-0")].spec.containers[?(.name=="nats")].env[?(.name=="INTERNAL_CA_CERT")].valueFrom.secretKeyRef.name}')
 
-CH_SECRET="$(kubectl get secrets --namespace "${NS}" "${SECRET}" -o jsonpath="{.data['uaa-clients-credhub-user-cli-secret']}"|base64 -d)"
+CH_SECRET="$(kubectl get secrets --namespace "${NS}" "${SECRET}" \
+		     -o jsonpath="{.data['uaa-clients-credhub-user-cli-secret']}"|base64 -d)"
 CLIENT=credhub_user_cli
 
-TMP=$(mktemp -dt 013_credhub.XXXXXX)
+TMP="$(mktemp -dt "$(basename "${0}" .sh).XXXXXX")"
 
 ## # # ## ### Test-specific code ### ## # #
 
@@ -68,19 +76,19 @@ function test_cleanup() {
 }
 trap test_cleanup EXIT ERR
 
-# Target the credhub service directly through its kube service
-"${CLI}" api  --skip-tls-validation --server "${CH_SERVICE}"
+# Target the credhub kube service, via the registered gorouter endpoint
+"${CH_CLI}" api  --skip-tls-validation --server "${CH_SERVICE}"
 
 # Log into credhub
-"${CLI}" login --client-name="${CLIENT}" --client-secret="${CH_SECRET}"
+"${CH_CLI}" login --client-name="${CLIENT}" --client-secret="${CH_SECRET}"
 
 # Insert ...
-"${CLI}" set -n FOX -t value -v 'fox over lazy dog' > ${TMP}/fox
-"${CLI}" set -n DOG -t user -z dog -w fox           > ${TMP}/dog
+"${CH_CLI}" set -n FOX -t value -v 'fox over lazy dog' > ${TMP}/fox
+"${CH_CLI}" set -n DOG -t user -z dog -w fox           > ${TMP}/dog
 
 # Retrieve ...
-"${CLI}" get -n FOX > ${TMP}/fox2
-"${CLI}" get -n DOG > ${TMP}/dog2
+"${CH_CLI}" get -n FOX > ${TMP}/fox2
+"${CH_CLI}" get -n DOG > ${TMP}/dog2
 
 # Show (in case of failure) ...
 for i in fox fox2 dog dog2
