@@ -126,8 +126,12 @@ fi
 # override tasks infinity in systemd configuration
 if having_category node ; then
     if has_command systemctl ; then
-        test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
-        status "TasksMax must be set to infinity"
+        if systemctl cat --quiet containerd.service >/dev/null 2>/dev/null ; then
+            test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
+            status "TasksMax must be set to infinity"
+        else
+            red "containerd.service not available"
+        fi
     else
         test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
         status "Max processes should be unlimited, or as high as possible for the system"

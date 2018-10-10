@@ -96,9 +96,9 @@
   <add-on>
     <add_on_products config:type="list">
       <listentry>
-        <media_url>http://download.opensuse.org/update/leap/42.3/oss/</media_url>
-        <name>openSUSE-Leap-42.3-Update</name>
-        <product>openSUSE-Leap-42.3-Update</product>
+        <media_url>http://download.opensuse.org/update/leap/15.0/oss/</media_url>
+        <name>openSUSE-Leap-15.0-Update</name>
+        <product>openSUSE-Leap-15.0-Update</product>
         <product_dir>/</product_dir>
       </listentry>
     </add_on_products>
@@ -111,7 +111,6 @@
     <patterns config:type="list">
       <pattern>yast2_basis</pattern>
       <pattern>minimal_base</pattern>
-      <pattern>generic_server</pattern>
       <pattern>base</pattern>
     </patterns>
 
@@ -120,8 +119,11 @@
       <package>jq</package>
       <package>make</package>
       <package>man</package>
+      <package>ntp</package>
       <package>open-vm-tools</package>
       <package>openssh</package>
+      <package>sudo</package>
+      <package>wget</package>
       <package>xfsprogs</package>
       <package>zip</package>
     </packages>

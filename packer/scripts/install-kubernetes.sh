@@ -8,12 +8,12 @@ set -o errexit -o xtrace
 swapoff -a
 
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
-    obs://home:mook_work:branches:devel:CaaSP:Head:ControllerNode mook_work:CaaSP
+    obs://devel:CaaSP:Head:ControllerNode CaaSP
 
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri --priority # for troubleshooting
 
-zypper --non-interactive install --no-confirm --from=mook_work:CaaSP \
+zypper --non-interactive install --no-confirm --from=CaaSP \
     etcd \
     cni-plugins \
     kubernetes-client \
