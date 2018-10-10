@@ -561,7 +561,6 @@ pipeline {
                         --set "kube.external_ips[0]=192.0.2.84" \
                         --set "kube.external_ips[1]=${ipAddress()}" \
                         --set kube.storage_class.persistent=hostpath \
-                        --set sizing.credhub_user.count=1
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
