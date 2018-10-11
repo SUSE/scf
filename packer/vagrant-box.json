@@ -70,6 +70,7 @@
             "boot_command": [
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
+                "vga=0x345 ",
                 "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
                 "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
@@ -80,8 +81,9 @@
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
+            "disk_discard": "unmap",
             "disk_size": 120480,
-            "disk_interface": "virtio",
+            "disk_interface": "virtio-scsi",
             "disk_compression": true,
             "net_device": "virtio-net",
             "ssh_username": "{{user `ssh_username`}}",
@@ -271,8 +273,7 @@
             "only": ["vagrant-virtualbox"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
-                "zypper --non-interactive remove --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
-                "zypper --non-interactive install --no-confirm virtualbox-guest-tools-5.1.22",
+                "zypper --non-interactive install --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
                 "systemctl enable vboxadd-service.service",
                 "systemctl enable vboxadd.service"
             ]
