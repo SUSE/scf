@@ -1302,13 +1302,13 @@ instance_groups:
           shared-volumes: []
           memory: 2000
           virtual-cpus: 2
-          exposed-ports:
-          - name: api #apiserverport
-            protocol: TCP
-            external: 8844
-            internal: 8844
           healthcheck:
             readiness:      
+        ports:
+        - name: api #apiserverport
+          protocol: TCP
+          external: 8844
+          internal: 8844
   - name: route_registrar
     release: routing
   configuration:
