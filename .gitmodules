@@ -108,4 +108,4 @@
 	url = https://github.com/SUSE/credhub-release
 [submodule "src/eirini-release"]
 	path = src/eirini-release
-	url = https://github.com/viovanov/eirini-release.git
+	url = https://github.com/SUSE/eirini-bosh-release.git
