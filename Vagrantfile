@@ -176,8 +176,9 @@ Vagrant.configure(2) do |config|
       if ! systemctl restart docker.service ; then
         while [ "$(systemctl is-active docker.service)" != active ] ; do
           case "$(systemctl is-active docker.service)" in
-            failed) systemctl restart docker.service ;;
-            *)      sleep 5                          ;;
+            failed) systemctl reset-failed docker.service ;
+                    systemctl restart docker.service ||: ;;
+            *)      sleep 5                              ;;
           esac
         done
       fi
