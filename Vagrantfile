@@ -157,7 +157,7 @@ Vagrant.configure(2) do |config|
       https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
     chmod a+x ${HOME}/bin/direnv
     echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
-    ln -s ${HOME}/scf/bin/dev/vagrant-envrc ${HOME}/.envrc
+    ln -s -f ${HOME}/scf/bin/dev/vagrant-envrc ${HOME}/.envrc
     ${HOME}/bin/direnv allow ${HOME}
     ${HOME}/bin/direnv allow ${HOME}/scf
   SHELL
@@ -171,7 +171,16 @@ Vagrant.configure(2) do |config|
     export SCF_BIN_DIR=/usr/local/bin
     if [ -n "#{vm_registry_mirror}" ]; then
       perl -p -i -e 's@^(DOCKER_OPTS=)"(.*)"@\\1"\\2 --registry-mirror=#{vm_registry_mirror}"@' /etc/sysconfig/docker
-      service docker restart
+      # docker has issuses coming up on virtualbox; let is fail gracefully if necessary
+      systemctl stop docker.service
+      if ! systemctl restart docker.service ; then
+        while [ "$(systemctl is-active docker.service)" != active ] ; do
+          case "$(systemctl is-active docker.service)" in
+            failed) systemctl restart docker.service ;;
+            *)      sleep 5                          ;;
+          esac
+        done
+      fi
     fi
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
@@ -183,13 +192,31 @@ Vagrant.configure(2) do |config|
     fi
   SHELL
 
+  # Ensure that kubelet is running correctly
+  config.vm.provision :shell, privileged: true, inline: <<-'SHELL'
+    set -o errexit -o nounset -o xtrace
+    if ! systemctl is-active kubelet.service ; then
+      systemctl enable --now kubelet.service
+    fi
+  SHELL
+
   # Set up the storage class
-  config.vm.provision :shell, privileged: false, inline: <<-SHELL
+  config.vm.provision :shell, privileged: false, inline: <<-'SHELL'
     if ! kubectl get storageclass persistent 2>/dev/null ; then
       perl -p -e 's@storage.k8s.io/v1beta1@storage.k8s.io/v1@g' \
         "${HOME}/scf/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
       kubectl create -f -
     fi
+  SHELL
+
+  # Wait for the pods to be ready
+  config.vm.provision :shell, privileged: false, inline: <<-'SHELL'
+    set -o errexit -o nounset -o xtrace
+    for selector in k8s-app=kube-dns name=tiller ; do
+      while ! kubectl get pods --namespace=kube-system --selector "${selector}" 2> /dev/null | grep -Eq '([0-9])/\1 *Running' ; do
+        sleep 5
+      done
+    done
   SHELL
 
   config.vm.provision "shell", privileged: false,

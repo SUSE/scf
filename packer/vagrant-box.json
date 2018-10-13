@@ -71,7 +71,7 @@
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
                 "vga=0x345 ",
-                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "biosdevname=0 netsetup=dhcp ",
                 "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
             ]
@@ -273,9 +273,9 @@
             "only": ["vagrant-virtualbox"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
+                "zypper --non-interactive removelock virtualbox-guest-tools virtualbox-guest-kmp-default",
                 "zypper --non-interactive install --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
-                "systemctl enable vboxadd-service.service",
-                "systemctl enable vboxadd.service"
+                "systemctl enable vboxadd-service.service ||: # this sometimes fails but works on reboot?"
             ]
         },
         {

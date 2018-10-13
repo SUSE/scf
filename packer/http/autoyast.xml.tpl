@@ -10,7 +10,7 @@
 
   <bootloader>
     <global>
-      <append>cgroup_enable=memory swapaccount=1</append>
+      <append>cgroup_enable=memory swapaccount=1 plymouth.enable=0</append>
     </global>
   </bootloader>
 
@@ -127,6 +127,11 @@
       <package>xfsprogs</package>
       <package>zip</package>
     </packages>
+
+    <remove-packages config:type="list">
+      <package>virtualbox-guest-tools</package>
+      <package>virtualbox-guest-kmp-default</package>
+    </remove-packages>
   </software>
 
   <deploy_image>

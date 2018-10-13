@@ -7,8 +7,10 @@ set -o errexit -o xtrace
 # Kube doesn't like swap: https://github.com/kubernetes/kubernetes/blob/e4551d50e57c089aab6f67333412d3ca64bc09ae/pkg/kubelet/cm/container_manager_linux.go#L207-L209
 swapoff -a
 
+# Use the expanded repo URL to avoid https -> http redirect
 zypper --non-interactive addrepo --gpgcheck --refresh --priority 120 --check \
-    obs://devel:CaaSP:Head:ControllerNode CaaSP
+    'http://download.opensuse.org/repositories/devel:/CaaSP:/Head:/ControllerNode/openSUSE_Leap_$releasever' \
+    CaaSP
 
 zypper --non-interactive --gpg-auto-import-keys refresh
 zypper --non-interactive repos --uri --priority # for troubleshooting
