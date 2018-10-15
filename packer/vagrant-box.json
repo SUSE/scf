@@ -1,11 +1,11 @@
 {
     "variables": {
-        "version": "2.0.13",
+        "version": "2.0.14",
         "vm_name": "scf-vagrant",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
-        "iso_url": "http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-NET-x86_64.iso",
-        "iso_checksum": "d1a17116cf33a5582b83ef479d7b151b33938e60f07eebc544abf162e2aa5c12",
+        "iso_url": "http://download.opensuse.org/distribution/leap/15.0/iso/openSUSE-Leap-15.0-NET-x86_64.iso",
+        "iso_checksum": "1a322de7c215da96fdbad4c247d218eb79073c5620a332a759c0291b44746fbc",
         "iso_checksum_type": "sha256",
         "http_directory": "http",
         "ssh_wait_timeout": "300m",
@@ -70,7 +70,8 @@
             "boot_command": [
                 "<esc><enter><wait>",
                 "linux lang=en_US textmode=1 ",
-                "biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp ",
+                "vga=0x345 ",
+                "biosdevname=0 netsetup=dhcp ",
                 "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/vagrant-autoyast.xml ",
                 "<enter><wait>"
             ]
@@ -80,8 +81,9 @@
             "type": "qemu",
             "headless": true,
             "vm_name": "{{user `vm_name`}}+{{isotime \"20060102-1504\"}}",
+            "disk_discard": "unmap",
             "disk_size": 120480,
-            "disk_interface": "virtio",
+            "disk_interface": "virtio-scsi",
             "disk_compression": true,
             "net_device": "virtio-net",
             "ssh_username": "{{user `ssh_username`}}",
@@ -271,10 +273,9 @@
             "only": ["vagrant-virtualbox"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
-                "zypper --non-interactive remove --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
-                "zypper --non-interactive install --no-confirm virtualbox-guest-tools-5.1.22",
-                "systemctl enable vboxadd-service.service",
-                "systemctl enable vboxadd.service"
+                "zypper --non-interactive removelock virtualbox-guest-tools virtualbox-guest-kmp-default",
+                "zypper --non-interactive install --no-confirm virtualbox-guest-tools virtualbox-guest-kmp-default",
+                "systemctl enable vboxadd-service.service ||: # this sometimes fails but works on reboot?"
             ]
         },
         {
@@ -285,6 +286,7 @@
                 "scripts/usr-local-bin-to-path.sh",
                 "scripts/create-kube-certs.sh",
                 "scripts/wait-for-kube.sh",
+                "scripts/setup-pod-security-policies.sh",
                 "scripts/setup-service-account.sh",
                 "scripts/create-kubedns.sh"
             ],
