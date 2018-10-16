@@ -437,6 +437,67 @@ instance_groups:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
+- name: diego-api
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: bbs
+    release: diego
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 310
+          virtual-cpus: 2
+          active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-api
+                  topologyKey: "beta.kubernetes.io/os"
+        ports:
+        - name: cell-bbs-api
+          protocol: TCP
+          internal: 8889
+        - name: cell-bbs-dbg
+          protocol: TCP
+          internal: 17017
+  - name: patch-properties
+    release: scf-helper
+  - name: cfdot
+    release: diego
+  - name: loggregator_agent
+    release: loggregator-agent
+  tags:
+  - active-passive
+  - sequential-startup
+  configuration:
+    templates:
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: locket
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -465,6 +526,10 @@ instance_groups:
           capabilities: []
           memory: 310
           virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - head -c0 </dev/tcp/${HOSTNAME}/8891
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -970,6 +1035,63 @@ instance_groups:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+- name: diego-brain
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: auctioneer
+    release: diego
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 99
+          virtual-cpus: 4
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-brain
+                  topologyKey: "beta.kubernetes.io/os"
+          # Auctioneer has no useful healthcheck routes; we can only use the TCP port
+          active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
+        ports:
+        - name: diego-auction
+          protocol: TCP
+          internal: 9016
+  - name: patch-properties
+    release: scf-helper
+  - name: cfdot
+    release: diego
+  - name: loggregator_agent
+    release: loggregator-agent
+  tags:
+  - active-passive
+  configuration:
+    templates:
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: cc-uploader
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -982,6 +1104,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: tps
+    release: capi
   - name: cc_uploader
     release: capi
     properties:
@@ -1015,6 +1139,218 @@ instance_groups:
           internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
+- name: diego-access
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: ssh_proxy
+    release: diego
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: []
+          memory: 123
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:8080/v1/static/file_server/bin/file-server
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-access
+                  topologyKey: "beta.kubernetes.io/os"    
+        ports:
+        - name: diego-ssh
+          protocol: TCP
+          internal: 2222
+          public: true
+  - name: loggregator_agent
+    release: loggregator-agent
+  - name: file_server
+    release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: diego-files
+          protocol: TCP
+          internal: 8080
+- name: nfs-broker
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: loggregator_agent
+    release: loggregator-agent
+  - name: nfsbroker
+    release: nfs-volume
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: [ALL]
+          memory: 63
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - nfs-broker
+                  topologyKey: "beta.kubernetes.io/os"
+        pod-security-policy: privileged
+        ports:
+        - name: nfsbroker
+          protocol: TCP
+          internal: 8999
+  tags:
+  - sequential-startup
+- name: diego-cell
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/set-diego-cell-memory-limits.sh
+  - scripts/go_log_level.sh
+  - scripts/configure-garden-filesystem.sh
+  scripts:
+  - scripts/configure-nested-net.sh
+  - scripts/cleanup-garden-graph.sh
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: wait-for-uaa
+    release: scf
+  - name: rep
+    release: diego
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rep-server
+          protocol: TCP
+          internal: 1801
+  - name: patch-properties
+    release: scf-helper
+  - name: cfdot
+    release: diego
+  - name: route_emitter
+    release: diego
+  - name: garden
+    release: garden-runc
+    properties:
+      bosh_containerization:
+        # Instance group needs volume claim templates (see storage below), no LB => clustered
+        run:
+          scaling:
+            min: 1
+            max: 254
+            # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
+            ha: 3
+          capabilities: [ALL]
+          volumes:
+          - path: /var/vcap/data/grootfs
+            type: persistent
+            tag: grootfs-data
+            size: 50
+          - path: /sys/fs/cgroup
+            type: host
+            tag: host-cgroup
+          memory: 4677
+          virtual-cpus: 4
+          healthcheck:
+              command:
+                - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - diego-cell
+                  topologyKey: "beta.kubernetes.io/os"
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "skiff-role-name"
+                      operator: In
+                      values:
+                      - router
+                  topologyKey: "beta.kubernetes.io/os"
+        pod-security-policy: privileged
+  - name: groot-btrfs
+    release: groot-btrfs
+  - name: cflinuxfs2-rootfs-setup
+    release: cflinuxfs2
+  - name: opensuse42-rootfs-setup
+    release: cf-opensuse42
+  - name: cf-sle12-setup
+    release: cf-sle12
+  - name: loggregator_agent
+    release: loggregator-agent
+  - name: nfsv3driver
+    release: nfs-volume
+    properties:
+      bosh_containerization:
+        ports:
+        - name: nfs-driver
+          protocol: TCP
+          internal: 7589
+        - name: nfs-admin
+          protocol: TCP
+          internal: 7590
+  configuration:
+    templates:
+      properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
+      properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
+      properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
+      properties.tls.cert: ((REP_SERVER_CERT))
+      properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
+      properties.tls.key: ((REP_SERVER_CERT_KEY))
+      properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: acceptance-tests-brain
   type: bosh-task
   tags:
@@ -1439,6 +1775,7 @@ configuration:
     properties.acceptance_tests_brain.storage_class: '"((KUBERNETES_STORAGE_CLASS_PERSISTENT))"'
     properties.acceptance_tests_brain.tcp_domain: '"((TCP_DOMAIN))"'
     properties.app_domains: '["((DOMAIN))"]'
+    properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
     properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
@@ -1593,6 +1930,7 @@ configuration:
     properties.blobstore.tls.cert: '"((BLOBSTORE_TLS_CERT))"'
     properties.blobstore.tls.private_key: '"((BLOBSTORE_TLS_CERT_KEY))"'
     properties.build: '"((CLUSTER_BUILD))"'
+
     properties.capi.cc_uploader.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.cc.client_cert: '"((CC_SERVER_CRT))"'
     properties.capi.cc_uploader.cc.client_key: '"((CC_SERVER_CRT_KEY))"'
@@ -1600,6 +1938,17 @@ configuration:
     properties.capi.cc_uploader.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.capi.cc_uploader.mutual_tls.server_cert: '"((CC_UPLOADER_CRT))"'
     properties.capi.cc_uploader.mutual_tls.server_key: '"((CC_UPLOADER_CRT_KEY))"'
+    properties.capi.tps.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.capi.tps.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.tps.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.capi.tps.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
+    properties.capi.tps.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.capi.tps.cc.client_cert: '"((TPS_CC_CLIENT_CRT))"'
+    properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_CRT_KEY))"'
+    properties.capi.tps.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -1617,6 +1966,14 @@ configuration:
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
     properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
+    properties.cc.diego.file_server_url: http://diego-access-file-server.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
+    properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
+    properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
+    properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
     properties.cc.droplets.max_staged_droplets_stored: ((DROPLET_MAX_STAGED_STORED))
     properties.cc.droplets.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -1632,10 +1989,8 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-
     properties.cc.opi.cc_uploader_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
-    
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -1662,7 +2017,7 @@ configuration:
     properties.cf.insecure_api_url: http://api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.consul.agent.domain: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.consul.agent.servers.lan: ((KUBE_CONSUL_CLUSTER_IPS))
@@ -1673,12 +2028,83 @@ configuration:
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
     properties.description: ((CLUSTER_DESCRIPTION))
+    properties.diego.auctioneer.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.auctioneer.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
+    properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.auctioneer.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
+    properties.diego.auctioneer.rep.client_key: '"((AUCTIONEER_REP_CERT_KEY))"'
+    properties.diego.auctioneer.server_cert: '"((AUCTIONEER_SERVER_CERT))"'
+    properties.diego.auctioneer.server_key: '"((AUCTIONEER_SERVER_CERT_KEY))"'
+    properties.diego.bbs.auctioneer.api_location: diego-brain-auctioneer.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9016
+    properties.diego.bbs.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.bbs.auctioneer.client_cert: '"((BBS_AUCTIONEER_CERT))"'
+    properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_CERT_KEY))"'
+    properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.bbs.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
+    properties.diego.bbs.rep.client_key: '"((BBS_REP_CERT_KEY))"'
+    properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
+    properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
+    properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
+    properties.diego.bbs.sql.db_host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
+    properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
+    properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
+    properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.sql.db_host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
+    properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.rep.cell_id: ((HOSTNAME))
+    properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
+    properties.diego.rep.zone: '"((KUBE_AZ))"'
+    properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
+    properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
+    properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
+    properties.diego.ssh_proxy.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
+    properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.diego.ssh_proxy.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
+    properties.diego.ssh_proxy.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
+    properties.diego.ssh_proxy.cc.internal_service_hostname: api-cloud-controller-ng.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
+    properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
+    properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
+    properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
+    properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
     properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
+    properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
+    properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
+    properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
+    properties.garden.http_proxy: '"((HTTP_PROXY))"'
+    properties.garden.https_proxy: '"((HTTPS_PROXY))"'
+    properties.garden.image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
+    properties.garden.image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs.yaml"]((/GARDEN_DISABLE_BTRFS))
+    properties.garden.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
+    properties.garden.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
+    properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
+    properties.garden.no_proxy: '"((NO_PROXY))"'
+    properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
+    properties.garden.privileged_image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
+    properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_DISABLE_BTRFS))
+    properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.locks.locket.hostname: locket-locket.((KUBERNETES_NAMESPACE))
@@ -1837,10 +2263,47 @@ variables:
     default: true
     description: Allow users to change the value of the app-level allow_ssh attribute.
     required: true
+- name: APP_SSH_KEY
+  options:
+    secret: true
+    description: PEM encoded RSA private key used to identify host.
+    required: true
+  type: ssh
+- name: APP_SSH_KEY_FINGERPRINT
+  options:
+    secret: true
+    description: MD5 fingerprint of the host key of the SSH proxy that brokers connections
+      to application instances.
+    required: true
 - name: APP_TOKEN_UPLOAD_GRACE_PERIOD
   options:
     default: 1200
     description: Extra token expiry time while uploading big apps, in seconds.
+    required: true
+- name: AUCTIONEER_REP_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: AUCTIONEER_REP_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: AUCTIONEER_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-brain-auctioneer
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: AUCTIONEER_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
     required: true
 - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
   options:
@@ -2296,6 +2759,62 @@ variables:
     secret: true
     description: the uaa client secret used by Autoscaler.
   type: password
+- name: BBS_ACTIVE_KEY_PASSPHRASE
+  options:
+    secret: true
+    immutable: true
+    description: The password for access to the diego BBS database.
+    required: true
+  type: password
+- name: BBS_AUCTIONEER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: BBS_AUCTIONEER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: BBS_CLIENT_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate.
+    required: true
+  type: certificate
+- name: BBS_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
+- name: BBS_REP_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: BBS_REP_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
+- name: BBS_SERVER_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-api-bbs
+    description: PEM-encoded client certificate.
+    required: true
+  type: certificate
+- name: BBS_SERVER_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
 - name: BLOBSTORE_ACCESS_RULES
   options:
     default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
@@ -2535,6 +3054,31 @@ variables:
   options:
     default: cflinuxfs2
     description: The default stack to use if no custom stack is specified by an app.
+- name: DIEGO_CELL_DISK_CAPACITY_MB
+  options:
+    default: auto
+    description: The container disk capacity the cell should manage. If this capacity
+      is larger than the actual disk quota of the cell component, over-provisioning
+      will occur.
+    required: true
+- name: DIEGO_CELL_MEMORY_CAPACITY_MB
+  options:
+    default: auto
+    description: The memory capacity the cell should manage. If this capacity is larger
+      than the actual memory of the cell component, over-provisioning will occur.
+    required: true
+- name: DIEGO_CELL_NETWORK_MTU
+  options:
+    default: '1400'
+    description: Maximum network transmission unit length in bytes for application
+      containers.
+    required: true
+- name: DIEGO_CELL_SUBNET
+  options:
+    default: 10.38.0.0/16
+    description: A CIDR subnet mask specifying the range of subnets available to be
+      assigned to containers.
+    required: true
 - name: DIEGO_CLIENT_CERT
   options:
     secret: true
@@ -2629,6 +3173,34 @@ variables:
       value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol
       of the incoming request.
     required: true
+- name: GARDEN_APPARMOR_PROFILE
+  options:
+    default: garden-default
+    description: AppArmor profile name for garden-runc; set this to empty string to
+      disable AppArmor support
+- name: GARDEN_DISABLE_BTRFS
+  options:
+    default: ''
+    description: An empty value means BTRFS is used. It's set to "true" by a script
+      if GARDEN_ROOTFS_DRIVER is set to overlay-xfs.
+    type: environment
+- name: GARDEN_DOCKER_REGISTRY
+  options:
+    default: registry-1.docker.io
+    description: URL pointing to the Docker registry used for fetching Docker images.
+      If not set, the Docker service default is used.
+    required: true
+- name: GARDEN_LINUX_DNS_SERVER
+  options:
+    default: ''
+    description: Override DNS servers to be used in containers; defaults to the same
+      as the host.
+- name: GARDEN_ROOTFS_DRIVER
+  options:
+    default: btrfs
+    description: The filesystem driver to use (btrfs or overlay-xfs).
+    required: true
+    internal: true
 - name: GO_LOG_LEVEL
   options:
     type: environment
@@ -2654,6 +3226,13 @@ variables:
   options:
     required: false
     description: Location of the proxy to use for regular web access.
+- name: INSECURE_DOCKER_REGISTRIES
+  options:
+    default: ''
+    example: '"docker-registry.example.com:80", "hello.example.org:443"'
+    description: >
+      A comma-separated whitelist of insecure Docker registries in the
+      form of '<HOSTNAME|IP>:PORT'. Each registry must be quoted separately.
 - name: INTERNAL_API_PASSWORD
   options:
     secret: true
@@ -2829,6 +3408,12 @@ variables:
     secret: true
     required: true
   type: password
+- name: MYSQL_DIEGO_PASSWORD
+  options:
+    secret: true
+    description: The password for access to MySQL by diego.
+    required: true
+  type: password
 - name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
   options:
     secret: true
@@ -2973,6 +3558,21 @@ variables:
     description: Password for Postgres administrator account
     required: true
   type: password
+- name: REP_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-cell
+    alternative_names:
+    - 127.0.0.1
+    description: PEM-encoded server certificate
+    required: true
+  type: certificate
+- name: REP_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded server key
+    required: true
 - name: ROOTFS_TRUSTED_CERTS
   options:
     default: ''
@@ -3088,6 +3688,13 @@ variables:
     description: >
       During build this is set to an appropriate description for the SUSE stack built into SCF.
       Cannot be set by the user.
+- name: SUSE_STACK_DIRNAME
+  options:
+    default: opensuse42
+    type: environment
+    description: >
+      During build this is set to the directory that contains the SUSE stack built into SCF.
+      Cannot be set by the user.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
@@ -3133,6 +3740,20 @@ variables:
     example: tcp.my-scf-cluster.com
     required: true
     description: TCP routing domain of the SCF cluster; only used for testing;
+- name: TPS_CC_CLIENT_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for internal communication between
+      the cloud controller and TPS.
+    required: true
+  type: certificate
+- name: TPS_CC_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for internal communication between the cloud
+      controller and TPS.
+    required: true
 - name: TRAFFICCONTROLLER_CERT
   options:
     secret: true
@@ -3202,6 +3823,12 @@ variables:
     description: The password for UAA access by the client for the user-accessible credhub
     required: true
   type: password
+- name: UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET
+  options:
+    secret: true
+    description: The password for UAA access by the SSH proxy.
+    required: true
+  type: password
 - name: UAA_CLIENTS_DOPPLER_SECRET
   options:
     secret: true
@@ -3247,4 +3874,14 @@ variables:
   options:
     default: 2793
     description: The tcp port the UAA server (root zone) listens on for requests.
-
+- name: USE_DIEGO_PRIVILEGED_CONTAINERS
+  options:
+    default: false
+    description: Whether or not to use privileged containers for buildpack based applications.
+      Containers with a docker-image-based rootfs will continue to always be unprivileged.
+    required: true
+- name: USE_STAGER_PRIVILEGED_CONTAINERS
+  options:
+    default: false
+    description: Whether or not to use privileged containers for staging tasks.
+    required: true
