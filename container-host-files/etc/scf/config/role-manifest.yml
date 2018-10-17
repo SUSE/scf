@@ -951,7 +951,7 @@ instance_groups:
           internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
-- name: diego-access
+- name: diego-ssh
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -989,7 +989,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - diego-access
+                      - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"    
         ports:
         - name: diego-ssh
@@ -1002,6 +1002,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        # XXX Maintain old service name so DesiredLRPs remain valid after upgrades
+        service_name: diego-access
         ports:
         - name: diego-files
           protocol: TCP
@@ -1780,7 +1782,7 @@ configuration:
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access-file-server.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
