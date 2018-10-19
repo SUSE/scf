@@ -455,7 +455,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: []
@@ -1053,7 +1053,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: []
@@ -1157,7 +1157,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: []
@@ -1278,7 +1278,7 @@ instance_groups:
         # Instance group needs volume claim templates (see storage below), no LB => clustered
         run:
           scaling:
-            min: 1
+            min: 0
             max: 254
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
