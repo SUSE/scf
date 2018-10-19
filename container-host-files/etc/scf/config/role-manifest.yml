@@ -1184,7 +1184,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain      
+          service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
