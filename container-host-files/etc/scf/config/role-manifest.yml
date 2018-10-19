@@ -1507,7 +1507,7 @@ instance_groups:
           protocol: TCP
           external: 7102
           internal: 7102
-  - name: pruner
+  - name: operator
     release: app-autoscaler
 - name: autoscaler-smoke
   type: bosh-task
@@ -1591,6 +1591,7 @@ configuration:
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.api_server.cache_ttl: '((AUTOSCALER_API_SERVER_CACHE_TTL))'
     properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
     properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
     properties.autoscaler.api_server.db_config.min_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS))'
@@ -1678,21 +1679,32 @@ configuration:
     properties.autoscaler.metricscollector.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
+    properties.autoscaler.operator.app_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS))'
+    properties.autoscaler.operator.app_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL))"'
+    properties.autoscaler.operator.app_sync_interval: '((AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL))'
+    properties.autoscaler.operator.enable_db_lock: '"((AUTOSCALER_OPERATOR_ENABLE_DB_LOCK))"'
+    properties.autoscaler.operator.instance_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
+    properties.autoscaler.operator.instance_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
+    properties.autoscaler.operator.lock.lock_retry_interval: '"((AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL))"'
+    properties.autoscaler.operator.lock.lock_ttl: '"((AUTOSCALER_OPERATOR_LOCK_TTL))"'
+    properties.autoscaler.operator.logging.level: '"((LOG_LEVEL))"'
+    properties.autoscaler.operator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
+    properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scaling_engine.sync_interval: '((AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL))'
+    properties.autoscaler.operator.scaling_engine_db.cutoff_days: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
+    properties.autoscaler.operator.scaling_engine_db.refresh_interval: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
+    properties.autoscaler.operator.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
+    properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scheduler.sync_interval: '((AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL))'
     properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.policy_db_connection_config.max_open_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.pruner.app_metrics_db.cutoff_days: '((AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.pruner.app_metrics_db.refresh_interval: '"((AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.pruner.enable_db_lock: '"((AUTOSCALER_PRUNER_ENABLE_DB_LOCK))"'
-    properties.autoscaler.pruner.instance_metrics_db.cutoff_days: '((AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.pruner.instance_metrics_db.refresh_interval: '"((AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.pruner.lock.lock_retry_interval: '"((AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL))"'
-    properties.autoscaler.pruner.lock.lock_ttl: '"((AUTOSCALER_PRUNER_LOCK_TTL))"'
-    properties.autoscaler.pruner.logging.level: '"((LOG_LEVEL))"'
-    properties.autoscaler.pruner.scaling_engine_db.cutoff_days: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
-    properties.autoscaler.pruner.scaling_engine_db.refresh_interval: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.scalingengine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scalingengine.defaultCoolDownSecs: '((AUTOSCALER_DEFAULT_COOLDOWN_SECS))'
     properties.autoscaler.scalingengine.health.emit_interval: '((AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL))'
@@ -1700,7 +1712,6 @@ configuration:
     properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
-    properties.autoscaler.scalingengine.synchronizer.active_schedule_sync_interval: '"((AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL))"'
     properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
@@ -2101,6 +2112,10 @@ variables:
     secret: true
     description: PEM-encoded server key
     required: true
+- name: AUTOSCALER_API_SERVER_CACHE_TTL
+  options:
+    default: 600
+    description: "The TTL of credential cache for the Autoscaler custom metrics, in seconds"
 - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
   options:
     default: 100
@@ -2402,6 +2417,64 @@ variables:
     description: >
       The method type of the Autoscaler Metrics Collector to fetch metrics
       from cloudfoundry: polling or streaming.
+- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of appmetrics data does the Autoscaler
+      Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for appmetrics database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing applications information between AutoScaler 
+      policy database and Cloudfoundry."
+    default: 24h
+- name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
+  options:
+    default: true
+    description: Whether to enable the Autoscaler Operator's db lock. If there are more
+      than one operators, the value should be true
+- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of instance metrics data does
+      the Autoscaler Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for instance metrics database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL
+  options:
+    default: 10s
+    description: The interval for each Autoscaler Operator instance to retry to get
+      database lock.
+- name: AUTOSCALER_OPERATOR_LOCK_TTL
+  options:
+    default: 15s
+    description: The maximum duration of a Autoscaler Operator instance could hold the
+      database lock.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of the scaling history data does
+      the Autoscaler Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for scalingengine database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing the Autoscaler Scaling Engine active schedules with Autoscaler Scheduler."
+    default: 600s
+- name: AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing the Autoscaler Scheduler schedules with policy database."
+    default: 600s
 - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2415,51 +2488,6 @@ variables:
   options:
     default: 100
     description: The maximum number of connections to the Autoscaler policy database.
-- name: AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of appmetrics data does the Autoscaler
-      Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for appmetrics database
-      in the Autoscaler Pruner.
-- name: AUTOSCALER_PRUNER_ENABLE_DB_LOCK
-  options:
-    default: true
-    description: Whether to enable the Autoscaler Pruner's db lock. If there are more
-      than one pruners, the value should be true
-- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of instance metrics data does
-      the Autoscaler Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for instance metrics database
-      in the Autoscaler Pruner.
-- name: AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL
-  options:
-    default: 10s
-    description: The interval for each Autoscaler Pruner instance to retry to get
-      database lock.
-- name: AUTOSCALER_PRUNER_LOCK_TTL
-  options:
-    default: 15s
-    description: The maximum duration of a Autoscaler Pruner instance could hold the
-      database lock.
-- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of the scaling history data does
-      the Autoscaler Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for scalingengine database
-      in the Autoscaler Pruner.
 - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2485,11 +2513,6 @@ variables:
     default: 32
     description: The lock number of the Autoscaler Scaling Engine to do synchronization
       for multiple scaling requests.
-- name: AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL
-  options:
-    default: 600s
-    description: The duration defines how long does the Autoscaler Scaling Engine
-      to synchronize its schedules with the Autoscaler Scheduler database.
 - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
