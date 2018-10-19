@@ -41,7 +41,8 @@ find_cluster_ha_hosts() {
         echo "[\"${component_name}-${job}.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}\"]"
     elif test "${KUBE_COMPONENT_INDEX}" == "0" ; then
         # This is index 0; don't look for other replicas, this needs to bootstrap
-        echo "[${component_name}-0.${component_name}-${job}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}]"
+        # This should match the definition for the ones with all replicas, later.
+        echo "[${component_name}-0.${component_name}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}]"
     else
         # Find the number of replicas we have
         local statefulset_name replicas i
@@ -75,7 +76,8 @@ find_cluster_ha_hosts() {
         # Return a list of all replicas
         local hosts=""
         for ((i = 0 ; i < "${replicas}" ; i ++)) ; do
-            hosts="${hosts},${component_name}-${i}.${component_name}-${job}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}"
+            #This is <pod.metadata.name>-<statefulset.spec.serviceName>.<namespace>.svc.<cluster-domain>
+            hosts="${hosts},${component_name}-${i}.${component_name}-set.${KUBERNETES_NAMESPACE}.svc.${KUBERNETES_CLUSTER_DOMAIN}"
         done
         echo "[${hosts#,}]"
     fi
