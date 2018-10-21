@@ -1,8 +1,6 @@
 ---
 instance_groups:
 - name: syslog-scheduler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -44,8 +42,6 @@ instance_groups:
           protocol: TCP
           internal: 8080
 - name: adapter
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -737,8 +733,6 @@ instance_groups:
   - name: statsd_injector
     release: statsd-injector
 - name: doppler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
