@@ -1,9 +1,0 @@
-#!/bin/bash
-# © Copyright 2015 Hewlett Packard Enterprise Development LP
-set -e
-
-# Usage: get_ip <ETH>
-# if ETH is not set, it defaults to eth0
-eth=${1:-eth0}
-
-ip addr show dev ${eth} | grep "inet " | cut -d ' ' -f 6  | cut -f 1 -d '/'
