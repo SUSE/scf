@@ -134,7 +134,7 @@ if test -n "$(find "${ROOT}/${release_path}/blobs/" -type l 2>/dev/null)"; then
     --volume "${FISSILE_CACHE_DIR}":/bosh-cache \
     --volume "${ROOT}/:${ROOT}/" \
     --volume "${ROOT}/bin/dev/fake-git":/usr/local/bin/git:ro \
-    --env RUBY_VERSION="${RUBY_VERSION:-2.2.3}" \
+    --env RUBY_VERSION="${RUBY_VERSION:-2.3.1}" \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
@@ -149,7 +149,7 @@ docker run \
     --volume "${FISSILE_CACHE_DIR}":/bosh-cache \
     --volume "${ROOT}/:${ROOT}/" \
     --volume "${ROOT}/bin/dev/fake-git":/usr/local/bin/git:ro \
-    --env RUBY_VERSION="${RUBY_VERSION:-2.2.3}" \
+    --env RUBY_VERSION="${RUBY_VERSION:-2.3.1}" \
     ${proxies} \
     --env MAVEN_OPTS="$MO" \
     --env JAVA_OPTS="$MO" \
