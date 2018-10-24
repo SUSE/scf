@@ -18,7 +18,7 @@
 	url = https://github.com/cloudfoundry/nats-release.git
 [submodule "src/capi-release"]
 	path = src/capi-release
-	url = https://github.com/cloudfoundry/capi-release.git
+	url = https://github.com/JulzDiverse/capi-release.git
 [submodule "src/buildpacks/go-buildpack-release"]
 	path = src/buildpacks/go-buildpack-release
 	url = https://github.com/SUSE/cf-go-buildpack-release.git
