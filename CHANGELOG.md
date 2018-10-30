@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [2.14.2] - 2018-10-30
+
+### Changed
+- Use app.kubernetes.io/component instead of skiff-role-name label
+- Bumped app-autoscaler to 1.0.0
+- Bumped SLE12 & openSUSE stacks
+- Bumped go buildpack to 1.8.28.1
+- Bumped php buildpack to 4.3.62.1
+- Bumped python buildpack to 1.6.23.1
+- Bumped ruby buildpack to 1.7.25.1
+- Bumped fissile to 0.0.1-318-g00f1932
+
+### Fixed
+- diego.file_server_url preserved from previous releases to maintain communication after upgrade
+- Fixed stateful set clustering references for HA deployments
+
 ## [2.14.1] - 2018-10-03
 
 ### Changed
