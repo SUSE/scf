@@ -10,6 +10,10 @@ cd "${GIT_ROOT}"
 NAMESPACE="cf"
 UAA_NAMESPACE="uaa"
 
+supports_psp() {
+    kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
+}
+
 has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
 }
@@ -46,11 +50,12 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::ca-cert end
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create start
 
-kubectl get storageclass persistent 2>/dev/null || {
+kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
     perl -p -e 's@storage.k8s.io/v1beta1@storage.k8s.io/v1@g' \
         "${GIT_ROOT}/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
     kubectl create -f -
 }
+STORAGE_CLASS="${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
 
 DOMAIN=${DOMAIN:-}
 NETWORK_ENV=bin/settings/network.env
@@ -64,23 +69,61 @@ fi
 source bin/settings/settings.env
 source "${NETWORK_ENV}"
 
+helm_args=(
+    --name "${NAMESPACE}"
+    --namespace "${NAMESPACE}"
+    --set "env.DOMAIN=${DOMAIN}"
+    --set "env.TCP_DOMAIN=${TCP_DOMAIN}"
+    --set "env.UAA_HOST=${UAA_HOST}"
+    --set "env.UAA_PORT=${UAA_PORT}"
+    --set "env.INSECURE_DOCKER_REGISTRIES=${INSECURE_DOCKER_REGISTRIES}"
+    --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD"
+    --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}"
+    --set "secrets.UAA_CA_CERT=${CA_CERT}"
+    --set "kube.storage_class.persistent=${STORAGE_CLASS}"
+)
+
 # The extra IP address for `kube.external_ips` is to ensure that we can
 # create services binding to multiple addresses correctly.  It points at
 # an address that shouldn't exist in real life.
-helm install output/helm \
-     --name ${NAMESPACE} \
-     --namespace ${NAMESPACE} \
-     --set "env.DOMAIN=${DOMAIN}" \
-     --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
-     --set "env.UAA_HOST=${UAA_HOST}" \
-     --set "env.UAA_PORT=${UAA_PORT}" \
-     --set "env.INSECURE_DOCKER_REGISTRIES=${INSECURE_DOCKER_REGISTRIES}" \
-     --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
-     --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
-     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
-     --set "kube.external_ips[0]=192.0.2.42" \
-     --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")" \
-     "$@"
+helm_args+=(
+    --set "kube.external_ips[0]=192.0.2.42"
+    --set "kube.external_ips[1]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
+)
+
+if supports_psp ; then
+    psp_privileged="$(kubectl get podsecuritypolicy -o json | jq -r '
+            [
+                .items[] |
+                select(
+                    .spec.allowedCapabilities // [] |
+                    contains(["*"])
+                )
+            ] |
+            first | .metadata.name
+            // ""
+        ')"
+    psp_nonprivileged="$(kubectl get podsecuritypolicy -o json | jq -r '
+            [
+                .items[] |
+                select(
+                    .spec.allowedCapabilities // [] |
+                    contains(["*"]) |
+                    not
+                )
+            ] |
+            first | .metadata.name
+            // ""
+        ')"
+    if [ -n "${psp_privileged}" ] ; then
+        helm_args+=(
+            --set "kube.psp.privileged=${psp_privileged}"
+            --set "kube.psp.nonprivileged=${psp_nonprivileged:-${psp_privileged}}"
+        )
+    fi
+fi
+
+helm install output/helm "${helm_args[@]}" "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 

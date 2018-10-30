@@ -19,7 +19,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 69
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -28,7 +28,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - syslog-scheduler
@@ -62,7 +62,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 78
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -71,7 +71,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - adapter
@@ -110,7 +110,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 60
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -119,7 +119,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - nats
@@ -190,7 +190,7 @@ instance_groups:
             type: persistent
             tag: mysql-data
             size: 20
-          memory: 2950
+          memory: 2500
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -204,7 +204,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - mysql
@@ -252,7 +252,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 117
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -261,7 +261,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cf-usb
@@ -302,7 +302,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 310
+          memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
           healthcheck:
@@ -316,7 +316,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-api
@@ -375,7 +375,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 135
+          memory: 128
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -388,7 +388,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-cell
@@ -397,7 +397,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - router
@@ -447,7 +447,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 99
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -460,7 +460,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - tcp-router
@@ -505,7 +505,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 114
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -514,7 +514,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - routing-api
@@ -558,7 +558,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 2421
+          memory: 3800
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -571,7 +571,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - api
@@ -636,7 +636,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 753
+          memory: 750
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -645,7 +645,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-worker
@@ -678,7 +678,7 @@ instance_groups:
             type: persistent
             tag: blobstore-data
             size: 50
-          memory: 420
+          memory: 500
           virtual-cpus: 2
         ports:
         - name: blobstore-ext
@@ -716,7 +716,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 789
+          memory: 750
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -725,7 +725,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-clock
@@ -753,7 +753,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 390
+          memory: 410
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -766,7 +766,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - doppler
@@ -810,7 +810,7 @@ instance_groups:
             max: 65535
             ha: 2
           capabilities: []
-          memory: 250
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -823,7 +823,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - log-api
@@ -869,7 +869,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 99
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -878,7 +878,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-brain
@@ -928,7 +928,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 129
+          memory: 128
           virtual-cpus: 4
           affinity:
             podAntiAffinity:
@@ -937,7 +937,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - cc-uploader
@@ -951,7 +951,7 @@ instance_groups:
           internal: 17018
   - name: loggregator_agent
     release: loggregator-agent
-- name: diego-access
+- name: diego-ssh
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -973,7 +973,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: []
-          memory: 123
+          memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -986,10 +986,10 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - diego-access
+                      - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"    
         ports:
         - name: diego-ssh
@@ -1002,6 +1002,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        # XXX Maintain old service name so DesiredLRPs remain valid after upgrades
+        service_name: diego-access
         ports:
         - name: diego-files
           protocol: TCP
@@ -1030,7 +1032,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: [ALL]
-          memory: 63
+          memory: 128
           virtual-cpus: 2
           affinity:
             podAntiAffinity:
@@ -1039,7 +1041,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - nfs-broker
@@ -1103,7 +1105,7 @@ instance_groups:
           - path: /sys/fs/cgroup
             type: host
             tag: host-cgroup
-          memory: 4677
+          memory: 2800
           virtual-cpus: 4
           healthcheck:
               command:
@@ -1115,7 +1117,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - diego-cell
@@ -1124,7 +1126,7 @@ instance_groups:
                 podAffinityTerm:
                   labelSelector:
                     matchExpressions:
-                    - key: "skiff-role-name"
+                    - key: "app.kubernetes.io/component"
                       operator: In
                       values:
                       - router
@@ -1300,7 +1302,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 256
+          memory: 2000
           virtual-cpus: 2
           exposed-ports:
           - name: api #apiserverport
@@ -1446,7 +1448,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 1024
+          memory: 128
           virtual-cpus: 4
           healthcheck:
             readiness:
@@ -1496,7 +1498,7 @@ instance_groups:
           capabilities: []
           persistent-volumes: []
           shared-volumes: []
-          memory: 1024
+          memory: 2350
           virtual-cpus: 2
           healthcheck:
             readiness:
@@ -1505,7 +1507,7 @@ instance_groups:
           protocol: TCP
           external: 7102
           internal: 7102
-  - name: pruner
+  - name: operator
     release: app-autoscaler
 - name: autoscaler-smoke
   type: bosh-task
@@ -1589,6 +1591,7 @@ configuration:
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.api_server.cache_ttl: '((AUTOSCALER_API_SERVER_CACHE_TTL))'
     properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
     properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
     properties.autoscaler.api_server.db_config.min_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS))'
@@ -1676,21 +1679,32 @@ configuration:
     properties.autoscaler.metricscollector.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
+    properties.autoscaler.operator.app_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS))'
+    properties.autoscaler.operator.app_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL))"'
+    properties.autoscaler.operator.app_sync_interval: '((AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL))'
+    properties.autoscaler.operator.enable_db_lock: '"((AUTOSCALER_OPERATOR_ENABLE_DB_LOCK))"'
+    properties.autoscaler.operator.instance_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
+    properties.autoscaler.operator.instance_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
+    properties.autoscaler.operator.lock.lock_retry_interval: '"((AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL))"'
+    properties.autoscaler.operator.lock.lock_ttl: '"((AUTOSCALER_OPERATOR_LOCK_TTL))"'
+    properties.autoscaler.operator.logging.level: '"((LOG_LEVEL))"'
+    properties.autoscaler.operator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
+    properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scaling_engine.sync_interval: '((AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL))'
+    properties.autoscaler.operator.scaling_engine_db.cutoff_days: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
+    properties.autoscaler.operator.scaling_engine_db.refresh_interval: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
+    properties.autoscaler.operator.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
+    properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scheduler.sync_interval: '((AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL))'
     properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
     properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
     properties.autoscaler.policy_db_connection_config.max_open_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.pruner.app_metrics_db.cutoff_days: '((AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.pruner.app_metrics_db.refresh_interval: '"((AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.pruner.enable_db_lock: '"((AUTOSCALER_PRUNER_ENABLE_DB_LOCK))"'
-    properties.autoscaler.pruner.instance_metrics_db.cutoff_days: '((AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.pruner.instance_metrics_db.refresh_interval: '"((AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.pruner.lock.lock_retry_interval: '"((AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL))"'
-    properties.autoscaler.pruner.lock.lock_ttl: '"((AUTOSCALER_PRUNER_LOCK_TTL))"'
-    properties.autoscaler.pruner.logging.level: '"((LOG_LEVEL))"'
-    properties.autoscaler.pruner.scaling_engine_db.cutoff_days: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
-    properties.autoscaler.pruner.scaling_engine_db.refresh_interval: '"((AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.scalingengine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scalingengine.defaultCoolDownSecs: '((AUTOSCALER_DEFAULT_COOLDOWN_SECS))'
     properties.autoscaler.scalingengine.health.emit_interval: '((AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL))'
@@ -1698,7 +1712,6 @@ configuration:
     properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
-    properties.autoscaler.scalingengine.synchronizer.active_schedule_sync_interval: '"((AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL))"'
     properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
@@ -1780,7 +1793,7 @@ configuration:
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access-file-server.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -2099,6 +2112,10 @@ variables:
     secret: true
     description: PEM-encoded server key
     required: true
+- name: AUTOSCALER_API_SERVER_CACHE_TTL
+  options:
+    default: 600
+    description: "The TTL of credential cache for the Autoscaler custom metrics, in seconds"
 - name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
   options:
     default: 100
@@ -2400,6 +2417,64 @@ variables:
     description: >
       The method type of the Autoscaler Metrics Collector to fetch metrics
       from cloudfoundry: polling or streaming.
+- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of appmetrics data does the Autoscaler
+      Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for appmetrics database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing applications information between AutoScaler 
+      policy database and Cloudfoundry."
+    default: 24h
+- name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
+  options:
+    default: true
+    description: Whether to enable the Autoscaler Operator's db lock. If there are more
+      than one operators, the value should be true
+- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of instance metrics data does
+      the Autoscaler Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for instance metrics database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL
+  options:
+    default: 10s
+    description: The interval for each Autoscaler Operator instance to retry to get
+      database lock.
+- name: AUTOSCALER_OPERATOR_LOCK_TTL
+  options:
+    default: 15s
+    description: The maximum duration of a Autoscaler Operator instance could hold the
+      database lock.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS
+  options:
+    default: 30
+    description: The duration defines how many days of the scaling history data does
+      the Autoscaler Operator kept for each pruning.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL
+  options:
+    default: 24h
+    description: The duration between two pruning opertions for scalingengine database
+      in the Autoscaler Operator.
+- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing the Autoscaler Scaling Engine active schedules with Autoscaler Scheduler."
+    default: 600s
+- name: AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL
+  options:
+    description: "The interval of synchronizing the Autoscaler Scheduler schedules with policy database."
+    default: 600s
 - name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2413,51 +2488,6 @@ variables:
   options:
     default: 100
     description: The maximum number of connections to the Autoscaler policy database.
-- name: AUTOSCALER_PRUNER_APP_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of appmetrics data does the Autoscaler
-      Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_APP_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for appmetrics database
-      in the Autoscaler Pruner.
-- name: AUTOSCALER_PRUNER_ENABLE_DB_LOCK
-  options:
-    default: true
-    description: Whether to enable the Autoscaler Pruner's db lock. If there are more
-      than one pruners, the value should be true
-- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of instance metrics data does
-      the Autoscaler Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_INSTANCE_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for instance metrics database
-      in the Autoscaler Pruner.
-- name: AUTOSCALER_PRUNER_LOCK_RETRY_INTERVAL
-  options:
-    default: 10s
-    description: The interval for each Autoscaler Pruner instance to retry to get
-      database lock.
-- name: AUTOSCALER_PRUNER_LOCK_TTL
-  options:
-    default: 15s
-    description: The maximum duration of a Autoscaler Pruner instance could hold the
-      database lock.
-- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of the scaling history data does
-      the Autoscaler Pruner kept for each pruning.
-- name: AUTOSCALER_PRUNER_SCALING_ENGINE_DB_FRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for scalingengine database
-      in the Autoscaler Pruner.
 - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2483,11 +2513,6 @@ variables:
     default: 32
     description: The lock number of the Autoscaler Scaling Engine to do synchronization
       for multiple scaling requests.
-- name: AUTOSCALER_SCALING_ENGINE_SYNCHRONIZER_ACTIVE_SCHEDULE_SYNC_INTERVAL
-  options:
-    default: 600s
-    description: The duration defines how long does the Autoscaler Scaling Engine
-      to synchronize its schedules with the Autoscaler Scheduler database.
 - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
