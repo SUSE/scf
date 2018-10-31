@@ -20,7 +20,7 @@ ARGV.each do |arg|
 end
 
 YAML.load_stream (IO.read(kube_config)) do |obj|
-  if obj['spec'] then
+  if obj['spec']
     obj['spec']['containers'].each do |container|
       container['env'].each do |env|
         unless domain.empty?
@@ -71,9 +71,21 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
       end
     end
   end
-  if obj['kind'] == 'ClusterRoleBinding' && obj['roleRef']['kind'] == 'ClusterRole' then
+
+  if obj['kind'] == 'ClusterRoleBinding' && obj['roleRef']['kind'] == 'ClusterRole'
+    roleRefName = "#{namespace}-#{obj['roleRef']['name']}"
+    %x(kubectl get clusterrole #{roleRefName} --output name 2>&1)
+    unless $?.success?
+      # Cluster role does not exist
+      STDERR.puts "Warning: cluster role #{roleRefName} does not exist"
+      next
+    end
+
     ['metadata', 'roleRef'].each do |key|
       obj[key]['name'] = "#{namespace}-#{obj[key]['name']}"
+    end
+    obj['subjects'].each do |subject|
+      subject['namespace'] = namespace if subject.has_key? 'namespace'
     end
   end
   puts obj.to_yaml
