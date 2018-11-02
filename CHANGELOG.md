@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [2.14.3] - 2018-11-02
+
+### Added
+- UAA charts now have affinity/antiaffinity logic
+
+### Changed
+- Bumped ruby buildpack to 1.7.26.1
+- Bumped SLE12 stack
+- Bumped fissile to 0.0.1-321-g6c32268
+
+### Fixed
+- Renaming of api DNS internally to address apps not coming up in a timely fashion post-upgrade
+
 ## [2.14.2] - 2018-10-30
 
 ### Changed
