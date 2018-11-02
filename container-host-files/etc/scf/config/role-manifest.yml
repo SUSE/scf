@@ -1099,6 +1099,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
+          service-account: node-reader
           volumes:
           - path: /var/vcap/data/grootfs
             type: persistent
@@ -1573,6 +1574,8 @@ configuration:
         roles: [configgin-role, secrets-role]
       test-brain:
         roles: [configgin-role, test-role]
+      node-reader:
+        roles: [configgin-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2580,6 +2583,15 @@ variables:
     secret: true
     description: the uaa client secret used by Autoscaler.
   type: password
+- name: AZ_LABEL_NAME
+  options:
+    default: ''
+    description: The name of the metadata label to query on worker
+      nodes to get AZ information. When set, the cells will query
+      their worker node for AZ information and inject the result into
+      cloudfoundry via the KUBE_AZ parameter. When left to the default
+      no custom AZ processing is done.
+    internal: true
 - name: BBS_ACTIVE_KEY_PASSPHRASE
   options:
     secret: true
