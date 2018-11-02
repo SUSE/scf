@@ -118,7 +118,7 @@ Boolean noOverwrites() {
 }
 
 pipeline {
-    agent { label ((["scf"] + (params.AGENT_LABELS ? params.AGENT_LABELS : "").tokenize()).join("&&")) }
+    agent { label ((params.AGENT_LABELS ?: "scf prod").tokenize().join("&&")) }
     options {
         ansiColor('xterm')
         skipDefaultCheckout() // We do our own checkout so it can be disabled
@@ -254,7 +254,7 @@ pipeline {
         )
         string(
             name: 'AGENT_LABELS',
-            defaultValue: '',
+            defaultValue: 'scf prod',
             description: 'Extra labels for Jenkins slave selection',
         )
         credentials(
