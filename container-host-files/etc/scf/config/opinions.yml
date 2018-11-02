@@ -382,7 +382,7 @@ properties:
       bosh_dns: true
       tls:
         api:
-          cn: api-cloud-controller-ng
+          cn: api
         client:
           adapter_cn: adapter
   scf:
