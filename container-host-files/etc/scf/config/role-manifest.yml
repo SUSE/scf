@@ -1061,6 +1061,7 @@ instance_groups:
   - scripts/set-diego-cell-memory-limits.sh
   - scripts/go_log_level.sh
   - scripts/configure-garden-filesystem.sh
+  - scripts/configure-az.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
