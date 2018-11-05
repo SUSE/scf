@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [2.14.4] - 2018-11-05
+
+## Changed
+- Bumped SLE12 stack
+- Bumped configgin to 0.18.3
+
+## Fixed
+- IP mappings are refreshed when pods are restarted in HA
+ 
 ## [2.14.3] - 2018-11-02
 
 ### Added
