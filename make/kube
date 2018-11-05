@@ -13,17 +13,6 @@ else
     FISSILE_DEFAULTS_FILE="bin/settings/sle12.env"
 fi
 
-DOMAIN=${DOMAIN:-}
-
-NETWORK_ENV=bin/settings/network.env
-if test -n "${DOMAIN}"; then
-    TMP=$(mktemp -d)
-    cp "${NETWORK_ENV}" "${TMP}"
-    trap "rm -rf ${TMP}" EXIT
-    NETWORK_ENV="${TMP}/$(basename "${NETWORK_ENV}")"
-    sed -e "s/\\bcf-dev.io/${DOMAIN}/g" -i "${NETWORK_ENV}"
-fi
-
 BUILD_TARGET=kube
 
 if [ "${1:-}" = "helm" ]; then
@@ -33,7 +22,6 @@ fi
 if [ "${BUILD_TARGET}" = "kube" ]; then
     # Overrides when generating kube config files instead of helm charts.
     FISSILE_OUTPUT_DIR="${PWD}/output/kube"
-    FISSILE_DEFAULTS_FILE="${FISSILE_DEFAULTS_FILE},bin/settings/settings.env,${NETWORK_ENV}"
 fi
 
 rm -rf "${FISSILE_OUTPUT_DIR}"

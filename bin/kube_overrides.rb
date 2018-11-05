@@ -33,6 +33,10 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
             value = "tcp.#{domain}"
           when 'UAA_HOST'
             value = "uaa.#{domain}"
+          when 'GARDEN_LINUX_DNS_SERVER'
+            value = "8.8.8.8"
+          when 'INSECURE_DOCKER_REGISTRIES'
+            value = "\"insecure-registry.#{domain}:20005\""
           end
 
           env['value'] = value.to_s
