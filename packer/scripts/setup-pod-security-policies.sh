@@ -114,7 +114,7 @@ kubectl auth reconcile -f - <<EOF
   "roleRef": {
     "apiGroup": "rbac.authorization.k8s.io",
     "kind": "ClusterRole",
-    "name": "suse:cap-vagrant:psp:unprivileged"
+    "name": "suse.cap-vagrant.psp.unprivileged"
   },
   "subjects": [
     {
@@ -142,7 +142,7 @@ kubectl auth reconcile -f - <<EOF
   "roleRef": {
     "apiGroup": "rbac.authorization.k8s.io",
     "kind": "ClusterRole",
-    "name": "suse:cap-vagrant:psp:privileged"
+    "name": "suse.cap-vagrant.psp.privileged"
   },
   "subjects": [
     {

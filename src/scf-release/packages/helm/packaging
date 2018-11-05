@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+#VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+VERSION=v2.9.1
+
+echo Retrieving helm "${VERSION}"
+
+curl -L -o helm.tar.gz "https://storage.googleapis.com/kubernetes-helm/helm-${VERSION}-linux-amd64.tar.gz"
+
+BIN_DIR="${BOSH_INSTALL_TARGET}/bin"
+
+mkdir -p "${BIN_DIR}"
+tar xf helm.tar.gz --strip-components=1 -C "${BIN_DIR}" linux-amd64/helm

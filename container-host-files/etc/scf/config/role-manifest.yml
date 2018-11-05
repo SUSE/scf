@@ -1186,7 +1186,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain      
+          service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1202,6 +1202,7 @@ instance_groups:
     release: scf
     properties:
       bosh_containerization:
+        pod-security-policy: privileged
         run:
           scaling:
             min: 0

@@ -6,6 +6,7 @@ description: This job will run the testbrain CLI, running all acceptance test sc
 packages:
   - cli
   - kubectl
+  - helm
   - acceptance-tests-brain
   - docker-distribution
 
