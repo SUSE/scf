@@ -13,7 +13,7 @@ else
     # Determine the name of the kube worker node this container is
     # executing on.
 
-    node="$($kubectl get pod $(hostname) -o jsonpath='{.spec.nodeName}')"
+    node="$("${kubectl}" get pod "$(hostname)" -o jsonpath='{.spec.nodeName}')"
 
     echo "AZ: Configured ${AZ_LABEL_NAME}"
     echo "AZ: Node...... ${node}"
@@ -23,16 +23,16 @@ else
     # the diego-cell instance group.
 
     QUERY="jsonpath={.metadata.labels.${AZ_LABEL_NAME}}"
-    NODE_AZ=$($kubectl get node $node -o "${QUERY}" || true)
+    NODE_AZ=$("${kubectl}" get node "${node}" -o "${QUERY}" || true)
 
     if test -z "${NODE_AZ}"
     then
-	echo "AZ: No information found"
-	echo "AZ: Skipping"
+        echo "AZ: No information found"
+        echo "AZ: Skipping"
     else
-	# Propagate the found AZ information into cloudfoundry
+        # Propagate the found AZ information into cloudfoundry
 
-	echo "AZ: Found..... ${NODE_AZ}"
+        echo "AZ: Found..... ${NODE_AZ}"
         export KUBE_AZ="${NODE_AZ}"
     fi
 fi
