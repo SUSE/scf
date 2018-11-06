@@ -1,0 +1,11 @@
+---
+name: get-kubectl
+
+description: This job exists only to ensure the presence of the lubetcl binary in the role referencing it.
+
+packages:
+  - kubectl
+
+templates:
+
+properties:

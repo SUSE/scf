@@ -8,15 +8,7 @@ else
     # AZ override processing is in effect.
 
     # Locate the kubectl binary.
-    ##
-    # Attention! This only works because of us having/using a common
-    # layer which contains all the packages, regardless of their use
-    # within a specific role. This gives the diego-cell access to
-    # things it normally is not using at all. Here this is the
-    # `kubectl` cli originally added for use by the
-    # `acceptance-tests-brain`.
-
-    kubectl="$(ls /var/vcap/packages-src/*/bin/kubectl | head -n 1)"
+    kubectl="/var/vcap/packages/kubectl/bin/kubectl"
 
     # Determine the name of the kube worker node this container is
     # executing on.

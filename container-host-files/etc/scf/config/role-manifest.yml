@@ -1070,6 +1070,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: get-kubectl
+    release: scf
   - name: authorize-internal-ca
     release: scf
   - name: wait-for-uaa
