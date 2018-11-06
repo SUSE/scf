@@ -1061,6 +1061,7 @@ instance_groups:
   - scripts/set-diego-cell-memory-limits.sh
   - scripts/go_log_level.sh
   - scripts/configure-garden-filesystem.sh
+  - scripts/configure-az.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1069,6 +1070,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: get-kubectl
+    release: scf
   - name: authorize-internal-ca
     release: scf
   - name: wait-for-uaa
@@ -1099,6 +1102,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
+          service-account: node-reader
           volumes:
           - path: /var/vcap/data/grootfs
             type: persistent
@@ -1576,6 +1580,8 @@ configuration:
         roles: [configgin-role, secrets-role]
       test-brain:
         roles: [configgin-role, test-role]
+      node-reader:
+        roles: [configgin-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2583,6 +2589,15 @@ variables:
     secret: true
     description: the uaa client secret used by Autoscaler.
   type: password
+- name: AZ_LABEL_NAME
+  options:
+    default: ''
+    description: The name of the metadata label to query on worker
+      nodes to get AZ information. When set, the cells will query
+      their worker node for AZ information and inject the result into
+      cloudfoundry via the KUBE_AZ parameter. When left to the default
+      no custom AZ processing is done.
+    internal: true
 - name: BBS_ACTIVE_KEY_PASSPHRASE
   options:
     secret: true
