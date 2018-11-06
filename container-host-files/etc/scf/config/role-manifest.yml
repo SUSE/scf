@@ -2907,6 +2907,7 @@ variables:
     required: true
 - name: DOMAIN
   options:
+    default: 'you forgot to edit this'
     example: my-scf-cluster.com
     required: true
     description: Base domain of the SCF cluster.
@@ -3497,6 +3498,7 @@ variables:
     required: true
 - name: TCP_DOMAIN
   options:
+    default: 'you forgot to edit this'
     example: tcp.my-scf-cluster.com
     required: true
     description: TCP routing domain of the SCF cluster; only used for testing;
