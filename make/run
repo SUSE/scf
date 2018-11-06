@@ -7,8 +7,9 @@ cd "${GIT_ROOT}"
 
 . make/include/secrets
 
-NAMESPACE="cf"
-UAA_NAMESPACE="uaa"
+NAMESPACE="${NAMESPACE:-cf}"
+UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
+CF_CHART="${CF_CHART:-output/helm}"
 
 supports_psp() {
     kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
@@ -123,7 +124,7 @@ if supports_psp ; then
     fi
 fi
 
-helm install output/helm "${helm_args[@]}" "$@"
+helm install "${CF_CHART}" "${helm_args[@]}" "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 

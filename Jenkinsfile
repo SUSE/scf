@@ -543,24 +543,12 @@ pipeline {
                     done
                     set -x
 
-                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
-
-                    # The extra IP address is to check that the code to set up multiple
-                    # addresses for services is working correctly; it isn't used in
-                    # actual routing.
-                    helm install output/unzipped/helm/cf\${suffix} \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set env.INSECURE_DOCKER_REGISTRIES='"insecure-registry.${domain()}:20005"' \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
-                        --set "kube.external_ips[0]=192.0.2.84" \
-                        --set "kube.external_ips[1]=${ipAddress()}" \
-                        --set kube.storage_class.persistent=hostpath
+                    # Use `make/run` to run the deployment to ensure we have updated settings
+                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
+                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export DOMAIN="${domain()}"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    make/run
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
