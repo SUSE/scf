@@ -1,0 +1,527 @@
+---
+properties:
+  acceptance_tests:
+    admin_user: admin
+    skip_ssl_validation: true
+    backend: diego
+    include_apps: true
+    include_backend_compatibility: true
+    include_detect: true
+    include_diego_docker: true
+    include_diego_ssh: true
+    include_internet_dependent: true
+    include_persistent_app: true
+    include_route_services: true
+    include_routing: true
+    include_security_groups: true
+    include_services: true
+    include_sso: true
+    include_tasks: true
+    include_v3: true
+    # Disabled set for debugging
+    # include_apps: false
+    # include_backend_compatibility: false
+    # include_container_networking: false
+    # include_detect: false
+    # include_diego_docker: false
+    # include_diego_ssh: false
+    # include_internet_dependent: false
+    # include_persistent_app: true
+    # include_privileged_container_support: false
+    # include_route_services: false
+    # include_routing: false
+    # include_security_groups: false
+    # include_services: true
+    # include_sso: true
+    # include_tasks: false
+    # include_v3: false
+    default_timeout: 300
+  acceptance_tests_brain:
+    user: admin
+    org: test-brain-org
+    space: test-brain-space
+  autoscaler:
+    cf:
+      client_id: app_autoscaler
+      grant_type: client_credentials
+      password: "" # unused
+      username: "" # unused
+    api_server:
+      eventgenerator:
+        port: 7105
+      metrics_collector:
+        port: 7103
+      port: 7100
+      publicPort: 7106
+      require_consul: false
+      service_broker:
+        port: 7107
+      scheduler:
+        port: 7102
+      scaling_engine:
+        port: 7104
+    appmetrics_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    binding_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    eventgenerator:
+      metricscollector:
+        port: 7103
+      require_consul: false
+      scaling_engine:
+        port: 7104
+      server:
+        port: 7105
+    instancemetrics_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    lock_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    metricscollector:
+      server:
+        port: 7103
+      require_consul: false
+    policy_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    operator:
+      require_consul: false
+      scaling_engine:
+        port: 7104
+      scheduler:
+        port: 7102
+    scalingengine:
+      health:
+        port: 8083
+      require_consul: false
+      server:
+        port: 7104
+    scalingengine_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    scheduler:
+      port: 7102
+      require_consul: false
+      scaling_engine:
+        port: 7104
+    scheduler_db:
+      databases:
+        - name: "autoscaler"
+          tag: "default"
+      port: 5432
+      db_scheme: postgres
+    service_broker:
+      username: username
+      api_server:
+        port: 7100
+      port: 7107
+      publicPort: 7101
+      require_consul: false
+  capi:
+    tps:
+      watcher:
+        skip_consul_lock: true
+  cc:
+    buildpacks:
+      blobstore_type: webdav
+      webdav_config:
+        username: 'blobstore_user'
+    core_file_pattern: false # This ensures the value gets to the BOSH templater, which will see this as off
+    default_running_security_groups:
+    - public_networks
+    - dns
+    default_stack: sle12
+    default_staging_security_groups:
+    - public_networks
+    - dns
+    diego:
+      docker_staging_stack: sle12
+      lifecycle_bundles:
+        'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        docker:                 "docker_app_lifecycle/docker_app_lifecycle.tgz"
+    droplets:
+      blobstore_type: webdav
+      webdav_config:
+        username: 'blobstore_user'
+    external_protocol: http
+    install_buildpacks:
+    - name: staticfile_buildpack
+      package: staticfile-buildpack
+    - name: java_buildpack
+      package: java-buildpack
+    - name: ruby_buildpack
+      package: ruby-buildpack
+    - name: nodejs_buildpack
+      package: nodejs-buildpack
+    - name: go_buildpack
+      package: go-buildpack
+    - name: python_buildpack
+      package: python-buildpack
+    - name: php_buildpack
+      package: php-buildpack
+    - name: binary_buildpack
+      package: binary-buildpack
+    - name: dotnet-core_buildpack
+      package: dotnet-core-buildpack
+    jobs:
+      generic:
+        number_of_workers: null
+    log_db_queries: true
+    newrelic:
+      environment_name: null
+      transaction_tracer:
+        enabled: true
+        record_sql: obfuscated
+    packages:
+      blobstore_type: webdav
+      webdav_config:
+        username: 'blobstore_user'
+    quota_definitions:
+      default:
+        memory_limit: 10240
+        non_basic_services_allowed: true
+        total_routes: 1000
+        total_services: 100
+    resource_pool:
+      blobstore_type: webdav
+      webdav_config:
+        username: 'blobstore_user'
+    security_group_definitions:
+    - name: public_networks
+      rules:
+      - destination: 0.0.0.0-9.255.255.255
+        protocol: all
+      - destination: 11.0.0.0-169.253.255.255
+        protocol: all
+      - destination: 169.255.0.0-172.15.255.255
+        protocol: all
+      - destination: 172.32.0.0-192.167.255.255
+        protocol: all
+      - destination: 192.169.0.0-255.255.255.255
+        protocol: all
+    - name: dns
+      rules:
+      - destination: 0.0.0.0/0
+        ports: "53"
+        protocol: tcp
+      - destination: 0.0.0.0/0
+        ports: "53"
+        protocol: udp
+    stacks:
+    - name: "cflinuxfs2"
+      description: "Cloud Foundry Linux-based filesystem"
+    - name: "sle12"
+      description: "SLE-based filesystem"
+    staging_upload_user: staging_user
+    system_hostnames:
+    - api
+    - blobstore
+    - doppler
+    - loggregator
+    - login
+    - uaa
+    - usb
+    thresholds:
+      api:
+        alert_if_above_mb: null
+        restart_if_above_mb: null
+        restart_if_consistently_above_mb: null
+      worker:
+        alert_if_above_mb: null
+        restart_if_above_mb: null
+        restart_if_consistently_above_mb: null
+    volume_services_enabled: true
+  ccdb:
+    databases:
+    - name: ccdb
+      tag: cc
+    db_scheme: mysql
+    port: 3306
+  cf-usb:
+    broker:
+      username: broker-admin
+      port: 24054
+    management:
+      dev_mode: true
+      port: 24053
+      uaa:
+        client: cf-usb
+  cf:
+    admin_username: admin
+  cf_mysql:
+    broker:
+      port: 8081
+      protocol: http
+    mysql:
+      port: 13306
+      startup_timeout: 300
+      galera_healthcheck:
+        endpoint_username: 'galera_healthcheck_bootstrap_user'
+      max_open_files: 1500
+    proxy:
+      api_force_https: false
+      api_username: 'mysql_proxy'
+  consul:
+    agent:
+      rewrite_resolv: false
+  diego:
+    auctioneer:
+      rep:
+        require_tls: true
+      skip_consul_lock: true
+    bbs:
+      active_key_label: active
+      auctioneer:
+        require_tls: true
+      detect_consul_cell_registrations: false
+      locket:
+        api_location: 127.0.0.1:8891
+      rep:
+        require_tls: true
+      skip_consul_lock: true
+      sql:
+        db_port: 3306
+        db_schema: diego
+        db_username: diego
+    executor:
+      garden:
+        address: 127.0.0.1:7777
+        network: tcp
+    file_server:
+      static_directory: /var/vcap/packages/
+    locket:
+      sql:
+        db_port: 3306
+        db_schema: diego_locket
+        db_username: diego_locket
+    rep:
+      evacuation_timeout_in_seconds: 60
+      preloaded_rootfses:
+      - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
+      - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
+    route_emitter:
+      local_mode: true
+      nats:
+        user: nats
+    ssh_proxy:
+      enable_cf_auth: true
+  doppler:
+    locked_memory_limit: kernel
+    port: 4443
+  enable_consul_service_registration: false
+  etcd:
+    bootstrap_node: etcd-0
+  fissile:
+    monit:
+      user: "admin"
+      port: 2289
+  garden:
+    # By default we want to restrict all outbound access from containers
+    # so they can't access the CF network, or other apps. Traffic to the
+    # internet and services is configured using proper CF security group
+    # rules.
+    deny_networks: [0.0.0.0/0]
+    listen_address: 0.0.0.0:7777
+    listen_network: tcp
+    persistent_image_list:
+    - "/var/vcap/packages/cf-sle12/rootfs.tar"
+    - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
+  grootfs:
+    # Garden should at least be able to cache the cflinuxfs2 rootfs
+    # to avoid copy operations on every garden healthcheck from rep
+    # when there is no app running with the healthcheck rootfs.
+    reserved_space_for_other_jobs_in_mb: 3000
+  loggregator:
+    use_v2_api: true
+  metron_agent:
+    deployment: scf-deployment
+  nats:
+    port: 4222
+    user: nats
+  nfs_server:
+    address: 0.0.0.3
+  nfsbroker:
+    db_driver: 'mysql'
+    db_username: 'nfsvolume'
+    db_port: 3306
+    db_name: 'nfsvolume'
+    service_name: 'persi-nfs'
+    service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+  router:
+    backends:
+      enable_tls: true
+    enable_ssl: true
+    extra_headers_to_log: null
+    port: 8000
+    requested_route_registration_interval_in_seconds: null
+    route_services_timeout: null
+    secure_cookies: null
+    status:
+      user: router_user
+  routing_api:
+    enabled: true
+    skip_consul_lock: true
+    sqldb:
+      type: mysql
+      port: 3306
+      schema: routing-api
+      username: routing-api
+  scalablesyslog:
+    adapter:
+      bosh_dns: true
+      tls:
+         cn: 'dummy-1'
+    adapter_rlp:
+      tls:
+        cn: 'syslog_rlp'
+    scheduler:
+      bosh_dns: true
+      tls:
+        api:
+          cn: api
+        client:
+          adapter_cn: adapter
+  scf:
+    skip_cert_verify_external: false
+  smoke_tests:
+    user: 'admin'
+    org: smoke-test-org
+    space: smoke-test-space
+    skip_ssl_validation: true
+  syslog_daemon_config:
+    enable: false
+  system_domain_organization: null
+  ssl:
+    skip_cert_verify: false
+  tcp:
+    enabled: true
+  tcp_router:
+    health_check_port: 8080
+  traffic_controller:
+    locked_memory_limit: kernel
+  uaa:
+    clients:
+      # Note that these clients are overridden in the dev-only UAA role; that is
+      # instead used to bootstrap the default zone, whereas all of these clients
+      # go into the SCF zone.
+      app_autoscaler:
+        # Requires read-only admin to look up stats, and write admin to do scaling
+        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin
+        authorized-grant-types: client_credentials
+      cc_routing:
+        authorities: routing.router_groups.read
+        authorized-grant-types: client_credentials
+      cc-service-dashboards:
+        scope: cloud_controller.write,openid,cloud_controller.read,cloud_controller_service_permissions.read
+        authorities: clients.read,clients.write,clients.admin
+        authorized-grant-types: client_credentials
+      cc_service_key_client:
+        authorities: credhub.read,credhub.write
+        authorized-grant-types: client_credentials
+      cf:
+        access-token-validity: 600
+        authorities: uaa.none
+        authorized-grant-types: implicit,password,refresh_token
+        autoapprove: true
+        override: true
+        refresh-token-validity: 2592000
+        scope: network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+      cf-usb:
+        authorities: cloud_controller.admin,usb.management.admin
+        authorized-grant-types: client_credentials
+        scope: usb.management.admin
+      cloud_controller:
+        authorized-grant-types: client_credentials
+        authorities: scim.read,scim.write,password.write
+        access-token-validity: 604800
+      cloud_controller_username_lookup:
+        authorities: scim.userids
+        authorized-grant-types: client_credentials
+      credhub_user_cli:
+        authorities: credhub.write,credhub.read
+        authorized-grant-types: client_credentials
+      doppler:
+        authorities: uaa.resource
+        authorized-grant-types: authorization_code,refresh_token
+        override: true
+      gorouter:
+        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
+        authorized-grant-types: client_credentials,refresh_token
+        scope: openid,cloud_controller_service_permissions.read
+      scf_auto_config:
+        access-token-validity: 600
+        # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
+        # we need clients.admin to make the necessary changes to UAA
+        # cloud_controller.admin is needed for scf-helper-release/scf-set-proxy job
+        authorities: scim.read,scim.write,clients.admin,cloud_controller.admin
+        authorized-grant-types: client_credentials
+      login:
+        authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
+        authorized-grant-types: authorization_code,client_credentials,refresh_token
+        autoapprove: true
+        override: true
+        scope: openid,oauth.approvals
+      ssh-proxy:
+        authorized-grant-types: authorization_code
+        autoapprove: true
+        override: true
+        scope: openid,cloud_controller.read,cloud_controller.write,cloud_controller.admin
+      tcp_emitter:
+        authorities: routing.routes.write,routing.routes.read
+        authorized-grant-types: client_credentials,refresh_token
+      tcp_router:
+        authorities: routing.routes.read
+        authorized-grant-types: client_credentials,refresh_token
+    user:
+      authorities:
+      - openid
+      - scim.me
+      - cloud_controller.read
+      - cloud_controller.write
+      - cloud_controller_service_permissions.read
+      - password.write
+      - uaa.user
+      - approvals.me
+      - oauth.approvals
+      - notification_preferences.read
+      - notification_preferences.write
+      - profile
+      - roles
+      - user_attributes
+      - routing.router_groups.read
+      - uaa.offline_token
+      default_groups:
+      - openid
+      - cloud_controller.read
+      - cloud_controller.write
+      - cloud_controller_service_permissions.read
+      - password.write
+      - uaa.user
+      - approvals.me
+      - profile
+      - roles
+      - user_attributes
+      - uaa.offline_token
+   

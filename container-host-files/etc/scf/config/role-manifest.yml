@@ -1800,13 +1800,10 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
-    properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
-    properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
-    properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
@@ -1831,7 +1828,6 @@ configuration:
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.security_event_logging.enabled: '"((ENABLE_SECURITY_EVENT_LOGGING))"'
-    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
@@ -1893,7 +1889,6 @@ configuration:
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -1928,7 +1923,6 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.garden.privileged_image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
     properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_DISABLE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
@@ -2855,10 +2849,6 @@ variables:
     description: If set apps pushed to spaces that allow SSH access will have SSH
       enabled by default.
     required: true
-- name: DEFAULT_STACK
-  options:
-    default: sle12
-    description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
     default: auto
@@ -3434,28 +3424,6 @@ variables:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
-- name: SUSE_STACK
-  options:
-    default: opensuse42
-    type: environment
-    description: >
-      This controls which SUSE stack is built into SCF.
-      Depending on the build, this can be an openSUSE or SLE stack.
-      Cannot be set by the user.
-- name: SUSE_STACK_DESCRIPTION
-  options:
-    default: openSUSE-based filesystem
-    type: environment
-    description: >
-      During build this is set to an appropriate description for the SUSE stack built into SCF.
-      Cannot be set by the user.
-- name: SUSE_STACK_DIRNAME
-  options:
-    default: opensuse42
-    type: environment
-    description: >
-      During build this is set to the directory that contains the SUSE stack built into SCF.
-      Cannot be set by the user.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
