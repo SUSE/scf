@@ -1,7 +1,7 @@
 ---
 name: get-kubectl
 
-description: This job exists only to ensure the presence of the kubetcl binary in the role referencing it.
+description: This job exists only to ensure the presence of the kubectl binary in the role referencing it.
 
 packages:
   - kubectl
