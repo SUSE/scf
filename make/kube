@@ -7,7 +7,9 @@ cd "${GIT_ROOT}"
 source .envrc
 source ${GIT_ROOT}/make/include/versioning
 
-# Note: sle vs opensuse is decided in .envrc
+# Notes:
+# sle vs opensuse is decided in (output)/bin/fissile, based on USE_SLE_BASE.
+# .envrc ensures a default vlue for USE_SLE_BASE.
 
 BUILD_TARGET=kube
 

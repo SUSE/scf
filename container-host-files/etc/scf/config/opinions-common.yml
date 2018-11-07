@@ -310,7 +310,7 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      preloaded_rootfses: *the-roots
+      preloaded_rootfses: *the-rootfses
     route_emitter:
       local_mode: true
       nats:

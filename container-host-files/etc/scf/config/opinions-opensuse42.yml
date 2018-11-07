@@ -12,7 +12,7 @@ the-stacks: &the-stacks
   - name: opensuse42
     description: "openSUSE-based filesystem"
 
-the-roots: &the-roots
+the-rootfses: &the-rootfses
   - "opensuse42:/var/vcap/packages/opensuse42/rootfs.tar"
   - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
 
