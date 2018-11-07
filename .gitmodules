@@ -24,7 +24,7 @@
 	url = https://github.com/SUSE/cf-go-buildpack-release.git
 [submodule "src/buildpacks/binary-buildpack-release"]
 	path = src/buildpacks/binary-buildpack-release
-	url = https://github.com/cloudfoundry/binary-buildpack-release.git
+	url = https://github.com/SUSE/cf-binary-buildpack-release.git
 [submodule "src/buildpacks/nodejs-buildpack-release"]
 	path = src/buildpacks/nodejs-buildpack-release
 	url = https://github.com/SUSE/cf-nodejs-buildpack-release.git
