@@ -1,7 +1,8 @@
 ---
-
 # This values.yml file for the scf and uaa helm charts contains the
-# vagrant-specific information they require.
+# vagrant-specific information they require. It is used by
+# - make/run
+# - make/upgrade
 
 secrets:
   CLUSTER_ADMIN_PASSWORD: changeme
