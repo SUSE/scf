@@ -609,6 +609,8 @@ pipeline {
                     done
                     set -o xtrace
 
+                    # Use `make/upgrade` to run the deployment to ensure we have updated settings
+                    export DOMAIN="${domain()}"
                     export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
                     export CF_CHART="output/unzipped/helm/cf\${suffix}"
