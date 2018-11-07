@@ -150,13 +150,13 @@ properties:
     default_running_security_groups:
     - public_networks
     - dns
-    default_stack: *suse-stack-name
+    default_stack: *the-stack-name
     default_staging_security_groups:
     - public_networks
     - dns
     diego:
-      docker_staging_stack: *suse-stack-name
-      lifecycle_bundles: *suse-bundles
+      docker_staging_stack: *the-stack-name
+      lifecycle_bundles: *the-bundles
     droplets:
       blobstore_type: webdav
       webdav_config:
@@ -225,7 +225,7 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
-    stacks: *suse-stacks
+    stacks: *the-stacks
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -310,7 +310,7 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      preloaded_rootfses: *suse-roots
+      preloaded_rootfses: *the-roots
     route_emitter:
       local_mode: true
       nats:
@@ -335,7 +335,7 @@ properties:
     deny_networks: [0.0.0.0/0]
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    persistent_image_list: *suse-images
+    persistent_image_list: *the-images
   grootfs:
     # Garden should at least be able to cache the cflinuxfs2 rootfs
     # to avoid copy operations on every garden healthcheck from rep
