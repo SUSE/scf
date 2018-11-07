@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [2.14.5] - 2018-11-07
+
+## Changed
+- Bumped SLE12 stack
+- Bumped java buildpack to 4.16.1
+- Bumped binary buildpack to 1.0.27.1
+- Bumped nodejs buildpack to 1.6.34.1
+
+## Fixed
+- Corrected service name to work with syslog drains
+
 ## [2.14.4] - 2018-11-05
 
 ## Changed
