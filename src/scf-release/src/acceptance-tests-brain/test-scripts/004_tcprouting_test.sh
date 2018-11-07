@@ -39,7 +39,7 @@ cf target -s ${CF_SPACE}
 SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP=${SELFDIR}/../test-resources/node-env
 APP_NAME=tcp-route-node-env-$(random_suffix)
-TMP=$(mktemp -dt 006_tcprouting.XXXXXX)
+TMP="$(mktemp -dt "$(basename "${0}" .sh).XXXXXX")"
 
 ## # # ## ### Test-specific code ### ## # #
 

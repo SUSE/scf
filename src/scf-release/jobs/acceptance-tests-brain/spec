@@ -8,6 +8,8 @@ packages:
   - kubectl
   - acceptance-tests-brain
   - docker-distribution
+  - credhub-cli
+  - mariadb-client
 
 templates:
   run.erb: bin/run
