@@ -594,7 +594,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
                         --set kube.secrets_generation_counter=2
