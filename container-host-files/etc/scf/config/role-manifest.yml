@@ -480,7 +480,7 @@ instance_groups:
     release: loggregator-agent
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: routing-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -530,7 +530,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: api-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1971,7 +1971,7 @@ configuration:
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
-    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
