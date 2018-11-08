@@ -1,0 +1,12 @@
+[Unit]
+Description=Create /var/run/kubernetes
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/bin/mkdir -p /var/run/kubernetes
+ExecStart=/usr/bin/chown kube:kube /var/run/kubernetes
+
+[Install]
+RequiredBy=kube-apiserver.service

@@ -102,6 +102,34 @@ kubectl create -f - <<EOF
 }
 EOF
 
+kubectl create -f - <<EOF
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "ClusterRole",
+  "metadata": { "name": "suse:cap-vagrant:clusterrole:psp:privileged" },
+  "rules": [ {
+    "apiGroups": [ "extensions" ],
+    "resourceNames": [ "suse.cap-vagrant.psp.privileged" ],
+    "resources": [ "podsecuritypolicies" ],
+    "verbs": [ "use" ]
+  } ]
+}
+EOF
+
+kubectl create -f - <<EOF
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "ClusterRole",
+  "metadata": { "name": "suse:cap-vagrant:clusterrole:psp:unprivileged" },
+  "rules": [ {
+    "apiGroups": [ "extensions" ],
+    "resourceNames": [ "suse.cap-vagrant.psp.unprivileged" ],
+    "resources": [ "podsecuritypolicies" ],
+    "verbs": [ "use" ]
+  } ]
+}
+EOF
+
 # Allow all users and serviceaccounts to use the unprivileged
 # PodSecurityPolicy
 kubectl auth reconcile -f - <<EOF
@@ -114,7 +142,7 @@ kubectl auth reconcile -f - <<EOF
   "roleRef": {
     "apiGroup": "rbac.authorization.k8s.io",
     "kind": "ClusterRole",
-    "name": "suse:cap-vagrant:psp:unprivileged"
+    "name": "suse:cap-vagrant:clusterrole:psp:unprivileged"
   },
   "subjects": [
     {
@@ -142,7 +170,7 @@ kubectl auth reconcile -f - <<EOF
   "roleRef": {
     "apiGroup": "rbac.authorization.k8s.io",
     "kind": "ClusterRole",
-    "name": "suse:cap-vagrant:psp:privileged"
+    "name": "suse:cap-vagrant:clusterrole:psp:privileged"
   },
   "subjects": [
     {

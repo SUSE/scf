@@ -181,14 +181,79 @@
     "provisioners": [
         {
             "type": "shell",
-            "only": ["jenkins-slave"],
+            "only": ["aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "# cloud-final can get stuck in a failed state",
+                "while true ; do",
+                "  case \"$(systemctl is-active cloud-final.service)\" in",
+                "    active) break;;",
+                "    failed) systemctl restart cloud-final.service;;",
+                "    *)      sleep 10;;",
+                "  esac",
+                "done"
+            ]
+        },
+        {
+            "type": "shell",
+            "only": ["jenkins-slave", "aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
                 "# Create vagrant user",
                 "useradd --create-home vagrant",
                 "echo vagrant:vagrant | chpasswd",
                 "# Enable swap accounting",
-                "perl -p -i -e 's@^(GRUB_CMDLINE_LINUX_DEFAULT)=\"(.*)\"@$1=\"$2 swapaccount=1\"@' /etc/default/grub",
+                "perl -p -i -e 's@^(GRUB_CMDLINE_LINUX(?:_DEFAULT)?)=\"(.*)\"@$1=\"$2 cgroup_enable=memory swapaccount=1\"@' /etc/default/grub",
                 "grub2-mkconfig -o /boot/grub2/grub.cfg"
+            ]
+        },
+        {
+            "type": "file",
+            "only": ["aws-slave"],
+            "source": "http/setup-data-partition.sh",
+            "destination": "/tmp/setup-data-partition.sh"
+        },
+        {
+            "type": "shell",
+            "only": ["aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "set -o xtrace",
+                "mv /tmp/setup-data-partition.sh /usr/local/bin/",
+                "chmod a+x /usr/local/bin/setup-data-partition.sh",
+                "/usr/local/bin/setup-data-partition.sh",
+                "systemctl daemon-reload",
+                "systemctl enable data.mount",
+                "systemctl enable setup-data-partition.service",
+                "if ! systemctl start data.mount ; then",
+                "  journalctl --since=-1min",
+                "  systemctl cat data.mount",
+                "  systemctl status -l data.mount",
+                "  systemctl cat setup-data-partition.service",
+                "  systemctl status -l setup-data-partition.service",
+                "  exit 1",
+                "fi"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "http/docker.conf",
+            "destination": "/tmp/docker.conf"
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "mv /tmp/docker.conf /etc/sysconfig/docker"
+            ]
+        },
+        {
+            "type": "shell",
+            "only": ["jenkins-slave", "aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "# jenkins-slave / aws-slave need to put docker graph in /data for the larger disk",
+                "perl -p -i -e 's@(DOCKER_OPTS)=\"(.*)\"@$1=\"$2 --graph=/data/docker\"@' /etc/sysconfig/docker"
             ]
         },
         {
@@ -197,6 +262,11 @@
             "scripts": [
                 "scripts/install-kubernetes.sh"
             ]
+        },
+        {
+            "type": "file",
+            "source": "http/make-var-run-kubernetes.service",
+            "destination": "/tmp/make-var-run-kubernetes.service"
         },
         {
             "type": "file",
@@ -220,13 +290,13 @@
         },
         {
             "type": "file",
-            "source": "http/kubelet-vagrant-overrides.env",
-            "destination": "/tmp/kubelet-vagrant-overrides.env"
+            "source": "http/containerd-vagrant-overrides.conf",
+            "destination": "/tmp/containerd-vagrant-overrides.conf"
         },
         {
             "type": "file",
-            "source": "http/containerd-vagrant-overrides.conf",
-            "destination": "/tmp/containerd-vagrant-overrides.conf"
+            "source": "http/create-kubelet-overrides.sh",
+            "destination": "/tmp/create-kubelet-overrides.sh"
         },
         {
             "type": "file",
@@ -239,15 +309,11 @@
             "destination": "/tmp/user-limits.conf"
         },
         {
-            "type": "file",
-            "source": "http/docker.conf",
-            "destination": "/tmp/docker.conf"
-        },
-        {
             "type": "shell",
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
                 "# Create directories to ensure packer doesn't mess up",
+                "mv /tmp/make-var-run-kubernetes.service /etc/systemd/system/",
                 "mkdir -p /etc/systemd/system/kube-apiserver.service.d/",
                 "mv /tmp/apiserver-vagrant-overrides.conf /etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.conf",
                 "mv /tmp/apiserver-vagrant-overrides.env /etc/systemd/system/kube-apiserver.service.d/vagrant-overrides.env",
@@ -255,45 +321,86 @@
                 "mv /tmp/controller-manager-vagrant-overrides.conf /etc/systemd/system/kube-controller-manager.service.d/vagrant-overrides.conf",
                 "mkdir -p /etc/systemd/system/kubelet.service.d/",
                 "mv /tmp/kubelet-vagrant-overrides.conf /etc/systemd/system/kubelet.service.d/vagrant-overrides.conf",
-                "mv /tmp/kubelet-vagrant-overrides.env /etc/systemd/system/kubelet.service.d/vagrant-overrides.env",
+                "# vagrant-overrides.env generated by create-kubelet-overrides.sh",
+                "mv /tmp/create-kubelet-overrides.sh /usr/local/bin/",
+                "chmod a+x /usr/local/bin/create-kubelet-overrides.sh",
                 "mkdir -p /etc/kubernetes",
                 "mv /tmp/kubelet-config /etc/kubernetes/kubelet-config",
                 "mkdir -p /etc/systemd/system/containerd.service.d",
                 "mv /tmp/containerd-vagrant-overrides.conf /etc/systemd/system/containerd.service.d/vagrant-overrides.conf",
                 "mv /tmp/user-limits.conf /etc/security/limits.d/vagrant-nproc.conf",
-                "mv /tmp/docker.conf /etc/sysconfig/docker"
+                "systemctl daemon-reload",
+                "systemctl enable --now make-var-run-kubernetes.service"
             ]
         },
         {
             "type": "file",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
             "source": "http/controller-manager-jenkins-overrides.conf",
-            "destination": "/etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf"
+            "destination": "/tmp/controller-manager-jenkins-overrides.conf"
         },
         {
             "type": "file",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
             "source": "http/data-hostpath-create.service",
-            "destination": "/etc/systemd/system/data-hostpath-create.service"
+            "destination": "/tmp/data-hostpath-create.service"
         },
         {
             "type": "file",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
             "source": "http/tmp-hostpath_pv.automount",
-            "destination": "/etc/systemd/system/tmp-hostpath_pv.automount"
+            "destination": "/tmp/tmp-hostpath_pv.automount"
         },
         {
             "type": "file",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
             "source": "http/tmp-hostpath_pv.mount",
-            "destination": "/etc/systemd/system/tmp-hostpath_pv.mount"
+            "destination": "/tmp/tmp-hostpath_pv.mount"
         },
         {
             "type": "shell",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
-                "# jenkins-slave (triton) needs to put docker graph in /data for the larger disk",
-                "perl -p -i -e 's@(DOCKER_OPTS)=\"(.*)\"@$1=\"$2 --graph=/data/docker\"@' /etc/sysconfig/docker"
+                "# Ensure we mount /data before launching kubernetes",
+                "mkdir -p /etc/systemd/system/kube-controller-manager.service.d/",
+                "mv /tmp/controller-manager-jenkins-overrides.conf /etc/systemd/system/kube-controller-manager.service.d/jenkins-overrides.conf",
+                "mv /tmp/data-hostpath-create.service /etc/systemd/system/",
+                "mv /tmp/tmp-hostpath_pv.automount /etc/systemd/system/",
+                "mv /tmp/tmp-hostpath_pv.mount /etc/systemd/system/",
+                "systemctl daemon-reload"
+            ]
+        },
+        {
+            "type": "shell",
+            "only": ["aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "scripts": [
+                "scripts/install-slave-tools.sh"
+            ]
+        },
+        {
+            "type": "file",
+            "only": ["aws-slave"],
+            "source": "http/install-jenkins-slave.sh",
+            "destination": "/tmp/install-jenkins-slave.sh"
+        },
+        {
+            "type": "file",
+            "only": ["aws-slave"],
+            "source": "http/add-github-users.sh",
+            "destination": "/tmp/add-github-users.sh"
+        },
+        {
+            "type": "shell",
+            "only": ["aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "for f in install-jenkins-slave.sh add-github-users.sh",
+                "do",
+                "  mv \"/tmp/${f}\" \"/usr/local/bin/${f}\"",
+                "  chmod a+x \"/usr/local/bin/${f}\"",
+                "done"
             ]
         },
         {
@@ -322,7 +429,7 @@
         },
         {
             "type": "shell",
-            "only": ["jenkins-slave", "scf-cached-libvirt"],
+            "only": ["jenkins-slave", "scf-cached-libvirt", "aws-slave" ],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
                 "scripts/install-helm.sh",
@@ -350,9 +457,13 @@
         },
         {
             "type": "shell",
-            "only": ["jenkins-slave"],
+            "only": ["jenkins-slave", "aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "inline": [
-                "zypper --non-interactive install jre-openjdk-headless make zip osc"
+                "zypper --non-interactive install jre-openjdk-headless make osc xmlstarlet zip",
+                "# older mozilla-nss + newer JRE doesn't work",
+                "# https://bugzilla.redhat.com/show_bug.cgi?id=1332456",
+                "zypper --non-interactive up mozilla-nss"
             ]
         },
         {
@@ -365,8 +476,22 @@
         },
         {
             "type": "shell",
+            "only": ["aws-slave"],
+            "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
+            "inline": [
+                "# Remove stale cloud-init data",
+                "rm -f /var/log/cloud-init.log /var/log/cloud-init-output.log",
+                "rm -rf /var/lib/cloud/data",
+                "rm -rf /var/lib/cloud/instances",
+                "rm -rf /var/lib/cloud/instance"
+            ]
+        },
+        {
+            "type": "shell",
+            "only": ["vagrant-vmware", "vagrant-virtualbox", "vagrant-libvirt", "jenkins-slave", "scf-cached-libvirt"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
+                "# Compact the disk; unnecessary on AWS",
                 "scripts/compact.sh"
             ],
             "start_retry_timeout": "7m"
