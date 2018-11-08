@@ -7,6 +7,9 @@
         "iso_url": "http://download.opensuse.org/distribution/leap/15.0/iso/openSUSE-Leap-15.0-NET-x86_64.iso",
         "iso_checksum": "1a322de7c215da96fdbad4c247d218eb79073c5620a332a759c0291b44746fbc",
         "iso_checksum_type": "sha256",
+        "aws_region": "eu-central-1",
+        "aws_instance_type": "m5d.xlarge",
+        "aws_spot_price": "0.398",
         "http_directory": "http",
         "ssh_wait_timeout": "300m",
         "source_machine_package": "{{ env `SOURCE_MACHINE_PACKAGE` }}",
@@ -148,6 +151,31 @@
             "triton_key_id": "{{ user `triton_key_id` }}",
             "triton_key_material": "{{ user `ssh_private_key_file` }}",
             "triton_url": "{{ user `triton_url` }}"
+        },
+        {
+            "name": "aws-slave",
+            "type": "amazon-ebs",
+            "ami_name": "{{ user `vm_name` }}-{{ user `version` }}-{{ isotime \"20060102-1504\" }}",
+            "instance_type": "{{ user `aws_instance_type` }}",
+            "region": "{{ user `aws_region` }}",
+            "ami_description": "CAP Jenkins slave",
+            "ami_virtualization_type": "hvm",
+            "availability_zone": "{{ user `aws_region` }}a",
+            "ebs_optimized": true,
+            "shutdown_behavior": "terminate",
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                    "name": "suse-sles-12-sp3-*-hvm-ssd-x86_64",
+                    "root-device-type": "ebs"
+                },
+                "owners": ["013907871322"],
+                "most_recent": true
+            },
+            "spot_price": "{{ user `aws_spot_price` }}",
+            "ssh_username": "ec2-user",
+            "ssh_keypair_name": "jenkins-slave",
+            "ssh_agent_auth": true
         }
     ],
     "provisioners": [
