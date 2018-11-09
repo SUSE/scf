@@ -52,6 +52,54 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.0
   version: "2.0"
   sha1: df91c31c15da68c7b2905645b20b93a930627d46
+- name: binary-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.27.1.tgz
+  version: "1.0.27.1"
+  sha1: 63db6cd12aa4eb229de0a2a2b6f5650ba8c75bdf
+- name: go-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.28.1.tgz
+  version: "1.8.28.1"
+  sha1: 281b03baf52cfeafa7983a50d261041e6d6246a4
+- name: java-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.16.1.tgz
+  version: "4.16.1"
+  sha1: d097949222123a2f0ef28e630d44a2aaddeca912
+- name: nodejs-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.34.1.tgz
+  version: "1.6.34.1"
+  sha1: 1f3ecf8147f4961937bd2f4969986216fec37052
+- name: php-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.63.1.tgz
+  version: "4.3.63.1"
+  sha1: 71bbc50316e59fe803ca6aa92b4cdb7fa3ec63ad
+- name: python-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.23.1.tgz
+  version: "1.6.23.1"
+  sha1: 544440af46db5d2135b3e054db22cc7ed7d73713
+- name: ruby-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.26.1.tgz
+  version: "1.7.26.1"
+  sha1: e0f37c4ea2e7534860ed2e84f26d4a593409a739
+- name: staticfile-buildpack-release
+  url: https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.34.2.tgz
+  version: "1.4.34.2"
+  sha1: af5e43beddb8d704e40a4e0cd1128940b7108daf
+- name: "dotnet-core-buildpack"
+  version: "2.1.5"
+  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.1.5"
+  sha1: "188dace870c94749a3abc21cb538c08e0f4f3d8c"
+- name: "postgres"
+  version: "26"
+  url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
+  sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
+- name: "opensuse42"
+  version: "1.7.89"
+  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.89.tgz"
+  sha1: "7d7848c8d4f5a273125f17c060513c894c2c47d9"
+- name: "cf-sle12"
+  version: "1.51.120"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.120.tgz"
+  sha1: "8ee799c77f13548029244ca513b31b2354263106"
 
 instance_groups:
 - name: syslog-scheduler
