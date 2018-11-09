@@ -12,7 +12,7 @@ vagrant-virtualbox \
 jenkins-slave \
 aws-slave \
 	: http/vagrant-autoyast.xml
-	packer build -only $@ vagrant-box.json
+	packer build -only $@ -var output_directory="$${PACKER_OUTPUT:-$${PWD}/output}" vagrant-box.json
 
 # The following build pieces require txtplate to evaluate Go templates
 http/scf-autoyast.xml: http/autoyast.xml.tpl

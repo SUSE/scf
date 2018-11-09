@@ -2,6 +2,7 @@
     "variables": {
         "version": "2.0.15",
         "vm_name": "scf-vagrant",
+        "output_directory": "output",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "iso_url": "http://download.opensuse.org/distribution/leap/15.0/iso/openSUSE-Leap-15.0-NET-x86_64.iso",
@@ -64,6 +65,7 @@
             "iso_url": "{{user `iso_url`}}",
             "iso_checksum": "{{user `iso_checksum`}}",
             "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "output_directory": "{{user `output_directory`}}/virtualbox",
             "http_directory": "{{user `http_directory`}}",
             "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
@@ -95,6 +97,7 @@
             "iso_url": "{{user `iso_url`}}",
             "iso_checksum": "{{user `iso_checksum`}}",
             "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "output_directory": "{{user `output_directory`}}/libvirt",
             "http_directory": "{{user `http_directory`}}",
             "shutdown_command": "{{user `shutdown_command`}}",
             "qemuargs": [
@@ -491,7 +494,6 @@
             "only": ["vagrant-vmware", "vagrant-virtualbox", "vagrant-libvirt", "jenkins-slave", "scf-cached-libvirt"],
             "execute_command": "sudo -E /usr/bin/env {{.Vars}} bash '{{.Path}}'",
             "scripts": [
-                "# Compact the disk; unnecessary on AWS",
                 "scripts/compact.sh"
             ],
             "start_retry_timeout": "7m"
