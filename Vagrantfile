@@ -132,6 +132,7 @@ Vagrant.configure(2) do |config|
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
     libvirt.cpus = vm_cpus
+    libvirt.random model: 'random'
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end
