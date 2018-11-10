@@ -1,3 +1,21 @@
 #!/bin/sh
 export FISSILE_TAG_EXTRA=$(git -C "${FISSILE_GIT_ROOT:-$PWD}" rev-parse HEAD)${FISSILE_TAG_EXTRA:+-${FISSILE_TAG_EXTRA}}
+
+if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
+    # Above condition ensures that we are in the SCF context.
+    # As we absolutely must not fuzz with the opinions of UAA.
+    #
+    # Assemble the BOSH light opinions, from common and stack-specific
+    # parts. Choose the variant first, which defines lots of anchors, then
+    # add the common part, which references them.
+
+    if [ "${USE_SLE_BASE}" = "false" ]; then
+	cp "${FISSILE_LIGHT_OPEN42}" "${FISSILE_LIGHT_OPINIONS}"
+    else
+	cp "${FISSILE_LIGHT_SLE12}" "${FISSILE_LIGHT_OPINIONS}"
+    fi
+
+    cat "${FISSILE_LIGHT_COMMON}" >> "${FISSILE_LIGHT_OPINIONS}"
+fi
+
 exec fissile.real "$@"
