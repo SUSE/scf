@@ -1,8 +1,6 @@
 ---
 instance_groups:
 - name: syslog-scheduler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -13,6 +11,8 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -36,16 +36,12 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8080/health        
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health
         ports:
         - name: sched-health
           protocol: TCP
           internal: 8080
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: adapter
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -56,6 +52,8 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling: # one per 500 drains
             min: 1
@@ -87,8 +85,6 @@ instance_groups:
         - name: adapter-health
           protocol: TCP
           internal: 8080
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -104,6 +100,8 @@ instance_groups:
       nats: {}
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -123,7 +121,7 @@ instance_groups:
                       operator: In
                       values:
                       - nats
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: nats
           protocol: TCP
@@ -131,8 +129,6 @@ instance_groups:
         - name: nats-routes
           protocol: TCP
           internal: 4223
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: mysql
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -208,7 +204,7 @@ instance_groups:
                       operator: In
                       values:
                       - mysql
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: api-proxy
           protocol: TCP
@@ -265,7 +261,7 @@ instance_groups:
                       operator: In
                       values:
                       - cf-usb
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: usb
           protocol: TCP
@@ -296,6 +292,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -320,7 +318,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-api
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -332,8 +330,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: locket
     release: diego
     properties:
@@ -369,6 +365,8 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -418,8 +416,6 @@ instance_groups:
           external: 4443
           internal: 443
           public: true
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -441,6 +437,8 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -464,7 +462,7 @@ instance_groups:
                       operator: In
                       values:
                       - tcp-router
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: healthcheck
           protocol: TCP
@@ -476,8 +474,6 @@ instance_groups:
           public: true
           count-configurable: true
           max: 20
-  - name: loggregator_agent
-    release: loggregator-agent
   configuration:
     templates:
       properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
@@ -493,12 +489,12 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: routing-api
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -554,6 +550,8 @@ instance_groups:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
         service_name: api
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -577,7 +575,7 @@ instance_groups:
                       operator: In
                       values:
                       - api
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: api
           protocol: TCP
@@ -588,8 +586,6 @@ instance_groups:
         - name: statsd
           protocol: TCP
           internal: 8125
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: route_registrar
     release: routing
   - name: statsd_injector
@@ -632,6 +628,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -651,9 +649,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-worker
-                  topologyKey: "beta.kubernetes.io/os"      
-  - name: loggregator_agent
-    release: loggregator-agent
+                  topologyKey: "beta.kubernetes.io/os"
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -669,6 +665,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -691,8 +689,6 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
-  - name: loggregator_agent
-    release: loggregator-agent
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -712,6 +708,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -731,14 +729,10 @@ instance_groups:
                       operator: In
                       values:
                       - cc-clock
-                  topologyKey: "beta.kubernetes.io/os"      
-  - name: loggregator_agent
-    release: loggregator-agent
+                  topologyKey: "beta.kubernetes.io/os"
   - name: statsd_injector
     release: statsd-injector
 - name: doppler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -749,6 +743,8 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -772,7 +768,7 @@ instance_groups:
                       operator: In
                       values:
                       - doppler
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: dropsonde-udp
           protocol: UDP
@@ -789,8 +785,6 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -806,6 +800,8 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -829,13 +825,11 @@ instance_groups:
                       operator: In
                       values:
                       - log-api
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: dropsonde
           protocol: TCP
           internal: 8081
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
     properties:
@@ -865,6 +859,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -895,8 +891,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: loggregator_agent
-    release: loggregator-agent
   tags:
   - active-passive
   configuration:
@@ -924,6 +918,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -943,7 +939,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-uploader
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -951,8 +947,6 @@ instance_groups:
         - name: cc-up-dbg
           protocol: TCP
           internal: 17018
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: diego-ssh
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -969,6 +963,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -992,14 +988,12 @@ instance_groups:
                       operator: In
                       values:
                       - diego-ssh
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: diego-ssh
           protocol: TCP
           internal: 2222
           public: true
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: file_server
     release: diego
     properties:
@@ -1022,8 +1016,6 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
     properties:
@@ -1094,6 +1086,8 @@ instance_groups:
     release: garden-runc
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         # Instance group needs volume claim templates (see storage below), no LB => clustered
         run:
           scaling:
@@ -1146,8 +1140,6 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -1190,7 +1182,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain      
+          service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1215,7 +1207,7 @@ instance_groups:
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
-      scf.cats-suites: '"((CATS_SUITES))"'      
+      scf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -1234,7 +1226,7 @@ instance_groups:
             min: 0
             max: 1
           flight-stage: manual
-          capabilities: []      
+          capabilities: []
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1250,7 +1242,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          service-account: secret-generator      
+          service-account: secret-generator
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   configuration:
@@ -1285,7 +1277,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          exposed-ports: []      
+          exposed-ports: []
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1311,7 +1303,7 @@ instance_groups:
           memory: 2000
           virtual-cpus: 2
           healthcheck:
-            readiness:      
+            readiness:
         ports:
         - name: api #apiserverport
           protocol: TCP
@@ -1430,7 +1422,7 @@ instance_groups:
     release: routing
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"},{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'      
+      properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"},{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1540,6 +1532,25 @@ instance_groups:
       properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
       properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
       properties.smoke_tests.skip_ssl_validation: false
+- name: loggregator-agent
+  type: colocated-container
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  configuration:
+    templates:
+      properties.fissile.monit.port: 2290
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: loggregator_agent
+    release: loggregator-agent
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
 configuration:
   auth:
     roles:
@@ -2434,7 +2445,7 @@ variables:
       in the Autoscaler Operator.
 - name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
   options:
-    description: "The interval of synchronizing applications information between AutoScaler 
+    description: "The interval of synchronizing applications information between AutoScaler
       policy database and Cloudfoundry."
     default: 24h
 - name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
@@ -2823,7 +2834,7 @@ variables:
   options:
     secret: true
     description: PEM-encoded server key
-    required: true  
+    required: true
 - name: DB_ENCRYPTION_KEY
   options:
     secret: true
