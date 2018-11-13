@@ -11,7 +11,7 @@
 set -o xtrace -o errexit -o nounset
 
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-JENKINS_LABEL="${INSTANCE_ID}"
+JENKINS_LABEL="${JENKINS_LABEL:-${INSTANCE_ID}}"
 
 mkdir -p /opt/jenkins
 
