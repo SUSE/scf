@@ -537,6 +537,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_pre_start_home.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
