@@ -130,8 +130,6 @@ instance_groups:
           protocol: TCP
           internal: 4223
 - name: mysql
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
@@ -278,7 +276,6 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-api
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -420,7 +417,6 @@ instance_groups:
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
@@ -479,7 +475,6 @@ instance_groups:
       properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
 - name: routing-api
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -614,8 +609,6 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-worker
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -693,8 +686,6 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
@@ -845,7 +836,6 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-brain
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -902,7 +892,6 @@ instance_groups:
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: cc-uploader
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -949,7 +938,6 @@ instance_groups:
           internal: 17018
 - name: diego-ssh
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1006,7 +994,6 @@ instance_groups:
           internal: 8080
 - name: nfs-broker
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1243,8 +1230,6 @@ instance_groups:
           memory: 256
           virtual-cpus: 1
           service-account: secret-generator
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   configuration:
     templates:
       properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
@@ -1256,8 +1241,6 @@ instance_groups:
       properties.scf.secrets.namespace: ((KUBERNETES_NAMESPACE))
 - name: post-deployment-setup
   type: bosh-task
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1424,8 +1407,6 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"},{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1465,8 +1446,6 @@ instance_groups:
           external: 7105
           internal: 7105
 - name: autoscaler-actors
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1534,8 +1513,6 @@ instance_groups:
       properties.smoke_tests.skip_ssl_validation: false
 - name: loggregator-agent
   type: colocated-container
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   configuration:
     templates:
       properties.fissile.monit.port: 2290
