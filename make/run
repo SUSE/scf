@@ -7,8 +7,9 @@ cd "${GIT_ROOT}"
 
 . make/include/secrets
 
-NAMESPACE="cf"
-UAA_NAMESPACE="uaa"
+NAMESPACE="${NAMESPACE:-cf}"
+UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
+CF_CHART="${CF_CHART:-output/helm}"
 
 supports_psp() {
     kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
@@ -55,12 +56,12 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
         "${GIT_ROOT}/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
     kubectl create -f -
 }
-STORAGE_CLASS="${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
 
-DOMAIN=${DOMAIN:-cf-dev.io}
-TCP_DOMAIN=tcp.${DOMAIN}
-UAA_HOST=uaa.${DOMAIN}
-INSECURE_DOCKER_REGISTRIES="\"insecure-registry.${DOMAIN}:20005\""
+: "${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
+: "${DOMAIN:=cf-dev.io}"
+: "${TCP_DOMAIN:=tcp.${DOMAIN}}"
+: "${UAA_HOST:=uaa.${DOMAIN}}"
+: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
 
 helm_args=(
     --name "${NAMESPACE}"
@@ -114,7 +115,7 @@ if supports_psp ; then
     fi
 fi
 
-helm install output/helm "${helm_args[@]}" "$@"
+helm install "${CF_CHART}" "${helm_args[@]}" "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
 
