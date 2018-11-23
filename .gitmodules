@@ -8,9 +8,6 @@
 [submodule "src/scf-helper-release"]
 	path = src/scf-helper-release
 	url = https://github.com/SUSE/scf-helper-release
-[submodule "src/app-autoscaler-release"]
-	path = src/app-autoscaler-release
-	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
 	url = https://github.com/SUSE/uaa-fissile-release

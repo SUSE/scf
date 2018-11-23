@@ -15,3 +15,4 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 unset FISSILE_REPOSITORY
 
 make -C "${GIT_ROOT}/src/uaa-fissile-release" releases
+fissile show release

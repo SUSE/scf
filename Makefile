@@ -121,23 +121,11 @@ uaa-helm: ${FISSILE_BINARY}
 
 ########## BOSH RELEASE TARGETS ##########
 
-consul-release:
-	make/bosh-release src/consul-release
-
 groot-btrfs-release:
 	make/bosh-release src/groot-btrfs/groot-btrfs-release
 
 usb-release:
 	make/bosh-release src/cf-usb/cf-usb-release
-
-postgres-release:
-	make/bosh-release src/postgres-release
-
-cf-opensuse42-release:
-	make/bosh-release src/cf-opensuse42-release
-
-cf-sle12-release:
-	make/bosh-release src/cf-sle12-release
 
 scf-release:
 	make/bosh-release src/scf-release
@@ -152,50 +140,10 @@ app-autoscaler-release:
 credhub-user-release:
 	make/bosh-release src/credhub-user-release
 
-binary-buildpack-release:
-	make/bosh-release src/buildpacks/binary-buildpack-release
-
-dotnet-core-buildpack-release:
-	make/bosh-release src/buildpacks/dotnet-core-buildpack-release
-
-go-buildpack-release:
-	make/bosh-release src/buildpacks/go-buildpack-release
-
-java-buildpack-release:
-	make/bosh-release src/buildpacks/java-buildpack-release
-
-nodejs-buildpack-release:
-	make/bosh-release src/buildpacks/nodejs-buildpack-release
-
-php-buildpack-release:
-	make/bosh-release src/buildpacks/php-buildpack-release
-
-python-buildpack-release:
-	make/bosh-release src/buildpacks/python-buildpack-release
-
-ruby-buildpack-release:
-	make/bosh-release src/buildpacks/ruby-buildpack-release
-
-staticfile-buildpack-release:
-	make/bosh-release src/buildpacks/staticfile-buildpack-release
-
 releases: \
-	binary-buildpack-release \
-	cf-opensuse42-release \
-	cf-sle12-release \
-	consul-release \
-	dotnet-core-buildpack-release \
-	go-buildpack-release \
 	groot-btrfs-release \
-	java-buildpack-release \
-	nodejs-buildpack-release \
-	php-buildpack-release \
-	postgres-release \
-	python-buildpack-release \
-	ruby-buildpack-release \
 	scf-helper-release \
 	scf-release \
-	staticfile-buildpack-release \
 	uaa-releases \
 	usb-release \
 	app-autoscaler-release \

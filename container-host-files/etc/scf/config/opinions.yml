@@ -271,9 +271,6 @@ properties:
     proxy:
       api_force_https: false
       api_username: 'mysql_proxy'
-  consul:
-    agent:
-      rewrite_resolv: false
   diego:
     auctioneer:
       rep:

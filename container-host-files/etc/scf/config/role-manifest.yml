@@ -100,6 +100,10 @@ releases:
   version: "1.51.120"
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.120.tgz"
   sha1: "8ee799c77f13548029244ca513b31b2354263106"
+- name: "app-autoscaler"
+  version: "1.0.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
+  sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
 
 instance_groups:
 - name: syslog-scheduler
