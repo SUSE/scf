@@ -9,5 +9,6 @@ secrets:
   UAA_ADMIN_CLIENT_SECRET: admin_secret
 
 env:
-  GARDEN_LINUX_DNS_SERVER: 8.8.8.8
+  # Use kube-internal DNS to help minibroker work
+  GARDEN_LINUX_DNS_SERVER: 10.254.0.254
   UAA_PORT: 2793

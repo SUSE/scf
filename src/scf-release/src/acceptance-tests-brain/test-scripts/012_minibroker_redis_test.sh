@@ -71,7 +71,9 @@ function test_cleanup() {
     set +o errexit
 
     cf unbind-service "${CF_APP}" "${CF_SERVICE}"
-    cf delete-service -f "${CF_SERVICE}"
+    if ! cf delete-service -f "${CF_SERVICE}" ; then
+        cf purge-service-instance -f "${CF_SERVICE}"
+    fi
     cf delete -f "${CF_APP}"
     cf unbind-security-group "${CF_SEC_GROUP}" "${CF_ORG}" "${CF_SPACE}"
     cf delete-security-group -f "${CF_SEC_GROUP}"
@@ -135,7 +137,7 @@ cf create-security-group "${CF_SEC_GROUP}" <(echo '[{
     "ports": "6379",
     "description": "Allow redis traffic"
 }]')
-cf bind-security-group ${CF_SEC_GROUP} "${CF_ORG}" "${CF_SPACE}"
+cf bind-security-group "${CF_SEC_GROUP}" "${CF_ORG}" "${CF_SPACE}"
 
 BROKER_GUID="$(cf curl /v2/service_brokers | jq -r ".resources[] | select(.entity.name == \"${CF_BROKER}\") | .metadata.guid")"
 SERVICE_GUID="$(cf curl "/v2/services?q=service_broker_guid:${BROKER_GUID}&q=label:redis" | jq -r '.resources[].metadata.guid')"
