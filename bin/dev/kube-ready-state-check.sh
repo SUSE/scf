@@ -25,14 +25,14 @@ shift $((OPTIND-1))
 category="${1:-all}"
 case ${category} in
     all|api|kube|node)
-	: # ok, nothing to do
+	: # OK, nothing to do.
 	;;
     *) usage
 	exit 1
 	;;
 esac
 
-#Script to determine is the K8s host is "ready" for cf deployment
+# Script to determine is the K8s host is "ready" for cf deployment.
 FAILED=0
 SCF_DOMAIN=${SCF_DOMAIN:-cf-dev.io}
 
@@ -66,7 +66,7 @@ function status() {
 }
 
 function having_category() {
-    # `all` matches always
+    # `all` matches always.
     set -- all "$@"
     case "$@" in
 	*${category}*)
@@ -78,54 +78,55 @@ function having_category() {
 
 echo "Testing $(green "${category}")"
 
-# swap accounting in /proc/cmdline
+# swap accounting in /proc/cmdline.
 if having_category node ; then
     grep -wq "swapaccount=1" /proc/cmdline
     status "swapaccount enable"
 
-    # docker info should not show aufs
+    # `docker info` should not show aufs.
     docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
     status "docker info should not show aufs"
 fi
 
-# kube-dns shows 4/4 ready
+# kube-dns shows 4/4 ready.
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "kube-dns should be running (show 4/4 ready)"
 fi
 
-# tiller-deploy shows 4/4 ready
+# tiller-deploy shows 4/4 ready.
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector name=tiller 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "tiller should be running (1/1 ready)"
 fi
 
-# ntp or systemd-timesyncd is installed and running
+# ntp or systemd-timesyncd is installed and running.
 if having_category api node ; then
-    pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
+    (ps x | grep ntpd >& /dev/null) || (ps x | grep chronyd >& /dev/null) || systemctl is-active systemd-timesyncd >& /dev/null
     status "An ntp daemon or systemd-timesyncd must be installed and active"
 fi
 
-# At least one storage class exists in K8s
+# At least one storage class exists in K8s.
 if having_category kube ; then
     test ! "$(kubectl get storageclasses 2>&1 | grep "No resources found.")"
     status "A storage class should exist in K8s"
 fi
 
-# privileged pods are enabled in K8s
+# Privileged pods are enabled in K8s.
 if having_category api ; then
-    pgrep -ax 'hyperkube|apiserver' | grep apiserver | grep --silent -- --allow-privileged
+    ps ax | grep -E 'hyperkube|apiserver' | grep apiserver | grep -- --allow-privileged >& /dev/null
     status "Privileged must be enabled in 'kube-apiserver'"
 fi
 
 if having_category node ; then
-    pgrep -ax 'hyperkube|kubelet' | grep kubelet | grep --silent -- --allow-privileged
+    ps ax | grep -E 'hyperkube|kubelet' | grep kubelet | grep -- --allow-privileged >& /dev/null
     status "Privileged must be enabled in 'kubelet'"
 fi
 
-# override tasks infinity in systemd configuration
+# Override tasks infinity in systemd configuration.
 if having_category node ; then
     if has_command systemctl ; then
+        # TODO(f0rmiga): Check, also, for infinity string. Reference https://github.com/moby/moby/blob/v17.04.0-ce/contrib/init/systemd/docker.service#L20-L22.
         if systemctl cat --quiet containerd.service >/dev/null 2>/dev/null ; then
             test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
             status "TasksMax must be set to infinity"
@@ -133,7 +134,7 @@ if having_category node ; then
             red "containerd.service not available"
         fi
     else
-        test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
+        test "$(awk '/processes/ {print $3}' /proc/"$(ps x | grep containerd)"/limits)" -gt 4096
         status "Max processes should be unlimited, or as high as possible for the system"
     fi
 fi
