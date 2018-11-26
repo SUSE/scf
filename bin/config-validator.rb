@@ -146,7 +146,7 @@ def check_clustering(manifest, bosh_properties)
     block.call(lambda do |job|
       bosh_properties[job.release][job.name].each_key do |property|
         rparams.fetch("properties.#{property}", []).each do |param|
-          next unless /^(KUBERNETES_CLUSTER_DOMAIN|KUBE_.*_CLUSTER_IPS)$/ =~ param
+          next unless param == "KUBE_NATS_CLUSTER_IPS"
           collected_params[param] << "Job #{job.name.red} in release #{job.release.red}"
         end
       end

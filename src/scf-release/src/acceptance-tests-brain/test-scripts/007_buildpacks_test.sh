@@ -35,7 +35,7 @@ cf target -s ${CF_SPACE}
 
 # Location of the test script. All other assets will be found relative
 # to this.
-TMP=$(mktemp -dt 017_buildpacks.XXXXXX)
+TMP="$(mktemp -dt "$(basename "${0}" .sh).XXXXXX")"
 SELFDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSPECTOR_BUILDPACK_DIR=${SELFDIR}/../test-resources/buildpack_inspector_buildpack
 

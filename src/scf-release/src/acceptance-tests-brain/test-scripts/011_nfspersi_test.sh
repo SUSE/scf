@@ -51,7 +51,7 @@ SMOUNT=${SELFDIR}/../test-resources/nfs_mount.json
 SKUBEC=${SELFDIR}/../test-resources/nfs_server_kube.yaml
 PORAPP=${SELFDIR}/../test-resources/persi-acceptance-tests/assets/pora
 
-TMP=$(mktemp -dt 010_nfspersi.XXXXXX)
+TMP="$(mktemp -dt "$(basename "${0}" .sh).XXXXXX")"
 
 ## # # ## ### Test-specific code ### ## # #
 

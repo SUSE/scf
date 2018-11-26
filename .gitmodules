@@ -1,4 +1,3 @@
-
 [submodule "src/groot-btrfs"]
 	path = src/groot-btrfs
 	url = https://github.com/SUSE/groot-btrfs.git

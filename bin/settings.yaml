@@ -1,0 +1,13 @@
+---
+# This values.yml file for the scf and uaa helm charts contains the
+# vagrant-specific information they require. It is used by
+# - make/run
+# - make/upgrade
+
+secrets:
+  CLUSTER_ADMIN_PASSWORD: changeme
+  UAA_ADMIN_CLIENT_SECRET: admin_secret
+
+env:
+  GARDEN_LINUX_DNS_SERVER: 8.8.8.8
+  UAA_PORT: 2793

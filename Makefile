@@ -17,7 +17,7 @@ print-version:
 
 ########## TOOL DOWNLOAD TARGETS ##########
 
-${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh
+${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh bin/fissile
 	bin/dev/install_tools.sh
 
 ########## VAGRANT VM TARGETS ##########

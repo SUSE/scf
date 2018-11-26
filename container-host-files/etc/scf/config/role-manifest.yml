@@ -107,8 +107,6 @@ releases:
 
 instance_groups:
 - name: syslog-scheduler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -119,6 +117,8 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -142,16 +142,12 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8080/health        
+              - curl --silent --fail --head http://${HOSTNAME}:8080/health
         ports:
         - name: sched-health
           protocol: TCP
           internal: 8080
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: adapter
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -162,6 +158,8 @@ instance_groups:
     release: cf-syslog-drain
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling: # one per 500 drains
             min: 1
@@ -193,8 +191,6 @@ instance_groups:
         - name: adapter-health
           protocol: TCP
           internal: 8080
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -210,6 +206,8 @@ instance_groups:
       nats: {}
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -229,7 +227,7 @@ instance_groups:
                       operator: In
                       values:
                       - nats
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: nats
           protocol: TCP
@@ -237,11 +235,7 @@ instance_groups:
         - name: nats-routes
           protocol: TCP
           internal: 4223
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: mysql
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
@@ -314,7 +308,7 @@ instance_groups:
                       operator: In
                       values:
                       - mysql
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: api-proxy
           protocol: TCP
@@ -371,7 +365,7 @@ instance_groups:
                       operator: In
                       values:
                       - cf-usb
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: usb
           protocol: TCP
@@ -388,7 +382,6 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-api
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -402,6 +395,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -426,7 +421,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-api
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -438,8 +433,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: locket
     release: diego
     properties:
@@ -475,6 +468,8 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -524,13 +519,10 @@ instance_groups:
           external: 4443
           internal: 443
           public: true
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/patches/fix_haproxy_fd_requirements.sh
@@ -547,6 +539,8 @@ instance_groups:
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -570,7 +564,7 @@ instance_groups:
                       operator: In
                       values:
                       - tcp-router
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: healthcheck
           protocol: TCP
@@ -582,14 +576,11 @@ instance_groups:
           public: true
           count-configurable: true
           max: 20
-  - name: loggregator_agent
-    release: loggregator-agent
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: routing-api
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -599,12 +590,12 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: routing-api
     release: routing
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -636,7 +627,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: api-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -647,6 +638,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_pre_start_home.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -660,6 +652,8 @@ instance_groups:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
         service_name: api
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -683,7 +677,7 @@ instance_groups:
                       operator: In
                       values:
                       - api
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: api
           protocol: TCP
@@ -694,8 +688,6 @@ instance_groups:
         - name: statsd
           protocol: TCP
           internal: 8125
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: route_registrar
     release: routing
   - name: statsd_injector
@@ -724,8 +716,6 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-worker
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -738,6 +728,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -757,9 +749,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-worker
-                  topologyKey: "beta.kubernetes.io/os"      
-  - name: loggregator_agent
-    release: loggregator-agent
+                  topologyKey: "beta.kubernetes.io/os"
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -775,6 +765,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -797,14 +789,10 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
-  - name: loggregator_agent
-    release: loggregator-agent
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
@@ -818,6 +806,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -837,14 +827,10 @@ instance_groups:
                       operator: In
                       values:
                       - cc-clock
-                  topologyKey: "beta.kubernetes.io/os"      
-  - name: loggregator_agent
-    release: loggregator-agent
+                  topologyKey: "beta.kubernetes.io/os"
   - name: statsd_injector
     release: statsd-injector
 - name: doppler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -855,6 +841,8 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -878,7 +866,7 @@ instance_groups:
                       operator: In
                       values:
                       - doppler
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: dropsonde-udp
           protocol: UDP
@@ -895,8 +883,6 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -912,6 +898,8 @@ instance_groups:
     release: loggregator
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -935,13 +923,11 @@ instance_groups:
                       operator: In
                       values:
                       - log-api
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: dropsonde
           protocol: TCP
           internal: 8081
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: reverse_log_proxy
     release: loggregator
     properties:
@@ -957,7 +943,6 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-brain
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -971,6 +956,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -1001,8 +988,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: loggregator_agent
-    release: loggregator-agent
   tags:
   - active-passive
   configuration:
@@ -1014,7 +999,6 @@ instance_groups:
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
 - name: cc-uploader
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1030,6 +1014,8 @@ instance_groups:
     release: capi
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -1049,7 +1035,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-uploader
-                  topologyKey: "beta.kubernetes.io/os"      
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1057,11 +1043,8 @@ instance_groups:
         - name: cc-up-dbg
           protocol: TCP
           internal: 17018
-  - name: loggregator_agent
-    release: loggregator-agent
 - name: diego-ssh
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1075,6 +1058,8 @@ instance_groups:
     release: diego
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -1098,14 +1083,12 @@ instance_groups:
                       operator: In
                       values:
                       - diego-ssh
-                  topologyKey: "beta.kubernetes.io/os"    
+                  topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: diego-ssh
           protocol: TCP
           internal: 2222
           public: true
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: file_server
     release: diego
     properties:
@@ -1118,7 +1101,6 @@ instance_groups:
           internal: 8080
 - name: nfs-broker
   environment_scripts:
-  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -1128,8 +1110,6 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: nfsbroker
     release: nfs-volume
     properties:
@@ -1167,6 +1147,7 @@ instance_groups:
   - scripts/set-diego-cell-memory-limits.sh
   - scripts/go_log_level.sh
   - scripts/configure-garden-filesystem.sh
+  - scripts/configure-az.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1175,6 +1156,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: get-kubectl
+    release: scf
   - name: authorize-internal-ca
     release: scf
   - name: wait-for-uaa
@@ -1197,6 +1180,8 @@ instance_groups:
     release: garden-runc
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         # Instance group needs volume claim templates (see storage below), no LB => clustered
         run:
           scaling:
@@ -1205,6 +1190,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
+          service-account: node-reader
           volumes:
           - path: /var/vcap/data/grootfs
             type: persistent
@@ -1248,8 +1234,6 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
-  - name: loggregator_agent
-    release: loggregator-agent
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -1292,7 +1276,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain      
+          service-account: test-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1317,7 +1301,7 @@ instance_groups:
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
-      scf.cats-suites: '"((CATS_SUITES))"'      
+      scf.cats-suites: '"((CATS_SUITES))"'
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -1336,7 +1320,7 @@ instance_groups:
             min: 0
             max: 1
           flight-stage: manual
-          capabilities: []      
+          capabilities: []
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1352,9 +1336,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          service-account: secret-generator      
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
+          service-account: secret-generator
   configuration:
     templates:
       properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
@@ -1366,8 +1348,6 @@ instance_groups:
       properties.scf.secrets.namespace: ((KUBERNETES_NAMESPACE))
 - name: post-deployment-setup
   type: bosh-task
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1387,7 +1367,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          exposed-ports: []      
+          exposed-ports: []
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1412,13 +1392,13 @@ instance_groups:
           shared-volumes: []
           memory: 2000
           virtual-cpus: 2
-          exposed-ports:
-          - name: api #apiserverport
-            protocol: TCP
-            external: 8844
-            internal: 8844
           healthcheck:
-            readiness:      
+            readiness:
+        ports:
+        - name: api #apiserverport
+          protocol: TCP
+          external: 8844
+          internal: 8844
   - name: route_registrar
     release: routing
   configuration:
@@ -1457,17 +1437,13 @@ instance_groups:
             min: 0
             max: 3
             ha: 2
-          capabilities: []
           volumes:
           - path: /var/vcap/store
             type: persistent
             tag: postgres-data
             size: 100
-          shared-volumes: []
           memory: 1024
           virtual-cpus: 2
-          healthcheck:
-            readiness:
         ports:
         - name: postgres
           protocol: TCP
@@ -1502,40 +1478,19 @@ instance_groups:
           external: 7106
           internal: 7106
           public: true
-  - name: servicebroker
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
         run:
           scaling:
             min: 0
             max: 3
             ha: 2
-          capabilities: []
-          persistent-volumes: []
-          shared-volumes: []
           memory: 256
           virtual-cpus: 2
-          healthcheck:
-            readiness:
-        ports:
-        - name: broker
-          protocol: TCP
-          external: 7107
-          internal: 7107
-        - name: broker-public  # brokerpublicport
-          protocol: TCP
-          external: 7101
-          internal: 7101
-          public: true
   - name: route_registrar
     release: routing
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"},{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'      
+      properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1553,30 +1508,14 @@ instance_groups:
             min: 0
             max: 3
             ha: 2
-          capabilities: []
-          persistent-volumes: []
-          shared-volumes: []
           memory: 128
           virtual-cpus: 4
-          healthcheck:
-            readiness:
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
           external: 7103
           internal: 7103
-  - name: eventgenerator
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
-        ports:
-        - name: eventgen  # eventgenereatorport
-          protocol: TCP
-          external: 7105
-          internal: 7105
-- name: autoscaler-actors
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
+- name: autoscaler-scalingengine
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1589,11 +1528,27 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          memory: 2350
+          virtual-cpus: 2
         ports:
         - name: scaling-engine  # scalingengineport
           protocol: TCP
           external: 7104
           internal: 7104
+- name: autoscaler-scheduler
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: scheduler
     release: app-autoscaler
     properties:
@@ -1603,20 +1558,95 @@ instance_groups:
             min: 0
             max: 3
             ha: 2
-          capabilities: []
-          persistent-volumes: []
-          shared-volumes: []
           memory: 2350
           virtual-cpus: 2
-          healthcheck:
-            readiness:
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
           external: 7102
           internal: 7102
+- name: autoscaler-operator
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: operator
     release: app-autoscaler
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          memory: 2350
+          virtual-cpus: 2
+- name: autoscaler-servicebroker
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: servicebroker
+    release: app-autoscaler
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          memory: 2350
+          virtual-cpus: 2
+        ports:
+        - name: broker
+          protocol: TCP
+          external: 7107
+          internal: 7107
+        - name: broker-public  # brokerpublicport
+          protocol: TCP
+          external: 7101
+          internal: 7101
+          public: true
+  - name: route_registrar
+    release: routing
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
+- name: autoscaler-eventgenerator
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: eventgenerator
+    release: app-autoscaler
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 3
+            ha: 2
+          memory: 2350
+          virtual-cpus: 2
+        ports:
+        - name: eventgen  # eventgenereatorport
+          protocol: TCP
+          external: 7105
+          internal: 7105
 - name: autoscaler-smoke
   type: bosh-task
   tags:
@@ -1642,6 +1672,23 @@ instance_groups:
       properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
       properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
       properties.smoke_tests.skip_ssl_validation: false
+- name: loggregator-agent
+  type: colocated-container
+  configuration:
+    templates:
+      properties.fissile.monit.port: 2290
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: loggregator_agent
+    release: loggregator-agent
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
 configuration:
   auth:
     roles:
@@ -1672,6 +1719,9 @@ configuration:
       - apiGroups: [""]
         resources: ["pods/log"]
         verbs: [create, delete, get, list]
+      - apiGroups: [""]
+        resources: ["secrets"]
+        verbs: [get, list]
     accounts:
       default:
         roles: [configgin-role]
@@ -1679,6 +1729,8 @@ configuration:
         roles: [configgin-role, secrets-role]
       test-brain:
         roles: [configgin-role, test-role]
+      node-reader:
+        roles: [configgin-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -1706,7 +1758,7 @@ configuration:
     properties.autoscaler.api_server.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-metrics-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-eventgenerator-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.info.build: '"((AUTOSCALER_API_SERVER_INFO_BUILD))"'
     properties.autoscaler.api_server.info.description: '"((AUTOSCALER_API_SERVER_INFO_DESCRIPTION))"'
     properties.autoscaler.api_server.info.name: '"((AUTOSCALER_API_SERVER_INFO_NAME))"'
@@ -1719,19 +1771,19 @@ configuration:
     properties.autoscaler.api_server.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
     properties.autoscaler.api_server.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.api_server.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
+    properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.scheduler.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
+    properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
+    properties.autoscaler.api_server.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
     properties.autoscaler.api_server.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
     properties.autoscaler.api_server.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.service_broker.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
     properties.autoscaler.api_server.service_broker.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.service_broker.host: '"autoscaler-api-servicebroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.service_broker.host: '"autoscaler-servicebroker-servicebroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.service_offering_enabled: '((AUTOSCALER_SERVICE_OFFERING_ENABLED))'
     properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.appmetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
@@ -1764,9 +1816,9 @@ configuration:
     properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
     properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics-metricscollector.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
+    properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
+    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
     properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -1797,16 +1849,16 @@ configuration:
     properties.autoscaler.operator.lock.lock_ttl: '"((AUTOSCALER_OPERATOR_LOCK_TTL))"'
     properties.autoscaler.operator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.operator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
+    properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.operator.scaling_engine.sync_interval: '((AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL))'
     properties.autoscaler.operator.scaling_engine_db.cutoff_days: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
     properties.autoscaler.operator.scaling_engine_db.refresh_interval: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.operator.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
+    properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
+    properties.autoscaler.operator.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.operator.scheduler.sync_interval: '((AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL))'
     properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
@@ -1818,8 +1870,8 @@ configuration:
     properties.autoscaler.scalingengine.health.emit_interval: '((AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL))'
     properties.autoscaler.scalingengine.lockSize: '"((AUTOSCALER_SCALING_ENGINE_LOCK_SIZE))"'
     properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
-    properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
-    properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
+    properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT))"'
+    properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT_KEY))"'
     properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
@@ -1830,11 +1882,11 @@ configuration:
     properties.autoscaler.scheduler.job_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.notification_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_ASACTORS_CLIENT_CERT))"'
-    properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_ASACTORS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.scheduler.server_cert: '"((AUTOSCALER_ASACTORS_SERVER_CERT))"'
-    properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_ASACTORS_SERVER_CERT_KEY))"'
+    properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
+    properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
+    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.scheduler.server_cert: '"((AUTOSCALER_SCHEDULER_SERVER_CERT))"'
+    properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_SCHEDULER_SERVER_CERT_KEY))"'
     properties.autoscaler.scheduler_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scheduler_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
@@ -1854,8 +1906,8 @@ configuration:
     properties.autoscaler.service_broker.public_ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.service_broker.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
-    properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
-    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
+    properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
+    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -1897,13 +1949,10 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
-    properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
-    properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
-    properties.cc.diego.lifecycle_bundles: '{"buildpack/((SUSE_STACK))":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","buildpack/cflinuxfs2":"buildpack_app_lifecycle/buildpack_app_lifecycle.tgz","docker":"docker_app_lifecycle/docker_app_lifecycle.tgz"}'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
     properties.cc.disable_custom_buildpacks: ((DISABLE_CUSTOM_BUILDPACKS))
@@ -1928,7 +1977,6 @@ configuration:
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.security_event_logging.enabled: '"((ENABLE_SECURITY_EVENT_LOGGING))"'
-    properties.cc.stacks: '[{"name": "cflinuxfs2", "description": "Cloud Foundry Linux-based filesystem"},{"name": "((SUSE_STACK))", "description": "((SUSE_STACK_DESCRIPTION))"}]'
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
@@ -1990,7 +2038,6 @@ configuration:
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.rep.preloaded_rootfses: '["((SUSE_STACK)):/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar","cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2025,7 +2072,6 @@ configuration:
     properties.garden.network_mtu: ((DIEGO_CELL_NETWORK_MTU))
     properties.garden.network_pool: '"((DIEGO_CELL_SUBNET))"'
     properties.garden.no_proxy: '"((NO_PROXY))"'
-    properties.garden.persistent_image_list: '["/var/vcap/packages/((SUSE_STACK_DIRNAME))/rootfs.tar", "/var/vcap/packages/cflinuxfs2/rootfs.tar"]'
     properties.garden.privileged_image_plugin: "((^GARDEN_DISABLE_BTRFS))/var/vcap/packages/groot-btrfs/bin/groot-btrfs((/GARDEN_DISABLE_BTRFS))"
     properties.garden.privileged_image_plugin_extra_args: ((^GARDEN_DISABLE_BTRFS))["--config", "/var/vcap/jobs/groot-btrfs/config/groot-btrfs-privileged.yaml"]((/GARDEN_DISABLE_BTRFS))
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
@@ -2076,7 +2122,7 @@ configuration:
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
-    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2270,39 +2316,6 @@ variables:
   options:
     default: 100
     description: The minimum number of connections to the Autoscaler appmetrics database.
-- name: AUTOSCALER_ASACTORS_CLIENT_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_actors_client
-    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
-      Actors. This includes the Autoscaler Scheduler and the Scaling Engine.
-    required: true
-  type: certificate
-- name: AUTOSCALER_ASACTORS_CLIENT_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key for clients to connect to the Autoscaler Actors.
-      This includes the Autoscaler Scheduler and the Scaling Engine.
-    required: true
-- name: AUTOSCALER_ASACTORS_SERVER_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - autoscaler-actors-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    - autoscaler-actors-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    description: A PEM-encoded TLS certificate of the Autoscaler Actors https server.
-      This includes the Autoscaler Scheduler and the Scaling Engine.
-    required: true
-  type: certificate
-- name: AUTOSCALER_ASACTORS_SERVER_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key of the Autoscaler Actors https server. This
-      includes the Autoscaler Scheduler and the Scaling Engine.
-    required: true
 - name: AUTOSCALER_ASAPI_CLIENT_CERT
   options:
     secret: true
@@ -2341,7 +2354,6 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-api-apiserver.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    - autoscaler-api-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: A PEM-encoded TLS certificate of the Autoscaler API https server.
       This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -2374,16 +2386,15 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-metrics-metricscollector.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    - autoscaler-metrics-eventgenerator.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     description: A PEM-encoded TLS certificate of the Autoscaler Metrics https server.
-      This includes the Autoscaler Metrics Collector and Event Generator.
+      This includes the Autoscaler Metrics Collector.
     required: true
   type: certificate
 - name: AUTOSCALER_ASMETRICS_SERVER_CERT_KEY
   options:
     secret: true
     description: A PEM-encoded TLS key of the Autoscaler Metrics https server. This
-      includes the Autoscaler Metrics Collector and Event Generator.
+      includes the Autoscaler Metrics Collector.
     required: true
 - name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
   options:
@@ -2537,7 +2548,7 @@ variables:
       in the Autoscaler Operator.
 - name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
   options:
-    description: "The interval of synchronizing applications information between AutoScaler 
+    description: "The interval of synchronizing applications information between AutoScaler
       policy database and Cloudfoundry."
     default: 24h
 - name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
@@ -2596,6 +2607,20 @@ variables:
   options:
     default: 100
     description: The maximum number of connections to the Autoscaler policy database.
+- name: AUTOSCALER_SCALING_ENGINE_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - as_scheduler_client
+    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scaling Engine.
+    required: true
+  type: certificate
+- name: AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scaling Engine.
+    required: true
 - name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2621,6 +2646,34 @@ variables:
     default: 32
     description: The lock number of the Autoscaler Scaling Engine to do synchronization
       for multiple scaling requests.
+- name: AUTOSCALER_SCALING_ENGINE_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-scalingengine-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler Scaling Engine https server.
+    required: true
+  type: certificate
+- name: AUTOSCALER_SCALING_ENGINE_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler Scaling Engine https server.
+    required: true
+- name: AUTOSCALER_SCHEDULER_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - as_scheduler_client
+    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scheduler.
+    required: true
+  type: certificate
+- name: AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scheduler.
+    required: true
 - name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
   options:
     default: 60s
@@ -2650,6 +2703,20 @@ variables:
     default: 3
     description: Maximum number of notification sent to Autoscaler Scaling Engine
       for job re-schedule.
+- name: AUTOSCALER_SCHEDULER_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-scheduler-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler Scheduler https server.
+    required: true
+  type: certificate
+- name: AUTOSCALER_SCHEDULER_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler Scheduler https server.
+    required: true
 - name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
   options:
     default: 1000
@@ -2676,6 +2743,22 @@ variables:
     description: The password for the Autoscaler Service Broker.
     required: true
   type: password
+- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - autoscaler-servicebroker-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    description: A PEM-encoded TLS certificate of the Autoscaler API https server.
+      This includes the Autoscaler ApiServer and the Service Broker.
+    required: true
+  type: certificate
+- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key of the Autoscaler API https server. This includes
+      the Autoscaler ApiServer and the Service Broker.
+    required: true
 - name: AUTOSCALER_SERVICE_OFFERING_ENABLED
   options:
     default: false
@@ -2686,6 +2769,15 @@ variables:
     secret: true
     description: the uaa client secret used by Autoscaler.
   type: password
+- name: AZ_LABEL_NAME
+  options:
+    default: ''
+    description: The name of the metadata label to query on worker
+      nodes to get AZ information. When set, the cells will query
+      their worker node for AZ information and inject the result into
+      cloudfoundry via the KUBE_AZ parameter. When left to the default
+      no custom AZ processing is done.
+    internal: true
 - name: BBS_ACTIVE_KEY_PASSPHRASE
   options:
     secret: true
@@ -2917,7 +3009,7 @@ variables:
   options:
     secret: true
     description: PEM-encoded server key
-    required: true  
+    required: true
 - name: DB_ENCRYPTION_KEY
   options:
     secret: true
@@ -2943,10 +3035,6 @@ variables:
     description: If set apps pushed to spaces that allow SSH access will have SSH
       enabled by default.
     required: true
-- name: DEFAULT_STACK
-  options:
-    default: sle12
-    description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
     default: auto
@@ -3521,28 +3609,6 @@ variables:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
-- name: SUSE_STACK
-  options:
-    default: opensuse42
-    type: environment
-    description: >
-      This controls which SUSE stack is built into SCF.
-      Depending on the build, this can be an openSUSE or SLE stack.
-      Cannot be set by the user.
-- name: SUSE_STACK_DESCRIPTION
-  options:
-    default: openSUSE-based filesystem
-    type: environment
-    description: >
-      During build this is set to an appropriate description for the SUSE stack built into SCF.
-      Cannot be set by the user.
-- name: SUSE_STACK_DIRNAME
-  options:
-    default: opensuse42
-    type: environment
-    description: >
-      During build this is set to the directory that contains the SUSE stack built into SCF.
-      Cannot be set by the user.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
