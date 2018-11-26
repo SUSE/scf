@@ -134,9 +134,6 @@ scf-helper-release:
 	cp container-host-files/etc/scf/config/role-manifest.yml src/scf-helper-release/src; \
 	make/bosh-release src/scf-helper-release
 
-app-autoscaler-release:
-	make/bosh-release src/app-autoscaler-release
-
 credhub-user-release:
 	make/bosh-release src/credhub-user-release
 
@@ -146,7 +143,6 @@ releases: \
 	scf-release \
 	uaa-releases \
 	usb-release \
-	app-autoscaler-release \
 	credhub-user-release \
 	${NULL}
 
