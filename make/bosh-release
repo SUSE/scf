@@ -7,5 +7,4 @@ GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 BOSH_RELEASE_PATH=${BOSH_RELEASE_PATH:-${1}}
 BOSH_RELEASE_NAME=${BOSH_RELEASE_NAME:-${2:-$(basename ${BOSH_RELEASE_PATH} -release)}}
 
-cd "$BOSH_RELEASE_PATH"
-bosh create-release --name="$BOSH_RELEASE_NAME" --force
+${GIT_ROOT}/bin/create-release.sh ${BOSH_RELEASE_PATH} ${BOSH_RELEASE_NAME}
