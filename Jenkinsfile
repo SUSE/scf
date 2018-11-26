@@ -364,6 +364,9 @@ pipeline {
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
                         xargs --no-run-if-empty docker rmi
+
+                    # Attempt to clean up orphaned images; it's okay to fail here
+                    docker system prune -f || true
                 '''
             }
         }

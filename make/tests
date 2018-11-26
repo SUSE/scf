@@ -23,16 +23,59 @@ find_test() {
 TEST_FILE="$(find_test)"
 shift
 
-if [ "${POD_NAME}" == "acceptance-tests" ]; then
-    UAA_COUNT=$(kubectl get sts --namespace "${UAA_NAMESPACE}" uaa -o jsonpath='{.status.replicas}')
-    if [ ${UAA_COUNT} -gt 1 ]; then
-        echo -e "\033[36mThe SSO lifecycle tests are known to fail with UAA in HA mode.\033[0m"
-        echo -e "\033[36mMake you have disabled the tests with e.g. \033[32menv.CATS_SUITES=-sso\033[0m"
-        echo ""
-        echo "See https://github.com/cloudfoundry/cf-acceptance-tests/issues/328"
-        echo ""
-    fi
-fi
+case "${POD_NAME}" in
+    acceptance-tests)
+        UAA_COUNT=$(kubectl get sts --namespace "${UAA_NAMESPACE}" uaa -o jsonpath='{.status.replicas}')
+        if [ ${UAA_COUNT} -gt 1 ]; then
+            echo -e "\033[36mThe SSO lifecycle tests are known to fail with UAA in HA mode.\033[0m"
+            echo -e "\033[36mMake you have disabled the tests with e.g. \033[32menv.CATS_SUITES=-sso\033[0m"
+            echo ""
+            echo "See https://github.com/cloudfoundry/cf-acceptance-tests/issues/328"
+            echo ""
+        fi
+    ;;
+    acceptance-tests-brain)
+        kubectl apply -f - <<-EOF
+            { "apiVersion": "v1",
+              "kind": "List",
+              "items": [
+                { "apiVersion": "rbac.authorization.k8s.io/v1",
+                  "kind": "ClusterRole",
+                  "metadata": { "name": "${NAMESPACE}:${POD_NAME}:clusterrole" },
+                  "rules": [
+                    { "apiGroups": [ "" ],
+                      "resources": [ "namespaces" ],
+                      "verbs":     [ "create", "get", "delete" ]
+                    },
+                    { "apiGroups": [ "" ],
+                      "resources": [ "pods" ],
+                      "verbs":     [ "list" ]
+                    },
+                    { "apiGroups": [ "" ],
+                      "resources": [ "pods/portforward" ],
+                      "verbs":     [ "create" ]
+                    }
+                  ]
+                },
+                { "apiVersion": "rbac.authorization.k8s.io/v1",
+                  "kind": "ClusterRoleBinding",
+                  "metadata": { "name": "${NAMESPACE}:${POD_NAME}:clusterrolebinding" },
+                  "roleRef": {
+                    "apiGroup": "rbac.authorization.k8s.io",
+                    "kind":     "ClusterRole",
+                    "name":     "${NAMESPACE}:${POD_NAME}:clusterrole"
+                  },
+                  "subjects": [
+                    { "kind":      "ServiceAccount",
+                      "name":      "test-brain",
+                      "namespace": "${NAMESPACE}"
+                    }
+                  ]
+                }
+              ]
+            }
+EOF
+esac
 
 GIT_ROOT=${GIT_ROOT:-$(git -C "$(dirname "${0}")" rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
