@@ -165,7 +165,7 @@ fi
 if searchTargetDir "${RSYSLOG_FORWARDER_WATCH_DIR}"; then
         if test -r "${PID_FILE}"; then
                 if test -d "/proc/$(cat "${PID_FILE}")"; then
-                        monit restart rsyslogd
+                        /var/vcap/bosh/bin/monit restart rsyslogd
                 fi
         fi
 fi
