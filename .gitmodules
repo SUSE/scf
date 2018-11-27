@@ -1,9 +1,3 @@
-[submodule "src/groot-btrfs"]
-	path = src/groot-btrfs
-	url = https://github.com/SUSE/groot-btrfs.git
-[submodule "src/cf-usb"]
-	path = src/cf-usb
-	url = https://github.com/SUSE/cf-usb
 [submodule "src/scf-helper-release"]
 	path = src/scf-helper-release
 	url = https://github.com/SUSE/scf-helper-release
@@ -25,6 +19,6 @@
 [submodule "src/credhub-user-release"]
 	path = src/credhub-user-release
 	url = https://github.com/SUSE/credhub-release
-[submodule "src/app-autoscaler-release"]
-	path = src/app-autoscaler-release
-	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
+[submodule "src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app"]
+	path = src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app
+	url = https://github.com/scf-samples/cf-redis-example-app
