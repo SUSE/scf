@@ -25,3 +25,6 @@
 [submodule "src/credhub-user-release"]
 	path = src/credhub-user-release
 	url = https://github.com/SUSE/credhub-release
+[submodule "src/app-autoscaler-release"]
+	path = src/app-autoscaler-release
+	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
