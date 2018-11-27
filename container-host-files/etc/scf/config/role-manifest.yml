@@ -104,6 +104,14 @@ releases:
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
   sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
+- name: "cf-usb"
+  version: "1.0.1"
+  url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
+  sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
+- name: "groot-btrfs"
+  version: "1.0.2"
+  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.2.tgz"
+  sha1: "1232559a679c7b588e735d35c1a8deb250fd8afd"
 
 instance_groups:
 - name: syslog-scheduler

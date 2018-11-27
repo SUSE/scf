@@ -121,15 +121,6 @@ uaa-helm: ${FISSILE_BINARY}
 
 ########## BOSH RELEASE TARGETS ##########
 
-app-autoscaler-release:
-	make/bosh-release src/app-autoscaler-release
-
-groot-btrfs-release:
-	make/bosh-release src/groot-btrfs/groot-btrfs-release
-
-usb-release:
-	make/bosh-release src/cf-usb/cf-usb-release
-
 scf-release:
 	make/bosh-release src/scf-release
 
@@ -141,13 +132,10 @@ credhub-user-release:
 	make/bosh-release src/credhub-user-release
 
 releases: \
-	groot-btrfs-release \
 	scf-helper-release \
 	scf-release \
 	uaa-releases \
-	usb-release \
 	credhub-user-release \
-	app-autoscaler-release \
 	${NULL}
 
 diff-releases:
