@@ -1,108 +1,21 @@
-[submodule "src/diego-release"]
-	path = src/diego-release
-	url = https://github.com/cloudfoundry/diego-release.git
-[submodule "src/cf-mysql-release"]
-	path = src/cf-mysql-release
-	url = https://github.com/cloudfoundry/cf-mysql-release.git
-[submodule "src/cflinuxfs2-release"]
-	path = src/cflinuxfs2-release
-	url = https://github.com/cloudfoundry/cflinuxfs2-release.git
-[submodule "src/routing-release"]
-	path = src/routing-release
-	url = https://github.com/cloudfoundry/routing-release.git
-[submodule "src/garden-runc-release"]
-	path = src/garden-runc-release
-	url = https://github.com/cloudfoundry/garden-runc-release.git
-[submodule "src/nats-release"]
-	path = src/nats-release
-	url = https://github.com/cloudfoundry/nats-release.git
-[submodule "src/capi-release"]
-	path = src/capi-release
-	url = https://github.com/cloudfoundry/capi-release.git
-[submodule "src/buildpacks/go-buildpack-release"]
-	path = src/buildpacks/go-buildpack-release
-	url = https://github.com/SUSE/cf-go-buildpack-release.git
-[submodule "src/buildpacks/binary-buildpack-release"]
-	path = src/buildpacks/binary-buildpack-release
-	url = https://github.com/SUSE/cf-binary-buildpack-release.git
-[submodule "src/buildpacks/nodejs-buildpack-release"]
-	path = src/buildpacks/nodejs-buildpack-release
-	url = https://github.com/SUSE/cf-nodejs-buildpack-release.git
-[submodule "src/buildpacks/ruby-buildpack-release"]
-	path = src/buildpacks/ruby-buildpack-release
-	url = https://github.com/SUSE/cf-ruby-buildpack-release.git
-[submodule "src/buildpacks/php-buildpack-release"]
-	path = src/buildpacks/php-buildpack-release
-	url = https://github.com/SUSE/cf-php-buildpack-release.git
-[submodule "src/buildpacks/python-buildpack-release"]
-	path = src/buildpacks/python-buildpack-release
-	url = https://github.com/SUSE/cf-python-buildpack-release.git
-[submodule "src/buildpacks/staticfile-buildpack-release"]
-	path = src/buildpacks/staticfile-buildpack-release
-	url = https://github.com/SUSE/cf-staticfile-buildpack-release.git
-[submodule "src/cf-opensuse42-release"]
-	path = src/cf-opensuse42-release
-	url = https://github.com/SUSE/cf-opensuse42-release.git
-[submodule "src/uaa-fissile-release"]
-	path = src/uaa-fissile-release
-	url = https://github.com/SUSE/uaa-fissile-release
-[submodule "src/cf-usb"]
-	path = src/cf-usb
-	url = https://github.com/SUSE/cf-usb
-[submodule "src/buildpacks/dotnet-core-buildpack-release"]
-	path = src/buildpacks/dotnet-core-buildpack-release
-	url = https://github.com/SUSE/cf-dotnet-core-buildpack-release
-[submodule "src/cf-sle12-release"]
-	path = src/cf-sle12-release
-	url = https://github.com/SUSE/cf-sle12-release.git
-[submodule "src/nfs-volume-release"]
-	path = src/nfs-volume-release
-	url = https://github.com/cloudfoundry/nfs-volume-release.git
-[submodule "src/cf-smoke-tests-release"]
-	path = src/cf-smoke-tests-release
-	url = https://github.com/cloudfoundry/cf-smoke-tests-release
-[submodule "src/statsd-injector-release"]
-	path = src/statsd-injector-release
-	url = https://github.com/cloudfoundry/statsd-injector-release.git
-[submodule "src/scf-release/src/github.com/SUSE/testbrain"]
-	path = src/scf-release/src/github.com/SUSE/testbrain
-	url = https://github.com/SUSE/testbrain.git
-[submodule "src/loggregator-release"]
-	path = src/loggregator-release
-	url = https://github.com/cloudfoundry/loggregator-release.git
-[submodule "src/buildpacks/java-buildpack-release"]
-	path = src/buildpacks/java-buildpack-release
-	url = https://github.com/SUSE/cf-java-buildpack-release.git
-[submodule "src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
-	path = src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
-[submodule "src/cf-syslog-drain-release"]
-	path = src/cf-syslog-drain-release
-	url = https://github.com/cloudfoundry/cf-syslog-drain-release.git
 [submodule "src/scf-helper-release"]
 	path = src/scf-helper-release
 	url = https://github.com/SUSE/scf-helper-release
-[submodule "src/postgres-release"]
-	path = src/postgres-release
-	url = https://github.com/cloudfoundry/postgres-release.git
-[submodule "src/consul-release"]
-	path = src/consul-release
-	url = https://github.com/cloudfoundry-incubator/consul-release.git
-[submodule "src/groot-btrfs"]
-	path = src/groot-btrfs
-	url = https://github.com/SUSE/groot-btrfs.git
-[submodule "src/app-autoscaler-release"]
-	path = src/app-autoscaler-release
-	url = https://github.com/cloudfoundry-incubator/app-autoscaler-release.git
+[submodule "src/uaa-fissile-release"]
+	path = src/uaa-fissile-release
+	url = https://github.com/SUSE/uaa-fissile-release
+[submodule "src/scf-release/src/github.com/SUSE/testbrain"]
+	path = src/scf-release/src/github.com/SUSE/testbrain
+	url = https://github.com/SUSE/testbrain.git
+[submodule "src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
+	path = src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests
+	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
 [submodule "src/scf-release/src/github.com/docker/distribution"]
 	path = src/scf-release/src/github.com/docker/distribution
 	url = https://github.com/docker/distribution.git
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests
 	url = https://github.com/cloudfoundry/persi-acceptance-tests.git
-[submodule "src/loggregator-agent-release"]
-	path = src/loggregator-agent-release
-	url = https://github.com/cloudfoundry/loggregator-agent-release.git
 [submodule "src/credhub-user-release"]
 	path = src/credhub-user-release
 	url = https://github.com/SUSE/credhub-release
