@@ -1235,9 +1235,9 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
         pod-security-policy: privileged
   - name: groot-btrfs
-    release: groot-btrfs
-  - name: cflinuxfs2-rootfs-setup
-    release: cflinuxfs2
+  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.3.tgz"
+  version: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.3.tgz"
+  sha1: "1.0.3"
   - name: opensuse42-rootfs-setup
     release: cf-opensuse42
   - name: cf-sle12-setup
