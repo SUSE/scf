@@ -338,7 +338,7 @@ instance_groups:
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
-- name: cf-usb
+- name: cf-usb-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -354,6 +354,7 @@ instance_groups:
     release: cf-usb
     properties:
       bosh_containerization:
+        service_name: cf-usb
         run:
           scaling:
             min: 1
@@ -1992,7 +1993,7 @@ configuration:
     properties.ccdb.address: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
-    properties.cf-usb.broker.external_url: '"https://cf-usb-cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
+    properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
@@ -2947,7 +2948,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    role_name: cf-usb-cf-usb
+    role_name: cf-usb
     description: PEM-encoded broker server certificate.
   type: certificate
 - name: CF_USB_BROKER_SERVER_CERT_KEY
