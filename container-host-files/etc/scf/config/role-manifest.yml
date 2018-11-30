@@ -20,6 +20,10 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.227.0
   version: 1.227.0
   sha1: 7d407ac592eed31ce5d857fd7eb03bbc9dd00965
+- name: credhub
+  url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
+  version: 2.0.2
+  sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
 - name: diego
   url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.12.1
   version: 2.12.1
@@ -648,6 +652,7 @@ instance_groups:
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
+  - scripts/patches/cc_ng_disable_credhub.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -727,6 +732,7 @@ instance_groups:
 - name: cc-worker
   scripts:
   - scripts/forward_logfiles.sh
+  - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -805,6 +811,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
+  - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
@@ -1389,7 +1396,7 @@ instance_groups:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
   - name: credhub
-    release: credhub-user
+    release: credhub
     properties:
       bosh_containerization:
         run:

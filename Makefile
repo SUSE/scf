@@ -128,14 +128,10 @@ scf-helper-release:
 	cp container-host-files/etc/scf/config/role-manifest.yml src/scf-helper-release/src; \
 	make/bosh-release src/scf-helper-release
 
-credhub-user-release:
-	make/bosh-release src/credhub-user-release
-
 releases: \
 	scf-helper-release \
 	scf-release \
 	uaa-releases \
-	credhub-user-release \
 	${NULL}
 
 diff-releases:
