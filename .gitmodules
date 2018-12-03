@@ -16,9 +16,6 @@
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/persi-acceptance-tests
 	url = https://github.com/cloudfoundry/persi-acceptance-tests.git
-[submodule "src/credhub-user-release"]
-	path = src/credhub-user-release
-	url = https://github.com/SUSE/credhub-release
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app
 	url = https://github.com/scf-samples/cf-redis-example-app
