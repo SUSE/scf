@@ -1246,6 +1246,7 @@ instance_groups:
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/mapfs_pre_start.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
