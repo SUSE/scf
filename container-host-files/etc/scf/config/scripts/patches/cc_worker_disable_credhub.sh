@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+# This is a temporary patch needed to expose credhub to users having
+# the CF core components using it. This patch will go away when
+# credhub becomes mandatory for CF core components and we are caught
+# to that version of CF.
+
 set -e
 
 PATCH_DIR=/var/vcap/jobs-src/cloud_controller_worker/templates
