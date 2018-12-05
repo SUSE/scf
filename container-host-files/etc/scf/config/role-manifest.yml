@@ -1139,6 +1139,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/nfsbroker_cert_prop.sh
+  - scripts/patches/nfsbroker_ctl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1232,6 +1234,11 @@ instance_groups:
           internal: 8999
   tags:
   - sequential-startup
+  configuration:
+    templates:
+      properties.nfsbroker.credhub.ca_cert: '~'
+      properties.nfsbroker.credhub.uaa_ca_cert: '~'
+      properties.nfsbroker.db_ca_cert: '~'
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
