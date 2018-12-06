@@ -36,6 +36,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
+export PRODUCT_VERSION="1.13.1"
 export CF_VERSION=2.7.0
 
 # Show versions, if called on its own.
@@ -43,6 +44,7 @@ export CF_VERSION=2.7.0
 
 if [ "X$(basename -- "$0")" = "Xversions.sh" ]
 then
+    echo product '      =' $PRODUCT_VERSION
     echo bosh-cli '     =' $BOSH_CLI_VERSION
     echo cf '           =' $CF_VERSION
     echo cf-cli '       =' $CFCLI_VERSION
