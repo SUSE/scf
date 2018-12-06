@@ -390,6 +390,7 @@ properties:
           adapter_cn: adapter
   scf:
     skip_cert_verify_external: false
+  set_kernel_parameters: false
   smoke_tests:
     user: 'admin'
     org: smoke-test-org
