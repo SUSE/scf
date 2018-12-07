@@ -1,5 +1,11 @@
 ---
 releases:
+
+- name: "bpm"
+  version: "1.0.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
+  sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
+
 - name: "capi"
   version: "1.66.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
@@ -388,6 +394,13 @@ instance_groups:
           internal: 24053
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   tags:
   - sequential-startup
   configuration:
@@ -477,6 +490,13 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: gorouter
     release: routing
     properties:
@@ -603,6 +623,13 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: routing-api
     release: routing
     properties:
@@ -704,6 +731,13 @@ instance_groups:
           internal: 8125
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: statsd_injector
     release: statsd-injector
   - name: go-buildpack
@@ -804,6 +838,13 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -954,6 +995,13 @@ instance_groups:
           internal: 8082
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1418,6 +1466,13 @@ instance_groups:
           internal: 8844
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
@@ -1504,6 +1559,13 @@ instance_groups:
           virtual-cpus: 2
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1636,6 +1698,13 @@ instance_groups:
           public: true
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
