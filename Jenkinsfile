@@ -488,7 +488,7 @@ pipeline {
                         OS="opensuse"
                     fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/scf-${OS}-*.zip
+                    rm -f output/scf-${OS}-*.zip output/scf-${OS}-*.tgz
                     make helm bundle-dist
                 '''
             }
@@ -802,25 +802,34 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*.zip")
+                            def files = findFiles(glob: "output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*")
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
                             for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                s3Upload(
-                                    file: files[i].path,
-                                    bucket: "${params.S3_BUCKET}",
-                                    path: "${subdir}${prefix}${files[i].name}",
-                                )
+                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+                                    s3Upload(
+                                        file: files[i].path,
+                                        bucket: "${params.S3_BUCKET}",
+                                        path: "${subdir}${prefix}${files[i].name}",
+                                    )
+                                } else {
+                                    echo "Skipping file ${files[i].path}"
+                                }
+
+                                if (files[i].path =~ /\.tgz$/ ) {
+                                    def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                    // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                                    def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                    def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                                    def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                                    echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                    echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                    echo "Download the bundle from ${capBundleUri}"
+
+                                }
                             }
-
-                            // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                            def encodedFileName = java.net.URLEncoder.encode(files[0].name, "UTF-8")
-                            def encodedCapBundleUri = java.net.URLEncoder.encode("https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}", "UTF-8")
-                            def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                            echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                            echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
                     }
                 }
