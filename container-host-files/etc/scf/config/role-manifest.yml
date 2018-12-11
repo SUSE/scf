@@ -69,9 +69,9 @@ releases:
   version: "4.16.1.1"
   sha1: "8744de5d55d100866d6575f6c54e232a97079d80"
 - name: nodejs-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.36.1.tgz"
-  version: "1.6.36.1"
-  sha1: "a5cdf0d7e61e0e466c9f5892a81318e9deb7b8f9"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.37.1.tgz"
+  version: "1.6.37.1"
+  sha1: "4b7284a9ce29cece5d16402b11ca3233dac39d6f"
 - name: php-buildpack-release
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.66.1.tgz"
   version: "4.3.66.1"
