@@ -85,9 +85,9 @@ releases:
   version: "1.7.26.1"
   sha1: e0f37c4ea2e7534860ed2e84f26d4a593409a739
 - name: staticfile-buildpack-release
-  url: https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.34.2.tgz
-  version: "1.4.34.2"
-  sha1: af5e43beddb8d704e40a4e0cd1128940b7108daf
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.36.1.tgz"
+  version: "1.4.36.1"
+  sha1: "386c835260c900ccf4adab7a8e7269f9ed3a2a41"
 - name: "dotnet-core-buildpack"
   version: "2.0.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
