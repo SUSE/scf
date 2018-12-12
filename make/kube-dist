@@ -6,33 +6,31 @@ GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
 
 . "${GIT_ROOT}/make/include/versioning"
 
+if [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
+    stemcell_os="opensuse"
+elif [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-sle.*$ ]] ; then
+    stemcell_os="sle"
+else
+    echo "Unkown stemcell operating system: ${FISSILE_STEMCELL}"
+    exit 1
+fi
+
 artifacts=("")
-for variant in kube helm ; do
-    tmp_dir=$(mktemp -d)
-    trap "rm -rf '${tmp_dir}'" EXIT
-    artifact="output/${ARTIFACT_NAME}-${variant}-${APP_VERSION}.tgz"
 
-    rm -f "${GIT_ROOT}/${artifact}"
+declare -A directories=(
+    [cf]="${GIT_ROOT}/output"
+    [uaa]="${GIT_ROOT}/src/uaa-fissile-release"
+)
 
-    # Add "-opensuse" suffix to the chart directory if we are on opensuse stemcell.
-    # The directory should match the chart name.
-    if [[ $FISSILE_STEMCELL =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
-      suffix="-opensuse"
-    fi
-
-    mkdir -p "${tmp_dir}"/{cf,uaa}${suffix:-}
-
-    cp -r "${GIT_ROOT}/output/${variant}/"* "${tmp_dir}/cf${suffix:-}"
-    cp -r "${GIT_ROOT}/src/uaa-fissile-release/${variant}/"* "${tmp_dir}/uaa${suffix:-}"
-
-    (
-        cd "${tmp_dir}"
-        tar czf "${GIT_ROOT}/${artifact}" .
-    )
-
-    rm -rf "${tmp_dir}"
-    trap '' EXIT
-    artifacts=("${artifact}" "${artifacts[@]}")
+for project in "${!directories[@]}" ; do
+    for variant in kube helm ; do
+        artifact="output/${project}-${stemcell_os}-${variant}-${APP_VERSION}.tgz"
+        (
+            cd "${directories[${project}]}/${variant}"
+            tar czf "${GIT_ROOT}/${artifact}" -- *
+        )
+        artifacts+=("${artifact}")
+    done
 done
 
 echo "Generated ${artifacts[*]}"
