@@ -34,7 +34,11 @@ properties:
     # include_sso: true
     # include_tasks: false
     # include_v3: false
-    default_timeout: 300
+
+    # timeouts
+    default_timeout:   300 # 5 minutes
+    cf_push_timeout:   300 # 5 minutes
+    long_curl_timeout: 300 # 5 minutes
   acceptance_tests_brain:
     user: admin
     org: test-brain-org
