@@ -1,6 +1,3 @@
-[submodule "src/scf-helper-release"]
-	path = src/scf-helper-release
-	url = https://github.com/SUSE/scf-helper-release
 [submodule "src/uaa-fissile-release"]
 	path = src/uaa-fissile-release
 	url = https://github.com/SUSE/uaa-fissile-release
