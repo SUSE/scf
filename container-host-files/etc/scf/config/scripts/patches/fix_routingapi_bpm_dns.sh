@@ -15,7 +15,7 @@ fi
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 --- bpm.yml.erb
 +++ bpm.yml.erb
-@@ -14,3 +14,8 @@ processes:
+@@ -14,3 +14,11 @@ processes:
  
      hooks:
        pre_start: /var/vcap/jobs/routing-api/bin/bpm-pre-start
@@ -23,7 +23,10 @@ patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 +      unrestricted_volumes:
 +      - path: /etc/hostname
 +      - path: /etc/hosts
++      - path: /etc/pki
 +      - path: /etc/resolv.conf
++      - path: /etc/ssl
++      - path: /var/lib
 PATCH
 
 touch "${SENTINEL}"

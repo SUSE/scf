@@ -15,7 +15,7 @@ fi
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 --- bpm.yml.erb
 +++ bpm.yml.erb
-@@ -13,3 +13,8 @@ processes:
+@@ -13,3 +13,11 @@ processes:
      pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
    capabilities:
    - NET_BIND_SERVICE
@@ -23,7 +23,10 @@ patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 +    unrestricted_volumes:
 +    - path: /etc/hostname
 +    - path: /etc/hosts
++    - path: /etc/hosts
 +    - path: /etc/resolv.conf
++    - path: /etc/ssl
++    - path: /var/lib
 PATCH
 
 touch "${SENTINEL}"
