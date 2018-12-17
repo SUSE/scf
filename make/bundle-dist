@@ -18,7 +18,7 @@ elif [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-sle.*$ ]] ; then
     stemcell_os="sle"
     suffix=""
 else
-    echo "Unkown stemcell operating system: ${FISSILE_STEMCELL}"
+    echo "Unknown stemcell operating system: ${FISSILE_STEMCELL}"
     exit 1
 fi
 ARCHIVE_ROOT="${GIT_ROOT}/output/scf-${stemcell_os}-${APP_VERSION}"
