@@ -27,11 +27,11 @@ echo Packaging, taking "${APP_VERSION}" ...
 
 # Assembling the pieces ...
 find "${tmp_dir}"
+mkdir -p "${tmp_dir}/helm"
 
 for project in uaa cf ; do
     mkdir -p "${tmp_dir}/kube/${project}${suffix}"
     tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-kube-${APP_VERSION}.tgz" -C "${tmp_dir}/kube/${project}${suffix}/"
-    mkdir -p "${tmp_dir}/helm"
     tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-helm-${APP_VERSION}.tgz" -C "${tmp_dir}/helm/"
 done
 
