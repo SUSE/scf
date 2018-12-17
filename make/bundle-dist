@@ -29,10 +29,10 @@ echo Packaging, taking "${APP_VERSION}" ...
 find "${tmp_dir}"
 
 for project in uaa cf ; do
-    for variant in kube helm ; do
-        mkdir -p "${tmp_dir}/${variant}/${project}${suffix}"
-        tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-${variant}-${APP_VERSION}.tgz" -C "${tmp_dir}/${variant}/${project}${suffix}"
-    done
+    mkdir -p "${tmp_dir}/kube/${project}${suffix}"
+    tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-kube-${APP_VERSION}.tgz" -C "${tmp_dir}/kube/${project}${suffix}/"
+    mkdir -p "${tmp_dir}/helm"
+    tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-helm-${APP_VERSION}.tgz" -C "${tmp_dir}/helm/"
 done
 
 # "Am I Ok" for kube

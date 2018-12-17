@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit -o nounset
+set -x
 
 GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
 
@@ -15,6 +16,9 @@ else
     exit 1
 fi
 
+tmp_dir=$(mktemp -d)
+trap "rm -rf '${tmp_dir}'" EXIT
+
 artifacts=("")
 
 declare -A directories=(
@@ -26,8 +30,15 @@ for project in "${!directories[@]}" ; do
     for variant in kube helm ; do
         artifact="output/${project}-${stemcell_os}-${variant}-${APP_VERSION}.tgz"
         (
-            cd "${directories[${project}]}/${variant}"
-            tar czf "${GIT_ROOT}/${artifact}" -- *
+            if test -r "${directories[${project}]}/${variant}/Chart.yaml" ; then
+                chart_name="$(awk '/^name:/ { print $2 }' "${directories[${project}]}/${variant}/Chart.yaml")"
+                cp -r "${directories[${project}]}/${variant}" "${tmp_dir}/${chart_name}"
+                cd "${tmp_dir}"
+                tar czf "${GIT_ROOT}/${artifact}" -- "${chart_name}"
+            else
+                cd "${directories[${project}]}/${variant}"
+                tar czf "${GIT_ROOT}/${artifact}" -- *
+            fi
         )
         artifacts+=("${artifact}")
     done
