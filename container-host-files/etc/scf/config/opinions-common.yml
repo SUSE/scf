@@ -279,6 +279,7 @@ properties:
     proxy:
       api_force_https: false
       api_username: 'mysql_proxy'
+  deployment: scf-deployment
   diego:
     auctioneer:
       rep:
@@ -344,8 +345,6 @@ properties:
     reserved_space_for_other_jobs_in_mb: 3000
   loggregator:
     use_v2_api: true
-  metron_agent:
-    deployment: scf-deployment
   nats:
     port: 4222
     user: nats
