@@ -694,7 +694,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - api
+                      - api-group
                   topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: api
