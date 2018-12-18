@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -o errexit
+
 export FISSILE_TAG_EXTRA=$(git -C "${FISSILE_GIT_ROOT:-$PWD}" rev-parse HEAD)${FISSILE_TAG_EXTRA:+-${FISSILE_TAG_EXTRA}}
 
 if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
@@ -10,12 +13,14 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
     # add the common part, which references them.
 
     if [ "${USE_SLE_BASE}" = "false" ]; then
-	cp "${FISSILE_LIGHT_OPEN42}" "${FISSILE_LIGHT_OPINIONS}"
+        SRC_BASE="${FISSILE_LIGHT_OPEN42}"
     else
-	cp "${FISSILE_LIGHT_SLE12}" "${FISSILE_LIGHT_OPINIONS}"
+        SRC_BASE="${FISSILE_LIGHT_SLE12}"
     fi
 
-    cat "${FISSILE_LIGHT_COMMON}" >> "${FISSILE_LIGHT_OPINIONS}"
+    tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX) || exit 1
+    cat "${SRC_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
+    mv "${tmp_file}" "${FISSILE_LIGHT_OPINIONS}"
 fi
 
 exec fissile.real "$@"
