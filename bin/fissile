@@ -10,13 +10,14 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
     # add the common part, which references them.
 
     if [ "${USE_SLE_BASE}" = "false" ]; then
-	SRC_BASE="${FISSILE_LIGHT_OPEN42}"
+        SRC_BASE="${FISSILE_LIGHT_OPEN42}"
     else
-	SRC_BASE="${FISSILE_LIGHT_SLE12}"
+        SRC_BASE="${FISSILE_LIGHT_SLE12}"
     fi
 
-    cat "${SRC_BASE}" "${FISSILE_LIGHT_COMMON}" > "${HOME}/$$"
-    mv "${HOME}/$$" "${FISSILE_LIGHT_OPINIONS}"
+    tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX) || exit 1
+    cat "${SRC_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
+    mv "${tmp_file}" "${FISSILE_LIGHT_OPINIONS}"
 fi
 
 exec fissile.real "$@"
