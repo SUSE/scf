@@ -18,7 +18,7 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
         SRC_BASE="${FISSILE_LIGHT_SLE12}"
     fi
 
-    tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX) || exit 1
+    tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX)
     cat "${SRC_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
     mv "${tmp_file}" "${FISSILE_LIGHT_OPINIONS}"
 fi
