@@ -399,8 +399,9 @@ and execute the following commands:
 
 ```bash
 make smoke
-make cats
 make brain
+make scaler-smoke
+make cats 
 ```
 
 #### How do I run a subset of SCF acceptance tests?
