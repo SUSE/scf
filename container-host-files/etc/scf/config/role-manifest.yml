@@ -353,7 +353,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -681,7 +681,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -809,7 +809,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -949,7 +949,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1444,7 +1444,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1538,7 +1538,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1676,7 +1676,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_rr_bpm_dns.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
