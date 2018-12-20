@@ -6,12 +6,13 @@ scf-cached-libvirt: http/scf-autoyast.xml
 		-var ssh_username=scf \
 		-var ssh_password=changeme \
 		vagrant-box.json
-vagrant-libvirt: http/vagrant-autoyast.xml
-	packer build -only vagrant-libvirt vagrant-box.json
-vagrant-virtualbox: http/vagrant-autoyast.xml
-	packer build -only vagrant-virtualbox vagrant-box.json
-jenkins-slave: http/vagrant-autoyast.xml
-	packer build -only jenkins-slave vagrant-box.json
+
+vagrant-libvirt \
+vagrant-virtualbox \
+jenkins-slave \
+aws-slave \
+	: http/vagrant-autoyast.xml
+	packer build -only $@ -var output_directory="$${PACKER_OUTPUT:-$${PWD}/output}" vagrant-box.json
 
 # The following build pieces require txtplate to evaluate Go templates
 http/scf-autoyast.xml: http/autoyast.xml.tpl

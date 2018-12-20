@@ -10,7 +10,7 @@ artifacts=("")
 for variant in kube helm ; do
     tmp_dir=$(mktemp -d)
     trap "rm -rf '${tmp_dir}'" EXIT
-    artifact="output/${ARTIFACT_NAME}-${variant}-${APP_VERSION}.zip"
+    artifact="output/${ARTIFACT_NAME}-${variant}-${APP_VERSION}.tgz"
 
     rm -f "${GIT_ROOT}/${artifact}"
 
@@ -27,7 +27,7 @@ for variant in kube helm ; do
 
     (
         cd "${tmp_dir}"
-        zip -r9 "${GIT_ROOT}/${artifact}" ./*
+        tar czf "${GIT_ROOT}/${artifact}" .
     )
 
     rm -rf "${tmp_dir}"

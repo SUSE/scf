@@ -118,7 +118,7 @@ Boolean noOverwrites() {
 }
 
 pipeline {
-    agent { label ((["scf"] + (params.AGENT_LABELS ? params.AGENT_LABELS : "").tokenize()).join("&&")) }
+    agent { label ((params.AGENT_LABELS ?: "scf prod").tokenize().join("&&")) }
     options {
         ansiColor('xterm')
         skipDefaultCheckout() // We do our own checkout so it can be disabled
@@ -254,7 +254,7 @@ pipeline {
         )
         string(
             name: 'AGENT_LABELS',
-            defaultValue: '',
+            defaultValue: 'scf prod',
             description: 'Extra labels for Jenkins slave selection',
         )
         credentials(
@@ -364,6 +364,9 @@ pipeline {
                     docker images --format="{{.Repository}}:{{.Tag}}" | \
                         grep -E '/scf-|/uaa-|^uaa-role-packages:|^scf-role-packages:' | \
                         xargs --no-run-if-empty docker rmi
+
+                    # Attempt to clean up orphaned images; it's okay to fail here
+                    docker system prune -f || true
                 '''
             }
         }
@@ -485,7 +488,7 @@ pipeline {
                         OS="opensuse"
                     fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/scf-${OS}-*.zip
+                    rm -f output/scf-${OS}-*.zip output/scf-${OS}-*.tgz
                     make helm bundle-dist
                 '''
             }
@@ -527,7 +530,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath
 
@@ -543,24 +546,12 @@ pipeline {
                     done
                     set -x
 
-                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
-
-                    # The extra IP address is to check that the code to set up multiple
-                    # addresses for services is working correctly; it isn't used in
-                    # actual routing.
-                    helm install output/unzipped/helm/cf\${suffix} \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set env.INSECURE_DOCKER_REGISTRIES='"insecure-registry.${domain()}:20005"' \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
-                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}" \
-                        --set "kube.external_ips[0]=192.0.2.84" \
-                        --set "kube.external_ips[1]=${ipAddress()}" \
-                        --set kube.storage_class.persistent=hostpath \
+                    # Use `make/run` to run the deployment to ensure we have updated settings
+                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
+                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export DOMAIN="${domain()}"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    make/run
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
@@ -606,7 +597,7 @@ pipeline {
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
                         --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
                         --set kube.secrets_generation_counter=2
@@ -621,43 +612,16 @@ pipeline {
                     done
                     set -o xtrace
 
-                    UAA_CA_CERT="\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")"
+                    # Use `make/upgrade` to run the deployment to ensure we have updated settings
+                    export DOMAIN="${domain()}"
+                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
+                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    export SCF_SECRETS_GENERATION_COUNTER=2
+                    export SCF_ENABLE_AUTOSCALER=1
+                    export SCF_ENABLE_CREDHUB=1
 
-                    UPGRADE_ARGS=(
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-scf
-                        --set env.DOMAIN=${domain()}
-                        --set env.UAA_HOST=uaa.${domain()}
-                        --set env.UAA_PORT=2793
-                        --set env.INSECURE_DOCKER_REGISTRIES='"insecure-registry.${domain()}:20005"' \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=uaa-admin-client-secret
-                        --set secrets.UAA_CA_CERT="\${UAA_CA_CERT}"
-                        --set kube.storage_class.persistent=hostpath
-                        --set kube.secrets_generation_counter=2
-                        --set sizing.credhub_user.count=1
-                    )
-
-                    # The extra IP address is to check that the code to set up multiple
-                    # addresses for services is working correctly; it isn't used in
-                    # actual routing.
-                    UPGRADE_ARGS=(
-                        "\${UPGRADE_ARGS[@]}"
-                        --set "kube.external_ips[0]=192.0.2.84"
-                        --set "kube.external_ips[1]=${ipAddress()}"
-                    )
-
-                    # Enable the autoscaler so we can run it through smoke tests
-                    for f in output/unzipped/helm/cf\${suffix}/templates/autoscaler-* ; do
-                        f="\${f##*/}" # strip leading directories
-                        f="\${f%.*}"  # strip file extension
-                        UPGRADE_ARGS=(
-                            "\${UPGRADE_ARGS[@]}"
-                            --set "sizing.\${f//-/_}.count=1"
-                        )
-                    done
-
-                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-scf" output/unzipped/helm/cf\${suffix} \
-                        "\${UPGRADE_ARGS[@]}"
+                    make/upgrade
 
                     # Ensure old pods have time to terminate
                     sleep 60
@@ -838,25 +802,34 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*.zip")
+                            def files = findFiles(glob: "output/scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*")
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
                             for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                s3Upload(
-                                    file: files[i].path,
-                                    bucket: "${params.S3_BUCKET}",
-                                    path: "${subdir}${prefix}${files[i].name}",
-                                )
+                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+                                    s3Upload(
+                                        file: files[i].path,
+                                        bucket: "${params.S3_BUCKET}",
+                                        path: "${subdir}${prefix}${files[i].name}",
+                                    )
+                                } else {
+                                    echo "Skipping file ${files[i].path}"
+                                }
+
+                                if (files[i].path =~ /\.tgz$/ ) {
+                                    def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                    // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                                    def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                    def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                                    def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                                    echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                    echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                    echo "Download the bundle from ${capBundleUri}"
+
+                                }
                             }
-
-                            // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                            def encodedFileName = java.net.URLEncoder.encode(files[0].name, "UTF-8")
-                            def encodedCapBundleUri = java.net.URLEncoder.encode("https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}", "UTF-8")
-                            def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                            echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                            echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
                         }
                     }
                 }

@@ -7,22 +7,9 @@ cd "${GIT_ROOT}"
 source .envrc
 source ${GIT_ROOT}/make/include/versioning
 
-if [ "${USE_SLE_BASE}" = "false" ]; then
-    FISSILE_DEFAULTS_FILE="bin/settings/opensuse42.env"
-else
-    FISSILE_DEFAULTS_FILE="bin/settings/sle12.env"
-fi
-
-DOMAIN=${DOMAIN:-}
-
-NETWORK_ENV=bin/settings/network.env
-if test -n "${DOMAIN}"; then
-    TMP=$(mktemp -d)
-    cp "${NETWORK_ENV}" "${TMP}"
-    trap "rm -rf ${TMP}" EXIT
-    NETWORK_ENV="${TMP}/$(basename "${NETWORK_ENV}")"
-    sed -e "s/\\bcf-dev.io/${DOMAIN}/g" -i "${NETWORK_ENV}"
-fi
+# Notes:
+# sle vs opensuse is decided in (output)/bin/fissile, based on USE_SLE_BASE.
+# .envrc ensures a default vlue for USE_SLE_BASE.
 
 BUILD_TARGET=kube
 
@@ -33,7 +20,6 @@ fi
 if [ "${BUILD_TARGET}" = "kube" ]; then
     # Overrides when generating kube config files instead of helm charts.
     FISSILE_OUTPUT_DIR="${PWD}/output/kube"
-    FISSILE_DEFAULTS_FILE="${FISSILE_DEFAULTS_FILE},bin/settings/settings.env,${NETWORK_ENV}"
 fi
 
 rm -rf "${FISSILE_OUTPUT_DIR}"
@@ -47,6 +33,7 @@ if [ "${BUILD_TARGET}" = "helm" ]; then
 
     cat > "${FISSILE_OUTPUT_DIR}/Chart.yaml" << EOF
 apiVersion: ${APP_VERSION}
+appVersion: ${PRODUCT_VERSION}
 description: A Helm chart for SUSE Cloud Foundry
 name: cf${chart_name_suffix:-}
 version: ${GIT_TAG}

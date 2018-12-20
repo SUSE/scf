@@ -85,10 +85,6 @@ find_cluster_ha_hosts() {
 
 KUBE_NATS_CLUSTER_IPS="$(find_cluster_ha_hosts nats nats)"
 export KUBE_NATS_CLUSTER_IPS
-KUBE_MYSQL_CLUSTER_IPS="$(find_cluster_ha_hosts mysql mysql)"
-export KUBE_MYSQL_CLUSTER_IPS
-KUBE_CONSUL_CLUSTER_IPS="$(find_cluster_ha_hosts consul consul-agent)"
-export KUBE_CONSUL_CLUSTER_IPS
 
 unset json_get
 unset k8s_api

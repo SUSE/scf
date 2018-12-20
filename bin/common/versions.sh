@@ -9,8 +9,8 @@ set -o errexit -o nounset
 
 export BOSH_CLI_VERSION="fcaa9c6caff58ab8da8c56481320681cdea492ee"
 export CFCLI_VERSION="6.37.0"
-export FISSILE_FLAVOR=""
-export FISSILE_VERSION="7.0.0+147.g3c191e0"
+export FISSILE_FLAVOR="develop"
+export FISSILE_VERSION="7.0.0+195.ga19161d"
 export HELM_VERSION="2.11.0"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.9.6"
@@ -36,6 +36,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
+export PRODUCT_VERSION="1.13.1"
 export CF_VERSION=2.7.0
 
 # Show versions, if called on its own.
@@ -43,6 +44,7 @@ export CF_VERSION=2.7.0
 
 if [ "X$(basename -- "$0")" = "Xversions.sh" ]
 then
+    echo product '      =' $PRODUCT_VERSION
     echo bosh-cli '     =' $BOSH_CLI_VERSION
     echo cf '           =' $CF_VERSION
     echo cf-cli '       =' $CFCLI_VERSION

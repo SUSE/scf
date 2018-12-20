@@ -39,7 +39,7 @@ Vagrant.configure(2) do |config|
 
   vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
   vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
-  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.14'))
+  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.15'))
   vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
   # Create a private network, which allows host-only access to the machine
@@ -132,6 +132,7 @@ Vagrant.configure(2) do |config|
     # Allow downloading boxes from sites with self-signed certs
     libvirt.memory = vm_memory
     libvirt.cpus = vm_cpus
+    libvirt.random model: 'random'
     override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
     override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
   end

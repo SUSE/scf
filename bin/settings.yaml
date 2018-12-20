@@ -1,0 +1,14 @@
+---
+# This values.yml file for the scf and uaa helm charts contains the
+# vagrant-specific information they require. It is used by
+# - make/run
+# - make/upgrade
+
+secrets:
+  CLUSTER_ADMIN_PASSWORD: changeme
+  UAA_ADMIN_CLIENT_SECRET: admin_secret
+
+env:
+  # Use kube-internal DNS to help minibroker work
+  GARDEN_LINUX_DNS_SERVER: 10.254.0.254
+  UAA_PORT: 2793
