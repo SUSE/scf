@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [2.15.0] - 2018-12-20
+
+## Added
+- New variable appVersion available in Helm
+
+## Changed
+- Bumped cf-deployment to 3.6.0
+- Bumped staticfile buildpack to 1.4.36.1
+- Bumped nodejs buildpack to 1.6.37.1
+- Bumped php buildpack to 4.3.66.1
+- Bumped binary buildpack to 1.0.28.1
+- Bumped Java buildpack to 4.16.1.1
+- Bumped python buildpack to 1.6.24.1
+- Bumped Ruby buildpack to 1.7.27.1
+- Bumped SLE12 & openSUSE stacks
+- App-autoscaler no longer dependent on hairpin
+- Using upstream credhub instead of our own fork
+- Metron replaces loggregator as a new sidecar for those pods where loggregator ran as a service internally before
+
+## Fixed  
+- External URL for USB fixed whereby job name doesn't appear in service name anymore
+
 ## [2.14.5] - 2018-11-07
 
 ## Changed
