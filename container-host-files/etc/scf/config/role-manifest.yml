@@ -1,53 +1,57 @@
 ---
 releases:
-- name: capi
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.61.0
-  version: 1.60.0
-  sha1: 4ff04b6377eb84dc1970f97b646864c45b6fdeb6
+- name: "bpm"
+  version: "1.0.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
+  sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
+- name: "capi"
+  version: "1.66.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
+  sha1: "4236495d4a047fb9396996aba3daea9e0cb3f1bf"
 - name: cf-mysql
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
-- name: cf-smoke-tests
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.5
-  version: 40.0.5
-  sha1: 6f6081d24490a82c5b9fea73283e0cfe21cbf207
+- name: "cf-smoke-tests"
+  version: "40.0.6"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.6"
+  sha1: "df727e63fb046c694098527845a2a0294b257635"
 - name: cf-syslog-drain
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.0
   version: "7.0"
   sha1: 5b633a277044f78f333b68da54f804b2384d889d
-- name: cflinuxfs2
-  url: https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.227.0
-  version: 1.227.0
-  sha1: 7d407ac592eed31ce5d857fd7eb03bbc9dd00965
+- name: "cflinuxfs2"
+  version: "1.233.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.233.0"
+  sha1: "a64b14ff25c13a482124c094ab4884e2ebf67e08"
 - name: credhub
   url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
   version: 2.0.2
   sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
-- name: diego
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.12.1
-  version: 2.12.1
-  sha1: 01c62019764044e7b763b84b74a42ccc2dddb65a
-- name: garden-runc
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.15.1
-  version: 1.15.1
-  sha1: bdac2dc7debc2e9b4b9e32f009cb93ac281e5480
-- name: loggregator
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.0
-  version: "103.0"
-  sha1: 41fe210afef030a9bae37795fdd7c5e5ca779ea3
-- name: nats
-  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=24
-  version: "24"
-  sha1: 65d8efc68d86a03d0f51562e16763075c37e419d
+- name: "diego"
+  version: "2.16.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.16.0"
+  sha1: "dec82d771afd83e1d8e85f512e6a619b371e7f19"
+- name: "garden-runc"
+  version: "1.16.3"
+  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.3"
+  sha1: "2a7c813e7e4d862e19334addf022916fb6b91eb0"
+- name: "loggregator"
+  version: "103.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
+  sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
+- name: "nats"
+  version: "25"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
+  sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
 - name: "nfs-volume"
   version: "1.2.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
   sha1: "de807ffa3fc84949bb92edac6a4152245826d6da"
-- name: cf-routing
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.179.0
-  version: 0.179.0
-  sha1: 203061d0438ed76f25573080f9d1f73f06de5851
+- name: "cf-routing"
+  version: "0.180.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0"
+  sha1: "990c2c319e6063573eec18dbeb7c3631a382db7d"
 - name: statsd-injector
   url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.3.0
   version: 1.3.0
@@ -353,6 +357,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -392,6 +397,13 @@ instance_groups:
           internal: 24053
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   tags:
   - sequential-startup
   configuration:
@@ -476,11 +488,19 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_gorouter_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: gorouter
     release: routing
     properties:
@@ -602,11 +622,19 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_routingapi_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: routing-api
     release: routing
     properties:
@@ -657,6 +685,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -708,6 +737,13 @@ instance_groups:
           internal: 8125
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   - name: statsd_injector
     release: statsd-injector
   - name: go-buildpack
@@ -777,6 +813,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -808,6 +845,13 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -909,6 +953,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -958,6 +1003,13 @@ instance_groups:
           internal: 8082
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1396,6 +1448,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1422,6 +1475,13 @@ instance_groups:
           internal: 8844
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
@@ -1482,6 +1542,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1508,6 +1569,13 @@ instance_groups:
           virtual-cpus: 2
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1612,6 +1680,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_route_registrar_bpm_dns.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1640,6 +1709,13 @@ instance_groups:
           public: true
   - name: route_registrar
     release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
