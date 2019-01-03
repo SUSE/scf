@@ -1,10 +1,10 @@
 ---
 releases:
-- name: "bpm"
+- name: bpm
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
-- name: "capi"
+- name: capi
   version: "1.66.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
   sha1: "4236495d4a047fb9396996aba3daea9e0cb3f1bf"
@@ -12,7 +12,7 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
-- name: "cf-smoke-tests"
+- name: cf-smoke-tests
   version: "40.0.6"
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.6"
   sha1: "df727e63fb046c694098527845a2a0294b257635"
@@ -20,7 +20,7 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.0
   version: "7.0"
   sha1: 5b633a277044f78f333b68da54f804b2384d889d
-- name: "cflinuxfs2"
+- name: cflinuxfs2
   version: "1.233.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.233.0"
   sha1: "a64b14ff25c13a482124c094ab4884e2ebf67e08"
@@ -28,27 +28,27 @@ releases:
   url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
   version: 2.0.2
   sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
-- name: "diego"
+- name: diego
   version: "2.16.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.16.0"
   sha1: "dec82d771afd83e1d8e85f512e6a619b371e7f19"
-- name: "garden-runc"
+- name: garden-runc
   version: "1.16.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.3"
   sha1: "2a7c813e7e4d862e19334addf022916fb6b91eb0"
-- name: "loggregator"
+- name: loggregator
   version: "103.1"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
   sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
-- name: "nats"
+- name: nats
   version: "25"
   url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
   sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
-- name: "nfs-volume"
+- name: nfs-volume
   version: "1.2.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
   sha1: "de807ffa3fc84949bb92edac6a4152245826d6da"
-- name: "cf-routing"
+- name: cf-routing
   version: "0.180.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0"
   sha1: "990c2c319e6063573eec18dbeb7c3631a382db7d"
@@ -92,35 +92,35 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.37.1.tgz"
   version: "1.4.37.1"
   sha1: "780772fa24ff9e787997c836864657ca0394ed50"
-- name: "dotnet-core-buildpack"
+- name: dotnet-core-buildpack
   version: "2.0.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
   sha1: "2b421702ee71687d10c2e9a296475b33e6d77b16"  
-- name: "postgres"
+- name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
-- name: "opensuse42"
+- name: opensuse42
   url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.103.tgz"
   version: "1.7.103"
   sha1: "c33d9b559a55222f37c6b87d3d9cb96447abf608"
-- name: "cf-sle12"
+- name: cf-sle12
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.141.tgz"
   version: "1.51.141"
   sha1: "393423e744bd47fcf88411e26a2ca0d2ffdfa466"
-- name: "app-autoscaler"
+- name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
   sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
-- name: "cf-usb"
+- name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
-- name: "groot-btrfs"
+- name: groot-btrfs
   version: "1.0.2"
   url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.2.tgz"
   sha1: "1232559a679c7b588e735d35c1a8deb250fd8afd"
-- name: "scf-helper"
+- name: scf-helper
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
   sha1: "94bb4357cbe5fa07ddeb7efef1d1f7a2af8dfead"

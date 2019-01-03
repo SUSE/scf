@@ -28,6 +28,15 @@ patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 +    - path: /var/lib/ca-certificates
 PATCH
 
+# Notes on "unsafe.unrestricted_volumes":
+#
+# - The first three mounts are required to make DNS work in the nested
+#   container created by BPM for the job to run in.
+#
+# - The last two mounts are required to give the job access to the
+#   system root certificates so that it actually can verify the certs
+#   given to it by its partners (like the router-registrar).
+
 touch "${SENTINEL}"
 
 exit 0

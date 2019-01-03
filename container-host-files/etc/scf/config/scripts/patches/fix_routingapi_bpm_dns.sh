@@ -29,6 +29,15 @@ patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 +      - path: /var/lib
 PATCH
 
+# Notes on "unsafe.unrestricted_volumes":
+#
+# - The mounts 1, 2, and 4 are required to make DNS work in the nested
+#   container created by BPM for the job to run in.
+#
+# - The remainer are required to give the job access to the system
+#   root certificates so that it actually can verify the certs given
+#   to it by its partners.
+
 touch "${SENTINEL}"
 
 exit 0
