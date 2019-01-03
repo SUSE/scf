@@ -19,10 +19,10 @@ fi
 
 # Notes on "unsafe.unrestricted_volumes":
 #
-# - The mounts 1, 2, and 4 are required to make DNS work in the nested
+# - The first three mounts are required to make DNS work in the nested
 #   container created by BPM for the job to run in.
 #
-# - The remainer are required to give the job access to the system
+# - The remainder are required to give the job access to the system
 #   root certificates so that it actually can verify the certs given
 #   to it by its partners.
 #
@@ -34,7 +34,7 @@ fi
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 --- bpm.yml.erb
 +++ bpm.yml.erb
-@@ -4,23 +4,26 @@ processes:
+@@ -4,23 +4,25 @@ processes:
      args:
      - --configPath
      - /var/vcap/jobs/route_registrar/config/registrar_settings.json
@@ -57,10 +57,9 @@ patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
 -<% end
 +         - path: /etc/hostname
 +         - path: /etc/hosts
-+         - path: /etc/pki
 +         - path: /etc/resolv.conf
 +         - path: /etc/ssl
-+         - path: /var/lib
++         - path: /var/lib/ca-certificates
 +<% #     ^ Always mount the files needed for a working kube-dns, and certs
 +   paths = []
 +   routes = p('route_registrar.routes')

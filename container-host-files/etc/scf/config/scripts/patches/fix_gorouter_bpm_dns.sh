@@ -33,9 +33,9 @@ PATCH
 # - The first three mounts are required to make DNS work in the nested
 #   container created by BPM for the job to run in.
 #
-# - The last two mounts are required to give the job access to the
-#   system root certificates so that it actually can verify the certs
-#   given to it by its partners (like the router-registrar).
+# - The remainder are required to give the job access to the system
+#   root certificates so that it actually can verify the certs given
+#   to it by its partners (like the router-registrar).
 
 touch "${SENTINEL}"
 
