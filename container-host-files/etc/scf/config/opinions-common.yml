@@ -165,7 +165,6 @@ properties:
       blobstore_type: webdav
       webdav_config:
         username: 'blobstore_user'
-    external_protocol: http
     install_buildpacks:
     - name: staticfile_buildpack
       package: staticfile-buildpack
