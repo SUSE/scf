@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e -x
 
 BIN_DIR=${BOSH_INSTALL_TARGET}/bin

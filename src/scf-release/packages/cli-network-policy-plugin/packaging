@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 mkdir -p ${BOSH_INSTALL_TARGET}/plugin
