@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -o errexit -o xtrace -o nounset
 
 export GOROOT="$(readlink -nf /var/vcap/packages/golang*)"
