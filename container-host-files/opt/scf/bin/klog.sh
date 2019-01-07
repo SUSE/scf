@@ -65,9 +65,9 @@ if [ ! -f "${DONE}" ]; then
       # Unfortunately we can't get anything past the previous one.
       kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}" > "${CONTAINER_DIR}/kube.log"
       kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}" --previous > "${CONTAINER_DIR}/kube-previous.log" 2> /dev/null || true
-      kubectl describe pods "${POD}" --namespace "${NS}" > "${CONTAINER_DIR}/describe-pod.txt"
     done
-
+    
+    kubectl describe pods "${POD}" --namespace "${NS}" > "${POD_DIR}/describe-pod.txt"
   done
 
   kubectl get all --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
