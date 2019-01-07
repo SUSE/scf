@@ -154,6 +154,47 @@ Vagrant.configure(2) do |config|
     done
   SHELL
 
+  # Set up Istio.
+  config.vm.provision :shell, privileged: false, inline: <<-'SHELL'
+    workspace=$PWD
+    # Download the Istio release.
+    version="1.0.5"
+    curl -L https://git.io/getLatestIstio | ISTIO_VERSION=${version} sh
+    export PATH=${workspace}/istio-${version}/bin:$PATH
+    # Create a service account for Tiller.
+    kubectl apply -f ${workspace}/istio-${version}/install/kubernetes/helm/helm-service-account.yaml
+    # Install Tiller with a service account.
+    helm init --upgrade --service-account tiller
+    # Wait for Tiller to get ready. Timeout is 30s.
+    x=1
+    while [[ $x -le 15 ]]
+    do
+      set +e
+      helm version | grep "Server:" > /dev/null 2>&1
+      result=$?
+      set -e
+      if [[ $result -ne 0 ]]; then
+        echo 'Waiting for Tiller to get ready' >> .profile
+        sleep 2
+      else
+        echo 'Tiller is ready' >> .profile
+        break
+      fi
+      x=$(( $x + 1 ))
+    done
+    if [ $x == 16 ]; then
+      echo 'Tiller is not ready after 30s' >> .profile
+      exit 1
+    fi
+    # Install Istio. 
+    # Disable Istio egressgateway and we can enable it later if there's any use case to manage external services.
+    helm install ${workspace}/istio-${version}/install/kubernetes/helm/istio --name istio --namespace istio-system \
+    --set tracing.enabled=true \
+    --set grafana.enabled=true \
+    --set gateways.istio-ingressgateway.type=NodePort \
+    --set gateways.istio-egressgateway.enabled=false
+  SHELL
+
   config.vm.provision "shell", privileged: false,
                       env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
                       inline: <<-SHELL
