@@ -1,0 +1,50 @@
+{{- if .Values.services.ingress }}
+---
+apiVersion: "v1"
+kind: "Secret"
+type: kubernetes.io/tls
+metadata:
+  name: "{{ .Release.Namespace }}-secrets-nic"
+data:
+  tls.crt: {{ default "" .Values.secrets.ROUTER_SSL_CERT     | b64enc | quote }}
+  tls.key: {{ default "" .Values.secrets.ROUTER_SSL_CERT_KEY | b64enc | quote }}
+---
+# This ingress specifies routing and access for the cloud controller
+# public SCF service, i.e. "api.<domain>" and other services in that
+# domain hierarchy.
+#
+# Note that the two other services (tcp routing, app ssh access) are
+# not suitable to routing via http, and not specified. IOW they are
+# TCP, which is not supported by the current ingress specification.
+# Although specific controllers may do so in a custom manner.
+
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: "ingress-scf"
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    kubernetes.io/ingress.class: {{ .Values.services.ingress }}
+spec:
+  tls:
+  - secretName: "{{ .Release.Namespace }}-secrets-nic"
+    hosts:
+    - "*.{{ .Values.env.DOMAIN }}"
+    - "{{ .Values.env.DOMAIN }}"
+  rules:
+    - host: "*.{{ .Values.env.DOMAIN }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: "router-gorouter-public"
+              servicePort: 443
+    - host: "{{ .Values.env.DOMAIN }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: "router-gorouter-public"
+              servicePort: 443
+{{- end }}
