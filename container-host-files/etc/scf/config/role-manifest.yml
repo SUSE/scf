@@ -92,6 +92,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.37.1.tgz"
   version: "1.4.37.1"
   sha1: "780772fa24ff9e787997c836864657ca0394ed50"
+- name: nginx-buildpack-release
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.5.1.tgz"
+  version: "1.0.5.1"
+  sha1: "bdec54c9e08ca037fad95e31dc480bdb4803a789"
 - name: dotnet-core-buildpack
   version: "2.0.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
@@ -760,6 +764,8 @@ instance_groups:
     release: python-buildpack
   - name: staticfile-buildpack
     release: staticfile-buildpack
+  - name: nginx-buildpack
+    release: nginx-buildpack
   - name: java-buildpack
     release: java-buildpack
   - name: dotnet-core-buildpack
