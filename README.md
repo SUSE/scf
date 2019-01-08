@@ -42,6 +42,8 @@ Table of Contents
    * [Deploying SCF on Kubernetes](#deploying-scf-on-kubernetes)
       * [Makefile targets](#makefile-targets)
          * [Vagrant VM Targets](#vagrant-vm-targets)
+   * [Deployment Customizations](#deployment-customizations)
+     * [Customize The Application Domain](#customize-the-application-domain)
    * [Development FAQ](#development-faq)
       * [Where do I find logs?](#where-do-i-find-logs)
       * [How do I clear all data and begin anew without rebuilding everything?](#how-do-i-clear-all-data-and-begin-anew-without-rebuilding-everything)
@@ -313,6 +315,51 @@ Name            | Effect |
 `stop`            | Stop SCF on the current node |
 `vagrant-box`    | Build the Vagrant box image using `packer` |
 `vagrant-prep`    | Shortcut for building everything needed for `make run` |
+
+# Deployment Customizations
+
+## Customize The Application Domain
+
+In a standard installation the domain used by applications pushed to
+CF is the same as the domain configured for CF itself.
+
+This document describes how to change this so that CF and applications
+use separate domains.
+
+:warning: The changes described below will work only for CAP 1.3.1,
+and higher.  They do not work for CAP 1.3, and will not work for the
+CAP 2 series to be.
+
+1. Follow the basic steps for deploying UAA and SCF.
+1. When deploying SCF add a section like
+
+   ```
+   bosh:
+     instance_groups:
+     - name: api-group
+       jobs:
+       - name: cloud_controller_ng
+         properties:
+           app_domains:
+           - APPDOMAIN
+   ```
+
+   to the `scf-config-values.yaml` override file. The placeholder
+   `APPDOMAIN` has to be replaced with whatever domain is desired to
+   be used by the applications.
+
+After deployment use
+
+```
+cf curl /v2/info | grep endpoint
+```
+
+to verify that the CF domain is __not__ `APPDOMAIN`.
+
+Further verify, by pushing an application, that `APPDOMAIN` is printed
+as the domain used by the application.
+
+
 
 # Development FAQ
 
