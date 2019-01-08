@@ -11,10 +11,6 @@ NAMESPACE="${NAMESPACE:-cf}"
 UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
 CF_CHART="${CF_CHART:-output/helm}"
 
-supports_psp() {
-    kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
-}
-
 has_namespace() {
     kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
 }
@@ -82,38 +78,6 @@ helm_args+=(
     --set "kube.external_ips[0]=192.0.2.42"
     --set "kube.external_ips[1]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
 )
-
-if supports_psp ; then
-    psp_privileged="$(kubectl get podsecuritypolicy -o json | jq -r '
-            [
-                .items[] |
-                select(
-                    .spec.allowedCapabilities // [] |
-                    contains(["*"])
-                )
-            ] |
-            first | .metadata.name
-            // ""
-        ')"
-    psp_nonprivileged="$(kubectl get podsecuritypolicy -o json | jq -r '
-            [
-                .items[] |
-                select(
-                    .spec.allowedCapabilities // [] |
-                    contains(["*"]) |
-                    not
-                )
-            ] |
-            first | .metadata.name
-            // ""
-        ')"
-    if [ -n "${psp_privileged}" ] ; then
-        helm_args+=(
-            --set "kube.psp.privileged=${psp_privileged}"
-            --set "kube.psp.nonprivileged=${psp_nonprivileged:-${psp_privileged}}"
-        )
-    fi
-fi
 
 helm install "${CF_CHART}" "${helm_args[@]}" "$@"
 

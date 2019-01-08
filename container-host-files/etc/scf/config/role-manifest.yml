@@ -1838,6 +1838,16 @@ configuration:
         resourceNames: [privileged]
         resources: [podsecuritypolicies]
         verbs: [use]
+      test-cluster-role:
+      - apiGroups: [""]
+        resources: [namespaces]
+        verbs: [create, get, delete]
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [list]
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
         fsGroup: { rule: RunAsAny }
@@ -1871,7 +1881,7 @@ configuration:
         cluster-roles: [nonprivileged]
       test-brain:
         roles: [configgin-role, test-role]
-        cluster-roles: [nonprivileged]
+        cluster-roles: [nonprivileged, test-cluster-role]
       garden-runc:
         roles: [configgin-role]
         cluster-roles: [privileged, node-reader-role]
