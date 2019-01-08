@@ -168,6 +168,8 @@ properties:
     install_buildpacks:
     - name: staticfile_buildpack
       package: staticfile-buildpack
+    - name: nginx_buildpack
+      package: nginx-buildpack
     - name: java_buildpack
       package: java-buildpack
     - name: ruby_buildpack
