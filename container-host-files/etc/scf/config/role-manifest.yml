@@ -77,9 +77,9 @@ releases:
   version: "1.6.39.1"
   sha1: "6a4888453ff92e83a4acebf82bf56d7e1e65648d"
 - name: php-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.67.1.tgz"
-  version: "4.3.67.1"
-  sha1: "795706caa90d40ed602720bf0684d0bb7ddfd1e5"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.66.1.tgz"
+  version: "4.3.66.1"
+  sha1: "cd1ec47c7c4d893107b22746b9e1df84e7973beb"
 - name: python-buildpack-release
   url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.24.1.tgz"
   version: "1.6.24.1"
