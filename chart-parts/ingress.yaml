@@ -4,7 +4,7 @@
 # would roughly look like the lines below. As is it is the
 # responsibility of the operator to retrieve the values of these
 # secrets from the deployed SCF and update this secret with the actual
-# values. and the responsbility of the developer to supply the proper
+# values. And the responsibility of the developer to supply the proper
 # instructions to the operator.
 ##
 # tls.crt: {{ default "" .Values.secrets.ROUTER_SSL_CERT     | b64enc | quote }}
