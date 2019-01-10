@@ -154,12 +154,10 @@ properties:
     default_running_security_groups:
     - public_networks
     - dns
-    default_stack: *the-stack-name
     default_staging_security_groups:
     - public_networks
     - dns
     diego:
-      docker_staging_stack: *the-stack-name
       lifecycle_bundles: *the-bundles
     droplets:
       blobstore_type: webdav
