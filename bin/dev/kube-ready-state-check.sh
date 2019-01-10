@@ -100,12 +100,6 @@ if having_category kube ; then
     status "tiller should be running (1/1 ready)"
 fi
 
-# pods in namespace istio-system show 1/1 ready
-if having_category kube ; then
-    kubectl get pods --namespace=istio-system 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
-    status "pods in namespace istio-system should be running (1/1 ready)"
-fi
-
 # ntp or systemd-timesyncd is installed and running
 if having_category api node ; then
     pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
