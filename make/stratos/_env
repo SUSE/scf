@@ -3,9 +3,9 @@
 set -o errexit -o nounset
 
 git_root=$(git rev-parse --show-toplevel)
-. "${git_root}/.envrc"
+source "${git_root}/.envrc"
 
 : "${STRATOS_URL:=https://github.com/cloudfoundry-incubator/stratos/releases/download/2.1.1/console-helm-chart-2.1.1-74090ba.tgz}"
 : "${STRATOS_NAME:=stratos}"
 : "${STRATOS_NAMESPACE:=stratos}"
-: "${VAGRANT_EXTERNAL_IP:=$(ip -4 addr show eth1 | grep --only-matching --perl-regexp "(?<=inet )[\d\.]+(?=/)")}"
+: "${VAGRANT_EXTERNAL_IP:=$(ip -4 addr show eth1 | grep --only-matching --perl-regexp "(?<=inet )[\\d\\.]+(?=/)")}"
