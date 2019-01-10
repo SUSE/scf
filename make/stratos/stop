@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+. "${BASH_SOURCE%/*}/_env"
+. "${BASH_SOURCE%/*}/_has_release.sh"
+
+if [ $(has_release "${STRATOS_NAMESPACE}") -eq 0 ]; then
+  helm delete --purge "${STRATOS_NAMESPACE}"
+  kubectl delete namespace "${STRATOS_NAMESPACE}"
+fi

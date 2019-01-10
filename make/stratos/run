@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+. "${BASH_SOURCE%/*}/_env"
+. "${BASH_SOURCE%/*}/_has_release.sh"
+
+# TODO(f0rmiga): Refactor make/run and this file to move the following variables to a single source.
+: "${DOMAIN:=cf-dev.io}"
+: "${UAA_HOST:=uaa.${DOMAIN}}"
+: "${UAA_PORT:=2793}"
+: "${UAA_CLIENT_ID:=cf}"
+: "${UAA_CLIENT_SECRET:=""}"
+: "${UAA_ADMIN_IDENTIFIER:=cloud_controller.admin}"
+: "${UAA_SKIP_SSL_VALIDATION:=true}"
+: "${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
+
+tmp_stratos="/tmp/stratos"
+mkdir -p $tmp_stratos
+stratos_installer="${tmp_stratos}/installer.tgz"
+stratos_chart="${tmp_stratos}/console/"
+download_log="${tmp_stratos}/download.log"
+printf "Downloading Stratos release to ${tmp_stratos}... "
+curl -L -o $stratos_installer $STRATOS_URL 2> $download_log
+tar zxf $stratos_installer -C $tmp_stratos
+printf "ok\n"
+
+if [ $(has_release "${STRATOS_NAMESPACE}") -ne 0 ]; then
+  subcommand="install"
+
+  args=(
+    "${stratos_chart}"
+    --name "${STRATOS_NAME}"
+    --namespace "${STRATOS_NAMESPACE}"
+  )
+else
+  subcommand="upgrade"
+
+  args=(
+    "${STRATOS_NAME}"
+    "${stratos_chart}"
+  )
+fi
+
+values=(
+  --set "uaa.host=cf.${UAA_HOST}"
+  --set "uaa.port=${UAA_PORT}"
+  --set "uaa.consoleClient=${UAA_CLIENT_ID}"
+  --set "uaa.consoleClientSecret=${UAA_CLIENT_SECRET}"
+  --set "uaa.consoleAdminIdentifier=${UAA_ADMIN_IDENTIFIER}"
+  --set "uaa.skipSSLValidation=${UAA_SKIP_SSL_VALIDATION}"
+  --set "kube.storage_class.persistent=${STORAGE_CLASS}"
+  --set "kube.external_ip=${VAGRANT_EXTERNAL_IP}"
+)
+
+helm $subcommand "${args[@]}" "${values[@]}"
