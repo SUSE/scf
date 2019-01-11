@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+has_namespace() {
+  kubectl get namespace "${STRATOS_NAMESPACE}" > /dev/null 2>&1
+}

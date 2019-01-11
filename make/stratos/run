@@ -25,7 +25,7 @@ curl -L -o $stratos_installer "$STRATOS_URL" 2> $download_log
 tar zxf $stratos_installer -C $tmp_stratos
 printf "ok\\n"
 
-if [ "$(has_release "${STRATOS_NAMESPACE}")" -ne 0 ]; then
+if ! has_release "${STRATOS_HELM_NAME}"; then
   subcommand="install"
 
   args=(
@@ -53,4 +53,4 @@ values=(
   --set "kube.external_ip=${VAGRANT_EXTERNAL_IP}"
 )
 
-helm $subcommand "${args[@]}" "${values[@]}"
+helm "${subcommand}" "${args[@]}" "${values[@]}"
