@@ -19,6 +19,8 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
     fi
 
     tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX)
+    trap "rm -f $tmp_file" EXIT
+
     cat "${STACK_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
     mv "${tmp_file}" "${FISSILE_LIGHT_OPINIONS}"
 
@@ -26,6 +28,8 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
     # stack-specific parts, in the same manner.
 
     tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX)
+    trap "rm -f $tmp_file" EXIT
+
     cat "${STACK_BASE}" "${FISSILE_MANIFEST_COMMON}" > "${tmp_file}"
     mv "${tmp_file}" "${FISSILE_ROLE_MANIFEST}"
 fi
