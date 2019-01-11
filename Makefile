@@ -23,12 +23,12 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh bin/fissile
 ########## VAGRANT VM TARGETS ##########
 
 run:
-	make/uaa-run
+	make/uaa/run
 	make/wait uaa
 	make/run
 
 upgrade:
-	make/uaa-upgrade
+	make/uaa/upgrade
 	make/wait uaa
 	make/upgrade
 
@@ -40,7 +40,7 @@ validate:
 
 stop:
 	make/stop
-	make/uaa-stop
+	make/uaa/stop
 	make/wait cf
 	make/wait uaa
 
@@ -83,40 +83,40 @@ mysql:
 ########## UAA LINK TARGETS ##########
 
 uaa-releases:
-	make/uaa-releases
+	make/uaa/releases
 
 uaa-kube-dist:
-	make/uaa-kube-dist
+	make/uaa/kube-dist
 
 uaa-run:
-	make/uaa-run
+	make/uaa/run
 
 uaa-wait:
 	make/wait uaa
 
 uaa-stop:
-	make/uaa-stop
+	make/uaa/stop
 
 uaa-upgrade:
-	make/uaa-upgrade
+	make/uaa/upgrade
 
 uaa-compile: ${FISSILE_BINARY}
 	make/compile restore
-	make/uaa-compile
+	make/uaa/compile
 	make/compile cache
 
 uaa-images: ${FISSILE_BINARY}
-	make/uaa-images
+	make/uaa/images
 
 uaa-publish: ${FISSILE_BINARY}
-	make/uaa-publish
+	make/uaa/publish
 
 uaa-kube: ${FISSILE_BINARY}
-	make/uaa-kube
+	make/uaa/kube
 .PHONY: uaa-kube
 
 uaa-helm: ${FISSILE_BINARY}
-	make/uaa-kube helm
+	make/uaa/kube helm
 .PHONY: uaa-helm
 
 ########## BOSH RELEASE TARGETS ##########
@@ -144,7 +144,7 @@ clean-compile-cache:
 compile: ${FISSILE_BINARY}
 	make/compile
 	make/compile restore
-	make/uaa-compile
+	make/uaa/compile
 	make/compile cache
 
 compile-clean: clean ${FISSILE_BINARY} vagrant-prep
