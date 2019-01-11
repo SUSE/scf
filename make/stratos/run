@@ -3,7 +3,7 @@
 set -o errexit -o nounset
 
 source "${BASH_SOURCE%/*}/_env"
-source "${BASH_SOURCE%/*}/_has_release.sh"
+source "${GIT_ROOT}/make/include/has_release"
 
 # TODO(f0rmiga): Refactor make/run and this file to move the following variables to a single source.
 : "${DOMAIN:=cf-dev.io}"
@@ -30,14 +30,14 @@ if [ "$(has_release "${STRATOS_NAMESPACE}")" -ne 0 ]; then
 
   args=(
     "${stratos_chart}"
-    --name "${STRATOS_NAME}"
+    --name "${STRATOS_HELM_NAME}"
     --namespace "${STRATOS_NAMESPACE}"
   )
 else
   subcommand="upgrade"
 
   args=(
-    "${STRATOS_NAME}"
+    "${STRATOS_HELM_NAME}"
     "${stratos_chart}"
   )
 fi

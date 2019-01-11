@@ -3,7 +3,7 @@
 set -o errexit
 
 source "${BASH_SOURCE%/*}/_env"
-source "${BASH_SOURCE%/*}/_has_release.sh"
+source "${GIT_ROOT}/make/include/has_release"
 
 if [ "$(has_release "${STRATOS_NAMESPACE}")" -eq 0 ]; then
   helm delete --purge "${STRATOS_NAMESPACE}"
