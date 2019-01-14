@@ -26,6 +26,7 @@ run:
 	make/uaa/run
 	make/wait uaa
 	make/run
+	make/stratos/run
 
 upgrade:
 	make/uaa/upgrade
@@ -39,6 +40,7 @@ validate:
 	make/validate
 
 stop:
+	make/stratos/stop
 	make/stop
 	make/uaa/stop
 	make/wait cf

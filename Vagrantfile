@@ -103,7 +103,7 @@ Vagrant.configure(2) do |config|
 
     if [ -n "#{vm_registry_mirror}" ]; then
       perl -p -i -e 's@^(DOCKER_OPTS=)"(.*)"@\\1"\\2 --registry-mirror=#{vm_registry_mirror}"@' /etc/sysconfig/docker
-      # Docker has issues coming up on virtualbox; let is fail gracefully if necessary.
+      # Docker has issues coming up on virtualbox; let it fail gracefully, if necessary.
       systemctl stop docker.service
       if ! systemctl restart docker.service ; then
         while [ "$(systemctl is-active docker.service)" != active ] ; do
