@@ -1,4 +1,3 @@
----
 releases:
 - name: bpm
   version: "1.0.0"
@@ -2046,8 +2045,10 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
+    properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -3132,6 +3133,10 @@ variables:
     description: If set apps pushed to spaces that allow SSH access will have SSH
       enabled by default.
     required: true
+- name: DEFAULT_STACK
+  options:
+    default: *the-stack-name
+    description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
     default: auto
