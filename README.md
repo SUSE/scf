@@ -320,7 +320,7 @@ Name            | Effect |
 
 ## Customize The Application Domain
 
-In a standard installation the domain used by applications pushed to
+In a standard installation, the domain used by applications pushed to
 CF is the same as the domain configured for CF.
 
 This document describes how to change this behaviour so that CF and
