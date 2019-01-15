@@ -321,17 +321,17 @@ Name            | Effect |
 ## Customize The Application Domain
 
 In a standard installation the domain used by applications pushed to
-CF is the same as the domain configured for CF itself.
+CF is the same as the domain configured for CF.
 
-This document describes how to change this so that CF and applications
-use separate domains.
+This document describes how to change this behaviour so that CF and
+applications use separate domains.
 
 :warning: The changes described below will work only for CAP 1.3.1,
-and higher.  They do not work for CAP 1.3, and will not work for the
+and higher. They do not work for CAP 1.3, and will not work for the
 CAP 2 series to be.
 
 1. Follow the basic steps for deploying UAA and SCF.
-1. When deploying SCF add a section like
+1. When deploying SCF, add a section like
 
    ```
    bosh:
@@ -341,11 +341,11 @@ CAP 2 series to be.
        - name: cloud_controller_ng
          properties:
            app_domains:
-           - APPDOMAIN
+           - <APPDOMAIN>
    ```
 
    to the `scf-config-values.yaml` override file. The placeholder
-   `APPDOMAIN` has to be replaced with whatever domain is desired to
+   `<APPDOMAIN>` has to be replaced with whatever domain is desired to
    be used by the applications.
 
 After deployment use
@@ -354,12 +354,10 @@ After deployment use
 cf curl /v2/info | grep endpoint
 ```
 
-to verify that the CF domain is __not__ `APPDOMAIN`.
+to verify that the CF domain is __not__ `<APPDOMAIN>`.
 
-Further verify, by pushing an application, that `APPDOMAIN` is printed
-as the domain used by the application.
-
-
+Further, by pushing an application, verify that `<APPDOMAIN>` is
+printed as the domain used by the application.
 
 # Development FAQ
 
