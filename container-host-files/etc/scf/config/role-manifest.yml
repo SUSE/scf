@@ -117,9 +117,9 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
 - name: groot-btrfs
-  version: "1.0.2"
-  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.2.tgz"
-  sha1: "1232559a679c7b588e735d35c1a8deb250fd8afd"
+  version: "1.0.3"
+  url: "https://s3.amazonaws.com/temporary-objects/groot-btrfs-103-test.tgz"
+  sha1: "6ceb2854ad544001a0206726671cb984140311d7"
 - name: scf-helper
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
@@ -2158,6 +2158,7 @@ configuration:
     properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
+    properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
