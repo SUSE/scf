@@ -118,7 +118,7 @@ releases:
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
 - name: groot-btrfs
   version: "1.0.3"
-  url: "https://s3.amazonaws.com/temporary-objects/groot-btrfs-103-test.tgz"
+  url: "https://temporary-objects.s3.amazonaws.com/groot-btrfs-103-test.tgz"
   sha1: "6ceb2854ad544001a0206726671cb984140311d7"
 - name: scf-helper
   version: "1.0.1"
