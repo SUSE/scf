@@ -104,9 +104,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: opensuse42
-  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.104.tgz"
-  version: "1.7.104"
-  sha1: "bb659b9b3baf77244646b7e3482a58f78a80b96b"
+  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.105.tgz"
+  version: "1.7.105"
+  sha1: "28d9e6307c1d38fcad71e724e5c4ca92ab6ba1cb"
 - name: cf-sle12
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.143.tgz"
   version: "1.51.143"
