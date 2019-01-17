@@ -1,7 +1,11 @@
 require 'yaml'
 require 'json'
 
-namespace, domain, kube_config = ARGV.shift(3)
+release, kube_config = ARGV.shift(3)
+
+helm_values = YAML.load %x(helm get values --all #{release})
+helm_info = YAML.load %x(helm list --output yaml #{release})
+namespace = helm_info['Releases'].last['Namespace']
 
 configmap = %x(kubectl get configmap secrets-config --namespace #{namespace} -o json)
 configmap = JSON.parse(configmap)['data']
@@ -30,30 +34,20 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
     if obj['spec']
       obj['spec']['containers'].each do |container|
         container['env'].each do |env|
-          unless domain.empty?
-            value = env['value']
-
-            case env['name']
-            when 'DOMAIN'
-              value = domain
-            when 'TCP_DOMAIN'
-              value = "tcp.#{domain}"
-            when 'UAA_HOST'
-              value = "uaa.#{domain}"
-            when 'GARDEN_LINUX_DNS_SERVER'
-              value = "8.8.8.8"
-            when 'INSECURE_DOCKER_REGISTRIES'
-              value = "\"insecure-registry.#{domain}:20005\""
+          if env['valueFrom']
+            # Download API; check if it's from a secret
+            if env['valueFrom']['secretKeyRef']
+              name = env['name'].downcase.gsub('_', '-')
+              if generated.has_key?(name) && (secrets[name].nil? || secrets[name].empty?)
+                env['valueFrom']['secretKeyRef']['name'] = current_secrets_name
+              end
             end
-
-            env['value'] = value.to_s
-          end
-
-          if env['valueFrom'] && env['valueFrom']['secretKeyRef']
-            name = env['name'].downcase.gsub('_', '-')
-            if generated.has_key?(name) && (secrets[name].nil? || secrets[name].empty?)
-              env['valueFrom']['secretKeyRef']['name'] = current_secrets_name
-            end
+          elsif helm_values['env'].has_key? env['name']
+            # Helm setting
+            env['value'] = helm_values['env'][env['name']].to_s
+          else
+            # Missing default
+            env['value'] = ''
           end
         end
 

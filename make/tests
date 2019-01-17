@@ -70,7 +70,7 @@ done
 CONFIG=$(mktemp)
 RELEASE="$(helm list --namespace "${NAMESPACE}" --short --max 1)"
 DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
-ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
+ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${RELEASE}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
