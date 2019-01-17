@@ -96,8 +96,8 @@ releases:
   version: "1.0.5.1"
   sha1: "bdec54c9e08ca037fad95e31dc480bdb4803a789"
 - name: dotnet-core-buildpack-release
-  version: "2.2.4.1"
   url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.4.1.tgz"
+  version: "2.2.4.1"
   sha1: "81edf66d16658c2af70a1030335c4f26c1542b4a"
 - name: postgres
   version: "26"
