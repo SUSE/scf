@@ -543,7 +543,7 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
+          service-account: privileged # For port binding
         ports:
         - name: router
           protocol: TCP
@@ -1211,7 +1211,7 @@ instance_groups:
                       values:
                       - nfs-broker
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
+          service-account: privileged
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1267,7 +1267,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
-          service-account: node-reader
+          service-account: garden-runc
           volumes:
           - path: /var/vcap/data/grootfs
             type: persistent
@@ -1302,7 +1302,6 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
   - name: groot-btrfs
     release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
@@ -1369,13 +1368,13 @@ instance_groups:
     release: scf
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           scaling:
             min: 0
             max: 1
           flight-stage: manual
           capabilities: []
+          #service-account: privileged # ???
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1824,15 +1823,68 @@ configuration:
       - apiGroups: [""]
         resources: ["secrets"]
         verbs: [get, list]
+    cluster-roles:
+      node-reader-role:
+      - apiGroups: [""]
+        resources: [nodes]
+        verbs: [get, list, watch]
+      nonprivileged:
+      - apiGroups: [extensions]
+        resourceNames: [nonprivileged]
+        resources: [podsecuritypolicies]
+        verbs: [use]
+      privileged:
+      - apiGroups: [extensions]
+        resourceNames: [privileged]
+        resources: [podsecuritypolicies]
+        verbs: [use]
+      test-cluster-role:
+      - apiGroups: [""]
+        resources: [namespaces]
+        verbs: [create, get, delete]
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [list]
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
+    pod-security-policies:
+      nonprivileged: &psp-nonprivileged
+        fsGroup: { rule: RunAsAny }
+        runAsUser: { rule: RunAsAny }
+        seLinux: { rule: RunAsAny }
+        supplementalGroups: { rule: RunAsAny }
+        volumes:
+        - configMap
+        - secret
+        - emptyDir
+        - downwardAPI
+        - projected
+        - persistentVolumeClaim
+        - nfs
+      privileged:
+        <<: *psp-nonprivileged
+        allowPrivilegeEscalation: true
+        allowedCapabilities: ["*"]
+        defaultAllowPrivilegeEscalation: true
+        hostPorts: [{ min: 0, max: 65535 }]
+        privileged: true
     accounts:
       default:
         roles: [configgin-role]
+        cluster-roles: [nonprivileged]
+      privileged:
+        roles: [configgin-role]
+        cluster-roles: [privileged]
       secret-generator:
         roles: [configgin-role, secrets-role]
+        cluster-roles: [nonprivileged]
       test-brain:
         roles: [configgin-role, test-role]
-      node-reader:
+        cluster-roles: [nonprivileged, test-cluster-role]
+      garden-runc:
         roles: [configgin-role]
+        cluster-roles: [privileged, node-reader-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))

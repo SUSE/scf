@@ -34,47 +34,6 @@ case "${POD_NAME}" in
             echo ""
         fi
     ;;
-    acceptance-tests-brain)
-        kubectl apply -f - <<-EOF
-            { "apiVersion": "v1",
-              "kind": "List",
-              "items": [
-                { "apiVersion": "rbac.authorization.k8s.io/v1",
-                  "kind": "ClusterRole",
-                  "metadata": { "name": "${NAMESPACE}:${POD_NAME}:clusterrole" },
-                  "rules": [
-                    { "apiGroups": [ "" ],
-                      "resources": [ "namespaces" ],
-                      "verbs":     [ "create", "get", "delete" ]
-                    },
-                    { "apiGroups": [ "" ],
-                      "resources": [ "pods" ],
-                      "verbs":     [ "list" ]
-                    },
-                    { "apiGroups": [ "" ],
-                      "resources": [ "pods/portforward" ],
-                      "verbs":     [ "create" ]
-                    }
-                  ]
-                },
-                { "apiVersion": "rbac.authorization.k8s.io/v1",
-                  "kind": "ClusterRoleBinding",
-                  "metadata": { "name": "${NAMESPACE}:${POD_NAME}:clusterrolebinding" },
-                  "roleRef": {
-                    "apiGroup": "rbac.authorization.k8s.io",
-                    "kind":     "ClusterRole",
-                    "name":     "${NAMESPACE}:${POD_NAME}:clusterrole"
-                  },
-                  "subjects": [
-                    { "kind":      "ServiceAccount",
-                      "name":      "test-brain",
-                      "namespace": "${NAMESPACE}"
-                    }
-                  ]
-                }
-              ]
-            }
-EOF
 esac
 
 GIT_ROOT=${GIT_ROOT:-$(git -C "$(dirname "${0}")" rev-parse --show-toplevel)}
@@ -123,7 +82,7 @@ trap remove_test_config EXIT
 # Use apply - Creates anything on first run.
 # On subsequent runs identical existing definitions are ignored.
 # (Ex: cluster role bindings for tests)
-kubectl apply --namespace="${NAMESPACE}" --filename="${CONFIG}"
+kubectl apply --namespace="${NAMESPACE}" --filename="${CONFIG}" --force
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
