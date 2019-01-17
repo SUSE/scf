@@ -88,9 +88,9 @@ releases:
   version: "1.7.29.1"
   sha1: "0e4fc011ee5d5f5d71a90fc342e4fddcce746642"
 - name: staticfile-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.37.1.tgz"
-  version: "1.4.37.1"
-  sha1: "780772fa24ff9e787997c836864657ca0394ed50"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.38.1.tgz"
+  version: "1.4.38.1"
+  sha1: "28ad786a8282d1d38e3a49e97a21747d7bd6b742"
 - name: nginx-buildpack-release
   url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.5.1.tgz"
   version: "1.0.5.1"
