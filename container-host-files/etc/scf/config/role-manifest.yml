@@ -251,6 +251,7 @@ instance_groups:
                       values:
                       - nats
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: nats
           protocol: TCP
@@ -454,6 +455,7 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -666,6 +668,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
+          service-account: withsysresource
         ports:
         - name: routing-api
           protocol: TCP
@@ -1057,6 +1060,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
+          service-account: withsysresource
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1113,6 +1117,7 @@ instance_groups:
                       values:
                       - cc-uploader
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1161,6 +1166,7 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1833,6 +1839,11 @@ configuration:
         resourceNames: [nonprivileged]
         resources: [podsecuritypolicies]
         verbs: [use]
+      withsysresource:
+      - apiGroups: [extensions]
+        resourceNames: [withsysresource]
+        resources: [podsecuritypolicies]
+        verbs: [use]
       privileged:
       - apiGroups: [extensions]
         resourceNames: [privileged]
@@ -1862,6 +1873,9 @@ configuration:
         - projected
         - persistentVolumeClaim
         - nfs
+      withsysresource:
+        <<: *psp-nonprivileged
+        allowedCapabilities: [SYS_RESOURCE]
       privileged:
         <<: *psp-nonprivileged
         allowPrivilegeEscalation: true
@@ -1873,6 +1887,9 @@ configuration:
       default:
         roles: [configgin-role]
         cluster-roles: [nonprivileged]
+      withsysresource:
+        roles: [configgin-role]
+        cluster-roles: [withsysresource]
       privileged:
         roles: [configgin-role]
         cluster-roles: [privileged]
