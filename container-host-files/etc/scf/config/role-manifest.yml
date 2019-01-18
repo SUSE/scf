@@ -1225,6 +1225,7 @@ instance_groups:
   - scripts/go_log_level.sh
   - scripts/configure-garden-filesystem.sh
   - scripts/configure-az.sh
+  - scripts/configure-pz.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -2194,6 +2195,7 @@ configuration:
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.rep.placement_tags: "[((KUBE_PZ))]"
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3400,6 +3402,12 @@ variables:
     description: A comma-separated list of IP addresses for the machines of the nats
       sub-cluster. This parameter cannot be set by the user. Its value is automatically
       computed during cluster setup.
+- name: KUBE_PZ
+  options:
+    type: environment
+    default: ''
+    description: >
+      A string representing the placement tag a container is running in.
 - name: KUBE_SECRETS_GENERATION_COUNTER
   options:
     type: environment
@@ -3655,6 +3663,16 @@ variables:
       user uids (required for LDAP integration only)
     example: cn=Users,dc=corp,dc=test,dc=com
     default: ''
+- name: PZ_LABEL_NAME
+  options:
+    default: ''
+    description: The name of the metadata label to query on worker
+      nodes to get placement tag information, also known as isolation
+      segments. When set, the cells will query their worker node for
+      placement information and inject the result into cloudfoundry
+      via the KUBE_PZ parameter. When left to the default no custom
+      placement processing is done.
+    internal: true
 - name: REP_SERVER_CERT
   options:
     secret: true
