@@ -17,6 +17,19 @@ String getBuildLog() {
     return currentBuild.rawBuild.getLogFile().getText()
 }
 
+String fissileCompilationCacheConfig() {
+   def config = """{
+"boshPackageCacheKind":"s3",
+"boshPackageCacheLocation":"${params.S3_FISSILE_CACHE_BUCKET}",
+"boshPackageCacheReadOnly":false,
+"access_key_id":"${AWS_ACCESS_KEY_ID}",
+"secret_key":"${AWS_SECRET_ACCESS_KEY}",
+"region":"${params.S3_FISSILE_CACHE_REGION}",
+"disable_ssl":"true"
+}"""
+    return config.replaceAll('\n', '')
+}
+
 // The entries are the full path to the files, relative to the root of
 // the repository
 boolean areIgnoredFiles(HashSet<String> changedFiles) {
@@ -221,6 +234,16 @@ pipeline {
             name: 'S3_PREFIX',
             description: 'AWS S3 prefix to publish to',
             defaultValue: '',
+        )
+        string(
+            name: 'S3_FISSILE_CACHE_REGION',
+            description: 'AWS S3 region the fissile cache bucket is in',
+            defaultValue: 'eu-central-1',
+        )
+        string(
+            name: 'S3_FISSILE_CACHE_BUCKET',
+            description: 'AWS S3 bucket for the fissile compilation cache',
+            defaultValue: 'scf-jenkins-fissile-cache',
         )
         credentials(
             name: 'DOCKER_CREDENTIALS',
@@ -465,14 +488,22 @@ pipeline {
                         fi
                     '''
                 }
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    set -x
-                    unset SCF_PACKAGE_COMPILATION_CACHE
+                withCredentials([usernamePassword(
+                    credentialsId: params.S3_CREDENTIALS,
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                )]) {
+                    withEnv(["FISSILE_COMPILATION_CACHE_CONFIG=${fissileCompilationCacheConfig()}"]) {
+                        sh '''
+                            set -e +x
+                            source ${PWD}/.envrc
+                            set -x
+                            unset SCF_PACKAGE_COMPILATION_CACHE
 
-                    make vagrant-prep validate
-                '''
+                            make vagrant-prep validate
+                        '''
+                    }
+                }
             }
         }
 

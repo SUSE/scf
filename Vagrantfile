@@ -57,8 +57,19 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_setup_scripts_env
-      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
-        mounted_custom_setup_scripts, type: "nfs"
+      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env), mounted_custom_setup_scripts, type: "nfs"
+    end
+
+    if ENV.include? "SCF_VM_FINAL_RELEASES"
+      override.vm.synced_folder ENV["SCF_VM_FINAL_RELEASES"], "#{HOME}/scf/container-host-files/etc/scf/config/.final_releases", type: "nfs"
+    end
+
+    if ENV.include? "SCF_VM_BOSH_CACHE"
+      override.vm.synced_folder ENV["SCF_VM_BOSH_CACHE"], "#{HOME}/scf/output/bosh-cache", type: "nfs"
+    end
+
+    if ENV.include? "SCF_VM_FISSILE_COMPILATION_CACHE"
+      override.vm.synced_folder ENV["SCF_VM_FISSILE_COMPILATION_CACHE"], "#{HOME}/.fissile/compilation", type: "nfs"
     end
   end
 
