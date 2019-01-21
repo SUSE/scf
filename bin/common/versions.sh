@@ -18,10 +18,6 @@ export K_VERSION="0.0.12"
 export STAMPY_VERSION="0.0.0.22.gbb93bf3"
 export UBUNTU_VERSION="14.04"
 
-# Used in: make/install-istio
-
-export ISTIO_VERSION="1.0.5"
-
 # For stampy we need the major+minor+patch as a separate value.
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')
 
@@ -65,6 +61,5 @@ then
     echo stampy '       =' $STAMPY_VERSION
     echo stemcell '     =' $FISSILE_STEMCELL_VERSION
     echo ubuntu '       =' $UBUNTU_VERSION
-    echo istio '        =' $ISTIO_VERSION
     echo
 fi
