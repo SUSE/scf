@@ -2,6 +2,8 @@
 set -o errexit -o nounset
 set -vx
 
+GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+
 # Get version information and set destination dirs
 . "$(dirname "$0")/versions.sh"
 
@@ -53,8 +55,15 @@ if systemctl list-unit-files kube-apiserver.service | grep --quiet enabled ; the
     sleep 1
   done
 
+  # Create a service account for Tiller.
+  kubectl apply -f ${GIT_ROOT}/bin/common/helm-service-account.yaml
+  # Install Tiller with a service account.
   echo "Installing tiller for helm ..."
-  ${do_as_vagrant} helm init
+  ${do_as_vagrant} helm init --upgrade --service-account tiller
+  # Wait for Tiller to get ready.
+  while ! ${do_as_vagrant} helm version | grep "Server:" > /dev/null 2>&1 ; do
+    sleep 2
+  done
   ${do_as_vagrant} helm repo add suse https://kubernetes-charts.suse.com/
 else
   echo "Skipping tiller installation for helm; no local kube found"
