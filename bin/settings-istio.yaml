@@ -1,0 +1,21 @@
+---
+# This values.yml file contains feature options when to deploy istio.
+# It is used by
+# - make/istio-install
+
+# Gateways Configuration
+# Disable egress gateway as for now there's no use case to manage external services.
+# Enable tracing.
+# Enable grafana.
+gateways:
+  istio-ingressgateway:
+    type: NodePort
+
+  istio-egressgateway:
+    enabled: false
+
+tracing:
+  enabled: true
+
+grafana:
+  enabled: true
