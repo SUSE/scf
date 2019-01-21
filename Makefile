@@ -77,9 +77,6 @@ cats:
 scaler-smoke:
 	make/tests autoscaler-smoke
 
-install-istio:
-	make/install-istio
-
 ########## SIDECAR SERVICE TARGETS ##########
 
 mysql:
