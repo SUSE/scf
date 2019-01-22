@@ -236,7 +236,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -251,6 +251,7 @@ instance_groups:
                       values:
                       - nats
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: sysres
         ports:
         - name: nats
           protocol: TCP
@@ -434,7 +435,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
@@ -454,6 +455,7 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: sysres
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -515,7 +517,7 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           healthcheck:
@@ -649,7 +651,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -666,6 +668,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
+          service-account: sysres
         ports:
         - name: routing-api
           protocol: TCP
@@ -1040,7 +1043,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1057,6 +1060,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
+          service-account: sysres
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1098,7 +1102,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1113,6 +1117,7 @@ instance_groups:
                       values:
                       - cc-uploader
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: sysres
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1142,7 +1147,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -1161,6 +1166,7 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: sysres
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1833,6 +1839,11 @@ configuration:
         resourceNames: [nonprivileged]
         resources: [podsecuritypolicies]
         verbs: [use]
+      sysres:
+      - apiGroups: [extensions]
+        resourceNames: [sysres]
+        resources: [podsecuritypolicies]
+        verbs: [use]
       privileged:
       - apiGroups: [extensions]
         resourceNames: [privileged]
@@ -1862,6 +1873,9 @@ configuration:
         - projected
         - persistentVolumeClaim
         - nfs
+      sysres:
+        <<: *psp-nonprivileged
+        allowedCapabilities: [SYS_RESOURCE]
       privileged:
         <<: *psp-nonprivileged
         allowPrivilegeEscalation: true
@@ -1873,6 +1887,9 @@ configuration:
       default:
         roles: [configgin-role]
         cluster-roles: [nonprivileged]
+      sysres:
+        roles: [configgin-role]
+        cluster-roles: [sysres]
       privileged:
         roles: [configgin-role]
         cluster-roles: [privileged]
