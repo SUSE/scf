@@ -83,8 +83,11 @@ stratos-stop:
 	make/stratos/stop
 	make/stratos/metrics/stop
 
-install-istio:
-	make/install-istio
+istio-run:
+	make/istio/run
+
+istio-stop:
+	make/istio/stop
 
 ########## SIDECAR SERVICE TARGETS ##########
 

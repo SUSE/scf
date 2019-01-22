@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/bin/common/versions.sh"
+source "${GIT_ROOT}/make/include/defaults"
+
+# Download and install the Istio release.
+istio_path="${GIT_ROOT}/.istio/${ISTIO_VERSION}"
+if [ ! -d "$istio_path" ]; then
+  mkdir -p "${istio_path}"
+  curl -L "https://github.com/istio/istio/releases/download/${ISTIO_VERSION}/istio-${ISTIO_VERSION}-linux.tar.gz" \
+    | tar zx -C "${istio_path}" --strip-components=1
+fi
+
+path_with_istio="PATH=\"${istio_path}/bin:\${PATH}\""
+export_path_comment="# Add Istio binaries to PATH."
+if ! grep --silent "${export_path_comment}" ~/.profile 2> /dev/null; then
+  printf "\\nexport %s %s\\n" "${path_with_istio}" "${export_path_comment}" >> ~/.profile
+else
+  # Update the exported PATH with the Istio binaries.
+  sed -i 's|^.*'"${export_path_comment}"'|'"export ${path_with_istio} ${export_path_comment}"'|' ~/.profile
+fi
+
+chart="${istio_path}/install/kubernetes/helm/istio"
+
+# Install the Istio Helm chart.
+args=(
+  "${ISTIO_HELM_RELEASE}"
+  --namespace "${ISTIO_NAMESPACE}"
+  --timeout 1800
+)
+
+values=(
+  --set "gateways.istio-ingressgateway.type=NodePort"
+  --set "gateways.istio-egressgateway.enabled=false"
+  --set "tracing.enabled=true"
+  --set "grafana.enabled=true"
+)
+
+helm upgrade --install "${args[@]}" "${chart}" "${values[@]}"
