@@ -24,6 +24,17 @@ Vagrant.configure(2) do |config|
   vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.15'))
   vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
+  HOME = "/home/vagrant"
+
+  # Set this environment variable pointing to a directory containing shell scripts to be executed as
+  # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
+  # `provision.d`, every script inside this folder will be executed as part of the provisioning of
+  # the Vagrant VM.
+  custom_setup_scripts_env = "SCF_VM_CUSTOM_SETUP_SCRIPTS"
+  # The target directory where the custom setup scripts are mounted if the custom config scripts env
+  # is set.
+  mounted_custom_setup_scripts = "#{HOME}/.config/custom_vagrant_setup_scripts"
+
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake.
     override.vm.box = "https://cf-opensusefs2.s3.amazonaws.com/vagrant/scf-virtualbox-v#{vm_box_version}.box"
@@ -42,8 +53,13 @@ Vagrant.configure(2) do |config|
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     # https://github.com/mitchellh/vagrant/issues/351
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
+    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
+
+    if ENV.include? custom_setup_scripts_env
+      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
+        mounted_custom_setup_scripts, type: "nfs"
+    end
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
@@ -64,8 +80,13 @@ Vagrant.configure(2) do |config|
     libvirt.cpus = vm_cpus
     libvirt.random model: 'random'
 
-    override.vm.synced_folder ".fissile/.bosh", "/home/vagrant/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "/home/vagrant/scf", type: "nfs"
+    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
+
+    if ENV.include? custom_setup_scripts_env
+      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
+        mounted_custom_setup_scripts, type: "nfs"
+    end
   end
 
   config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
@@ -97,8 +118,8 @@ Vagrant.configure(2) do |config|
   # Install common and dev tools.
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
     set -o errexit -o xtrace -o verbose
-    export HOME=/home/vagrant
-    export PATH=$PATH:/home/vagrant/bin
+    export HOME="#{HOME}"
+    export PATH="${PATH}:#{HOME}/bin"
     export SCF_BIN_DIR=/usr/local/bin
 
     if [ -n "#{vm_registry_mirror}" ]; then
@@ -160,15 +181,28 @@ Vagrant.configure(2) do |config|
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH=$PATH:/home/vagrant/scf/container-host-files/opt/scf/bin/' >> .profile
-    echo 'test -f /home/vagrant/scf/personal-setup && . /home/vagrant/scf/personal-setup' >> .profile
+    echo 'export PATH="${PATH}:#{HOME}/scf/container-host-files/opt/scf/bin/"' >> .profile
 
-    echo -e '\nexport HISTFILE=/home/vagrant/scf/output/.bash_history' >> .profile
+    echo -e '\nexport HISTFILE="#{HOME}/scf/output/.bash_history"' >> .profile
 
     # Check that the cluster is reasonable.
-    /home/vagrant/scf/bin/dev/kube-ready-state-check.sh
+    #{HOME}/scf/bin/dev/kube-ready-state-check.sh
 
-    direnv exec /home/vagrant/scf make -C /home/vagrant/scf copy-compile-cache
+    direnv exec #{HOME}/scf make -C #{HOME}/scf copy-compile-cache
+  SHELL
+
+  # Provision the custom config scripts and personal setup.
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -o errexit
+
+    if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
+      scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
+      for script in ${scripts}; do
+        "${script}"
+      done
+    fi
+
+    echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
