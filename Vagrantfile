@@ -26,12 +26,14 @@ Vagrant.configure(2) do |config|
 
   HOME = "/home/vagrant"
 
-  # Set this environment variable to a directory containing shell scripts to be executed as part of
-  # the provisioning of the Vagrant machine.
-  custom_config_scripts_env = "CUSTOM_CONFIG_SCRIPTS"
+  # Set this environment variable pointing to a directory containing shell scripts to be executed as
+  # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
+  # `provision.d`, every script inside this folder will be executed as part of the provisioning of
+  # the Vagrant VM.
+  custom_config_scripts_env = "SCF_VM_CUSTOM_SETUP_SCRIPTS"
   # The target directory where the custom setup scripts are mounted if the custom config scripts env
   # is set.
-  mounted_custom_config_scripts = "#{HOME}/.config/custom_config_scripts"
+  mounted_custom_config_scripts = "#{HOME}/.config/custom_vagrant_setup_scripts"
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake.
@@ -195,8 +197,8 @@ Vagrant.configure(2) do |config|
 
     if [ -d "#{mounted_custom_config_scripts}/provision.d" ]; then
       scripts=($(find "#{mounted_custom_config_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
-      for script in $scripts; do
-        "$script"
+      for script in ${scripts}; do
+        "${script}"
       done
     fi
 
