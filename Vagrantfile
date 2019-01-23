@@ -193,8 +193,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit
 
-    if [ -d "#{mounted_custom_config_scripts}" ]; then
-      find "#{mounted_custom_config_scripts}" -iname "*.sh" -exec "{}" \\;
+    if [ -d "#{mounted_custom_config_scripts}/provision.d" ]; then
+      find "#{mounted_custom_config_scripts}/provision.d" -iname "*.sh" -exec "{}" \\;
     fi
 
     echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
