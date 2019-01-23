@@ -39,10 +39,6 @@ export GOLANG_VERSION=1.7
 export PRODUCT_VERSION="1.13.1"
 export CF_VERSION=3.6.0
 
-# Used in: make/stratos/...
-
-: "${STRATOS_URL:=https://github.com/cloudfoundry-incubator/stratos/releases/download/2.1.1/console-helm-chart-2.1.1-74090ba.tgz}"
-
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################
 
