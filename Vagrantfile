@@ -194,7 +194,10 @@ Vagrant.configure(2) do |config|
     set -o errexit
 
     if [ -d "#{mounted_custom_config_scripts}/provision.d" ]; then
-      find "#{mounted_custom_config_scripts}/provision.d" -iname "*.sh" -exec "{}" \\;
+      scripts=($(find "#{mounted_custom_config_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
+      for script in $scripts; do
+        "$script"
+      done
     fi
 
     echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
