@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [2.15.1] - 2019-01-22
+
+## Added
+- Enabled Ingress Controller
+- Added nginx buildpack
+- Set up default PSPs 
+- Specify SYS_RESOURCE capabilities for roles that need it
+
+## Changed
+- Bumped SLE12 & openSUSE stacks
+- Bumped nodejs buildpack to 1.6.41.1
+- Bumped Go buildpack to 1.8.31.1
+- Bumped Ruby buildpack to 1.7.30.1
+- Bumped staticfile buildpack to 1.4.38.1
+- v3 API now uses HTTPS instead of HTTP
+- Bumped java-buildpack to 4.17.1.1
+- Restored DEFAULT_STACK to cflinuxfs2
+- Bumped php-buildpack to 4.3.68.2
+- Bumped binary-buildpack to 1.0.29.1
+- 
+
+## Fixed
+- klog.sh now supports multi-container pods
+- Fixed stemcell to include latest pre start scripts
+
+
 ## [2.15.0] - 2018-12-20
 
 ## Added
