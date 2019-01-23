@@ -1191,9 +1191,11 @@ instance_groups:
     release: nfs-volume
     properties:
       bosh_containerization:
+        colocated_containers:
+        - nfs-broker-registration
         run:
           scaling:
-            min: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: [ALL]
@@ -1788,6 +1790,25 @@ instance_groups:
         run:
           scaling:
             min: 1
+            max: 3
+            ha: 2
+- name: nfs-broker-registration
+  type: colocated-container
+  configuration:
+    templates:
+      properties.fissile.monit.port: 2290
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: register-nfs-persi
+    release: scf
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
             max: 3
             ha: 2
 configuration:
