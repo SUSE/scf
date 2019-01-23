@@ -24,14 +24,14 @@ Vagrant.configure(2) do |config|
   vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.15'))
   vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
-  home = "/home/vagrant"
+  HOME = "/home/vagrant"
 
   # Set this environment variable to a directory containing shell scripts to be executed as part of
   # the provisioning of the Vagrant machine.
   custom_config_scripts_env = "CUSTOM_CONFIG_SCRIPTS"
   # The target directory where the custom setup scripts are mounted if the custom config scripts env
   # is set.
-  mounted_custom_config_scripts = "#{home}/.config/custom_config_scripts"
+  mounted_custom_config_scripts = "#{HOME}/.config/custom_config_scripts"
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake.
@@ -51,8 +51,8 @@ Vagrant.configure(2) do |config|
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
     # https://github.com/mitchellh/vagrant/issues/351
-    override.vm.synced_folder ".fissile/.bosh", "#{home}/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "#{home}/scf", type: "nfs"
+    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_config_scripts_env
       override.vm.synced_folder ENV.fetch(custom_config_scripts_env),
@@ -78,8 +78,8 @@ Vagrant.configure(2) do |config|
     libvirt.cpus = vm_cpus
     libvirt.random model: 'random'
 
-    override.vm.synced_folder ".fissile/.bosh", "#{home}/.bosh", type: "nfs"
-    override.vm.synced_folder ".", "#{home}/scf", type: "nfs"
+    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
+    override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_config_scripts_env
       override.vm.synced_folder ENV.fetch(custom_config_scripts_env),
@@ -116,8 +116,8 @@ Vagrant.configure(2) do |config|
   # Install common and dev tools.
   config.vm.provision :shell, privileged: true, inline: <<-SHELL
     set -o errexit -o xtrace -o verbose
-    export HOME="#{home}"
-    export PATH="${PATH}:#{home}/bin"
+    export HOME="#{HOME}"
+    export PATH="${PATH}:#{HOME}/bin"
     export SCF_BIN_DIR=/usr/local/bin
 
     if [ -n "#{vm_registry_mirror}" ]; then
@@ -179,14 +179,14 @@ Vagrant.configure(2) do |config|
     set -o errexit
     echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
 
-    echo 'export PATH="${PATH}:#{home}/scf/container-host-files/opt/scf/bin/"' >> .profile
+    echo 'export PATH="${PATH}:#{HOME}/scf/container-host-files/opt/scf/bin/"' >> .profile
 
-    echo -e '\nexport HISTFILE="#{home}/scf/output/.bash_history"' >> .profile
+    echo -e '\nexport HISTFILE="#{HOME}/scf/output/.bash_history"' >> .profile
 
     # Check that the cluster is reasonable.
-    #{home}/scf/bin/dev/kube-ready-state-check.sh
+    #{HOME}/scf/bin/dev/kube-ready-state-check.sh
 
-    direnv exec #{home}/scf make -C #{home}/scf copy-compile-cache
+    direnv exec #{HOME}/scf make -C #{HOME}/scf copy-compile-cache
   SHELL
 
   # Provision the custom config scripts and personal setup.
@@ -197,7 +197,7 @@ Vagrant.configure(2) do |config|
       find "#{mounted_custom_config_scripts}" -iname "*.sh" -exec "{}" \\;
     fi
 
-    echo 'test -f "#{home}/scf/personal-setup" && . "#{home}/scf/personal-setup"' >> .profile
+    echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
 
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
