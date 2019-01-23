@@ -1,10 +1,9 @@
----
 releases:
-- name: "bpm"
+- name: bpm
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
-- name: "capi"
+- name: capi
   version: "1.66.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
   sha1: "4236495d4a047fb9396996aba3daea9e0cb3f1bf"
@@ -12,7 +11,7 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
-- name: "cf-smoke-tests"
+- name: cf-smoke-tests
   version: "40.0.6"
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.6"
   sha1: "df727e63fb046c694098527845a2a0294b257635"
@@ -20,7 +19,7 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.0
   version: "7.0"
   sha1: 5b633a277044f78f333b68da54f804b2384d889d
-- name: "cflinuxfs2"
+- name: cflinuxfs2
   version: "1.233.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.233.0"
   sha1: "a64b14ff25c13a482124c094ab4884e2ebf67e08"
@@ -28,27 +27,27 @@ releases:
   url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
   version: 2.0.2
   sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
-- name: "diego"
+- name: diego
   version: "2.16.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.16.0"
   sha1: "dec82d771afd83e1d8e85f512e6a619b371e7f19"
-- name: "garden-runc"
+- name: garden-runc
   version: "1.16.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.3"
   sha1: "2a7c813e7e4d862e19334addf022916fb6b91eb0"
-- name: "loggregator"
+- name: loggregator
   version: "103.1"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
   sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
-- name: "nats"
+- name: nats
   version: "25"
   url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
   sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
-- name: "nfs-volume"
+- name: nfs-volume
   version: "1.2.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
   sha1: "de807ffa3fc84949bb92edac6a4152245826d6da"
-- name: "cf-routing"
+- name: cf-routing
   version: "0.180.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0"
   sha1: "990c2c319e6063573eec18dbeb7c3631a382db7d"
@@ -61,66 +60,70 @@ releases:
   version: "2.0"
   sha1: df91c31c15da68c7b2905645b20b93a930627d46
 - name: binary-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.28.1.tgz"
-  version: "1.0.28.1"
-  sha1: "afc853b1e69cba9434e9e8a64ebc54e539e68c99"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.29.1.tgz"
+  version: "1.0.29.1"
+  sha1: "9661079978d5d2cae33699d6801b03f166fb2d5c"
 - name: go-buildpack-release
-  url: https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.28.1.tgz
-  version: "1.8.28.1"
-  sha1: 281b03baf52cfeafa7983a50d261041e6d6246a4
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.31.1.tgz"
+  version: "1.8.31.1"
+  sha1: "9e6bd898ff12a24101594cc505d33c2ba89d2f92"
 - name: java-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.16.1.1.tgz"
-  version: "4.16.1.1"
-  sha1: "8744de5d55d100866d6575f6c54e232a97079d80"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.1.1.tgz"
+  version: "4.17.1.1"
+  sha1: "82573dc977e6dee3562d7c54570b90fa995b7e7c"
 - name: nodejs-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.37.1.tgz"
-  version: "1.6.37.1"
-  sha1: "4b7284a9ce29cece5d16402b11ca3233dac39d6f"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.41.1.tgz"
+  version: "1.6.41.1"
+  sha1: "280a58ba1a246d3a7b349425b7b0c10c1a476a83"
 - name: php-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.66.1.tgz"
-  version: "4.3.66.1"
-  sha1: "cd1ec47c7c4d893107b22746b9e1df84e7973beb"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.68.2.tgz"
+  version: "4.3.68.2"
+  sha1: "5733f43069aeb9a105f131b30570dca0e434e6fa"
 - name: python-buildpack-release
   url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.24.1.tgz"
   version: "1.6.24.1"
   sha1: "0ea11cce1c3da9f3710f538f835f80c5a3133375"
 - name: ruby-buildpack-release
-  url: https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.26.1.tgz
-  version: "1.7.26.1"
-  sha1: e0f37c4ea2e7534860ed2e84f26d4a593409a739
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.30.1.tgz"
+  version: "1.7.30.1"
+  sha1: "9588ee02549e437dda3b3a116ba238681d7b6992"
 - name: staticfile-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.36.1.tgz"
-  version: "1.4.36.1"
-  sha1: "386c835260c900ccf4adab7a8e7269f9ed3a2a41"
-- name: "dotnet-core-buildpack"
-  version: "2.0.3"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.38.1.tgz"
+  version: "1.4.38.1"
+  sha1: "28ad786a8282d1d38e3a49e97a21747d7bd6b742"
+- name: nginx-buildpack-release
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.5.1.tgz"
+  version: "1.0.5.1"
+  sha1: "bdec54c9e08ca037fad95e31dc480bdb4803a789"
+- name: dotnet-core-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
-  sha1: "2b421702ee71687d10c2e9a296475b33e6d77b16"  
-- name: "postgres"
+  version: "2.0.3"
+  sha1: "2b421702ee71687d10c2e9a296475b33e6d77b16"
+- name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
-- name: "opensuse42"
-  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.100.tgz"
-  version: "1.7.100"
-  sha1: "ced010d59be4326fdc829ea616a46adafd5ecbf6"
-- name: "cf-sle12"
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.137.tgz"
-  version: "1.51.137"
-  sha1: "d2b1643a2151127c0c76a311b1b198f39783d11b"
-- name: "app-autoscaler"
+- name: opensuse42
+  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.105.tgz"
+  version: "1.7.105"
+  sha1: "28d9e6307c1d38fcad71e724e5c4ca92ab6ba1cb"
+- name: cf-sle12
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.144.tgz"
+  version: "1.51.144"
+  sha1: "0a564ace6fb93097b00046a4a884bf4749c7f18f"
+- name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
   sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
-- name: "cf-usb"
+- name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
-- name: "groot-btrfs"
-  version: "1.0.2"
-  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.2.tgz"
-  sha1: "1232559a679c7b588e735d35c1a8deb250fd8afd"
-- name: "scf-helper"
+- name: groot-btrfs
+  version: "1.0.3"
+  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.3.tgz"
+  sha1: "e2a505254b40956d52b80c3ff9f107d325d949ff"
+- name: scf-helper
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
   sha1: "94bb4357cbe5fa07ddeb7efef1d1f7a2af8dfead"
@@ -233,7 +236,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -248,6 +251,7 @@ instance_groups:
                       values:
                       - nats
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: nats
           protocol: TCP
@@ -431,7 +435,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
@@ -451,6 +455,7 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -512,7 +517,7 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           healthcheck:
@@ -540,7 +545,7 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
+          service-account: privileged # For port binding
         ports:
         - name: router
           protocol: TCP
@@ -646,7 +651,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -663,6 +668,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
+          service-account: withsysresource
         ports:
         - name: routing-api
           protocol: TCP
@@ -760,6 +766,8 @@ instance_groups:
     release: python-buildpack
   - name: staticfile-buildpack
     release: staticfile-buildpack
+  - name: nginx-buildpack
+    release: nginx-buildpack
   - name: java-buildpack
     release: java-buildpack
   - name: dotnet-core-buildpack
@@ -1035,7 +1043,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1052,6 +1060,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
+          service-account: withsysresource
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1093,7 +1102,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1108,6 +1117,7 @@ instance_groups:
                       values:
                       - cc-uploader
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1137,7 +1147,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
+          capabilities: [SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -1156,6 +1166,7 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
+          service-account: withsysresource
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1206,7 +1217,7 @@ instance_groups:
                       values:
                       - nfs-broker
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
+          service-account: privileged
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1262,7 +1273,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
-          service-account: node-reader
+          service-account: garden-runc
           volumes:
           - path: /var/vcap/data/grootfs
             type: persistent
@@ -1297,7 +1308,6 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-        pod-security-policy: privileged
   - name: groot-btrfs
     release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
@@ -1364,13 +1374,13 @@ instance_groups:
     release: scf
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           scaling:
             min: 0
             max: 1
           flight-stage: manual
           capabilities: []
+          #service-account: privileged # ???
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1819,15 +1829,79 @@ configuration:
       - apiGroups: [""]
         resources: ["secrets"]
         verbs: [get, list]
+    cluster-roles:
+      node-reader-role:
+      - apiGroups: [""]
+        resources: [nodes]
+        verbs: [get, list, watch]
+      nonprivileged:
+      - apiGroups: [extensions]
+        resourceNames: [nonprivileged]
+        resources: [podsecuritypolicies]
+        verbs: [use]
+      withsysresource:
+      - apiGroups: [extensions]
+        resourceNames: [withsysresource]
+        resources: [podsecuritypolicies]
+        verbs: [use]
+      privileged:
+      - apiGroups: [extensions]
+        resourceNames: [privileged]
+        resources: [podsecuritypolicies]
+        verbs: [use]
+      test-cluster-role:
+      - apiGroups: [""]
+        resources: [namespaces]
+        verbs: [create, get, delete]
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [list]
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
+    pod-security-policies:
+      nonprivileged: &psp-nonprivileged
+        fsGroup: { rule: RunAsAny }
+        runAsUser: { rule: RunAsAny }
+        seLinux: { rule: RunAsAny }
+        supplementalGroups: { rule: RunAsAny }
+        volumes:
+        - configMap
+        - secret
+        - emptyDir
+        - downwardAPI
+        - projected
+        - persistentVolumeClaim
+        - nfs
+      withsysresource:
+        <<: *psp-nonprivileged
+        allowedCapabilities: [SYS_RESOURCE]
+      privileged:
+        <<: *psp-nonprivileged
+        allowPrivilegeEscalation: true
+        allowedCapabilities: ["*"]
+        defaultAllowPrivilegeEscalation: true
+        hostPorts: [{ min: 0, max: 65535 }]
+        privileged: true
     accounts:
       default:
         roles: [configgin-role]
+        cluster-roles: [nonprivileged]
+      withsysresource:
+        roles: [configgin-role]
+        cluster-roles: [withsysresource]
+      privileged:
+        roles: [configgin-role]
+        cluster-roles: [privileged]
       secret-generator:
         roles: [configgin-role, secrets-role]
+        cluster-roles: [nonprivileged]
       test-brain:
         roles: [configgin-role, test-role]
-      node-reader:
+        cluster-roles: [nonprivileged, test-cluster-role]
+      garden-runc:
         roles: [configgin-role]
+        cluster-roles: [privileged, node-reader-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2046,8 +2120,10 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
+    properties.cc.default_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
     properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
@@ -2158,6 +2234,7 @@ configuration:
     properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
+    properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
     properties.garden.dns_servers: '[((GARDEN_LINUX_DNS_SERVER))]'
     properties.garden.docker_registry_endpoint: ((GARDEN_DOCKER_REGISTRY))((^GARDEN_DOCKER_REGISTRY))null((/GARDEN_DOCKER_REGISTRY))
     properties.garden.http_proxy: '"((HTTP_PROXY))"'
@@ -3132,6 +3209,10 @@ variables:
     description: If set apps pushed to spaces that allow SSH access will have SSH
       enabled by default.
     required: true
+- name: DEFAULT_STACK
+  options:
+    default: *the-stack-name
+    description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
     default: auto

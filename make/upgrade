@@ -20,10 +20,6 @@ cd "${GIT_ROOT}"
 RELEASE=${NAMESPACE}
 echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
 
-supports_psp() {
-    kubectl get podsecuritypolicy -o name >/dev/null 2>/dev/null
-}
-
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
 
@@ -53,38 +49,6 @@ helm_args+=(
     --set "kube.external_ips[0]=192.0.2.42"
     --set "kube.external_ips[1]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
 )
-
-if supports_psp ; then
-    psp_privileged="$(kubectl get podsecuritypolicy -o json | jq -r '
-            [
-                .items[] |
-                select(
-                    .spec.allowedCapabilities // [] |
-                    contains(["*"])
-                )
-            ] |
-            first | .metadata.name
-            // ""
-        ')"
-    psp_nonprivileged="$(kubectl get podsecuritypolicy -o json | jq -r '
-            [
-                .items[] |
-                select(
-                    .spec.allowedCapabilities // [] |
-                    contains(["*"]) |
-                    not
-                )
-            ] |
-            first | .metadata.name
-            // ""
-        ')"
-    if [ -n "${psp_privileged}" ] ; then
-        helm_args+=(
-            --set "kube.psp.privileged=${psp_privileged}"
-            --set "kube.psp.nonprivileged=${psp_nonprivileged:-${psp_privileged}}"
-        )
-    fi
-fi
 
 # Force rotate secrets
 if [ -n "${SCF_SECRETS_GENERATION_COUNTER:-}" ] ; then

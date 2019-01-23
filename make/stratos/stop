@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+source "${BASH_SOURCE%/*}/_env"
+source "${GIT_ROOT}/make/include/has_namespace"
+source "${GIT_ROOT}/make/include/has_release"
+
+if has_release "${STRATOS_HELM_NAME}"; then
+  helm delete --purge "${STRATOS_HELM_NAME}"
+fi
+
+if has_namespace "${STRATOS_NAMESPACE}"; then
+  kubectl delete namespace "${STRATOS_NAMESPACE}"
+fi

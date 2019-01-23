@@ -13,14 +13,25 @@ if [ -f ${FISSILE_GIT_ROOT}/Jenkinsfile ] ; then
     # add the common part, which references them.
 
     if [ "${USE_SLE_BASE}" = "false" ]; then
-        SRC_BASE="${FISSILE_LIGHT_OPEN42}"
+        STACK_BASE="${FISSILE_LIGHT_OPEN42}"
     else
-        SRC_BASE="${FISSILE_LIGHT_SLE12}"
+        STACK_BASE="${FISSILE_LIGHT_SLE12}"
     fi
 
     tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX)
-    cat "${SRC_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
+    trap "rm -f $tmp_file" EXIT
+
+    cat "${STACK_BASE}" "${FISSILE_LIGHT_COMMON}" > "${tmp_file}"
     mv "${tmp_file}" "${FISSILE_LIGHT_OPINIONS}"
+
+    # Further assemble the BOSH role manifest, from common and
+    # stack-specific parts, in the same manner.
+
+    tmp_file=$(mktemp -t tmp.XXXXXXXXXXXXXXXXXXXX)
+    trap "rm -f $tmp_file" EXIT
+
+    cat "${STACK_BASE}" "${FISSILE_MANIFEST_COMMON}" > "${tmp_file}"
+    mv "${tmp_file}" "${FISSILE_ROLE_MANIFEST}"
 fi
 
 exec fissile.real "$@"

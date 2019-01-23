@@ -18,6 +18,7 @@ password
 /src/buildpacks/*-clone
 /bin/settings/certs.env
 /bin/settings/kube/ca.env
+/container-host-files/etc/scf/config/role-manifest-final.yml
 # `make dist` output of various forms
 /output/
 personal-setup
