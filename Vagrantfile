@@ -30,10 +30,10 @@ Vagrant.configure(2) do |config|
   # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
   # `provision.d`, every script inside this folder will be executed as part of the provisioning of
   # the Vagrant VM.
-  custom_config_scripts_env = "SCF_VM_CUSTOM_SETUP_SCRIPTS"
+  custom_setup_scripts_env = "SCF_VM_CUSTOM_SETUP_SCRIPTS"
   # The target directory where the custom setup scripts are mounted if the custom config scripts env
   # is set.
-  mounted_custom_config_scripts = "#{HOME}/.config/custom_vagrant_setup_scripts"
+  mounted_custom_setup_scripts = "#{HOME}/.config/custom_vagrant_setup_scripts"
 
   config.vm.provider "virtualbox" do |vb, override|
     # Need to shorten the URL for Windows' sake.
@@ -56,9 +56,9 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
-    if ENV.include? custom_config_scripts_env
-      override.vm.synced_folder ENV.fetch(custom_config_scripts_env),
-        mounted_custom_config_scripts, type: "nfs"
+    if ENV.include? custom_setup_scripts_env
+      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
+        mounted_custom_setup_scripts, type: "nfs"
     end
   end
 
@@ -83,9 +83,9 @@ Vagrant.configure(2) do |config|
     override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
-    if ENV.include? custom_config_scripts_env
-      override.vm.synced_folder ENV.fetch(custom_config_scripts_env),
-        mounted_custom_config_scripts, type: "nfs"
+    if ENV.include? custom_setup_scripts_env
+      override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
+        mounted_custom_setup_scripts, type: "nfs"
     end
   end
 
@@ -195,8 +195,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     set -o errexit
 
-    if [ -d "#{mounted_custom_config_scripts}/provision.d" ]; then
-      scripts=($(find "#{mounted_custom_config_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
+    if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
+      scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
       for script in ${scripts}; do
         "${script}"
       done
