@@ -6,23 +6,23 @@ set -o errexit
 # of the server. Check if we have a client for that version packaged,
 # and if yes, put it on the PATH. Else fails with a nice message.
 
-HBASE=/var/vcap/packages/helm/bin
-HELM_VERSION="$(${HBASE}/helm version| grep Server | sed -e 's/.*"v//' -e 's/".*//')"
+HELM_BIN_DIR=/var/vcap/packages/helm/bin
+HELM_VERSION="$(${HELM_BIN_DIR}/helm version | grep Server | sed -e 's/.*"v//' -e 's/".*//')"
 
 echo Packaged helm clients ...
-( cd ${HBASE} ; find . -type f | sed -e 's/^/= /' )
+( cd ${HELM_BIN_DIR} ; find . -type f | sed -e 's/^/= /' )
 echo Helm server ${HELM_VERSION}
 echo Compare
 
-if test -f "${HBASE}/${HELM_VERSION}/helm"
+if test -f "${HELM_BIN_DIR}/${HELM_VERSION}/helm"
 then
     echo Match
 else
-    echo "Helm server ${HELM_VERSION} not supported, only: $(cd ${HBASE} ; ls | sort)"
+    echo "Helm server ${HELM_VERSION} not supported, only: $(cd ${HELM_BIN_DIR} ; ls | sort)"
     exit 1
 fi
 
-export PATH="${HBASE}/${HELM_VERSION}:${PATH}"
+export PATH="${HELM_BIN_DIR}/${HELM_VERSION}:${PATH}"
 export PATH="/var/vcap/packages/cli/bin:${PATH}"
 export PATH="/var/vcap/packages/kubectl/bin:${PATH}"
 export PATH="/var/vcap/packages/credhub-cli/bin:${PATH}"
