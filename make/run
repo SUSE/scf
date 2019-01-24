@@ -2,18 +2,12 @@
 
 set -o errexit -o nounset
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 cd "${GIT_ROOT}"
 
-. make/include/secrets
-
-NAMESPACE="${NAMESPACE:-cf}"
-UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
-CF_CHART="${CF_CHART:-output/helm}"
-
-has_namespace() {
-    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
-}
+source "${GIT_ROOT}/make/include/secrets"
+source "${GIT_ROOT}/make/include/defaults"
+source "${GIT_ROOT}/make/include/has_namespace"
 
 has_internal_ca() {
     test "$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")" != ""
@@ -22,16 +16,16 @@ has_internal_ca() {
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace start
-if has_namespace ; then
-    kubectl delete namespace "${NAMESPACE}"
+if has_namespace "${CF_NAMESPACE}"; then
+    kubectl delete namespace "${CF_NAMESPACE}"
 fi
 
-printf "Waiting for namespace %s to be deleted...\n" "${NAMESPACE}"
-while has_namespace ; do
+printf "Waiting for namespace %s to be deleted...\n" "${CF_NAMESPACE}"
+while has_namespace "${CF_NAMESPACE}"; do
     sleep 1
 done
 
-kubectl create namespace "${NAMESPACE}"
+kubectl create namespace "${CF_NAMESPACE}"
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace end
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::ca-cert start
@@ -60,8 +54,8 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
 : "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
 
 helm_args=(
-    --name "${NAMESPACE}"
-    --namespace "${NAMESPACE}"
+    --name "${CF_NAMESPACE}"
+    --namespace "${CF_NAMESPACE}"
     --values "bin/settings.yaml"
     --set "env.DOMAIN=${DOMAIN}"
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}"

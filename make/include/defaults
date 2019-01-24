@@ -6,7 +6,9 @@ set -o errexit -o nounset
 source "${GIT_ROOT}/.envrc"
 
 : "${CF_NAMESPACE:=cf}"
+: "${CF_CHART:="${GIT_ROOT}/output/helm"}"
 : "${DOMAIN:=cf-dev.io}"
+: "${UAA_NAMESPACE:=uaa}"
 : "${UAA_HOST:=uaa.${DOMAIN}}"
 : "${UAA_PORT:=2793}"
 : "${UAA_CLIENT_ID:=cf}"

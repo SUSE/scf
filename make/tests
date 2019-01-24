@@ -2,8 +2,9 @@
 
 set -o errexit -o nounset
 
-NAMESPACE="${NAMESPACE:-cf}"
-UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
+source "${GIT_ROOT}/make/include/has_namespace"
 
 POD_NAME=$1
 
@@ -39,29 +40,23 @@ esac
 GIT_ROOT=${GIT_ROOT:-$(git -C "$(dirname "${0}")" rev-parse --show-toplevel)}
 METRICS="${GIT_ROOT}/scf_metrics.csv"
 
-has_namespace() {
-    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
-}
-
 has_pod() {
-    kubectl get pod --output=name --namespace "${NAMESPACE}" "${POD_NAME}" >/dev/null 2>/dev/null
+    kubectl get pod --output=name --namespace "${CF_NAMESPACE}" "${POD_NAME}" >/dev/null 2>/dev/null
 }
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" start
 
-if has_namespace ; then
+if has_namespace "${CF_NAMESPACE}"; then
     :
 else
-    echo 1>&2 Namespace "${NAMESPACE}" is missing. SCF is not running.
+    echo 1>&2 Namespace "${CF_NAMESPACE}" is missing. SCF is not running.
     exit 1
 fi
-
-RELEASE="$(helm list --namespace "${NAMESPACE}" --short --max 1)"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" start
 
 # Delete left-over pod/definition from previous runs, then create/run
-kubectl delete --namespace="${NAMESPACE}" --filename="${TEST_FILE}" \
+kubectl delete --namespace="${CF_NAMESPACE}" --filename="${TEST_FILE}" \
     2> /dev/null || /bin/true
 
 echo "Waiting for pod ${POD_NAME} to be deleted..."
@@ -73,8 +68,7 @@ done
 # actual name as pulled from the cluster under test.
 
 CONFIG=$(mktemp)
-DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
-ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
+ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${CF_NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
@@ -82,13 +76,13 @@ trap remove_test_config EXIT
 # Use apply - Creates anything on first run.
 # On subsequent runs identical existing definitions are ignored.
 # (Ex: cluster role bindings for tests)
-kubectl apply --namespace="${NAMESPACE}" --filename="${CONFIG}" --force
+kubectl apply --namespace="${CF_NAMESPACE}" --filename="${CONFIG}" --force
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::create" end
 
 i=0
 
-while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
+while [ "$(kubectl get pod --namespace "${CF_NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
 do
   i=$((i + 1))
   if [ ${i} -gt 30 ]
@@ -103,13 +97,13 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 
 # First show the logs accumulated so far, then stream further logs in
 # a way which terminates when the pod (= testsuite) terminates.
-kubectl logs   --namespace "${NAMESPACE}" "${POD_NAME}"
-kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}"
+kubectl logs   --namespace "${CF_NAMESPACE}" "${POD_NAME}"
+kubectl attach --namespace "${CF_NAMESPACE}" "${POD_NAME}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
 
-while [ -z "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')" ]; do
+while [ -z "$(kubectl get pod --namespace "${CF_NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')" ]; do
     sleep 1
 done
-exit $(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')
+exit $(kubectl get pod --namespace "${CF_NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')

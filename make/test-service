@@ -9,10 +9,10 @@ service="$1"
 # This script is derived from part of
 #	cf-ci:qa-pipelines/tasks/usb-deploy.sh
 
-NAMESPACE="${NAMESPACE:-cf}"
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
 
-PASS="$(kubectl --namespace "${NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
-DOMAIN=$(kubectl get pods -o json --namespace "${NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
+PASS="$(kubectl --namespace "${CF_NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
 
 # # ## ### ##### ######## ############# #####################
 
