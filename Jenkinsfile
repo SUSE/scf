@@ -25,7 +25,7 @@ boolean areIgnoredFiles(HashSet<String> changedFiles) {
     "README.md"
   ]
 
-  // An empty set is considered to be contained by ignoredFiles, but if we 
+  // An empty set is considered to be contained by ignoredFiles, but if we
   // have an empty list, it's from a replay of a previous build, so we
   // should run it.
   if (changedFiles.size() == 0) {
@@ -330,7 +330,7 @@ pipeline {
                         done
                         # Only return the namespaces we want
                         for ns in "${all_ns[@]}" ; do
-                            if [[ "${ns}" =~ scf|uaa ]] ; then
+                            if [[ "${ns}" =~ cf|uaa ]] ; then
                                 echo "${ns}"
                             fi
                         done
