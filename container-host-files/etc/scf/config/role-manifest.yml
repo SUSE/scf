@@ -1285,6 +1285,7 @@ instance_groups:
           memory: 2800
           virtual-cpus: 4
           healthcheck:
+            readiness:
               command:
                 - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
           affinity:
@@ -1450,7 +1451,6 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          exposed-ports: []
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
