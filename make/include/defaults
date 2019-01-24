@@ -7,7 +7,6 @@ source "${GIT_ROOT}/.envrc"
 
 : "${CF_NAMESPACE:=cf}"
 : "${DOMAIN:=cf-dev.io}"
-: "${UAA_CF_IDENTITY_ZONE:=cf}"
 : "${UAA_HOST:=uaa.${DOMAIN}}"
 : "${UAA_PORT:=2793}"
 : "${UAA_CLIENT_ID:=cf}"

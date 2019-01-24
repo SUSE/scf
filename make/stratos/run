@@ -25,7 +25,7 @@ else
 fi
 
 values=(
-  --set "uaa.host=${UAA_CF_IDENTITY_ZONE}.${UAA_HOST}"
+  --set "uaa.host=${CF_NAMESPACE}.${UAA_HOST}"
   --set "uaa.port=${UAA_PORT}"
   --set "uaa.consoleClient=${UAA_CLIENT_ID}"
   --set "uaa.consoleClientSecret=${UAA_CLIENT_SECRET}"

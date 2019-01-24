@@ -197,7 +197,7 @@ Vagrant.configure(2) do |config|
 
     if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
       scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
-      for script in ${scripts[@]}; do
+      for script in "${scripts[@]}"; do
         "${script}"
       done
     fi
