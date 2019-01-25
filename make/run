@@ -45,10 +45,7 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
     kubectl create -f -
 }
 
-: "${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
-: "${DOMAIN:=cf-dev.io}"
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
-: "${UAA_HOST:=uaa.${DOMAIN}}"
 : "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
 
 helm_args=(
