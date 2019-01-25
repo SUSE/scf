@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/.envrc"
+
+: "${NAMESPACE:=cf}"
+# CF_NAMESPACE should be used whenever possible instead of NAMESPACE, as NAMESPACE can be confusing
+# on different contexts. NAMESPACE will be kept until we fully migrate to CF_NAMESPACE.
+export CF_NAMESPACE="${NAMESPACE}"
+: "${CF_CHART:="${GIT_ROOT}/output/helm"}"
+: "${DOMAIN:=cf-dev.io}"
+: "${UAA_NAMESPACE:=uaa}"
+: "${UAA_HOST:=uaa.${DOMAIN}}"
+: "${UAA_PORT:=2793}"
+export UAA_CLIENT_ID=cf
+: "${UAA_CLIENT_SECRET:=""}"
+: "${UAA_ADMIN_IDENTIFIER:=cloud_controller.admin}"
+: "${UAA_SKIP_SSL_VALIDATION:=true}"
+: "${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
+: "${VAGRANT_EXTERNAL_IP:=$(ip -4 addr show eth1 | grep --only-matching --perl-regexp "(?<=inet )[\\d\\.]+(?=/)")}"
+: "${DOPPLER_HOST:="doppler.${DOMAIN}"}"
+: "${DOPPLER_PORT:=4443}"
+
+: "${STRATOS_CHART:="suse/console"}"
+: "${STRATOS_NAMESPACE:=stratos}"
+: "${STRATOS_HELM_RELEASE:=stratos-console}"

@@ -6,14 +6,11 @@
 
 set -o errexit -o nounset
 
-NAMESPACE="${NAMESPACE:-cf}"
-UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
-CF_CHART="${CF_CHART:-output/helm}"
-
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 cd "${GIT_ROOT}"
 
-. make/include/secrets
+source "${GIT_ROOT}/make/include/defaults"
+source "${GIT_ROOT}/make/include/secrets"
 
 # Argument? (**)
 # Setting the helm name to the namespace makes cleanup easier

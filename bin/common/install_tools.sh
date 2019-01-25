@@ -55,6 +55,7 @@ if systemctl list-unit-files kube-apiserver.service | grep --quiet enabled ; the
 
   echo "Installing tiller for helm ..."
   ${do_as_vagrant} helm init
+  ${do_as_vagrant} helm repo add suse https://kubernetes-charts.suse.com/
 else
   echo "Skipping tiller installation for helm; no local kube found"
 fi
