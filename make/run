@@ -18,12 +18,12 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace start
 "${GIT_ROOT}/make/stop"
 
-printf "Waiting for namespace %s to be deleted...\n" "${CF_NAMESPACE}"
-while has_namespace "${CF_NAMESPACE}"; do
+printf "Waiting for namespace %s to be deleted...\n" "${NAMESPACE}"
+while has_namespace "${NAMESPACE}"; do
     sleep 1
 done
 
-kubectl create namespace "${CF_NAMESPACE}"
+kubectl create namespace "${NAMESPACE}"
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace end
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::ca-cert start
@@ -49,8 +49,8 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
 : "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
 
 helm_args=(
-    --name "${CF_NAMESPACE}"
-    --namespace "${CF_NAMESPACE}"
+    --name "${NAMESPACE}"
+    --namespace "${NAMESPACE}"
     --values "bin/settings.yaml"
     --set "env.DOMAIN=${DOMAIN}"
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}"

@@ -8,11 +8,11 @@ source "${GIT_ROOT}/make/include/has_namespace"
 source "${GIT_ROOT}/make/include/has_release"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop start
-if has_release "${CF_NAMESPACE}"; then
-  helm delete --purge "${CF_NAMESPACE}"
+if has_release "${NAMESPACE}"; then
+  helm delete --purge "${NAMESPACE}"
 fi
 
-if has_namespace "${CF_NAMESPACE}"; then
-  kubectl delete namespace "${CF_NAMESPACE}"
+if has_namespace "${NAMESPACE}"; then
+  kubectl delete namespace "${NAMESPACE}"
 fi
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop 'done'

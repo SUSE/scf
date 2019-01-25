@@ -5,7 +5,8 @@ set -o errexit -o nounset
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 source "${GIT_ROOT}/.envrc"
 
-: "${CF_NAMESPACE:=cf}"
+: "${NAMESPACE:=cf}"
+: "${CF_NAMESPACE:=${NAMESPACE}}"
 : "${CF_CHART:="${GIT_ROOT}/output/helm"}"
 : "${DOMAIN:=cf-dev.io}"
 : "${UAA_NAMESPACE:=uaa}"
