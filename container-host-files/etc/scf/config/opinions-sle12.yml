@@ -23,5 +23,5 @@ the-rootfses: &the-rootfses
 the-images: &the-images
   - "/var/vcap/packages/cf-sle12/rootfs.tar"
   - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
-  - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
+  - "/var/vcap/packages/cflinuxfs3/rootfs.tar"
 # Append common parts here
