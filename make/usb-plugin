@@ -25,6 +25,7 @@ fi
 printf "%bCF usb plugin required, missing, starting installation ...%b\n" "\033[0;31;1m" "\033[0m"
 
 PASS="$(kubectl --namespace "${CF_NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
+DOMAIN=$(kubectl get pods -o json --namespace "${CF_NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 cf api --skip-ssl-validation "https://api.${DOMAIN}"
 cf auth admin "${PASS}"

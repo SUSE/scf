@@ -13,6 +13,7 @@ service="$1"
 source "${GIT_ROOT}/make/include/defaults"
 
 PASS="$(kubectl --namespace "${CF_NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
+DOMAIN=$(kubectl get pods -o json --namespace "${CF_NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 # # ## ### ##### ######## ############# #####################
 

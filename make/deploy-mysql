@@ -22,6 +22,7 @@ DB_EXTERNAL_IP=192.168.77.77
 NFS_SCLASS="nfspersist"
 
 PASS="$(kubectl --namespace "${CF_NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
+DOMAIN=$(kubectl get pods -o json --namespace "${CF_NAMESPACE}" api-0 | jq -r '.spec.containers[0].env[] | select(.name == "DOMAIN").value')
 
 # # ## ### ##### ######## ############# #####################
 ## Preparations
