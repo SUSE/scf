@@ -16,9 +16,7 @@ has_internal_ca() {
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace start
-if has_namespace "${CF_NAMESPACE}"; then
-    kubectl delete namespace "${CF_NAMESPACE}"
-fi
+"${GIT_ROOT}/make/stop"
 
 printf "Waiting for namespace %s to be deleted...\n" "${CF_NAMESPACE}"
 while has_namespace "${CF_NAMESPACE}"; do
