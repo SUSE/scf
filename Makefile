@@ -77,9 +77,11 @@ scaler-smoke:
 
 stratos-run:
 	make/stratos/run
+	make/stratos/metrics/run
 
 stratos-stop:
 	make/stratos/stop
+	make/stratos/metrics/stop
 
 ########## SIDECAR SERVICE TARGETS ##########
 
