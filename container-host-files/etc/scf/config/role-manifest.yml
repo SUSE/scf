@@ -1289,7 +1289,6 @@ instance_groups:
           memory: 2800
           virtual-cpus: 4
           healthcheck:
-            readiness:
               command:
                 - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
           affinity:
