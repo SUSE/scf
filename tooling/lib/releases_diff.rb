@@ -1,24 +1,44 @@
 require 'yaml'
 
 class ReleasesDiff
-    # Path to the manifest relative to the root of the source tree
+    # Path to the partial manifest relative to the root of the source tree
     attr_accessor :manifest_path
-    # Absolute path to the old manifest
+    # Absolute path to the assembled old manifest
     attr_accessor :old_manifest
-    # Absolute path to the current manifest
+    # Absolute path to the assembled current manifest
     attr_accessor :current_manifest
+    # Absolute path to the temp space
+    attr_accessor :temp_work_dir
 
     def initialize(manifest_path = nil, output = nil)
-        # Path where the manifest lives (inside the source tree)
-        @manifest_path = manifest_path ? manifest_path : "container-host-files/etc/scf/config/role-manifest.yml"
+        # Path where the current partial manifest lives (inside the source tree)
+        current_manifest_path = manifest_path ? manifest_path : "container-host-files/etc/scf/config/role-manifest.yml"
         # The temp work dir used to download older releases
         @temp_work_dir='/tmp/scf-releases-diff'
-        # Path where we save the old manifest
-        @old_manifest="#{@temp_work_dir}/manifest.yaml"
-        # Path to the current manifest
-        @current_manifest=File.join(ReleasesDiff.git_root, @manifest_path)
+        # Path where we save the fully assembled old manifest
+        @old_manifest="#{@temp_work_dir}/old_manifest.yaml"
+        # Path where we save the fully assembled current manifest
+        @current_manifest="#{@temp_work_dir}/current_manifest.yaml"
         # A path to an empty properties file, to be used as opinions
         @empty_opinions_path=File.join(ReleasesDiff.git_root, 'tooling', 'empty_opinions.yaml')
+        # Path where we save the releases of the old manifest
+        @old_releases="#{@temp_work_dir}/old_releases.yaml"
+
+        # Assemble old and current manifests from the pieces. See also `bin/fissile`.
+
+        # Path to the current partial manifest
+        @current_src_path=File.join(ReleasesDiff.git_root, current_manifest_path)
+
+        # Path to the anchors for the current stack
+        if "#{ENV['USE_SLE_BASE']}" == "false"
+            stack = ENV['FISSILE_LIGHT_OPEN42']
+        else
+            stack = ENV['FISSILE_LIGHT_SLE12']
+        end
+
+        system("  cat #{stack}   #{@current_src_path}                     > #{@current_manifest}")
+        system("( cat #{stack} ; git show HEAD:#{current_manifest_path} ) > #{@old_manifest}")
+
         # Where output will be printed
         $stdout.sync = true
         @output=output ? output : $stdout
@@ -30,26 +50,29 @@ class ReleasesDiff
     end
 
     # Gets the directory that contains all the final releases downloaded for SCF
-    def current_final_releases_work_dir()
-        current_manifest_path = File.join(ReleasesDiff.git_root, @manifest_path)
-        File.join(File.expand_path('../', current_manifest_path), '.final_releases')
+    # Note FISSILE_FINAL_RELEASES_DIR in `.envrc`.
+    def final_releases_work_dir()
+        File.join(File.expand_path('../', @current_src_path), '.final_releases')
     end
 
     # Load the old manifest into an object
     def load_old_manifest()
+        #@output.puts "Loading old manifest from HEAD"
         # Load the manifest from HEAD
-        old_manifest = YAML.load(`git show HEAD:#{@manifest_path}`)
+        old_manifest = YAML.load_file(@old_manifest)
         return old_manifest
     end
 
     # Loads the current manifest into an object
     def load_current_manifest()
+        #@output.puts "Loading current manifest"
         current_manifest = YAML.load_file(@current_manifest)
         return current_manifest
     end
 
     # Saves the manifest from HEAD to a temporary directory
     def save_old_manifest()
+        @output.puts "Saving releases of old manifest"
         old_manifest = load_old_manifest()
         # We only want the releases block, and the releases that are
         # also used in our manifest
@@ -58,16 +81,18 @@ class ReleasesDiff
 
         # Save the manifest in a temporary work directory
         `mkdir -p #{@temp_work_dir}`
-        File.open(@old_manifest, 'w') {|f| f.write minimal_manifest.to_yaml }
+        File.open(@old_releases, 'w') {|f| f.write minimal_manifest.to_yaml }
     end
 
     # Runs fissile validate for the old manifest
     def fissile_validate_old_releases()
+        @output.puts "Validating old manifest from HEAD"
         system("env -u FISSILE_LIGHT_OPINIONS -u FISSILE_DARK_OPINIONS -u FISSILE_RELEASE -u FISSILE_ROLE_MANIFEST fissile validate --light-opinions #{@empty_opinions_path} --dark-opinions #{@empty_opinions_path} --role-manifest #{@old_manifest}", out: @output, err: @output)
     end
 
-    # Runs fissile validate
+    # Runs fissile validate for the current manifest
     def fissile_validate_current_releases()
+        @output.puts "Validating current manifest"
         system("env -u FISSILE_LIGHT_OPINIONS -u FISSILE_DARK_OPINIONS -u FISSILE_ROLE_MANIFEST fissile validate --light-opinions #{@empty_opinions_path} --dark-opinions #{@empty_opinions_path} --role-manifest #{@current_manifest}", out: @output, err: @output)
     end
 
@@ -87,12 +112,12 @@ class ReleasesDiff
 
     # Gets current releases in a hash
     def get_current_releases()
-        get_releases_info(load_current_manifest(), current_final_releases_work_dir())
+        get_releases_info(load_current_manifest(), final_releases_work_dir())
     end
 
     # Gets old releases in a hash release name > release path
     def get_old_releases()
-        get_releases_info(load_old_manifest(), File.join(@temp_work_dir, '.final_releases'))
+        get_releases_info(load_old_manifest(), final_releases_work_dir())
     end
 
     # Prints added releases on stdout
