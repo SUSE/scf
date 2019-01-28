@@ -1288,6 +1288,10 @@ instance_groups:
             tag: host-cgroup
           memory: 2800
           virtual-cpus: 4
+          healthcheck:
+              command:
+              readiness:
+                - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
