@@ -60,9 +60,9 @@ releases:
   version: "2.0"
   sha1: df91c31c15da68c7b2905645b20b93a930627d46
 - name: binary-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.29.1.tgz"
-  version: "1.0.29.1"
-  sha1: "9661079978d5d2cae33699d6801b03f166fb2d5c"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
+  version: "1.0.30.1"
+  sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
 - name: go-buildpack-release
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.31.1.tgz"
   version: "1.8.31.1"
