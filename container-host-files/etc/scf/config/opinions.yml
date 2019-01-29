@@ -40,8 +40,6 @@ properties:
     user: admin
     org: test-brain-org
     space: test-brain-space
-  app_ssh:
-    host_key_fingerprint: "unused"
   autoscaler:
     cf:
       client_id: app_autoscaler
@@ -187,7 +185,6 @@ properties:
         record_sql: obfuscated
     opi:
       enabled: true
-      opi_staging: true
     packages:
       blobstore_type: webdav
       webdav_config:
@@ -285,8 +282,6 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
-      locket:
-        api_location: 127.0.0.1:8891
       rep:
         require_tls: true
       skip_consul_lock: true
@@ -357,8 +352,6 @@ properties:
     use_ingress: false
     cc_uploader_ip: '1.2.3.4'
   router:
-    backends:
-      enable_tls: true
     enable_ssl: true
     extra_headers_to_log: null
     port: 8000

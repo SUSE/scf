@@ -43,6 +43,7 @@ helm upgrade ${RELEASE} output/helm \
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
     --set "env.UAA_HOST=${UAA_HOST}" \
     --set "env.UAA_PORT=${UAA_PORT}" \
+    --set "env.INSECURE_DOCKER_REGISTRIES=${INSECURE_DOCKER_REGISTRIES}" \
     --set "kube.auth=rbac" \
     --set "kube.external_ips[0]=192.0.2.42" \
     --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")" \
