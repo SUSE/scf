@@ -838,20 +838,46 @@ be dropped until all references to it are removed from the database.
 
 Updating these secrets is a manual process:
 
-* Generate the new secret data as a YAML map, and base64 encode it:
-```bash
-SECRET_DATA=$(echo "{key0: abc-123}" | base64)
+* Create a file `new-key-values.yaml` with content of the form:
+
+```yaml
+env:
+  CC_DB_CURRENT_KEY_LABEL: new_key
+
+secrets:
+  CC_DB_ENCRYPTION_KEYS:
+    new_key: "<new-key-value-goes-here>"
 ```
 
-  The secret data can be any valid YAML key / value.
-* Replace the secret data:
-```bash
-kubectl -n cf get secret secrets -o yaml | sed 's/cc-db-encryption-keys: .*/cc-db-encryption-keys: ${SECRET_DATA}/' | kubectl replace -f -
+* Use
+  `helm upgrade "${CF_NAMESPACE}" "${CF_CHART}" ... --values new-key-values.yaml`
+  to import the above data into the cluster. This restarts relevant
+  pods with the new information from step 1.
+
+      - The variable `CF_NAMESPACE` contains the name of the namespace
+        the SCF chart was deployed into.
+
+      - The variable `CF_CHART` contains the name of the SCF chart.
+
+      - The `...` placeholder stands for the standard set of options
+        needed to properly upgrade an SCF deployment, as per the main
+        documentation.
+
+* Perform the actual rotation via
+
+```shell
+# Change the encryption key in the config file:
+$ kubectl exec --namespace cf api-group-0 -- bash -c 'sed -i "/db_encryption_key:/c\\db_encryption_key: \"$(echo $CC_DB_ENCRYPTION_KEYS | jq -r .new_key)\"" /var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml'
+
+# Run the rotation for the encryption keys:
+$ kubectl exec --namespace cf api-group-0 -- bash -c 'export PATH=/var/vcap/packages/ruby-2.4/bin:$PATH ; export CLOUD_CONTROLLER_NG_CONFIG=/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml ; cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng ; /var/vcap/packages/ruby-2.4/bin/bundle exec rake rotate_cc_database_key:perform'
 ```
-* Update the `CC_DB_CURRENT_KEY_LABEL` environment variable. This will restart any pods that use this variable.
-```bash
-./make/upgrade --set env.CC_DB_CURRENT_KEY_LABEL=key0
-```
+
+When everything works correctly the first command will not generate
+any output, while the second command will dump a series of
+(json-formatted) log entries describing its progress in rotation the
+keys for the various CC models.
+
 
 Note that keys should be **appended** to the existing secret to be sure existing
 environment variables can be decoded. Any operator can check which keys are in
