@@ -89,6 +89,12 @@ Vagrant.configure(2) do |config|
     end
   end
 
+  # Adds the loop kernel module for loading on system startup, as well as loads it immediately.
+  config.vm.provision :shell, privileged: true, inline: <<-SHELL
+    echo "loop" > /etc/modules-load.d/loop.conf
+    modprobe loop
+  SHELL
+
   config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
 
   # Make sure we can pass FISSILE_* env variables from the host.
