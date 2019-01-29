@@ -97,7 +97,6 @@ function wait_for_namespace() {
     while true ; do
         check_deadline
         set +o errexit
-        kubectl describe pod minibroker --namespace "${namespace}"
         kubectl get pods --namespace "${namespace}" --output json | jq --exit-status '
             .items[].status.conditions[] |
             select(.type == "Ready") |
