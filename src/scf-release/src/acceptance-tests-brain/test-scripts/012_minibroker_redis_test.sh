@@ -79,6 +79,11 @@ function test_cleanup() {
     cf delete-security-group -f "${CF_SEC_GROUP}"
     cf delete-service-broker -f "${CF_BROKER}"
 
+    if kubectl get namespace minibroker ; then
+        kubectl get pods --namespace minibroker
+        kubectl get pods --namespace minibroker -o yaml
+    fi
+
     helm delete --purge minibroker
     for namespace in minibroker minibroker-pods ; do
         while kubectl get namespace "${namespace}" >/dev/null 2>/dev/null ; do
@@ -125,7 +130,9 @@ helm upgrade minibroker minibroker \
     --set "helmRepoUrl=${KUBERNETES_REPO}" \
     --set "deployServiceCatalog=false" \
     --set "defaultNamespace=minibroker-pods" \
-    --set "image=splatform/minibroker:latest"
+    --set "kube.registry.hostname=index.docker.io" \
+    --set "kube.organization=splatform" \
+    --set "image=minibroker:latest"
 
 wait_for_namespace "minibroker"
 
