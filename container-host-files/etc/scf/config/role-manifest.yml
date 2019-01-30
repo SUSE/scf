@@ -23,6 +23,10 @@ releases:
   version: "1.233.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.233.0"
   sha1: "a64b14ff25c13a482124c094ab4884e2ebf67e08"
+- name: cflinuxfs3
+  version: "0.51.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.51.0"
+  sha1: "97d802e3dff2b9d464327a31c5b4e27d671c45ab"
 - name: credhub
   url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
   version: 2.0.2
@@ -1309,6 +1313,8 @@ instance_groups:
     release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
     release: cflinuxfs2
+  - name: cflinuxfs3-rootfs-setup
+    release: cflinuxfs3
   - name: opensuse42-rootfs-setup
     release: cf-opensuse42
   - name: cf-sle12-setup
@@ -2166,6 +2172,7 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+    properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
