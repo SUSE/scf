@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.66.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
-  sha1: "4236495d4a047fb9396996aba3daea9e0cb3f1bf"
+  version: "1.67.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.67.0"
+  sha1: "62494245b713bdfe748382827bf6872f7e96cb9d"
 - name: cf-mysql
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
@@ -43,6 +43,10 @@ releases:
   version: "103.1"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
   sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
+- name: log-cache
+  version: "1.4.4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=1.4.4"
+  sha1: "34a97ff98e9fbd2b167b4a0f6b7773fe120995f7"
 - name: nats
   version: "25"
   url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
@@ -913,6 +917,18 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: log-cache
+    release: log-cache
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 410
+          virtual-cpus: 2
   - name: doppler
     release: loggregator
     properties:
@@ -959,6 +975,11 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
+  configuration:
+    templates:
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -3481,6 +3502,20 @@ variables:
   options:
     secret: true
     description: PEM-encoded client key for loggregator mutual authentication
+    required: true
+- name: LOG_CACHE_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-cache
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: LOG_CACHE_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
     required: true
 - name: LOG_LEVEL
   options:
