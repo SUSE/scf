@@ -1,0 +1,13 @@
+---
+name: log-cache-scheduler-properties
+description: Dummy BOSH job used to host parameters that are used in SCF patches
+
+packages:
+
+properties:
+  tls.ca_cert:
+    description: "Replace bosh link"
+  tls.cert:
+    description: "Replace bosh link"
+  tls.key:
+    description: "Replace bosh link"

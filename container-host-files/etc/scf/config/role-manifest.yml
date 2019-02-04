@@ -4,21 +4,21 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.67.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.67.0"
-  sha1: "62494245b713bdfe748382827bf6872f7e96cb9d"
+  version: "1.68.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.68.0"
+  sha1: "aa8c77c7726e772960fa5c193c3dff532dae1223"
 - name: cf-mysql
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: "40.0.6"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.6"
-  sha1: "df727e63fb046c694098527845a2a0294b257635"
+  version: "40.0.8"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.8"
+  sha1: "e431589ced2b13f8be286704b4e35cecc35c2aea"
 - name: cf-syslog-drain
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.0
-  version: "7.0"
-  sha1: 5b633a277044f78f333b68da54f804b2384d889d
+  version: "7.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.1"
+  sha1: "7e9648f44c6513ea5cb84531c9c5d1ae0730f202"
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.266.0"
   version: "1.266.0"
@@ -32,25 +32,25 @@ releases:
   version: 2.0.2
   sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
 - name: diego
-  version: "2.16.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.16.0"
-  sha1: "dec82d771afd83e1d8e85f512e6a619b371e7f19"
+  version: "2.17.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.17.0"
+  sha1: "cb67d79a28a90abafc0a46bd3dfb5bcfd9433868"
 - name: garden-runc
-  version: "1.16.3"
-  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.3"
-  sha1: "2a7c813e7e4d862e19334addf022916fb6b91eb0"
+  version: "1.16.4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.4"
+  sha1: "dd02cad84283fdc282005b78624864e5976de209"
 - name: loggregator
-  version: "103.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
-  sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
+  version: "103.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.2"
+  sha1: "1e247c2657fc36194d2e755291097e98a77145b7"
 - name: log-cache
   version: "1.4.4"
   url: "https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=1.4.4"
   sha1: "34a97ff98e9fbd2b167b4a0f6b7773fe120995f7"
 - name: nats
-  version: "25"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
-  sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
+  version: "26"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=26"
+  sha1: "2f2c27acdfff81f3519968921686522518ab5783"
 - name: nfs-volume
   version: "1.2.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
@@ -64,9 +64,9 @@ releases:
   version: 1.3.0
   sha1: 5b9357484032e5217cead8f20362f5802c751de0
 - name: loggregator-agent
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.0
-  version: "2.0"
-  sha1: df91c31c15da68c7b2905645b20b93a930627d46
+  version: "2.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.2"
+  sha1: "c998634337c826f95247b6da4f1772dcac8bb2b1"
 - name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
   version: "1.0.30.1"
@@ -141,6 +141,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_syslog_scheduler_bpm.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -178,10 +179,18 @@ instance_groups:
         - name: sched-health
           protocol: TCP
           internal: 8080
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: adapter
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_syslog_adapter_bpm.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -222,12 +231,20 @@ instance_groups:
         - name: adapter-health
           protocol: TCP
           internal: 8080
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_nats_bpm.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -267,6 +284,13 @@ instance_groups:
         - name: nats-routes
           protocol: TCP
           internal: 4223
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: mysql
   scripts:
   - scripts/create_mysql_data_tmp.sh
@@ -910,17 +934,29 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
   - name: statsd_injector
     release: statsd-injector
-- name: doppler
+- name: log-cache-scheduler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_logcache_certs_forwarder.sh
+  - scripts/patches/fix_logcache_certs_scheduler.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
-  - name: log-cache
+  - name: log-cache-scheduler-properties
+    release: scf
+  - name: authorize-internal-ca
+    release: scf
+  - name: log-cache-scheduler
     release: log-cache
+    # defaults
+  - name: log-cache-expvar-forwarder
+    release: log-cache
+    # defaults
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -929,6 +965,67 @@ instance_groups:
           capabilities: []
           memory: 410
           virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - doppler
+                  topologyKey: "beta.kubernetes.io/os"
+  configuration:
+    templates:
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.maps: '[{ "name": "worker-assignments", "source_id": "log-cache-scheduler", "addr": "http://localhost:6064/debug/vars", "template": "{{.WorkerAssignments | jsonMap}}" }, { "name": "worker-health", "source_id": "log-cache-scheduler", "addr": "http://localhost:6064/debug/vars", "template": "{{.WorkerHealth | jsonMap}}" }]'
+- name: doppler
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_logcache_group_reader_port.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: log-cache-gateway
+    release: log-cache
+    # gateway_addr - default - ":8081"
+  - name: log-cache-group-reader
+    release: log-cache
+    # all properties default
+#  This and log-cache below use property `port` for their listening port.
+#  Unable to configure here separately. Will always clash.
+#  Cannot disable, required by the gateway
+#  => Configured port by patch, s.a - 8086
+    properties:
+      bosh_containerization:
+        ports:
+        - name: logcache-grp-rd
+          protocol: TCP
+          internal: 8086
+  - name: log-cache-nozzle
+    release: log-cache
+    # mostly default, logs_provider cert, see below
+  - name: log-cache-cf-auth-proxy
+    release: log-cache
+  - name: log-cache-expvar-forwarder
+    release: log-cache
+    # defaults
+  - name: log-cache
+    release: log-cache
+    # certs, see below
+    properties:
+      bosh_containerization:
+        ports:
+        - name: log-cache
+          protocol: TCP
+          internal: 8080
   - name: doppler
     release: loggregator
     properties:
@@ -977,9 +1074,23 @@ instance_groups:
           internal: 8082
   configuration:
     templates:
+      properties.proxy_port: '9000'
+      properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.cc.common_name: 'SCF CA'
+      properties.cc.cert: '"((LOG_CACHE_CERT))"'
+      properties.cc.key:  '"((LOG_CACHE_CERT_KEY))"'
+      properties.uaa.client_id: 'doppler'
+      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
+      properties.counters: '[{ "name": "egress", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Egress}}" }, { "name": "ingress", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Ingress}}" }, { "name": "expired", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Expired}}" }, { "name": "dropped", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Dropped}}" }, { "name": "promql-timeout", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.PromQLTimeout}}" }, { "name": "egress", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Egress}}" }, { "name": "ingress", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Ingress}}" }, { "name": "err", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Err}}" }, { "name": "dropped", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Dropped}}" }]'
+      properties.gauges: '[{ "name": "cache-period", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.CachePeriod}}" }, { "name": "store-size", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.StoreSize}}" }, { "name": "total-system-memory", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.TotalSystemMemory}}" }, { "name": "available-system-memory", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.AvailableSystemMemory}}" }, { "name": "last-uaa-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastUAALatency}}" }, { "name": "last-capi-v3-apps-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" }, { "name": "last-capi-v2-list-service-instances-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" }, { "name": "last-capi-v4-log-access-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" }, { "name": "last-capi-v2-service-instances-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }]'
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2345,6 +2456,7 @@ configuration:
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.scalablesyslog.adapter.logs.addr: '"log-api-reverse-log-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
@@ -3300,6 +3412,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - doppler
+    - log-cache
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -3867,6 +3980,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - syslog_rlp
+    - reverselogproxy
     description: PEM-encoded certificate
     required: true
   type: certificate

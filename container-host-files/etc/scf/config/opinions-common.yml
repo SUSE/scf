@@ -377,7 +377,6 @@ properties:
       username: routing-api
   scalablesyslog:
     adapter:
-      bosh_dns: true
       tls:
          cn: 'dummy-1'
     adapter_rlp:
