@@ -20,9 +20,9 @@ releases:
   version: "7.0"
   sha1: 5b633a277044f78f333b68da54f804b2384d889d
 - name: cflinuxfs2
-  version: "1.262.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.262.0"
-  sha1: "734d0e85efb280d4994b53cf2a2507031dbc3998"
+  version: "1.263.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.263.0"
+  sha1: "eab148854da836b10623c60bd2878ca467c8258d"
 - name: cflinuxfs3
   version: "0.55.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.55.0"
