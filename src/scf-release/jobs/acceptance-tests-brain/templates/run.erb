@@ -31,7 +31,7 @@ export PATH="/var/vcap/packages/acceptance-tests-brain/bin:${PATH}"
 
 source /var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
 
-export BRAIN=/var/vcap/packages/acceptance-tests-brain
+export BRAIN="/var/vcap/packages/acceptance-tests-brain"
 export ASSETS="${BRAIN}/test-resources"
 export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
 
@@ -53,6 +53,8 @@ PARAM="--timeout 600 --verbose"
 
 if [ -n "${INCLUDE}" ]; then
     PARAM="${PARAM} --include ${INCLUDE}"
+else
+    PARAM="${PARAM} --include _test.rb"
 fi
 
 if [ -n "${EXCLUDE}" ]; then
