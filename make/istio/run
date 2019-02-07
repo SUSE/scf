@@ -16,11 +16,12 @@ fi
 
 path_with_istio="PATH=\"${istio_path}/bin:\${PATH}\""
 export_path_comment="# Add Istio binaries to PATH."
-if ! grep --silent "${export_path_comment}" ~/.profile 2> /dev/null; then
-  printf "\\nexport %s %s\\n" "${path_with_istio}" "${export_path_comment}" >> ~/.profile
+profile_file="${HOME}/.profile"
+if ! grep --silent "${export_path_comment}" "${profile_file}" 2> /dev/null; then
+  printf "export %s %s\\n" "${path_with_istio}" "${export_path_comment}" >> "${profile_file}"
 else
   # Update the exported PATH with the Istio binaries.
-  sed -i 's|^.*'"${export_path_comment}"'|'"export ${path_with_istio} ${export_path_comment}"'|' ~/.profile
+  sed -i 's|^.*'"${export_path_comment}"'|'"export ${path_with_istio} ${export_path_comment}"'|' "${profile_file}"
 fi
 
 chart="${istio_path}/install/kubernetes/helm/istio"
@@ -40,3 +41,5 @@ values=(
 )
 
 helm upgrade --install "${args[@]}" "${chart}" "${values[@]}"
+
+printf "Done. You might want to run 'source %s' to get Istio binaries onto your \$PATH.\\n" "${profile_file}"
