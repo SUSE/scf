@@ -63,6 +63,7 @@ end
 
 run "cf backup restore"
 
+# TODO: actually test for restore being complete instead of a dump wait
 sleep 60
 
 run "cf target -o #{$CF_ORG} -s #{$CF_SPACE}"
