@@ -63,39 +63,39 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.0
   version: "2.0"
   sha1: df91c31c15da68c7b2905645b20b93a930627d46
-- name: binary-buildpack-release
+- name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
   version: "1.0.30.1"
   sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
-- name: go-buildpack-release
+- name: go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.33.1.tgz"
   version: "1.8.33.1"
   sha1: "83c52b81e4d2d48887eac50b4e3a47cc4895e7f1"
-- name: java-buildpack-release
+- name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.2.1.tgz"
   version: "4.17.2.1"
   sha1: "85e847c3fb6336342246d5cda3ff2098bbf63804"
-- name: nodejs-buildpack-release
+- name: nodejs-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.43.1.tgz"
   version: "1.6.43.1"
   sha1: "5a1e3ddaf30118fd3d1284824173519e3c459ea4"
-- name: php-buildpack-release
+- name: php-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.70.1.tgz"
   version: "4.3.70.1"
   sha1: "29a666a856c60bbc29cf8dd41d9d8f2349481d83"
-- name: python-buildpack-release
+- name: python-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.27.1.tgz"
   version: "1.6.27.1"
   sha1: "9cf483e3decc177855308bd2e753ead4ccc69214"
-- name: ruby-buildpack-release
+- name: ruby-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.31.1.tgz"
   version: "1.7.31.1"
   sha1: "ede4ae9fb3fb5a400af9d509d6841d9a3991028d"
-- name: staticfile-buildpack-release
+- name: staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.39.1.tgz"
   version: "1.4.39.1"
   sha1: "0fd595e38463c09292e5115cb2ba559270f4ce1f"
-- name: nginx-buildpack-release
+- name: nginx-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.8.1.tgz"
   version: "1.0.8.1"
   sha1: "375746c241aa0ce580d0db8947ad9647e4c6292b"
