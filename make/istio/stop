@@ -18,7 +18,5 @@ if has_namespace "${ISTIO_NAMESPACE}"; then
 fi
 
 # Delete Custom Resource Definitions.
-custom_resource_definitions=$(kubectl get customresourcedefinitions -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep "istio.io" | cat)
-if [ -n "${custom_resource_definitions}" ]; then
-  echo "${custom_resource_definitions}" | xargs kubectl delete customresourcedefinitions
-fi
+custom_resource_definitions=$(kubectl get customresourcedefinitions -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep "istio.io" || true)
+echo "${custom_resource_definitions}" | xargs --no-run-if-empty kubectl delete customresourcedefinitions

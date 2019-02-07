@@ -54,9 +54,16 @@ if systemctl list-unit-files kube-apiserver.service | grep --quiet enabled ; the
   done
 
   echo "Installing tiller for helm with service account ..."
-  kubectl create serviceaccount tiller --namespace kube-system
-  kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-  ${do_as_vagrant} helm init --service-account tiller
+  tiller_sa_namespace="kube-system"
+  tiller_sa_name="tiller"
+  if ! kubectl get serviceaccount "${tiller_sa_name}" --namespace "${tiller_sa_namespace}" 1> /dev/null 2> /dev/null; then
+    kubectl create serviceaccount "${tiller_sa_name}" --namespace "${tiller_sa_namespace}"
+  fi
+  tiller_crb_name="tiller"
+  if ! kubectl get clusterrolebinding "${tiller_crb_name}" --namespace "${tiller_sa_namespace}" 1> /dev/null 2> /dev/null; then
+    kubectl create clusterrolebinding "${tiller_crb_name}" --clusterrole cluster-admin --serviceaccount="${tiller_sa_namespace}:${tiller_sa_name}"
+  fi
+  ${do_as_vagrant} helm init --upgrade --service-account tiller
   ${do_as_vagrant} helm repo add suse https://kubernetes-charts.suse.com/
 else
   echo "Skipping tiller installation for helm; no local kube found"

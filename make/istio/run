@@ -7,22 +7,15 @@ source "${GIT_ROOT}/bin/common/versions.sh"
 source "${GIT_ROOT}/make/include/defaults"
 
 # Download and install the Istio release.
-istio_path="${GIT_ROOT}/.istio/${ISTIO_VERSION}"
+istio_output_dir="${GIT_ROOT}/output/istio"
+istio_path="${istio_output_dir}/${ISTIO_VERSION}"
 if [ ! -d "$istio_path" ]; then
+  rm -rf "${istio_output_dir:?}/*"
   mkdir -p "${istio_path}"
   curl -L "https://github.com/istio/istio/releases/download/${ISTIO_VERSION}/istio-${ISTIO_VERSION}-linux.tar.gz" \
     | tar zx -C "${istio_path}" --strip-components=1
 fi
 
-path_with_istio="PATH=\"${istio_path}/bin:\${PATH}\""
-export_path_comment="# Add Istio binaries to PATH."
-profile_file="${HOME}/.profile"
-if ! grep --silent "${export_path_comment}" "${profile_file}" 2> /dev/null; then
-  printf "export %s %s\\n" "${path_with_istio}" "${export_path_comment}" >> "${profile_file}"
-else
-  # Update the exported PATH with the Istio binaries.
-  sed -i 's|^.*'"${export_path_comment}"'|'"export ${path_with_istio} ${export_path_comment}"'|' "${profile_file}"
-fi
 
 chart="${istio_path}/install/kubernetes/helm/istio"
 
@@ -42,4 +35,5 @@ values=(
 
 helm upgrade --install "${args[@]}" "${chart}" "${values[@]}"
 
-printf "Done. You might want to run 'source %s' to get Istio binaries onto your \$PATH.\\n" "${profile_file}"
+path_with_istio="PATH=\"${istio_path}/bin:\${PATH}\""
+printf "Done. You might want to 'export %s' to get Istio binaries onto your \$PATH.\\n" "${path_with_istio}"
