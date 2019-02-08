@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [2.15.2] - 2019-02-08
+
+## Added
+- cflinuxfs3 now available
+- Support added for placement zones & isolation segments
+
+## Changed
+- Bumped cflinuxfs2 to 1.266.0
+- Bumped binary-buildpack to 1.0.30.1
+- Bumped go-buildpack to 1.8.33.1
+- Bumped java-buildpack to 4.17.2.1
+- Bumped nginx-buildpack to 1.0.8.1
+- Bumped nodejs-buildpack to 1.6.43.1
+- Bumped php-buildpack to 4.3.70.1
+- Bumped python-buildpack to 1.6.27.1
+- Bumped ruby-buildpack to 1.7.31.1
+- Bumped staticfile-buildpack to 1.4.39.1
+- Bumped SLE12 & openSUSE stacks
+
+## Fixed
+- Certificates rely on correct UAA FQDN
+- Removed obsolete key from role-manifest.yml
+- Removed diego-cell readiness probe from role-manifest.yml
+
 ## [2.15.1] - 2019-01-22
 
 ## Added
@@ -21,12 +45,10 @@
 - Restored DEFAULT_STACK to cflinuxfs2
 - Bumped php-buildpack to 4.3.68.2
 - Bumped binary-buildpack to 1.0.29.1
-- 
 
 ## Fixed
 - klog.sh now supports multi-container pods
 - Fixed stemcell to include latest pre start scripts
-
 
 ## [2.15.0] - 2018-12-20
 
