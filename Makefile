@@ -83,6 +83,12 @@ stratos-stop:
 	make/stratos/stop
 	make/stratos/metrics/stop
 
+istio-run:
+	make/istio/run
+
+istio-stop:
+	make/istio/stop
+
 ########## SIDECAR SERVICE TARGETS ##########
 
 mysql:

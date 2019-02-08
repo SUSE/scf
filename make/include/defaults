@@ -31,3 +31,6 @@ export UAA_CLIENT_ID=cf
 : "${STRATOS_METRICS_NAMESPACE:=stratos-metrics}"
 : "${STRATOS_METRICS_HELM_RELEASE:=stratos-metrics}"
 : "${STRATOS_METRICS_EXTERNAL_PORT:=8444}"
+
+: "${ISTIO_NAMESPACE:=istio-system}"
+: "${ISTIO_HELM_RELEASE:=istio}"
