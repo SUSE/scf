@@ -40,7 +40,7 @@ end
 
 # Run the given command line, and return the exit status (as a Process::Status)
 def run_with_status(*args)
-    _print_command *args
+    _print_command(*args)
     pid = Process.spawn(*args)
     return Process.wait2(pid).last
 end
@@ -59,7 +59,7 @@ end
 # Run the given command line, and return the output (stdout).  If errexit is
 # set, an error is raised on failure.
 def capture(*args)
-    _print_command *args
+    _print_command(*args)
     stdout, status = Open3.capture2(*args)
     if $opts[:errexit]
         unless status.success?
@@ -104,7 +104,7 @@ end
 # Create a temporary directory and return its name.  The directory will be
 # deleted when the test exits.
 def mktmpdir
-    prefix = File.basename($0).sub /\.rb$/, '-'
+    prefix = File.basename($0).sub(/\.rb$/, '-')
     dir = Dir.mktmpdir(prefix)
     at_exit do
         FileUtils.rm_rf dir, secure: true

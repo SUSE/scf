@@ -51,6 +51,10 @@ shopt -u nullglob
 
 PARAM="--timeout 600 --verbose"
 
+if [ -n "${IN_ORDER}" ]; then
+    PARAM="${PARAM} --in-order"
+fi
+
 if [ -n "${INCLUDE}" ]; then
     PARAM="${PARAM} --include ${INCLUDE}"
 else
@@ -68,4 +72,4 @@ if [ -d /tests ]; then
 fi
 
 set -x
-testbrain run ${PARAM} 
+testbrain run ${PARAM}

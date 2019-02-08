@@ -20,24 +20,6 @@ MINIBROKER_PODS_NAMESPACE = random_suffix('minibroker-pod')
 
 tmpdir = mktmpdir
 
-def wait_for_namespace2(namespace)
-    loop do
-        command = %Q@kubectl get pods --namespace #{namespace} --output json | jq --exit-status '
-                .items[].status.conditions[] |
-                select(.type == "Ready") |
-                select(.status != "True") |
-                select(.reason != "PodCompleted")
-            '@
-        status = run_with_status(command)
-        case status.exitstatus
-            when 0 then next   # More pods
-            when 4 then return # No unready pods
-            else fail "Unexpected error getting pods"
-        end
-        sleep 10
-    end
-end
-
 # We have some waits in this test, and want to clean things up properly
 # (especially the service broker) when we abort.  So we wrap a timeout so that
 # we get a minute to do any cleanup we need.
@@ -73,7 +55,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     run "kubectl get namespace #{MINIBROKER_NAMESPACE} || kubectl create namespace #{MINIBROKER_NAMESPACE}"
     run "helm init --client-only"
-    run *(%Q(helm upgrade #{HELM_RELEASE} minibroker
+    run(*%W(helm upgrade #{HELM_RELEASE} minibroker
         --install
         --repo #{MINIBROKER_REPO}
         --devel
@@ -85,7 +67,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
         --set kube.registry.hostname=index.docker.io
         --set kube.organization=splatform
         --set image=minibroker:latest
-        ).split)
+      ))
     wait_for_namespace MINIBROKER_NAMESPACE
 
     run "cf create-service-broker #{CF_BROKER} user pass http://#{HELM_RELEASE}-minibroker.#{MINIBROKER_NAMESPACE}.svc.cluster.local"
