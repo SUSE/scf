@@ -55,7 +55,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     run "kubectl get namespace #{MINIBROKER_NAMESPACE} || kubectl create namespace #{MINIBROKER_NAMESPACE}"
     run "helm init --client-only"
-    run(*(%Q(helm upgrade #{HELM_RELEASE} minibroker
+    run(*%W(helm upgrade #{HELM_RELEASE} minibroker
         --install
         --repo #{MINIBROKER_REPO}
         --devel
@@ -67,7 +67,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
         --set kube.registry.hostname=index.docker.io
         --set kube.organization=splatform
         --set image=minibroker:latest
-      ).split))
+      ))
     wait_for_namespace MINIBROKER_NAMESPACE
 
     run "cf create-service-broker #{CF_BROKER} user pass http://#{HELM_RELEASE}-minibroker.#{MINIBROKER_NAMESPACE}.svc.cluster.local"

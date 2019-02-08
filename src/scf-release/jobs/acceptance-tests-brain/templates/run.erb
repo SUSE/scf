@@ -49,7 +49,11 @@ for i in "${ASSETS}/plugins/"*; do
 done
 shopt -u nullglob
 
-PARAM="--timeout 600 --verbose --in-order"
+PARAM="--timeout 600 --verbose"
+
+if [ -n "${IN_ORDER}" ]; then
+    PARAM="${PARAM} --in-order"
+fi
 
 if [ -n "${INCLUDE}" ]; then
     PARAM="${PARAM} --include ${INCLUDE}"

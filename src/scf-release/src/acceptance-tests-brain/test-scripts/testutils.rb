@@ -104,7 +104,7 @@ end
 # Create a temporary directory and return its name.  The directory will be
 # deleted when the test exits.
 def mktmpdir
-    prefix = File.basename($0).sub(/\.rb$/), '-'
+    prefix = File.basename($0).sub(/\.rb$/, '-')
     dir = Dir.mktmpdir(prefix)
     at_exit do
         FileUtils.rm_rf dir, secure: true
