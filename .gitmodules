@@ -16,3 +16,6 @@
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/cf-redis-example-app
 	url = https://github.com/scf-samples/cf-redis-example-app
+[submodule "src/scf-release/src/acceptance-tests-brain/test-resources/pong_matcher_go"]
+	path = src/scf-release/src/acceptance-tests-brain/test-resources/pong_matcher_go
+	url = https://github.com/cloudfoundry-samples/pong_matcher_go.git

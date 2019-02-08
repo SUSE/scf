@@ -2,24 +2,45 @@
 
 set -o errexit
 
+# Use the primary linked helm client to determine the actual version
+# of the server. Check if we have a client for that version packaged,
+# and if yes, put it on the PATH. Else fails with a nice message.
+
+HELM_BIN_DIR=/var/vcap/packages/helm/bin
+HELM_VERSION="$(${HELM_BIN_DIR}/helm version | grep Server | sed -e 's/.*"v//' -e 's/".*//')"
+
+echo Packaged helm clients ...
+( cd ${HELM_BIN_DIR} ; find . -type f | sed -e 's/^/= /' )
+echo Helm server ${HELM_VERSION}
+echo Compare
+
+if test -f "${HELM_BIN_DIR}/${HELM_VERSION}/helm"
+then
+    echo Match
+else
+    echo "Helm server ${HELM_VERSION} not supported, only: $(cd ${HELM_BIN_DIR} ; ls | sort)"
+    exit 1
+fi
+
+export PATH="${HELM_BIN_DIR}/${HELM_VERSION}:${PATH}"
 export PATH="/var/vcap/packages/cli/bin:${PATH}"
 export PATH="/var/vcap/packages/kubectl/bin:${PATH}"
 export PATH="/var/vcap/packages/credhub-cli/bin:${PATH}"
 export PATH="/var/vcap/packages/mariadb-client/bin:${PATH}"
-export PATH="/var/vcap/packages/helm/bin:${PATH}"
 export PATH="/var/vcap/packages/acceptance-tests-brain/bin:${PATH}"
 
 source /var/vcap/jobs/acceptance-tests-brain/bin/environment.sh
 
-export BRAIN=/var/vcap/packages/acceptance-tests-brain
+export BRAIN="/var/vcap/packages/acceptance-tests-brain"
 export ASSETS="${BRAIN}/test-resources"
 export SCRIPTS_FOLDER="${BRAIN}/test-scripts"
 
 # Announce the versions of the helper apps used by this job. This also
 # causes an early abort if these are somehow missing, or not
 # accessible/found through the PATH.
-cf version
-kubectl version
+cf version      | sed -e 's/^/CF   = /'
+kubectl version | sed -e 's/^/KUBE = /'
+helm version    | sed -e 's/^/HELM = /'
 
 shopt -s nullglob
 for i in "${ASSETS}/plugins/"*; do
@@ -32,6 +53,8 @@ PARAM="--timeout 600 --verbose"
 
 if [ -n "${INCLUDE}" ]; then
     PARAM="${PARAM} --include ${INCLUDE}"
+else
+    PARAM="${PARAM} --include _test.rb"
 fi
 
 if [ -n "${EXCLUDE}" ]; then

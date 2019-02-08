@@ -7,10 +7,10 @@ source "${GIT_ROOT}/make/include/defaults"
 source "${GIT_ROOT}/make/include/has_namespace"
 source "${GIT_ROOT}/make/include/has_release"
 
-if has_release "${STRATOS_HELM_RELEASE}"; then
-  helm delete --purge "${STRATOS_HELM_RELEASE}"
+if has_release "${STRATOS_METRICS_HELM_RELEASE}"; then
+  helm delete --purge "${STRATOS_METRICS_HELM_RELEASE}"
 fi
 
-if has_namespace "${STRATOS_NAMESPACE}"; then
-  kubectl delete namespace "${STRATOS_NAMESPACE}"
+if has_namespace "${STRATOS_METRICS_NAMESPACE}"; then
+  kubectl delete namespace "${STRATOS_METRICS_NAMESPACE}"
 fi

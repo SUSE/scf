@@ -2,13 +2,28 @@
 
 set -e
 
-VERSION=v2.9.1
-
-echo Retrieving helm "${VERSION}"
-
-curl -L -o helm.tar.gz "https://storage.googleapis.com/kubernetes-helm/helm-${VERSION}-linux-amd64.tar.gz"
-
 BIN_DIR="${BOSH_INSTALL_TARGET}/bin"
 
-mkdir -p "${BIN_DIR}"
-tar xf helm.tar.gz --strip-components=1 -C "${BIN_DIR}" linux-amd64/helm
+VERSIONS=""
+VERSIONS="${VERSIONS} 2.11.0"
+VERSIONS="${VERSIONS} 2.8.2"
+
+echo Packaging helm cli versions: ${VERSIONS}
+
+for version in $VERSIONS
+do
+    DEST="${BIN_DIR}/${version}"
+
+    echo Retrieving helm cli "${version}"
+    curl -L -o helm.tar.gz "https://storage.googleapis.com/kubernetes-helm/helm-v${version}-linux-amd64.tar.gz"
+
+    mkdir -p "${DEST}"
+    tar xf helm.tar.gz --strip-components=1 -C "${DEST}" linux-amd64/helm
+    rm -f  helm.tar.gz
+
+    # Link the last helm client as the primary.
+    # Note, order of versions above has min version last.
+    ( cd "${BIN_DIR}"
+      rm -f helm
+      ln -s "${DEST}"/helm helm )
+done

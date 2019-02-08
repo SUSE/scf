@@ -2,18 +2,12 @@
 
 set -o errexit -o nounset
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 cd "${GIT_ROOT}"
 
-. make/include/secrets
-
-NAMESPACE="${NAMESPACE:-cf}"
-UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
-CF_CHART="${CF_CHART:-output/helm}"
-
-has_namespace() {
-    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
-}
+source "${GIT_ROOT}/make/include/secrets"
+source "${GIT_ROOT}/make/include/defaults"
+source "${GIT_ROOT}/make/include/has_namespace"
 
 has_internal_ca() {
     test "$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")" != ""
@@ -22,12 +16,10 @@ has_internal_ca() {
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::namespace start
-if has_namespace ; then
-    kubectl delete namespace "${NAMESPACE}"
-fi
+"${GIT_ROOT}/make/stop"
 
 printf "Waiting for namespace %s to be deleted...\n" "${NAMESPACE}"
-while has_namespace ; do
+while has_namespace "${NAMESPACE}"; do
     sleep 1
 done
 
@@ -53,10 +45,7 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
     kubectl create -f -
 }
 
-: "${STORAGE_CLASS:=$(kubectl get storageclass 2>/dev/null | awk '/(default)/ { print $1 ; exit }')}"
-: "${DOMAIN:=cf-dev.io}"
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
-: "${UAA_HOST:=uaa.${DOMAIN}}"
 : "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
 
 helm_args=(

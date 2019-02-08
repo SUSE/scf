@@ -26,7 +26,6 @@ run:
 	make/uaa/run
 	make/wait uaa
 	make/run
-	make/stratos/run
 
 upgrade:
 	make/uaa/upgrade
@@ -40,7 +39,6 @@ validate:
 	make/validate
 
 stop:
-	make/stratos/stop
 	make/stop
 	make/uaa/stop
 	make/wait cf
@@ -76,6 +74,20 @@ cats:
 
 scaler-smoke:
 	make/tests autoscaler-smoke
+
+stratos-run:
+	make/stratos/run
+	make/stratos/metrics/run
+
+stratos-stop:
+	make/stratos/stop
+	make/stratos/metrics/stop
+
+istio-run:
+	make/istio/run
+
+istio-stop:
+	make/istio/stop
 
 ########## SIDECAR SERVICE TARGETS ##########
 

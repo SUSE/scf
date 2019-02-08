@@ -7,8 +7,8 @@ set -o nounset -o errexit
 # # ## ### ##### ######## ############# #####################
 ## configuration
 
-NAMESPACE="${NAMESPACE:-cf}"
-UAA_NAMESPACE="${UAA_NAMESPACE:-uaa}"
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
 
 USB_PLUGIN_LOCATION="https://github.com/SUSE/cf-usb-plugin/releases/download/1.0.0/cf-usb-plugin-1.0.0.0.g47b49cd-linux-amd64"
 

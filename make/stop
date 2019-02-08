@@ -2,16 +2,17 @@
 
 set -o errexit
 
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-NAMESPACE="cf"
-
-has_namespace() {
-    kubectl get namespace --output=name "${NAMESPACE}" >/dev/null 2>/dev/null
-}
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
+source "${GIT_ROOT}/make/include/has_namespace"
+source "${GIT_ROOT}/make/include/has_release"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop start
-if has_namespace ; then
-    helm delete "${NAMESPACE}"
-    kubectl delete namespace "${NAMESPACE}"
+if has_release "${NAMESPACE}"; then
+  helm delete --purge "${NAMESPACE}"
+fi
+
+if has_namespace "${NAMESPACE}"; then
+  kubectl delete namespace "${NAMESPACE}"
 fi
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-stop 'done'

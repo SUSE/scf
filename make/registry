@@ -2,7 +2,8 @@
 
 set -o errexit -o nounset
 
-DOMAIN=${DOMAIN:-cf-dev.io}
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
 
 DOCKER_AUTH_PORT=${DOCKER_AUTH_PORT:-'5001'}
 DOCKER_AUTH_IMAGE=${DOCKER_AUTH_IMAGE:-'cesanta/docker_auth'}

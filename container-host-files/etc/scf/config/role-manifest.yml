@@ -20,9 +20,13 @@ releases:
   version: "7.0"
   sha1: 5b633a277044f78f333b68da54f804b2384d889d
 - name: cflinuxfs2
-  version: "1.233.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.233.0"
-  sha1: "a64b14ff25c13a482124c094ab4884e2ebf67e08"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.266.0"
+  version: "1.266.0"
+  sha1: "f0cce2ae8ec4afae50f4ee8483c75a0116d4192f"
+- name: cflinuxfs3
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.60.0"
+  version: "0.60.0"
+  sha1: "9b8f7e0f905326802ffe818e7b449b9b1b5b8f8b"
 - name: credhub
   url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
   version: 2.0.2
@@ -59,42 +63,42 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.0
   version: "2.0"
   sha1: df91c31c15da68c7b2905645b20b93a930627d46
-- name: binary-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.29.1.tgz"
-  version: "1.0.29.1"
-  sha1: "9661079978d5d2cae33699d6801b03f166fb2d5c"
-- name: go-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.31.1.tgz"
-  version: "1.8.31.1"
-  sha1: "9e6bd898ff12a24101594cc505d33c2ba89d2f92"
-- name: java-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.1.1.tgz"
-  version: "4.17.1.1"
-  sha1: "82573dc977e6dee3562d7c54570b90fa995b7e7c"
-- name: nodejs-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.41.1.tgz"
-  version: "1.6.41.1"
-  sha1: "280a58ba1a246d3a7b349425b7b0c10c1a476a83"
-- name: php-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.68.2.tgz"
-  version: "4.3.68.2"
-  sha1: "5733f43069aeb9a105f131b30570dca0e434e6fa"
-- name: python-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.24.1.tgz"
-  version: "1.6.24.1"
-  sha1: "0ea11cce1c3da9f3710f538f835f80c5a3133375"
-- name: ruby-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.30.1.tgz"
-  version: "1.7.30.1"
-  sha1: "9588ee02549e437dda3b3a116ba238681d7b6992"
-- name: staticfile-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.38.1.tgz"
-  version: "1.4.38.1"
-  sha1: "28ad786a8282d1d38e3a49e97a21747d7bd6b742"
-- name: nginx-buildpack-release
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.5.1.tgz"
-  version: "1.0.5.1"
-  sha1: "bdec54c9e08ca037fad95e31dc480bdb4803a789"
+- name: binary-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
+  version: "1.0.30.1"
+  sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
+- name: go-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.33.1.tgz"
+  version: "1.8.33.1"
+  sha1: "83c52b81e4d2d48887eac50b4e3a47cc4895e7f1"
+- name: java-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.2.1.tgz"
+  version: "4.17.2.1"
+  sha1: "85e847c3fb6336342246d5cda3ff2098bbf63804"
+- name: nodejs-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.43.1.tgz"
+  version: "1.6.43.1"
+  sha1: "5a1e3ddaf30118fd3d1284824173519e3c459ea4"
+- name: php-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.70.1.tgz"
+  version: "4.3.70.1"
+  sha1: "29a666a856c60bbc29cf8dd41d9d8f2349481d83"
+- name: python-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.27.1.tgz"
+  version: "1.6.27.1"
+  sha1: "9cf483e3decc177855308bd2e753ead4ccc69214"
+- name: ruby-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.31.1.tgz"
+  version: "1.7.31.1"
+  sha1: "ede4ae9fb3fb5a400af9d509d6841d9a3991028d"
+- name: staticfile-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.39.1.tgz"
+  version: "1.4.39.1"
+  sha1: "0fd595e38463c09292e5115cb2ba559270f4ce1f"
+- name: nginx-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.8.1.tgz"
+  version: "1.0.8.1"
+  sha1: "375746c241aa0ce580d0db8947ad9647e4c6292b"
 - name: dotnet-core-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
   version: "2.0.3"
@@ -104,13 +108,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: opensuse42
-  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.7.105.tgz"
-  version: "1.7.105"
-  sha1: "28d9e6307c1d38fcad71e724e5c4ca92ab6ba1cb"
+  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.8.6.tgz"
+  version: "1.8.6"
+  sha1: "93b903d5c86c3b13a3bbdf76438dd730f76aac9b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.51.144.tgz"
-  version: "1.51.144"
-  sha1: "0a564ace6fb93097b00046a4a884bf4749c7f18f"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.52.6.tgz"
+  version: "1.52.6"
+  sha1: "021ff9ea09ebce2d7fe897d3a70a9dd95e728866"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -120,9 +124,9 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
 - name: groot-btrfs
-  version: "1.0.3"
-  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.3.tgz"
-  sha1: "e2a505254b40956d52b80c3ff9f107d325d949ff"
+  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.4.tgz"
+  version: "1.0.4"
+  sha1: "22381250b0f334d2c5dde04e85a9c1116d8e04fa"
 - name: scf-helper
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
@@ -1231,6 +1235,7 @@ instance_groups:
   - scripts/go_log_level.sh
   - scripts/configure-garden-filesystem.sh
   - scripts/configure-az.sh
+  - scripts/configure-pz.sh
   scripts:
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
@@ -1284,9 +1289,6 @@ instance_groups:
             tag: host-cgroup
           memory: 2800
           virtual-cpus: 4
-          healthcheck:
-              command:
-                - /var/vcap/jobs/global-properties/bin/readiness/diego-cell
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -1312,6 +1314,8 @@ instance_groups:
     release: groot-btrfs
   - name: cflinuxfs2-rootfs-setup
     release: cflinuxfs2
+  - name: cflinuxfs3-rootfs-setup
+    release: cflinuxfs3
   - name: opensuse42-rootfs-setup
     release: cf-opensuse42
   - name: cf-sle12-setup
@@ -1450,7 +1454,6 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          exposed-ports: []
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1854,11 +1857,14 @@ configuration:
         resources: [namespaces]
         verbs: [create, get, delete]
       - apiGroups: [""]
-        resources: [pods]
-        verbs: [list]
+        resources: [pods, pods/log]
+        verbs: [get, list]
       - apiGroups: [""]
         resources: [pods/portforward]
         verbs: [create]
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        resources: [clusterrolebinding]
+        verbs: [delete]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
         fsGroup: { rule: RunAsAny }
@@ -2170,6 +2176,7 @@ configuration:
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+    properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
@@ -2211,6 +2218,7 @@ configuration:
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.diego.rep.placement_tags: "[((KUBE_PZ))]"
     properties.diego.rep.zone: '"((KUBE_AZ))"'
     properties.diego.route_emitter.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.route_emitter.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3417,6 +3425,12 @@ variables:
     description: A comma-separated list of IP addresses for the machines of the nats
       sub-cluster. This parameter cannot be set by the user. Its value is automatically
       computed during cluster setup.
+- name: KUBE_PZ
+  options:
+    type: environment
+    default: ''
+    description: >
+      A string representing the placement tag a container is running in.
 - name: KUBE_SECRETS_GENERATION_COUNTER
   options:
     type: environment
@@ -3672,6 +3686,16 @@ variables:
       user uids (required for LDAP integration only)
     example: cn=Users,dc=corp,dc=test,dc=com
     default: ''
+- name: PZ_LABEL_NAME
+  options:
+    default: ''
+    description: The name of the metadata label to query on worker
+      nodes to get placement tag information, also known as isolation
+      segments. When set, the cells will query their worker node for
+      placement information and inject the result into cloudfoundry
+      via the KUBE_PZ parameter. When left to the default no custom
+      placement processing is done.
+    internal: true
 - name: REP_SERVER_CERT
   options:
     secret: true
