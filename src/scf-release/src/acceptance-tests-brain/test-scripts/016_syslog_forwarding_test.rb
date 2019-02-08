@@ -70,6 +70,8 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     at_exit do
         set errexit: false do
             unless $succeeded || $pod_name.empty?
+                run "kubectl get --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name}"
+                run "kubectl get --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name} -o yaml"
                 run "kubectl logs --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name}"
             end
             run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -print -a -delete"
@@ -78,21 +80,22 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
         end
     end
 
-    install_args = "zypper --non-interactive install busybox"
-    udp_arg = SCF_LOG_PROTOCOL == 'udp' ? '-u' : ''
-    nc_args = "/usr/bin/busybox nc -ll -p #{SCF_LOG_PORT} #{udp_arg} -e /usr/bin/busybox logger -s -t ''"
+    pod_info = JSON.load capture("kubectl get pod -n #{$KUBERNETES_NAMESPACE} #{ENV['HOSTNAME']} -o json")
+    image = pod_info['spec']['containers'].find { |container| container['image'] }['image']
+    install_args = "zypper --non-interactive install /usr/bin/socat /usr/bin/logger"
+    socat_args = "/usr/bin/socat #{SCF_LOG_PROTOCOL.upcase}-LISTEN:#{SCF_LOG_PORT},fork 'EXEC:/usr/bin/logger --socket-errors=off --stderr --tag \"\"'"
     cmd = %W(
         kubectl run #{$LOG_SERVICE_NAME}
             --namespace #{$KUBERNETES_NAMESPACE}
             --command
             --port #{SCF_LOG_PORT}
             --expose
-            --image=opensuse/tumbleweed
+            --image=#{image}
             --labels=brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX}
             --
             /bin/sh -c
         )
-    run *cmd, "#{install_args} && #{nc_args}" # Run the whole shell command as one thing
+    run *cmd, "#{install_args} && #{socat_args}" # Run the whole shell command as one thing
 
     show_env
 
