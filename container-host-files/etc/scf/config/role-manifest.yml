@@ -1237,6 +1237,7 @@ instance_groups:
   - scripts/configure-az.sh
   - scripts/configure-pz.sh
   scripts:
+  - scripts/check_swapaccounting.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
