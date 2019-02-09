@@ -6,6 +6,10 @@ set -o errexit -o nounset
 source "${GIT_ROOT}/bin/common/versions.sh"
 source "${GIT_ROOT}/make/include/defaults"
 
+# Add permissions to support Istio automatic sidecar injection.
+SC="${GIT_ROOT}/make/assets/istio"
+kubectl create -f "${SC}"
+
 # Download and install the Istio release.
 istio_output_dir="${GIT_ROOT}/output/istio"
 istio_path="${istio_output_dir}/${ISTIO_VERSION}"
@@ -15,7 +19,6 @@ if [ ! -d "$istio_path" ]; then
   curl -L "https://github.com/istio/istio/releases/download/${ISTIO_VERSION}/istio-${ISTIO_VERSION}-linux.tar.gz" \
     | tar zx -C "${istio_path}" --strip-components=1
 fi
-
 
 chart="${istio_path}/install/kubernetes/helm/istio"
 

@@ -21,3 +21,16 @@ fi
 kubectl get customresourcedefinitions -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' \
   | grep "istio.io" \
   | xargs --no-run-if-empty kubectl delete customresourcedefinitions
+
+# Delete permission definitions.
+kubectl get podsecuritypolicy -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' \
+  | grep "istio" \
+  | xargs --no-run-if-empty kubectl delete podsecuritypolicy
+
+kubectl get clusterrole -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' \
+  | grep "istio" \
+  | xargs --no-run-if-empty kubectl delete clusterrole
+
+kubectl get clusterrolebinding -o=go-template='{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' \
+  | grep "istio-user" \
+  | xargs --no-run-if-empty kubectl delete clusterrolebinding
