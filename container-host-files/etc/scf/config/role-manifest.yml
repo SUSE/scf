@@ -1864,7 +1864,7 @@ configuration:
         resources: [pods/portforward]
         verbs: [create]
       - apiGroups: ["rbac.authorization.k8s.io"]
-        resources: [clusterrolebinding]
+        resources: [clusterrolebindings]
         verbs: [delete]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
