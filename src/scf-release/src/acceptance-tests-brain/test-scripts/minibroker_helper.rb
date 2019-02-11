@@ -129,6 +129,7 @@ class MiniBrokerTest
             File.open("#{tmpdir}/service-params.json", 'w') { |f| f.puts service_params.to_json }
             run "jq -C . #{tmpdir}/service-params.json"
             run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
+            run "cf service #{service_instance}"
 
             yield self
         end

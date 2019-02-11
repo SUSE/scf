@@ -4,11 +4,11 @@ require_relative 'minibroker_helper'
 
 $DB_NAME = random_suffix('db')
 
-tester = MiniBrokerTest.new('mariadb', '3306')
+tester = MiniBrokerTest.new('postgresql', '5432')
 tester.service_params = {
-    db: { name: $DB_NAME },
-    mariadbDatabase: $DB_NAME
-    # Need "mariadbDatabase" key for compatibility with old minibroker.
+    # Need "postgresDatabase" key for compatibility with old minibroker.
+    postgresDatabase: $DB_NAME,
+    postgresqlDatabase: $DB_NAME
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')
@@ -22,8 +22,9 @@ tester.run_test do |tester|
         end
     end
 
-    run "cf push #{CF_APP} --no-start -p #{resource_path('pong_matcher_go')}"
+    run "cf push #{CF_APP} --no-start -p #{resource_path('postgres-example-app')}"
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
+    run "cf set-env #{CF_APP} DB_NAME #{$DB_NAME}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
     puts "# app GUID: #{app_guid}"
@@ -46,8 +47,10 @@ tester.run_test do |tester|
     app_url = "http://#{app_host}.#{app_domain}"
 
     run "cf env #{CF_APP}"
-    run "curl -v --fail -X DELETE #{app_url}/all"
-    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/firstrequest -d '{"player": "one"}'@
-    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/secondrequest -d '{"player": "two"}'@
-    run "curl -v --fail -X GET #{app_url}/match_requests/firstrequest"
+    test_name = "test-name"
+    res = JSON.load capture(%Q@curl --fail -X POST -H 'Content-Type: application/json' -d '{ "name": "#{test_name}" }' #{app_url}/user@)
+    run "echo '#{res.to_json}' | jq -C ."
+    res = JSON.load capture("curl --fail -X GET #{app_url}/user/#{res['id']}")
+    run "echo '#{res.to_json}' | jq -C ."
+    fail "Incorrect output" unless res['name'] == test_name
 end

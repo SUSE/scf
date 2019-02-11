@@ -92,7 +92,7 @@ do
     echo 1>&2 "${POD_NAME} container failed to reach Running state"
     exit 1
   fi
-  sleep 1
+  sleep 5
 done
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
