@@ -2,17 +2,27 @@
 
 require_relative 'minibroker_helper'
 
-MiniBrokerTest.new('redis', '6379').run_test do |tester|
+$DB_NAME = random_suffix('db')
+
+tester = MiniBrokerTest.new('mariadb', '3306')
+tester.service_params = {
+    db: { name: $DB_NAME },
+    mariadbDatabase: $DB_NAME
+    # Need "mariadbDatabase" key for compatibility with old minibroker
+}
+tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')
 
     at_exit do
         set errexit: false do
+            run "cf logs --recent #{CF_APP}"
+            run "cf env #{CF_APP}"
             run "cf unbind-service #{CF_APP} #{tester.service_instance}"
             run "cf delete -f #{CF_APP}"
         end
     end
 
-    run "cf push #{CF_APP} --no-start -p #{resource_path('cf-redis-example-app')}"
+    run "cf push #{CF_APP} --no-start -p #{resource_path('pong_matcher_go')}"
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
@@ -33,8 +43,10 @@ MiniBrokerTest.new('redis', '6379').run_test do |tester|
     domain_info = JSON.load capture("cf curl #{domain_url}")
     run "echo '#{domain_info.to_json}' | jq -C ."
     app_domain = domain_info['entity']['name']
+    app_url = "http://#{app_host}.#{app_domain}"
 
-    run "curl -X PUT http://#{app_host}.#{app_domain}/hello -d data=success"
-    output = capture("curl http://#{app_host}.#{app_domain}/hello")
-    fail "Incorrect output" unless output == 'success'
+    run "curl -v --fail -X DELETE #{app_url}/all"
+    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/firstrequest -d '{"player": "one"}'@
+    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/secondrequest -d '{"player": "two"}'@
+    run "curl -v --fail -X GET #{app_url}/match_requests/firstrequest"
 end
