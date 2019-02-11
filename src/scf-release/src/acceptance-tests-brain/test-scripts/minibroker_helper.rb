@@ -18,7 +18,7 @@ end
 
 using M
 
-# MiniBrokerTest is a helper class to test minibroker-provided services
+# MiniBrokerTest is a helper class to test minibroker-provided services.
 # Usage: MiniBrokerTest.new('redis', 6379).run_test { ... }
 class MiniBrokerTest
     def initialize(service_type, service_port)
@@ -51,12 +51,12 @@ class MiniBrokerTest
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
 
-    # Run the minibroker test
-    # The MiniBrokerTest instance will be yielded to the given block
+    # Run the minibroker test.
+    # The MiniBrokerTest instance will be yielded to the given block.
     def run_test
         # We have some waits in this test, and want to clean things up properly
-        # (especially the service broker) when we abort.  So we wrap a timeout so that
-        # we get a minute to do any cleanup we need.
+        # (especially the service broker) when we abort.  So we wrap a timeout
+        # so that we get a minute to do any cleanup we need.
         Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
             login
             setup_org_space

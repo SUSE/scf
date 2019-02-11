@@ -45,6 +45,7 @@ tester.run_test do |tester|
     app_domain = domain_info['entity']['name']
     app_url = "http://#{app_host}.#{app_domain}"
 
+    run "cf env #{CF_APP}"
     run "curl -v --fail -X DELETE #{app_url}/all"
     run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/firstrequest -d '{"player": "one"}'@
     run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/secondrequest -d '{"player": "two"}'@
