@@ -9,17 +9,13 @@ set -o errexit
 HELM_BIN_DIR=/var/vcap/packages/helm/bin
 HELM_VERSION="$(${HELM_BIN_DIR}/helm version | grep Server | sed -e 's/.*"v//' -e 's/".*//')"
 
-echo Packaged helm clients ...
-( cd ${HELM_BIN_DIR} ; find . -type f | sed -e 's/^/= /' )
 echo Helm server ${HELM_VERSION}
-echo Compare
 
-if test -f "${HELM_BIN_DIR}/${HELM_VERSION}/helm"
-then
-    echo Match
-else
-    echo "Helm server ${HELM_VERSION} not supported, only: $(cd ${HELM_BIN_DIR} ; ls | sort)"
-    exit 1
+if ! test -f "${HELM_BIN_DIR}/${HELM_VERSION}/helm"; then
+    printf "Helm v%s could not be found. Installing...\\n" "${HELM_VERSION}"
+    helm_url="https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz"
+    mkdir -p "${HELM_BIN_DIR}/${HELM_VERSION}"
+    curl -L "${helm_url}" | tar zx --strip-components 1 -C "${HELM_BIN_DIR}/${HELM_VERSION}"
 fi
 
 export PATH="${HELM_BIN_DIR}/${HELM_VERSION}:${PATH}"
