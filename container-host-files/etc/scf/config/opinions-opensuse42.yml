@@ -18,7 +18,7 @@ the-stacks: &the-stacks
 the-rootfses: &the-rootfses
   - "opensuse42:/var/vcap/packages/opensuse42/rootfs.tar"
   - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
-  - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"  
+  - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
 
 the-images: &the-images
   - "/var/vcap/packages/opensuse42/rootfs.tar"
