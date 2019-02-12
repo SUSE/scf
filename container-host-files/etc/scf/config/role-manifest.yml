@@ -115,6 +115,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.52.8.tgz"
   version: "1.52.8"
   sha1: "0767ba2132637f5731bef5e9a3bf7a439f0f8b05"
+- name: cfsle15fs
+  url: "https://s3.amazonaws.com/suse-final-releases/cfsle15fs-release-0.27.1.tgz"
+  version: "0.27.1"
+  sha1: "d8ebb408d5a952a2d785db06e2a38fc6c9fda041"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -1321,6 +1325,8 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
+  - name: cfsle15fs-rootfs-setup
+    release: cfsle15fs
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -2176,6 +2182,7 @@ configuration:
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+    properties.cfsle15fs-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
     # CLUSTER_DESCRIPTION is not wrapped in quotes because it has quotes in the dev env file.
