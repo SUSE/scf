@@ -128,9 +128,9 @@ releases:
   version: "1.0.4"
   sha1: "22381250b0f334d2c5dde04e85a9c1116d8e04fa"
 - name: scf-helper
-  version: "1.0.1"
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
-  sha1: "94bb4357cbe5fa07ddeb7efef1d1f7a2af8dfead"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.2.tgz"
+  version: "1.0.2"
+  sha1: "0f2fb334ad456e35fff7be1fc56edaf2e07e4e26"
 
 instance_groups:
 - name: syslog-scheduler
