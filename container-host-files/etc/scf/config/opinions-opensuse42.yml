@@ -2,6 +2,7 @@
 the-stack-name: &the-stack-name opensuse42
 
 the-bundles: &the-bundles
+  'buildpack/sle15':  "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/opensuse42': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/cflinuxfs3': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
@@ -14,13 +15,17 @@ the-stacks: &the-stacks
     description: "Cloud Foundry Linux-based filesystem"
   - name: opensuse42
     description: "openSUSE-based filesystem"
+  - name: sle15
+    description: "SUSE SLE-based filesystem"
 
 the-rootfses: &the-rootfses
+  - "sle15:/var/vcap/packages/sle15/rootfs.tar"
   - "opensuse42:/var/vcap/packages/opensuse42/rootfs.tar"
   - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
   - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"  
 
 the-images: &the-images
+  - "/var/vcap/packages/sle15/rootfs.tar"
   - "/var/vcap/packages/opensuse42/rootfs.tar"
   - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
   - "/var/vcap/packages/cflinuxfs3/rootfs.tar"

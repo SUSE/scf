@@ -115,6 +115,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.52.6.tgz"
   version: "1.52.6"
   sha1: "021ff9ea09ebce2d7fe897d3a70a9dd95e728866"
+- name: sle15
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-0.16.1.tgz"
+  version: "0.16.1"
+  sha1: "d6240e78655c64e8d39f0faf7c1e3d7e9b0b4749"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -1320,6 +1324,8 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
+  - name: sle15-rootfs-setup
+    release: sle15
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -2344,6 +2350,7 @@ configuration:
     properties.scf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.scf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.scf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
