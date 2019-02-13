@@ -133,7 +133,7 @@ end
 def wait_for_namespace(namespace, sleep_duration=10)
     loop do
         output = capture("kubectl get pods --namespace #{namespace} --no-headers")
-        ready = true
+        ready = !output.empty?
         output.each_line do |line|
             name, readiness, status, restarts, age = line.split
             next if status == 'Completed'
