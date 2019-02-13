@@ -77,7 +77,8 @@ restore() {
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::clear::$(basename ${archive}) done
 
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) start
-        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}"
+        tar xf "${archive}" -C "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}" \
+	    || rm -rf "${FISSILE_WORK_DIR}/compilation/${STEMCELL_HASH}/${package_hash}"
         stampy ${GIT_ROOT}/scf_metrics.csv $0 make-compile::restore::extract::$(basename ${archive}) done
     done
 
