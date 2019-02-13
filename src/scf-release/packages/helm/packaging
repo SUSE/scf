@@ -1,29 +1,23 @@
 #!/bin/bash
 
-set -e
+set -o errexit
 
 BIN_DIR="${BOSH_INSTALL_TARGET}/bin"
 
-VERSIONS=""
-VERSIONS="${VERSIONS} 2.11.0"
-VERSIONS="${VERSIONS} 2.8.2"
+HELM_VERSIONS=(
+  "2.8.2" # Version shipped with CaaSP 3 by default.
+  "2.11.0" # Version shipped with the Vagrant box by default.
+)
 
-echo Packaging helm cli versions: ${VERSIONS}
-
-for version in $VERSIONS
+for helm_version in "${HELM_VERSIONS[@]}"
 do
-    DEST="${BIN_DIR}/${version}"
+    echo Downloading and installing Helm CLI "${helm_version}"
 
-    echo Retrieving helm cli "${version}"
-    curl -L -o helm.tar.gz "https://storage.googleapis.com/kubernetes-helm/helm-v${version}-linux-amd64.tar.gz"
-
+    DEST="${BIN_DIR}/${helm_version}"
     mkdir -p "${DEST}"
-    tar xf helm.tar.gz --strip-components=1 -C "${DEST}" linux-amd64/helm
-    rm -f  helm.tar.gz
-
-    # Link the last helm client as the primary.
-    # Note, order of versions above has min version last.
-    ( cd "${BIN_DIR}"
-      rm -f helm
-      ln -s "${DEST}"/helm helm )
+    helm_url="https://storage.googleapis.com/kubernetes-helm/helm-v${helm_version}-linux-amd64.tar.gz"
+    curl -L "${helm_url}" | tar zx --strip-components 1 -C "${DEST}"
 done
+
+# Link the last Helm client as the primary.
+ln -s "${BIN_DIR}/${HELM_VERSIONS[${#HELM_VERSIONS[@]}-1]}/helm" "${BIN_DIR}/helm"
