@@ -34,7 +34,7 @@ MiniBrokerTest.new('redis', '6379').run_test do |tester|
     run "echo '#{domain_info.to_json}' | jq -C ."
     app_domain = domain_info['entity']['name']
 
-    run "curl -X PUT http://#{app_host}.#{app_domain}/hello -d data=success"
-    output = capture("curl http://#{app_host}.#{app_domain}/hello")
-    fail "Incorrect output" unless output == 'success'
+    run "curl -v -X PUT http://#{app_host}.#{app_domain}/hello -d data=success"
+    output = capture("curl -v http://#{app_host}.#{app_domain}/hello")
+    fail "Incorrect output: got #{output.inspect}" unless output == 'success'
 end
