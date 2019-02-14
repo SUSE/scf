@@ -5,7 +5,7 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src/gorouter/templates
+PATCH_DIR=/var/vcap/jobs-src/blobstore/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
@@ -13,26 +13,33 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- bpm.yml.erb
-+++ bpm.yml.erb
---- bpm.yml.erb	2019-02-13 13:14:40.691744106 -0800
-+++ bpm.yml.erb	2019-02-13 13:15:28.707689814 -0800
-@@ -13,9 +13,14 @@
-     pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
-   capabilities:
-   - NET_BIND_SERVICE
--<%- if p("router.enable_access_log_streaming") -%>
-   unsafe:
-     unrestricted_volumes:
+--- bpm.yml.erb	2019-01-30 11:11:35.430797836 -0800
++++ bpm.yml.erb	2019-01-30 11:31:22.672012691 -0800
+@@ -7,6 +7,13 @@
+       writable: true
+   ephemeral_disk: true
+   persistent_disk: true
++  unsafe:
++    unrestricted_volumes:
 +    - path: /etc/hostname
 +    - path: /etc/hosts
 +    - path: /etc/resolv.conf
 +    - path: /etc/ssl
 +    - path: /var/lib/ca-certificates
-+<%- if p("router.enable_access_log_streaming") -%>
-     - path: /dev/log
-       mount_only: true
- <% end %>
+ - name: url_signer
+   executable: /var/vcap/packages/blobstore_url_signer/bin/blobstore_url_signer
+   ephemeral_disk: true
+@@ -14,3 +21,10 @@
+     - --secret=<%= p("blobstore.secure_link.secret") %>
+     - --network=unix
+     - --laddr=/var/vcap/data/blobstore/signer.sock
++  unsafe:
++    unrestricted_volumes:
++    - path: /etc/hostname
++    - path: /etc/hosts
++    - path: /etc/resolv.conf
++    - path: /etc/ssl
++    - path: /var/lib/ca-certificates
 PATCH
 
 # Notes on "unsafe.unrestricted_volumes":

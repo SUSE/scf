@@ -5,7 +5,7 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src/gorouter/templates
+PATCH_DIR=/var/vcap/jobs-src/cc_uploader/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
@@ -13,26 +13,22 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- bpm.yml.erb
-+++ bpm.yml.erb
---- bpm.yml.erb	2019-02-13 13:14:40.691744106 -0800
-+++ bpm.yml.erb	2019-02-13 13:15:28.707689814 -0800
-@@ -13,9 +13,14 @@
-     pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
-   capabilities:
-   - NET_BIND_SERVICE
--<%- if p("router.enable_access_log_streaming") -%>
-   unsafe:
-     unrestricted_volumes:
+--- bpm.yml.erb	2018-11-30 11:09:48.342891517 -0800
++++ bpm.yml.erb	2019-01-30 11:38:31.900543635 -0800
+@@ -1,6 +1,13 @@
+ ---
+ processes:
+ - name: cc_uploader
++  unsafe:
++    unrestricted_volumes:
 +    - path: /etc/hostname
 +    - path: /etc/hosts
 +    - path: /etc/resolv.conf
 +    - path: /etc/ssl
 +    - path: /var/lib/ca-certificates
-+<%- if p("router.enable_access_log_streaming") -%>
-     - path: /dev/log
-       mount_only: true
- <% end %>
+   executable: /var/vcap/packages/cc_uploader/bin/cc-uploader
+   args:
+     - --configPath=/var/vcap/jobs/cc_uploader/config/cc_uploader_config.json
 PATCH
 
 # Notes on "unsafe.unrestricted_volumes":
