@@ -346,8 +346,6 @@ properties:
   nats:
     port: 4222
     user: nats
-  nfs_server:
-    address: 0.0.0.3
   nfsbroker:
     db_driver: 'mysql'
     db_username: 'nfsvolume'
