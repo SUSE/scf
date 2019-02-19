@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+
+if [ -z "${INGRESS_CONTROLLER}" ]; then
+  echo "No Ingress Controller specified."
+  exit
+fi
+
+if [ "${INGRESS_CONTROLLER}" = "nginx" ]; then
+  "${GIT_ROOT}/make/ingress/nginx/stop"
+fi
