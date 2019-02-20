@@ -2,8 +2,8 @@
 the-stack-name: &the-stack-name sle12
 
 the-bundles: &the-bundles
-  'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/cfsle15fs':  "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+  'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   'buildpack/cflinuxfs3': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
   docker:                 "docker_app_lifecycle/docker_app_lifecycle.tgz"
@@ -19,14 +19,14 @@ the-stacks: &the-stacks
     description: "SUSE SLE-based filesystem"
 
 the-rootfses: &the-rootfses
-  - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
   - "cfsle15fs:/var/vcap/packages/cfsle15fs/rootfs.tar"
+  - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
   - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
   - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
 
 the-images: &the-images
-  - "/var/vcap/packages/cf-sle12/rootfs.tar"
   - "/var/vcap/packages/cfsle15fs/rootfs.tar"
+  - "/var/vcap/packages/cf-sle12/rootfs.tar"
   - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
   - "/var/vcap/packages/cflinuxfs3/rootfs.tar"
 
