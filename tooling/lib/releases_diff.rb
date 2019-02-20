@@ -52,6 +52,7 @@ class ReleasesDiff
     # Gets the directory that contains all the final releases downloaded for SCF
     # Note FISSILE_FINAL_RELEASES_DIR in `.envrc`.
     def final_releases_work_dir()
+        return ENV['FISSILE_FINAL_RELEASES_DIR'] if ENV['FISSILE_FINAL_RELEASES_DIR']
         File.join(File.expand_path('../', @current_src_path), '.final_releases')
     end
 
