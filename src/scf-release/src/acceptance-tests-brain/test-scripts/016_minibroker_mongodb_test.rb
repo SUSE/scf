@@ -6,8 +6,6 @@ $DB_NAME = random_suffix('db')
 
 tester = MiniBrokerTest.new('mongodb', '27017')
 tester.service_params = {
-    #mongodbUsername: random_suffix('user'),
-    #mongodbPassword: random_suffix('password'),
     mongodbDatabase: random_suffix('database'),
 }
 tester.run_test do |tester|
