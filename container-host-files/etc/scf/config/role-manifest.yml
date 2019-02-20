@@ -1014,7 +1014,16 @@ instance_groups:
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
-      properties.maps: '[{ "name": "worker-assignments", "source_id": "log-cache-scheduler", "addr": "http://localhost:6064/debug/vars", "template": "{{.WorkerAssignments | jsonMap}}" }, { "name": "worker-health", "source_id": "log-cache-scheduler", "addr": "http://localhost:6064/debug/vars", "template": "{{.WorkerHealth | jsonMap}}" }]'
+      properties.maps: >
+        [{ "name": "worker-assignments",
+	   "source_id": "log-cache-scheduler",
+	   "addr": "http://localhost:6064/debug/vars",
+	   "template": "{{.WorkerAssignments | jsonMap}}" },
+	 { "name": "worker-health",
+	   "source_id": "log-cache-scheduler",
+	   "addr": "http://localhost:6064/debug/vars",
+	   "template": "{{.WorkerHealth | jsonMap}}" }
+	]
 - name: doppler
   scripts:
   - scripts/forward_logfiles.sh
@@ -1109,8 +1118,82 @@ instance_groups:
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
       properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
       properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
-      properties.counters: '[{ "name": "egress", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Egress}}" }, { "name": "ingress", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Ingress}}" }, { "name": "expired", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Expired}}" }, { "name": "dropped", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.Dropped}}" }, { "name": "promql-timeout", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.PromQLTimeout}}" }, { "name": "egress", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Egress}}" }, { "name": "ingress", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Ingress}}" }, { "name": "err", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Err}}" }, { "name": "dropped", "source_id": "log-cache-nozzle", "addr": "http://localhost:6061/debug/vars", "template": "{{.Nozzle.Dropped}}" }]'
-      properties.gauges: '[{ "name": "cache-period", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.CachePeriod}}" }, { "name": "store-size", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.StoreSize}}" }, { "name": "total-system-memory", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.TotalSystemMemory}}" }, { "name": "available-system-memory", "source_id": "log-cache", "addr": "http://localhost:6060/debug/vars", "template": "{{.LogCache.AvailableSystemMemory}}" }, { "name": "last-uaa-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastUAALatency}}" }, { "name": "last-capi-v3-apps-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" }, { "name": "last-capi-v2-list-service-instances-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" }, { "name": "last-capi-v4-log-access-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" }, { "name": "last-capi-v2-service-instances-latency", "source_id": "log-cache-cf-auth-proxy", "addr": "http://localhost:6065/debug/vars", "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }]'
+      properties.counters: >
+        [{ "name": "egress",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.Egress}}" },
+	 { "name": "ingress",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.Ingress}}" },
+	 { "name": "expired",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.Expired}}" },
+	 { "name": "dropped",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.Dropped}}" },
+	 { "name": "promql-timeout",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.PromQLTimeout}}" },
+	 { "name": "egress",
+	   "source_id": "log-cache-nozzle",
+	   "addr": "http://localhost:6061/debug/vars",
+	   "template": "{{.Nozzle.Egress}}" },
+	 { "name": "ingress",
+	   "source_id": "log-cache-nozzle",
+	   "addr": "http://localhost:6061/debug/vars",
+	   "template": "{{.Nozzle.Ingress}}" },
+	 { "name": "err",
+	   "source_id": "log-cache-nozzle",
+	   "addr": "http://localhost:6061/debug/vars",
+	   "template": "{{.Nozzle.Err}}" },
+	 { "name": "dropped",
+	   "source_id": "log-cache-nozzle",
+	   "addr": "http://localhost:6061/debug/vars",
+	   "template": "{{.Nozzle.Dropped}}" }
+	]
+      properties.gauges: >
+        [{ "name": "cache-period",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.CachePeriod}}" },
+	 { "name": "store-size",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.StoreSize}}" },
+	 { "name": "total-system-memory",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.TotalSystemMemory}}" },
+	 { "name": "available-system-memory",
+	   "source_id": "log-cache",
+	   "addr": "http://localhost:6060/debug/vars",
+	   "template": "{{.LogCache.AvailableSystemMemory}}" },
+	 { "name": "last-uaa-latency",
+	   "source_id": "log-cache-cf-auth-proxy",
+	   "addr": "http://localhost:6065/debug/vars",
+	   "template": "{{.CFAuthProxy.LastUAALatency}}" },
+	 { "name": "last-capi-v3-apps-latency",
+	   "source_id": "log-cache-cf-auth-proxy",
+	   "addr": "http://localhost:6065/debug/vars",
+	   "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" },
+	 { "name": "last-capi-v2-list-service-instances-latency",
+	   "source_id": "log-cache-cf-auth-proxy",
+	   "addr": "http://localhost:6065/debug/vars",
+	   "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" },
+	 { "name": "last-capi-v4-log-access-latency",
+	   "source_id": "log-cache-cf-auth-proxy",
+	   "addr": "http://localhost:6065/debug/vars",
+	   "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" },
+	 { "name": "last-capi-v2-service-instances-latency",
+	   "source_id": "log-cache-cf-auth-proxy",
+	   "addr": "http://localhost:6065/debug/vars",
+	   "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
+	]
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
