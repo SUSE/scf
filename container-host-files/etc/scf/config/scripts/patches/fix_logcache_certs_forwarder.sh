@@ -1,4 +1,14 @@
+#! /usr/bin/env bash
 set -e
+
+# This is a temporary patch causing the log cache sexpvar forwarder
+# job to get its CA cert information directly from our
+# INTERNAL_CA_CERT instead of the bosh link. The latter currently has
+# race conditions involved where we might get old information here,
+# breaking communications. When the link dependency support code goes
+# in
+# (https://trello.com/c/wF55S8Xx/948-implement-link-dependency-restart)
+# this becomes bogus and will be removed.
 
 PATCH_DIR=/var/vcap/jobs-src/log-cache-expvar-forwarder/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"

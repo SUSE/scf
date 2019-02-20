@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 set -e
 
 # This file contains a temporary patch needed to make kube-dns work
