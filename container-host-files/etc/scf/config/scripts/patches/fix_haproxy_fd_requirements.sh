@@ -1,15 +1,23 @@
 set -e
 
-# This file patches the tcp_router pre-start script so it no longer
-# allows haproxy to set file descriptor limits. We do this because we don't
-# want the tcp-router role to run with full privileges.
-# This may cause some performance issues, as described here:
-# https://www.pivotaltracker.com/story/show/128789361
-# See HCF-1065 for the outcome of running performance tests on HCF.
+# This file contains a temporary patch needed to make kube-dns work
+# for BPM-managed jobs (by adding unrestricted volumes).  This will go
+# away with the transition to the cf-operator, which will not require
+# BPM anymore.
+#
+# It also ensures that haproxy is no longer allowed to set file
+# descriptor limits (Removal of SYS_RESOURCE). We do this because we
+# don't want the tcp-router role to run with full privileges.  This
+# may cause some performance issues, as described here:
+# https://www.pivotaltracker.com/story/show/128789361 See HCF-1065 for
+# the outcome of running performance tests on HCF.
 
-# It further contains a temporary patch needed to make kube-dns work
-# for BPM-managed jobs.  This will go away with the transition to the
-# cf-operator, which will not require BPM anymore.
+# Note that having the two changes in a single patch will make the
+# removal of the BPM part a bit more elaborate than having two patches
+# targeting the same file. However as both changes are very near to
+# each other two files means that one of the does not apply fully
+# clean. As such I prefered both changes in one file which definitely
+# will apply cleanly.
 
 PATCH_DIR="/var/vcap/jobs-src/tcp_router/templates"
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
