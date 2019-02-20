@@ -1,6 +1,6 @@
 {
     "variables": {
-        "version": "2.0.16",
+        "version": "2.0.17",
         "vm_name": "scf-vagrant",
         "output_directory": "output",
         "ssh_username": "vagrant",
