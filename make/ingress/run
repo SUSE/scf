@@ -3,10 +3,12 @@
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 
 if [ -z "${INGRESS_CONTROLLER}" ]; then
-  echo "No Ingress Controller specified."
   exit
 fi
 
-if [ "${INGRESS_CONTROLLER}" = "nginx" ]; then
-  "${GIT_ROOT}/make/ingress/nginx/run"
+if [ -x "${GIT_ROOT}/make/${INGRESS_CONTROLLER}/run" ]; then
+  exec "${GIT_ROOT}/make/${INGRESS_CONTROLLER}/run" "$@"
 fi
+
+echo "Ingress controller '${INGRESS_CONTROLLER}' not supported." >&2
+exit 1
