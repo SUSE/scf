@@ -43,14 +43,18 @@ releases:
   version: "103.1"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
   sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
+- name: mapfs
+  version: "1.1.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
+  sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
   version: "25"
   url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
   sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
 - name: nfs-volume
-  version: "1.2.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
-  sha1: "de807ffa3fc84949bb92edac6a4152245826d6da"
+  version: "1.5.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
+  sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
 - name: cf-routing
   version: "0.180.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0"
@@ -1192,6 +1196,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/nfsbroker_cert_prop.sh
+  - scripts/patches/nfsbroker_ctl.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1228,6 +1234,11 @@ instance_groups:
           internal: 8999
   tags:
   - sequential-startup
+  configuration:
+    templates:
+      properties.nfsbroker.credhub.ca_cert: '~'
+      properties.nfsbroker.credhub.uaa_ca_cert: '~'
+      properties.nfsbroker.db_ca_cert: '~'
 - name: diego-cell
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1242,6 +1253,8 @@ instance_groups:
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/mapfs_pre_start.sh
+  - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1332,6 +1345,8 @@ instance_groups:
         - name: nfs-admin
           protocol: TCP
           internal: 7590
+  - name: mapfs
+    release: mapfs
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property

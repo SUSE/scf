@@ -354,8 +354,18 @@ properties:
     db_username: 'nfsvolume'
     db_port: 3306
     db_name: 'nfsvolume'
-    service_name: 'persi-nfs'
-    service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+    services:
+    - id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+      name: 'persi-nfs'
+      description: "Existing NFSv3 volumes (see: https://code.cloudfoundry.org/nfs-volume-release/)"
+      bindable: true
+      plan_updatable: false
+      tags: ["nfs"]
+      requires: ["volume_mount"]
+      plans:
+      - id: Existing
+        name: "Existing"
+        description: "A preexisting filesystem"
   router:
     backends:
       enable_tls: true
