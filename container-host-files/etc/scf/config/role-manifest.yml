@@ -149,7 +149,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_syslog_scheduler_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -198,7 +199,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_syslog_adapter_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -252,7 +254,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_nats_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -401,7 +404,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -533,7 +537,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_gorouter_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -610,6 +615,8 @@ instance_groups:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -674,7 +681,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_routingapi_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -738,9 +746,8 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_cc_ng_bpm.sh
-  - scripts/patches/fix_statsd_injector_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -831,7 +838,8 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cc_worker_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -878,8 +886,8 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_blobstore_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -927,8 +935,8 @@ instance_groups:
   - scripts/patches/cc_clock_wait_for_api_ready.sh
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cc_clock_bpm.sh
-  - scripts/patches/fix_statsd_injector_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -975,8 +983,8 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_logcache_certs_forwarder.sh
   - scripts/patches/fix_logcache_certs_scheduler.sh
-  - scripts/patches/fix_logcache_evforwarder_bpm.sh
-  - scripts/patches/fix_logcache_scheduler_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1041,12 +1049,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_doppler_bpm.sh
-  - scripts/patches/fix_logcache_bpm.sh
-  - scripts/patches/fix_logcache_nozzle_bpm.sh
-  - scripts/patches/fix_logcache_gateway_bpm.sh
-  - scripts/patches/fix_logcache_evforwarder_bpm.sh
-  - scripts/patches/fix_logcache_cfaproxy_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1224,9 +1228,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_rlp_bpm.sh
-  - scripts/patches/fix_trafficcontroller_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1349,8 +1352,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_tps_bpm.sh
-  - scripts/patches/fix_cc_uploader_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1629,8 +1632,8 @@ instance_groups:
   type: bosh-task
   tags:
   - stop-on-failure
-  scripts:
-  - scripts/patches/fix_smoketests_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1677,6 +1680,8 @@ instance_groups:
   type: bosh-task
   tags:
   - stop-on-failure
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1754,7 +1759,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1848,7 +1854,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1985,7 +1992,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -2075,8 +2083,8 @@ instance_groups:
       properties.smoke_tests.skip_ssl_validation: false
 - name: loggregator-agent
   type: colocated-container
-  scripts:
-  - scripts/patches/fix_logagent_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   configuration:
     templates:
       properties.fissile.monit.port: 2290
