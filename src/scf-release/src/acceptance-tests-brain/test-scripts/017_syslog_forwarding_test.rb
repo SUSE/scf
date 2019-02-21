@@ -47,7 +47,8 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
         printf "\n\e[0;31m#{fmt}\e[0m\n", *args
     end
 
-    $RUN_SUFFIX = SecureRandom.hex(16)
+    $RUN_SUFFIX = SecureRandom.hex(8)
+    # hex doubles output -> 16 characters
 
     # Start emitting logs as soon as possible to maximize the chance the cron task
     # picks up new logs
