@@ -29,7 +29,7 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 if [ "${USE_SLE_BASE:-false}" == "false" ]
 then
-    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-24.g63783b3-30.60}
+    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-26.gfed099b-30.70}
 else
     export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-22.ge04214a-0.219}
 fi
@@ -41,7 +41,7 @@ export GOLANG_VERSION=1.7
 # Used in: make/include/versioning
 
 export PRODUCT_VERSION="1.13.1"
-export CF_VERSION=3.6.0
+export CF_VERSION=5.1.0
 
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################

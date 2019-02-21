@@ -5,7 +5,7 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src/gorouter/templates
+PATCH_DIR=/var/vcap/jobs-src/reverse_log_proxy/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
@@ -13,26 +13,19 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- bpm.yml.erb
-+++ bpm.yml.erb
---- bpm.yml.erb	2019-02-13 13:14:40.691744106 -0800
-+++ bpm.yml.erb	2019-02-13 13:15:28.707689814 -0800
-@@ -13,9 +13,14 @@
-     pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
-   capabilities:
-   - NET_BIND_SERVICE
--<%- if p("router.enable_access_log_streaming") -%>
-   unsafe:
-     unrestricted_volumes:
-+    - path: /etc/hostname
-+    - path: /etc/hosts
-+    - path: /etc/resolv.conf
-+    - path: /etc/ssl
-+    - path: /var/lib/ca-certificates
-+<%- if p("router.enable_access_log_streaming") -%>
-     - path: /dev/log
-       mount_only: true
- <% end %>
+--- bpm.yml.erb	2019-02-14 12:22:08.715806478 -0800
++++ bpm.yml.erb	2019-02-14 12:24:24.987691573 -0800
+@@ -29,3 +29,10 @@
+         AGENT_ADDR: "<%= "#{p('metron_endpoint.host')}:#{p('metron_endpoint.grpc_port')}" %>"
+       limits:
+         open_files: 65536
++      unsafe:
++        unrestricted_volumes:
++        - path: /etc/hostname
++        - path: /etc/hosts
++        - path: /etc/resolv.conf
++        - path: /etc/ssl
++        - path: /var/lib/ca-certificates
 PATCH
 
 # Notes on "unsafe.unrestricted_volumes":

@@ -5,7 +5,7 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src/gorouter/templates
+PATCH_DIR=/var/vcap/jobs-src/cloud_controller_clock/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
@@ -13,26 +13,19 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- bpm.yml.erb
-+++ bpm.yml.erb
---- bpm.yml.erb	2019-02-13 13:14:40.691744106 -0800
-+++ bpm.yml.erb	2019-02-13 13:15:28.707689814 -0800
-@@ -13,9 +13,14 @@
-     pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
-   capabilities:
-   - NET_BIND_SERVICE
--<%- if p("router.enable_access_log_streaming") -%>
-   unsafe:
-     unrestricted_volumes:
+--- bpm.yml.erb.orig	2019-02-13 14:41:41.192573468 -0800
++++ bpm.yml.erb	2019-02-13 14:42:31.880694690 -0800
+@@ -9,3 +9,10 @@
+     LANG: en_US.UTF-8
+     LIBRARY_PATH: /var/vcap/packages/libpq/lib
+     NEWRELIC_ENABLE: false
++  unsafe:
++    unrestricted_volumes:
 +    - path: /etc/hostname
 +    - path: /etc/hosts
 +    - path: /etc/resolv.conf
 +    - path: /etc/ssl
 +    - path: /var/lib/ca-certificates
-+<%- if p("router.enable_access_log_streaming") -%>
-     - path: /dev/log
-       mount_only: true
- <% end %>
 PATCH
 
 # Notes on "unsafe.unrestricted_volumes":

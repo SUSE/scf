@@ -5,7 +5,7 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src/gorouter/templates
+PATCH_DIR=/var/vcap/jobs-src/nats/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
@@ -13,26 +13,19 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- bpm.yml.erb
-+++ bpm.yml.erb
---- bpm.yml.erb	2019-02-13 13:14:40.691744106 -0800
-+++ bpm.yml.erb	2019-02-13 13:15:28.707689814 -0800
-@@ -13,9 +13,14 @@
-     pre_start: /var/vcap/jobs/gorouter/bin/bpm-pre-start
-   capabilities:
-   - NET_BIND_SERVICE
--<%- if p("router.enable_access_log_streaming") -%>
-   unsafe:
-     unrestricted_volumes:
+--- bpm.erb.yml	2019-01-30 14:43:03.998357476 -0800
++++ bpm.erb.yml	2019-01-30 14:43:51.086385477 -0800
+@@ -7,3 +7,10 @@
+   args:
+   - -c
+   - "/var/vcap/jobs/nats/config/nats.conf"
++  unsafe:
++    unrestricted_volumes:
 +    - path: /etc/hostname
 +    - path: /etc/hosts
 +    - path: /etc/resolv.conf
 +    - path: /etc/ssl
 +    - path: /var/lib/ca-certificates
-+<%- if p("router.enable_access_log_streaming") -%>
-     - path: /dev/log
-       mount_only: true
- <% end %>
 PATCH
 
 # Notes on "unsafe.unrestricted_volumes":

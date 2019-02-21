@@ -319,7 +319,6 @@ properties:
     ssh_proxy:
       enable_cf_auth: true
   doppler:
-    locked_memory_limit: kernel
     port: 4443
   enable_consul_service_registration: false
   etcd:
@@ -367,8 +366,7 @@ properties:
         name: "Existing"
         description: "A preexisting filesystem"
   router:
-    backends:
-      enable_tls: true
+    ca_certs: ''
     enable_ssl: true
     extra_headers_to_log: null
     port: 8000
@@ -387,7 +385,6 @@ properties:
       username: routing-api
   scalablesyslog:
     adapter:
-      bosh_dns: true
       tls:
          cn: 'dummy-1'
     adapter_rlp:
@@ -408,8 +405,6 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  syslog_daemon_config:
-    enable: false
   system_domain_organization: null
   ssl:
     skip_cert_verify: false
@@ -417,8 +412,6 @@ properties:
     enabled: true
   tcp_router:
     health_check_port: 8080
-  traffic_controller:
-    locked_memory_limit: kernel
   uaa:
     clients:
       # Note that these clients are overridden in the dev-only UAA role; that is
