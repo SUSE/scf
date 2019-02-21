@@ -1,7 +1,7 @@
 require 'yaml'
 require 'json'
 
-release, kube_config = ARGV.shift(3)
+release, kube_config = ARGV.shift(2)
 
 helm_values = YAML.load %x(helm get values --all #{release})
 helm_info = YAML.load %x(helm list --output yaml #{release})
