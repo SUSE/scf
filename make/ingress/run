@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
-
 if [ -z "${INGRESS_CONTROLLER}" ]; then
   exit
 fi
 
-if [ -x "${GIT_ROOT}/make/${INGRESS_CONTROLLER}/run" ]; then
-  exec "${GIT_ROOT}/make/${INGRESS_CONTROLLER}/run" "$@"
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+
+if [ -x "${GIT_ROOT}/make/ingress/${INGRESS_CONTROLLER}/run" ]; then
+  exec "${GIT_ROOT}/make/ingress/${INGRESS_CONTROLLER}/run" "$@"
 fi
 
 echo "Ingress controller '${INGRESS_CONTROLLER}' not supported." >&2

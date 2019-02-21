@@ -40,7 +40,7 @@ helm_args=(
     --set "kube.storage_class.persistent=${STORAGE_CLASS}"
 )
 
-if [ -n "${INGRESS_CONTROLLER}" ]; then
+if [ -n "${INGRESS_CONTROLLER:-}" ]; then
     helm_args+=(
         --set "services.ingress.class=${INGRESS_CONTROLLER}"
         --set "services.ingress.backends.router.port=443"
