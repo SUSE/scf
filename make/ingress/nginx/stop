@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -o errexit -o nounset
 
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 source "${GIT_ROOT}/make/include/has_namespace"

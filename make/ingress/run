@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-if [ -z "${INGRESS_CONTROLLER}" ]; then
+set -o nounset
+
+if [ -z "${INGRESS_CONTROLLER:-}" ]; then
   exit
 fi
 
