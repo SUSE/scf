@@ -1,5 +1,5 @@
 ---
-the-stack-name: &the-stack-name opensuse42
+the-stack-name: &the-stack-name cfsle15fs
 
 the-bundles: &the-bundles
   'buildpack/cfsle15fs':  "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
