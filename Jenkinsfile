@@ -552,7 +552,7 @@ pipeline {
                     export DOMAIN="${domain()}"
                     export CF_CHART="output/unzipped/helm/cf\${suffix}"
                     make/run \
-                        --set env.SCF_LOG_HOST="\$(uuidgen | tr -dC a-f0-9).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
@@ -623,7 +623,7 @@ pipeline {
                     export SCF_ENABLE_CREDHUB=1
 
                     make/upgrade \
-                        --set env.SCF_LOG_HOST="\$(uuidgen | tr -dC a-f0-9).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     # Ensure old pods have time to terminate
                     sleep 60
