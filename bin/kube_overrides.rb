@@ -35,7 +35,7 @@ YAML.load_stream (IO.read(kube_config)) do |obj|
       obj['spec']['containers'].each do |container|
         container['env'].each do |env|
           if env['valueFrom']
-            # Download API; check if it's from a secret
+            # Downward API; check if it's from a secret
             if env['valueFrom']['secretKeyRef']
               name = env['name'].downcase.gsub('_', '-')
               if generated.has_key?(name) && (secrets[name].nil? || secrets[name].empty?)
