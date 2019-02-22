@@ -33,7 +33,13 @@ wait_for_job() {
     esac
   done
 
-  until [[ -n "$(kubectl get jobs --namespace "${namespace}" --selector "${selector}" -o jsonpath='{.items[?(@.status.succeeded==1)].status.conditions[?(@.type=="Complete")]}')" ]]; do
+  check_args=(
+    --namespace "${namespace}"
+    --selector "${selector}"
+    --output "jsonpath='{.items[?(@.status.succeeded==1)].status.conditions[?(@.type==\"Complete\")]}'"
+  )
+
+  until [[ -n "$(kubectl get jobs "${check_args[@]}")" ]]; do
     sleep "${time_to_sleep}"
   done
 }
