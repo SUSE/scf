@@ -75,6 +75,10 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
                 run "kubectl get --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name} -o yaml"
                 run "kubectl logs --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name}"
             end
+
+            run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -printf '%s %P\n'"
+            run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -exec cat '{}' ';'"
+            #
             run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -print -a -delete"
             run "#{IN_CONTAINER} find /etc/rsyslog.d -iname '*-vcap-brains-*.conf' -a -print -a -delete"
             run "kubectl delete deployment,service --namespace #{$KUBERNETES_NAMESPACE} --now --ignore-not-found #{$LOG_SERVICE_NAME}"
