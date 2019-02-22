@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+# Flags for wait_for_job:
+#   -n    namespace where the job is executed.
+#   -l    label/selector for the job.
+#   -t    time to wait between checks.
+wait_for_job() {
+  local namespace
+  local selector
+  local time_to_sleep
+  OPTIND=1
+  while getopts "n:l:t:" opt "$@"; do
+    case $opt in
+      n)
+        namespace=$OPTARG
+        ;;
+      l)
+        selector=$OPTARG
+        ;;
+      t)
+        time_to_sleep=$OPTARG
+        ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        exit 1
+        ;;
+      :)
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
+    esac
+  done
+
+  until [[ -n "$(kubectl get jobs --namespace "${namespace}" --selector "${selector}" -o jsonpath='{.items[?(@.status.succeeded==1)].status.conditions[?(@.type=="Complete")]}')" ]]; do
+    sleep "${time_to_sleep}"
+  done
+}
