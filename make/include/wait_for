@@ -9,7 +9,7 @@ set -o errexit -o nounset
 wait_for_job() {
   local namespace
   local selector
-  local time_to_sleep
+  local time_to_sleep=3
   OPTIND=1
   while getopts "n:l:t:" opt "$@"; do
     case $opt in
@@ -24,33 +24,29 @@ wait_for_job() {
         ;;
       \?)
         echo "Invalid option: -$OPTARG" >&2
-        exit 1
+        return 1
         ;;
       :)
         echo "Option -$OPTARG requires an argument." >&2
-        exit 1
+        return 1
         ;;
     esac
   done
 
   if [[ -z "${namespace:-}" ]]; then
     echo "Missing namespace. '-n' must be specified." >&2
-    exit 1
+    return 1
   fi
 
   if [[ -z "${selector:-}" ]]; then
     echo "Missing selector. '-l' must be specified." >&2
-    exit 1
-  fi
-
-  if [[ -z "${time_to_sleep:-}" ]]; then
-    time_to_sleep=3
+    return 1
   fi
 
   check_args=(
     --namespace "${namespace}"
     --selector "${selector}"
-    --output "jsonpath='{.items[?(@.status.succeeded==1)].status.conditions[?(@.type==\"Complete\")]}'"
+    --output 'jsonpath={.items[?(@.status.succeeded==1)].status.conditions[?(@.type=="Complete")]}'
   )
 
   until [[ -n "$(kubectl get jobs "${check_args[@]}")" ]]; do
