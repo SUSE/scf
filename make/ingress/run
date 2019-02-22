@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+if [ -z "${INGRESS_CONTROLLER:-}" ]; then
+  exit
+fi
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+
+if [ -x "${GIT_ROOT}/make/ingress/${INGRESS_CONTROLLER}/run" ]; then
+  exec "${GIT_ROOT}/make/ingress/${INGRESS_CONTROLLER}/run" "$@"
+fi
+
+echo "Ingress controller '${INGRESS_CONTROLLER}' not supported." >&2
+exit 1

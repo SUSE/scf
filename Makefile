@@ -23,14 +23,18 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh bin/fissile
 ########## VAGRANT VM TARGETS ##########
 
 run:
+	make/ingress/run
 	make/uaa/run
 	make/wait uaa
 	make/run
+	make/ingress/update_secrets
 
 upgrade:
+	make/ingress/run
 	make/uaa/upgrade
 	make/wait uaa
 	make/upgrade
+	make/ingress/update_secrets
 
 wait:
 	make/wait cf
@@ -39,6 +43,7 @@ validate:
 	make/validate
 
 stop:
+	make/ingress/stop
 	make/stop
 	make/uaa/stop
 	make/wait cf
@@ -88,6 +93,15 @@ istio-run:
 
 istio-stop:
 	make/istio/stop
+
+ingress-run:
+	make/ingress/run
+
+ingress-stop:
+	make/ingress/stop
+
+ingress-update-secrets:
+	make/ingress/update_secrets
 
 ########## SIDECAR SERVICE TARGETS ##########
 
