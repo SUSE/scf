@@ -4,20 +4,20 @@ set -o errexit -o nounset
 
 # Flags for wait_for_job:
 #   -n    namespace where the job is executed.
-#   -l    label/selector for the job.
+#   -s    jq select for filtering the job.
 #   -t    time to wait between checks.
 wait_for_job() {
   local namespace
-  local selector
+  local select
   local time_to_sleep=3
   OPTIND=1
-  while getopts "n:l:t:" opt "$@"; do
+  while getopts "n:s:t:" opt "$@"; do
     case $opt in
       n)
         namespace=$OPTARG
         ;;
-      l)
-        selector=$OPTARG
+      s)
+        select=$OPTARG
         ;;
       t)
         time_to_sleep=$OPTARG
@@ -38,18 +38,19 @@ wait_for_job() {
     return 1
   fi
 
-  if [[ -z "${selector:-}" ]]; then
-    echo "Missing selector. '-l' must be specified." >&2
+  if [[ -z "${select:-}" ]]; then
+    echo "Missing select. '-s' must be specified." >&2
     return 1
   fi
 
-  check_args=(
+  local kubectl_args=(
     --namespace "${namespace}"
-    --selector "${selector}"
-    --output 'jsonpath={.items[?(@.status.succeeded==1)].status.conditions[?(@.type=="Complete")]}'
+    --output json
   )
 
-  until [[ -n "$(kubectl get jobs "${check_args[@]}")" ]]; do
+  local jq_arg=".items[] | select(.status.succeeded == 1) | select(${select})"
+
+  until [[ -n "$(kubectl get jobs "${kubectl_args[@]}" | jq -c "${jq_arg}")" ]]; do
     sleep "${time_to_sleep}"
   done
 }
