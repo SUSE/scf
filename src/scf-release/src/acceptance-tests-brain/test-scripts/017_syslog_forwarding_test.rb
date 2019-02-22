@@ -10,7 +10,8 @@
 #
 #    It is expected that the syslog machinery of the pod detects the
 #    new file and forwards the incoming entries as per the
-#    SCF_LOG_... configuration to a receiver.
+#    SCF_LOG_... configuration to a receiver. Part of machinery is a
+#    cron job running every minute.
 #
 # 2. The receiver is a new pod created and run by the test case. It
 #    uses the brain test image as foundation and installs and runs the
