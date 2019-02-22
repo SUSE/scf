@@ -33,6 +33,20 @@ wait_for_job() {
     esac
   done
 
+  if [[ -z "${namespace:-}" ]]; then
+    echo "Missing namespace. '-n' must be specified." >&2
+    exit 1
+  fi
+
+  if [[ -z "${selector:-}" ]]; then
+    echo "Missing selector. '-l' must be specified." >&2
+    exit 1
+  fi
+
+  if [[ -z "${time_to_sleep:-}" ]]; then
+    time_to_sleep=3
+  fi
+
   check_args=(
     --namespace "${namespace}"
     --selector "${selector}"
