@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o nounset
+set -o errexit -o nounset
 
 if [ -z "${INGRESS_CONTROLLER:-}" ]; then
   exit
