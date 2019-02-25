@@ -1122,6 +1122,9 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
+        - name: log-cache-proxy # log-cache-cf-auth-proxy
+          protocol: TCP
+          internal: 8083
   - name: bpm
     release: bpm
     properties:
@@ -1129,11 +1132,13 @@ instance_groups:
         run:
           capabilities: [ALL]
           service-account: privileged
+  - name: route_registrar
+    release: routing
   configuration:
     templates:
-      properties.proxy_port: '9000'
+      properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.cc.common_name: 'SCF CA'
+      properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.cc.cert: '"((LOG_CACHE_CERT))"'
       properties.cc.key:  '"((LOG_CACHE_CERT_KEY))"'
       properties.uaa.client_id: 'doppler'
@@ -1222,6 +1227,13 @@ instance_groups:
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.route_registrar.routes: >
+        [{ "name": "log-cache-reverse-proxy",
+           "port": 8083,
+           "tags": { "component":"log-cache" },
+           "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
+           "registration_interval": "20s" }
+        ]
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
