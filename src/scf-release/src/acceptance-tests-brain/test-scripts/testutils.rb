@@ -35,12 +35,16 @@ def _print_command(*args)
     cmd = args.dup
     cmd.shift if cmd.first.is_a? Hash
     cmd.pop if cmd.last.is_a? Hash
-    STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if $opts[:xtrace]
+    opts = $opts.dup
+    opts.merge! args.last if args.last.is_a? Hash
+    STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if opts[:xtrace]
 end
 
 # Run the given command line, and return the exit status (as a Process::Status)
 def run_with_status(*args)
     _print_command(*args)
+    args.last.delete :errexit if args.last.is_a? Hash
+    args.last.delete :xtrace if args.last.is_a? Hash
     pid = Process.spawn(*args)
     return Process.wait2(pid).last
 end
@@ -48,7 +52,9 @@ end
 # Run the given command line.  If errexit is set, an error is raised on failure.
 def run(*args)
     status = run_with_status(*args)
-    return unless $opts[:errexit]
+    opts = $opts.dup
+    opts.merge! args.last if args.last.is_a? Hash
+    return unless opts[:errexit]
     unless status.success?
         # Print an error at the failure site
         puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
@@ -120,7 +126,7 @@ def run_with_retry(retries, interval)
         begin
             yield
             return
-        rescue => e
+        rescue RuntimeError => e
             last_error = e
             sleep interval
         end
