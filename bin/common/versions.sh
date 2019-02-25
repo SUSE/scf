@@ -29,9 +29,9 @@ export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$
 
 if [ "${USE_SLE_BASE:-false}" == "false" ]
 then
-    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-26.gfed099b-30.70}
+    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-28.g837c5b3-30.76}
 else
-    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-22.ge04214a-0.219}
+    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-24.g4928ebd-0.219}
 fi
 
 # Used in: bin/generate-dev-certs.sh
