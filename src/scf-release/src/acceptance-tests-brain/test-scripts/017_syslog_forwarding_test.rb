@@ -116,7 +116,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     pod_info = JSON.load capture("kubectl get pod -n #{$KUBERNETES_NAMESPACE} #{ENV['HOSTNAME']} -o json")
     image = pod_info['spec']['containers'].find { |container| container['image'] }['image']
-    install_args = "zypper --non-interactive install /usr/bin/socat /usr/bin/logger"
+    install_args = "zypper --non-interactive install socat util-linux-systemd"
     socat_args = "/usr/bin/socat #{SCF_LOG_PROTOCOL.upcase}-LISTEN:#{SCF_LOG_PORT},fork 'EXEC:/usr/bin/logger --socket-errors=off --stderr --tag \"\"'"
     cmd = %W(
         kubectl run #{$LOG_SERVICE_NAME}
