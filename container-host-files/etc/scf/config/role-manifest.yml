@@ -80,9 +80,9 @@ releases:
   version: "1.0.30.1"
   sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.33.1.tgz"
-  version: "1.8.33.1"
-  sha1: "83c52b81e4d2d48887eac50b4e3a47cc4895e7f1"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.34.2.tgz"
+  version: "1.8.34.2"
+  sha1: "30fd60ce04e8fe9bdb29aea5593f0ff4793f7bae"
 - name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.2.1.tgz"
   version: "4.17.2.1"
@@ -100,17 +100,17 @@ releases:
   version: "1.6.28.1"
   sha1: "4015fc089de41aed6da11462d22e19968ca74884"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.32.2.tgz"
-  version: "1.7.32.2"
-  sha1: "606b7d2d9215a5a265f2c72f12729caab1a8953a"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.33.1.tgz"
+  version: "1.7.33.1"
+  sha1: "6512c7b58b531edba8fd9e9279915f7360deeed3"
 - name: staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.39.2.tgz"
   version: "1.4.39.2"
   sha1: "04881a57e0bf72cf76f66cceac77d60c37a96e95"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.8.2.tgz"
-  version: "1.0.8.2"
-  sha1: "1342d7191ac95bb62091d57ce3d12547897191c4"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.8.3.tgz"
+  version: "1.0.8.3"
+  sha1: "2f1ba157a63f4f042a0ed3071eaa768714ef1ff1"
 - name: dotnet-core-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
   version: "2.0.3"
@@ -124,9 +124,9 @@ releases:
   version: "1.20.1"
   sha1: "a64bce57d7174701f4da317594b49d8bb0683bc3"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.52.11.tgz"
-  version: "1.52.11"
-  sha1: "a5dd15c9ffbddb3d91c9f73ef4561671e6b6156e"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.63.1.tgz"
+  version: "1.63.1"
+  sha1: "e79c1f686b7fa836bf3b2e7da48548e4914c2057"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
