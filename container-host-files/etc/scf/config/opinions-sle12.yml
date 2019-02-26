@@ -1,5 +1,5 @@
 ---
-the-stack-name: &the-stack-name sle12
+the-stack-name: &the-stack-name sle15
 
 the-bundles: &the-bundles
   'buildpack/sle15':  "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
