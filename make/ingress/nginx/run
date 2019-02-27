@@ -24,7 +24,6 @@ values=(
   --set "tcp.20006=${CF_NAMESPACE}/tcp-router-tcp-router-public:20006"
   --set "tcp.20007=${CF_NAMESPACE}/tcp-router-tcp-router-public:20007"
   --set "tcp.20008=${CF_NAMESPACE}/tcp-router-tcp-router-public:20008"
-  --set "tcp.4443=${CF_NAMESPACE}/router-gorouter-public:4443"
   --set "tcp.2222=${CF_NAMESPACE}/diego-ssh-ssh-proxy-public:2222"
 )
 

@@ -601,11 +601,6 @@ instance_groups:
           protocol: TCP
           internal: 443
           public: true
-        - name: doppler-ssl
-          protocol: TCP
-          external: 4443
-          internal: 443
-          public: true
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
