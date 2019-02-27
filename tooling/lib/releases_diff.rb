@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'yaml'
 
 class ReleasesDiff
@@ -36,6 +37,7 @@ class ReleasesDiff
             stack = ENV['FISSILE_LIGHT_SLE12']
         end
 
+        FileUtils.mkdir_p temp_work_dir
         system("  cat #{stack}   #{@current_src_path}                     > #{@current_manifest}")
         system("( cat #{stack} ; git show HEAD:#{current_manifest_path} ) > #{@old_manifest}")
 
