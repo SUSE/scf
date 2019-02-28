@@ -12,9 +12,9 @@ releases:
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
   sha1: 7b727c4c86f2e516e86827a56c5fbff8532aca3e
 - name: cf-mysql
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
-  version: 36.15.0
-  sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.16.0
+  version: 36.16.0
+  sha1: eb028b258599e465f9fabb395b87e0093c46aa98
 - name: cf-smoke-tests
   version: 40.0.17
   url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.17
@@ -36,13 +36,13 @@ releases:
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.1
   sha1: dd0b607d855a8d23e6fd52b990573570e68bbbf6
 - name: diego
-  version: 2.21.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.21.0
-  sha1: 4adb9839b439e8fb4b3fee6c895913d549c47f73
+  version: 2.22.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.22.0
+  sha1: 0cd26089729d4e526dd27c47191cc3b9cb3189c6
 - name: garden-runc
-  version: 1.16.8
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.8
-  sha1: 67e6b474d63b402f725ec2d298fd959c9cd8d7c7
+  version: 1.17.0
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.0
+  sha1: 989da8ac06999071d66deb7f957be4dfd49ecdf2
 - name: loggregator
   version: '104.1'
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.1
@@ -64,9 +64,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
 - name: routing
-  version: 0.182.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.182.0
-  sha1: 6e341a527a0dd2c920b54dea82156ae9bc0b29eb
+  version: 0.183.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.183.0
+  sha1: 92d7a81cddab5d26764c51d9dbb2baece1fbe3e6
 - name: statsd-injector
   version: 1.5.0
   url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
