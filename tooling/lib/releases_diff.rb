@@ -26,7 +26,7 @@ class ReleasesDiff
         @empty_opinions_path=File.join(ReleasesDiff.git_root, 'tooling', 'empty_opinions.yaml')
         # Path where we save the releases of the old manifest
         @old_releases="#{@temp_work_dir}/old_releases.yaml"
-        @old_commit = '@{u}'
+        @old_commit = 'HEAD'
 
         # Assemble old and current manifests from the pieces. See also `bin/fissile`.
 
