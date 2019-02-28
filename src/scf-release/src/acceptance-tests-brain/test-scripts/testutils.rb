@@ -158,9 +158,9 @@ def wait_for_async_service_operation(service_instance_name, retries=0)
     loop do
         puts "# Waiting for service instance #{service_instance} to complete operation..."
         service_instance_info = cf_curl("/v2/service_instances/#{service_instance_guid}")
-        return { :success => true } if !service_instance_info.key?('entity')
-        return { :success => true } if !service_instance_info['entity'].key?('last_operation')
-        return { :success => true } if !service_instance_info['entity']['last_operation'].key?('state')
+        return { :success => true } unless service_instance_info.key?('entity')
+        return { :success => true } unless service_instance_info['entity'].key?('last_operation')
+        return { :success => true } unless service_instance_info['entity']['last_operation'].key?('state')
         state = service_instance_info['entity']['last_operation']['state']
         return { :success => true } if state != 'in progress'
         return { :success => false, :reason => :max_retries } if attempts >= retries

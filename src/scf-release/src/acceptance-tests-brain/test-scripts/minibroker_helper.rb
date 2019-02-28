@@ -136,7 +136,7 @@ class MiniBrokerTest
             started_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
             status = wait_for_async_service_operation(service_instance, 10)
-            if !status[:success]
+            unless status[:success]
                 failed_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
                 elapsed = failed_service_creation - started_service_creation
                 raise "Failed to create service instance #{service_instance} after #{elapsed} seconds."
