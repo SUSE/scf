@@ -35,6 +35,8 @@ end
 
 using YAMLRefine
 
+MANIFEST_RELPATH = '../../container-host-files/etc/scf/config/role-manifest.yml'
+
 # Load the upstream manifest, as a Ruby object
 def load_upstream_manifest(target_version)
     if target_version.nil?
@@ -53,7 +55,7 @@ end
 
 # Load the role manifest, as a YAML document (not a Ruby object)
 def load_role_manifest
-    path = File.join(File.dirname($0), '../../../container-host-files/etc/scf/config/role-manifest.yml')
+    path = File.join(File.dirname($0), MANIFEST_RELPATH)
     role_manifest = YAML.parse_file path
     fail "Role manifest does not have a top level mapping" unless role_manifest.children.first.is_a? Psych::Nodes::Mapping
     role_manifest
@@ -95,7 +97,7 @@ def patch_release(role_manifest, name:, url:, version:, sha1:)
 end
 
 def write_role_manifest(role_manifest)
-    path = File.join(File.dirname($0), '../../../container-host-files/etc/scf/config/role-manifest.yml')
+    path = File.join(File.dirname($0), MANIFEST_RELPATH)
     File.open(path, 'w') do |f|
         stream = Psych::Nodes::Stream.new
         stream.children << role_manifest
