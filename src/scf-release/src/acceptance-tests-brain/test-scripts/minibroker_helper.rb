@@ -63,13 +63,17 @@ class MiniBrokerTest
 
             at_exit do
                 set errexit: false do
-                    status = run_with_status("cf delete-service -f #{service_instance}")
-                    run "cf purge-service-instance -f #{service_instance}" unless status.success?
+                    status = run_with_status "cf delete-service -f #{service_instance}"
+                    if status.success?
+                        wait_for_async_service_operation(service_instance, 10)
+                    else
+                        run "cf purge-service-instance -f #{service_instance}"
+                    end
 
                     run "cf unbind-security-group #{sec_group} #{cf_org} #{cf_space}"
                     run "cf delete-security-group -f #{sec_group}"
                     run "cf delete-service-broker -f #{broker_name}"
-                    status = run_with_status("kubectl get namespace #{minibroker_namespace}")
+                    status = run_with_status "kubectl get namespace #{minibroker_namespace}"
                     if status.success?
                         run "kubectl get pods --namespace #{minibroker_namespace}"
                         run "kubectl get pods --namespace #{minibroker_namespace} -o yaml"
@@ -78,9 +82,9 @@ class MiniBrokerTest
                     run "kubectl delete ClusterRoleBinding minibroker"
                     [minibroker_namespace, minibroker_pods_namespace].each do |ns|
                         loop do
-                            status = run_with_status("kubectl get namespace #{ns} >/dev/null 2>/dev/null")
+                            status = run_with_status "kubectl get namespace #{ns} >/dev/null 2>/dev/null"
                             break unless status.success?
-                            _ = run_with_status("kubectl delete namespace #{ns}")
+                            _ = run_with_status "kubectl delete namespace #{ns}"
                         end
                     end
                 end
@@ -129,6 +133,7 @@ class MiniBrokerTest
             File.open("#{tmpdir}/service-params.json", 'w') { |f| f.puts service_params.to_json }
             run "jq -C . #{tmpdir}/service-params.json"
             run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
+            wait_for_async_service_operation(service_instance, 10)
             run "cf service #{service_instance}"
 
             yield self

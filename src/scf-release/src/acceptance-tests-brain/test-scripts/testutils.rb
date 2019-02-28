@@ -150,3 +150,27 @@ def wait_for_namespace(namespace, sleep_duration=10)
         sleep sleep_duration
     end
 end
+
+def wait_for_async_service_operation(service_instance_name, retries=0)
+    service_instance_guid = capture("cf service --guid #{service_instance_name}")
+    return if service_instance_guid == 'FAILED' # Service is missing.
+    attempts = 0
+    loop do
+        service_instance_info = cf_curl("/v2/service_instances/#{service_instance_guid}")
+        return if !service_instance_info.key?('entity')
+        return if !service_instance_info['entity'].key?('last_operation')
+        return if !service_instance_info['entity']['last_operation'].key?('state')
+        state = service_instance_info['entity']['last_operation']['state']
+        return if state != 'in progress'
+        puts "# Service instance #{service_instance} state: #{state}"
+        attempts += 1
+        break if retries > 0 && attempts >= retries
+        sleep 5
+    end
+end
+
+# Run `cf curl` and return the JSON result.
+def cf_curl(*args)
+    output = capture('cf', 'curl', *args)
+    JSON.parse output
+end
