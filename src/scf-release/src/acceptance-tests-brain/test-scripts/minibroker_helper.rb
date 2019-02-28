@@ -65,7 +65,8 @@ class MiniBrokerTest
                 set errexit: false do
                     status = run_with_status "cf delete-service -f #{service_instance}"
                     if status.success?
-                        wait_for_async_service_operation(service_instance, 10)
+                        status = wait_for_async_service_operation(service_instance, 10)
+                        run "cf purge-service-instance -f #{service_instance}" if !status[:success] && status[:reason] != :not_found
                     else
                         run "cf purge-service-instance -f #{service_instance}"
                     end
@@ -132,8 +133,14 @@ class MiniBrokerTest
 
             File.open("#{tmpdir}/service-params.json", 'w') { |f| f.puts service_params.to_json }
             run "jq -C . #{tmpdir}/service-params.json"
+            started_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
-            wait_for_async_service_operation(service_instance, 10)
+            status = wait_for_async_service_operation(service_instance, 10)
+            if !status[:success]
+                failed_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+                elapsed = failed_service_creation - started_service_creation
+                raise "Failed to create service instance #{service_instance} after #{elapsed} seconds."
+            end
             run "cf service #{service_instance}"
 
             yield self
