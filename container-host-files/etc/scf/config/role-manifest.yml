@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: 1.71.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.71.0
-  sha1: cae78eb73e32e4b86eeda994a3de88ac9414f346
+  version: 1.72.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.72.0
+  sha1: 5756c91740b6cf99f228a2a1120b9234a8dbc9b9
 - name: cf-cli
   version: 1.10.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
@@ -16,9 +16,9 @@ releases:
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.14
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.14
-  sha1: 88dd9c1b469d86a6dc2c83ac4e574657e6c146d3
+  version: 40.0.17
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.17
+  sha1: c4fbdefdd3b04242eb53da89396f5f587e20d282
 - name: cf-syslog-drain
   version: '8.0'
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.0
