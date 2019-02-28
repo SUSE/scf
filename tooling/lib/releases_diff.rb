@@ -10,6 +10,8 @@ class ReleasesDiff
     attr_accessor :current_manifest
     # Absolute path to the temp space
     attr_accessor :temp_work_dir
+    # Git commit to use for the old manifest
+    attr_accessor :old_commit
 
     def initialize(manifest_path = nil, output = nil)
         # Path where the current partial manifest lives (inside the source tree)
@@ -24,6 +26,7 @@ class ReleasesDiff
         @empty_opinions_path=File.join(ReleasesDiff.git_root, 'tooling', 'empty_opinions.yaml')
         # Path where we save the releases of the old manifest
         @old_releases="#{@temp_work_dir}/old_releases.yaml"
+        @old_commit = '@{u}'
 
         # Assemble old and current manifests from the pieces. See also `bin/fissile`.
 
@@ -38,8 +41,8 @@ class ReleasesDiff
         end
 
         FileUtils.mkdir_p temp_work_dir
-        system("  cat #{stack}   #{@current_src_path}                     > #{@current_manifest}")
-        system("( cat #{stack} ; git show HEAD:#{current_manifest_path} ) > #{@old_manifest}")
+        system("  cat #{stack}   #{@current_src_path}                              > #{@current_manifest}")
+        system("( cat #{stack} ; git show #{old_commit}:#{current_manifest_path} ) > #{@old_manifest}")
 
         # Where output will be printed
         $stdout.sync = true
@@ -60,8 +63,8 @@ class ReleasesDiff
 
     # Load the old manifest into an object
     def load_old_manifest()
-        #@output.puts "Loading old manifest from HEAD"
-        # Load the manifest from HEAD
+        #@output.puts "Loading old manifest from #{old_commit}"
+        # Load the manifest from #{old_commit}
         old_manifest = YAML.load_file(@old_manifest)
         return old_manifest
     end
@@ -73,7 +76,7 @@ class ReleasesDiff
         return current_manifest
     end
 
-    # Saves the manifest from HEAD to a temporary directory
+    # Saves the manifest from #{old_commit} to a temporary directory
     def save_old_manifest()
         @output.puts "Saving releases of old manifest"
         old_manifest = load_old_manifest()
@@ -89,7 +92,7 @@ class ReleasesDiff
 
     # Runs fissile validate for the old manifest
     def fissile_validate_old_releases()
-        @output.puts "Validating old manifest from HEAD"
+        @output.puts "Validating old manifest from #{old_commit}"
         system("env -u FISSILE_LIGHT_OPINIONS -u FISSILE_DARK_OPINIONS -u FISSILE_RELEASE -u FISSILE_ROLE_MANIFEST fissile validate --light-opinions #{@empty_opinions_path} --dark-opinions #{@empty_opinions_path} --role-manifest #{@old_manifest}", out: @output, err: @output)
     end
 
