@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+Process.exit(0)
+
 require_relative 'minibroker_helper'
 
 $DB_NAME = random_suffix('db')
