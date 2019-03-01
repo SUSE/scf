@@ -2,11 +2,11 @@
 
 require_relative 'minibroker_helper'
 
-$DB_NAME = random_suffix('db')
-
 tester = MiniBrokerTest.new('mongodb', '27017')
 tester.service_params = {
     mongodbDatabase: random_suffix('database'),
+    mongodbUsername: random_suffix('user'),
+    mongodbPassword: random_suffix('pass'),
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')
