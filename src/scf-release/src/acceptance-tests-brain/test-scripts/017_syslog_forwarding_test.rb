@@ -114,7 +114,6 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     # (B) Configure and run the log receiver pod
 
-    pod_info = JSON.load capture("kubectl get pod -n #{$KUBERNETES_NAMESPACE} #{ENV['HOSTNAME']} -o json")
     image = 'opensuse/leap'
     install_args = "zypper --non-interactive install socat util-linux-systemd"
     socat_args = "/usr/bin/socat #{SCF_LOG_PROTOCOL.upcase}-LISTEN:#{SCF_LOG_PORT},fork 'EXEC:/usr/bin/logger --socket-errors=off --stderr --tag \"\"'"
