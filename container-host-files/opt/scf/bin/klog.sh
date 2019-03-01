@@ -21,7 +21,13 @@ if [ "$1" == "-f" ]; then
   FORCE=1
 fi
 
-NS=${1-scf}
+# read namespace val from args if provided
+if [ ! -z "$2" ]; then
+  NS=$2
+else
+  NS=${1-scf}
+fi 
+
 DONE="${KLOG}/${NS}/done"
 
 if [ "${FORCE}" == "1" ] ; then
@@ -72,6 +78,8 @@ if [ ! -f "${DONE}" ]; then
 
   kubectl get all --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
   kubectl get events --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/events.yaml"
+
+  tar -zcf klog.tar.gz "${KLOG}"
 
   touch "${DONE}"
 fi
