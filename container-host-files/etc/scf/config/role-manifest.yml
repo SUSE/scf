@@ -4,25 +4,25 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.70.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.70.0"
-  sha1: "bf66504c6479cff3754fb1e114e7ea45767db04c"
+  version: "1.71.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.71.0"
+  sha1: "cae78eb73e32e4b86eeda994a3de88ac9414f346"
 - name: cf-cli
-  version: "1.8.0"
-  url: "https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.8.0"
-  sha1: "15d0718bc82ff9394efd2c9798873a39bf7eba06"
+  version: "1.9.0"
+  url: "https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.9.0"
+  sha1: "9dfcb2ffec5abb77ea9bd4561655a8444405c481"
 - name: cf-mysql
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   version: 36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: "40.0.9"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.9"
-  sha1: "be3df152b4767115222d63b6081e5e00b6b34f37"
+  version: "40.0.13"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.13"
+  sha1: "feb38476ae15ec861f542de2f015dbb50b84d918"
 - name: cf-syslog-drain
-  version: "7.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.1"
-  sha1: "7e9648f44c6513ea5cb84531c9c5d1ae0730f202"
+  version: "8.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.0"
+  sha1: "5b5a2ea2f7a75755e19620eea0672a21704b0660"
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.268.0"
   version: "1.268.0"
@@ -32,25 +32,25 @@ releases:
   version: "0.64.0"
   sha1: "dcc37efefa194aa269a76eacfcec63f82ab44eb6"
 - name: credhub
-  url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
-  version: 2.0.2
-  sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
+  version: "2.1.1"
+  url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.1"
+  sha1: "dd0b607d855a8d23e6fd52b990573570e68bbbf6"
 - name: diego
-  version: "2.18.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.18.0"
-  sha1: "3e93b8a9f850fc3e5b77e2c9869f27d2c6d2b32c"
+  version: "2.20.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.20.0"
+  sha1: "493e365cbd24f7bb480ea5eca4906d258575617b"
 - name: garden-runc
-  version: "1.16.6"
-  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.6"
-  sha1: "46e4ef9a4140d3e0910d94cbc1969cd70259ebf7"
+  version: "1.16.8"
+  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.8"
+  sha1: "67e6b474d63b402f725ec2d298fd959c9cd8d7c7"
 - name: loggregator
   version: "104.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.0"
   sha1: "fc9f722ab0d321427942ed36dae70a49f084f9cf"
 - name: log-cache
-  version: "1.4.7"
-  url: "https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=1.4.7"
-  sha1: "7e3ac326e621c2f6ded5f1c21b77bb8b39c2dd19"
+  version: "2.0.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.1"
+  sha1: "23f9c4767109293b5f8b8a6a07ca31f065bcf88b"
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
@@ -68,9 +68,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.182.0"
   sha1: "6e341a527a0dd2c920b54dea82156ae9bc0b29eb"
 - name: statsd-injector
-  version: "1.4.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.4.0"
-  sha1: "25c1c7d6217709d5217d32f70a48f203b79d3a16"
+  version: "1.5.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0"
+  sha1: "49a38aca12e0fd2ec28f96c780c1971427dda04e"
 - name: loggregator-agent
   version: "2.3"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.3"
@@ -149,7 +149,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_syslog_scheduler_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -198,7 +199,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_syslog_adapter_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -252,7 +254,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_nats_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -401,7 +404,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -533,7 +537,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_gorouter_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -610,6 +615,8 @@ instance_groups:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -674,7 +681,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_routingapi_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -738,9 +746,8 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_cc_ng_bpm.sh
-  - scripts/patches/fix_statsd_injector_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -831,7 +838,8 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cc_worker_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -878,8 +886,8 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_blobstore_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -927,8 +935,8 @@ instance_groups:
   - scripts/patches/cc_clock_wait_for_api_ready.sh
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_cc_clock_bpm.sh
-  - scripts/patches/fix_statsd_injector_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -975,6 +983,8 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_logcache_certs_forwarder.sh
   - scripts/patches/fix_logcache_certs_scheduler.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1013,6 +1023,13 @@ instance_groups:
                       values:
                       - doppler
                   topologyKey: "beta.kubernetes.io/os"
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -1032,7 +1049,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_doppler_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1104,6 +1122,9 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
+        - name: log-cache-proxy # log-cache-cf-auth-proxy
+          protocol: TCP
+          internal: 8083
   - name: bpm
     release: bpm
     properties:
@@ -1111,11 +1132,13 @@ instance_groups:
         run:
           capabilities: [ALL]
           service-account: privileged
+  - name: route_registrar
+    release: routing
   configuration:
     templates:
-      properties.proxy_port: '9000'
+      properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.cc.common_name: 'SCF CA'
+      properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.cc.cert: '"((LOG_CACHE_CERT))"'
       properties.cc.key:  '"((LOG_CACHE_CERT_KEY))"'
       properties.uaa.client_id: 'doppler'
@@ -1204,15 +1227,21 @@ instance_groups:
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.route_registrar.routes: >
+        [{ "name": "log-cache-reverse-proxy",
+           "port": 8083,
+           "tags": { "component":"log-cache" },
+           "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
+           "registration_interval": "20s" }
+        ]
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
-  - scripts/patches/fix_rlp_bpm.sh
-  - scripts/patches/fix_trafficcontroller_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1335,8 +1364,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_tps_bpm.sh
-  - scripts/patches/fix_cc_uploader_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1615,6 +1644,8 @@ instance_groups:
   type: bosh-task
   tags:
   - stop-on-failure
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1661,6 +1692,8 @@ instance_groups:
   type: bosh-task
   tags:
   - stop-on-failure
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1678,6 +1711,13 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1731,7 +1771,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1825,7 +1866,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -1962,7 +2004,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -2052,8 +2095,8 @@ instance_groups:
       properties.smoke_tests.skip_ssl_validation: false
 - name: loggregator-agent
   type: colocated-container
-  scripts:
-  - scripts/patches/fix_logagent_bpm.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   configuration:
     templates:
       properties.fissile.monit.port: 2290

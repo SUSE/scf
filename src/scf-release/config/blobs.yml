@@ -11,6 +11,10 @@ golang/go1.10.linux-amd64.tar.gz:
   size: 119905205
   object_id: go1.10.linux-amd64.tar.gz
   sha: 693e2dfd99ef2d608b41c450efd9d277bf2a7f2f
+log-cache/log-cache-cf-plugin-linux:
+  object_id: log-cache/log-cache-cf-plugin-linux-v2.1.0
+  size: 13161855
+  sha: 5cd45360101a60f261d6dbff20bb8bead78bf85e
 ruby-2.3/bundler-1.11.2.gem:
   object_id: bundler-1.11.2.gem
   sha: 8eb956dec72da753d3d2a2126c78508b17af434e
