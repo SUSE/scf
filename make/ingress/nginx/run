@@ -26,7 +26,6 @@ values=(
   --set "tcp.20008=${CF_NAMESPACE}/tcp-router-tcp-router-public:20008"
   --set "tcp.4443=${CF_NAMESPACE}/router-gorouter-public:4443"
   --set "tcp.2222=${CF_NAMESPACE}/diego-ssh-ssh-proxy-public:2222"
-  --set "tcp.${UAA_PORT}=${UAA_NAMESPACE}/uaa-uaa-public:${UAA_PORT}"
 )
 
 helm upgrade --install "${args[@]}" "${NGINX_INGRESS_CHART}" "${values[@]}"
