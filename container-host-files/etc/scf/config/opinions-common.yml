@@ -318,8 +318,6 @@ properties:
         user: nats
     ssh_proxy:
       enable_cf_auth: true
-  doppler:
-    port: 4443
   enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0

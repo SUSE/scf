@@ -41,6 +41,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/ssl-redirect: "false" # Doesn't enforce HTTPS.
     nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+    nginx.org/websocket-services: "router-gorouter-public"
     {{- end }}
 spec:
   tls:
