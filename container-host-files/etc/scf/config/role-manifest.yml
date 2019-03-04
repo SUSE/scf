@@ -1532,6 +1532,7 @@ instance_groups:
   - scripts/configure-pz.sh
   scripts:
   - scripts/check_swapaccounting.sh
+  - scripts/set_vcap_limits.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
@@ -3677,6 +3678,16 @@ variables:
     secret: true
     description: PEM-encoded client key
     required: true
+- name: DIEGO_VCAP_HARD_NPROC
+  options:
+    description: The hard limit of the number of processes for the vcap user on the Diego cells.
+    internal: true
+    required: false
+- name: DIEGO_VCAP_SOFT_NPROC
+  options:
+    description: The soft limit of the number of processes for the vcap user on the Diego cells.
+    internal: true
+    required: false
 - name: DISABLE_CUSTOM_BUILDPACKS
   options:
     default: false
