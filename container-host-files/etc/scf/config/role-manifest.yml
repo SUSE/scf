@@ -1536,6 +1536,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/mapfs_pre_start.sh
   - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
+  - scripts/patches/fix_garden_logdir.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
