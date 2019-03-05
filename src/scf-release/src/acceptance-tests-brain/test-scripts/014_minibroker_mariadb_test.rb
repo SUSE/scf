@@ -22,7 +22,12 @@ tester.run_test do |tester|
         end
     end
 
-    run "cf push #{CF_APP} --no-start -p #{resource_path('pong_matcher_go')}"
+    run 'cf', 'push', CF_APP,
+        '--no-start',
+        '-p', resource_path('rails-example'),
+        '--no-manifest',
+        '-m', '256M',
+        '-c', 'bundle exec rake db:migrate && bundle exec rails s -p $PORT'
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
@@ -45,9 +50,12 @@ tester.run_test do |tester|
     app_domain = domain_info['entity']['name']
     app_url = "http://#{app_host}.#{app_domain}"
 
-    run "cf env #{CF_APP}"
-    run "curl -v --fail -X DELETE #{app_url}/all"
-    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/firstrequest -d '{"player": "one"}'@
-    run %Q@curl -v --fail -H 'Content-Type: application/json' -X PUT #{app_url}/match_requests/secondrequest -d '{"player": "two"}'@
-    run "curl -v --fail -X GET #{app_url}/match_requests/firstrequest"
+    run "curl -v --fail #{app_url}/"
+    run "curl -v --fail -X POST #{app_url}/todos --data text='hello'"
+    run "curl #{app_url}/todos"
+    todos = JSON.load capture("curl #{app_url}/todos")
+    run "echo '#{todos.to_json}' | jq -C ."
+    todo_id = todos.first['id']
+    run "curl -v --fail #{app_url}/todos/#{todo_id}"
+    run "curl -v --fail -X DELETE #{app_url}/todos/#{todo_id}"
 end

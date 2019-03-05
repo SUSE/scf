@@ -22,9 +22,13 @@ tester.run_test do |tester|
         end
     end
 
-    run "cf push #{CF_APP} --no-start -p #{resource_path('postgres-example-app')}"
+    run 'cf', 'push', CF_APP,
+        '--no-start',
+        '-p', resource_path('rails-example'),
+        '--no-manifest',
+        '-m', '256M',
+        '-c', 'bundle exec rake db:migrate && bundle exec rails s -p $PORT'
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
-    run "cf set-env #{CF_APP} DB_NAME #{$DB_NAME}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
     puts "# app GUID: #{app_guid}"
@@ -46,11 +50,12 @@ tester.run_test do |tester|
     app_domain = domain_info['entity']['name']
     app_url = "http://#{app_host}.#{app_domain}"
 
-    run "cf env #{CF_APP}"
-    test_name = "test-name"
-    res = JSON.load capture(%Q@curl --fail -X POST -H 'Content-Type: application/json' -d '{ "name": "#{test_name}" }' #{app_url}/user@)
-    run "echo '#{res.to_json}' | jq -C ."
-    res = JSON.load capture("curl --fail -X GET #{app_url}/user/#{res['id']}")
-    run "echo '#{res.to_json}' | jq -C ."
-    fail "Incorrect output" unless res['name'] == test_name
+    run "curl -v --fail #{app_url}/"
+    run "curl -v --fail -X POST #{app_url}/todos --data text='hello'"
+    run "curl #{app_url}/todos"
+    todos = JSON.load capture("curl #{app_url}/todos")
+    run "echo '#{todos.to_json}' | jq -C ."
+    todo_id = todos.first['id']
+    run "curl -v --fail #{app_url}/todos/#{todo_id}"
+    run "curl -v --fail -X DELETE #{app_url}/todos/#{todo_id}"
 end

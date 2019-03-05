@@ -1,4 +1,0 @@
----
-applications:
-- name: postgres-example-app
-  command: npm start
