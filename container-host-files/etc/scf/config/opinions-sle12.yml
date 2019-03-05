@@ -20,9 +20,4 @@ the-rootfses: &the-rootfses
   - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
   - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
 
-the-images: &the-images
-  - "/var/vcap/packages/cf-sle12/rootfs.tar"
-  - "/var/vcap/packages/cflinuxfs2/rootfs.tar"
-  - "/var/vcap/packages/cflinuxfs3/rootfs.tar"
-
 # Append common parts here

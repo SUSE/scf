@@ -333,7 +333,6 @@ properties:
     deny_networks: [0.0.0.0/0]
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    persistent_image_list: *the-images
   grootfs:
     # Garden should at least be able to cache the cflinuxfs2 rootfs
     # to avoid copy operations on every garden healthcheck from rep
