@@ -4,6 +4,8 @@ require 'releases_diff'
 
 @diff = ReleasesDiff.new()
 
+@diff.old_commit = ENV['OLD_COMMIT'] if ENV.has_key? 'OLD_COMMIT'
+
 puts "Working directory will be '#{@diff.temp_work_dir}'. Make sure to manually cleanup when done."
 
 @diff.save_old_manifest()

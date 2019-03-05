@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## Changed
+- Bumped to cf-deployment 6.0.0
+
 ## [2.15.2] - 2019-02-08
 
 ## Added

@@ -4,25 +4,25 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.71.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.71.0"
-  sha1: "cae78eb73e32e4b86eeda994a3de88ac9414f346"
+  version: 1.72.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.72.0
+  sha1: 5756c91740b6cf99f228a2a1120b9234a8dbc9b9
 - name: cf-cli
-  version: "1.9.0"
-  url: "https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.9.0"
-  sha1: "9dfcb2ffec5abb77ea9bd4561655a8444405c481"
+  version: 1.10.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
+  sha1: 7b727c4c86f2e516e86827a56c5fbff8532aca3e
 - name: cf-mysql
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
-  version: 36.15.0
-  sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.16.0
+  version: 36.16.0
+  sha1: eb028b258599e465f9fabb395b87e0093c46aa98
 - name: cf-smoke-tests
-  version: "40.0.13"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.13"
-  sha1: "feb38476ae15ec861f542de2f015dbb50b84d918"
+  version: 40.0.17
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.17
+  sha1: c4fbdefdd3b04242eb53da89396f5f587e20d282
 - name: cf-syslog-drain
-  version: "8.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.0"
-  sha1: "5b5a2ea2f7a75755e19620eea0672a21704b0660"
+  version: '8.0'
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.0
+  sha1: 5b5a2ea2f7a75755e19620eea0672a21704b0660
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.271.0"
   version: "1.271.0"
@@ -32,49 +32,49 @@ releases:
   version: "0.66.0"
   sha1: "23cdba4300c005d4358b5f3fc6b29c766657c880"
 - name: credhub
-  version: "2.1.1"
-  url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.1"
-  sha1: "dd0b607d855a8d23e6fd52b990573570e68bbbf6"
+  version: 2.1.1
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.1
+  sha1: dd0b607d855a8d23e6fd52b990573570e68bbbf6
 - name: diego
-  version: "2.20.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.20.0"
-  sha1: "493e365cbd24f7bb480ea5eca4906d258575617b"
+  version: 2.22.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.22.0
+  sha1: 0cd26089729d4e526dd27c47191cc3b9cb3189c6
 - name: garden-runc
-  version: "1.16.8"
-  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.8"
-  sha1: "67e6b474d63b402f725ec2d298fd959c9cd8d7c7"
+  version: 1.17.0
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.0
+  sha1: 989da8ac06999071d66deb7f957be4dfd49ecdf2
 - name: loggregator
-  version: "104.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.0"
-  sha1: "fc9f722ab0d321427942ed36dae70a49f084f9cf"
+  version: '104.1'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.1
+  sha1: 4493664a05e553e43f8b12cc8956bc8ac5f4f6b0
 - name: log-cache
-  version: "2.0.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.1"
-  sha1: "23f9c4767109293b5f8b8a6a07ca31f065bcf88b"
+  version: 2.0.1
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.1
+  sha1: 23f9c4767109293b5f8b8a6a07ca31f065bcf88b
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
   sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
-  version: "26"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=26"
-  sha1: "2f2c27acdfff81f3519968921686522518ab5783"
+  version: '26'
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=26
+  sha1: 2f2c27acdfff81f3519968921686522518ab5783
 - name: nfs-volume
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
-- name: cf-routing
-  version: "0.182.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.182.0"
-  sha1: "6e341a527a0dd2c920b54dea82156ae9bc0b29eb"
+- name: routing
+  version: 0.183.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.183.0
+  sha1: 92d7a81cddab5d26764c51d9dbb2baece1fbe3e6
 - name: statsd-injector
-  version: "1.5.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0"
-  sha1: "49a38aca12e0fd2ec28f96c780c1971427dda04e"
+  version: 1.5.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
+  sha1: 49a38aca12e0fd2ec28f96c780c1971427dda04e
 - name: loggregator-agent
-  version: "2.3"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.3"
-  sha1: "7532818b5d518b87b57cf36ddc2bf81758f606f9"
+  version: '2.3'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.3
+  sha1: 7532818b5d518b87b57cf36ddc2bf81758f606f9
 - name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
   version: "1.0.30.1"
@@ -1534,6 +1534,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/mapfs_pre_start.sh
   - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
+  - scripts/patches/fix_garden_logdir.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
