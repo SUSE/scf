@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: 1.72.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.72.0
-  sha1: 5756c91740b6cf99f228a2a1120b9234a8dbc9b9
+  version: "1.74.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.74.0"
+  sha1: "7973426f876d2b43f4491c6baa99a37e5db5ed87"
 - name: cf-cli
   version: 1.10.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
@@ -20,9 +20,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.17
   sha1: c4fbdefdd3b04242eb53da89396f5f587e20d282
 - name: cf-syslog-drain
-  version: '8.0'
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.0
-  sha1: 5b5a2ea2f7a75755e19620eea0672a21704b0660
+  version: "8.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
+  sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.273.0"
   version: "1.273.0"
@@ -72,9 +72,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
   sha1: 49a38aca12e0fd2ec28f96c780c1971427dda04e
 - name: loggregator-agent
-  version: '2.3'
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.3
-  sha1: 7532818b5d518b87b57cf36ddc2bf81758f606f9
+  version: "3.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.1"
+  sha1: "c915a59373e986ae1d98cfb96b09c805664e2550"
 - name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
   version: "1.0.30.1"
@@ -2096,12 +2096,11 @@ instance_groups:
   type: colocated-container
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
-  configuration:
-    templates:
-      properties.fissile.monit.port: 2290
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: loggr-expvar-forwarder
+    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -2118,6 +2117,67 @@ instance_groups:
         run:
           capabilities: [ALL]
           service-account: privileged
+  configuration:
+    templates:
+      properties.counters: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.Dropped}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedEgressV2}}",
+           "tags": {
+             "direction": "egress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedIngressV2}}",
+           "tags": {
+             "direction": "ingress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.Egress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.EgressV2}}",
+           "tags": {
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.Ingress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.IngressV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.default_source_id: 'metron'
+      properties.fissile.monit.port: 2290
+      properties.gauges: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelope}}",
+           "tags": {
+             "loggregator": "v1" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelopeV2}}",
+           "tags": {
+             "metric_version": "2.0",
+             "loggregator": "v2" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "origin_mappings",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.OriginMappingsV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
+      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
+      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
 configuration:
   auth:
     roles:
@@ -2565,7 +2625,6 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
@@ -3831,6 +3890,18 @@ variables:
   options:
     secret: true
     description: PEM-encoded client key for loggregator mutual authentication
+    required: true
+- name: LOGGREGATOR_FORWARD_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for loggregator forwarder authentication
+    required: true
+  type: certificate
+- name: LOGGREGATOR_FORWARD_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for loggregator forwarder authentication
     required: true
 - name: LOG_CACHE_CERT
   options:
