@@ -2096,12 +2096,11 @@ instance_groups:
   type: colocated-container
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
-  configuration:
-    templates:
-      properties.fissile.monit.port: 2290
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: loggr-expvar-forwarder
+    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -2118,6 +2117,67 @@ instance_groups:
         run:
           capabilities: [ALL]
           service-account: privileged
+  configuration:
+    templates:
+      properties.counters: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.Dropped}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedEgressV2}}",
+           "tags": {
+             "direction": "egress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedIngressV2}}",
+           "tags": {
+             "direction": "ingress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.Egress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.EgressV2}}",
+           "tags": {
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.Ingress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.IngressV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.default_source_id: 'metron'
+      properties.fissile.monit.port: 2290
+      properties.gauges: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelope}}",
+           "tags": {
+             "loggregator": "v1" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelopeV2}}",
+           "tags": {
+             "metric_version": "2.0",
+             "loggregator": "v2" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "origin_mappings",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.OriginMappingsV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
+      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
+      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
 configuration:
   auth:
     roles:
@@ -2565,7 +2625,6 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
@@ -3831,6 +3890,18 @@ variables:
   options:
     secret: true
     description: PEM-encoded client key for loggregator mutual authentication
+    required: true
+- name: LOGGREGATOR_FORWARD_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for loggregator forwarder authentication
+    required: true
+  type: certificate
+- name: LOGGREGATOR_FORWARD_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for loggregator forwarder authentication
     required: true
 - name: LOG_CACHE_CERT
   options:
