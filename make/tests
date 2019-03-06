@@ -69,7 +69,6 @@ done
 
 CONFIG=$(mktemp)
 RELEASE="$(helm list --namespace "${NAMESPACE}" --short --max 1)"
-DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
 ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${RELEASE}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
@@ -100,7 +99,7 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 # First show the logs accumulated so far, then stream further logs in
 # a way which terminates when the pod (= testsuite) terminates.
 kubectl logs   --namespace "${NAMESPACE}" "${POD_NAME}"
-kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}"
+kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}" -c "${POD_NAME}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
@@ -108,4 +107,4 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
 while [ -z "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')" ]; do
     sleep 1
 done
-exit $(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')
+exit "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')"
