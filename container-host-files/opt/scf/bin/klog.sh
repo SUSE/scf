@@ -21,8 +21,7 @@ if [ "$1" == "-f" ]; then
   FORCE=1
 fi
 
-NS=${1-scf} 
-
+NS=${1-scf}
 DONE="${KLOG}/${NS}/done"
 
 if [ "${FORCE}" == "1" ] ; then
