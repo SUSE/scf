@@ -21,12 +21,7 @@ if [ "$1" == "-f" ]; then
   FORCE=1
 fi
 
-# read namespace val from args if provided
-if [ ! -z "$2" ]; then
-  NS=$2
-else
-  NS=${1-scf}
-fi 
+NS=${1-scf} 
 
 DONE="${KLOG}/${NS}/done"
 

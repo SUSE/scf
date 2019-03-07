@@ -872,10 +872,8 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             script {
                 if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
                     writeFile(file: 'build.log', text: getBuildLog())
-                    sh """ 
-                         bin/clean-jenkins-log
-                         container-host-files/opt/scf/bin/klog.sh -f ${jobBaseName()}-${BUILD_NUMBER}-scf
-                       """
+                    sh 'bin/clean-jenkins-log'
+                    sh 'container-host-files/opt/scf/bin/klog.sh -f ${jobBaseName()}-${BUILD_NUMBER}-scf'
                     withAWS(region: params.S3_REGION) {
                         withCredentials([usernamePassword(
                             credentialsId: params.S3_CREDENTIALS,
