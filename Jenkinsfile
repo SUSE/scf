@@ -882,7 +882,8 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         )]) {
                             script {
                                 def prefix = distPrefix()
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}${env.BUILD_TAG}/"
+                                prefix = prefix.substring(0, prefix.length() - 1)
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",
