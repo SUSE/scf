@@ -882,6 +882,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         )]) {
                             script {
                                 def prefix = distPrefix()
+                                // Trimming trailing "-" from path as distPrefix() returns "PR-${CHANGE_ID}-".
                                 prefix = prefix.substring(0, prefix.length() - 1)
                                 def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
                                 s3Upload(
