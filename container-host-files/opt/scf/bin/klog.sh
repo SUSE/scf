@@ -73,5 +73,7 @@ if [ ! -f "${DONE}" ]; then
   kubectl get all --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
   kubectl get events --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/events.yaml"
 
+  tar -zcf klog.tar.gz "${KLOG}"
+
   touch "${DONE}"
 fi
