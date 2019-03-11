@@ -152,7 +152,11 @@ uaa-helm: ${FISSILE_BINARY}
 scf-release:
 	make/bosh-release src/scf-release
 
+eirini-release:
+	make/bosh-release src/eirini-release
+
 releases: \
+	eirini-release \
 	scf-release \
 	uaa-releases \
 	${NULL}

@@ -143,8 +143,90 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.2.tgz"
   version: "1.0.2"
   sha1: "0f2fb334ad456e35fff7be1fc56edaf2e07e4e26"
-
+- name: "bits-service"
+  version: "2.25.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.25.0"
+  sha1: "14b0758b0694eb3176aefee80630aec170390055"
 instance_groups:
+
+
+
+- name: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: opi
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+          exposed-ports:
+          - name: opi-server
+            protocol: TCP
+            internal: 8085
+
+- name: bits
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: route_registrar
+    release: routing
+  - name: statsd_injector
+    release: statsd-injector
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
+  - name: bits-service
+    release: bits-service
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+          exposed-ports:
+          - name: opi-server
+            protocol: TCP
+            internal: 443
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"https://bits.((DOMAIN))","tags":{"component":"bits-service"}}]'
+
+
+
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2234,6 +2316,10 @@ configuration:
         resourceNames: [privileged]
         resources: [podsecuritypolicies]
         verbs: [use]
+      eirini-role:
+      - apiGroups: ["*"]
+        resources: ["*"]
+        verbs: ["*"]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
@@ -2290,6 +2376,9 @@ configuration:
       garden-runc:
         roles: [configgin-role]
         cluster-roles: [privileged, node-reader-role]
+      eirini:
+        roles: [configgin-role]
+        cluster-roles: [eirini-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2467,6 +2556,36 @@ configuration:
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
     properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
+
+
+    properties.bits-service.active_signing_key.secret: "((BITS_SERVICE_SECRET))"
+    properties.bits-service.app_stash.webdav_config.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.bits-service.app_stash.webdav_config.password: "((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))"
+    properties.bits-service.app_stash.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.app_stash.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.buildpacks.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.buildpacks.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.buildpacks.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.buildpacks.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.cc_updates.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.cc_updates.client_cert: ((CC_PUBLIC_TLS_CERT))
+    properties.bits-service.cc_updates.client_key: ((CC_PUBLIC_TLS_CERT_KEY))
+    properties.bits-service.droplets.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.droplets.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.droplets.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.droplets.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.packages.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.packages.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.packages.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
+    properties.bits-service.private_endpoint: "https://bits-bits.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
+    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_SERVICE_SIGNING_PASSWORD))"}]'
+    properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
+    properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
+
+
+
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2686,6 +2805,31 @@ configuration:
     properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+
+
+
+    properties.opi.cc_ca: "((INTERNAL_CA_CERT))"
+    properties.opi.cc_cert: "((CC_SERVER_CRT))"
+    properties.opi.cc_internal_api: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023"
+    properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
+    properties.opi.certs_secret_name: "((EIRINI_SCF_SECRET_NAME))"
+    properties.opi.eirini_address: "http://eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.opi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.opi.loggregator_address: "doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.opi.loggregator_ca: "((INTERNAL_CA_CERT))"
+    properties.opi.loggregator_cert: "((DOPPLER_CERT))"
+    properties.opi.loggregator_key: "((DOPPLER_CERT_KEY))"
+    properties.opi.metrics_source_address: "((EIRINI_KUBE_HEAPSTER_ADDRESS))"
+    # TODO: this needs to be fixed upstream - it should be an array
+    properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.opi.nats_password: "((NATS_PASSWORD))"
+    properties.opi.registry_address: "((EIRINI_REGISTRY_ADDRESS))"
+    properties.opi.stager_image_tag: ((EIRINI_IMAGE_TAG))
+
+
+
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
@@ -3402,6 +3546,42 @@ variables:
     secret: true
     description: PEM-encoded client key.
     required: true
+
+
+
+- name: BITS_BLOBSTORE_ADMIN_USERS_PASSWORD
+  options:
+    secret: true
+    description: The basic auth password that the Cloud Controller uses to connect to the admin endpoint on webdav.
+    required: true
+  type: password
+- name: BITS_SERVICE_SECRET
+  options:
+    secret: true
+    description: This is the key secret Bits-Service uses and clients should use to generate signed URLs.
+    required: true
+  type: password
+- name: BITS_SERVICE_SIGNING_PASSWORD
+  options:
+    secret: true
+    description: Password for the Cloud Controller user that's allowed to use the /sign endpoint via HTTP Basic Auth.
+    required: true
+  type: password
+- name: BITS_SERVICE_SSL_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: bits
+    description: PEM-encoded client certificate.
+    required: true
+  type: certificate
+- name: BITS_SERVICE_SSL_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
+
+
 - name: BLOBSTORE_ACCESS_RULES
   options:
     default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
@@ -3702,6 +3882,31 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
+
+- name: EIRINI_IMAGE_TAG
+  options:
+    default: 'foo'
+    description: "Image tag for Eirini"
+- name: EIRINI_KUBE_HEAPSTER_ADDRESS
+  options:
+    default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
+    description: "Address of Kubernetes' Heapster installation, used for reading Cloud Foundry app metrics."
+- name: EIRINI_KUBE_NAMESPACE
+  options:
+    default: 'eirini'
+    description: "The namespace used by Eirini for deploying applications."
+- name: EIRINI_REGISTRY_ADDRESS
+  options:
+    default: 'registry'
+    description: "Image registry address used by Kubernetes to retrieve Cloud Foundry app images."
+- name: EIRINI_SCF_SECRET_NAME
+  options:
+    type: "environment"
+    default: 'somesecret'
+    description: "Name of the Kubernetes secret containing SCF certificates and passwords."
+
+
+
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
@@ -3811,6 +4016,21 @@ variables:
     description: The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user. Its value is supplied by the kubernetes
       runtime.
+
+- name: KUBERNETES_SERVICE_HOST
+  options:
+    type: environment
+    description: >
+      This is an environment variable set by Kubernetes.
+      We have to pass it through the templating mechanism, because monit doesn't keep the entrypoint's environment.
+- name: KUBERNETES_SERVICE_PORT
+  options:
+    type: environment
+    description: >
+      This is an environment variable set by Kubernetes.
+      We have to pass it through the templating mechanism, because monit doesn't keep the entrypoint's environment.
+
+
 - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
   options:
     type: environment
@@ -3865,6 +4085,7 @@ variables:
   options:
     description: Lowest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
+
 - name: LOGGREGATOR_AGENT_CERT
   options:
     secret: true

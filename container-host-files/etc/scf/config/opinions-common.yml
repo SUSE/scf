@@ -141,6 +141,29 @@ properties:
       port: 7107
       publicPort: 7101
       require_consul: false
+  bits-service:
+    active_signing_key:
+      key_id: key1
+    app_stash:
+      blobstore_type: webdav
+      directory_key: cc-resources
+      webdav_config:
+        username: blobstore-user
+    buildpacks:
+      blobstore_type: webdav
+      directory_key: cc-buildpacks
+      webdav_config:
+        username: blobstore-user
+    droplets:
+      blobstore_type: webdav
+      directory_key: cc-droplets
+      webdav_config:
+        username: blobstore-user
+    packages:
+      blobstore_type: webdav
+      directory_key: cc-packages
+      webdav_config:
+        username: blobstore-user      
   capi:
     tps:
       watcher:
