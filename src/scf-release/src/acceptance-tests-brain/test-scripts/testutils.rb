@@ -174,3 +174,19 @@ def cf_curl(*args)
     output = capture('cf', 'curl', *args)
     JSON.parse output
 end
+
+def statefulset_ready(namespace, statefulset, sleep_duration=5)
+    begin
+        output = capture("kubectl get statefulset --namespace #{namespace} #{statefulset} --no-headers")
+        return false if output.empty?
+        _, ready, _ = output.split # Columns: NAME, READY, AGE.
+        return true if /([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\/\1/.match(ready)
+        return false
+    rescue RuntimeError
+        return false
+    end
+end
+
+def exit_skipping_test()
+    Process.exit 99
+end
