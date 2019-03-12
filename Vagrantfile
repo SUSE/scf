@@ -205,9 +205,8 @@ Vagrant.configure(2) do |config|
     if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
       scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
       for script in "${scripts[@]}"; do
-        echo -e "Start customization via \e[1;96m${script}m\e[0m"
+        echo -e "Running \e[1;96m${script}\e[0m"
         "${script}"
-        echo -e "Done_ customization via \e[1;96m${script}m\e[0m"
       done
     fi
 
