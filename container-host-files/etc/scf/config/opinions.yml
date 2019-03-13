@@ -1,3 +1,4 @@
+---
 properties:
   acceptance_tests:
     admin_user: admin
@@ -163,14 +164,14 @@ properties:
       blobstore_type: webdav
       directory_key: cc-packages
       webdav_config:
-        username: blobstore_user      
+        username: blobstore_user
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
     bits_service:
-      enabled: true 
+      enabled: true
       username: admin
     buildpacks:
       blobstore_type: webdav
@@ -184,7 +185,12 @@ properties:
     - public_networks
     - dns
     diego:
-      lifecycle_bundles: *the-bundles
+      lifecycle_bundles:
+        'buildpack/sle15':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/cflinuxfs3': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        docker:                 "docker_app_lifecycle/docker_app_lifecycle.tgz"
     droplets:
       blobstore_type: webdav
       webdav_config:
@@ -254,7 +260,15 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
-    stacks: *the-stacks
+    stacks:
+    - name: "cflinuxfs2"
+      description: "Cloud Foundry Linux-based filesystem"
+    - name: "cflinuxfs3"
+      description: "Cloud Foundry Linux-based filesystem"
+    - name: "sle12"
+      description: "SLE-based filesystem"
+    - name: "sle15"
+      description: "SUSE Linux Enterprise-based filesystem"
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -335,7 +349,11 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      preloaded_rootfses: *the-rootfses
+      preloaded_rootfses:
+      - "sle15:/var/vcap/packages/sle15/rootfs.tar"
+      - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
+      - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
+      - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
     route_emitter:
       local_mode: true
       nats:
