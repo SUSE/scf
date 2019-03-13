@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# This script contains helpers for running tests
+# This script contains helpers for running tests.
 
 require 'fileutils'
 require 'open3'
@@ -7,7 +7,7 @@ require 'securerandom'
 require 'shellwords'
 require 'tmpdir'
 
-# Global options, similar to shopts
+# Global options, similar to shopts.
 $opts = { errexit: true, xtrace: true }
 
 # Set global options.  If a block is given, the options are only active in that
@@ -40,7 +40,7 @@ def _print_command(*args)
     STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if opts[:xtrace]
 end
 
-# Run the given command line, and return the exit status (as a Process::Status)
+# Run the given command line, and return the exit status (as a Process::Status).
 def run_with_status(*args)
     _print_command(*args)
     args.last.delete :errexit if args.last.is_a? Hash
@@ -62,14 +62,14 @@ def run(*args)
     end
 end
 
-# Run the given command line, and return the output (stdout).  If errexit is
-# set, an error is raised on failure.
+# Run the given command line, and return the stadandard output and standard error.
+# If errexit is set, an error is raised on failure.
 def capture(*args)
     _print_command(*args)
     stdout, status = Open3.capture2(*args)
     if $opts[:errexit]
         unless status.success?
-            # Print an error at the failure site
+            # Print an error at the failure site.
             puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
             fail "Command exited with #{status.exitstatus}"
         end
@@ -77,7 +77,7 @@ def capture(*args)
     stdout.chomp
 end
 
-# Log in to the CF installation under test
+# Log in to the CF installation under test.
 def login
     run "cf api --skip-ssl-validation api.#{ENV['CF_DOMAIN']}"
     run "cf auth #{ENV['CF_USERNAME']} #{ENV['CF_PASSWORD']}"
@@ -102,7 +102,7 @@ def setup_org_space
     run "cf target -s #{$CF_SPACE}"
 end
 
-# Return the path to a test resource (in the `test-resources` directory)
+# Return the path to a test resource (in the `test-resources` directory).
 def resource_path(*parts)
     File.join(File.dirname(__dir__), 'test-resources', *parts)
 end
@@ -135,7 +135,7 @@ def run_with_retry(retries, interval)
 end
 
 # Poll the status of a Kubernetes namespace, until all the pods in that
-# namespace are ready and all the jobs have run
+# namespace are ready and all the jobs have run.
 def wait_for_namespace(namespace, sleep_duration=10)
     loop do
         output = capture("kubectl get pods --namespace #{namespace} --no-headers")
