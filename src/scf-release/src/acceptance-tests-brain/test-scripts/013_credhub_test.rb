@@ -7,6 +7,8 @@ require 'json'
 NAMESPACE = ENV['KUBERNETES_NAMESPACE']
 STATEFULSET_NAME = 'credhub-user'
 
+Process.exit 1 if !statefulset_ready(NAMESPACE, STATEFULSET_NAME)
+
 # Check if credhub is running, otherwise skip the test.
 exit_skipping_test if !statefulset_ready(NAMESPACE, STATEFULSET_NAME)
 
