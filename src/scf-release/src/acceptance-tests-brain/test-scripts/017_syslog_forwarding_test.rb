@@ -119,6 +119,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     socat_args = "/usr/bin/socat #{SCF_LOG_PROTOCOL.upcase}-LISTEN:#{SCF_LOG_PORT},fork 'EXEC:/usr/bin/logger --socket-errors=off --stderr --tag \"\"'"
     cmd = %W(
         kubectl run #{$LOG_SERVICE_NAME}
+            --generator=run-pod/v1
             --namespace #{$KUBERNETES_NAMESPACE}
             --command
             --port #{SCF_LOG_PORT}
