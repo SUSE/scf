@@ -124,9 +124,9 @@ releases:
   version: "1.24.1"
   sha1: "f92e6b675fecd600723e32505b25535faff8db14"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.68.2.tgz"
-  version: "1.68.2"
-  sha1: "ebf5d0abc8dfdee2cd5bad435d49c7f15cdbfb05"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.74.1.tgz"
+  version: "1.74.1"
+  sha1: "1a2596e59c9763c32a58799cb59b327d7ea6e6a8"
 - name: sle15
   url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-3.1.tgz"
   version: "3.1"
