@@ -10,7 +10,7 @@ POD_NAME=$1
 
 find_test() {
     local dir file
-    for dir in output/kube kube/cf-opensuse ; do
+    for dir in output/kube kube/cf ; do
         file="${dir}/bosh-task/${POD_NAME}.yaml"
         if [ -f "${file}" ] ; then
             echo "${file}"
