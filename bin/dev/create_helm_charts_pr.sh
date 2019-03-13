@@ -45,17 +45,13 @@ product=`echo $bundle_readable | cut -d+ -f1`
 pr_title="Release $product"
 pr_description="Publish Helm charts for release $product created from $bundle_readable.zip built in Jenkins run $SOURCE_BUILD."
 
-if [ -d bundle/helm/cf-opensuse ]; then
-  suffix="-opensuse"
-fi
-
 cd kubernetes-charts-suse-com
 # Remove old charts
-rm -rf stable/cf${suffix:-}
-rm -rf stable/uaa${suffix:-}
+rm -rf stable/cf
+rm -rf stable/uaa
 # Place the new ones
-cp -r ../bundle/helm/cf${suffix:-} stable/
-cp -r ../bundle/helm/uaa${suffix:-} stable/
+cp -r ../bundle/helm/cf stable/
+cp -r ../bundle/helm/uaa stable/
 
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/cf/values.yaml
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/uaa/values.yaml
