@@ -105,7 +105,6 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
             run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -printf '%s %P\n'"
             run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -exec cat '{}' ';'"
-            #
             run "#{IN_CONTAINER} find /var/vcap/sys/log/cloud_controller_ng/ -iname 'brains-*.log' -a -print -a -delete"
             run "#{IN_CONTAINER} find /etc/rsyslog.d -iname '*-vcap-brains-*.conf' -a -print -a -delete"
             run "kubectl delete deployment,service --namespace #{$KUBERNETES_NAMESPACE} --now --ignore-not-found #{$LOG_SERVICE_NAME}"
@@ -113,7 +112,6 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     end
 
     # (B) Configure and run the log receiver pod.
-
     image = 'opensuse/leap'
     install_args = "zypper --non-interactive install socat util-linux-systemd"
     socat_args = "/usr/bin/socat #{SCF_LOG_PROTOCOL.upcase}-LISTEN:#{SCF_LOG_PORT},fork 'EXEC:/usr/bin/logger --socket-errors=off --stderr --tag \"\"'"
@@ -129,7 +127,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
             --
             /bin/sh -c
         )
-    run *cmd, "#{install_args} && #{socat_args}" # Run the whole shell command as one thing.
+    run(*cmd, "#{install_args} && #{socat_args}") # Run the whole shell command as one thing.
 
     show_env
 
@@ -140,7 +138,6 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     # Wait for the receiver pod to be ready.
     loop do
         pod_info = JSON.load capture("kubectl get pods --namespace #{$KUBERNETES_NAMESPACE} --selector brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX} --output json")
-        ready = false
         break if pod_info['items'].all? do |item|
             item['status']['conditions']
                 .select { |condition| condition['type'] == 'Ready' }
