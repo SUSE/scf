@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
 # Description of the setup for this test case
-
+#
 # 1. A separate thread is spawned to generate log messages at a rate
 #    of approximately 1 per second, adding these to a new cc-ng log
 #    file in the `api-group` pod.
-
+#
 #    See `emit_log_entries`, (A).
 #
 #    It is expected that the syslog machinery of the pod detects the
@@ -64,21 +64,21 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     $LOG_SERVICE_NAME = SCF_LOG_HOST[0...-KUBERNETES_DOMAIN_SUFFIX.length]
 
-    # Report progress to the user; use as printf
+    # Report progress to the user; use as printf.
     def status(fmt, *args)
         printf "\n\e[0;32m#{fmt}\e[0m\n", *args
     end
 
-    # Report problem to the user; use as printf
+    # Report problem to the user; use as printf.
     def trouble(fmt, *args)
         printf "\n\e[0;31m#{fmt}\e[0m\n", *args
     end
 
     $RUN_SUFFIX = SecureRandom.hex(8)
-    # hex doubles output -> 16 characters
+    # hex doubles output -> 16 characters.
 
     # (A) Start emitting logs as soon as possible to maximize the
-    # chance the cron task picks up new logs
+    # chance the cron task picks up new logs.
     def emit_log_entries
         log_file = "/var/vcap/sys/log/cloud_controller_ng/brains-#{$RUN_SUFFIX}.log"
         cmd = "kubectl exec --namespace #{$KUBERNETES_NAMESPACE} api-group-0 -c api-group --stdin -- tee -a #{log_file}"
@@ -112,7 +112,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
         end
     end
 
-    # (B) Configure and run the log receiver pod
+    # (B) Configure and run the log receiver pod.
 
     image = 'opensuse/leap'
     install_args = "zypper --non-interactive install socat util-linux-systemd"
@@ -129,15 +129,15 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
             --
             /bin/sh -c
         )
-    run *cmd, "#{install_args} && #{socat_args}" # Run the whole shell command as one thing
+    run *cmd, "#{install_args} && #{socat_args}" # Run the whole shell command as one thing.
 
     show_env
 
-    # Wait for the receiver pod to exist
+    # Wait for the receiver pod to exist.
     run_with_retry 10, 5 do
         run "kubectl get pods --namespace #{$KUBERNETES_NAMESPACE} --selector brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX} --output=wide"
     end
-    # Wait for the receiver pod to be ready
+    # Wait for the receiver pod to be ready.
     loop do
         pod_info = JSON.load capture("kubectl get pods --namespace #{$KUBERNETES_NAMESPACE} --selector brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX} --output json")
         ready = false
@@ -151,7 +151,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
 
     # (C) And check that the messages generates by (A) are reaching the receiver (B).
 
-    # Find the name of the receiver pod, so we can see its logs
+    # Find the name of the receiver pod, so we can see its logs.
     $pod_name = capture("kubectl get pods --namespace #{$KUBERNETES_NAMESPACE} --selector brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX} --output=name")
 
     run "kubectl logs --follow --namespace #{$KUBERNETES_NAMESPACE} #{$pod_name} | grep --line-buffered --max-count=1 #{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX}"
