@@ -551,8 +551,9 @@ pipeline {
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
                     export DOMAIN="${domain()}"
                     export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
-                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
@@ -621,9 +622,9 @@ pipeline {
                     export SCF_SECRETS_GENERATION_COUNTER=2
                     export SCF_ENABLE_AUTOSCALER=1
                     export SCF_ENABLE_CREDHUB=1
-
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/upgrade \
-                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     # Ensure old pods have time to terminate
                     sleep 60
