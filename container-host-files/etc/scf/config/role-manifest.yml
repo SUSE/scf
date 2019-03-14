@@ -997,8 +997,6 @@ instance_groups:
   - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_logcache_certs_forwarder.sh
-  - scripts/patches/fix_logcache_certs_scheduler.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
