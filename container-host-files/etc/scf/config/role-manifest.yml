@@ -151,6 +151,7 @@ releases:
 instance_groups:
 - name: syslog-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -201,6 +202,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: adapter
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -256,6 +258,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -308,6 +311,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: mysql
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
@@ -406,6 +410,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -465,6 +470,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -539,6 +545,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -611,6 +618,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -678,6 +686,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -738,6 +747,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
@@ -837,6 +847,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name": "api", "port": ((CC_PORT_PUBLIC_INSECURE)), "tls_port": ((CC_PORT_PUBLIC_TLS)), "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -884,6 +895,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
@@ -933,6 +945,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
   - scripts/patches/cc_clock_disable_credhub.sh
@@ -981,6 +994,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: log-cache-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_logcache_certs_forwarder.sh
@@ -1049,6 +1063,7 @@ instance_groups:
         ]
 - name: doppler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1240,6 +1255,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1307,6 +1323,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1364,6 +1381,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1420,6 +1438,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1477,6 +1496,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/nfsbroker_cert_prop.sh
@@ -1532,6 +1552,7 @@ instance_groups:
   - scripts/configure-pz.sh
   scripts:
   - scripts/check_swapaccounting.sh
+  - scripts/set_vcap_limits.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
@@ -1774,6 +1795,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1832,6 +1854,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-postgres
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1869,6 +1892,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1910,6 +1934,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1935,6 +1960,7 @@ instance_groups:
           internal: 7103
 - name: autoscaler-scalingengine
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1960,6 +1986,7 @@ instance_groups:
           internal: 7104
 - name: autoscaler-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1985,6 +2012,7 @@ instance_groups:
           internal: 7102
 - name: autoscaler-operator
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2007,6 +2035,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -2050,6 +2079,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-eventgenerator
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -4445,3 +4475,13 @@ variables:
     default: false
     description: Whether or not to use privileged containers for staging tasks.
     required: true
+- name: VCAP_HARD_NPROC
+  options:
+    description: The hard limit of the number of processes for the vcap user.
+    internal: true
+    required: false
+- name: VCAP_SOFT_NPROC
+  options:
+    description: The soft limit of the number of processes for the vcap user.
+    internal: true
+    required: false
