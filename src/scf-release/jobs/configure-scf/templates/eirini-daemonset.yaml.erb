@@ -1,0 +1,133 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: eirini-loggregator-fluentd
+spec:
+  selector:
+    matchLabels:
+      name: eirini-loggregator-fluentd
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: eirini-loggregator-fluentd
+    spec:
+      serviceAccountName: "eirini"
+      containers:
+      - name: eirini-loggregator-fluentd
+        image: <%= p('scf.eirini.fluentd_image') %>
+        imagePullPolicy: Always
+        env:
+        - name: FLUENT_UID
+          value: "0"
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: vardata
+          mountPath: /var/data
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: varvcapstore
+          mountPath: /var/vcap/store
+          readOnly: true
+        - name: varvcapdata
+          mountPath: /var/vcap/data
+          readOnly: true
+        - name: loggregator-tls-certs
+          mountPath: /fluentd/certs
+          readOnly: true
+      - name: loggregator-agent
+        image: loggregator/agent
+        imagePullPolicy: Always
+        env:
+        - name: AGENT_METRIC_SOURCE_ID
+          value: scf/daemonset/loggregator-fluentd
+        - name: ROUTER_ADDR
+          value: <%= p('scf.eirini.doppler_address') %>
+        - name: ROUTER_ADDR_WITH_AZ
+          value: <%= p('scf.eirini.doppler_address_with_az') %>
+        - name: AGENT_PPROF_PORT
+          value: "6062"
+        - name: AGENT_HEALTH_ENDPOINT_PORT
+          value: "6063"
+        ports:
+        - name: health
+          containerPort: 6063
+        volumeMounts:
+        - name: loggregator-tls-certs
+          mountPath: /srv/certs
+          readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: vardata
+        hostPath:
+          path: /var/data
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: varvcapstore
+        hostPath:
+          path: /var/vcap/store/
+      - name: varvcapdata
+        hostPath:
+          path: /var/vcap/data/
+      - name: loggregator-tls-certs
+        secret:
+          secretName: <%= p('scf.secrets_generation_name') %>
+          items:
+            - key: loggregator-agent-cert
+              path: agent.crt
+            - key: loggregator-agent-cert-key
+              path: agent.key
+            - key: internal-ca-cert
+              path: ca.crt
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: eirini-registry-cert-copier
+spec:
+  selector:
+    matchLabels:
+      name: "eirini-registry-cert-copier"
+  template:
+    metadata:
+      labels:
+        name: "eirini-registry-cert-copier"
+    spec:
+      serviceAccountName: "eirini"
+      volumes:
+      - name: host-docker
+        hostPath:
+          path: /etc/docker
+          type: Directory
+      containers:
+      - name: copy-certs
+        env:
+        - name: INTERNAL_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              key: internal-ca-cert
+              name: "<%= p('scf.secrets_generation_name') %>"
+        - name: REGISTRY
+          value: "<%= p('scf.eirini.registry.address') %>"
+        - name: SCF_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: "<%= p('scf.eirini.cert_copier_image') %>"
+        volumeMounts:
+        - name: host-docker
+          mountPath: /workspace/docker

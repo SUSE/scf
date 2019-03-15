@@ -148,27 +148,30 @@ properties:
       blobstore_type: webdav
       directory_key: cc-resources
       webdav_config:
-        username: blobstore-user
+        username: blobstore_user
     buildpacks:
       blobstore_type: webdav
       directory_key: cc-buildpacks
       webdav_config:
-        username: blobstore-user
+        username: blobstore_user
     droplets:
       blobstore_type: webdav
       directory_key: cc-droplets
       webdav_config:
-        username: blobstore-user
+        username: blobstore_user
     packages:
       blobstore_type: webdav
       directory_key: cc-packages
       webdav_config:
-        username: blobstore-user      
+        username: blobstore_user      
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
+    bits_service:
+      enabled: true 
+      username: admin
     buildpacks:
       blobstore_type: webdav
       webdav_config:

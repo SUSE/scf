@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.74.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.74.0"
-  sha1: "7973426f876d2b43f4491c6baa99a37e5db5ed87"
+  version: "1.78.0+dev.3"
+  url: "https://s3.amazonaws.com/cap-experiments/capi-575e0d3.tgz"
+  sha1: "34e4dc156a043806d3fdb7b3d8947e7439c771a6"
 - name: cf-cli
   version: 1.10.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
@@ -144,12 +144,10 @@ releases:
   version: "1.0.2"
   sha1: "0f2fb334ad456e35fff7be1fc56edaf2e07e4e26"
 - name: "bits-service"
-  version: "2.25.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.25.0"
-  sha1: "14b0758b0694eb3176aefee80630aec170390055"
+  version: "2.25.0+dev.1"
+  url: "https://s3.amazonaws.com/cap-experiments/bits-service-e52c274.tgz"
+  sha1: "ba1c51373e6ebc76f6f3fae17e2e6e08c4198760"
 instance_groups:
-
-
 
 - name: eirini
   environment_scripts:
@@ -178,10 +176,10 @@ instance_groups:
             ha: 1
           memory: 256
           virtual-cpus: 2
-          exposed-ports:
-          - name: opi-server
-            protocol: TCP
-            internal: 8085
+        ports:
+        - name: opi-server
+          protocol: TCP
+          internal: 8085
 
 - name: bits
   environment_scripts:
@@ -190,6 +188,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/bits_add_missing_config_keys.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -199,6 +198,8 @@ instance_groups:
     release: routing
   - name: statsd_injector
     release: statsd-injector
+  - name: eirinifs
+    release: eirini
   - name: bpm
     release: bpm
     properties:
@@ -217,15 +218,13 @@ instance_groups:
             ha: 1
           memory: 256
           virtual-cpus: 2
-          exposed-ports:
-          - name: opi-server
-            protocol: TCP
-            internal: 443
+        ports:
+        - name: server
+          protocol: TCP
+          internal: 443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"https://bits.((DOMAIN))","tags":{"component":"bits-service"}}]'
-
-
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 
 - name: syslog-scheduler
   scripts:
@@ -1845,6 +1844,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
+          service-account: eirini
 - name: credhub-user
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2560,31 +2560,30 @@ configuration:
 
     properties.bits-service.active_signing_key.secret: "((BITS_SERVICE_SECRET))"
     properties.bits-service.app_stash.webdav_config.ca_cert: "((INTERNAL_CA_CERT))"
-    properties.bits-service.app_stash.webdav_config.password: "((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))"
+    properties.bits-service.app_stash.webdav_config.password: "((BLOBSTORE_PASSWORD))"
     properties.bits-service.app_stash.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
     properties.bits-service.app_stash.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
     properties.bits-service.buildpacks.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
-    properties.bits-service.buildpacks.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.buildpacks.webdav_config.password: ((BLOBSTORE_PASSWORD))
     properties.bits-service.buildpacks.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
     properties.bits-service.buildpacks.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
     properties.bits-service.cc_updates.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.cc_updates.cc_url: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):((CC_PORT_PUBLIC_TLS))/internal/v4/packages"
     properties.bits-service.cc_updates.client_cert: ((CC_PUBLIC_TLS_CERT))
     properties.bits-service.cc_updates.client_key: ((CC_PUBLIC_TLS_CERT_KEY))
     properties.bits-service.droplets.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
-    properties.bits-service.droplets.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.droplets.webdav_config.password: ((BLOBSTORE_PASSWORD))
     properties.bits-service.droplets.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
     properties.bits-service.droplets.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
     properties.bits-service.packages.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
-    properties.bits-service.packages.webdav_config.password: ((BITS_BLOBSTORE_ADMIN_USERS_PASSWORD))
+    properties.bits-service.packages.webdav_config.password: ((BLOBSTORE_PASSWORD))
     properties.bits-service.packages.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
     properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
-    properties.bits-service.private_endpoint: "https://bits-bits.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
-    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_SERVICE_SIGNING_PASSWORD))"}]'
+    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
-
-
 
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
@@ -2615,6 +2614,12 @@ configuration:
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
+
+    properties.cc.bits_service.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.cc.bits_service.password: "((BITS_ADMIN_USERS_PASSWORD))"
+    properties.cc.bits_service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.cc.bits_service.public_endpoint: "https://bits.((DOMAIN))"
+
     properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -2650,6 +2655,12 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+
+    properties.cc.opi.cc_uploader_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
+    properties.cc.opi.enabled: ((ENABLE_EIRINI))
+    properties.cc.opi.opi_staging: ((ENABLE_EIRINI))
+    properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2806,18 +2817,16 @@ configuration:
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
 
-
-
     properties.opi.cc_ca: "((INTERNAL_CA_CERT))"
     properties.opi.cc_cert: "((CC_SERVER_CRT))"
     properties.opi.cc_internal_api: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023"
     properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
-    properties.opi.certs_secret_name: "((EIRINI_SCF_SECRET_NAME))"
-    properties.opi.eirini_address: "http://eirini.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
+    properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
     properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.opi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
-    properties.opi.loggregator_address: "doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.opi.loggregator_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.opi.loggregator_ca: "((INTERNAL_CA_CERT))"
     properties.opi.loggregator_cert: "((DOPPLER_CERT))"
     properties.opi.loggregator_key: "((DOPPLER_CERT_KEY))"
@@ -2825,10 +2834,8 @@ configuration:
     # TODO: this needs to be fixed upstream - it should be an array
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
-    properties.opi.registry_address: "((EIRINI_REGISTRY_ADDRESS))"
-    properties.opi.stager_image_tag: ((EIRINI_IMAGE_TAG))
-
-
+    properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.stager_image: ((EIRINI_IMAGE))
 
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
@@ -2859,13 +2866,24 @@ configuration:
     properties.scalablesyslog.adapter_rlp.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter_rlp.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter_rlp.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
+    properties.scalablesyslog.scheduler.api.url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
     properties.scalablesyslog.scheduler.tls.api.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.api.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.api.key: '"((SYSLOG_SCHED_CERT_KEY))"'
     properties.scalablesyslog.scheduler.tls.client.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_CERT_KEY))"'
+
+    properties.scf.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
+    properties.scf.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.scf.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.scf.eirini.enabled: ((ENABLE_EIRINI))
+    properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
+    properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.scf.eirini.registry.address: "registry.((DOMAIN))"
+
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
+    properties.scf.secrets_generation_name: "((KUBE_SECRETS_GENERATION_NAME))"
     properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
     properties.scf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
@@ -3547,9 +3565,7 @@ variables:
     description: PEM-encoded client key.
     required: true
 
-
-
-- name: BITS_BLOBSTORE_ADMIN_USERS_PASSWORD
+- name: BITS_ADMIN_USERS_PASSWORD
   options:
     secret: true
     description: The basic auth password that the Cloud Controller uses to connect to the admin endpoint on webdav.
@@ -3561,12 +3577,6 @@ variables:
     description: This is the key secret Bits-Service uses and clients should use to generate signed URLs.
     required: true
   type: password
-- name: BITS_SERVICE_SIGNING_PASSWORD
-  options:
-    secret: true
-    description: Password for the Cloud Controller user that's allowed to use the /sign endpoint via HTTP Basic Auth.
-    required: true
-  type: password
 - name: BITS_SERVICE_SSL_CERT
   options:
     secret: true
@@ -3574,13 +3584,14 @@ variables:
     role_name: bits
     description: PEM-encoded client certificate.
     required: true
+    alternative_names:
+    - bits-bits-service.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
   type: certificate
 - name: BITS_SERVICE_SSL_CERT_KEY
   options:
     secret: true
     description: PEM-encoded client key.
     required: true
-
 
 - name: BLOBSTORE_ACCESS_RULES
   options:
@@ -3659,8 +3670,10 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
+    - "api"
     - "api-set"
     - "api-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    - "api.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
     description: The PEM-encoded certificate for secure TLS communication over external endpoints.
     required: true
   type: certificate
@@ -3682,6 +3695,11 @@ variables:
     secret: true
     description: The PEM-encoded private key for internal cloud controller traffic.
     required: true
+- name: CC_UPLOADER_CC_UPLOADER_SERVICE_HOST
+  options:
+    type: environment
+    description: IP of the cc uploader service. This is automatically set by Kubernetes.
+      traffic.
 - name: CC_UPLOADER_CRT
   options:
     secret: true
@@ -3868,6 +3886,7 @@ variables:
     alternative_names:
     - doppler
     - log-cache
+    - metron
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -3883,10 +3902,18 @@ variables:
       to rollback to this amount of versions.
     required: true
 
-- name: EIRINI_IMAGE_TAG
+- name: EIRINI_CERT_COPIER_IMAGE
   options:
-    default: 'foo'
-    description: "Image tag for Eirini"
+    default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
+    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+- name: EIRINI_FLUENTD_IMAGE
+  options:
+    default: 'eirini/loggregator-fluentd:0.1.0'
+    description: "The docker image used by Eirini to consume Kubernetes container logs"
+- name: EIRINI_IMAGE
+  options:
+    default: 'eirini/recipe:ci-24.0.0'
+    description: "Docker Image used for staging apps deployed using Eirini"
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
     default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
@@ -3895,17 +3922,10 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
-- name: EIRINI_REGISTRY_ADDRESS
+- name: ENABLE_EIRINI
   options:
-    default: 'registry'
-    description: "Image registry address used by Kubernetes to retrieve Cloud Foundry app images."
-- name: EIRINI_SCF_SECRET_NAME
-  options:
-    type: "environment"
-    default: 'somesecret'
-    description: "Name of the Kubernetes secret containing SCF certificates and passwords."
-
-
+    default: 'true'
+    description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
 
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
@@ -4091,6 +4111,7 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
+    - localhost
     - metron
     description: PEM-encoded certificate.
     required: true
