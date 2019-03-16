@@ -33,7 +33,7 @@ patch --force -p0 <<'PATCH'
    if [ $num_needing_chown -gt 0 ]; then
      echo "chowning ${num_needing_chown} files to vcap:vcap"
 -    find $dirs -not -user vcap -or -not -group vcap | xargs chown vcap:vcap
-+    find -L $dirs -not -user vcap -or -not -group vcap | xargs chown vcap:vcap
++    find -L $dirs -not -user vcap -or -not -group vcap | grep -v "/var/vcap/packages/.src" | xargs chown vcap:vcap
    else
      echo "no chowning needed, all relevant files are vcap:vcap already"
    fi

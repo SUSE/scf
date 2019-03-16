@@ -15,6 +15,24 @@ spec:
         name: eirini-loggregator-fluentd
     spec:
       serviceAccountName: "eirini"
+      initContainers:
+      - name: copy-certs
+        env:
+        - name: INTERNAL_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              key: internal-ca-cert
+              name: "<%= p('scf.secrets_generation_name') %>"
+        - name: REGISTRY
+          value: "<%= p('scf.eirini.registry.address') %>"
+        - name: SCF_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: "<%= p('scf.eirini.cert_copier_image') %>"
+        volumeMounts:
+        - name: host-docker
+          mountPath: /workspace/docker
       containers:
       - name: eirini-loggregator-fluentd
         image: <%= p('scf.eirini.fluentd_image') %>
@@ -93,41 +111,7 @@ spec:
               path: agent.key
             - key: internal-ca-cert
               path: ca.crt
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: eirini-registry-cert-copier
-spec:
-  selector:
-    matchLabels:
-      name: "eirini-registry-cert-copier"
-  template:
-    metadata:
-      labels:
-        name: "eirini-registry-cert-copier"
-    spec:
-      serviceAccountName: "eirini"
-      volumes:
       - name: host-docker
         hostPath:
           path: /etc/docker
           type: Directory
-      containers:
-      - name: copy-certs
-        env:
-        - name: INTERNAL_CA_CERT
-          valueFrom:
-            secretKeyRef:
-              key: internal-ca-cert
-              name: "<%= p('scf.secrets_generation_name') %>"
-        - name: REGISTRY
-          value: "<%= p('scf.eirini.registry.address') %>"
-        - name: SCF_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        image: "<%= p('scf.eirini.cert_copier_image') %>"
-        volumeMounts:
-        - name: host-docker
-          mountPath: /workspace/docker

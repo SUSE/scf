@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.78.0+dev.3"
-  url: "https://s3.amazonaws.com/cap-experiments/capi-575e0d3.tgz"
-  sha1: "34e4dc156a043806d3fdb7b3d8947e7439c771a6"
+  version: "1.78.0+dev.4"
+  url: "https://s3.amazonaws.com/cap-experiments/capi-6e4864e.tgz"
+  sha1: "e45c1a4d93f12a325e04d103cbd9a3ff6fa8a38a"
 - name: cf-cli
   version: 1.10.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
@@ -144,11 +144,11 @@ releases:
   version: "1.0.2"
   sha1: "0f2fb334ad456e35fff7be1fc56edaf2e07e4e26"
 - name: "bits-service"
-  version: "2.25.0+dev.1"
-  url: "https://s3.amazonaws.com/cap-experiments/bits-service-e52c274.tgz"
-  sha1: "ba1c51373e6ebc76f6f3fae17e2e6e08c4198760"
-instance_groups:
+  version: "2.26.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
+  sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 
+instance_groups:
 - name: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -171,7 +171,7 @@ instance_groups:
         run:
           service-account: eirini
           scaling:
-            min: 1
+            min: 0
             max: 1
             ha: 1
           memory: 256
@@ -180,7 +180,6 @@ instance_groups:
         - name: opi-server
           protocol: TCP
           internal: 8085
-
 - name: bits
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -225,7 +224,6 @@ instance_groups:
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
-
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -557,7 +555,8 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            min: 1
+            default: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -567,7 +566,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - head -c0 </dev/tcp/${HOSTNAME}/8891
+              - head -c0 </dev/tcp/${HOSTNAME}/8889
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -592,14 +591,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: locket
-    release: diego
-    properties:
-      bosh_containerization:
-        ports:
-        - name: locket
-          protocol: TCP
-          internal: 8891
   tags:
   - active-passive
   - sequential-startup
@@ -607,10 +598,60 @@ instance_groups:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
+- name: locket
+  environment_scripts:
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: locket
+    release: diego
+    properties:
+      bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: [SYS_RESOURCE]
+          memory: 128
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - head -c0 </dev/tcp/${HOSTNAME}/8891
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - locket
+                  topologyKey: "beta.kubernetes.io/os"
+          service-account: privileged
+        ports:
+        - name: locket
+          protocol: TCP
+          internal: 8891
+  configuration:
+    templates:
+      properties.locket.hostname: '"locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1399,7 +1440,8 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            min: 1
+            default: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -1433,7 +1475,7 @@ instance_groups:
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
@@ -1512,7 +1554,8 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            min: 1
+            default: 1
+            min: 0
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -1648,7 +1691,8 @@ instance_groups:
         # Instance group needs volume claim templates (see storage below), no LB => clustered
         run:
           scaling:
-            min: 1
+            default: 1
+            min: 0
             max: 254
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
@@ -1713,7 +1757,7 @@ instance_groups:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -2609,7 +2653,7 @@ configuration:
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
@@ -2655,12 +2699,9 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-
-    properties.cc.opi.cc_uploader_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.opi.enabled: ((ENABLE_EIRINI))
     properties.cc.opi.opi_staging: ((ENABLE_EIRINI))
     properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
-
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2702,7 +2743,7 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.auctioneer.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
@@ -2715,6 +2756,7 @@ configuration:
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_CERT_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.bbs.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
@@ -2732,7 +2774,7 @@ configuration:
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.placement_tags: "[((KUBE_PZ))]"
     properties.diego.rep.zone: '"((KUBE_AZ))"'
@@ -2774,7 +2816,7 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.locks.locket.hostname: diego-api-locket.((KUBERNETES_NAMESPACE))
+    properties.locks.locket.hostname: locket-locket.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_CERT_KEY))
@@ -2847,7 +2889,7 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_CERT_KEY))"}]((/ROUTER_TLS_PEM))'
-    properties.routing_api.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.routing_api.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
@@ -3858,7 +3900,7 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - diego-api-locket.{{.KUBERNETES_NAMESPACE}}
+    - locket-locket.{{.KUBERNETES_NAMESPACE}}
     - 127.0.0.1
     description: PEM-encoded client certificate
     required: true
@@ -3924,7 +3966,7 @@ variables:
     description: "The namespace used by Eirini for deploying applications."
 - name: ENABLE_EIRINI
   options:
-    default: 'true'
+    default: 'false'
     description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
 
 - name: ENABLE_SECURITY_EVENT_LOGGING
