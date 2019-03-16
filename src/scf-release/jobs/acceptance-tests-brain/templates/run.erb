@@ -48,9 +48,13 @@ for i in "${ASSETS}/plugins/"*; do
 done
 shopt -u nullglob
 
-PARAM="--timeout 600 --verbose"
+PARAM="--timeout 600"
 
-if [ -n "${IN_ORDER}" ]; then
+if [[ "${VERBOSE}" == "true" || "${VERBOSE}" == "1" ]]; then
+    PARAM="${PARAM} --verbose"
+fi
+
+if [[ "${IN_ORDER}" == "true" || "${IN_ORDER}" == "1" ]]; then
     PARAM="${PARAM} --in-order"
 fi
 

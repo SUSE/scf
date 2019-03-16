@@ -24,13 +24,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
   sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
 - name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.273.0"
-  version: "1.273.0"
-  sha1: "fdd2e8cd44ca619f5400c7ed3237633ddfa85e96"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.274.0"
+  version: "1.274.0"
+  sha1: "c445d573ff1ec25046adb79f86511155670484b7"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.67.0"
-  version: "0.67.0"
-  sha1: "19fb3be6fe60c4ed276342f880bbe8114412fbab"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.71.0"
+  version: "0.71.0"
+  sha1: "33a22f6cf0829bcddf92bf0a829968373d965e47"
 - name: credhub
   version: 2.1.1
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.1
@@ -80,29 +80,29 @@ releases:
   version: "1.0.30.1"
   sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.34.2.tgz"
-  version: "1.8.34.2"
-  sha1: "30fd60ce04e8fe9bdb29aea5593f0ff4793f7bae"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.35.1.tgz"
+  version: "1.8.35.1"
+  sha1: "892149a994765280320e221bba9193bca2c7a664"
 - name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.2.1.tgz"
   version: "4.17.2.1"
   sha1: "85e847c3fb6336342246d5cda3ff2098bbf63804"
 - name: nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.44.2.tgz"
-  version: "1.6.44.2"
-  sha1: "49e6346d1210955fbed3ad333f9e97e41693343c"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.45.1.tgz"
+  version: "1.6.45.1"
+  sha1: "d144e82785b4618655d6649ace1bd0bc43e3df1f"
 - name: php-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.70.2.tgz"
   version: "4.3.70.2"
   sha1: "965ae8f861f9391652ee21eba4c43062cffb25d1"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.28.2.tgz"
-  version: "1.6.28.2"
-  sha1: "41ee86e4be95993edc9bd7f4f2bf0a92897d4801"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.29.1.tgz"
+  version: "1.6.29.1"
+  sha1: "4794dd4e28f1016962ae22005e646c5ce765ff22"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.33.1.tgz"
-  version: "1.7.33.1"
-  sha1: "6512c7b58b531edba8fd9e9279915f7360deeed3"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.34.1.tgz"
+  version: "1.7.34.1"
+  sha1: "3d62c31cc4cafe2cc72441426fb2e2621592a426"
 - name: staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.40.1.tgz"
   version: "1.4.40.1"
@@ -112,9 +112,9 @@ releases:
   version: "1.0.9.1"
   sha1: "43dc14df3fb919d5603fc6cd9fb90d33f31af06c"
 - name: dotnet-core-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
-  version: "2.0.3"
-  sha1: "2b421702ee71687d10c2e9a296475b33e6d77b16"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.7.1.tgz"
+  version: "2.2.7.1"
+  sha1: "dc3f525c02701b06d60e31dfeb7c677806bfff35"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
@@ -124,9 +124,13 @@ releases:
   version: "1.24.1"
   sha1: "f92e6b675fecd600723e32505b25535faff8db14"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.68.2.tgz"
-  version: "1.68.2"
-  sha1: "ebf5d0abc8dfdee2cd5bad435d49c7f15cdbfb05"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.74.1.tgz"
+  version: "1.74.1"
+  sha1: "1a2596e59c9763c32a58799cb59b327d7ea6e6a8"
+- name: sle15
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-3.2.tgz"
+  version: "3.2"
+  sha1: "a0c7f716639339b1fff0cf6e44d158d36eaf9ffa"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -226,6 +230,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 - name: syslog-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -276,6 +281,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: adapter
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -331,6 +337,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -383,6 +390,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: mysql
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
   - scripts/patches/fix_mysql_advertise_ip.sh
@@ -481,6 +489,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -540,6 +549,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -657,6 +667,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -729,6 +740,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -796,6 +808,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -856,6 +869,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
   - scripts/forward_logfiles.sh
@@ -955,6 +969,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name": "api", "port": ((CC_PORT_PUBLIC_INSECURE)), "tls_port": ((CC_PORT_PUBLIC_TLS)), "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1002,6 +1017,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
@@ -1051,6 +1067,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_wait_for_api_ready.sh
   - scripts/patches/cc_clock_disable_credhub.sh
@@ -1099,6 +1116,7 @@ instance_groups:
         pod-security-policy: privileged
 - name: log-cache-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/fix_logcache_certs_forwarder.sh
@@ -1167,6 +1185,7 @@ instance_groups:
         ]
 - name: doppler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1358,6 +1377,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1425,6 +1445,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1483,6 +1504,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1539,6 +1561,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -1597,6 +1620,7 @@ instance_groups:
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/nfsbroker_cert_prop.sh
@@ -1652,6 +1676,7 @@ instance_groups:
   - scripts/configure-pz.sh
   scripts:
   - scripts/check_swapaccounting.sh
+  - scripts/set_vcap_limits.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
@@ -1739,6 +1764,8 @@ instance_groups:
     release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
+  - name: sle15-rootfs-setup
+    release: sle15
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -1894,6 +1921,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -1952,6 +1980,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-postgres
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1989,6 +2018,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -2030,6 +2060,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2055,6 +2086,7 @@ instance_groups:
           internal: 7103
 - name: autoscaler-scalingengine
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2080,6 +2112,7 @@ instance_groups:
           internal: 7104
 - name: autoscaler-scheduler
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2105,6 +2138,7 @@ instance_groups:
           internal: 7102
 - name: autoscaler-operator
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2127,6 +2161,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -2170,6 +2205,7 @@ instance_groups:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-eventgenerator
   scripts:
+  - scripts/set_vcap_limits.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
@@ -2326,11 +2362,14 @@ configuration:
         resources: [services]
         verbs: [create, get, delete]
       - apiGroups: [extensions]
-        resources: [deployments, replicasets]
+        resources: [replicasets]
         verbs: [create, get, list, delete, update]
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [create, get, update, delete]
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: [create, get, list, delete, update]
       - apiGroups: [""]
         resources: ["pods/exec"]
         verbs: [create, delete]
@@ -2934,6 +2973,7 @@ configuration:
     properties.scf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.scf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.scf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -4722,3 +4762,13 @@ variables:
     default: false
     description: Whether or not to use privileged containers for staging tasks.
     required: true
+- name: VCAP_HARD_NPROC
+  options:
+    description: The hard limit of the number of processes for the vcap user.
+    internal: true
+    required: false
+- name: VCAP_SOFT_NPROC
+  options:
+    description: The soft limit of the number of processes for the vcap user.
+    internal: true
+    required: false

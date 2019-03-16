@@ -4,11 +4,14 @@ require_relative 'testutils'
 require 'base64'
 require 'json'
 
+NAMESPACE = ENV['KUBERNETES_NAMESPACE']
+STATEFULSET_NAME = 'credhub-user'
+
+# Check if credhub is running, otherwise skip the test.
+exit_skipping_test if !statefulset_ready(NAMESPACE, STATEFULSET_NAME)
+
 login
 setup_org_space
-
-# Shorter handle
-NS = ENV['KUBERNETES_NAMESPACE']
 
 CH_CLI = 'credhub'
 CH_SERVICE = "https://credhub.#{ENV['CF_DOMAIN']}"
@@ -23,14 +26,14 @@ CH_SERVICE = "https://credhub.#{ENV['CF_DOMAIN']}"
 #   just `nats` which would do. It was just the one which popped into
 #   my mind.
 
-nats_info = JSON.load capture("kubectl get pods --namespace #{NS} --selector app.kubernetes.io/component=nats -o json")
+nats_info = JSON.load capture("kubectl get pods --namespace #{NAMESPACE} --selector app.kubernetes.io/component=nats -o json")
 SECRET = nats_info['items'].map do |item|
     item['spec']['containers'].
         find { |c| c['name'] == 'nats' }['env'].
         find { |e| e['name'] == 'INTERNAL_CA_CERT' }['valueFrom']['secretKeyRef']['name']
 end.first
 
-secrets = JSON.load capture("kubectl get secrets --namespace #{NS} #{SECRET} -o json")
+secrets = JSON.load capture("kubectl get secrets --namespace #{NAMESPACE} #{SECRET} -o json")
 CH_SECRET = Base64.decode64(secrets['data']['uaa-clients-credhub-user-cli-secret'])
 CH_CLIENT = 'credhub_user_cli'
 

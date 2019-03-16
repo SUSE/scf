@@ -551,8 +551,9 @@ pipeline {
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
                     export DOMAIN="${domain()}"
                     export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
-                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
@@ -621,9 +622,9 @@ pipeline {
                     export SCF_SECRETS_GENERATION_COUNTER=2
                     export SCF_ENABLE_AUTOSCALER=1
                     export SCF_ENABLE_CREDHUB=1
-
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/upgrade \
-                        --set env.SCF_LOG_HOST="log-\$(uuidgen | tr -dC a-f0-9 | cut -c 1-16).${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     # Ensure old pods have time to terminate
                     sleep 60
@@ -870,9 +871,10 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
             // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
             script {
-                if ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') && fileExists('bin/clean-jenkins-log')) {
+                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
                     writeFile(file: 'build.log', text: getBuildLog())
-                    sh 'bin/clean-jenkins-log'
+                    sh "bin/clean-jenkins-log"
+                    sh "container-host-files/opt/scf/bin/klog.sh -f ${jobBaseName()}-${BUILD_NUMBER}-scf"
                     withAWS(region: params.S3_REGION) {
                         withCredentials([usernamePassword(
                             credentialsId: params.S3_CREDENTIALS,
@@ -880,12 +882,19 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                         )]) {
                             script {
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}"
                                 def prefix = distPrefix()
+                                // Trimming trailing "-" from path as distPrefix() returns "PR-${CHANGE_ID}-".
+                                prefix = prefix.substring(0, prefix.length() - 1)
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",
-                                    path: "${subdir}${prefix}${env.BUILD_TAG}",
+                                    path: "${subdir}",
+                                )
+                                s3Upload(
+                                    file: 'klog.tar.gz',
+                                    bucket: "${params.S3_LOG_BUCKET}",
+                                    path: "${subdir}",
                                 )
                             }
                         }
