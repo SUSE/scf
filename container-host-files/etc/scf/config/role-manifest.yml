@@ -608,6 +608,7 @@ instance_groups:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
@@ -659,9 +660,6 @@ instance_groups:
         - name: locket
           protocol: TCP
           internal: 8891
-  configuration:
-    templates:
-      properties.locket.hostname: '"locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
