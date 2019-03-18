@@ -2508,7 +2508,7 @@ configuration:
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
     properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
-    properties.backends.tls.ca_certificates: '"((INTERNAL_CA_CERT))"'
+    properties.backends.tls.ca_certificates: '["((INTERNAL_CA_CERT))"]'
     properties.backends.tls.client_certificate: '"((SSH_PROXY_BACKENDS_TLS_CERT))"'
     properties.backends.tls.client_private_key: '"((SSH_PROXY_BACKENDS_TLS_CERT_KEY))"'
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
