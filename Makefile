@@ -29,11 +29,25 @@ run:
 	make/run
 	make/ingress/update_secrets
 
+run-eirini: 
+	make/ingress/run
+	make/uaa/run
+	make/wait uaa
+	make/run-eirini
+	make/ingress/update_secrets
+
 upgrade:
 	make/ingress/run
 	make/uaa/upgrade
 	make/wait uaa
 	make/upgrade
+	make/ingress/update_secrets
+
+upgrade-eirini:
+	make/ingress/run
+	make/uaa/upgrade
+	make/wait uaa
+	make/upgrade-eirini
 	make/ingress/update_secrets
 
 wait:
@@ -152,7 +166,11 @@ uaa-helm: ${FISSILE_BINARY}
 scf-release:
 	make/bosh-release src/scf-release
 
+eirini-release:
+	make/bosh-release src/eirini-release
+
 releases: \
+	eirini-release \
 	scf-release \
 	uaa-releases \
 	${NULL}

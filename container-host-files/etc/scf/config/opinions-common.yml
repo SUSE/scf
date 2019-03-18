@@ -141,11 +141,37 @@ properties:
       port: 7107
       publicPort: 7101
       require_consul: false
+  bits-service:
+    active_signing_key:
+      key_id: key1
+    app_stash:
+      blobstore_type: webdav
+      directory_key: cc-resources
+      webdav_config:
+        username: blobstore_user
+    buildpacks:
+      blobstore_type: webdav
+      directory_key: cc-buildpacks
+      webdav_config:
+        username: blobstore_user
+    droplets:
+      blobstore_type: webdav
+      directory_key: cc-droplets
+      webdav_config:
+        username: blobstore_user
+    packages:
+      blobstore_type: webdav
+      directory_key: cc-packages
+      webdav_config:
+        username: blobstore_user      
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
+    bits_service:
+      enabled: true 
+      username: admin
     buildpacks:
       blobstore_type: webdav
       webdav_config:
@@ -289,8 +315,6 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
-      locket:
-        api_location: 127.0.0.1:8891
       rep:
         require_tls: true
       skip_consul_lock: true

@@ -22,3 +22,6 @@
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/rails-example"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/rails-example
 	url = https://github.com/scf-samples/rails-example.git
+[submodule "src/eirini-release"]
+	path = src/eirini-release
+	url = https://github.com/SUSE/eirini-bosh-release.git
