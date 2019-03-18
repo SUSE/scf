@@ -127,7 +127,7 @@ a working system.
    The default stemcell and stack are set to SUSE Linux Enterprise. The versions are defined
    in `bin/common/versions.sh`.
 
-   The `FISSILE_DOCKER_REPOSITORY` env var will need to be set, and Docker
+   The `FISSILE_DOCKER_REPOSITORY` environment variable will need to be set, and Docker
    configured to login to the repository.
 
    After changing the stemcell you have to remove the contents of
