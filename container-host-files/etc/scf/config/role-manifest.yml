@@ -2508,6 +2508,9 @@ configuration:
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
     properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
+    properties.backends.tls.ca_certificates: '"((INTERNAL_CA_CERT))"'
+    properties.backends.tls.client_certificate: '"((SSH_PROXY_BACKENDS_TLS_CERT))"'
+    properties.backends.tls.client_private_key: '"((SSH_PROXY_BACKENDS_TLS_CERT_KEY))"'
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2665,9 +2668,6 @@ configuration:
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
-    properties.backends.ca_certificates: '"((INTERNAL_CA_CERT))"'
-    properties.backends.client_certificate: '"((SSH_PROXY_BACKENDS_TLS_CERT))"'
-    properties.backends.client_private_key: '"((SSH_PROXY_BACKENDS_TLS_CERT_KEY))"'
     properties.domain: '"((DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
@@ -4276,6 +4276,23 @@ variables:
     description: The protocol used by rsyslog to talk to the log destination. The
       allowed values are tcp, and udp. The default is tcp.
     required: true
+- name: SSH_PROXY_BACKENDS_TLS_CERT
+  type: certificate
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+    extended_key_usage:
+    - client_auth
+    common_name: ssh_proxy_backends_tls
+    alternative_names:
+    - ssh-proxy.service.cf.internal
+- name: SSH_PROXY_BACKENDS_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
 - name: STAGING_TIMEOUT
   options:
     default: 900
@@ -4493,20 +4510,3 @@ variables:
     description: The soft limit of the number of processes for the vcap user.
     internal: true
     required: false
-- name: SSH_PROXY_BACKENDS_TLS_CERT
-  type: certificate
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    description: PEM-encoded certificate
-    required: true
-    extended_key_usage:
-    - client_auth
-    common_name: ssh_proxy_backends_tls
-    alternative_names:
-    - ssh-proxy.service.cf.internal
-- name: SSH_PROXY_BACKENDS_TLS_CERT_KEY
-  options:
-    secret: true
-    description: PEM-encoded key
-    required: true
