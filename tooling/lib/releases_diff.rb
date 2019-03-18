@@ -33,11 +33,11 @@ class ReleasesDiff
         # Path to the current partial manifest
         @current_src_path=File.join(ReleasesDiff.git_root, current_manifest_path)
 
-        stack = ENV["FISSILE_LIGHT_OPINIONS"]
+        FISSILE_LIGHT_OPINIONS = ENV["FISSILE_LIGHT_OPINIONS"]
 
         FileUtils.mkdir_p temp_work_dir
-        system("  cat #{stack}   #{@current_src_path}                              > #{@current_manifest}")
-        system("( cat #{stack} ; git show #{old_commit}:#{current_manifest_path} ) > #{@old_manifest}")
+        system("  cat #{FISSILE_LIGHT_OPINIONS}   #{@current_src_path}                              > #{@current_manifest}")
+        system("( cat #{FISSILE_LIGHT_OPINIONS} ; git show #{old_commit}:#{current_manifest_path} ) > #{@old_manifest}")
 
         # Where output will be printed
         $stdout.sync = true
