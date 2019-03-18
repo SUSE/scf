@@ -2,16 +2,16 @@
 
 set -o errexit -o nounset
 
-DIRECTORY_BLACKLIST=".*-buildpack|cflinuxfs2|opensuse42|busybox|golang.*"
+DIRECTORY_BLACKLIST=".*-buildpack|cflinuxfs2|cflinuxfs3|sle12|sle15|opensuse42|opensuse15|busybox|golang.*"
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
 BASEDIR="$FISSILE_WORK_DIR/compilation"
 
 OUTPUTDIR="$GIT_ROOT/source-output"
 SRC_DIR="$GIT_ROOT/src/"
-pushd "${SRC_DIR}" > /dev/null
-SRC_FILES=$(find * -type f -name *.yml)
+
+pushd ${GIT_ROOT} > /dev/null
+SRC_FILES=$(find . -type f \( -iname "*.MF" -o -iname "*.yml" \))
 popd > /dev/null
 
 TEMPLATE_FILE=$(cat <<EOF
@@ -62,18 +62,39 @@ do
   RELEASE_HASH=$(echo "${DIR}" | cut -d/ -f2)
 
   # get first folder name for distinguish files later
-  pushd "${GIT_ROOT}/src" > /dev/null
+  pushd "${GIT_ROOT}" > /dev/null
+  STAGE=""
+  MANIFEST_FILE=""
   for FILE in $SRC_FILES; do
-    STAGE=$(grep -m1 -H "${RELEASE_HASH}" "${FILE}" 2>/dev/null|sed -e 's/\/.*$//g' -) 
-    if [ -n "$STAGE" ]; then
+    if grep -q -m1 -H "${RELEASE_HASH}" "${FILE}"; then
+      MANIFEST_FILE=$FILE
       break
     fi
   done
-  popd > /dev/null
-  if [ -z "$STAGE" ]; then
+  if [ -z "$MANIFEST_FILE" ]; then
     echo "############################### Failed to find package $RELEASE_HASH in $SRC_DIR"
     exit 1
   fi
+
+  if echo $MANIFEST_FILE | grep -q ".MF"; then
+  # Extract stage name from .MF files
+STAGE=`ruby -ryaml -ruri <<EOF
+manifest = YAML.load_file("$MANIFEST_FILE")
+puts manifest["name"]
+EOF
+`
+  else
+  # Extract the stage from the path
+  # E.g ./src/scf-release/.dev_builds/packages/acceptance-tests/index.yml
+  # STAGE=scf-release
+    STAGE=$(grep -m1 -H "${RELEASE_HASH}" "${MANIFEST_FILE}" 2>/dev/null | sed -e 's/\.\/src\/\([^/]*\)\/.*$/\1/g' -)
+  fi
+
+  if [ -z "$STAGE" ]; then
+    echo "STAGE NOT FOUND"
+    exit 1
+  fi
+  popd > /dev/null
 
   echo "Creating tar archive for $SOURCE_NAME (stage: ${STAGE} source size: $SOURCE_SIZE)"
   PACKAGE_FILE_NAME_BASE="$OUTPUTDIR/scf_${STAGE}_${SOURCE_NAME}" 
