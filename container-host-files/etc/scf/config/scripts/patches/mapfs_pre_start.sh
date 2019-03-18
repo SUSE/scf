@@ -63,7 +63,6 @@ index 7574622..f3cba25 100644
 +        modprobe fuse
 +        ;;
 +    *suse-*)
-+        # SUSE
 +        zypper --non-interactive --quiet install fuse
 +        ;;
 +esac
