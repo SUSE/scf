@@ -318,6 +318,9 @@ properties:
         user: nats
     ssh_proxy:
       enable_cf_auth: true
+  backends:
+    tls:
+      enabled: true
   enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0

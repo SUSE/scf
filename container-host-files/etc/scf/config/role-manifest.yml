@@ -2665,6 +2665,9 @@ configuration:
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
+    properties.backends.ca_certificates: '"((INTERNAL_CA_CERT))"'
+    properties.backends.client_certificate: '"((SSH_PROXY_BACKENDS_TLS_CERT))"'
+    properties.backends.client_private_key: '"((SSH_PROXY_BACKENDS_TLS_CERT_KEY))"'
     properties.domain: '"((DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
@@ -3961,7 +3964,7 @@ variables:
     required: true
 - name: LOG_LEVEL
   options:
-    default: info
+    default: debug
     description: >
       The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2.
     required: true
@@ -4490,3 +4493,20 @@ variables:
     description: The soft limit of the number of processes for the vcap user.
     internal: true
     required: false
+- name: SSH_PROXY_BACKENDS_TLS_CERT
+  type: certificate
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+    required: true
+    extended_key_usage:
+    - client_auth
+    common_name: ssh_proxy_backends_tls
+    alternative_names:
+    - ssh-proxy.service.cf.internal
+- name: SSH_PROXY_BACKENDS_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key
+    required: true
