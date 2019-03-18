@@ -173,11 +173,6 @@ pipeline {
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
-            name: 'TEST_SCALER',
-            defaultValue: true,
-            description: 'Run app-autoscaler smoke test',
-        )
-        booleanParam(
             name: 'TEST_CATS',
             defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
@@ -663,27 +658,6 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('brain', 'failure')
-                }
-            }
-        }
-
-        stage('scaler') {
-            when {
-                // Since we have autoescaler off by default, don't bother
-                // testing the autoscaler unless we've rotated the secrets
-                // (which also enables the autoscaler)
-                expression { return params.TEST_SCALER && params.TEST_ROTATE }
-            }
-            steps {
-                setBuildStatus('scaler', 'pending')
-                runTest('autoscaler-smoke')
-            }
-            post {
-                success {
-                    setBuildStatus('scaler', 'success')
-                }
-                failure {
-                    setBuildStatus('scaler', 'failure')
                 }
             }
         }

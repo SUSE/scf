@@ -37,7 +37,8 @@ def _print_command(*args)
     cmd.pop if cmd.last.is_a? Hash
     opts = $opts.dup
     opts.merge! args.last if args.last.is_a? Hash
-    STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if opts[:xtrace]
+    STDERR.puts "#{c_bold}+ #{cmd.join(" ")}#{c_reset}" if opts[:xtrace]
+    STDERR.flush
 end
 
 # Run the given command line, and return the exit status (as a Process::Status).
@@ -57,7 +58,7 @@ def run(*args)
     return unless opts[:errexit]
     unless status.success?
         # Print an error at the failure site
-        puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
+        puts "#{c_red}Command exited with #{status.exitstatus}#{c_reset}"
         fail "Command exited with #{status.exitstatus}"
     end
 end
@@ -70,7 +71,7 @@ def capture(*args)
     if $opts[:errexit]
         unless status.success?
             # Print an error at the failure site.
-            puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
+            puts "#{c_red}Command exited with #{status.exitstatus}#{c_reset}"
             fail "Command exited with #{status.exitstatus}"
         end
     end
@@ -196,4 +197,20 @@ end
 # Exit the test with the code that marks it as skipped.
 def exit_skipping_test()
     Process.exit 99
+end
+
+def c_bold
+  "\e[0;1m"
+end
+
+def c_red
+  "\e[1;31m"
+end
+
+def c_green
+  "\e[0;32m"
+end
+
+def c_reset
+  "\e[0m"
 end
