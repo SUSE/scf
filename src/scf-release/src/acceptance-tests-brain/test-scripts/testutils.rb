@@ -175,16 +175,26 @@ def cf_curl(*args)
     JSON.parse output
 end
 
-def statefulset_ready(namespace, statefulset, sleep_duration=5)
-    begin
-        output = capture("kubectl get statefulset --namespace #{namespace} #{statefulset} --no-headers")
-        return false if output.empty?
-        _, ready, _ = output.split # Columns: NAME, READY, AGE.
-        return true if /([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\/\1/.match(ready)
-        return false
-    rescue RuntimeError
-        return false
+def statefulset_ready(namespace, statefulset)
+    if namespace.nil? || namespace.strip.empty?
+        fail RuntimeError, "namespace must be set"
     end
+    if statefulset.nil? || statefulset.strip.empty?
+        fail RuntimeError, "statefulset must be set"
+    end
+    stdout, stderr, status = Open3.capture3 %W(
+      kubectl get statefulset
+        --no-headers
+        --namespace #{namespace}
+        #{statefulset}
+    )
+    puts stdout
+    puts stderr
+    return false unless status.success?
+    return false if stdout.empty?
+    _, ready, _ = stdout.chomp.split # Columns: NAME, READY, AGE.
+    return true if /([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\/\1/.match(ready)
+    return false
 end
 
 def exit_skipping_test()

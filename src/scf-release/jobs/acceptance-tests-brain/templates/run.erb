@@ -48,7 +48,7 @@ for i in "${ASSETS}/plugins/"*; do
 done
 shopt -u nullglob
 
-PARAM="--timeout 600"
+PARAM="--timeout 600 --verbose"
 
 if [[ "${VERBOSE}" == "true" || "${VERBOSE}" == "1" ]]; then
     PARAM="${PARAM} --verbose"
@@ -61,7 +61,7 @@ fi
 if [ -n "${INCLUDE}" ]; then
     PARAM="${PARAM} --include ${INCLUDE}"
 else
-    PARAM="${PARAM} --include _test.rb"
+    PARAM="${PARAM} --include credhub"
 fi
 
 if [ -n "${EXCLUDE}" ]; then
