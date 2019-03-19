@@ -5,14 +5,14 @@ distribution based on the open source version but with several very key
 differences:
 
 * Uses [fissile](https://github.com/suse/fissile) to containerize the CF components, for running on top of Kubernetes (and Docker)
-* CF Components run on an SUSE Linux Enterprise Stemcell
-* CF Apps optionally can run on a preview of the SUSE Linux Enterprise Stack (rootfs + buildpacks)
+* CF Components run on an openSUSE Stemcell
+* CF Apps optionally can run on a preview of the OpenSUSE Stack (rootfs + buildpacks)
 
 # Disclaimer
 
 Fissile has been around for a few years now and its containerization technology
 is fairly stable; however deploying directly to kubernetes is relatively new, as is the
-SLE stack and stemcell. This means that things are liable to break as we continue
+OpenSUSE stack and stemcell. This means that things are liable to break as we continue
 development. Specifically links and where things are hosted are still in flux and will most
 likely break.
 
@@ -21,7 +21,7 @@ be a known working quantity:
 
 | OS             | Virtualization |
 |----------------|----------------|
-| SLE 15         | Libvirt        |
+| OpenSUSE 42.x  | Libvirt        |
 | Mac OSX Sierra | VirtualBox     |
 
 For more production-like deploys we've been targetting baremetal Kubernetes 1.6.1 (using only 1.5 features)
@@ -124,11 +124,14 @@ a working system.
     ```
 3. Changing the default STEMCELL and STACK
 
-   The default stemcell and stack are set to SUSE Linux Enterprise. The versions are defined
+   The default stemcell and stack are set to OpenSUSE. The versions are defined
    in `bin/common/versions.sh`.
 
-   The `FISSILE_DOCKER_REPOSITORY` environment variable will need to be set, and Docker
-   configured to login to the repository.
+   To build with the SLE stemcell and stack, the environment variable
+   `USE_SLE_BASE` must be set to `true` before you enter the `scf` directory.
+   This allows direnv to configure the various stemcell and stack env vars. The
+   `FISSILE_DOCKER_REPOSITORY` env var will need to be set, and Docker configured
+   to login to the repository.
 
    After changing the stemcell you have to remove the contents of
    `~vagrant/.fissile/compilation` and `~vagrant/scf/.fissile/compilation` inside
@@ -139,6 +142,7 @@ a working system.
 
    ```
    $ cd ~
+   $ export USE_SLE_BASE=true
    $ export FISSILE_DOCKER_REPOSITORY=registry.example.com
    $ docker login ${FISSILE_DOCKER_REPOSITORY} -u username -p password
    $ cd scf

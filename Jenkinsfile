@@ -238,6 +238,16 @@ pipeline {
             description: 'Docker organization to publish to',
         )
         booleanParam(
+            name: 'USE_SLE_BASE',
+            defaultValue: false,
+            description: 'Generates a build with the SLE stemcell and stack',
+        )
+        booleanParam(
+            name: 'TRIGGER_SLES_BUILD',
+            defaultValue: false,
+            description: 'Trigger a SLES version of this job',
+        )
+        booleanParam(
             name: 'STARTED_BY_TRIGGER',
             defaultValue: false,
             description: 'Guard to ensure master builds are started by a trigger',
@@ -258,6 +268,7 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
+        USE_SLE_BASE = "${params.USE_SLE_BASE}"
     }
 
     stages {
@@ -272,6 +283,15 @@ pipeline {
                     }
                 }
             }
+        }
+
+        stage('trigger_sles_build') {
+          when {
+                expression { return params.TRIGGER_SLES_BUILD }
+          }
+          steps {
+            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
+          }
         }
 
         stage('wipe') {
@@ -421,7 +441,7 @@ pipeline {
                             }
                             echo "Found expected version: ${expectedVersion}"
 
-                            def glob = "*scf-sle-${expectedVersion}.*.zip"
+                            def glob = "*scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-${expectedVersion}.*.zip"
                             def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
@@ -462,8 +482,13 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
+                    if [ "$USE_SLE_BASE" == "true" ]; then
+                        OS="sle"
+                    else
+                        OS="opensuse"
+                    fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/*-sle-*.zip output/*-sle-*.tgz
+                    rm -f output/*-${OS}-*.zip output/*-${OS}-*.tgz
                     make helm bundle-dist
                 '''
             }
@@ -479,18 +504,26 @@ pipeline {
                     source \${PWD}/.envrc
                     set -x
 
+                    suffix=""
+                    if [ "${params.USE_SLE_BASE}" == "true" ]; then
+                        OS="sle"
+                    else
+                        OS="opensuse"
+                        suffix="-opensuse"
+                    fi
+
                     kubectl delete storageclass hostpath || /bin/true
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath","annotations":{"storageclass.kubernetes.io/is-default-class":"true"}},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-sle-*.zip -d output/unzipped
+                    unzip -e output/scf-\${OS}-*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    helm install output/unzipped/helm/uaa \
+                    helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.DOMAIN=${domain()} \
@@ -517,7 +550,7 @@ pipeline {
                     export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
                     export DOMAIN="${domain()}"
-                    export CF_CHART="output/unzipped/helm/cf"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
@@ -543,6 +576,11 @@ pipeline {
                     source \${PWD}/.envrc
                     set -x
 
+                    suffix=""
+                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
+                        suffix="-opensuse"
+                    fi
+
                     . make/include/secrets
 
                     # Get the last updated secret
@@ -555,7 +593,7 @@ pipeline {
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa \
+                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa\${suffix} \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
@@ -580,7 +618,7 @@ pipeline {
                     export DOMAIN="${domain()}"
                     export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
-                    export CF_CHART="output/unzipped/helm/cf"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
                     export SCF_SECRETS_GENERATION_COUNTER=2
                     export SCF_ENABLE_AUTOSCALER=1
                     export SCF_ENABLE_CREDHUB=1
@@ -767,7 +805,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/*-sle-*")
+                            def files = findFiles(glob: "output/*-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*")
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
