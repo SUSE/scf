@@ -2744,7 +2744,6 @@ configuration:
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.public_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.cc.public_tls.certificate: '"((CC_PUBLIC_TLS_CERT))"'
-    properties.cc.public_tls.port: '"9024"'
     properties.cc.public_tls.private_key: '"((CC_PUBLIC_TLS_CERT_KEY))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
