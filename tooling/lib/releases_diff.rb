@@ -33,11 +33,16 @@ class ReleasesDiff
         # Path to the current partial manifest
         @current_src_path=File.join(ReleasesDiff.git_root, current_manifest_path)
 
-        FISSILE_LIGHT_OPINIONS = ENV["FISSILE_LIGHT_OPINIONS"]
+        # Path to the anchors for the current stack
+        if "#{ENV['USE_SLE_BASE']}" == "false"
+            stack = ENV['FISSILE_LIGHT_OPEN42']
+        else
+            stack = ENV['FISSILE_LIGHT_SLE12']
+        end
 
         FileUtils.mkdir_p temp_work_dir
-        system("  cat #{FISSILE_LIGHT_OPINIONS}   #{@current_src_path}                              > #{@current_manifest}")
-        system("( cat #{FISSILE_LIGHT_OPINIONS} ; git show #{old_commit}:#{current_manifest_path} ) > #{@old_manifest}")
+        system("  cat #{stack}   #{@current_src_path}                              > #{@current_manifest}")
+        system("( cat #{stack} ; git show #{old_commit}:#{current_manifest_path} ) > #{@old_manifest}")
 
         # Where output will be printed
         $stdout.sync = true
