@@ -11,17 +11,11 @@ GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
 tmp_dir=$(mktemp -d)
 trap "rm -rf '${tmp_dir}'" EXIT
 
-if [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
-    stemcell_os="opensuse"
-    suffix="-opensuse"
-elif [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-sle.*$ ]] ; then
-    stemcell_os="sle"
-    suffix=""
-else
+if [[ ! "${FISSILE_STEMCELL}" =~ ^.*fissile-stemcell-sle.*$ ]] ; then
     echo "Unknown stemcell operating system: ${FISSILE_STEMCELL}"
     exit 1
 fi
-ARCHIVE_ROOT="${GIT_ROOT}/output/scf-${stemcell_os}-${APP_VERSION}"
+ARCHIVE_ROOT="${GIT_ROOT}/output/scf-sle-${APP_VERSION}"
 
 echo Packaging, taking "${APP_VERSION}" ...
 
@@ -30,9 +24,9 @@ find "${tmp_dir}"
 mkdir -p "${tmp_dir}/helm"
 
 for project in uaa cf ; do
-    mkdir -p "${tmp_dir}/kube/${project}${suffix}"
-    tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-kube-${APP_VERSION}.tgz" -C "${tmp_dir}/kube/${project}${suffix}/"
-    tar xf "${GIT_ROOT}/output/${project}-${stemcell_os}-helm-${APP_VERSION}.tgz" -C "${tmp_dir}/helm/"
+    mkdir -p "${tmp_dir}/kube/${project}"
+    tar xf "${GIT_ROOT}/output/${project}-sle-kube-${APP_VERSION}.tgz" -C "${tmp_dir}/kube/${project}/"
+    tar xf "${GIT_ROOT}/output/${project}-sle-helm-${APP_VERSION}.tgz" -C "${tmp_dir}/helm/"
 done
 
 # "Am I Ok" for kube
