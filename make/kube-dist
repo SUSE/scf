@@ -6,7 +6,11 @@ GIT_ROOT="${GIT_ROOT:-$(git rev-parse --show-toplevel)}"
 
 . "${GIT_ROOT}/make/include/versioning"
 
-if [[ ! ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-sle.*$ ]] ; then
+if [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-opensuse.*$ ]] ; then
+    stemcell_os="opensuse"
+elif [[ ${FISSILE_STEMCELL} =~ ^.*fissile-stemcell-sle.*$ ]] ; then
+    stemcell_os="sle"
+else
     echo "Unknown stemcell operating system: ${FISSILE_STEMCELL}"
     exit 1
 fi
@@ -23,7 +27,7 @@ declare -A directories=(
 
 for project in "${!directories[@]}" ; do
     for variant in kube helm ; do
-        artifact="output/${project}-sle-${variant}-${APP_VERSION}.tgz"
+        artifact="output/${project}-${stemcell_os}-${variant}-${APP_VERSION}.tgz"
         (
             if test -r "${directories[${project}]}/${variant}/Chart.yaml" ; then
                 chart_name="$(awk '/^name:/ { print $2 }' "${directories[${project}]}/${variant}/Chart.yaml")"

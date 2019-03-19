@@ -119,6 +119,10 @@ releases:
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
+- name: opensuse42
+  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.24.1.tgz"
+  version: "1.24.1"
+  sha1: "f92e6b675fecd600723e32505b25535faff8db14"
 - name: cf-sle12
   url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.74.1.tgz"
   version: "1.74.1"
@@ -1754,6 +1758,8 @@ instance_groups:
     release: cflinuxfs2
   - name: cflinuxfs3-rootfs-setup
     release: cflinuxfs3
+  - name: opensuse42-rootfs-setup
+    release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
   - name: sle15-rootfs-setup
@@ -2888,6 +2894,7 @@ configuration:
     properties.nfsv3driver.ldap_svc_user: '"((PERSI_NFS_DRIVER_LDAP_USER))"'
     properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
 
     properties.opi.cc_ca: "((INTERNAL_CA_CERT))"
     properties.opi.cc_cert: "((CC_SERVER_CRT))"
@@ -3899,7 +3906,7 @@ variables:
     required: true
 - name: DEFAULT_STACK
   options:
-    default: sle12
+    default: *the-stack-name
     description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
