@@ -1,3 +1,3 @@
 {
-    "share" : "192.168.47.109/exports/foo"
+    "share" : "<EXTERNAL_IP>/exports/foo"
 }
