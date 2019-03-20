@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# This script contains helpers for running tests
+# This script contains helpers for running tests.
 
 require 'fileutils'
 require 'open3'
@@ -7,7 +7,7 @@ require 'securerandom'
 require 'shellwords'
 require 'tmpdir'
 
-# Global options, similar to shopts
+# Global options, similar to shopts.
 $opts = { errexit: true, xtrace: true }
 
 # Set global options.  If a block is given, the options are only active in that
@@ -40,7 +40,7 @@ def _print_command(*args)
     STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if opts[:xtrace]
 end
 
-# Run the given command line, and return the exit status (as a Process::Status)
+# Run the given command line, and return the exit status (as a Process::Status).
 def run_with_status(*args)
     _print_command(*args)
     args.last.delete :errexit if args.last.is_a? Hash
@@ -62,14 +62,14 @@ def run(*args)
     end
 end
 
-# Run the given command line, and return the output (stdout).  If errexit is
-# set, an error is raised on failure.
+# Run the given command line, and return the stadandard output.
+# If errexit is set, an error is raised on failure.
 def capture(*args)
     _print_command(*args)
     stdout, status = Open3.capture2(*args)
     if $opts[:errexit]
         unless status.success?
-            # Print an error at the failure site
+            # Print an error at the failure site.
             puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
             fail "Command exited with #{status.exitstatus}"
         end
@@ -77,7 +77,7 @@ def capture(*args)
     stdout.chomp
 end
 
-# Log in to the CF installation under test
+# Log in to the CF installation under test.
 def login
     run "cf api --skip-ssl-validation api.#{ENV['CF_DOMAIN']}"
     run "cf auth #{ENV['CF_USERNAME']} #{ENV['CF_PASSWORD']}"
@@ -102,7 +102,7 @@ def setup_org_space
     run "cf target -s #{$CF_SPACE}"
 end
 
-# Return the path to a test resource (in the `test-resources` directory)
+# Return the path to a test resource (in the `test-resources` directory).
 def resource_path(*parts)
     File.join(File.dirname(__dir__), 'test-resources', *parts)
 end
@@ -135,7 +135,7 @@ def run_with_retry(retries, interval)
 end
 
 # Poll the status of a Kubernetes namespace, until all the pods in that
-# namespace are ready and all the jobs have run
+# namespace are ready and all the jobs have run.
 def wait_for_namespace(namespace, sleep_duration=10)
     loop do
         output = capture("kubectl get pods --namespace #{namespace} --no-headers")
@@ -151,6 +151,7 @@ def wait_for_namespace(namespace, sleep_duration=10)
     end
 end
 
+# Wait for a cf service asynchronous operation to complete.
 def wait_for_async_service_operation(service_instance_name, retries=0)
     service_instance_guid = capture("cf service --guid #{service_instance_name}")
     return { success: false, reason: :not_found } if service_instance_guid == 'FAILED'
@@ -175,18 +176,26 @@ def cf_curl(*args)
     JSON.parse output
 end
 
-def statefulset_ready(namespace, statefulset, sleep_duration=5)
-    begin
-        output = capture("kubectl get statefulset --namespace #{namespace} #{statefulset} --no-headers")
-        return false if output.empty?
-        _, ready, _ = output.split # Columns: NAME, READY, AGE.
-        return true if /([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\/\1/.match(ready)
-        return false
-    rescue RuntimeError
-        return false
+# Check if a statefulset is ready or not.
+def statefulset_ready(namespace, statefulset)
+    if namespace.nil? || namespace.strip.empty?
+        fail RuntimeError, "namespace must be set"
     end
+    if statefulset.nil? || statefulset.strip.empty?
+        fail RuntimeError, "statefulset must be set"
+    end
+    stdout, status = Open3.capture2(
+      'kubectl', 'get', 'statefulset',
+      '--output', 'go-template="{{ eq .status.replicas .status.readyReplicas }}"',
+      '--namespace', namespace,
+      statefulset,
+    )
+    puts "status: #{status.success?}"
+    puts "stdout: #{stdout}"
+    return status.success? && stdout == '"true"'
 end
 
+# Exit the test with the code that marks it as skipped.
 def exit_skipping_test()
     Process.exit 99
 end
