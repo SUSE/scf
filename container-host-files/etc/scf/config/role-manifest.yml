@@ -964,7 +964,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name": "api", "port": ((CC_PORT_PUBLIC_INSECURE)), "tls_port": ((CC_PORT_PUBLIC_TLS)), "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
+      properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
   scripts:
   - scripts/set_vcap_limits.sh
@@ -2649,7 +2649,7 @@ configuration:
     properties.bits-service.buildpacks.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
     properties.bits-service.buildpacks.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
     properties.bits-service.cc_updates.ca_cert: ((INTERNAL_CA_CERT))
-    properties.bits-service.cc_updates.cc_url: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):((CC_PORT_PUBLIC_TLS))/internal/v4/packages"
+    properties.bits-service.cc_updates.cc_url: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024/internal/v4/packages"
     properties.bits-service.cc_updates.client_cert: ((CC_PUBLIC_TLS_CERT))
     properties.bits-service.cc_updates.client_key: ((CC_PUBLIC_TLS_CERT_KEY))
     properties.bits-service.droplets.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
@@ -2744,7 +2744,6 @@ configuration:
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
     properties.cc.public_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.cc.public_tls.certificate: '"((CC_PUBLIC_TLS_CERT))"'
-    properties.cc.public_tls.port: '"((CC_PORT_PUBLIC_TLS))"'
     properties.cc.public_tls.private_key: '"((CC_PUBLIC_TLS_CERT_KEY))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
@@ -2764,8 +2763,8 @@ configuration:
     properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):((CC_PORT_PUBLIC_TLS))
-    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):((CC_PORT_PUBLIC_INSECURE)) # For post-deployment-setup, because cf cli has no client certs.
+    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024
+    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
@@ -3737,14 +3736,6 @@ variables:
     description: A map of labels and encryption keys
     secret: true
     default: "~"
-- name: CC_PORT_PUBLIC_INSECURE
-  options:
-    default: 9022
-    description: The CC port for plain HTTP communication.
-- name: CC_PORT_PUBLIC_TLS
-  options:
-    default: 9024
-    description: The CC port for TLS with gorouter.
 - name: CC_PUBLIC_TLS_CERT
   options:
     secret: true
