@@ -244,7 +244,7 @@ This means that you cannot connect to it from some other box.
 # Attach to the endpoint (self-signed certs in dev mode requires skipping validation).
 # cf-dev.io resolves to the static IP that vagrant provisions.
 # This DNS resolution may fail on certain DNS providers that block resolution to 192.168.0.0/16.
-# Unless you've changed the default credentials in the configuration, it is admin/changeme.
+# Unless you changed the default credentials in the configuration, it is admin/changeme.
 cf api --skip-ssl-validation https://api.cf-dev.io
 cf login -u admin -p changeme
 ```
