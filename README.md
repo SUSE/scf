@@ -183,7 +183,7 @@ a working system.
       `wicked ifreload all` and wait for wicked to apply the changes.
     - `VAGRANT_DHCP`: Set this to any value when using virtual networking (as opposed to bridged networking)
       in order to let your VM receive an IP via DHCP in the virtual network. If this environment variable is
-      unset, the VM will instead obtain the IP 192.168.77.77.
+      unset, the VM will instead obtain the IP cf-dev.io points to.
 
 
 **Note:** If every role does not go green in `pod-status --watch` refer to [Troubleshooting](#troubleshooting)
@@ -241,10 +241,10 @@ The way the vagrant box is created is by making a network with a static IP on th
 This means that you cannot connect to it from some other box.
 
 ```bash
-# Attach to the endpoint (self-signed certs in dev mode requires skipping validation)
-# cf-dev.io simply resolves to the static IP 192.168.77.77 that vagrant provisions
-# This DNS resolution may fail on certain DNS providers that block resolution to 192.168.*
-# Unless you've changed the default credentials in the configuration it's admin/changeme
+# Attach to the endpoint (self-signed certs in dev mode requires skipping validation).
+# cf-dev.io resolves to the static IP that vagrant provisions.
+# This DNS resolution may fail on certain DNS providers that block resolution to 192.168.0.0/16.
+# Unless you've changed the default credentials in the configuration, it is admin/changeme.
 cf api --skip-ssl-validation https://api.cf-dev.io
 cf login -u admin -p changeme
 ```
@@ -446,7 +446,7 @@ and execute the following commands:
 make smoke
 make brain
 make scaler-smoke
-make cats 
+make cats
 ```
 
 #### How do I run a subset of SCF acceptance tests?
@@ -510,7 +510,7 @@ You can access any URL or endpoint that references this address from your host.
 ### How do I connect to the Cloud Foundry database?
 
 1. Use the role manifest to expose the port for the mysql proxy role
-2. The MySQL instance is exposed at `192.168.77.77:3306`.
+2. The MySQL instance is exposed at `cf-dev.io:3306`.
 3. The default username is: `root`.
 4. You can find the password in the kubernetes secret.
 
@@ -608,7 +608,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
 
 1. In the manifest, update the version and SHA of the release(s)
 
-1. Compare the BOSH releases 
+1. Compare the BOSH releases
 
 
     ```bash
@@ -775,16 +775,17 @@ docker run -d --name nfs \
 
 ### Allow access to the NFS server
 
-- Security group JSON file (nfs-sg.json)
+- Security group JSON file (nfs-sg.json). Replace `<destination_ip>` by the
+  address returned from the command `getent hosts "cf-dev.io" | awk 'NR=1{print $1}'`:
 ```json
 [
     {
-        "destination": "192.168.77.77",
+        "destination": "<destination_ip>",
         "protocol": "tcp",
         "ports": "111,662,875,892,2049,32803"
     },
     {
-        "destination": "192.168.77.77",
+        "destination": "<destination_ip>",
         "protocol": "udp",
         "ports": "111,662,875,892,2049,32769"
     }
@@ -816,7 +817,8 @@ cf push pora --no-start
 cf enable-service-access persi-nfs
 
 # Create a service and bind it
-cf create-service persi-nfs Existing myVolume -c '{"share":"192.168.77.77/exports/foo"}'
+EXTERNAL_IP=$(getent hosts "cf-dev.io" | awk 'NR=1{print $1}')
+cf create-service persi-nfs Existing myVolume -c "{\"share\":\"${EXTERNAL_IP}/exports/foo\"}"
 cf bind-service pora myVolume -c '{"uid":"1000","gid":"1000"}'
 
 # Start the app
