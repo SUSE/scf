@@ -62,7 +62,7 @@ def run(*args)
     end
 end
 
-# Run the given command line, and return the stadandard output.
+# Run the given command line, and return the standard output.
 # If errexit is set, an error is raised on failure.
 def capture(*args)
     _print_command(*args)
