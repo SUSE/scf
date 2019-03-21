@@ -719,6 +719,170 @@ pipeline {
             }
         }
 
+        stage('deploy-eirini') {
+            when {
+                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+            }
+            steps {
+                // Cleanup scf namespace and deploy again with eirini enabled
+                sh '''
+                    #!/bin/bash
+                    dump_info() {
+                        kubectl get namespace
+                        helm list --all
+                        docker ps -a
+                        docker images
+                    }
+                    trap dump_info EXIT
+
+                    get_namespaces() {
+                        local ns
+                        local -A all_ns
+                        # Loop until getting namespaces succeeds
+                        while test -z "${all_ns[kube-system]:-}" ; do
+                            all_ns=[]
+                            for ns in $(kubectl get namespace --no-headers --output=custom-columns=:.metadata.name) ; do
+                                all_ns[${ns}]=${ns}
+                            done
+                        done
+                        # Only return the namespaces we want
+                        for ns in "${all_ns[@]}" ; do
+                            if [[ "${ns}" =~ cf ]] ; then
+                                echo "${ns}"
+                            fi
+                        done
+                    }
+
+                    get_namespaces | xargs --no-run-if-empty kubectl delete ns
+                    set +x
+                    while test -n "$(get_namespaces)"; do
+                        sleep 5
+                    done
+                    set -x
+
+                    helm install output/unzipped/helm/uaa\${suffix} \
+                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --set env.DOMAIN=${domain()} \
+                        --set env.UAA_HOST=uaa.${domain()} \
+                        --set env.UAA_PORT=2793 \
+                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
+                        --set kube.external_ips[0]=${ipAddress()} \
+                        --set kube.storage_class.persistent=hostpath \
+                        --set env.ENABLE_EIRINI=true \
+                        --set sizing.diego_api.count=0 \
+                        --set sizing.diego_brain.count=0 \
+                        --set sizing.diego_cell.count=0 \
+                        --set sizing.diego_ssh.count=0 \
+                        --set sizing.eirini.count=1
+
+                    // TODO: Install heapster?
+                    . make/include/secrets
+
+                    has_internal_ca() {
+                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
+                    }
+
+                    set +x
+                    until has_internal_ca ; do
+                        sleep 5
+                    done
+                    set -x
+
+                    # Use `make/run` to run the deployment to ensure we have updated settings
+                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
+                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export DOMAIN="${domain()}"
+                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
+                    make/run-eirini \
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+
+                    echo Waiting for all pods to be ready...
+                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                        make/wait "\${ns}"
+                    done
+                    kubectl get pods --all-namespaces
+                '''
+            }
+        }
+
+        stage('smoke-eirini') {
+            when {
+                expression { return params.TEST_SMOKE }
+            }
+            steps {
+                setBuildStatus('smoke-eirini', 'pending')
+                runTest('smoke-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('smoke-eirini', 'success')
+                }
+                failure {
+                    setBuildStatus('smoke-eirini', 'failure')
+                }
+            }
+        }
+
+        stage('brain-eirini') {
+            when {
+                expression { return params.TEST_BRAIN }
+            }
+            steps {
+                setBuildStatus('brain-eirini', 'pending')
+                runTest('acceptance-tests-brain')
+            }
+            post {
+                success {
+                    setBuildStatus('brain-eirini', 'success')
+                }
+                failure {
+                    setBuildStatus('brain-eirini', 'failure')
+                }
+            }
+        }
+
+        stage('scaler-eirini') {
+            when {
+                // Since we have autoescaler off by default, don't bother
+                // testing the autoscaler unless we've rotated the secrets
+                // (which also enables the autoscaler)
+                expression { return params.TEST_SCALER && params.TEST_ROTATE }
+            }
+            steps {
+                setBuildStatus('scaler-eirini', 'pending')
+                runTest('autoscaler-smoke')
+            }
+            post {
+                success {
+                    setBuildStatus('scaler-eirini', 'success')
+                }
+                failure {
+                    setBuildStatus('scaler-eirini', 'failure')
+                }
+            }
+        }
+
+        stage('cats-eirini') {
+            when {
+                expression { return params.TEST_CATS }
+            }
+            steps {
+                setBuildStatus('cats-eirini', 'pending')
+                runTest('acceptance-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('cats-eirini', 'success')
+                }
+                failure {
+                    setBuildStatus('cats-eirini', 'failure')
+                }
+            }
+        }
+
         stage('tar_sources') {
           when {
                 expression { return params.TAR_SOURCES }
