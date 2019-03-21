@@ -190,8 +190,6 @@ def statefulset_ready(namespace, statefulset)
       '--namespace', namespace,
       statefulset,
     )
-    puts "status: #{status.success?}"
-    puts "stdout: #{stdout}"
     return status.success? && stdout == '"true"'
 end
 
