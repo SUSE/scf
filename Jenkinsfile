@@ -237,6 +237,16 @@ pipeline {
             defaultValue: 'splatform',
             description: 'Docker organization to publish to',
         )
+        string(
+            name: 'FISSILE_DOCKER_REPO',
+            defaultValue: 'fissile-stemcell-sle12',
+            description: 'Docker repo name to pull from "<organization>/<repo>:<tag>"',
+        )
+        string(
+            name: 'FISSILE_STEMCELL_VERSION',
+            defaultValue: '12SP3-26.g3c03e13-0.219',
+            description: 'Fissile stemcell version used as docker image tag',
+        )
         booleanParam(
             name: 'STARTED_BY_TRIGGER',
             defaultValue: false,
@@ -258,6 +268,8 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
+        FISSILE_DOCKER_REPO = "${params.FISSILE_DOCKER_REPO}"
+        FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
     }
 
     stages {
