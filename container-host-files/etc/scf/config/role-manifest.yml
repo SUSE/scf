@@ -3892,7 +3892,7 @@ variables:
     required: true
 - name: DEFAULT_STACK
   options:
-    default: sle12
+    default: sle15
     description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
