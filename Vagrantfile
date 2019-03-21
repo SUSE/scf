@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'resolv'
+
 def base_net_config
   base_config = {
     use_dhcp_assigned_default_route: true
@@ -9,10 +11,10 @@ def base_net_config
     if ENV.include? "VAGRANT_DHCP"
       # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
       # bridged networking uses type: bridged (even though the virtual interface still
-      # gets its IP from dhcp). If not using dhcp, the VM will use the 192.168.77.77 IP.
+      # gets its IP from dhcp). If not using dhcp, the VM will use the IP cf-dev.io points to.
       base_config[:type] = "dhcp"
     else
-      base_config[:ip] = "192.168.77.77"
+      base_config[:ip] = Resolv.getaddress "cf-dev.io"
     end
   end
   base_config
