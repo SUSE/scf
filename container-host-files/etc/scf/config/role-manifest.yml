@@ -8,17 +8,17 @@ releases:
   url: "https://s3.amazonaws.com/cap-experiments/capi-6e4864e.tgz"
   sha1: "e45c1a4d93f12a325e04d103cbd9a3ff6fa8a38a"
 - name: cf-cli
-  version: 1.10.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.10.0
-  sha1: 7b727c4c86f2e516e86827a56c5fbff8532aca3e
+  version: 1.11.0
+  url: "https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.11.0"
+  sha1: "43a21ad63156f20a0f6f56343e59d11882a69ca0"
 - name: cf-mysql
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.16.0
   version: 36.16.0
   sha1: eb028b258599e465f9fabb395b87e0093c46aa98
 - name: cf-smoke-tests
-  version: 40.0.20
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.20
-  sha1: c91df486cddb80bb1dc3c783e0ff9df7083e69e0
+  version: 40.0.40
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.40"
+  sha1: "35cb660408a972dec31aca76362334cadddbe7d8"
 - name: cf-syslog-drain
   version: "8.1"
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
@@ -36,9 +36,9 @@ releases:
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.2
   sha1: 754a24dbffe8bc5efce7e698d935b5f4df541f38
 - name: diego
-  version: 2.23.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.23.0
-  sha1: 4eae4d2f03574faffd6cb6fd4d3a874d0ee980a9
+  version: 2.24.0
+  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.24.0"
+  sha1: "070dc4caf4a072b4c6ff2d2d7cecc569760eabe8"
 - name: garden-runc
   version: 1.17.1
   url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.1
