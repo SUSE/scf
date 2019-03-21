@@ -145,6 +145,11 @@ Vagrant.configure(2) do |config|
       fi
     fi
 
+    # Make sure Docker is running before running any scripts that rely on it.
+    if [ "$(systemctl is-active docker.service)" != active ]; then
+      systemctl restart docker.service
+    fi
+
     cd "${HOME}/scf"
     bash ${HOME}/scf/bin/common/install_tools.sh
     direnv exec ${HOME}/scf/bin/dev/install_tools.sh
