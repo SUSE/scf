@@ -26,13 +26,7 @@ export ISTIO_VERSION="1.0.5"
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')
 
 # Used in: .envrc
-
-if [ "${USE_SLE_BASE:-false}" == "false" ]
-then
-    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-28.g837c5b3-30.76}
-else
-    export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-12SP3-26.g3c03e13-0.219}
-fi
+export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-28.g837c5b3-30.76}
 
 # Used in: bin/generate-dev-certs.sh
 
