@@ -91,9 +91,6 @@ brain:
 cats:
 	make/tests acceptance-tests
 
-scaler-smoke:
-	make/tests autoscaler-smoke
-
 stratos-run:
 	make/stratos/run
 	make/stratos/metrics/run
