@@ -51,12 +51,12 @@ tester.run_test do |tester|
     app_domain = domain_info['entity']['name']
     app_url = "http://#{app_host}.#{app_domain}"
 
-    run "curl -v --fail #{app_url}/"
-    run "curl -v --fail -X POST #{app_url}/todos --data text='hello'"
-    run "curl #{app_url}/todos"
-    todos = JSON.load capture("curl #{app_url}/todos")
+    run "curl -L -v --fail #{app_url}/"
+    run "curl -L -v --fail -X POST #{app_url}/todos --data text='hello'"
+    run "curl -L #{app_url}/todos"
+    todos = JSON.load capture("curl -L #{app_url}/todos")
     run "echo '#{todos.to_json}' | jq -C ."
     todo_id = todos.first['id']
-    run "curl -v --fail #{app_url}/todos/#{todo_id}"
-    run "curl -v --fail -X DELETE #{app_url}/todos/#{todo_id}"
+    run "curl -L -v --fail #{app_url}/todos/#{todo_id}"
+    run "curl -L -v --fail -X DELETE #{app_url}/todos/#{todo_id}"
 end

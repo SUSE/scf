@@ -48,7 +48,7 @@ tester.run_test do |tester|
     title = random_suffix('desired-title')
     body = random_suffix('desired-body')
     run "cf env #{CF_APP}"
-    run "curl -v --fail -X POST #{app_url}/post/new --data 'post[title]=#{title}' --data 'post[body]=#{body}'"
-    run "curl #{app_url} | grep -F '#{title}'"
-    run "curl #{app_url} | grep -F '#{body}'"
+    run "curl -L -v --fail -X POST #{app_url}/post/new --data 'post[title]=#{title}' --data 'post[body]=#{body}'"
+    run "curl -L #{app_url} | grep -F '#{title}'"
+    run "curl -L #{app_url} | grep -F '#{body}'"
 end
