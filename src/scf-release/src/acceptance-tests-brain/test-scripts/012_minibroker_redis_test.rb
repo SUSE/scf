@@ -14,6 +14,7 @@ MiniBrokerTest.new('redis', '6379').run_test do |tester|
 
     run "cf push #{CF_APP} --no-start -p #{resource_path('cf-redis-example-app')}"
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
+    run "cf restage #{CF_APP}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
     puts "# app GUID: #{app_guid}"

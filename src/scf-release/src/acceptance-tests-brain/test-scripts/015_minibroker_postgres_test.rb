@@ -29,6 +29,7 @@ tester.run_test do |tester|
         '-m', '256M',
         '-c', 'bundle exec rake db:migrate && bundle exec rails s -p $PORT'
     run "cf bind-service #{CF_APP} #{tester.service_instance}"
+    run "cf restage #{CF_APP}"
     run "cf start #{CF_APP}"
     app_guid = capture("cf app #{CF_APP} --guid")
     puts "# app GUID: #{app_guid}"
