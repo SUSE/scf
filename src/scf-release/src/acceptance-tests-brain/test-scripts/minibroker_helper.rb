@@ -91,7 +91,7 @@ class MiniBrokerTest
                 end
             end
 
-            run "kubectl get namespace #{minibroker_namespace} || kubectl create namespace #{minibroker_namespace}"
+            run "kubectl get namespace #{minibroker_namespace} 2> /dev/null || kubectl create namespace #{minibroker_namespace}"
             run "helm init --client-only"
             run(*%W(helm upgrade #{helm_release} minibroker
                 --install
