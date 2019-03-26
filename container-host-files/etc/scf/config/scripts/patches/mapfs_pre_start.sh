@@ -2,32 +2,23 @@
 
 set -e
 
-PATCH_DIR=/var/vcap/jobs-src
+PATCH_DIR=/var/vcap/jobs-src/mapfs/templates
 SENTINEL="${PATCH_DIR}/${0##*/}.sentinel"
 
 if [ -f "${SENTINEL}" ]; then
   exit 0
 fi
 
-patch -d "$PATCH_DIR" --force -p1 <<'PATCH'
-From c46738e970913e75d04f0654df6033c6e0ad7d61 Mon Sep 17 00:00:00 2001
-From: Mark Yen <mark.yen@suse.com>
-Date: Wed, 30 Jan 2019 13:51:36 -0800
-Subject: [PATCH] mapfs: install: Support for SUSE
+# This adds support for SUSE-like systems to install fuse:
+# - Detect installed fuse support and skip installation of pre-packaged (ubuntu) debs
+# - Don't use `adduser`, use `useradd`.
+# - SUSE support is installed in a custom job's pre-start script, from a pre-packaged rpm.
+# - Reworks ubuntu code somewhat (modprobe specific to them, better version detection).
 
-This adds support for SUSE-like systems to install fuse:
-- Detect Ubuntu, and keep installing the pre-packaged debs
-- Detect SUSE, and use zypper to install fuse.
-- Don't use `adduser`, use `useradd`.
----
- jobs/mapfs/templates/install.erb | 39 +++++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 14 deletions(-)
-
-diff --git jobs/mapfs/templates/install.erb jobs/mapfs/templates/install.erb
-index 7574622..f3cba25 100644
---- jobs/mapfs/templates/install.erb
-+++ jobs/mapfs/templates/install.erb
-@@ -4,22 +4,33 @@ set -e -x
+patch -d "$PATCH_DIR" <<'PATCH'
+--- install.erb	2019-03-26 12:30:40.614236874 -0700
++++ install.erb	2019-03-26 14:39:32.565499697 -0700
+@@ -4,22 +4,37 @@
  
  echo "Installing fuse"
  
@@ -42,41 +33,42 @@ index 7574622..f3cba25 100644
 -  flock -x 200
 -  dpkg  --force-confdef -i /var/vcap/packages/mapfs-fuse/fuse_2.9.4-1ubuntu3.1_amd64.deb
 -  ) 200>/var/vcap/data/dpkg.lock
--fi
 +lsb_id() {
 +    awk -F= "/^${1}=/ { print \$2}" /etc/os-release | tr -d '"\n'
 +}
 +
-+case "$(lsb_id ID)-$(lsb_id VERSION_ID)" in
-+    ubuntu-14.04)
-+        (
-+            flock -x 200
-+            dpkg  --force-confdef -i /var/vcap/packages/mapfs-fuse/fuse_2.9.2-4ubuntu4.14.04.1_amd64.deb
-+        ) 200>/var/vcap/data/dpkg.lock
-+        modprobe fuse
-+        ;;
-+    ubuntu-16.04)
-+        (
-+            flock -x 200
-+            dpkg  --force-confdef -i /var/vcap/packages/mapfs-fuse/fuse_2.9.4-1ubuntu3.1_amd64.deb
-+        ) 200>/var/vcap/data/dpkg.lock
-+        modprobe fuse
-+        ;;
-+    *suse-*)
-+        # SUSE
-+        zypper --non-interactive --quiet install fuse
-+        ;;
-+esac
++# Install fuse userspace support only if not present.
++if test -e /sbin/mount.fuse
++then
++    echo "Skipping installation, fuse already present"
++else
++    case "$(lsb_id ID)-$(lsb_id VERSION_ID)" in
++	ubuntu-14.04)
++            (
++		flock -x 200
++		dpkg  --force-confdef -i /var/vcap/packages/mapfs-fuse/fuse_2.9.2-4ubuntu4.14.04.1_amd64.deb
++            ) 200>/var/vcap/data/dpkg.lock
++            modprobe fuse
++            ;;
++	ubuntu-16.04)
++            (
++		flock -x 200
++		dpkg  --force-confdef -i /var/vcap/packages/mapfs-fuse/fuse_2.9.4-1ubuntu3.1_amd64.deb
++            ) 200>/var/vcap/data/dpkg.lock
++            modprobe fuse
++            ;;
++    esac
+ fi
  
 -modprobe fuse
++echo "Configuring fuse"
++
  groupadd fuse || true
 -adduser vcap fuse
 +useradd fuse -g vcap
  chown root:fuse /dev/fuse
  cat << EOF > /etc/fuse.conf
  user_allow_other
---
-2.16.4
 PATCH
 
 touch "${SENTINEL}"
