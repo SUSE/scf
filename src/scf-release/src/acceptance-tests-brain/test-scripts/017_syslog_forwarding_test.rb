@@ -45,16 +45,18 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     SCF_LOG_HOST = ENV.fetch('SCF_LOG_HOST', '')
     SCF_LOG_PORT = ENV.fetch('SCF_LOG_PORT', '514')
     SCF_LOG_PROTOCOL = ENV.fetch('SCF_LOG_PROTOCOL', 'tcp')
-    if SCF_LOG_HOST.empty?
-        message = "SCF_LOG_HOST not set"
-        STDERR.puts "\e[0;1;31m#{message}\e[0m"
-        show_env
-        fail message
-    end
 
     $KUBERNETES_NAMESPACE = ENV['KUBERNETES_NAMESPACE']
 
     KUBERNETES_DOMAIN_SUFFIX = ".#{$KUBERNETES_NAMESPACE}.svc.#{ENV['KUBERNETES_CLUSTER_DOMAIN']}"
+
+    if SCF_LOG_HOST.empty?
+        message = "SCF_LOG_HOST not set; expected to end with cluster domain (#{KUBERNETES_DOMAIN_SUFFIX})"
+        STDERR.puts "\e[0;1;31m#{message}\e[0m"
+        show_env
+        exit_skipping_test
+    end
+
     unless SCF_LOG_HOST.end_with? KUBERNETES_DOMAIN_SUFFIX
         message = "SCF_LOG_HOST (#{SCF_LOG_HOST}) does not end with cluster domain (#{KUBERNETES_DOMAIN_SUFFIX})"
         STDERR.puts "\e[0;1;31m#{message}\e[0m"
@@ -139,6 +141,7 @@ Timeout::timeout(ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - 60) do
     loop do
         pod_info = JSON.load capture("kubectl get pods --namespace #{$KUBERNETES_NAMESPACE} --selector brains=#{$LOG_SERVICE_NAME}.#{$RUN_SUFFIX} --output json")
         break if pod_info['items'].all? do |item|
+            item['status']['phase'] != 'ContainerCreating' &&
             item['status']['conditions']
                 .select { |condition| condition['type'] == 'Ready' }
                 .all? { |condition| condition['status'] == 'True' }
