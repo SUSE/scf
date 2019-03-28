@@ -224,7 +224,7 @@ instance_groups:
           internal: 443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2904,7 +2904,7 @@ configuration:
     # TODO: this needs to be fixed upstream - it should be an array
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
-    properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.registry_address: "bits.((DOMAIN))"
     properties.opi.stager_image: ((EIRINI_IMAGE))
 
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
@@ -2950,7 +2950,7 @@ configuration:
     properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
     properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
     properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.scf.eirini.registry.address: "registry.((DOMAIN))"
+    properties.scf.eirini.registry.address: "bits.((DOMAIN))"
 
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.scf.secrets_generation_name: "((KUBE_SECRETS_GENERATION_NAME))"
