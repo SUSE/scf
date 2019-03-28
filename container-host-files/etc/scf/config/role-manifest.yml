@@ -1819,6 +1819,38 @@ instance_groups:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
+- name: sync-integration-tests
+  type: bosh-task
+  tags:
+  - stop-on-failure
+  jobs:
+  - name: global-properties # This needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: sync-integration-tests
+    release: scf
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
+          capabilities: []
+          service-account: tests
+  configuration:
+    templates:
+      properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
+      properties.sync_integration_tests.bbs.svc.namespace: ((KUBERNETES_NAMESPACE))
+      properties.sync_integration_tests.bbs.svc.port: 8889
+      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+      properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
+      properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
+      properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
+      properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
+      properties.sync_integration_tests.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
+      properties.sync_integration_tests.verbose: "'((SYNC_INTEGRATION_TESTS_VERBOSE))'"
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -4535,6 +4567,17 @@ variables:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
+- name: SYNC_INTEGRATION_TESTS_NODES
+  options:
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      sync integration tests.
+- name: SYNC_INTEGRATION_TESTS_VERBOSE
+  options:
+    default: false
+    description: >
+      Whether the output of the sync integration tests should be verbose or not.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
