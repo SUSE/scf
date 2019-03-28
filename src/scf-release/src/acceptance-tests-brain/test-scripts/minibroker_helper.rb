@@ -51,6 +51,14 @@ class MiniBrokerTest
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
 
+    def print_logs_in_namespace(ns)
+        capture("kubectl get pods --namespace #{ns} -o name").split.each do |pod|
+            capture("kubectl get --namespace #{ns} #{pod} -o jsonpath='{.spec.containers[*].name}'").split.each do |container|
+                run "kubectl logs --namespace #{ns} #{pod} --container #{container}"
+            end
+        end
+    end
+
     # Run the minibroker test.
     # The MiniBrokerTest instance will be yielded to the given block.
     def run_test
@@ -63,6 +71,13 @@ class MiniBrokerTest
 
             at_exit do
                 set errexit: false do
+                    unless @success
+                        # Print out logs
+                        [minibroker_namespace, minibroker_pods_namespace].each do |ns|
+                            print_logs_in_namespace ns
+                        end
+                    end
+
                     status = run_with_status "cf delete-service -f #{service_instance}"
                     if status.success?
                         status = wait_for_async_service_operation(service_instance, 10)
@@ -144,6 +159,8 @@ class MiniBrokerTest
             run "cf service #{service_instance}"
 
             yield self
+
+            @success = true
         end
     end
 end
