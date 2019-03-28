@@ -32,31 +32,25 @@ echo "Running sync integration tests..."
 
 EXITSTATUS=0
 
-nodes='<%= p("sync_integration_tests.nodes") %>'
-
-skips=""
-<% if_p("sync_integration_tests.skip_regex") do |skip_regex| %>
-skips="-skip=<%= skip_regex %>"
+ginkgo_options=(
+  -r
+  -randomizeAllSpecs
+  -keepGoing
+  -slowSpecThreshold='<%= p("sync_integration_tests.setup.slow_spec_threshold") %>'
+  -nodes='<%= p("sync_integration_tests.setup.nodes") %>'
+<% if_p("sync_integration_tests.setup.skip") do |skip| %>
+  <%= "-skip='#{skip}'" if skip != "" %>
 <% end %>
-
-if [[ "<%= p('sync_integration_tests.verbose') %>" == true ]]; then
-  verbose_flag="-v"
-else
-  verbose_flag=""
-fi
-
-focus=()
-if test -n "${SITS_FOCUS:-}"; then
-  focus=( -focus "${SITS_FOCUS}" )
-fi
+<% if_p("sync_integration_tests.setup.focus") do |focus| %>
+  <%= "-focus='#{focus}'" if focus != "" %>
+<% end %>
+<% if_p('sync_integration_tests.setup.verbose') do |verbose| %>
+  <%= "-v" if verbose == true || verbose == "true" %>
+<% end %>
+)
 
 set +o errexit
-ginkgo -r ${verbose_flag} ${skips} "${focus[@]}" \
-  -slowSpecThreshold=120 \
-  -randomizeAllSpecs \
-  -nodes="${nodes}" \
-  -skipPackage=helpers \
-  -keepGoing \
+ginkgo ${ginkgo_options[@]} \
   1> >( tee /var/vcap/sys/log/sync_integration_tests/out.log ) \
   2> >( tee /var/vcap/sys/log/sync_integration_tests/err.log )
 EXITSTATUS=$?

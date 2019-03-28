@@ -16,12 +16,18 @@ templates:
   run.erb: bin/run
 
 properties:
-  sync_integration_tests.nodes:
+  sync_integration_tests.setup.nodes:
     description: The number of parallel test executors to spawn.
-  sync_integration_tests.skip_regex:
-    description: Regex for tests that should be skipped.
-  sync_integration_tests.verbose:
+  sync_integration_tests.setup.verbose:
     description: Whether to pass the -v flag to ginkgo or not.
+  sync_integration_tests.setup.skip:
+    default: copilot # We should skip copilot related tests as we don't have Istio integrated.
+    description: Regex for tests that should be skipped.
+  sync_integration_tests.setup.focus:
+    description: Regex for tests that should be focused.
+  sync_integration_tests.setup.slow_spec_threshold:
+    default: 90
+    description: The time in seconds that a spec should be considered slow.
 
   sync_integration_tests.bbs.svc.name:
     description: The Kubernetes service name for the BBS.
