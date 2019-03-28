@@ -86,12 +86,12 @@ i=0
 while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
 do
   i=$((i + 1))
-  if [ ${i} -gt 30 ]
+  if [ ${i} -gt 3000 ]
   then
     echo 1>&2 "${POD_NAME} container failed to reach Running state"
     exit 1
   fi
-  sleep 5
+  sleep 0.1
 done
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
