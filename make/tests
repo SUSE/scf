@@ -86,20 +86,17 @@ i=0
 while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
 do
   i=$((i + 1))
-  if [ ${i} -gt 3000 ]
+  if [ ${i} -gt 300 ]
   then
     echo 1>&2 "${POD_NAME} container failed to reach Running state"
     exit 1
   fi
-  sleep 0.1
+  sleep 1
 done
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 
-# First show the logs accumulated so far, then stream further logs in
-# a way which terminates when the pod (= testsuite) terminates.
-kubectl logs   --namespace "${NAMESPACE}" "${POD_NAME}"
-kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}" -c "${POD_NAME}"
+kubectl logs --follow --namespace "${NAMESPACE}" "${POD_NAME}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
