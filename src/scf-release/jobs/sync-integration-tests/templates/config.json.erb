@@ -1,0 +1,20 @@
+<%
+  require 'json'
+  config = p('sync_integration_tests.config')
+
+  bbs_client_cert_contents = "/tmp/bbs_client_cert"
+  bbs_client_key_contents = "/tmp/bbs_client_key"
+  config[:bbs_client_cert] = bbs_client_cert_contents
+  config[:bbs_client_key] = bbs_client_key_contents
+  File.write(bbs_client_cert_contents, config.fetch("bbs_client_cert_contents"))
+  File.write(bbs_client_key_contents, config.fetch("bbs_client_key_contents"))
+  config.delete("bbs_client_cert_contents")
+  config.delete("bbs_client_key_contents")
+
+  # unset null keys.
+  config.delete_if do |key, val|
+    val.nil?
+  end
+%>
+
+<%= JSON.pretty_generate(config) %>

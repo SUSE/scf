@@ -1,0 +1,63 @@
+#!/bin/bash -l
+
+set -o errexit
+
+export PATH="/var/vcap/packages/cli/bin:${PATH}"
+export PATH="/var/vcap/packages/kubectl/bin:${PATH}"
+
+GOROOT="$(readlink -nf /var/vcap/packages/golang1.10)"
+export GOROOT
+export PATH="${GOROOT}/bin:${PATH}"
+
+export GOPATH="/var/vcap/packages/sync-integration-tests"
+export PATH="${GOPATH}/bin:${PATH}"
+
+export CF_COLOR="false"
+export CONFIG="/var/vcap/jobs/sync-integration-tests/bin/config.json"
+
+chmod +x '<%= p("sync_integration_tests.config.port_forwarding_script") %>'
+
+mkdir -p "/var/vcap/sys/log/sync_integration_tests"
+rm -rf "/var/vcap/sys/log/sync_integration_tests/*"
+
+cd "${GOPATH}/src/code.cloudfoundry.org/sync-integration-tests"
+
+echo '################################################################################################################'
+echo "$(go version)"
+echo "CONFIG=${CONFIG}"
+env | sort
+echo '################################################################################################################'
+
+echo "Running sync integration tests..."
+
+EXITSTATUS=0
+
+nodes='<%= p("sync_integration_tests.nodes") %>'
+
+skips=""
+<% if_p("sync_integration_tests.skip_regex") do |skip_regex| %>
+skips="-skip=<%= skip_regex %>"
+<% end %>
+
+if [[ "<%= p('sync_integration_tests.verbose') %>" == true ]]; then
+  verbose_flag="-v"
+else
+  verbose_flag=""
+fi
+
+focus=()
+if test -n "${SITS_FOCUS:-}"; then
+  focus=( -focus "${SITS_FOCUS}" )
+fi
+
+set +o errexit
+ginkgo -r ${verbose_flag} ${skips} "${focus[@]}" \
+  -slowSpecThreshold=120 \
+  -randomizeAllSpecs \
+  -nodes="${nodes}" \
+  -skipPackage=helpers \
+  -keepGoing \
+  1> >( tee /var/vcap/sys/log/sync_integration_tests/out.log ) \
+  2> >( tee /var/vcap/sys/log/sync_integration_tests/err.log )
+EXITSTATUS=$?
+exit $EXITSTATUS
