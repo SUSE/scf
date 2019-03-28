@@ -27,7 +27,7 @@ run "cf bind-security-group #{CF_SEC_GROUP} #{$CF_ORG} #{$CF_SPACE} --lifecycle 
 
 REGISTRIES = {
     'secure-registry'   => "https://secure-registry.#{ENV['CF_DOMAIN']}",          # Router SSL cert
-    'insecure-registry' => "https://insecure-registry.#{ENV['CF_DOMAIN']}:20005",  # Self-signed SSL cert
+    'insecure-registry' => "https://insecure-registry.#{CF_TCP_DOMAIN}:20005",     # Self-signed SSL cert
 }
 
 at_exit do
