@@ -173,6 +173,11 @@ pipeline {
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
+            name: 'TEST_SITS',
+            defaultValue: true,
+            description: 'Run SITS (Cloud Foundry Sync Integration Tests)',
+        )
+        booleanParam(
             name: 'TEST_CATS',
             defaultValue: true,
             description: 'Run CATS (Cloud Foundry Acceptance Tests)',
@@ -478,7 +483,7 @@ pipeline {
 
         stage('deploy') {
             when {
-                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
             }
             steps {
                 sh """
@@ -658,6 +663,24 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('brain', 'failure')
+                }
+            }
+        }
+
+        stage('sits') {
+            when {
+                expression { return params.TEST_SITS }
+            }
+            steps {
+                setBuildStatus('sits', 'pending')
+                runTest('sync-integration-tests')
+            }
+            post {
+                success {
+                    setBuildStatus('sits', 'success')
+                }
+                failure {
+                    setBuildStatus('sits', 'failure')
                 }
             }
         }
