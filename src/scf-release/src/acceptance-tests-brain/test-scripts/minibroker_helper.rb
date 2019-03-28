@@ -50,10 +50,9 @@ class MiniBrokerTest
     attr_lazy(:service_plans) { |inst| JSON.load capture("cf curl '/v2/services/#{inst.service_guid}/service_plans'") }
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
-
-    def print_logs_in_namespace(ns)
-        capture("kubectl get pods --namespace #{ns} -o name").split.each do |pod|
-            capture("kubectl get --namespace #{ns} #{pod} -o jsonpath='{.spec.containers[*].name}'").split.each do |container|
+    def print_all_container_logs_in_namespace(ns)
+        capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
+            capture("kubectl get --namespace #{ns} #{pod} --output jsonpath='{.spec.containers[*].name}'").split.each do |container|
                 run "kubectl logs --namespace #{ns} #{pod} --container #{container}"
             end
         end
@@ -72,9 +71,8 @@ class MiniBrokerTest
             at_exit do
                 set errexit: false do
                     unless @success
-                        # Print out logs
                         [minibroker_namespace, minibroker_pods_namespace].each do |ns|
-                            print_logs_in_namespace ns
+                            print_all_container_logs_in_namespace ns
                         end
                     end
 
