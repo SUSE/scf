@@ -29,7 +29,7 @@ run:
 	make/run
 	make/ingress/update_secrets
 
-run-eirini: 
+run-eirini:
 	make/ingress/run
 	make/uaa/run
 	make/wait uaa
@@ -90,6 +90,9 @@ brain:
 
 cats:
 	make/tests acceptance-tests
+
+sits:
+	make/tests sync-integration-tests
 
 stratos-run:
 	make/stratos/run
