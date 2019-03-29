@@ -1692,8 +1692,6 @@ instance_groups:
     release: scf
   - name: authorize-internal-ca
     release: scf
-  - name: install-suse-fuse
-    release: scf
   - name: wait-for-uaa
     release: scf
   - name: rep

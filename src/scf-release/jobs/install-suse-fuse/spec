@@ -1,9 +1,0 @@
----
-name: install-suse-fuse
-description: Install the SUSE userspace FUSE support.
-
-templates:
-  pre-start.erb: bin/pre-start
-
-packages:
-- suse-fuse
