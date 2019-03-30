@@ -65,7 +65,7 @@ at_exit do
         run "cf delete -f uploader"
     end
 end
-run "cf push -f manifest.yml --var domain=#{ENV['CF_DOMAIN']} --var tcp-domain=#{CF_TCP_DOMAIN}",
+run "cf push -f manifest.yml --var tcp-domain=#{CF_TCP_DOMAIN}",
     chdir: '/var/vcap/packages/docker-distribution/'
 
 run 'cf apps'
