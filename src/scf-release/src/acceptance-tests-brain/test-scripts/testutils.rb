@@ -145,11 +145,20 @@ def wait_for_namespace(namespace, sleep_duration=10)
             name, readiness, status, restarts, age = line.split
             next if status == 'Completed'
             next if status == 'Running' && /^(\d+)\/\1$/ =~ readiness
+            puts "# Waiting for: #{line}"
             ready = false
         end
         break if ready
         sleep sleep_duration
     end
+end
+
+# Show the status of a Kubernetes namespace
+def show_pods_for_namespace(namespace)
+  output = capture("kubectl get pods --namespace #{namespace} --no-headers")
+  output.each_line do |line|
+    puts "# Space: #{line}"
+  end
 end
 
 # Wait for a cf service asynchronous operation to complete.
