@@ -1057,6 +1057,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: wait-for-api
     release: scf
     # This job contains a pre-start script whose prupose is to delay
@@ -1066,8 +1068,6 @@ instance_groups:
     # has not even started them yet then the two roles can get into a
     # conflict wrt database access and state which blocks the entire
     # system from coming up.
-  - name: authorize-internal-ca
-    release: scf
   - name: cloud_controller_clock
     release: capi
     properties:
@@ -1113,9 +1113,9 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: log-cache-scheduler-properties
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: authorize-internal-ca
+  - name: log-cache-scheduler-properties
     release: scf
   - name: log-cache-scheduler
     release: log-cache
@@ -1667,9 +1667,9 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: get-kubectl
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: authorize-internal-ca
+  - name: get-kubectl
     release: scf
   - name: wait-for-uaa
     release: scf
