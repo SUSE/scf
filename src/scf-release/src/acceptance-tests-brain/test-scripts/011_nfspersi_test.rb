@@ -22,6 +22,9 @@ tmpdir = mktmpdir
 
 at_exit do
     set errexit: false do
+        # Status of the pods in the namespace
+        show_pods_for_namespace NS
+
         # See why pora failed to start
         run "cf logs #{APP_NAME} --recent"
 
