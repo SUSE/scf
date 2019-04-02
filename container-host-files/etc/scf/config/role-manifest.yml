@@ -157,9 +157,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: patch-properties
     release: scf-helper
@@ -191,7 +191,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: route_registrar
     release: routing
@@ -231,7 +231,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
@@ -281,7 +281,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
@@ -336,7 +336,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: nats
     release: nats
@@ -390,7 +390,7 @@ instance_groups:
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: patch-properties
     release: scf-helper
@@ -486,9 +486,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: cf-usb
     release: cf-usb
@@ -543,9 +543,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bbs
     release: diego
@@ -609,9 +609,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: patch-properties
     release: scf-helper
@@ -660,9 +660,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bpm
     release: bpm
@@ -733,9 +733,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: wait-for-uaa
     release: scf
@@ -799,9 +799,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bpm
     release: bpm
@@ -864,9 +864,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: patch-properties
     release: scf-helper
@@ -959,9 +959,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: cloud_controller_worker
     release: capi
@@ -1007,7 +1007,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: blobstore
     release: capi
@@ -1055,8 +1055,10 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
   - name: wait-for-api
     release: scf
     # This job contains a pre-start script whose prupose is to delay
@@ -1066,8 +1068,6 @@ instance_groups:
     # has not even started them yet then the two roles can get into a
     # conflict wrt database access and state which blocks the entire
     # system from coming up.
-  - name: authorize-internal-ca
-    release: scf
   - name: cloud_controller_clock
     release: capi
     properties:
@@ -1111,11 +1111,11 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: log-cache-scheduler-properties
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: authorize-internal-ca
+  - name: log-cache-scheduler-properties
     release: scf
   - name: log-cache-scheduler
     release: log-cache
@@ -1177,9 +1177,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: log-cache-gateway
     release: log-cache
@@ -1368,9 +1368,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
@@ -1433,9 +1433,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: auctioneer
     release: diego
@@ -1493,9 +1493,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: tps
     release: capi
@@ -1547,9 +1547,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: ssh_proxy
     release: diego
@@ -1607,9 +1607,9 @@ instance_groups:
   - scripts/patches/nfsbroker_cert_prop.sh
   - scripts/patches/nfsbroker_ctl.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: nfsbroker
     release: nfs-volume
@@ -1665,11 +1665,11 @@ instance_groups:
   - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
   - scripts/patches/fix_garden_logdir.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: get-kubectl
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: authorize-internal-ca
+  - name: get-kubectl
     release: scf
   - name: wait-for-uaa
     release: scf
@@ -1776,9 +1776,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: acceptance-tests-brain
     release: scf
@@ -1798,9 +1798,9 @@ instance_groups:
   scripts:
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: acceptance-tests
     release: scf
@@ -1824,9 +1824,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: cf-cli-6-linux
     release: cf-cli
@@ -1875,9 +1875,9 @@ instance_groups:
 - name: post-deployment-setup
   type: bosh-task
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: uaa-create-user
     release: scf
@@ -1904,7 +1904,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: credhub
     release: credhub
@@ -1960,8 +1960,9 @@ instance_groups:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_postgres_prestart.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: postgres
     release: postgres
@@ -1999,7 +2000,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: apiserver
     release: app-autoscaler
@@ -2038,9 +2039,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: metricscollector
     release: app-autoscaler
@@ -2063,9 +2064,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: scalingengine
     release: app-autoscaler
@@ -2088,9 +2089,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: scheduler
     release: app-autoscaler
@@ -2113,9 +2114,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: operator
     release: app-autoscaler
@@ -2137,9 +2138,9 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: servicebroker
     release: app-autoscaler
@@ -2178,9 +2179,9 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: eventgenerator
     release: app-autoscaler
@@ -2203,7 +2204,7 @@ instance_groups:
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: loggr-expvar-forwarder
     release: loggregator-agent
