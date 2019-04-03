@@ -28,9 +28,9 @@ releases:
   version: "1.275.0"
   sha1: "64027babfdaac464242162c57b80465b973c5b40"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.72.0"
-  version: "0.72.0"
-  sha1: "b1b2acccb718440fb5f969a1a48c1f8cfec59a62"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.76.0"
+  version: "0.76.0"
+  sha1: "5f6195b65218b7ee75cf62b0d5dcc0de7cad88ad"
 - name: credhub
   version: 2.1.2
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.2
