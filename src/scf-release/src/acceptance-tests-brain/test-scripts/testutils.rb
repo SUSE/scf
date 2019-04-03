@@ -155,10 +155,7 @@ end
 
 # Show the status of a Kubernetes namespace
 def show_pods_for_namespace(namespace)
-  output = capture("kubectl get pods --namespace #{namespace} --no-headers")
-  output.each_line do |line|
-    puts "# Space: #{line}"
-  end
+  run("kubectl get pods --namespace #{namespace} --no-headers")
 end
 
 # Wait for a cf service asynchronous operation to complete.
