@@ -53,7 +53,7 @@ MiniBrokerTest.new('redis', '6379').run_test do |tester|
     # Check with the app at its endpoint that it is able to use the
     # service it was bound to. By setting and then retrieving a data
     # point.
-    run "curl -L -v -X PUT http://#{app_host}.#{app_domain}/hello -d data=success"
-    output = capture("curl -L -v http://#{app_host}.#{app_domain}/hello")
+    run "curl -L -v --fail -X PUT http://#{app_host}.#{app_domain}/hello -d data=success"
+    output = capture("curl -L -v --fail http://#{app_host}.#{app_domain}/hello")
     fail "Incorrect output: got #{output.inspect}" unless output == 'success'
 end
