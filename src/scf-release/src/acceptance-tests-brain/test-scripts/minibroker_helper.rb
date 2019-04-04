@@ -156,6 +156,7 @@ class MiniBrokerTest
                 raise "Failed to create service instance #{service_instance} after #{elapsed} seconds."
             end
             run "cf service #{service_instance}"
+            wait_for_namespace wait_for_namespace
 
             yield self
 
