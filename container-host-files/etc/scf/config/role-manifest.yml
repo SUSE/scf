@@ -24,9 +24,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
   sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
 - name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.275.0"
-  version: "1.275.0"
-  sha1: "64027babfdaac464242162c57b80465b973c5b40"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.278.0"
+  version: "1.278.0"
+  sha1: "38f570e236694ce3fe2d058b5d04a227974df84e"
 - name: cflinuxfs3
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.76.0"
   version: "0.76.0"
