@@ -224,7 +224,7 @@ instance_groups:
           internal: 443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))", "registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -1792,7 +1792,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain
+          service-account: tests
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1819,6 +1819,40 @@ instance_groups:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
+- name: sync-integration-tests
+  type: bosh-task
+  tags:
+  - stop-on-failure
+  jobs:
+  - name: global-properties # This needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca
+    release: scf
+  - name: sync-integration-tests
+    release: scf
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 0
+            max: 1
+          flight-stage: manual
+          capabilities: []
+          service-account: tests
+  configuration:
+    templates:
+      properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
+      properties.sync_integration_tests.bbs.svc.namespace: ((KUBERNETES_NAMESPACE))
+      properties.sync_integration_tests.bbs.svc.port: 8889
+      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+      properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
+      properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
+      properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
+      properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
+      properties.sync_integration_tests.setup.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
+      properties.sync_integration_tests.setup.verbose: "'((SYNC_INTEGRATION_TESTS_VERBOSE))'"
+      properties.sync_integration_tests.setup.skip: "'((SYNC_INTEGRATION_TESTS_SKIP))'"
+      properties.sync_integration_tests.setup.focus: "'((SYNC_INTEGRATION_TESTS_FOCUS))'"
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -2409,7 +2443,7 @@ configuration:
       secret-generator:
         roles: [configgin-role, secrets-role]
         cluster-roles: [nonprivileged]
-      test-brain:
+      tests:
         roles: [configgin-role, test-role]
         cluster-roles: [nonprivileged, test-cluster-role]
       garden-runc:
@@ -4535,6 +4569,25 @@ variables:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
+- name: SYNC_INTEGRATION_TESTS_FOCUS
+  options:
+    description: >
+      Regex for which SITS tests the test runner should focus on executing.
+- name: SYNC_INTEGRATION_TESTS_NODES
+  options:
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      sync integration tests.
+- name: SYNC_INTEGRATION_TESTS_SKIP
+  options:
+    description: >
+      Regex for which SITS tests the test runner should skip.
+- name: SYNC_INTEGRATION_TESTS_VERBOSE
+  options:
+    default: false
+    description: >
+      Whether the output of the sync integration tests should be verbose or not.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
