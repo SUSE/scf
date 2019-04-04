@@ -24,7 +24,7 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
 : "${DOMAIN:=cf-dev.io}"
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
 : "${UAA_HOST:=uaa.${DOMAIN}}"
-: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
+: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${TCP_DOMAIN}:20005\"}"
 
 UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
 

@@ -46,7 +46,7 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
 }
 
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
-: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
+: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${TCP_DOMAIN}:20005\"}"
 
 helm_args=(
     --name "${NAMESPACE}"
