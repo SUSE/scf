@@ -121,6 +121,7 @@ class MiniBrokerTest
                 --set kube.registry.hostname=index.docker.io
                 --set kube.organization=splatform
                 --set image=minibroker:latest
+                --set imagePullPolicy=Always
             ))
             wait_for_namespace minibroker_namespace
 
@@ -158,6 +159,7 @@ class MiniBrokerTest
                 raise "Failed to create service instance #{service_instance} after #{elapsed} seconds."
             end
             run "cf service #{service_instance}"
+            wait_for_namespace minibroker_pods_namespace
 
             yield self
 
