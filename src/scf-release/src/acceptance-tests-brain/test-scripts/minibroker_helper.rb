@@ -118,6 +118,7 @@ class MiniBrokerTest
                 --set kube.registry.hostname=index.docker.io
                 --set kube.organization=splatform
                 --set image=minibroker:latest
+                --set imagePullPolicy=Always
             ))
             wait_for_namespace minibroker_namespace
 
