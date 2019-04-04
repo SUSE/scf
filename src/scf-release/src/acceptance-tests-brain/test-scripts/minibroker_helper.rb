@@ -52,9 +52,12 @@ class MiniBrokerTest
 
     def print_all_container_logs_in_namespace(ns)
         capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
+            failed = false
             capture("kubectl get --namespace #{ns} #{pod} --output jsonpath='{.spec.containers[*].name}'").split.each do |container|
-                run "kubectl logs --namespace #{ns} #{pod} --container #{container}"
+                status = run_with_status("kubectl logs --namespace #{ns} #{pod} --container #{container}")
+                failed ||= !status.success?
             end
+            run "kubectl describe --namespace #{ns} #{pod}" if failed
         end
     end
 
