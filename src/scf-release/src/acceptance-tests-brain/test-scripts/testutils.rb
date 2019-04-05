@@ -10,6 +10,8 @@ require 'tmpdir'
 # Global options, similar to shopts.
 $opts = { errexit: true, xtrace: true }
 
+STORAGE_CLASS = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
+
 # Set global options.  If a block is given, the options are only active in that
 # block.
 def set(opts={})

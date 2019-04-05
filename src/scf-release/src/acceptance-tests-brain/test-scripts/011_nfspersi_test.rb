@@ -12,7 +12,6 @@ login
 setup_org_space
 
 NS = ENV['KUBERNETES_NAMESPACE']
-SC = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
 
 APP_NAME = random_suffix('pora')
 SECGROUP = random_suffix('sg-nfs-test')
@@ -45,7 +44,7 @@ end
 # Replace the placeholder storage class for persistent volumes with
 # the actual class provided by the execution environment.
 SKUBEC = "#{tmpdir}/nfs_server_kube.yaml"
-run %Q@sed 's/storage-class: "persistent"/storage-class: "#{SC}"/' <#{resource_path('nfs_server_kube.yaml')} >#{SKUBEC}@
+run %Q@sed 's/storage-class: "persistent"/storage-class: "#{STORAGE_CLASS}"/' <#{resource_path('nfs_server_kube.yaml')} >#{SKUBEC}@
 
 set errexit: false do
     run "kubectl delete -n #{NS} -f #{SKUBEC}"

@@ -7,6 +7,7 @@ tester.service_params = {
     mongodbDatabase: random_suffix('database'),
     mongodbUsername: random_suffix('user'),
     mongodbPassword: random_suffix('pass'),
+    persistence: { storageClass: STORAGE_CLASS },
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')
