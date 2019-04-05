@@ -7,8 +7,10 @@ $DB_NAME = random_suffix('db')
 tester = MiniBrokerTest.new('mariadb', '3306')
 tester.service_params = {
     db: { name: $DB_NAME },
-    mariadbDatabase: $DB_NAME
     # Need "mariadbDatabase" key for compatibility with old minibroker.
+    mariadbDatabase: $DB_NAME,
+    master: { persistence: { storageClass: STORAGE_CLASS } },
+    slave: { persistence: { storageClass: STORAGE_CLASS } },
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')
