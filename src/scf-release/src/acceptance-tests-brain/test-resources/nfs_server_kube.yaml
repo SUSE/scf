@@ -80,7 +80,7 @@ spec:
       - "ReadWriteOnce"
       resources:
         requests:
-          storage: "50G"
+          storage: "5G"
 ---
 apiVersion: "v1"
 items:
