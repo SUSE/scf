@@ -52,34 +52,11 @@ else
     )
 fi
 
-if [ -n "${USE_EIRINI:-}" ]; then
-    helm_args+=(
-        --set "env.ENABLE_EIRINI=true"
-        --set "sizing.diego_api.count=0"
-        --set "sizing.diego_brain.count=0"
-        --set "sizing.diego_cell.count=0"
-        --set "sizing.diego_ssh.count=0"
-        --set "sizing.eirini.count=1"
-    )
-fi
-
 # Force rotate secrets
 if [ -n "${SCF_SECRETS_GENERATION_COUNTER:-}" ] ; then
     helm_args+=(
         --set "kube.secrets_generation_counter=${SCF_SECRETS_GENERATION_COUNTER}"
     )
-fi
-
-if [ -n "${SCF_ENABLE_AUTOSCALER:-}" ] ; then
-    for f in "${CF_CHART}"/templates/autoscaler-* ; do
-        f="${f##*/}" # strip leading directories
-        f="${f%.*}"  # strip file extension
-        helm_args+=( --set "sizing.${f//-/_}.count=1" )
-    done
-fi
-
-if [ -n "${SCF_ENABLE_CREDHUB:-}" ] ; then
-    helm_args+=( --set "sizing.credhub_user.count=1" )
 fi
 
 helm upgrade "${RELEASE}" "${CF_CHART}" "${helm_args[@]}" "$@"

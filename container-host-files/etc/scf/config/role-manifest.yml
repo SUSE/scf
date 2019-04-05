@@ -150,6 +150,7 @@ releases:
 
 instance_groups:
 - name: eirini
+  if_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -171,7 +172,7 @@ instance_groups:
         run:
           service-account: eirini
           scaling:
-            min: 0
+            min: 1
             max: 1
             ha: 1
           memory: 256
@@ -477,6 +478,7 @@ instance_groups:
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 - name: cf-usb-group
+  default_feature: cf_usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -537,6 +539,7 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-api
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -555,8 +558,7 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            default: 1
-            min: 0
+            min: 1
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -1427,6 +1429,7 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-brain
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -1445,8 +1448,7 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            default: 1
-            min: 0
+            min: 1
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -1541,6 +1543,7 @@ instance_groups:
           capabilities: [ALL]
         pod-security-policy: privileged
 - name: diego-ssh
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -1559,8 +1562,7 @@ instance_groups:
         - loggregator-agent
         run:
           scaling:
-            default: 1
-            min: 0
+            min: 1
             max: 3
             ha: 2
           capabilities: [SYS_RESOURCE]
@@ -1648,6 +1650,7 @@ instance_groups:
       properties.nfsbroker.credhub.uaa_ca_cert: '~'
       properties.nfsbroker.db_ca_cert: '~'
 - name: diego-cell
+  unless_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
@@ -1696,8 +1699,7 @@ instance_groups:
         # Instance group needs volume claim templates (see storage below), no LB => clustered
         run:
           scaling:
-            default: 1
-            min: 0
+            min: 1
             max: 254
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
@@ -1786,7 +1788,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
           flight-stage: manual
           capabilities: []
@@ -1808,7 +1810,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
           flight-stage: manual
           capabilities: []
@@ -1870,7 +1872,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
           flight-stage: manual
           capabilities: []
@@ -1929,6 +1931,7 @@ instance_groups:
           virtual-cpus: 1
           service-account: eirini
 - name: credhub-user
+  if_feature: credhub
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
@@ -1946,7 +1949,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
             ha: 1
           capabilities: []
@@ -1990,6 +1993,7 @@ instance_groups:
       properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_CERT_KEY))"}'
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-postgres
+  if_feature: autoscaler
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
@@ -2004,7 +2008,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           volumes:
@@ -2026,6 +2030,7 @@ instance_groups:
       properties.databases.port: 5432
       properties.databases.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
 - name: autoscaler-api
+  if_feature: autoscaler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -2051,7 +2056,7 @@ instance_groups:
           internal: 7106
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 256
@@ -2069,6 +2074,7 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -2083,7 +2089,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 128
@@ -2094,6 +2100,7 @@ instance_groups:
           external: 7103
           internal: 7103
 - name: autoscaler-scalingengine
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -2108,7 +2115,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -2119,6 +2126,7 @@ instance_groups:
           external: 7104
           internal: 7104
 - name: autoscaler-scheduler
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -2133,7 +2141,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -2144,6 +2152,7 @@ instance_groups:
           external: 7102
           internal: 7102
 - name: autoscaler-operator
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -2158,12 +2167,13 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
           virtual-cpus: 2
 - name: autoscaler-servicebroker
+  if_feature: autoscaler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
@@ -2182,7 +2192,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -2209,6 +2219,7 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-eventgenerator
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -2223,7 +2234,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -2717,8 +2728,8 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.cc.opi.enabled: ((ENABLE_EIRINI))
-    properties.cc.opi.opi_staging: ((ENABLE_EIRINI))
+    properties.cc.opi.enabled: ((FEATURE_EIRINI_ENABLED))
+    properties.cc.opi.opi_staging: ((FEATURE_EIRINI_ENABLED))
     properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
@@ -2938,7 +2949,7 @@ configuration:
     properties.scf.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.scf.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.scf.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
-    properties.scf.eirini.enabled: ((ENABLE_EIRINI))
+    properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
     properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
     properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.scf.eirini.registry.address: "registry.((DOMAIN))"
@@ -3977,11 +3988,6 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
-- name: ENABLE_EIRINI
-  options:
-    default: 'false'
-    description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
-
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
@@ -3989,6 +3995,11 @@ variables:
       logging. To enable this feature, you must set this property to \"true\". You
       can learn more about the format of the logs here https://docs.cloudfoundry.org/loggregator/cc-uaa-logging.html#cc
       \n"
+- name: FEATURE_EIRINI_ENABLED
+  options:
+    type: environment
+    default: 'false'
+    description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
 - name: FORCE_FORWARDED_PROTO_AS_HTTPS
   options:
     default: false
