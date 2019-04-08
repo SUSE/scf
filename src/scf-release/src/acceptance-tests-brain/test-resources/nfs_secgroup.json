@@ -1,11 +1,11 @@
 [
     {
-        "destination": "192.168.77.77",
+        "destination": "<EXTERNAL_IP>",
         "protocol": "tcp",
         "ports": "111,662,875,892,2049,32803"
     },
     {
-        "destination": "192.168.77.77",
+        "destination": "<EXTERNAL_IP>",
         "protocol": "udp",
         "ports": "111,662,875,892,2049,32769"
     }

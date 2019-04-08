@@ -173,9 +173,9 @@ pipeline {
             description: 'Run SATS (SCF Acceptance Tests)',
         )
         booleanParam(
-            name: 'TEST_SCALER',
+            name: 'TEST_SITS',
             defaultValue: true,
-            description: 'Run app-autoscaler smoke test',
+            description: 'Run SITS (Cloud Foundry Sync Integration Tests)',
         )
         booleanParam(
             name: 'TEST_CATS',
@@ -225,11 +225,11 @@ pipeline {
         credentials(
             name: 'DOCKER_CREDENTIALS',
             description: 'Docker credentials used for publishing',
-            defaultValue: 'cred-docker-scf',
+            defaultValue: 'cred-docker-scf-staging',
         )
         string(
             name: 'FISSILE_DOCKER_REGISTRY',
-            defaultValue: '',
+            defaultValue: 'staging.registry.howdoi.website/',
             description: 'Docker registry to publish to',
         )
         string(
@@ -237,15 +237,15 @@ pipeline {
             defaultValue: 'splatform',
             description: 'Docker organization to publish to',
         )
-        booleanParam(
-            name: 'USE_SLE_BASE',
-            defaultValue: false,
-            description: 'Generates a build with the SLE stemcell and stack',
+        string(
+            name: 'FISSILE_DOCKER_REPO',
+            defaultValue: 'fissile-stemcell-sle12',
+            description: 'Docker repo name to pull from "<organization>/<repo>:<tag>"',
         )
-        booleanParam(
-            name: 'TRIGGER_SLES_BUILD',
-            defaultValue: false,
-            description: 'Trigger a SLES version of this job',
+        string(
+            name: 'FISSILE_STEMCELL_VERSION',
+            defaultValue: '12SP3-28.g972190a-0.219',
+            description: 'Fissile stemcell version used as docker image tag',
         )
         booleanParam(
             name: 'STARTED_BY_TRIGGER',
@@ -268,7 +268,8 @@ pipeline {
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
-        USE_SLE_BASE = "${params.USE_SLE_BASE}"
+        FISSILE_DOCKER_REPO = "${params.FISSILE_DOCKER_REPO}"
+        FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
     }
 
     stages {
@@ -283,15 +284,6 @@ pipeline {
                     }
                 }
             }
-        }
-
-        stage('trigger_sles_build') {
-          when {
-                expression { return params.TRIGGER_SLES_BUILD }
-          }
-          steps {
-            build job: 'scf-sles-trigger', wait: false, parameters: [string(name: 'JOB_NAME', value: env.JOB_NAME)]
-          }
         }
 
         stage('wipe') {
@@ -441,7 +433,7 @@ pipeline {
                             }
                             echo "Found expected version: ${expectedVersion}"
 
-                            def glob = "*scf-${params.USE_SLE_BASE ? "sle" : "opensuse"}-${expectedVersion}.*.zip"
+                            def glob = "*scf-sle-${expectedVersion}.*.zip"
                             def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
@@ -482,13 +474,8 @@ pipeline {
                     set -e +x
                     source ${PWD}/.envrc
                     set -x
-                    if [ "$USE_SLE_BASE" == "true" ]; then
-                        OS="sle"
-                    else
-                        OS="opensuse"
-                    fi
                     unset SCF_PACKAGE_COMPILATION_CACHE
-                    rm -f output/*-${OS}-*.zip output/*-${OS}-*.tgz
+                    rm -f output/*-sle-*.zip output/*-sle-*.tgz
                     make helm bundle-dist
                 '''
             }
@@ -496,7 +483,7 @@ pipeline {
 
         stage('deploy') {
             when {
-                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_CATS }
+                expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
             }
             steps {
                 sh """
@@ -504,26 +491,18 @@ pipeline {
                     source \${PWD}/.envrc
                     set -x
 
-                    suffix=""
-                    if [ "${params.USE_SLE_BASE}" == "true" ]; then
-                        OS="sle"
-                    else
-                        OS="opensuse"
-                        suffix="-opensuse"
-                    fi
-
                     kubectl delete storageclass hostpath || /bin/true
                     kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath","annotations":{"storageclass.kubernetes.io/is-default-class":"true"}},"provisioner":"kubernetes.io/host-path"}'
 
                     # Unzip the bundle
                     rm -rf output/unzipped
                     mkdir -p output/unzipped
-                    unzip -e output/scf-\${OS}-*.zip -d output/unzipped
+                    unzip -e output/scf-sle-*.zip -d output/unzipped
 
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    helm install output/unzipped/helm/uaa\${suffix} \
+                    helm install output/unzipped/helm/uaa \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.DOMAIN=${domain()} \
@@ -550,8 +529,10 @@ pipeline {
                     export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
                     export DOMAIN="${domain()}"
-                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
-                    make/run
+                    export CF_CHART="output/unzipped/helm/cf"
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
+                    make/run \
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
                     for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
@@ -574,11 +555,6 @@ pipeline {
                     source \${PWD}/.envrc
                     set -x
 
-                    suffix=""
-                    if [ "${params.USE_SLE_BASE}" == "false" ]; then
-                        suffix="-opensuse"
-                    fi
-
                     . make/include/secrets
 
                     # Get the last updated secret
@@ -591,7 +567,7 @@ pipeline {
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa\${suffix} \
+                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
@@ -616,12 +592,13 @@ pipeline {
                     export DOMAIN="${domain()}"
                     export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
                     export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
-                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    export CF_CHART="output/unzipped/helm/cf"
                     export SCF_SECRETS_GENERATION_COUNTER=2
-                    export SCF_ENABLE_AUTOSCALER=1
-                    export SCF_ENABLE_CREDHUB=1
-
-                    make/upgrade
+                    log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
+                    make/upgrade \
+                        --set enable.autoscaler=true \
+                        --set enable.credhub=true \
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     # Ensure old pods have time to terminate
                     sleep 60
@@ -690,23 +667,20 @@ pipeline {
             }
         }
 
-        stage('scaler') {
+        stage('sits') {
             when {
-                // Since we have autoescaler off by default, don't bother
-                // testing the autoscaler unless we've rotated the secrets
-                // (which also enables the autoscaler)
-                expression { return params.TEST_SCALER && params.TEST_ROTATE }
+                expression { return params.TEST_SITS }
             }
             steps {
-                setBuildStatus('scaler', 'pending')
-                runTest('autoscaler-smoke')
+                setBuildStatus('sits', 'pending')
+                runTest('sync-integration-tests')
             }
             post {
                 success {
-                    setBuildStatus('scaler', 'success')
+                    setBuildStatus('sits', 'success')
                 }
                 failure {
-                    setBuildStatus('scaler', 'failure')
+                    setBuildStatus('sits', 'failure')
                 }
             }
         }
@@ -802,7 +776,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/*-${params.USE_SLE_BASE ? "sle" : "opensuse"}-*")
+                            def files = findFiles(glob: "output/*-sle-*")
                             def subdir = "${params.S3_PREFIX}${distSubDir()}"
                             def prefix = distPrefix()
 
@@ -868,9 +842,10 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
             // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
             script {
-                if ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') && fileExists('bin/clean-jenkins-log')) {
+                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
                     writeFile(file: 'build.log', text: getBuildLog())
-                    sh 'bin/clean-jenkins-log'
+                    sh "bin/clean-jenkins-log"
+                    sh "container-host-files/opt/scf/bin/klog.sh -f ${jobBaseName()}-${BUILD_NUMBER}-scf"
                     withAWS(region: params.S3_REGION) {
                         withCredentials([usernamePassword(
                             credentialsId: params.S3_CREDENTIALS,
@@ -878,12 +853,21 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                         )]) {
                             script {
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}"
                                 def prefix = distPrefix()
+                                // If prefix is not empty then trimming trailing "-" from path as distPrefix() returns "PR-${CHANGE_ID}-".
+                                if (prefix){
+                                    prefix = prefix.substring(0, prefix.length() - 1)
+                                }
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",
-                                    path: "${subdir}${prefix}${env.BUILD_TAG}",
+                                    path: "${subdir}",
+                                )
+                                s3Upload(
+                                    file: 'klog.tar.gz',
+                                    bucket: "${params.S3_LOG_BUCKET}",
+                                    path: "${subdir}",
                                 )
                             }
                         }

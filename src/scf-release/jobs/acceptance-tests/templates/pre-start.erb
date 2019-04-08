@@ -17,3 +17,11 @@ if test -n "${IP}" && test -z "${IP//[0-9.]/}" ; then
     cf bind-staging-security-group loopback
     cf bind-running-security-group loopback
 fi
+
+# Install any CF CLI plugins
+mkdir -p "${HOME}/.cf/plugins/"
+set -x
+for plugin in $(find -L /var/vcap/packages/cli-*-plugin -type f) ; do
+    cf install-plugin -f "${plugin}"
+done
+

@@ -4,117 +4,129 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.66.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.66.0"
-  sha1: "4236495d4a047fb9396996aba3daea9e0cb3f1bf"
+  version: "1.78.0+dev.4"
+  url: "https://s3.amazonaws.com/cap-experiments/capi-6e4864e.tgz"
+  sha1: "e45c1a4d93f12a325e04d103cbd9a3ff6fa8a38a"
+- name: cf-cli
+  version: 1.11.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.11.0
+  sha1: 43a21ad63156f20a0f6f56343e59d11882a69ca0
 - name: cf-mysql
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
-  version: 36.15.0
-  sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
+  version: 36.17.0
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.17.0
+  sha1: 04cbfafa0a2c11b133da20de8282595c98bc0049
 - name: cf-smoke-tests
-  version: "40.0.6"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.6"
-  sha1: "df727e63fb046c694098527845a2a0294b257635"
+  version: 40.0.44
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.44
+  sha1: 4f230c07e61bc01d374f9c56eb18dcdb84e29714
 - name: cf-syslog-drain
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=7.0
-  version: "7.0"
-  sha1: 5b633a277044f78f333b68da54f804b2384d889d
+  version: "8.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
+  sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
 - name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.266.0"
-  version: "1.266.0"
-  sha1: "f0cce2ae8ec4afae50f4ee8483c75a0116d4192f"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.278.0"
+  version: "1.278.0"
+  sha1: "38f570e236694ce3fe2d058b5d04a227974df84e"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.60.0"
-  version: "0.60.0"
-  sha1: "9b8f7e0f905326802ffe818e7b449b9b1b5b8f8b"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.76.0"
+  version: "0.76.0"
+  sha1: "5f6195b65218b7ee75cf62b0d5dcc0de7cad88ad"
 - name: credhub
-  url: "https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.0.2"
-  version: 2.0.2
-  sha1: "490f7a1e521dd8fbb5ed1426d1148f6586e7e8c3"
+  version: 2.1.2
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.2
+  sha1: 754a24dbffe8bc5efce7e698d935b5f4df541f38
 - name: diego
-  version: "2.16.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.16.0"
-  sha1: "dec82d771afd83e1d8e85f512e6a619b371e7f19"
+  version: 2.25.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.25.0
+  sha1: e896a1e8205eff27bf7778f5bfa1d42c8befe943
 - name: garden-runc
-  version: "1.16.3"
-  url: "https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.16.3"
-  sha1: "2a7c813e7e4d862e19334addf022916fb6b91eb0"
+  version: 1.17.2
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.2
+  sha1: 881aad6294233e7c80ee62a48841fbe21af4a35e
 - name: loggregator
-  version: "103.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=103.1"
-  sha1: "4377aac0179f1e9944ba5b936d59ef0427163f7b"
+  version: 104.4
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.4
+  sha1: 133e3ddc86bc233ade19ba3303d39a00cc55af64
+- name: log-cache
+  version: 2.0.2
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.2
+  sha1: 1f52248096ce2263405f3c82278e4f2aaddf1599
+- name: mapfs
+  version: "1.1.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
+  sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
-  version: "25"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nats-release?v=25"
-  sha1: "a83d5ae37125e48284fd50b099befac1de419a8a"
+  version: '26'
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=26
+  sha1: 2f2c27acdfff81f3519968921686522518ab5783
 - name: nfs-volume
-  version: "1.2.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.2.0"
-  sha1: "de807ffa3fc84949bb92edac6a4152245826d6da"
-- name: cf-routing
-  version: "0.180.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0"
-  sha1: "990c2c319e6063573eec18dbeb7c3631a382db7d"
+  version: "1.5.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
+  sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+- name: routing
+  version: 0.184.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.184.0
+  sha1: f35eb9884e1c097ff21843e6f2d0eebd22ac2073
 - name: statsd-injector
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.3.0
-  version: 1.3.0
-  sha1: 5b9357484032e5217cead8f20362f5802c751de0
+  version: 1.5.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
+  sha1: 49a38aca12e0fd2ec28f96c780c1971427dda04e
 - name: loggregator-agent
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=2.0
-  version: "2.0"
-  sha1: df91c31c15da68c7b2905645b20b93a930627d46
+  version: "3.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.2"
+  sha1: "dd7c7bc6574823881c17dd180a834ab2076021ed"
 - name: binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.30.1.tgz"
-  version: "1.0.30.1"
-  sha1: "35d15308569a443c9702763a8ddc11f3f93fbee2"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.31.1.tgz"
+  version: "1.0.31.1"
+  sha1: "4200a6fcdcab0ffdc7fc1cad28f8cbf4f12b9ff1"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.33.1.tgz"
-  version: "1.8.33.1"
-  sha1: "83c52b81e4d2d48887eac50b4e3a47cc4895e7f1"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.35.1.tgz"
+  version: "1.8.35.1"
+  sha1: "892149a994765280320e221bba9193bca2c7a664"
 - name: java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.17.2.1.tgz"
-  version: "4.17.2.1"
-  sha1: "85e847c3fb6336342246d5cda3ff2098bbf63804"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.0.1.tgz"
+  version: "4.19.0.1"
+  sha1: "0d87a343482b200e0051597a106d40fbc69a32b7"
 - name: nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.43.1.tgz"
-  version: "1.6.43.1"
-  sha1: "5a1e3ddaf30118fd3d1284824173519e3c459ea4"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.47.1.tgz"
+  version: "1.6.47.1"
+  sha1: "2116b9b47b99d301128b52e4fd252d16846628c7"
 - name: php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.70.1.tgz"
-  version: "4.3.70.1"
-  sha1: "29a666a856c60bbc29cf8dd41d9d8f2349481d83"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.70.2.tgz"
+  version: "4.3.70.2"
+  sha1: "965ae8f861f9391652ee21eba4c43062cffb25d1"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.27.1.tgz"
-  version: "1.6.27.1"
-  sha1: "9cf483e3decc177855308bd2e753ead4ccc69214"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.30.1.tgz"
+  version: "1.6.30.1"
+  sha1: "c92bea0448aff1833f040534fba6456a2e1c4de7"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.31.1.tgz"
-  version: "1.7.31.1"
-  sha1: "ede4ae9fb3fb5a400af9d509d6841d9a3991028d"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.35.1.tgz"
+  version: "1.7.35.1"
+  sha1: "cb947dcc514e3670088a07da58fc84208c4f8393"
 - name: staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.39.1.tgz"
-  version: "1.4.39.1"
-  sha1: "0fd595e38463c09292e5115cb2ba559270f4ce1f"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.41.1.tgz"
+  version: "1.4.41.1"
+  sha1: "60b50024586f0dbbf402e2a6fb22aa86934aafc0"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.8.1.tgz"
-  version: "1.0.8.1"
-  sha1: "375746c241aa0ce580d0db8947ad9647e4c6292b"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.10.1.tgz"
+  version: "1.0.10.1"
+  sha1: "8730932aa36f54a0fc4794619a95cd6c75f62e6f"
 - name: dotnet-core-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.0.3"
-  version: "2.0.3"
-  sha1: "2b421702ee71687d10c2e9a296475b33e6d77b16"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.7.1.tgz"
+  version: "2.2.7.1"
+  sha1: "dc3f525c02701b06d60e31dfeb7c677806bfff35"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
-- name: opensuse42
-  url: "https://s3.amazonaws.com/suse-final-releases/opensuse42-release-1.8.6.tgz"
-  version: "1.8.6"
-  sha1: "93b903d5c86c3b13a3bbdf76438dd730f76aac9b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.52.6.tgz"
-  version: "1.52.6"
-  sha1: "021ff9ea09ebce2d7fe897d3a70a9dd95e728866"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.75.8.tgz"
+  version: "1.75.8"
+  sha1: "673b02d1812d00b05525b948d4d4f64e6fe3c3c9"
+- name: sle15
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.15.tgz"
+  version: "4.15"
+  sha1: "cb6c4b78e1fdfd6251e5c1834d63f119277aabbb"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -128,17 +140,99 @@ releases:
   version: "1.0.4"
   sha1: "22381250b0f334d2c5dde04e85a9c1116d8e04fa"
 - name: scf-helper
-  version: "1.0.1"
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.1.tgz"
-  sha1: "94bb4357cbe5fa07ddeb7efef1d1f7a2af8dfead"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.2.tgz"
+  version: "1.0.2"
+  sha1: "0f2fb334ad456e35fff7be1fc56edaf2e07e4e26"
+- name: "bits-service"
+  version: "2.26.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
+  sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 
 instance_groups:
-- name: syslog-scheduler
+- name: eirini
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: opi
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: opi-server
+          protocol: TCP
+          internal: 8085
+- name: bits
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/bits_add_missing_config_keys.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: route_registrar
+    release: routing
+  - name: statsd_injector
+    release: statsd-injector
+  - name: eirinifs
+    release: eirini
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
+  - name: bits-service
+    release: bits-service
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: server
+          protocol: TCP
+          internal: 443
+  configuration:
+    templates:
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))", "registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
+- name: syslog-scheduler
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: scheduler
     release: cf-syslog-drain
@@ -174,12 +268,21 @@ instance_groups:
         - name: sched-health
           protocol: TCP
           internal: 8080
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: adapter
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: adapter
     release: cf-syslog-drain
@@ -218,14 +321,23 @@ instance_groups:
         - name: adapter-health
           protocol: TCP
           internal: 8080
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: nats
     release: nats
@@ -263,6 +375,13 @@ instance_groups:
         - name: nats-routes
           protocol: TCP
           internal: 4223
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: mysql
   scripts:
   - scripts/create_mysql_data_tmp.sh
@@ -272,7 +391,7 @@ instance_groups:
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: patch-properties
     release: scf-helper
@@ -359,17 +478,19 @@ instance_groups:
       properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 - name: cf-usb-group
+  default_feature: cf_usb
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: cf-usb
     release: cf-usb
@@ -418,15 +539,16 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"usb", "port": 24053, "uris":["usb.((DOMAIN))", "*.usb.((DOMAIN))"], "registration_interval":"10s"}, {"name":"broker", "port": 24054, "uris":["brokers.((DOMAIN))", "*.brokers.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-api
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bbs
     release: diego
@@ -446,7 +568,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - head -c0 </dev/tcp/${HOSTNAME}/8891
+              - head -c0 </dev/tcp/${HOSTNAME}/8889
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -459,7 +581,7 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
+          service-account: privileged
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -471,14 +593,6 @@ instance_groups:
     release: scf-helper
   - name: cfdot
     release: diego
-  - name: locket
-    release: diego
-    properties:
-      bosh_containerization:
-        ports:
-        - name: locket
-          protocol: TCP
-          internal: 8891
   tags:
   - active-passive
   - sequential-startup
@@ -486,10 +600,58 @@ instance_groups:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.diego.bbs.advertisement_base_hostname: ((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
+- name: locket
+  environment_scripts:
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: locket
+    release: diego
+    properties:
+      bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
+        run:
+          scaling:
+            min: 1
+            max: 3
+            ha: 2
+          capabilities: [SYS_RESOURCE]
+          memory: 128
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - head -c0 </dev/tcp/${HOSTNAME}/8891
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - locket
+                  topologyKey: "beta.kubernetes.io/os"
+          service-account: privileged
+        ports:
+        - name: locket
+          protocol: TCP
+          internal: 8891
 - name: router
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -497,11 +659,12 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_gorouter_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bpm
     release: bpm
@@ -560,11 +723,6 @@ instance_groups:
           protocol: TCP
           internal: 443
           public: true
-        - name: doppler-ssl
-          protocol: TCP
-          external: 4443
-          internal: 443
-          public: true
 - name: tcp-router
   # XXX haproxy might be able to co-locate with one of the others
   # But this is a _different_ HAProxy from the one in the CF release.
@@ -574,10 +732,12 @@ instance_groups:
   - scripts/patches/fix_haproxy_fd_requirements.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: wait-for-uaa
     release: scf
@@ -622,6 +782,13 @@ instance_groups:
           public: true
           count-configurable: true
           max: 20
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
   configuration:
     templates:
       properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
@@ -631,11 +798,12 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_routingapi_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: bpm
     release: bpm
@@ -695,11 +863,12 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: patch-properties
     release: scf-helper
@@ -742,6 +911,9 @@ instance_groups:
         - name: api-tls
           protocol: TCP
           internal: 9023
+        - name: api-mutual-tls
+          protocol: TCP
+          internal: 9024
         - name: statsd
           protocol: TCP
           internal: 8125
@@ -780,16 +952,18 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"api", "port":9022, "tags":{"component":"CloudController"}, "uris":["api.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: cloud_controller_worker
     release: capi
@@ -817,6 +991,13 @@ instance_groups:
                       values:
                       - cc-worker
                   topologyKey: "beta.kubernetes.io/os"
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -825,9 +1006,10 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_chown_blobstore_packages.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: blobstore
     release: capi
@@ -870,14 +1052,24 @@ instance_groups:
 - name: cc-clock
   scripts:
   - scripts/forward_logfiles.sh
-  - scripts/patches/cc_clock_wait_for_api_ready.sh
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
+  - name: wait-for-api
+    release: scf
+    # This job contains a pre-start script whose prupose is to delay
+    # pod startup until the API role is up, and thus has run and
+    # completed the CC database migrations. If the clock role and job
+    # become active while the API role is still doing migrations, or
+    # has not even started them yet then the two roles can get into a
+    # conflict wrt database access and state which blocks the entire
+    # system from coming up.
   - name: cloud_controller_clock
     release: capi
     properties:
@@ -906,13 +1098,111 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
   - name: statsd_injector
     release: statsd-injector
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
+- name: log-cache-scheduler
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_logcache_certs_scheduler.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: log-cache-scheduler-properties
+    release: scf
+  - name: log-cache-scheduler
+    release: log-cache
+    # defaults
+  - name: log-cache-expvar-forwarder
+    release: log-cache
+    # defaults
+    properties:
+      bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
+        run:
+          service-account: privileged
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          capabilities: []
+          memory: 410
+          virtual-cpus: 2
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - doppler
+                  topologyKey: "beta.kubernetes.io/os"
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
+  configuration:
+    templates:
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.maps: >
+        [{ "name": "worker-assignments",
+           "source_id": "log-cache-scheduler",
+           "addr": "http://localhost:6064/debug/vars",
+           "template": "{{.WorkerAssignments | jsonMap}}" },
+         { "name": "worker-health",
+           "source_id": "log-cache-scheduler",
+           "addr": "http://localhost:6064/debug/vars",
+           "template": "{{.WorkerHealth | jsonMap}}" }
+        ]
 - name: doppler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: log-cache-gateway
+    release: log-cache
+    # gateway_addr - default - ":8081"
+  - name: log-cache-nozzle
+    release: log-cache
+    # mostly default, logs_provider cert, see below
+  - name: log-cache-cf-auth-proxy
+    release: log-cache
+  - name: log-cache-expvar-forwarder
+    release: log-cache
+    # defaults
+  - name: log-cache
+    release: log-cache
+    # certs, see below
+    properties:
+      bosh_containerization:
+        ports:
+        - name: log-cache
+          protocol: TCP
+          internal: 8080
   - name: doppler
     release: loggregator
     properties:
@@ -959,17 +1249,130 @@ instance_groups:
         - name: doppler-grpc
           protocol: TCP
           internal: 8082
+        - name: log-cache-proxy # log-cache-cf-auth-proxy
+          protocol: TCP
+          internal: 8083
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          service-account: privileged
+  - name: route_registrar
+    release: routing
+  configuration:
+    templates:
+      properties.proxy_port: 8083 # log-cache-cf-auth-proxy
+      properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.cc.cert: '"((LOG_CACHE_CERT))"'
+      properties.cc.key:  '"((LOG_CACHE_CERT_KEY))"'
+      properties.uaa.client_id: 'doppler'
+      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
+      properties.counters: >
+        [{ "name": "egress",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.Egress}}" },
+         { "name": "ingress",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.Ingress}}" },
+         { "name": "expired",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.Expired}}" },
+         { "name": "dropped",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.Dropped}}" },
+         { "name": "promql-timeout",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.PromQLTimeout}}" },
+         { "name": "egress",
+           "source_id": "log-cache-nozzle",
+           "addr": "http://localhost:6061/debug/vars",
+           "template": "{{.Nozzle.Egress}}" },
+         { "name": "ingress",
+           "source_id": "log-cache-nozzle",
+           "addr": "http://localhost:6061/debug/vars",
+           "template": "{{.Nozzle.Ingress}}" },
+         { "name": "err",
+           "source_id": "log-cache-nozzle",
+           "addr": "http://localhost:6061/debug/vars",
+           "template": "{{.Nozzle.Err}}" },
+         { "name": "dropped",
+           "source_id": "log-cache-nozzle",
+           "addr": "http://localhost:6061/debug/vars",
+           "template": "{{.Nozzle.Dropped}}" }
+        ]
+      properties.gauges: >
+        [{ "name": "cache-period",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.CachePeriod}}" },
+         { "name": "store-size",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.StoreSize}}" },
+         { "name": "total-system-memory",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.TotalSystemMemory}}" },
+         { "name": "available-system-memory",
+           "source_id": "log-cache",
+           "addr": "http://localhost:6060/debug/vars",
+           "template": "{{.LogCache.AvailableSystemMemory}}" },
+         { "name": "last-uaa-latency",
+           "source_id": "log-cache-cf-auth-proxy",
+           "addr": "http://localhost:6065/debug/vars",
+           "template": "{{.CFAuthProxy.LastUAALatency}}" },
+         { "name": "last-capi-v3-apps-latency",
+           "source_id": "log-cache-cf-auth-proxy",
+           "addr": "http://localhost:6065/debug/vars",
+           "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" },
+         { "name": "last-capi-v2-list-service-instances-latency",
+           "source_id": "log-cache-cf-auth-proxy",
+           "addr": "http://localhost:6065/debug/vars",
+           "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" },
+         { "name": "last-capi-v4-log-access-latency",
+           "source_id": "log-cache-cf-auth-proxy",
+           "addr": "http://localhost:6065/debug/vars",
+           "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" },
+         { "name": "last-capi-v2-service-instances-latency",
+           "source_id": "log-cache-cf-auth-proxy",
+           "addr": "http://localhost:6065/debug/vars",
+           "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
+        ]
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.route_registrar.routes: >
+        [{ "name": "log-cache-reverse-proxy",
+           "port": 8083,
+           "tags": { "component":"log-cache" },
+           "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
+           "registration_interval": "20s" }
+        ]
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: loggregator_trafficcontroller
     release: loggregator
@@ -1026,15 +1429,16 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: diego-brain
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: auctioneer
     release: diego
@@ -1064,7 +1468,7 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
-          service-account: withsysresource
+          service-account: privileged
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1078,7 +1482,7 @@ instance_groups:
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
@@ -1088,10 +1492,12 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: tps
     release: capi
@@ -1129,16 +1535,24 @@ instance_groups:
         - name: cc-up-dbg
           protocol: TCP
           internal: 17018
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: diego-ssh
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: ssh_proxy
     release: diego
@@ -1170,7 +1584,7 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
+          service-account: privileged
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1192,10 +1606,12 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/nfsbroker_cert_prop.sh
+  - scripts/patches/nfsbroker_ctl.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: nfsbroker
     release: nfs-volume
@@ -1228,7 +1644,13 @@ instance_groups:
           internal: 8999
   tags:
   - sequential-startup
+  configuration:
+    templates:
+      properties.nfsbroker.credhub.ca_cert: '~'
+      properties.nfsbroker.credhub.uaa_ca_cert: '~'
+      properties.nfsbroker.db_ca_cert: '~'
 - name: diego-cell
+  unless_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/set-diego-cell-memory-limits.sh
@@ -1237,16 +1659,20 @@ instance_groups:
   - scripts/configure-az.sh
   - scripts/configure-pz.sh
   scripts:
+  - scripts/check_swapaccounting.sh
   - scripts/configure-nested-net.sh
   - scripts/cleanup-garden-graph.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/mapfs_pre_start.sh
+  - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
+  - scripts/patches/fix_garden_logdir.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: get-kubectl
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: authorize-internal-ca
+  - name: get-kubectl
     release: scf
   - name: wait-for-uaa
     release: scf
@@ -1316,10 +1742,10 @@ instance_groups:
     release: cflinuxfs2
   - name: cflinuxfs3-rootfs-setup
     release: cflinuxfs3
-  - name: opensuse42-rootfs-setup
-    release: cf-opensuse42
   - name: cf-sle12-setup
     release: cf-sle12
+  - name: sle15-rootfs-setup
+    release: sle15
   - name: nfsv3driver
     release: nfs-volume
     properties:
@@ -1331,12 +1757,14 @@ instance_groups:
         - name: nfs-admin
           protocol: TCP
           internal: 7590
+  - name: mapfs
+    release: mapfs
   configuration:
     templates:
       properties.bbs.hostname: '"diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"' # cfdot property
       properties.containers.trusted_ca_certificates: "[((#TRUSTED_CERTS))((TRUSTED_CERTS)),((/TRUSTED_CERTS))((INTERNAL_CA_CERT))]"
       properties.diego.rep.advertise_domain: diego-cell-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.locket.hostname: '"diego-api-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
+      properties.locket.hostname: '"locket-locket.((KUBERNETES_NAMESPACE))"'    # cfdot property
       properties.tls.ca_cert: ((INTERNAL_CA_CERT))
       properties.tls.ca_certificate: ((INTERNAL_CA_CERT))                   # cfdot property
       properties.tls.cert: ((REP_SERVER_CERT))
@@ -1347,10 +1775,12 @@ instance_groups:
   type: bosh-task
   tags:
   - stop-on-failure
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: acceptance-tests-brain
     release: scf
@@ -1358,11 +1788,11 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: test-brain
+          service-account: tests
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1370,9 +1800,9 @@ instance_groups:
   scripts:
   - scripts/cf_acceptance_tests_suites.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: acceptance-tests
     release: scf
@@ -1380,7 +1810,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
           flight-stage: manual
           capabilities: []
@@ -1389,17 +1819,17 @@ instance_groups:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
-- name: smoke-tests
+- name: sync-integration-tests
   type: bosh-task
   tags:
   - stop-on-failure
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # This needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: authorize-internal-ca
     release: scf
-  - name: smoke_tests
-    release: cf-smoke-tests
+  - name: sync-integration-tests
+    release: scf
     properties:
       bosh_containerization:
         run:
@@ -1408,6 +1838,51 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
+          service-account: tests
+  configuration:
+    templates:
+      properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
+      properties.sync_integration_tests.bbs.svc.namespace: ((KUBERNETES_NAMESPACE))
+      properties.sync_integration_tests.bbs.svc.port: 8889
+      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+      properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
+      properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
+      properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
+      properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
+      properties.sync_integration_tests.setup.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
+      properties.sync_integration_tests.setup.verbose: "'((SYNC_INTEGRATION_TESTS_VERBOSE))'"
+      properties.sync_integration_tests.setup.skip: "'((SYNC_INTEGRATION_TESTS_SKIP))'"
+      properties.sync_integration_tests.setup.focus: "'((SYNC_INTEGRATION_TESTS_FOCUS))'"
+- name: smoke-tests
+  type: bosh-task
+  tags:
+  - stop-on-failure
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: cf-cli-6-linux
+    release: cf-cli
+  - name: smoke_tests
+    release: cf-smoke-tests
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+          flight-stage: manual
+          capabilities: []
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1436,9 +1911,9 @@ instance_groups:
 - name: post-deployment-setup
   type: bosh-task
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: uaa-create-user
     release: scf
@@ -1454,16 +1929,19 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
+          service-account: eirini
 - name: credhub-user
+  if_feature: credhub
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: credhub
     release: credhub
@@ -1471,7 +1949,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 1
             ha: 1
           capabilities: []
@@ -1515,12 +1993,14 @@ instance_groups:
       properties.credhub.tls: '{"certificate":"((CREDHUB_SERVER_CERT))","private_key":"((CREDHUB_SERVER_CERT_KEY))"}'
       properties.route_registrar.routes: '[{"name":"credhub", "tls_port":8844, "server_cert_domain_san":"credhub-set", "tags":{"component":"credhub"}, "uris":["credhub.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-postgres
+  if_feature: autoscaler
   scripts:
   - scripts/chown_vcap_store.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_postgres_prestart.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: postgres
     release: postgres
@@ -1528,7 +2008,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           volumes:
@@ -1550,14 +2030,16 @@ instance_groups:
       properties.databases.port: 5432
       properties.databases.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
 - name: autoscaler-api
+  if_feature: autoscaler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: apiserver
     release: app-autoscaler
@@ -1572,10 +2054,9 @@ instance_groups:
           protocol: TCP
           external: 7106
           internal: 7106
-          public: true
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 256
@@ -1593,13 +2074,14 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-metrics
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: metricscollector
     release: app-autoscaler
@@ -1607,7 +2089,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 128
@@ -1618,13 +2100,14 @@ instance_groups:
           external: 7103
           internal: 7103
 - name: autoscaler-scalingengine
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: scalingengine
     release: app-autoscaler
@@ -1632,7 +2115,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -1643,13 +2126,14 @@ instance_groups:
           external: 7104
           internal: 7104
 - name: autoscaler-scheduler
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: scheduler
     release: app-autoscaler
@@ -1657,7 +2141,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -1668,13 +2152,14 @@ instance_groups:
           external: 7102
           internal: 7102
 - name: autoscaler-operator
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: operator
     release: app-autoscaler
@@ -1682,22 +2167,24 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
           virtual-cpus: 2
 - name: autoscaler-servicebroker
+  if_feature: autoscaler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_route_registrar_bpm_dns.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: servicebroker
     release: app-autoscaler
@@ -1705,7 +2192,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -1719,7 +2206,6 @@ instance_groups:
           protocol: TCP
           external: 7101
           internal: 7101
-          public: true
   - name: route_registrar
     release: routing
   - name: bpm
@@ -1733,13 +2219,14 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: autoscaler-eventgenerator
+  if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: authorize-internal-ca
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: eventgenerator
     release: app-autoscaler
@@ -1747,7 +2234,7 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
-            min: 0
+            min: 1
             max: 3
             ha: 2
           memory: 2350
@@ -1757,39 +2244,15 @@ instance_groups:
           protocol: TCP
           external: 7105
           internal: 7105
-- name: autoscaler-smoke
-  type: bosh-task
-  tags:
-  - stop-on-failure
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
-    release: scf-helper
-  - name: authorize-internal-ca
-    release: scf
-  - name: autoscaler-smoke
-    release: scf
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 0
-            max: 1
-          flight-stage: manual
-  configuration:
-    templates:
-      properties.smoke_tests.api: api.((DOMAIN))
-      properties.smoke_tests.apps_domain: ((DOMAIN))
-      properties.smoke_tests.autoscaler_service_broker_endpoint: https://autoscalerservicebroker.((DOMAIN))
-      properties.smoke_tests.password: ((CLUSTER_ADMIN_PASSWORD))
-      properties.smoke_tests.skip_ssl_validation: false
 - name: loggregator-agent
   type: colocated-container
-  configuration:
-    templates:
-      properties.fissile.monit.port: 2290
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates
+  - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: loggr-expvar-forwarder
+    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -1799,6 +2262,74 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          service-account: privileged
+  configuration:
+    templates:
+      properties.counters: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.Dropped}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedEgressV2}}",
+           "tags": {
+             "direction": "egress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "dropped",
+           "template": "{{.Agent.DroppedIngressV2}}",
+           "tags": {
+             "direction": "ingress",
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.Egress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "egress",
+           "template": "{{.Agent.EgressV2}}",
+           "tags": {
+             "metric_version": "2.0" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.Ingress}}" },
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "ingress",
+           "template": "{{.Agent.IngressV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.default_source_id: 'metron'
+      properties.fissile.monit.port: 2290
+      properties.gauges: >
+        [{ "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelope}}",
+           "tags": {
+             "loggregator": "v1" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "average_envelopes",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.AverageEnvelopeV2}}",
+           "tags": {
+             "metric_version": "2.0",
+             "loggregator": "v2" }},
+         { "addr": "http://127.0.0.1:14824/debug/vars",
+           "name": "origin_mappings",
+           "unit": "bytes/minute",
+           "template": "{{.Agent.OriginMappingsV2}}",
+           "tags": {
+             "metric_version": "2.0" }}
+        ]
+      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
+      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
+      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
 configuration:
   auth:
     roles:
@@ -1820,9 +2351,15 @@ configuration:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
+      - apiGroups: [extensions]
+        resources: [replicasets]
+        verbs: [create, get, list, delete, update]
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [create, get, update, delete]
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: [create, get, list, delete, update]
       - apiGroups: [""]
         resources: ["pods/exec"]
         verbs: [create, delete]
@@ -1852,6 +2389,10 @@ configuration:
         resourceNames: [privileged]
         resources: [podsecuritypolicies]
         verbs: [use]
+      eirini-role:
+      - apiGroups: ["*"]
+        resources: ["*"]
+        verbs: ["*"]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
@@ -1863,7 +2404,7 @@ configuration:
         resources: [pods/portforward]
         verbs: [create]
       - apiGroups: ["rbac.authorization.k8s.io"]
-        resources: [clusterrolebinding]
+        resources: [clusterrolebindings]
         verbs: [delete]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
@@ -1902,12 +2443,15 @@ configuration:
       secret-generator:
         roles: [configgin-role, secrets-role]
         cluster-roles: [nonprivileged]
-      test-brain:
+      tests:
         roles: [configgin-role, test-role]
         cluster-roles: [nonprivileged, test-cluster-role]
       garden-runc:
         roles: [configgin-role]
         cluster-roles: [privileged, node-reader-role]
+      eirini:
+        roles: [configgin-role]
+        cluster-roles: [eirini-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2085,6 +2629,35 @@ configuration:
     properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
     properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
     properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
+
+
+    properties.bits-service.active_signing_key.secret: "((BITS_SERVICE_SECRET))"
+    properties.bits-service.app_stash.webdav_config.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.bits-service.app_stash.webdav_config.password: "((BLOBSTORE_PASSWORD))"
+    properties.bits-service.app_stash.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.app_stash.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.buildpacks.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.buildpacks.webdav_config.password: ((BLOBSTORE_PASSWORD))
+    properties.bits-service.buildpacks.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.buildpacks.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.cc_updates.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.cc_updates.cc_url: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024/internal/v4/packages"
+    properties.bits-service.cc_updates.client_cert: ((CC_PUBLIC_TLS_CERT))
+    properties.bits-service.cc_updates.client_key: ((CC_PUBLIC_TLS_CERT_KEY))
+    properties.bits-service.droplets.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.droplets.webdav_config.password: ((BLOBSTORE_PASSWORD))
+    properties.bits-service.droplets.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.droplets.webdav_config.public_endpoint: "https://blobstore.((DOMAIN))"
+    properties.bits-service.packages.webdav_config.ca_cert: ((INTERNAL_CA_CERT))
+    properties.bits-service.packages.webdav_config.password: ((BLOBSTORE_PASSWORD))
+    properties.bits-service.packages.webdav_config.private_endpoint: "https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443"
+    properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
+    properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
+    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
+    properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
+    properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
+
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2109,11 +2682,17 @@ configuration:
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
-    properties.capi.tps.watcher.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
+
+    properties.cc.bits_service.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.cc.bits_service.password: "((BITS_ADMIN_USERS_PASSWORD))"
+    properties.cc.bits_service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.cc.bits_service.public_endpoint: "https://bits.((DOMAIN))"
+
     properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -2149,9 +2728,15 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.cc.opi.enabled: ((FEATURE_EIRINI_ENABLED))
+    properties.cc.opi.opi_staging: ((FEATURE_EIRINI_ENABLED))
+    properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
+    properties.cc.public_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.cc.public_tls.certificate: '"((CC_PUBLIC_TLS_CERT))"'
+    properties.cc.public_tls.private_key: '"((CC_PUBLIC_TLS_CERT_KEY))"'
     properties.cc.resource_pool.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.resource_pool.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.resource_pool.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2170,8 +2755,8 @@ configuration:
     properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
-    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs
+    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024
+    properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
@@ -2186,7 +2771,7 @@ configuration:
     properties.diego.auctioneer.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.auctioneer.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.auctioneer.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.diego.auctioneer.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.diego.auctioneer.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.auctioneer.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.auctioneer.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.auctioneer.rep.client_cert: '"((AUCTIONEER_REP_CERT))"'
@@ -2199,6 +2784,7 @@ configuration:
     properties.diego.bbs.auctioneer.client_key: '"((BBS_AUCTIONEER_CERT_KEY))"'
     properties.diego.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.encryption_keys: '[{"label": "active", "passphrase": "((BBS_ACTIVE_KEY_PASSPHRASE))"}]'
+    properties.diego.bbs.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.diego.bbs.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.bbs.rep.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.diego.bbs.rep.client_cert: '"((BBS_REP_CERT))"'
@@ -2216,7 +2802,7 @@ configuration:
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
-    properties.diego.rep.locket.api_location: diego-api-locket.((KUBERNETES_NAMESPACE)):8891
+    properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
     properties.diego.rep.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.rep.placement_tags: "[((KUBE_PZ))]"
     properties.diego.rep.zone: '"((KUBE_AZ))"'
@@ -2239,7 +2825,6 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.doppler.addr: '"doppler-doppler-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
@@ -2259,7 +2844,7 @@ configuration:
     properties.grootfs.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     # How to reach the capi.cc_uploader
     properties.internal_hostname: cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.locks.locket.hostname: diego-api-locket.((KUBERNETES_NAMESPACE))
+    properties.locks.locket.hostname: locket-locket.((KUBERNETES_NAMESPACE))
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_CERT_KEY))
@@ -2277,6 +2862,9 @@ configuration:
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+    properties.loggregator_agent.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.loggregator_agent.tls.cert: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT))"'
+    properties.loggregator_agent.tls.key: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
@@ -2300,7 +2888,27 @@ configuration:
     properties.nfsv3driver.ldap_svc_user: '"((PERSI_NFS_DRIVER_LDAP_USER))"'
     properties.nfsv3driver.ldap_user_fqdn: '"((PERSI_NFS_DRIVER_LDAP_USER_FQDN))"'
     properties.nfsv3driver.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.opensuse42-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
+
+    properties.opi.cc_ca: "((INTERNAL_CA_CERT))"
+    properties.opi.cc_cert: "((CC_SERVER_CRT))"
+    properties.opi.cc_internal_api: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023"
+    properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
+    properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
+    properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.opi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.opi.loggregator_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.opi.loggregator_ca: "((INTERNAL_CA_CERT))"
+    properties.opi.loggregator_cert: "((DOPPLER_CERT))"
+    properties.opi.loggregator_key: "((DOPPLER_CERT_KEY))"
+    properties.opi.metrics_source_address: "((EIRINI_KUBE_HEAPSTER_ADDRESS))"
+    # TODO: this needs to be fixed upstream - it should be an array
+    properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.opi.nats_password: "((NATS_PASSWORD))"
+    properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.stager_image: ((EIRINI_IMAGE))
+
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
@@ -2311,7 +2919,7 @@ configuration:
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
     properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_CERT_KEY))"}]((/ROUTER_TLS_PEM))'
-    properties.routing_api.locket.api_location: '"diego-api-locket.((KUBERNETES_NAMESPACE)):8891"'
+    properties.routing_api.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
@@ -2323,19 +2931,31 @@ configuration:
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.scalablesyslog.adapter.logs.addr: '"log-api-reverse-log-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
     properties.scalablesyslog.adapter_rlp.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter_rlp.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
     properties.scalablesyslog.adapter_rlp.tls.key: '"((SYSLOG_ADAPT_CERT_KEY))"'
+    properties.scalablesyslog.scheduler.api.url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023
     properties.scalablesyslog.scheduler.tls.api.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.api.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.api.key: '"((SYSLOG_SCHED_CERT_KEY))"'
     properties.scalablesyslog.scheduler.tls.client.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_CERT_KEY))"'
+
+    properties.scf.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
+    properties.scf.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.scf.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
+    properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
+    properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.scf.eirini.registry.address: "registry.((DOMAIN))"
+
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
+    properties.scf.secrets_generation_name: "((KUBE_SECRETS_GENERATION_NAME))"
     properties.scf.uaa.internal-url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.scf.uaa.root-zone.url: https://((UAA_HOST)):((UAA_PORT))
     properties.scf_set_proxy.running_http_proxy: '"((HTTP_PROXY))"'
@@ -2344,8 +2964,10 @@ configuration:
     properties.scf_set_proxy.staging_http_proxy: '"((HTTP_PROXY))"'
     properties.scf_set_proxy.staging_https_proxy: '"((HTTPS_PROXY))"'
     properties.scf_set_proxy.staging_no_proxy: '"((NO_PROXY))"'
+    properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
+    properties.smoke_tests.autoscaler_service_broker_endpoint: '"https://autoscalerservicebroker.((DOMAIN))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.system_domain: '"((DOMAIN))"'
@@ -3016,6 +3638,35 @@ variables:
     secret: true
     description: PEM-encoded client key.
     required: true
+
+- name: BITS_ADMIN_USERS_PASSWORD
+  options:
+    secret: true
+    description: The basic auth password that the Cloud Controller uses to connect to the admin endpoint on webdav.
+    required: true
+  type: password
+- name: BITS_SERVICE_SECRET
+  options:
+    secret: true
+    description: This is the key secret Bits-Service uses and clients should use to generate signed URLs.
+    required: true
+  type: password
+- name: BITS_SERVICE_SSL_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: bits
+    description: PEM-encoded client certificate.
+    required: true
+    alternative_names:
+    - bits-bits-service.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+  type: certificate
+- name: BITS_SERVICE_SSL_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key.
+    required: true
+
 - name: BLOBSTORE_ACCESS_RULES
   options:
     default: allow 10.0.0.0/8; allow 172.16.0.0/12; allow 192.168.0.0/16;
@@ -3080,6 +3731,23 @@ variables:
     description: A map of labels and encryption keys
     secret: true
     default: "~"
+- name: CC_PUBLIC_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "api"
+    - "api-set"
+    - "api-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    - "api.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    description: The PEM-encoded certificate for secure TLS communication over external endpoints.
+    required: true
+  type: certificate
+- name: CC_PUBLIC_TLS_CERT_KEY
+  options:
+    secret: true
+    description: The PEM-encoded key for secure TLS communication over external endpoints.
+    required: true
 - name: CC_SERVER_CRT
   options:
     secret: true
@@ -3093,6 +3761,11 @@ variables:
     secret: true
     description: The PEM-encoded private key for internal cloud controller traffic.
     required: true
+- name: CC_UPLOADER_CC_UPLOADER_SERVICE_HOST
+  options:
+    type: environment
+    description: IP of the cc uploader service. This is automatically set by Kubernetes.
+      traffic.
 - name: CC_UPLOADER_CRT
   options:
     secret: true
@@ -3219,7 +3892,7 @@ variables:
     required: true
 - name: DEFAULT_STACK
   options:
-    default: *the-stack-name
+    default: sle15
     description: The default stack to use if no custom stack is specified by an app.
 - name: DIEGO_CELL_DISK_CAPACITY_MB
   options:
@@ -3251,7 +3924,7 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - diego-api-locket.{{.KUBERNETES_NAMESPACE}}
+    - locket-locket.{{.KUBERNETES_NAMESPACE}}
     - 127.0.0.1
     description: PEM-encoded client certificate
     required: true
@@ -3278,6 +3951,8 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - doppler
+    - log-cache
+    - metron
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -3292,6 +3967,27 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
+
+- name: EIRINI_CERT_COPIER_IMAGE
+  options:
+    default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
+    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+- name: EIRINI_FLUENTD_IMAGE
+  options:
+    default: 'eirini/loggregator-fluentd:0.1.0'
+    description: "The docker image used by Eirini to consume Kubernetes container logs"
+- name: EIRINI_IMAGE
+  options:
+    default: 'eirini/recipe:ci-24.0.0'
+    description: "Docker Image used for staging apps deployed using Eirini"
+- name: EIRINI_KUBE_HEAPSTER_ADDRESS
+  options:
+    default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
+    description: "Address of Kubernetes' Heapster installation, used for reading Cloud Foundry app metrics."
+- name: EIRINI_KUBE_NAMESPACE
+  options:
+    default: 'eirini'
+    description: "The namespace used by Eirini for deploying applications."
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
@@ -3299,6 +3995,11 @@ variables:
       logging. To enable this feature, you must set this property to \"true\". You
       can learn more about the format of the logs here https://docs.cloudfoundry.org/loggregator/cc-uaa-logging.html#cc
       \n"
+- name: FEATURE_EIRINI_ENABLED
+  options:
+    type: environment
+    default: 'false'
+    description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
 - name: FORCE_FORWARDED_PROTO_AS_HTTPS
   options:
     default: false
@@ -3401,6 +4102,21 @@ variables:
     description: The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user. Its value is supplied by the kubernetes
       runtime.
+
+- name: KUBERNETES_SERVICE_HOST
+  options:
+    type: environment
+    description: >
+      This is an environment variable set by Kubernetes.
+      We have to pass it through the templating mechanism, because monit doesn't keep the entrypoint's environment.
+- name: KUBERNETES_SERVICE_PORT
+  options:
+    type: environment
+    description: >
+      This is an environment variable set by Kubernetes.
+      We have to pass it through the templating mechanism, because monit doesn't keep the entrypoint's environment.
+
+
 - name: KUBERNETES_STORAGE_CLASS_PERSISTENT
   options:
     type: environment
@@ -3455,11 +4171,13 @@ variables:
   options:
     description: Lowest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
+
 - name: LOGGREGATOR_AGENT_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
+    - localhost
     - metron
     description: PEM-encoded certificate.
     required: true
@@ -3480,6 +4198,46 @@ variables:
   options:
     secret: true
     description: PEM-encoded client key for loggregator mutual authentication
+    required: true
+- name: LOGGREGATOR_FORWARD_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded client certificate for loggregator forwarder authentication
+    required: true
+  type: certificate
+- name: LOGGREGATOR_FORWARD_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded client key for loggregator forwarder authentication
+    required: true
+- name: LOG_CACHE_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-cache
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: LOG_CACHE_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-cache
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
     required: true
 - name: LOG_LEVEL
   options:
@@ -3811,6 +4569,25 @@ variables:
     default: support@example.com
     description: Support contact information for the cluster
     required: true
+- name: SYNC_INTEGRATION_TESTS_FOCUS
+  options:
+    description: >
+      Regex for which SITS tests the test runner should focus on executing.
+- name: SYNC_INTEGRATION_TESTS_NODES
+  options:
+    default: 4
+    description: >
+      The number of parallel test executors to spawn for Cloud Foundry
+      sync integration tests.
+- name: SYNC_INTEGRATION_TESTS_SKIP
+  options:
+    description: >
+      Regex for which SITS tests the test runner should skip.
+- name: SYNC_INTEGRATION_TESTS_VERBOSE
+  options:
+    default: false
+    description: >
+      Whether the output of the sync integration tests should be verbose or not.
 - name: SYSLOG_ADAPT_CERT
   options:
     secret: true
@@ -3831,6 +4608,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - syslog_rlp
+    - reverselogproxy
     description: PEM-encoded certificate
     required: true
   type: certificate

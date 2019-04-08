@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+source "${GIT_ROOT}/make/include/defaults"
+
+args=(
+  "${NGINX_INGRESS_HELM_RELEASE}"
+  --namespace "${NGINX_INGRESS_NAMESPACE}"
+  --timeout 1800
+)
+
+values=(
+  --set "controller.service.externalIPs={${VAGRANT_EXTERNAL_IP}}"
+  # List of TCP/UDP services that the Ingress Controller should forward.
+  # https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
+  --set "tcp.20000=${CF_NAMESPACE}/tcp-router-tcp-router-public:20000"
+  --set "tcp.20001=${CF_NAMESPACE}/tcp-router-tcp-router-public:20001"
+  --set "tcp.20002=${CF_NAMESPACE}/tcp-router-tcp-router-public:20002"
+  --set "tcp.20003=${CF_NAMESPACE}/tcp-router-tcp-router-public:20003"
+  --set "tcp.20004=${CF_NAMESPACE}/tcp-router-tcp-router-public:20004"
+  --set "tcp.20005=${CF_NAMESPACE}/tcp-router-tcp-router-public:20005"
+  --set "tcp.20006=${CF_NAMESPACE}/tcp-router-tcp-router-public:20006"
+  --set "tcp.20007=${CF_NAMESPACE}/tcp-router-tcp-router-public:20007"
+  --set "tcp.20008=${CF_NAMESPACE}/tcp-router-tcp-router-public:20008"
+  --set "tcp.2222=${CF_NAMESPACE}/diego-ssh-ssh-proxy-public:2222"
+)
+
+helm upgrade --install "${args[@]}" "${NGINX_INGRESS_CHART}" "${values[@]}"

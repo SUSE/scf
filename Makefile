@@ -23,14 +23,32 @@ ${FISSILE_BINARY}: bin/dev/install_tools.sh bin/common/versions.sh bin/fissile
 ########## VAGRANT VM TARGETS ##########
 
 run:
+	make/ingress/run
 	make/uaa/run
 	make/wait uaa
 	make/run
+	make/ingress/update_secrets
+
+run-eirini:
+	make/ingress/run
+	make/uaa/run
+	make/wait uaa
+	make/run-eirini
+	make/ingress/update_secrets
 
 upgrade:
+	make/ingress/run
 	make/uaa/upgrade
 	make/wait uaa
 	make/upgrade
+	make/ingress/update_secrets
+
+upgrade-eirini:
+	make/ingress/run
+	make/uaa/upgrade
+	make/wait uaa
+	make/upgrade-eirini
+	make/ingress/update_secrets
 
 wait:
 	make/wait cf
@@ -39,6 +57,7 @@ validate:
 	make/validate
 
 stop:
+	make/ingress/stop
 	make/stop
 	make/uaa/stop
 	make/wait cf
@@ -72,8 +91,8 @@ brain:
 cats:
 	make/tests acceptance-tests
 
-scaler-smoke:
-	make/tests autoscaler-smoke
+sits:
+	make/tests sync-integration-tests
 
 stratos-run:
 	make/stratos/run
@@ -88,6 +107,15 @@ istio-run:
 
 istio-stop:
 	make/istio/stop
+
+ingress-run:
+	make/ingress/run
+
+ingress-stop:
+	make/ingress/stop
+
+ingress-update-secrets:
+	make/ingress/update_secrets
 
 ########## SIDECAR SERVICE TARGETS ##########
 
@@ -138,7 +166,11 @@ uaa-helm: ${FISSILE_BINARY}
 scf-release:
 	make/bosh-release src/scf-release
 
+eirini-release:
+	make/bosh-release src/eirini-release
+
 releases: \
+	eirini-release \
 	scf-release \
 	uaa-releases \
 	${NULL}

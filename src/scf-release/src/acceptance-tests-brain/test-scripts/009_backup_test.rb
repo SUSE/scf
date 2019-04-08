@@ -32,17 +32,17 @@ SPACE_ROLES.each_key do |role|
     run "cf set-space-role #{$CF_SPACE}-#{role} #{$CF_ORG} #{$CF_SPACE} #{role}"
 end
 
-# push an app to save
+# Push an app to save.
 run "cf push #{APP_NAME} -p #{resource_path 'node-env'}"
 
-# Check that the app is up
+# Check that the app is up.
 run "curl --head #{APP_NAME}.#{ENV['CF_DOMAIN']}"
 run "curl --head #{APP_NAME}.#{ENV['CF_DOMAIN']} | head -n1 | grep -w 200"
 
-# Back up everything
+# Backup everything.
 run "cf backup snapshot"
 
-# Remove everything so we can test restore
+# Remove everything so we can test the restoration.
 ORG_ROLES.each_key do |role|
     run "cf unset-org-role #{$CF_ORG}-#{role} #{$CF_ORG} #{role}"
 end
@@ -53,7 +53,7 @@ run "cf delete -f #{APP_NAME}"
 run "cf delete-space -f #{$CF_SPACE}"
 run "cf delete-org -f #{$CF_ORG}"
 
-# Check that the org is gone
+# Check that the org is gone.
 begin
     run "cf target -o #{$CF_ORG}"
     fail "Successfully targeted org #{$CF_ORG} after deleting it"
@@ -63,12 +63,9 @@ end
 
 run "cf backup restore"
 
-# TODO: actually test for restore being complete instead of a dump wait
-sleep 60
-
 run "cf target -o #{$CF_ORG} -s #{$CF_SPACE}"
 
-# check that the roles are restored
+# Check that the roles are restored.
 run "cf org-users #{$CF_ORG}"
 ORG_ROLES.each_pair do |name, api|
     run "cf curl /v2/organizations/$(cf org #{$CF_ORG} --guid)/#{api}?inline-relations-depth=1 > #{tmpdir}/users.json"
@@ -88,13 +85,13 @@ SPACE_ROLES.each_pair do |name, api|
     fail "Could not find user #{$CF_SPACE}-#{name}" unless wanted_user
 end
 
-# check if the app exists again
+# Check if the app exists again.
 run "cf apps | grep #{APP_NAME}"
 
 run_with_retry 30, 10 do
     run "cf app #{APP_NAME} | grep -E '^#.*running'"
 end
 
-# check that the app is routable
+# Check that the app is routable.
 run "curl --head #{APP_NAME}.#{ENV['CF_DOMAIN']}"
 run "curl --head #{APP_NAME}.#{ENV['CF_DOMAIN']} | head -n1 | grep -w 200"

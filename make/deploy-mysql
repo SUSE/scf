@@ -15,10 +15,6 @@ USB_PLUGIN_LOCATION="https://github.com/SUSE/cf-usb-plugin/releases/download/1.0
 SUSE_REPO="https://kubernetes-charts.suse.com"
 MYSQL_CHART="suse/cf-usb-sidecar-mysql"
 
-# For vagrant the external IP is a fixed value.
-# dig cf-dev.io (We need IP for the ASG later)
-DB_EXTERNAL_IP=192.168.77.77
-
 NFS_SCLASS="nfspersist"
 
 PASS="$(kubectl --namespace "${NAMESPACE}" get secrets secrets -o jsonpath='{.data.cluster-admin-password}' | base64 -d)"
@@ -37,7 +33,7 @@ cf auth admin "${PASS}"
 $(dirname $0)/nfs-storageclass
 $(dirname $0)/usb-plugin
 $(dirname $0)/helm-suse-repository
-$(dirname $0)/asg                  k8s-mysql-sidecar-net "${DB_EXTERNAL_IP}/32" "5432,30306"
+$(dirname $0)/asg                  k8s-mysql-sidecar-net "${VAGRANT_EXTERNAL_IP}/32" "5432,30306"
 
 if ! helm search  "${MYSQL_CHART}" ; then
     prtinf "%sThe required sidecar chart ${MYSQL_CHART} is missing%s" "\033\[0;31;1m" "\033\[0m"
@@ -94,7 +90,7 @@ COMMON_SIDECAR_PARAMS=(
 MYSQL_SIDECAR_PARAMS=(
   --set "env.SERVICE_TYPE=mysql"
   --set "env.SERVICE_LOCATION=http://cf-usb-sidecar-mysql.mysql-sidecar:8081"
-  --set "env.SERVICE_MYSQL_HOST=${DB_EXTERNAL_IP}"
+  --set "env.SERVICE_MYSQL_HOST=${VAGRANT_EXTERNAL_IP}"
   --set "env.SERVICE_MYSQL_PORT=30306"
   --set "env.SERVICE_MYSQL_USER=root"
   --set "env.SERVICE_MYSQL_PASS=password"

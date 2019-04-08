@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+VERSION=v2.21.0
+
+echo "Retrieving git ${VERSION}"
+
+SRC_DIR="$(mktemp -dt git.XXXXXX)"
+mkdir -p "${SRC_DIR}"
+url="https://github.com/git/git/archive/${VERSION}.tar.gz"
+curl -L "${url}" | tar zxf - --directory "${SRC_DIR}" --strip-components=1
+
+echo "Compiling git ${VERSION}"
+
+cd "${SRC_DIR}"
+make configure
+./configure
+make prefix="${BOSH_INSTALL_TARGET}" all
+make prefix="${BOSH_INSTALL_TARGET}" install

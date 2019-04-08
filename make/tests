@@ -10,7 +10,7 @@ POD_NAME=$1
 
 find_test() {
     local dir file
-    for dir in output/kube kube/cf-opensuse ; do
+    for dir in output/kube kube/cf ; do
         file="${dir}/bosh-task/${POD_NAME}.yaml"
         if [ -f "${file}" ] ; then
             echo "${file}"
@@ -69,8 +69,7 @@ done
 
 CONFIG=$(mktemp)
 RELEASE="$(helm list --namespace "${NAMESPACE}" --short --max 1)"
-DOMAIN="$(helm get values "${RELEASE}" --all | ruby -ryaml -e 'puts (YAML.load(STDIN.read))["env"]["DOMAIN"]')"
-ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${NAMESPACE}" "${DOMAIN}" "${TEST_FILE}" "$@" > "${CONFIG}"
+ruby "${GIT_ROOT}/bin/kube_overrides.rb" "${RELEASE}" "${TEST_FILE}" "$@" > "${CONFIG}"
 
 remove_test_config () { rm "${CONFIG}" ; }
 trap remove_test_config EXIT
@@ -87,7 +86,7 @@ i=0
 while [ "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.phase}')" != "Running" ]
 do
   i=$((i + 1))
-  if [ ${i} -gt 30 ]
+  if [ ${i} -gt 300 ]
   then
     echo 1>&2 "${POD_NAME} container failed to reach Running state"
     exit 1
@@ -97,10 +96,7 @@ done
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 
-# First show the logs accumulated so far, then stream further logs in
-# a way which terminates when the pod (= testsuite) terminates.
-kubectl logs   --namespace "${NAMESPACE}" "${POD_NAME}"
-kubectl attach --namespace "${NAMESPACE}" "${POD_NAME}"
+kubectl logs --follow --namespace "${NAMESPACE}" "${POD_NAME}"
 
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}::log" end
 stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
@@ -108,4 +104,4 @@ stampy "${METRICS}" "$0" "make-tests::${POD_NAME}" end
 while [ -z "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')" ]; do
     sleep 1
 done
-exit $(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')
+exit "$(kubectl get pod --namespace "${NAMESPACE}" "${POD_NAME}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')"

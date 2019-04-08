@@ -24,7 +24,7 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
 : "${DOMAIN:=cf-dev.io}"
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
 : "${UAA_HOST:=uaa.${DOMAIN}}"
-: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
+: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${TCP_DOMAIN}:20005\"}"
 
 UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
 
@@ -39,31 +39,24 @@ helm_args=(
     --set "kube.storage_class.persistent=${STORAGE_CLASS}"
 )
 
-# The extra IP address for `kube.external_ips` is to ensure that we can
-# create services binding to multiple addresses correctly.  It points at
-# an address that shouldn't exist in real life.
-helm_args+=(
-    --set "kube.external_ips[0]=192.0.2.42"
-    --set "kube.external_ips[1]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
-)
+if [ -n "${INGRESS_CONTROLLER:-}" ]; then
+    helm_args+=(
+        --set "services.ingress.class=${INGRESS_CONTROLLER}"
+        --set "services.ingress.backends.router.port=443"
+        --set "env.UAA_PORT=443"
+    )
+else
+    helm_args+=(
+        --set "kube.external_ips[0]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
+        --set "env.UAA_PORT=${UAA_PORT}"
+    )
+fi
 
 # Force rotate secrets
 if [ -n "${SCF_SECRETS_GENERATION_COUNTER:-}" ] ; then
     helm_args+=(
         --set "kube.secrets_generation_counter=${SCF_SECRETS_GENERATION_COUNTER}"
     )
-fi
-
-if [ -n "${SCF_ENABLE_AUTOSCALER:-}" ] ; then
-    for f in "${CF_CHART}"/templates/autoscaler-* ; do
-        f="${f##*/}" # strip leading directories
-        f="${f%.*}"  # strip file extension
-        helm_args+=( --set "sizing.${f//-/_}.count=1" )
-    done
-fi
-
-if [ -n "${SCF_ENABLE_CREDHUB:-}" ] ; then
-    helm_args+=( --set "sizing.credhub_user.count=1" )
 fi
 
 helm upgrade "${RELEASE}" "${CF_CHART}" "${helm_args[@]}" "$@"

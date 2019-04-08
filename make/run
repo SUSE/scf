@@ -46,7 +46,7 @@ kubectl get storageclass | grep --silent '(default)' 2>/dev/null || {
 }
 
 : "${TCP_DOMAIN:=tcp.${DOMAIN}}"
-: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${DOMAIN}:20005\"}"
+: "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${TCP_DOMAIN}:20005\"}"
 
 helm_args=(
     --name "${NAMESPACE}"
@@ -60,13 +60,18 @@ helm_args=(
     --set "kube.storage_class.persistent=${STORAGE_CLASS}"
 )
 
-# The extra IP address for `kube.external_ips` is to ensure that we can
-# create services binding to multiple addresses correctly.  It points at
-# an address that shouldn't exist in real life.
-helm_args+=(
-    --set "kube.external_ips[0]=192.0.2.42"
-    --set "kube.external_ips[1]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
-)
+if [ -n "${INGRESS_CONTROLLER:-}" ]; then
+    helm_args+=(
+        --set "services.ingress.class=${INGRESS_CONTROLLER}"
+        --set "services.ingress.backends.router.port=443"
+        --set "env.UAA_PORT=443"
+    )
+else
+    helm_args+=(
+        --set "kube.external_ips[0]=$(getent hosts "${DOMAIN}" | awk 'NR=1{print $1}')"
+        --set "env.UAA_PORT=${UAA_PORT}"
+    )
+fi
 
 helm install "${CF_CHART}" "${helm_args[@]}" "$@"
 

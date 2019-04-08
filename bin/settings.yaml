@@ -11,4 +11,3 @@ secrets:
 env:
   # Use kube-internal DNS to help minibroker work.
   GARDEN_LINUX_DNS_SERVER: 10.254.0.254
-  UAA_PORT: 2793

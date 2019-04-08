@@ -8,6 +8,7 @@ packages:
   - cli
   - acceptance-tests
   - cli-network-policy-plugin
+  - cli-log-cache-plugin
 
 templates:
   run.erb: bin/run

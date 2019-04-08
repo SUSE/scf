@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# This script contains helpers for running tests
+# This script contains helpers for running tests.
 
 require 'fileutils'
 require 'open3'
@@ -7,8 +7,10 @@ require 'securerandom'
 require 'shellwords'
 require 'tmpdir'
 
-# Global options, similar to shopts
+# Global options, similar to shopts.
 $opts = { errexit: true, xtrace: true }
+
+STORAGE_CLASS = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
 
 # Set global options.  If a block is given, the options are only active in that
 # block.
@@ -35,12 +37,17 @@ def _print_command(*args)
     cmd = args.dup
     cmd.shift if cmd.first.is_a? Hash
     cmd.pop if cmd.last.is_a? Hash
-    STDERR.puts "\e[0;1m+ #{cmd.join(" ")}\e[0m" if $opts[:xtrace]
+    opts = $opts.dup
+    opts.merge! args.last if args.last.is_a? Hash
+    STDERR.puts "#{c_bold}+ #{cmd.join(" ")}#{c_reset}" if opts[:xtrace]
+    STDERR.flush
 end
 
-# Run the given command line, and return the exit status (as a Process::Status)
+# Run the given command line, and return the exit status (as a Process::Status).
 def run_with_status(*args)
-    _print_command *args
+    _print_command(*args)
+    args.last.delete :errexit if args.last.is_a? Hash
+    args.last.delete :xtrace if args.last.is_a? Hash
     pid = Process.spawn(*args)
     return Process.wait2(pid).last
 end
@@ -48,30 +55,32 @@ end
 # Run the given command line.  If errexit is set, an error is raised on failure.
 def run(*args)
     status = run_with_status(*args)
-    return unless $opts[:errexit]
+    opts = $opts.dup
+    opts.merge! args.last if args.last.is_a? Hash
+    return unless opts[:errexit]
     unless status.success?
         # Print an error at the failure site
-        puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
+        puts "#{c_red}Command exited with #{status.exitstatus}#{c_reset}"
         fail "Command exited with #{status.exitstatus}"
     end
 end
 
-# Run the given command line, and return the output (stdout).  If errexit is
-# set, an error is raised on failure.
+# Run the given command line, and return the standard output.
+# If errexit is set, an error is raised on failure.
 def capture(*args)
-    _print_command *args
+    _print_command(*args)
     stdout, status = Open3.capture2(*args)
     if $opts[:errexit]
         unless status.success?
-            # Print an error at the failure site
-            puts "\e[1;31mCommand exited with #{status.exitstatus}\e[0m"
+            # Print an error at the failure site.
+            puts "#{c_red}Command exited with #{status.exitstatus}#{c_reset}"
             fail "Command exited with #{status.exitstatus}"
         end
     end
     stdout.chomp
 end
 
-# Log in to the CF installation under test
+# Log in to the CF installation under test.
 def login
     run "cf api --skip-ssl-validation api.#{ENV['CF_DOMAIN']}"
     run "cf auth #{ENV['CF_USERNAME']} #{ENV['CF_PASSWORD']}"
@@ -96,7 +105,7 @@ def setup_org_space
     run "cf target -s #{$CF_SPACE}"
 end
 
-# Return the path to a test resource (in the `test-resources` directory)
+# Return the path to a test resource (in the `test-resources` directory).
 def resource_path(*parts)
     File.join(File.dirname(__dir__), 'test-resources', *parts)
 end
@@ -104,7 +113,7 @@ end
 # Create a temporary directory and return its name.  The directory will be
 # deleted when the test exits.
 def mktmpdir
-    prefix = File.basename($0).sub /\.rb$/, '-'
+    prefix = File.basename($0).sub(/\.rb$/, '-')
     dir = Dir.mktmpdir(prefix)
     at_exit do
         FileUtils.rm_rf dir, secure: true
@@ -120,7 +129,7 @@ def run_with_retry(retries, interval)
         begin
             yield
             return
-        rescue => e
+        rescue RuntimeError => e
             last_error = e
             sleep interval
         end
@@ -129,18 +138,87 @@ def run_with_retry(retries, interval)
 end
 
 # Poll the status of a Kubernetes namespace, until all the pods in that
-# namespace are ready and all the jobs have run
+# namespace are ready and all the jobs have run.
 def wait_for_namespace(namespace, sleep_duration=10)
     loop do
         output = capture("kubectl get pods --namespace #{namespace} --no-headers")
-        ready = true
+        ready = !output.empty?
         output.each_line do |line|
             name, readiness, status, restarts, age = line.split
             next if status == 'Completed'
             next if status == 'Running' && /^(\d+)\/\1$/ =~ readiness
+            puts "# Waiting for: #{line}"
             ready = false
         end
         break if ready
         sleep sleep_duration
     end
+end
+
+# Show the status of a Kubernetes namespace
+def show_pods_for_namespace(namespace)
+  run("kubectl get pods --namespace #{namespace} --no-headers")
+end
+
+# Wait for a cf service asynchronous operation to complete.
+def wait_for_async_service_operation(service_instance_name, retries=0)
+    service_instance_guid = capture("cf service --guid #{service_instance_name}")
+    return { success: false, reason: :not_found } if service_instance_guid == 'FAILED'
+    attempts = 0
+    loop do
+        puts "# Waiting for service instance #{service_instance} to complete operation..."
+        service_instance_info = cf_curl("/v2/service_instances/#{service_instance_guid}")
+        return { success: true } unless service_instance_info['entity']
+        return { success: true } unless service_instance_info['entity']['last_operation']
+        return { success: true } unless service_instance_info['entity']['last_operation']['state']
+        state = service_instance_info['entity']['last_operation']['state']
+        return { success: true } if state != 'in progress'
+        return { success: false, reason: :max_retries } if attempts >= retries
+        sleep 5
+        attempts += 1
+    end
+end
+
+# Run `cf curl` and return the JSON result.
+def cf_curl(*args)
+    output = capture('cf', 'curl', *args)
+    JSON.parse output
+end
+
+# Check if a statefulset is ready or not.
+def statefulset_ready(namespace, statefulset)
+    if namespace.nil? || namespace.strip.empty?
+        fail RuntimeError, "namespace must be set"
+    end
+    if statefulset.nil? || statefulset.strip.empty?
+        fail RuntimeError, "statefulset must be set"
+    end
+    stdout, status = Open3.capture2(
+      'kubectl', 'get', 'statefulset',
+      '--output', 'go-template="{{ eq .status.replicas .status.readyReplicas }}"',
+      '--namespace', namespace,
+      statefulset,
+    )
+    return status.success? && stdout == '"true"'
+end
+
+# Exit the test with the code that marks it as skipped.
+def exit_skipping_test()
+    Process.exit 99
+end
+
+def c_bold
+  "\e[0;1m"
+end
+
+def c_red
+  "\e[1;31m"
+end
+
+def c_green
+  "\e[0;32m"
+end
+
+def c_reset
+  "\e[0m"
 end

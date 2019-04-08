@@ -1,3 +1,4 @@
+---
 properties:
   acceptance_tests:
     admin_user: admin
@@ -141,11 +142,37 @@ properties:
       port: 7107
       publicPort: 7101
       require_consul: false
+  bits-service:
+    active_signing_key:
+      key_id: key1
+    app_stash:
+      blobstore_type: webdav
+      directory_key: cc-resources
+      webdav_config:
+        username: blobstore_user
+    buildpacks:
+      blobstore_type: webdav
+      directory_key: cc-buildpacks
+      webdav_config:
+        username: blobstore_user
+    droplets:
+      blobstore_type: webdav
+      directory_key: cc-droplets
+      webdav_config:
+        username: blobstore_user
+    packages:
+      blobstore_type: webdav
+      directory_key: cc-packages
+      webdav_config:
+        username: blobstore_user
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
+    bits_service:
+      enabled: true
+      username: admin
     buildpacks:
       blobstore_type: webdav
       webdav_config:
@@ -158,7 +185,12 @@ properties:
     - public_networks
     - dns
     diego:
-      lifecycle_bundles: *the-bundles
+      lifecycle_bundles:
+        'buildpack/sle15':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        'buildpack/cflinuxfs3': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
+        docker:                 "docker_app_lifecycle/docker_app_lifecycle.tgz"
     droplets:
       blobstore_type: webdav
       webdav_config:
@@ -228,7 +260,15 @@ properties:
       - destination: 0.0.0.0/0
         ports: "53"
         protocol: udp
-    stacks: *the-stacks
+    stacks:
+    - name: "cflinuxfs2"
+      description: "Cloud Foundry Linux-based filesystem"
+    - name: "cflinuxfs3"
+      description: "Cloud Foundry Linux-based filesystem"
+    - name: "sle12"
+      description: "SLE-based filesystem"
+    - name: "sle15"
+      description: "SUSE Linux Enterprise-based filesystem"
     staging_upload_user: staging_user
     system_hostnames:
     - api
@@ -289,8 +329,6 @@ properties:
       auctioneer:
         require_tls: true
       detect_consul_cell_registrations: false
-      locket:
-        api_location: 127.0.0.1:8891
       rep:
         require_tls: true
       skip_consul_lock: true
@@ -311,16 +349,17 @@ properties:
         db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
-      preloaded_rootfses: *the-rootfses
+      preloaded_rootfses:
+      - "sle15:/var/vcap/packages/sle15/rootfs.tar"
+      - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
+      - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
+      - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
     route_emitter:
       local_mode: true
       nats:
         user: nats
     ssh_proxy:
       enable_cf_auth: true
-  doppler:
-    locked_memory_limit: kernel
-    port: 4443
   enable_consul_service_registration: false
   etcd:
     bootstrap_node: etcd-0
@@ -336,7 +375,6 @@ properties:
     deny_networks: [0.0.0.0/0]
     listen_address: 0.0.0.0:7777
     listen_network: tcp
-    persistent_image_list: *the-images
   grootfs:
     # Garden should at least be able to cache the cflinuxfs2 rootfs
     # to avoid copy operations on every garden healthcheck from rep
@@ -347,18 +385,25 @@ properties:
   nats:
     port: 4222
     user: nats
-  nfs_server:
-    address: 0.0.0.3
   nfsbroker:
     db_driver: 'mysql'
     db_username: 'nfsvolume'
     db_port: 3306
     db_name: 'nfsvolume'
-    service_name: 'persi-nfs'
-    service_id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+    services:
+    - id: '20e22be2-a4fb-4b17-a5ef-0c9dba8bdc74'
+      name: 'persi-nfs'
+      description: "Existing NFSv3 volumes (see: https://code.cloudfoundry.org/nfs-volume-release/)"
+      bindable: true
+      plan_updatable: false
+      tags: ["nfs"]
+      requires: ["volume_mount"]
+      plans:
+      - id: Existing
+        name: "Existing"
+        description: "A preexisting filesystem"
   router:
-    backends:
-      enable_tls: true
+    ca_certs: ''
     enable_ssl: true
     extra_headers_to_log: null
     port: 8000
@@ -377,7 +422,6 @@ properties:
       username: routing-api
   scalablesyslog:
     adapter:
-      bosh_dns: true
       tls:
          cn: 'dummy-1'
     adapter_rlp:
@@ -398,8 +442,6 @@ properties:
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
-  syslog_daemon_config:
-    enable: false
   system_domain_organization: null
   ssl:
     skip_cert_verify: false
@@ -407,8 +449,6 @@ properties:
     enabled: true
   tcp_router:
     health_check_port: 8080
-  traffic_controller:
-    locked_memory_limit: kernel
   uaa:
     clients:
       # Note that these clients are overridden in the dev-only UAA role; that is

@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'resolv'
+
 def base_net_config
   base_config = {
     use_dhcp_assigned_default_route: true
@@ -9,10 +11,10 @@ def base_net_config
     if ENV.include? "VAGRANT_DHCP"
       # Use dhcp if VAGRANT_DHCP is set. This only applies to NAT networking, as
       # bridged networking uses type: bridged (even though the virtual interface still
-      # gets its IP from dhcp). If not using dhcp, the VM will use the 192.168.77.77 IP.
+      # gets its IP from dhcp). If not using dhcp, the VM will use the IP cf-dev.io points to.
       base_config[:type] = "dhcp"
     else
-      base_config[:ip] = "192.168.77.77"
+      base_config[:ip] = Resolv.getaddress "cf-dev.io"
     end
   end
   base_config
@@ -21,7 +23,7 @@ end
 Vagrant.configure(2) do |config|
   vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
   vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
-  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.16'))
+  vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.17'))
   vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
   HOME = "/home/vagrant"
@@ -203,10 +205,13 @@ Vagrant.configure(2) do |config|
     set -o errexit
 
     if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
+      echo -e "\e[1;96mRunning customization scripts\e[0m"
       scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
       for script in "${scripts[@]}"; do
+        echo -e "Running \e[1;96m${script}\e[0m"
         "${script}"
       done
+      echo -e "\e[1;96mDone running customization scripts\e[0m"
     fi
 
     echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
