@@ -111,6 +111,7 @@ class MiniBrokerTest
             run "helm init --client-only"
             run(*%W(helm upgrade #{helm_release} minibroker
                 --install
+                --wait
                 --repo #{minibroker_repo}
                 --devel
                 --reset-values
@@ -123,7 +124,6 @@ class MiniBrokerTest
                 --set image=minibroker:latest
                 --set imagePullPolicy=Always
             ))
-            wait_for_namespace minibroker_namespace
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
             run "cf create-service-broker #{broker_name} user pass #{broker_url}"
