@@ -1,9 +1,38 @@
 # Changelog
 
-## [Unreleased]
+## [2.16.0] - 2019-02-04
+
+## Added
+- Added Eirini Tech Preview
+- Added SLE15 stack 
+- Added feature flags to enable roles such as autoscaler, credhub, cf-usb, eirini
+- Added SITS (Sync Integration Test Suite)
+- Added support for Ingress Controller
+- Added .net-core-buildpack (2.2.7)
 
 ## Changed
-- Bumped to cf-deployment 6.3.0
+- Bumped to cf-deployment 6.10
+- Bumped cflinuxfs3 to 0.76.0
+- Bumped cflinuxfs2 to 1.278.0
+- Bumped binary-buildpack-release t0 1.0.31
+- Bumped cf-cli to 6.42.0
+- Bumped go-buildpack to 1.8.36.1
+- Bumped java-buildpack to 4.19.0
+- Bumped nfs-volume-release to 1.7.6
+- Bumped nginx-buildpack to 1.0.10
+- Bumped nodejs-buildpack to 1.6.47
+- Bumped php-buildpack to 4.3.70
+- Bumped python-buildpack to 1.6.30
+- Bumped ruby-buildpack to 1.7.35
+- Bumped staticfile-buildpack to 1.4.41
+- Bumped up the nproc limits for vcap user
+- Doppler is communicating on port 443
+- Enabled mutual TLS between cloud controller and GoRouter
+- Changed cloud controller ports to be non-configurable
+- Converted the cc-clock's wait-for-api functionality from a patch to a pre-start script
+
+## Fixed
+- Fixed the test for an insecure docker registry (uses tcpdomain for the route)
 
 ## [2.15.2] - 2019-02-08
 
