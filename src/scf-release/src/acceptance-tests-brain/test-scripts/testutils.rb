@@ -225,6 +225,13 @@ def cf_curl(*args)
     JSON.parse output
 end
 
+def wait_for_statefulset(namespace, statefulset, sleep_duration=10)
+    loop do
+        break if statefulset_ready(namespace, statefulset)
+        sleep sleep_duration
+    end
+end
+
 # Check if a statefulset is ready or not.
 def statefulset_ready(namespace, statefulset)
     if namespace.nil? || namespace.strip.empty?

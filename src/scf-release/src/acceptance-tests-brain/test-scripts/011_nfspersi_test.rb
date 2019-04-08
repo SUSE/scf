@@ -35,6 +35,15 @@ at_exit do
         run "cf delete-service -f #{VOLUME_NAME}"
         run "cf disable-service-access persi-nfs"
 
+        # Get logs and more information about the test server, why it
+        # may have failed.
+
+        run "kubectl", "logs",                    "-n", NS, "nfs-test-server-0"
+        run "kubectl", "describe", "pod",         "-n", NS, "nfs-test-server-0"
+        run "kubectl", "describe", "statefulset", "-n", NS, "nfs-test-server"
+        run "kubectl", "describe", "pvc",         "-n", NS, "nfs-data-nfs-test-server-0"
+        run "kubectl", "describe", "pv"
+
         # Remove the test server
         run "kubectl delete -n #{NS} -f #{SKUBEC}"
     end
@@ -52,7 +61,8 @@ set errexit: false do
     run "kubectl delete -n #{NS} -f #{SKUBEC}"
 end
 run "kubectl create -n #{NS} -f #{SKUBEC}"
-wait_for_namespace NS
+
+wait_for_statefulset(NS, "nfs-test-server")
 
 # Server of the NFS volume to use, as name (pulled from the kube config)
 SNAME = YAML.load_file(SKUBEC)['metadata']['name']
