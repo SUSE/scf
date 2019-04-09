@@ -4,6 +4,8 @@ require_relative 'minibroker_helper'
 
 tester = MiniBrokerTest.new('mongodb', '27017')
 tester.service_params = {
+    image: { debug: true },
+    livenessProbe: { enabled: false },
     mongodbDatabase: random_suffix('database'),
     mongodbUsername: random_suffix('user'),
     mongodbPassword: random_suffix('pass'),
