@@ -155,6 +155,16 @@ def wait_for_namespace(namespace, sleep_duration=10)
     end
 end
 
+# Wait for the pod to be ready. The timeout is in seconds.
+def wait_for_pod_ready(name, namespace, timeout=300)
+    run %W(
+        kubectl wait pod/#{name}
+            --for condition=Ready
+            --namespace #{namespace}
+            --timeout #{timeout}s
+    ).join(" ").chomp
+end
+
 # Show the status of a Kubernetes namespace
 def show_pods_for_namespace(namespace)
   run("kubectl get pods --namespace #{namespace} --no-headers")
