@@ -88,6 +88,12 @@ if having_category node ; then
     status "docker info should not show aufs"
 fi
 
+# kube auth
+if having_category kube ; then
+    kubectl auth can-i get pods --namespace=kube-system 2>&1>/dev/null
+    status "authenticate with kubernetes cluster"
+fi
+
 # kube-dns shows all pods ready
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
