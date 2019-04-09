@@ -78,12 +78,16 @@ function having_category() {
 
 echo "Testing $(green "${category}")"
 
-# swap accounting in /proc/cmdline
+# swap should be accounted
 if having_category node ; then
-    grep -wq "swapaccount=1" /proc/cmdline
-    status "swapaccount enable"
+    # https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt - section 2.4.
+    dir="/sys/fs/cgroup/memory"
+    test -e "${dir}/memory.memsw.usage_in_bytes" && test -e "${dir}/memory.memsw.limit_in_bytes"
+    status "swap should be accounted"
+fi
 
-    # docker info should not show aufs
+# docker info should not show aufs
+if having_category node ; then
     docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
     status "docker info should not show aufs"
 fi
