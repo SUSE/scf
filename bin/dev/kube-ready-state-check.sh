@@ -114,7 +114,7 @@ fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test ! "$(kubectl get storageclasses 2>&1 | grep "No resources found.")"
+    test ! "$(kubectl get storageclasses 2>&1 | grep -e "No resources found." -e "Unable to connect to the server")"
     status "A storage class should exist in K8s"
 fi
 
