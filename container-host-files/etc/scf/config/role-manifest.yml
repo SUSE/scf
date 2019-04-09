@@ -2399,7 +2399,7 @@ configuration:
         verbs: [create, get, delete]
       - apiGroups: [""]
         resources: [pods, pods/log]
-        verbs: [get, list]
+        verbs: [get, list, watch]
       - apiGroups: [""]
         resources: [pods/portforward]
         verbs: [create]
