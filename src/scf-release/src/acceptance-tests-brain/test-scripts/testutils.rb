@@ -10,6 +10,8 @@ require 'tmpdir'
 # Global options, similar to shopts.
 $opts = { errexit: true, xtrace: true }
 
+NAMESPACE = ENV['KUBERNETES_NAMESPACE']
+CLUSTER_DOMAIN = ENV['KUBERNETES_CLUSTER_DOMAIN']
 STORAGE_CLASS = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
 
 # Set global options.  If a block is given, the options are only active in that
@@ -153,6 +155,16 @@ def wait_for_namespace(namespace, sleep_duration=10)
         break if ready
         sleep sleep_duration
     end
+end
+
+# Wait for the pod to be ready. The timeout is in seconds.
+def wait_for_pod_ready(name, namespace, timeout=300)
+    run %W(
+        kubectl wait pod/#{name}
+            --for condition=Ready
+            --namespace #{namespace}
+            --timeout #{timeout}s
+    ).join(" ").chomp
 end
 
 # Show the status of a Kubernetes namespace
