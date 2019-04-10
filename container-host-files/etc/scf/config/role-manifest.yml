@@ -100,9 +100,9 @@ releases:
   version: "1.6.30.1"
   sha1: "c92bea0448aff1833f040534fba6456a2e1c4de7"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.35.1.tgz"
-  version: "1.7.35.1"
-  sha1: "cb947dcc514e3670088a07da58fc84208c4f8393"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.36.1.tgz"
+  version: "1.7.36.1"
+  sha1: "d199ec11da7aed45af2e068f71b76b2da22e26b0"
 - name: staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.41.1.tgz"
   version: "1.4.41.1"
