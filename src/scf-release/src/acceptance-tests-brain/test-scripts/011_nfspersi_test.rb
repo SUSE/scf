@@ -8,6 +8,8 @@ require_relative 'testutils'
 require 'json'
 require 'yaml'
 
+use_global_timeout
+
 login
 setup_org_space
 
