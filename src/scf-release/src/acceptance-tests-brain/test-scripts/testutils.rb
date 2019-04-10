@@ -5,6 +5,7 @@ require 'fileutils'
 require 'open3'
 require 'securerandom'
 require 'shellwords'
+require 'timeout'
 require 'tmpdir'
 
 # Global options, similar to shopts.
@@ -13,6 +14,33 @@ $opts = { errexit: true, xtrace: true }
 NAMESPACE = ENV['KUBERNETES_NAMESPACE']
 CLUSTER_DOMAIN = ENV['KUBERNETES_CLUSTER_DOMAIN']
 STORAGE_CLASS = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
+
+# Set global timeout for cleanup; an exception will be triggered the given
+# number of seconds before the runner-level timeout expires.
+def use_global_timeout(shutdown_time=60)
+    main_thread = Thread.current
+    main_thread.abort_on_exception = true
+    timeout_thread = Thread.new do
+        sleep_duration = ENV.fetch('TESTBRAIN_TIMEOUT', '600').to_i - shutdown_time
+        begin
+            sleep sleep_duration
+        rescue => e
+            # Main thread terminated or other unexpected exception
+            main_thread.raise e
+        else
+            # Timeout reached
+            main_thread.raise Timeout::Error, "timeout reached after #{sleep_duration} seconds"
+        end
+    end
+    at_exit do
+        begin
+            timeout_thread.kill
+            timeout_thread.join
+        rescue => e
+            # Ignore any errors trying to shut down the timeout thread
+        end
+    end
+end
 
 # Set global options.  If a block is given, the options are only active in that
 # block.
