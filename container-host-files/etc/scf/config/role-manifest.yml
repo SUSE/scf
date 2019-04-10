@@ -2515,7 +2515,6 @@ configuration:
     properties.autoscaler.binding_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.cf.api: '"https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
-    properties.autoscaler.cf.skip_ssl_validation: '((AUTOSCALER_CF_SKIP_SSL_VALIDATION))'
     properties.autoscaler.eventgenerator.aggregator.aggregator_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL))"'
     properties.autoscaler.eventgenerator.aggregator.app_metric_channel_size: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE))"'
     properties.autoscaler.eventgenerator.aggregator.app_monitor_channel_size: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE))'
@@ -3200,11 +3199,6 @@ variables:
     description: A PEM-encoded TLS key of the Autoscaler Metrics https server. This
       includes the Autoscaler Metrics Collector.
     required: true
-- name: AUTOSCALER_CF_SKIP_SSL_VALIDATION
-  options:
-    default: true
-    description: Whether to skip ssl validation when Autoscaler components to communicate
-      with CloudFoundry components.
 - name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
   options:
     default: 1000
