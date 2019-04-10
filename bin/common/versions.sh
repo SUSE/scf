@@ -34,7 +34,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
-export PRODUCT_VERSION="1.3.2"
+export PRODUCT_VERSION="1.4"
 export CF_VERSION="6.10.0"
 
 # Show versions, if called on its own.
