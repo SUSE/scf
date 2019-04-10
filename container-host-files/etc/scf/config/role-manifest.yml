@@ -150,9 +150,9 @@ releases:
 
 instance_groups:
 - name: eirini
-  if_feature: eirini
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.3.tgz"
+  version: "0.0.3"
+  sha1: "96be6dc9e88e32dbdcf58bb6dae5154771911e50"
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
