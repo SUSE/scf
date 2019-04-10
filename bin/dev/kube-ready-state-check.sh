@@ -90,7 +90,7 @@ fi
 
 # kube auth
 if having_category kube ; then
-    kubectl auth can-i get pods --namespace=kube-system 2>&1>/dev/null
+    kubectl auth can-i get pods --namespace=kube-system &> /dev/null
     status "authenticate with kubernetes cluster"
 fi
 
