@@ -170,7 +170,7 @@ pipeline {
         booleanParam(
             name: 'TEST_BRAIN',
             defaultValue: true,
-            description: 'Run SATS (SCF Acceptance Tests)',
+            description: 'Run BRAIN tests (SCF Acceptance Tests)',
         )
         booleanParam(
             name: 'TEST_SITS',
