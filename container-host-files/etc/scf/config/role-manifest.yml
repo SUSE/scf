@@ -2016,7 +2016,7 @@ instance_groups:
           - path: /var/vcap/store
             type: persistent
             tag: postgres-data
-            size: 100
+            size: 5
           memory: 1024
           virtual-cpus: 2
         ports:
