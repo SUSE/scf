@@ -2342,7 +2342,7 @@ configuration:
         verbs: [get]
       - apiGroups: [apps]
         resources: [statefulsets]
-        verbs: [get]
+        verbs: [get, patch]
       secrets-role:
       - apiGroups: [""]
         resources: [configmaps, secrets]
