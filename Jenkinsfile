@@ -532,6 +532,7 @@ pipeline {
                     export CF_CHART="output/unzipped/helm/cf"
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
+                        --set enable.autoscaler=true \
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
