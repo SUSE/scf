@@ -568,7 +568,8 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - head -c0 </dev/tcp/${HOSTNAME}/8889
+              # See BOSH property diego.bbs.health_addr
+              - curl --fail http://$(jq -r .health_address /var/vcap/jobs/bbs/config/bbs.json)/ping
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
