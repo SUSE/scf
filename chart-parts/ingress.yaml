@@ -27,25 +27,23 @@ metadata:
   name: {{ .Release.Name | quote }}
   namespace: {{ .Release.Namespace | quote }}
   annotations:
-    {{- if empty (index .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-    kubernetes.io/ingress.class: "nginx"
+    {{- if hasKey .Values.ingress.annotations "kubernetes.io/ingress.class" | not -}}
+      {{ $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
     {{- end }}
-    {{- if empty (index .Values.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends") }}
-    nginx.ingress.kubernetes.io/secure-backends: "true"
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
     {{- end }}
-    {{- if empty (index .Values.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol") }}
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
     {{- end }}
-    {{- if empty (index .Values.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect") }}
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
     {{- end }}
-    {{- if empty (index .Values.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") }}
-    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
     {{- end }}
-    nginx.org/websocket-services: "router-gorouter-public"
-{{- if not (empty .Values.ingress.annotations)}}
+    {{ $_ := set .Values.ingress.annotations "nginx.org/websocket-services" "router-gorouter-public" }}
 {{ toYaml .Values.ingress.annotations | indent 4 }}
-{{- end }}
 spec:
   tls:
   - secretName: "ingress-tls"
