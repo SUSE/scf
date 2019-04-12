@@ -1,5 +1,10 @@
 {{- if .Values.ingress.enabled -}}
 ---
+# The certificate and key for the TLS secret are passed through ingress.tls.crt and ingress.tls.key
+# respectively. If the operator does not provide these values at installation time, the TLS secret
+# will contain empty values. The standard behaviour for NGINX ingress controller is to provide a
+# fake certificate instead. It is useful only for testing and development. It is expected that for
+# production use the operator will provide these values.
 apiVersion: "v1"
 kind: "Secret"
 type: kubernetes.io/tls
@@ -10,6 +15,12 @@ data:
   tls.crt: {{ .Values.ingress.tls.crt | default "" | b64enc | quote }}
   tls.key: {{ .Values.ingress.tls.key | default "" | b64enc | quote }}
 ---
+# This ingress specifies routing and access for the cloud controller public SCF service, e.g.
+# "api.<domain>" and other services in that domain hierarchy.
+#
+# Note that the two other services (TCP routing and app SSH access) are not suitable to routing via
+# HTTP, and not specified. I.e. they are TCP, which is not supported by the current ingress
+# specification. Although specific controllers may do so in a custom manner.
 apiVersion: "extensions/v1beta1"
 kind: "Ingress"
 metadata:
