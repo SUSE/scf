@@ -24,12 +24,12 @@ fi
 NS=${1-scf}
 DONE="${KLOG}/${NS}/done"
 
-# Prevent bail out
+# Prevent bail out.
 if [ "${FORCE}" == "1" ] ; then
   rm -f "${DONE}" 2> /dev/null
 fi
 
-# Bail out early when already done
+# Bail out early when already done.
 if [ -f "${DONE}" ]; then
     printf "Already done\n"
     exit
@@ -53,8 +53,8 @@ function get_containers_of_pod() {
   kubectl get pods "${POD}" --namespace "${NS}" --output=jsonpath='{.spec.containers[*].name}'
 }
 
+# Get the CF logs inside the pod.
 function retrieve_container_cf_logs() {
-  # Get the CF logs inside the pod.
   printf " CF"
   kubectl cp --namespace "${NS}" --container "${CONTAINER}" \
     "${POD}":/var/vcap/sys/log/ \
@@ -62,10 +62,10 @@ function retrieve_container_cf_logs() {
     2> /dev/null > /dev/null
 }
 
+# Get the pod logs - Note that previous may not be there if it was
+# successful on the first run. Unfortunately we can't get anything
+# past the previous one.
 function retrieve_container_kube_logs() {
-  # Get the pod logs - previous may not be there if it was successful
-  # on the first run.  Unfortunately we can't get anything past the
-  # previous one.
   printf " Kube"
   kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}"            > "${CONTAINER_DIR}/kube.log"
   kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}" --previous > "${CONTAINER_DIR}/kube-previous.log"
@@ -89,7 +89,7 @@ function get_all_events() {
 rm -rf "${KLOG:?}/${NS:?}"
 NAMESPACE_DIR="${KLOG}/${NS}"
 
-# Iterate over pods and their containers ...
+# Iterate over pods and their containers.
 PODS=($(get_all_the_pods))
 
 for POD in "${PODS[@]}"; do
