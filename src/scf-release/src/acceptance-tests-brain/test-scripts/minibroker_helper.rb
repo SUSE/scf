@@ -2,6 +2,7 @@
 
 require_relative 'testutils'
 require 'json'
+require 'set'
 require 'timeout'
 
 module M
@@ -50,11 +51,13 @@ class MiniBrokerTest
     attr_lazy(:service_plans) { |inst| JSON.load capture("cf curl '/v2/services/#{inst.service_guid}/service_plans'") }
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
-    def print_all_container_logs_in_namespace(ns)
+    def dump_containers_in_namespace(ns)
         capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
             failed = false
+            _ = run_with_status("kubectl get --namespace #{ns} pod --output yaml")
             capture("kubectl get --namespace #{ns} #{pod} --output jsonpath='{.spec.containers[*].name}'").split.each do |container|
                 status = run_with_status("kubectl logs --namespace #{ns} #{pod} --container #{container}")
+                _ = run_with_status("kubectl logs --previous --namespace #{ns} #{pod} --container #{container}")
                 failed ||= !status.success?
             end
             run "kubectl describe --namespace #{ns} #{pod}" if failed
@@ -74,9 +77,18 @@ class MiniBrokerTest
             at_exit do
                 set errexit: false do
                     unless @success
+                        all_pvs = Set.new(capture("kubectl get pv --output name").split)
                         [minibroker_namespace, minibroker_pods_namespace].each do |ns|
-                            print_all_container_logs_in_namespace ns
+                            dump_containers_in_namespace ns
+                            capture("kubectl get pvc --namespace #{ns} --output name").split.each do |pvc|
+                                run "kubectl describe --namespace #{ns} #{pvc}"
+                                pv = capture("kubectl get --namespace #{ns} #{pvc} --output=jsonpath={.spec.volumeName}").strip
+                                next if pv.empty?
+                                run "kubectl describe pv #{pv}"
+                                all_pvs -= "persistentvolumes/#{pv}"
+                            end
                         end
+                        run "kubectl describe #{all_pvs.to_a.join(' ')}" unless all_pvs.empty?
                     end
 
                     status = run_with_status "cf delete-service -f #{service_instance}"
