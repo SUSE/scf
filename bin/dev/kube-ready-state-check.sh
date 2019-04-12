@@ -92,16 +92,22 @@ if having_category node ; then
     status "docker info should not show aufs"
 fi
 
-# kube-dns shows 4/4 ready
+# kube auth
 if having_category kube ; then
-    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
-    status "kube-dns should be running (show 4/4 ready)"
+    kubectl auth can-i get pods --namespace=kube-system &> /dev/null
+    status "authenticate with kubernetes cluster"
 fi
 
-# tiller-deploy shows 4/4 ready
+# kube-dns shows all pods ready
+if having_category kube ; then
+    kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
+    status "all kube-dns pods should be running (show N/N ready)"
+fi
+
+# tiller-deploy shows all pods ready
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector name=tiller 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
-    status "tiller should be running (1/1 ready)"
+    status "all tiller pods should be running (N/N ready)"
 fi
 
 # ntp or systemd-timesyncd is installed and running
@@ -112,7 +118,7 @@ fi
 
 # At least one storage class exists in K8s
 if having_category kube ; then
-    test ! "$(kubectl get storageclasses 2>&1 | grep "No resources found.")"
+    test ! "$(kubectl get storageclasses 2>&1 | grep -e "No resources found." -e "Unable to connect to the server")"
     status "A storage class should exist in K8s"
 fi
 
