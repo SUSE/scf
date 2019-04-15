@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # This script contains helpers for running tests.
 
+require 'date'
 require 'fileutils'
 require 'open3'
 require 'securerandom'
@@ -29,6 +30,7 @@ def use_global_timeout(shutdown_time=60)
             main_thread.raise e
         else
             # Timeout reached
+            STDERR.puts "\e[0;1;31mGlobal timeout triggered at #{DateTime.now}\e[0m"
             main_thread.raise Timeout::Error, "timeout reached after #{sleep_duration} seconds"
         end
     end
@@ -84,9 +86,9 @@ end
 
 # Run the given command line.  If errexit is set, an error is raised on failure.
 def run(*args)
-    status = run_with_status(*args)
     opts = $opts.dup
     opts.merge! args.last if args.last.is_a? Hash
+    status = run_with_status(*args)
     return unless opts[:errexit]
     unless status.success?
         # Print an error at the failure site
@@ -95,19 +97,30 @@ def run(*args)
     end
 end
 
+# Run the given command line, and return the standard output as well as the exit
+# status (as a Process::Status).
+def capture_with_status(*args)
+    _print_command(*args)
+    args.last.delete :errexit if args.last.is_a? Hash
+    args.last.delete :xtrace if args.last.is_a? Hash
+    stdout, status = Open3.capture2(*args)
+    return stdout.chomp, status
+end
+
 # Run the given command line, and return the standard output.
 # If errexit is set, an error is raised on failure.
 def capture(*args)
-    _print_command(*args)
-    stdout, status = Open3.capture2(*args)
-    if $opts[:errexit]
+    opts = $opts.dup
+    opts.merge! args.last if args.last.is_a? Hash
+    stdout, status = capture_with_status(*args)
+    if opts[:errexit]
         unless status.success?
             # Print an error at the failure site.
             puts "#{c_red}Command exited with #{status.exitstatus}#{c_reset}"
             fail "Command exited with #{status.exitstatus}"
         end
     end
-    stdout.chomp
+    stdout
 end
 
 # Log in to the CF installation under test.
@@ -240,13 +253,15 @@ def statefulset_ready(namespace, statefulset)
     if statefulset.nil? || statefulset.strip.empty?
         fail RuntimeError, "statefulset must be set"
     end
-    stdout, status = Open3.capture2(
-      'kubectl', 'get', 'statefulset',
-      '--output', 'go-template="{{ eq .status.replicas .status.readyReplicas }}"',
-      '--namespace', namespace,
-      statefulset,
-    )
-    return status.success? && stdout == '"true"'
+    args = %W(kubectl get statefulset --namespace=#{namespace} #{statefulset})
+    desired, status = capture_with_status(*args, '--output=go-template={{or .spec.replicas 0}}')
+    return false unless status.success?
+    actual, status = capture_with_status(*args, '--output=go-template={{or .status.readyReplicas 0}}')
+    return false unless status.success?
+    puts "Statefulset #{namespace}/#{statefulset}: #{actual}/#{desired} ready"
+
+    return false unless desired.to_i > 0
+    actual.to_i == desired.to_i
 end
 
 # Exit the test with the code that marks it as skipped.
