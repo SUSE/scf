@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # This script contains helpers for running tests.
 
+require 'date'
 require 'fileutils'
 require 'open3'
 require 'securerandom'
@@ -29,6 +30,7 @@ def use_global_timeout(shutdown_time=60)
             main_thread.raise e
         else
             # Timeout reached
+            STDERR.puts "\e[0;1;31mGlobal timeout triggered at #{DateTime.now}\e[0m"
             main_thread.raise Timeout::Error, "timeout reached after #{sleep_duration} seconds"
         end
     end
@@ -242,11 +244,11 @@ def statefulset_ready(namespace, statefulset)
     end
     stdout, status = Open3.capture2(
       'kubectl', 'get', 'statefulset',
-      '--output', 'go-template="{{ eq .status.replicas .status.readyReplicas }}"',
+      '--output', 'go-template={{ eq (.status.replicas | print) (or .status.currentReplicas 0 | print) }}',
       '--namespace', namespace,
       statefulset,
     )
-    return status.success? && stdout == '"true"'
+    return status.success? && stdout == 'true'
 end
 
 # Exit the test with the code that marks it as skipped.
