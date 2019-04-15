@@ -9,9 +9,9 @@ String domain() {
     return ipAddress() + ".nip.io"
 }
 
-String jobBaseName() {
-    return env.JOB_BASE_NAME.toLowerCase()
-}
+jobBaseName = env.JOB_BASE_NAME.toLowerCase()
+cfNamespace = "${jobBaseName}-${BUILD_NUMBER}-scf"
+uaaNamespace = "${jobBaseName}-${BUILD_NUMBER}-uaa"
 
 String getBuildLog() {
     return currentBuild.rawBuild.getLogFile().getText()
@@ -70,8 +70,8 @@ void runTest(String testName) {
         source \${PWD}/.envrc
         set -x
 
-        export NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-scf
-        export UAA_NAMESPACE=${jobBaseName()}-${BUILD_NUMBER}-uaa
+        export NAMESPACE=${cfNamespace}
+        export UAA_NAMESPACE=${uaaNamespace}
 
         # this will look for tests under output/kube/bosh-tasks and not in output/unzipped/...
         make/tests "${testName}" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath"
@@ -115,6 +115,10 @@ Boolean noOverwrites() {
         default:
             return false
     }
+}
+
+void kubectlGetAll(String namespace) {
+    sh "kubectl get all --namespace \"${namespace}\" --output wide || true"
 }
 
 pipeline {
@@ -503,8 +507,8 @@ pipeline {
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
                     helm install output/unzipped/helm/uaa \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                        --name ${uaaNamespace} \
+                        --namespace ${uaaNamespace} \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
@@ -516,7 +520,7 @@ pipeline {
                     . make/include/secrets
 
                     has_internal_ca() {
-                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
+                        test "\$(get_secret "${uaaNamespace}" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
                     set +x
@@ -526,17 +530,17 @@ pipeline {
                     set -x
 
                     # Use `make/run` to run the deployment to ensure we have updated settings
-                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
-                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export NAMESPACE="${cfNamespace}"
+                    export UAA_NAMESPACE="${uaaNamespace}"
                     export DOMAIN="${domain()}"
                     export CF_CHART="output/unzipped/helm/cf"
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
                         --set enable.autoscaler=true \
-                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
-                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
                         make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
@@ -559,17 +563,17 @@ pipeline {
                     . make/include/secrets
 
                     # Get the last updated secret
-                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
 
                     # Get a random secret that should be rotated (TODO: choose this better)
                     secret_name=internal-ca-cert
                     # And its value
-                    old_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+                    old_secret_value="\$(kubectl get secret --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    helm upgrade "${jobBaseName()}-${BUILD_NUMBER}-uaa" output/unzipped/helm/uaa \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                    helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
+                        --namespace ${uaaNamespace} \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
@@ -583,7 +587,7 @@ pipeline {
                     sleep 60
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
-                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" ; do
+                    for ns in "${uaaNamespace}" ; do
                         # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
                         make/wait "\${ns}"
                     done
@@ -591,29 +595,29 @@ pipeline {
 
                     # Use `make/upgrade` to run the deployment to ensure we have updated settings
                     export DOMAIN="${domain()}"
-                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
-                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export NAMESPACE="${cfNamespace}"
+                    export UAA_NAMESPACE="${uaaNamespace}"
                     export CF_CHART="output/unzipped/helm/cf"
                     export SCF_SECRETS_GENERATION_COUNTER=2
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/upgrade \
                         --set enable.autoscaler=true \
                         --set enable.credhub=true \
-                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     # Ensure old pods have time to terminate
                     sleep 60
 
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
-                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
                         make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
 
                     # Get the secret again to see that they have been rotated
-                    secret_resource="\$(kubectl get secrets --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
-                    new_secret_value="\$(kubectl get secret --namespace="${jobBaseName()}-${BUILD_NUMBER}-scf" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+                    new_secret_value="\$(kubectl get secret --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
 
                     if test "\${old_secret_value}" = "\${new_secret_value}" ; then
                         echo "Secret \${secret_name} not correctly rotated"
@@ -628,6 +632,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('secret rotation', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -646,6 +652,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('smoke', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -664,6 +672,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('brain', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -682,6 +692,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('sits', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -700,6 +712,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('cats', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -846,7 +860,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
                     writeFile(file: 'build.log', text: getBuildLog())
                     sh "bin/clean-jenkins-log"
-                    sh "container-host-files/opt/scf/bin/klog.sh -f ${jobBaseName()}-${BUILD_NUMBER}-scf"
+                    sh "container-host-files/opt/scf/bin/klog.sh -f ${cfNamespace}"
                     withAWS(region: params.S3_REGION) {
                         withCredentials([usernamePassword(
                             credentialsId: params.S3_CREDENTIALS,
