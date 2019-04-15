@@ -117,6 +117,10 @@ Boolean noOverwrites() {
     }
 }
 
+void kubectlGetAll(String namespace) {
+    sh "kubectl get all --namespace \"${namespace}\" --output wide || true"
+}
+
 pipeline {
     agent { label ((params.AGENT_LABELS ?: "scf prod").tokenize().join("&&")) }
     options {
@@ -628,6 +632,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('secret rotation', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -646,6 +652,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('smoke', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -664,6 +672,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('brain', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -682,6 +692,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('sits', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
@@ -700,6 +712,8 @@ pipeline {
                 }
                 failure {
                     setBuildStatus('cats', 'failure')
+                    kubectlGetAll(cfNamespace)
+                    kubectlGetAll(uaaNamespace)
                 }
             }
         }
