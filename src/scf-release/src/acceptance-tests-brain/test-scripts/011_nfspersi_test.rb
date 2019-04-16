@@ -31,7 +31,7 @@ at_exit do
 
         # Delete the app, the associated service, block it from use again
         run "cf delete -f #{APP_NAME}"
-        run "cf delete-route '#{ENV['DOMAIN']}' --hostname #{APP_NAME}"
+        run "cf delete-route -f '#{ENV['DOMAIN']}' --hostname #{APP_NAME}"
         run "cf delete-service -f #{VOLUME_NAME}"
         run "cf disable-service-access persi-nfs"
 
