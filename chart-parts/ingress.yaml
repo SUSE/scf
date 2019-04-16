@@ -1,51 +1,66 @@
-{{- if .Values.services.ingress -}}
+{{- if .Values.ingress.enabled -}}
 ---
-# The cert and the key cannot be filled automatically. If we could it
-# would roughly look like the lines below. As is it is the
-# responsibility of the operator to retrieve the values of these
-# secrets from the deployed SCF and update this secret with the actual
-# values. And the responsibility of the developer to supply the proper
-# instructions to the operator.
-##
-# tls.crt: {{ default "" .Values.secrets.ROUTER_SSL_CERT     | b64enc | quote }}
-# tls.key: {{ default "" .Values.secrets.ROUTER_SSL_CERT_KEY | b64enc | quote }}
-
+# The certificate and key for the TLS secret are passed through ingress.tls.crt and ingress.tls.key
+# respectively. If the operator does not provide these values at installation time, the TLS secret
+# will contain empty values. The standard behaviour for NGINX ingress controller is to provide a
+# fake certificate instead. It is useful only for testing and development. It is expected that for
+# production use the operator will provide these values.
 apiVersion: "v1"
 kind: "Secret"
 type: kubernetes.io/tls
 metadata:
-  name: "{{ .Values.services.ingress.class }}-ingress-tls"
-  namespace: "{{ .Release.Namespace }}"
+  name: "ingress-tls"
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: "ingress-tls"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
 data:
-  tls.crt: ""
-  tls.key: ""
+  tls.crt: {{ .Values.ingress.tls.crt | default "" | b64enc | quote }}
+  tls.key: {{ .Values.ingress.tls.key | default "" | b64enc | quote }}
 ---
-# This ingress specifies routing and access for the cloud controller
-# public SCF service, i.e. "api.<domain>" and other services in that
-# domain hierarchy.
+# This ingress specifies routing and access for the cloud controller public SCF service, e.g.
+# "api.<domain>" and other services in that domain hierarchy.
 #
-# Note that the two other services (tcp routing, app ssh access) are
-# not suitable to routing via http, and not specified. IOW they are
-# TCP, which is not supported by the current ingress specification.
-# Although specific controllers may do so in a custom manner.
-
+# Note that the two other services (TCP routing and app SSH access) are not suitable to routing via
+# HTTP, and not specified. I.e. they are TCP, which is not supported by the current ingress
+# specification. Although specific controllers may do so in a custom manner.
 apiVersion: "extensions/v1beta1"
 kind: "Ingress"
 metadata:
-  name: "{{ .Release.Name }}-{{ .Values.services.ingress.class }}"
-  namespace: "{{ .Release.Namespace }}"
+  name: {{ .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
   annotations:
-    kubernetes.io/ingress.class: {{ .Values.services.ingress.class }}
-    {{ if eq .Values.services.ingress.class "nginx" -}}
-    nginx.ingress.kubernetes.io/secure-backends: "true"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false" # Doesn't enforce HTTPS.
-    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
-    nginx.org/websocket-services: "router-gorouter-public"
+    {{- if hasKey .Values.ingress.annotations "kubernetes.io/ingress.class" | not -}}
+      {{ $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
     {{- end }}
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
+    {{- end }}
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
+    {{- end }}
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
+    {{- end }}
+    {{- if hasKey .Values.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" | not -}}
+      {{ $_ := set .Values.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
+    {{- end }}
+    {{ $_ := set .Values.ingress.annotations "nginx.org/websocket-services" "router-gorouter-public" }}
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+  labels:
+    app.kubernetes.io/component: "ingress"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
 spec:
   tls:
-  - secretName: "{{ .Values.services.ingress.class }}-ingress-tls"
+  - secretName: "ingress-tls"
     hosts:
     - "*.{{ .Values.env.DOMAIN }}"
     - "{{ .Values.env.DOMAIN }}"
@@ -56,12 +71,12 @@ spec:
           - path: "/"
             backend:
               serviceName: "router-gorouter-public"
-              servicePort: {{ .Values.services.ingress.backends.router.port }}
+              servicePort: 443
     - host: "{{ .Values.env.DOMAIN }}"
       http:
         paths:
           - path: "/"
             backend:
               serviceName: "router-gorouter-public"
-              servicePort: {{ .Values.services.ingress.backends.router.port }}
+              servicePort: 443
 {{- end }}

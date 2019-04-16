@@ -97,13 +97,12 @@ class MiniBrokerTest
                     end
                     run "helm delete --purge #{helm_release}"
                     run "kubectl delete ClusterRoleBinding minibroker"
-                    [minibroker_namespace, minibroker_pods_namespace].each do |ns|
-                        loop do
-                            status = run_with_status "kubectl get namespace #{ns} >/dev/null 2>/dev/null"
-                            break unless status.success?
-                            _ = run_with_status "kubectl delete namespace #{ns}"
-                        end
-                    end
+
+                    # Delete the Minibroker underlying resources namespace.
+                    run "kubectl delete namespace #{minibroker_pods_namespace} --wait=false"
+
+                    # Delete the Minibroker namespace.
+                    run "kubectl delete namespace #{minibroker_namespace} --wait=false"
                 end
             end
 
@@ -111,6 +110,7 @@ class MiniBrokerTest
             run "helm init --client-only"
             run(*%W(helm upgrade #{helm_release} minibroker
                 --install
+                --wait
                 --repo #{minibroker_repo}
                 --devel
                 --reset-values
@@ -123,7 +123,6 @@ class MiniBrokerTest
                 --set image=minibroker:latest
                 --set imagePullPolicy=Always
             ))
-            wait_for_namespace minibroker_namespace
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
             run "cf create-service-broker #{broker_name} user pass #{broker_url}"

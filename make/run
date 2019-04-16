@@ -62,8 +62,8 @@ helm_args=(
 
 if [ -n "${INGRESS_CONTROLLER:-}" ]; then
     helm_args+=(
-        --set "services.ingress.class=${INGRESS_CONTROLLER}"
-        --set "services.ingress.backends.router.port=443"
+        --set "ingress.enabled=true"
+        --set "ingress.annotations.kubernetes\.io\/ingress\.class=${INGRESS_CONTROLLER}"
         --set "env.UAA_PORT=443"
     )
 else
