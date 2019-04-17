@@ -84,9 +84,9 @@ releases:
   version: "1.8.35.1"
   sha1: "892149a994765280320e221bba9193bca2c7a664"
 - name: java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.0.1.tgz"
-  version: "4.19.0.1"
-  sha1: "0d87a343482b200e0051597a106d40fbc69a32b7"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.1.1.tgz"
+  version: "4.19.1.1"
+  sha1: "325d3bba6cf27a4446ddd5d9f70bd096813522b4"
 - name: nodejs-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.48.1.tgz"
   version: "1.6.48.1"
