@@ -21,6 +21,8 @@ def base_net_config
 end
 
 Vagrant.configure(2) do |config|
+  config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
+
   vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
   vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
   vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.17'))
@@ -91,131 +93,22 @@ Vagrant.configure(2) do |config|
     end
   end
 
-  # Adds the loop kernel module for loading on system startup, as well as loads it immediately.
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    echo "loop" > /etc/modules-load.d/loop.conf
-    modprobe loop
-  SHELL
-
-  config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
-
-  # Make sure we can pass FISSILE_* env variables from the host.
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    set -o errexit -o xtrace -o verbose
-    echo "AcceptEnv FISSILE_*" | sudo tee -a /etc/ssh/sshd_config
-    systemctl restart sshd.service
-  SHELL
-
-  config.vm.provision "shell", privileged: true, env: ENV.select { |e|
+  config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
+  config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
+  config.vm.provision :shell, privileged: true, env: ENV.select { |e|
     %w(http_proxy https_proxy no_proxy).include? e.downcase
-  }, path: "bin/common/write_proxy_vars_to_environment.sh"
-
-  # Set up direnv so we can pick up fissile configuration.
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -o errexit -o nounset
-    mkdir -p ${HOME}/bin
-    wget -O ${HOME}/bin/direnv --no-verbose \
-      https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
-    chmod a+x ${HOME}/bin/direnv
-    echo 'eval "$(${HOME}/bin/direnv hook bash)"' >> ${HOME}/.bashrc
-    ln -s -f ${HOME}/scf/bin/dev/vagrant-envrc ${HOME}/.envrc
-    ${HOME}/bin/direnv allow ${HOME}
-    ${HOME}/bin/direnv allow ${HOME}/scf
-  SHELL
-
-  # Install common and dev tools.
-  config.vm.provision :shell, privileged: true, inline: <<-SHELL
-    set -o errexit -o xtrace -o verbose
-    export HOME="#{HOME}"
-    export PATH="${PATH}:#{HOME}/bin"
-    export SCF_BIN_DIR=/usr/local/bin
-
-    if [ -n "#{vm_registry_mirror}" ]; then
-      perl -p -i -e 's@^(DOCKER_OPTS=)"(.*)"@\\1"\\2 --registry-mirror=#{vm_registry_mirror}"@' /etc/sysconfig/docker
-      # Docker has issues coming up on virtualbox; let it fail gracefully, if necessary.
-      systemctl stop docker.service
-      if ! systemctl restart docker.service ; then
-        while [ "$(systemctl is-active docker.service)" != active ] ; do
-          case "$(systemctl is-active docker.service)" in
-            failed) systemctl reset-failed docker.service ;
-                    systemctl restart docker.service ||: ;;
-            *)      sleep 5                              ;;
-          esac
-        done
-      fi
-    fi
-
-    cd "${HOME}/scf"
-    bash ${HOME}/scf/bin/common/install_tools.sh
-    direnv exec ${HOME}/scf/bin/dev/install_tools.sh
-
-    # Enable RBAC for kube on vagrant boxes older than 2.0.10.
-    if ! grep -q "KUBE_API_ARGS=.*--authorization-mode=RBAC" /etc/kubernetes/apiserver; then
-      perl -p -i -e 's@^(KUBE_API_ARGS=)"(.*)"@\\1"\\2 --authorization-mode=RBAC"@' /etc/kubernetes/apiserver
-      systemctl restart kube-apiserver
-    fi
-  SHELL
-
-  # Ensure that kubelet is running correctly.
-  config.vm.provision :shell, privileged: true, inline: <<-'SHELL'
-    set -o errexit -o nounset -o xtrace
-    if ! systemctl is-active kubelet.service ; then
-      systemctl enable --now kubelet.service
-    fi
-  SHELL
-
-  # Set up the storage class.
-  config.vm.provision :shell, privileged: false, inline: <<-'SHELL'
-    if ! kubectl get storageclass persistent 2>/dev/null ; then
-      perl -p -e 's@storage.k8s.io/v1beta1@storage.k8s.io/v1@g' \
-        "${HOME}/scf/src/uaa-fissile-release/kube-test/storage-class-host-path.yml" | \
-      kubectl create -f -
-    fi
-  SHELL
-
-  # Wait for the pods to be ready.
-  config.vm.provision :shell, privileged: false, inline: <<-'SHELL'
-    set -o errexit -o nounset
-    echo "Waiting for pods to be ready..."
-    for selector in k8s-app=kube-dns name=tiller ; do
-      while ! kubectl get pods --namespace=kube-system --selector "${selector}" 2> /dev/null | grep -Eq '([0-9])/\1 *Running' ; do
-        sleep 5
-      done
-    done
-  SHELL
-
-  config.vm.provision "shell", privileged: false,
+  }, path: "vagrant/write_proxy_vars_to_environment.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/setup_direnv.sh"
+  config.vm.provision :shell, privileged: true, path: "vagrant/install_common_dev_tools.sh", args: [HOME, vm_registry_mirror]
+  config.vm.provision :shell, privileged: true, path: "vagrant/ensure_kubelet_is_running.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/setup_storage_class.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/wait_pods_ready.sh"
+  config.vm.provision :shell, privileged: false,
                       env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
-                      inline: <<-SHELL
-    set -o errexit
-    echo 'if test -e /mnt/hgfs ; then /mnt/hgfs/scf/bin/dev/setup_vmware_mounts.sh ; fi' >> .profile
+                      path: "vagrant/restore_fissile_cache.sh"
+  config.vm.provision "shell", privileged: false, path: "vagrant/provision_custom_scripts.sh", args: [mounted_custom_setup_scripts]
 
-    echo 'export PATH="${PATH}:#{HOME}/scf/container-host-files/opt/scf/bin/"' >> .profile
-
-    echo -e '\nexport HISTFILE="#{HOME}/scf/output/.bash_history"' >> .profile
-
-    # Check that the cluster is reasonable.
-    #{HOME}/scf/bin/dev/kube-ready-state-check.sh
-
-    direnv exec #{HOME}/scf make -C #{HOME}/scf copy-compile-cache
-  SHELL
-
-  # Provision the custom config scripts and personal setup.
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    set -o errexit
-
-    if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
-      echo -e "\e[1;96mRunning customization scripts\e[0m"
-      scripts=($(find "#{mounted_custom_setup_scripts}/provision.d" -iname "*.sh" -executable -print | sort))
-      for script in "${scripts[@]}"; do
-        echo -e "Running \e[1;96m${script}\e[0m"
-        "${script}"
-      done
-      echo -e "\e[1;96mDone running customization scripts\e[0m"
-    fi
-
-    echo 'test -f "#{HOME}/scf/personal-setup" && . "#{HOME}/scf/personal-setup"' >> .profile
-
     echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
   SHELL
 end
