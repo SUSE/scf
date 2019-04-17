@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 require 'resolv'
+require 'securerandom'
 
 def base_net_config
   base_config = {
@@ -20,6 +21,27 @@ def base_net_config
   base_config
 end
 
+def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
+  config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
+  config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
+  config.vm.provision :shell, privileged: true, env: ENV.select { |e|
+    %w(http_proxy https_proxy no_proxy).include? e.downcase
+  }, path: "vagrant/write_proxy_vars_to_environment.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/setup_direnv.sh"
+  config.vm.provision :shell, privileged: true, path: "vagrant/install_common_dev_tools.sh", args: [home, vm_registry_mirror]
+  config.vm.provision :shell, privileged: true, path: "vagrant/ensure_kubelet_is_running.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/setup_storage_class.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/wait_pods_ready.sh"
+  config.vm.provision :shell, privileged: false,
+                      env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
+                      path: "vagrant/restore_fissile_cache.sh"
+  config.vm.provision "shell", privileged: false, path: "vagrant/provision_custom_scripts.sh", args: [mounted_custom_setup_scripts]
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
+  SHELL
+end
+
 Vagrant.configure(2) do |config|
   config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
 
@@ -29,6 +51,9 @@ Vagrant.configure(2) do |config|
   vm_registry_mirror = ENV.fetch('SCF_VM_REGISTRY_MIRROR', ENV.fetch('VM_REGISTRY_MIRROR', ''))
 
   HOME = "/home/vagrant"
+  FISSILE_CACHE_DIR = "#{HOME}/.fissile"
+  FISSILE_CACHE_SIZE = 120
+  VB_FISSILE_CACHE_VDI = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
 
   # Set this environment variable pointing to a directory containing shell scripts to be executed as
   # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
@@ -56,6 +81,23 @@ Vagrant.configure(2) do |config|
 
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
+    # Create and attach a disk for Fissile cache.
+    default_machine_folder = `VBoxManage list systemproperties | grep "Default machine folder"`
+    vb_machine_folder = default_machine_folder.split(':')[1].strip()
+    fissile_cache_disk = File.join(vb_machine_folder, VB_FISSILE_CACHE_VDI)
+
+    unless File.exist?(fissile_cache_disk)
+      vb.customize ['createhd', '--filename', fissile_cache_disk, '--format', 'VDI', '--size', FISSILE_CACHE_SIZE * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', fissile_cache_disk]
+
+    # Format and mount Fissile cache disk.
+    override.vm.provision "shell",
+      privileged: true,
+      path: "vagrant/fissile_cache_disk_virtualbox.sh",
+      args: ["/dev/sdb", FISSILE_CACHE_DIR]
+
+    # Mount NFS volumes.
     # https://github.com/mitchellh/vagrant/issues/351
     override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
@@ -64,6 +106,9 @@ Vagrant.configure(2) do |config|
       override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
         mounted_custom_setup_scripts, type: "nfs"
     end
+
+    # Set the shared provision scripts.
+    provision(override, HOME, vm_registry_mirror, mounted_custom_setup_scripts)
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
@@ -84,6 +129,16 @@ Vagrant.configure(2) do |config|
     libvirt.cpus = vm_cpus
     libvirt.random model: 'random'
 
+    # Create and attach a disk for Fissile cache.
+    libvirt.storage :file, :size => "#{FISSILE_CACHE_SIZE}G"
+
+    # Format and mount Fissile cache disk.
+    override.vm.provision "shell",
+      privileged: true,
+      path: "vagrant/fissile_cache_disk_libvirt.sh",
+      args: ["/dev/vdb", FISSILE_CACHE_DIR]
+
+    # Mount NFS volumes.
     override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
@@ -91,24 +146,8 @@ Vagrant.configure(2) do |config|
       override.vm.synced_folder ENV.fetch(custom_setup_scripts_env),
         mounted_custom_setup_scripts, type: "nfs"
     end
+
+    # Set the shared provision scripts.
+    provision(override, HOME, vm_registry_mirror, mounted_custom_setup_scripts)
   end
-
-  config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
-  config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
-  config.vm.provision :shell, privileged: true, env: ENV.select { |e|
-    %w(http_proxy https_proxy no_proxy).include? e.downcase
-  }, path: "vagrant/write_proxy_vars_to_environment.sh"
-  config.vm.provision :shell, privileged: false, path: "vagrant/setup_direnv.sh"
-  config.vm.provision :shell, privileged: true, path: "vagrant/install_common_dev_tools.sh", args: [HOME, vm_registry_mirror]
-  config.vm.provision :shell, privileged: true, path: "vagrant/ensure_kubelet_is_running.sh"
-  config.vm.provision :shell, privileged: false, path: "vagrant/setup_storage_class.sh"
-  config.vm.provision :shell, privileged: false, path: "vagrant/wait_pods_ready.sh"
-  config.vm.provision :shell, privileged: false,
-                      env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
-                      path: "vagrant/restore_fissile_cache.sh"
-  config.vm.provision "shell", privileged: false, path: "vagrant/provision_custom_scripts.sh", args: [mounted_custom_setup_scripts]
-
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    echo -e "\n\nAll done - you can \e[1;96mvagrant ssh\e[0m\n\n"
-  SHELL
 end
