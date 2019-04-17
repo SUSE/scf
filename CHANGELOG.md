@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.16.1] - 2019-02-16
+
+## Added
+- Added support for user supplied annotations for Ingress
+
+## Changed
+- Added Helm labels to Ingress templates
+- Bumped SLE15 stack
+- Bumped nodejs buildpack to 1.6.48
+- Bumped Eirini to 0.0.3
+- Bumped cflinuxfs2 to 1.281.0
+- Bumped cflinuxfs3 to 0.81.0
+- Bumped Ruby buildpack to 1.7.36
+- Bumped PHP buildpack to 4.3.74
+- Bumped Python buildpack to 1.6.31
+- Bumped Java buildpack to 4.19.1
+
+## Fixed
+- Fixed the diego-api readiness probe 
+- Fixed autoscaler to not skip SSL validation
+- Reduced autoscaler database disk size
+- Fixed autoscaler to listen to cluster internal CF API endpoint 
+
 ## [2.16.0] - 2019-02-04
 
 ## Added
@@ -14,9 +37,9 @@
 - Bumped to cf-deployment 6.10
 - Bumped cflinuxfs3 to 0.76.0
 - Bumped cflinuxfs2 to 1.278.0
-- Bumped binary-buildpack-release t0 1.0.31
+- Bumped binary-buildpack-release to 1.0.31
 - Bumped cf-cli to 6.42.0
-- Bumped go-buildpack to 1.8.36.1
+- Bumped go-buildpack to 1.8.36
 - Bumped java-buildpack to 4.19.0
 - Bumped nfs-volume-release to 1.7.6
 - Bumped nginx-buildpack to 1.0.10
