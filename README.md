@@ -74,10 +74,6 @@ Table of Contents
 1. You must install vagrant (1.9.5+): [https://www.vagrantup.com](https://www.vagrantup.com)
 1. Install the following vagrant plugins
 
-    * vagrant-reload
-      ```bash
-      vagrant plugin install vagrant-reload
-      ```
     * vagrant-libvirt (if using libvirt)
       ```bash
       vagrant plugin install vagrant-libvirt
