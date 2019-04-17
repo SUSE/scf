@@ -14,7 +14,7 @@ MDEV="/dev/mapper/${MPATH}"
 parted "${FISSILE_CACHE_DEVICE}" --script -- mklabel gpt
 parted -a optimal "${FISSILE_CACHE_DEVICE}" mkpart primary 0% 100%
 kpartx -a "${MDEV}"
-MDEVPART=$(lsblk "${MDEV}" --raw --paths --output NAME,TYPE | awk 'match(\$2, "part") { print \$1 }')
+MDEVPART=$(lsblk "${MDEV}" --raw --paths --output NAME,TYPE | awk 'match($2, "part") { print $1 }')
 
 # Create the filesystem on the device.
 mkfs.btrfs "${MDEVPART}"
