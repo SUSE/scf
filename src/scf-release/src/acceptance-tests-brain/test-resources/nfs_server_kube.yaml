@@ -73,14 +73,13 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: "nfs-data"
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "persistent"
     spec:
       accessModes:
       - "ReadWriteOnce"
       resources:
         requests:
           storage: "5G"
+      storageClassName: persistent
 ---
 apiVersion: "v1"
 items:

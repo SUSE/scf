@@ -29,24 +29,36 @@ at_exit do
         # See why pora failed to start
         run "cf logs #{APP_NAME} --recent"
 
+        # Get logs and more information about the test server, why it
+        # may have failed.
+        run "kubectl", "logs",                    "-n", NS, "nfs-test-server-0"
+        run "kubectl", "get",      "pod",         "-n", NS, "nfs-test-server-0",          "-o", "yaml"
+        run "kubectl", "describe", "pod",         "-n", NS, "nfs-test-server-0"
+        run "kubectl", "get",      "statefulset", "-n", NS, "nfs-test-server",            "-o", "yaml"
+        run "kubectl", "describe", "statefulset", "-n", NS, "nfs-test-server"
+        run "kubectl", "get",      "pvc",         "-n", NS, "nfs-data-nfs-test-server-0", "-o", "yaml"
+        run "kubectl", "describe", "pvc",         "-n", NS, "nfs-data-nfs-test-server-0"
+        pv, status = capture_with_status("kubectl get pv -o json | jq -r '.items[] | select(.spec.claimRef.name == \"nfs-data-nfs-test-server-0\") | .metadata.name'")
+        run "kubectl describe pv #{status.success? ? pv : ''}"
+
         # Delete the app, the associated service, block it from use again
         run "cf delete -f #{APP_NAME}"
         run "cf delete-route -f '#{ENV['DOMAIN']}' --hostname #{APP_NAME}"
         run "cf delete-service -f #{VOLUME_NAME}"
         run "cf disable-service-access persi-nfs"
 
-        # Get logs and more information about the test server, why it
-        # may have failed.
-
-        run "kubectl", "logs",                    "-n", NS, "nfs-test-server-0"
-        run "kubectl", "describe", "pod",         "-n", NS, "nfs-test-server-0"
-        run "kubectl", "describe", "statefulset", "-n", NS, "nfs-test-server"
-        run "kubectl", "describe", "pvc",         "-n", NS, "nfs-data-nfs-test-server-0"
-        run "kubectl", "describe", "pv"
-
         # Remove the test server
         run "kubectl delete -n #{NS} -f #{SKUBEC}"
+        # Sometimes the PVC doesn't get deleted and things get stuck
+        run "kubectl delete pvc -n #{NS} nfs-data-nfs-test-server-0"
     end
+end
+
+raise "No storage class available" if storage_class.empty?
+provisioner = capture("kubectl get storageclass #{storage_class} -o jsonpath={.provisioner}")
+if provisioner.downcase.include? 'nfs'
+    STDERR.puts "Skipping NFS-Persi test due to storage class using NFS"
+    exit_skipping_test
 end
 
 # Launch the NFS server to use by the service (See SMOUNT), and wait
@@ -55,7 +67,7 @@ end
 # Replace the placeholder storage class for persistent volumes with
 # the actual class provided by the execution environment.
 SKUBEC = "#{tmpdir}/nfs_server_kube.yaml"
-run %Q@sed 's/storage-class: "persistent"/storage-class: "#{STORAGE_CLASS}"/' <#{resource_path('nfs_server_kube.yaml')} >#{SKUBEC}@
+run %Q@sed 's/storageClassName: persistent/storageClassName: #{storage_class}/' <#{resource_path('nfs_server_kube.yaml')} >#{SKUBEC}@
 
 set errexit: false do
     run "kubectl delete -n #{NS} -f #{SKUBEC}"
@@ -68,11 +80,7 @@ wait_for_statefulset(NS, "nfs-test-server")
 SNAME = YAML.load_file(SKUBEC)['metadata']['name']
 
 # Server of the NFS volume to use, as IP address (pulled from kube runtime via name)
-capture("kubectl describe service -n #{NS} #{SNAME}").each_line do |line|
-    next unless line.start_with? 'IP:'
-    SADDR = line.split.last
-    break
-end
+SADDR = capture("kubectl get service -n #{NS} #{SNAME} --output jsonpath='{.spec.clusterIP}'").strip
 
 # Now that we have an NFS server, with an exportable volume, we can
 # configure it for actual export.
