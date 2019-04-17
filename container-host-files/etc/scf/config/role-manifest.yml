@@ -2411,6 +2411,9 @@ configuration:
       - apiGroups: ["rbac.authorization.k8s.io"]
         resources: [clusterrolebindings]
         verbs: [delete]
+      - apiGroups: [storage.k8s.io]
+        resources: [storageclasses]
+        verbs: [get, list]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
         fsGroup: { rule: RunAsAny }

@@ -3,6 +3,7 @@
 
 require 'date'
 require 'fileutils'
+require 'json'
 require 'open3'
 require 'securerandom'
 require 'shellwords'
@@ -14,7 +15,18 @@ $opts = { errexit: true, xtrace: true }
 
 NAMESPACE = ENV['KUBERNETES_NAMESPACE']
 CLUSTER_DOMAIN = ENV['KUBERNETES_CLUSTER_DOMAIN']
-STORAGE_CLASS = ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
+
+def storage_class
+    $storage_class ||= ENV['KUBERNETES_STORAGE_CLASS_PERSISTENT']
+    return $storage_class if $storage_class && !$storage_class.empty?
+    storage_classes = JSON.parse(capture('kubectl get storageclass --output=json'))
+    default_storage_class = storage_classes['items'].find do |storage_class|
+        storage_class.fetch('metadata', {})
+            .fetch('annotations', {})
+            .fetch('storageclass.kubernetes.io/is-default-class', 'false') == 'true'
+    end
+    $storage_class = default_storage_class['metadata']['name'] || 'persistent'
+end
 
 # Set global timeout for cleanup; an exception will be triggered the given
 # number of seconds before the runner-level timeout expires.
