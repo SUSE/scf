@@ -24,13 +24,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
   sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
 - name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.280.0"
-  version: "1.280.0"
-  sha1: "5269266bfc431ec6c4b965d79d9292ba424827ad"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
+  version: "1.281.0"
+  sha1: "1bdcf24c1fb9baf324aebab8ba28f8e64b846305"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.80.0"
-  version: "0.80.0"
-  sha1: "ac61fc9469bd8dcecfaccb450d6b137a66881aa0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.81.0"
+  version: "0.81.0"
+  sha1: "47f4eb966f21881bdb0a7db879fec47dc04b8b9a"
 - name: credhub
   version: 2.1.2
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.2
@@ -84,21 +84,21 @@ releases:
   version: "1.8.35.1"
   sha1: "892149a994765280320e221bba9193bca2c7a664"
 - name: java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.0.1.tgz"
-  version: "4.19.0.1"
-  sha1: "0d87a343482b200e0051597a106d40fbc69a32b7"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.1.1.tgz"
+  version: "4.19.1.1"
+  sha1: "325d3bba6cf27a4446ddd5d9f70bd096813522b4"
 - name: nodejs-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.48.1.tgz"
   version: "1.6.48.1"
   sha1: "0c6da4194ee177571e1450ef31cf8197c4ae488f"
 - name: php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.73.1.tgz"
-  version: "4.3.73.1"
-  sha1: "76e9ab184705fb6a269e5241768463a13415c461"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.74.1.tgz"
+  version: "4.3.74.1"
+  sha1: "0f59df140e8a51375d88989c5b7297759d7add2c"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.30.1.tgz"
-  version: "1.6.30.1"
-  sha1: "c92bea0448aff1833f040534fba6456a2e1c4de7"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.31.1.tgz"
+  version: "1.6.31.1"
+  sha1: "429cd04d4c21514852e045c2c1ebc064ed444945"
 - name: ruby-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.36.1.tgz"
   version: "1.7.36.1"
@@ -124,9 +124,9 @@ releases:
   version: "1.75.10"
   sha1: "26cea7ff6322b52318889025d545c9cc792d3376"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.19.tgz"
-  version: "4.19"
-  sha1: "350e08c194b2cea88941557ed5b057f75a38ef81"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.20.tgz"
+  version: "4.20"
+  sha1: "c428f80d1a5e08bc7f2ea775df72cd9fcdd7ca14"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
