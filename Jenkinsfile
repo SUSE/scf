@@ -558,7 +558,10 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath \
                         --set enable.eirini=true
 
-                    # TODO: Install heapster?
+                    # Deploy heapster
+                    kubectl apply --filename https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/rbac/heapster-rbac.yaml
+                    kubectl apply --filename https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/standalone/heapster-controller.yaml
+
                     . make/include/secrets
 
                     has_internal_ca() {
