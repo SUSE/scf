@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'yaml'
 
+FISSILE_LIGHT_OPINIONS = ENV["FISSILE_LIGHT_OPINIONS"]
+
 class ReleasesDiff
     # Path to the partial manifest relative to the root of the source tree
     attr_accessor :manifest_path
@@ -32,8 +34,6 @@ class ReleasesDiff
 
         # Path to the current partial manifest
         @current_src_path=File.join(ReleasesDiff.git_root, current_manifest_path)
-
-        FISSILE_LIGHT_OPINIONS = ENV["FISSILE_LIGHT_OPINIONS"]
 
         FileUtils.mkdir_p temp_work_dir
         system("  cat #{FISSILE_LIGHT_OPINIONS}   #{@current_src_path}                              > #{@current_manifest}")
@@ -97,7 +97,7 @@ class ReleasesDiff
         system("env -u FISSILE_LIGHT_OPINIONS -u FISSILE_DARK_OPINIONS -u FISSILE_ROLE_MANIFEST fissile validate --light-opinions #{@empty_opinions_path} --dark-opinions #{@empty_opinions_path} --role-manifest #{@current_manifest}", out: @output, err: @output)
     end
 
-    # Converts releases information into a map that only contains the information 
+    # Converts releases information into a map that only contains the information
     # we need for calculating differences
     def get_releases_info(manifest, final_releases_dir)
         result = {}
@@ -156,8 +156,8 @@ class ReleasesDiff
 
         old_releases.each do |release_name, release|
             next unless current_releases.key?(release_name)
-            @output.puts "  #{release_name} (#{release[:version]})" if release[:version] == current_releases[release_name][:version]            
-        end  
+            @output.puts "  #{release_name} (#{release[:version]})" if release[:version] == current_releases[release_name][:version]
+        end
     end
 
     # Prints changed releases on stdout and details into a report file
