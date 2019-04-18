@@ -761,11 +761,26 @@ pipeline {
                     set -x
                 '''
                 sh """
+                    set -e +x
+                    source \${PWD}/.envrc
+                    set -x
+
                     kubectl create namespace eirini
 
-                    helm install output/unzipped/helm/uaa\${suffix} \
-                        --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
-                        --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
+                    kubectl delete storageclass hostpath || /bin/true
+                    kubectl create -f - <<< '{"kind":"StorageClass","apiVersion":"storage.k8s.io/v1","metadata":{"name":"hostpath","annotations":{"storageclass.kubernetes.io/is-default-class":"true"}},"provisioner":"kubernetes.io/host-path"}'
+
+                    # Unzip the bundle
+                    rm -rf output/unzipped
+                    mkdir -p output/unzipped
+                    unzip -e output/scf-sle-*.zip -d output/unzipped
+
+                    # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
+                    ./output/unzipped/kube-ready-state-check.sh || /bin/true
+
+                    helm install output/unzipped/helm/uaa \
+                        --name ${uaaNamespace} \
+                        --namespace ${uaaNamespace} \
                         --set env.DOMAIN=${domain()} \
                         --set env.UAA_HOST=uaa.${domain()} \
                         --set env.UAA_PORT=2793 \
@@ -779,7 +794,7 @@ pipeline {
                     . make/include/secrets
 
                     has_internal_ca() {
-                        test "\$(get_secret "${jobBaseName()}-${BUILD_NUMBER}-uaa" "uaa" "INTERNAL_CA_CERT")" != ""
+                        test "\$(get_secret "${uaaNamespace}" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
                     set +x
@@ -789,16 +804,17 @@ pipeline {
                     set -x
 
                     # Use `make/run` to run the deployment to ensure we have updated settings
-                    export NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-scf"
-                    export UAA_NAMESPACE="${jobBaseName()}-${BUILD_NUMBER}-uaa"
+                    export NAMESPACE="${cfNamespace}"
+                    export UAA_NAMESPACE="${uaaNamespace}"
                     export DOMAIN="${domain()}"
-                    export CF_CHART="output/unzipped/helm/cf\${suffix}"
+                    export CF_CHART="output/unzipped/helm/cf"
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run-eirini \
-                        --set env.SCF_LOG_HOST="log-\${log_uid}.${jobBaseName()}-${BUILD_NUMBER}-scf.svc.cluster.local"
+                        --set enable.autoscaler=true \
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
-                    for ns in "${jobBaseName()}-${BUILD_NUMBER}-uaa" "${jobBaseName()}-${BUILD_NUMBER}-scf" ; do
+                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
                         make/wait "\${ns}"
                     done
                     kubectl get pods --all-namespaces
