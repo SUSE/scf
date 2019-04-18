@@ -7,6 +7,8 @@ set -o errexit -o nounset
 FISSILE_CACHE_DEVICE=$1
 FISSILE_CACHE_DIR=$2
 
+zypper install -y multipath-tools
+
 MPATH=$(multipath -v 1 -l "${FISSILE_CACHE_DEVICE}")
 MDEV="/dev/mapper/${MPATH}"
 
