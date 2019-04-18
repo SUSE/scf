@@ -747,7 +747,7 @@ pipeline {
                         done
                         # Only return the namespaces we want
                         for ns in "${all_ns[@]}" ; do
-                            if [[ "${ns}" =~ cf ]] ; then
+                            if [[ "${ns}" =~ cf || "${ns}" == "eirini" ]] ; then
                                 echo "${ns}"
                             fi
                         done
@@ -761,6 +761,8 @@ pipeline {
                     set -x
                 '''
                 sh """
+                    kubectl create namespace eirini
+
                     helm install output/unzipped/helm/uaa\${suffix} \
                         --name ${jobBaseName()}-${BUILD_NUMBER}-uaa \
                         --namespace ${jobBaseName()}-${BUILD_NUMBER}-uaa \
@@ -771,12 +773,7 @@ pipeline {
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --set env.ENABLE_EIRINI=true \
-                        --set sizing.diego_api.count=0 \
-                        --set sizing.diego_brain.count=0 \
-                        --set sizing.diego_cell.count=0 \
-                        --set sizing.diego_ssh.count=0 \
-                        --set sizing.eirini.count=1
+                        --set enable.eirini=true
 
                     // TODO: Install heapster?
                     . make/include/secrets
