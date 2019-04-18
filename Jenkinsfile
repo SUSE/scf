@@ -537,6 +537,7 @@ pipeline {
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
                         --set enable.autoscaler=true \
+                        --set enable.credhub=true \
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
