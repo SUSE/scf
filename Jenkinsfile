@@ -558,7 +558,7 @@ pipeline {
                         --set kube.storage_class.persistent=hostpath \
                         --set enable.eirini=true
 
-                    // TODO: Install heapster?
+                    # TODO: Install heapster?
                     . make/include/secrets
 
                     has_internal_ca() {
