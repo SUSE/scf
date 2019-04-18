@@ -4,7 +4,7 @@ require_relative 'minibroker_helper'
 
 tester = MiniBrokerTest.new('redis', '6379')
 tester.service_params = {
-    master: { persistence: { storageClass: STORAGE_CLASS } },
+    master: { persistence: { storageClass: storage_class } },
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')

@@ -9,7 +9,7 @@ tester.service_params = {
     # Need "postgresDatabase" key for compatibility with old minibroker.
     postgresDatabase: $DB_NAME,
     postgresqlDatabase: $DB_NAME,
-    persistence: { storageClass: STORAGE_CLASS },
+    persistence: { storageClass: storage_class },
 }
 tester.run_test do |tester|
     CF_APP = random_suffix('app', 'CF_APP')

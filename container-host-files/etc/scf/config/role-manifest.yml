@@ -2361,7 +2361,7 @@ configuration:
         verbs: [create, get, list, delete, update]
       - apiGroups: [apps]
         resources: [statefulsets]
-        verbs: [create, get, update, delete]
+        verbs: [create, get, update, delete, list]
       - apiGroups: [""]
         resources: ["pods"]
         verbs: [create, get, list, delete, update]
@@ -2411,6 +2411,12 @@ configuration:
       - apiGroups: ["rbac.authorization.k8s.io"]
         resources: [clusterrolebindings]
         verbs: [delete]
+      - apiGroups: [""]
+        resources: [persistentvolumes, persistentvolumeclaims]
+        verbs: [get, list]
+      - apiGroups: [storage.k8s.io]
+        resources: [storageclasses]
+        verbs: [get, list]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
         fsGroup: { rule: RunAsAny }
