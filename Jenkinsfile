@@ -556,7 +556,6 @@ pipeline {
                         --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
                         --set kube.external_ips[0]=${ipAddress()} \
                         --set kube.storage_class.persistent=hostpath \
-                        --set kube.auth=rbac \
                         --set enable.eirini=true
 
                     # Deploy heapster
@@ -583,7 +582,6 @@ pipeline {
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run-eirini \
                         --set enable.autoscaler=true \
-                        --set kube.auth=rbac \
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
