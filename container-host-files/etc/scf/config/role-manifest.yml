@@ -168,6 +168,34 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: eirini-persi-broker
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+  - name: eirini-extensions
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: webhook
+          protocol: TCP
+          internal: 2999
   - name: opi
     release: eirini
     properties:
@@ -2841,6 +2869,15 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
+
+    properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-extensions.operator_webhook_host: "eirini-eirini-extensions.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
+
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
