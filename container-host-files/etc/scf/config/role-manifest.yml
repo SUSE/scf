@@ -96,9 +96,9 @@ releases:
   version: "4.3.74.1"
   sha1: "0f59df140e8a51375d88989c5b7297759d7add2c"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.31.1.tgz"
-  version: "1.6.31.1"
-  sha1: "429cd04d4c21514852e045c2c1ebc064ed444945"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.32.1.tgz"
+  version: "1.6.32.1"
+  sha1: "bb7f2712ff0a14af4427a1e85f947c8d7b6fe2b1"
 - name: ruby-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.36.1.tgz"
   version: "1.7.36.1"
