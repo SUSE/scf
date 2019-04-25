@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.4.tgz"
+  url: "https://s3.eu-central-1.amazonaws.com/tmp-aljfkdjadk-eirinifs-bucket/eirini-sle15.tgz"
   version: "0.0.4"
-  sha1: "c2766a1da006a7619852937fbf7ca94e99db1a97"
+  sha1: "5b6c20ce3601e1f3b63dae35f34fd8cb8fe2b82c"
 
 instance_groups:
 - name: eirini
@@ -3983,7 +3983,7 @@ variables:
     description: "The docker image used by Eirini to consume Kubernetes container logs"
 - name: EIRINI_IMAGE
   options:
-    default: 'eirini/recipe:ci-24.0.0'
+    default: 'staging.registry.howdoi.website/splatform/eirini-staging:latest'
     description: "Docker Image used for staging apps deployed using Eirini"
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
