@@ -1797,7 +1797,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: tests
+          service-account: tests-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1843,7 +1843,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: tests
+          service-account: tests-sits
   configuration:
     templates:
       properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
@@ -2454,7 +2454,10 @@ configuration:
       secret-generator:
         roles: [configgin-role, secrets-role]
         cluster-roles: [nonprivileged]
-      tests:
+      tests-brain:
+        roles: [configgin-role, test-role]
+        cluster-roles: [nonprivileged, test-cluster-role]
+      tests-sits:
         roles: [configgin-role, test-role]
         cluster-roles: [nonprivileged, test-cluster-role]
       garden-runc:
