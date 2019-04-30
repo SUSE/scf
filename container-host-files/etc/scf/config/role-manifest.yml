@@ -474,7 +474,6 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.cf_mysql.external_host: ((DOMAIN))
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
@@ -1164,9 +1163,6 @@ instance_groups:
         pod-security-policy: privileged
   configuration:
     templates:
-      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.tls.cert: '"((LOG_CACHE_CERT))"'
-      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
       properties.maps: >
         [{ "name": "worker-assignments",
            "source_id": "log-cache-scheduler",
@@ -1177,6 +1173,9 @@ instance_groups:
            "addr": "http://localhost:6064/debug/vars",
            "template": "{{.WorkerHealth | jsonMap}}" }
         ]
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: doppler
   scripts:
   - scripts/forward_logfiles.sh
@@ -1268,15 +1267,8 @@ instance_groups:
     release: routing
   configuration:
     templates:
-      properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.cc.cert: '"((LOG_CACHE_CERT))"'
-      properties.cc.key:  '"((LOG_CACHE_CERT_KEY))"'
-      properties.uaa.client_id: 'doppler'
-      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
-      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
       properties.counters: >
         [{ "name": "egress",
            "source_id": "log-cache",
@@ -1353,12 +1345,10 @@ instance_groups:
            "addr": "http://localhost:6065/debug/vars",
            "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
         ]
-      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.tls.cert: '"((LOG_CACHE_CERT))"'
-      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
            "port": 8083,
@@ -1366,6 +1356,13 @@ instance_groups:
            "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
            "registration_interval": "20s" }
         ]
+      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.tls.cert: '"((LOG_CACHE_CERT))"'
+      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.client_id: 'doppler'
+      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
 - name: log-api
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1849,15 +1846,15 @@ instance_groups:
       properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
       properties.sync_integration_tests.bbs.svc.namespace: ((KUBERNETES_NAMESPACE))
       properties.sync_integration_tests.bbs.svc.port: 8889
+      properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
+      properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
       properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
       properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
       properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
-      properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
-      properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
-      properties.sync_integration_tests.setup.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
-      properties.sync_integration_tests.setup.verbose: "'((SYNC_INTEGRATION_TESTS_VERBOSE))'"
-      properties.sync_integration_tests.setup.skip: "'((SYNC_INTEGRATION_TESTS_SKIP))'"
       properties.sync_integration_tests.setup.focus: "'((SYNC_INTEGRATION_TESTS_FOCUS))'"
+      properties.sync_integration_tests.setup.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
+      properties.sync_integration_tests.setup.skip: "'((SYNC_INTEGRATION_TESTS_SKIP))'"
+      properties.sync_integration_tests.setup.verbose: "'((SYNC_INTEGRATION_TESTS_VERBOSE))'"
 - name: smoke-tests
   type: bosh-task
   tags:
@@ -2764,10 +2761,7 @@ configuration:
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
-    properties.cf.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
-    properties.cf.api_url: https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
-    properties.cf_mysql.host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
@@ -2981,7 +2975,6 @@ configuration:
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.system_domain: '"((DOMAIN))"'
-    properties.tcp_emitter.oauth_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.tcp_router.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.tcp_router.oauth_secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
     properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
