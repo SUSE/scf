@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
   sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
 - name: capi
-  version: "1.78.0+dev.4"
-  url: "https://s3.amazonaws.com/cap-experiments/capi-6e4864e.tgz"
-  sha1: "e45c1a4d93f12a325e04d103cbd9a3ff6fa8a38a"
+  version: "1.79.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.79.0"
+  sha1: "85d0765ad9815962e46fc99712294c21514e6f7f"
 - name: cf-cli
   version: 1.11.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.11.0
@@ -76,9 +76,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.2"
   sha1: "dd7c7bc6574823881c17dd180a834ab2076021ed"
 - name: binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.31.1.tgz"
-  version: "1.0.31.1"
-  sha1: "4200a6fcdcab0ffdc7fc1cad28f8cbf4f12b9ff1"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.32.1.tgz"
+  version: "1.0.32.1"
+  sha1: "4a81e17b95b74aa92ec514fa96e2b6316fa785fa"
 - name: go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.35.1.tgz"
   version: "1.8.35.1"
@@ -88,45 +88,45 @@ releases:
   version: "4.19.1.1"
   sha1: "325d3bba6cf27a4446ddd5d9f70bd096813522b4"
 - name: nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.48.1.tgz"
-  version: "1.6.48.1"
-  sha1: "0c6da4194ee177571e1450ef31cf8197c4ae488f"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.49.1.tgz"
+  version: "1.6.49.1"
+  sha1: "5cdf8c09109fb8ba1d45c9f8bb091c2c20315139"
 - name: php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.74.1.tgz"
-  version: "4.3.74.1"
-  sha1: "0f59df140e8a51375d88989c5b7297759d7add2c"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.75.1.tgz"
+  version: "4.3.75.1"
+  sha1: "2d66a1d7581fffc76b746239d09ff0c75e519c58"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.31.1.tgz"
-  version: "1.6.31.1"
-  sha1: "429cd04d4c21514852e045c2c1ebc064ed444945"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.32.1.tgz"
+  version: "1.6.32.1"
+  sha1: "bb7f2712ff0a14af4427a1e85f947c8d7b6fe2b1"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.36.1.tgz"
-  version: "1.7.36.1"
-  sha1: "d199ec11da7aed45af2e068f71b76b2da22e26b0"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.38.1.tgz"
+  version: "1.7.38.1"
+  sha1: "37bf4c9762c2d7ed590677c4235032a2766d319f"
 - name: staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.41.1.tgz"
-  version: "1.4.41.1"
-  sha1: "60b50024586f0dbbf402e2a6fb22aa86934aafc0"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.42.1.tgz"
+  version: "1.4.42.1"
+  sha1: "1ab72d15c2002a63de12a5ea7f7469518c19ac29"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.10.1.tgz"
-  version: "1.0.10.1"
-  sha1: "8730932aa36f54a0fc4794619a95cd6c75f62e6f"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.11.1.tgz"
+  version: "1.0.11.1"
+  sha1: "f4d3998c6d8fa9592ce492b614593507ef1a8548"
 - name: dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.7.1.tgz"
-  version: "2.2.7.1"
-  sha1: "dc3f525c02701b06d60e31dfeb7c677806bfff35"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.10.1.tgz"
+  version: "2.2.10.1"
+  sha1: "435a63f91eb9cd707901a95d751dce0886dc1664"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.75.10.tgz"
-  version: "1.75.10"
-  sha1: "26cea7ff6322b52318889025d545c9cc792d3376"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.75.11.tgz"
+  version: "1.75.11"
+  sha1: "c9f52bd5f82e82721d65ab5fffdce1ebe7a04eec"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.20.tgz"
-  version: "4.20"
-  sha1: "c428f80d1a5e08bc7f2ea775df72cd9fcdd7ca14"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.25.tgz"
+  version: "4.25"
+  sha1: "0ec9ed97a85effc2b0fafdad222868fe7b97fc85"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.3.tgz"
-  version: "0.0.3"
-  sha1: "96be6dc9e88e32dbdcf58bb6dae5154771911e50"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.4.tgz"
+  version: "0.0.4"
+  sha1: "c2766a1da006a7619852937fbf7ca94e99db1a97"
 
 instance_groups:
 - name: eirini
@@ -2361,7 +2361,7 @@ configuration:
         verbs: [create, get, list, delete, update]
       - apiGroups: [apps]
         resources: [statefulsets]
-        verbs: [create, get, update, delete]
+        verbs: [create, get, update, delete, list]
       - apiGroups: [""]
         resources: ["pods"]
         verbs: [create, get, list, delete, update]
@@ -2411,6 +2411,12 @@ configuration:
       - apiGroups: ["rbac.authorization.k8s.io"]
         resources: [clusterrolebindings]
         verbs: [delete]
+      - apiGroups: [""]
+        resources: [persistentvolumes, persistentvolumeclaims]
+        verbs: [get, list]
+      - apiGroups: [storage.k8s.io]
+        resources: [storageclasses]
+        verbs: [get, list]
     pod-security-policies:
       nonprivileged: &psp-nonprivileged
         fsGroup: { rule: RunAsAny }

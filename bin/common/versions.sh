@@ -10,7 +10,7 @@ set -o errexit -o nounset
 export BOSH_CLI_VERSION="fcaa9c6caff58ab8da8c56481320681cdea492ee"
 export CFCLI_VERSION="6.42.0"
 export FISSILE_FLAVOR="develop"
-export FISSILE_VERSION="7.0.0+289.g3280187b"
+export FISSILE_VERSION="7.0.0+298.gbac350b1"
 export HELM_VERSION="2.11.0"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
 export KUBECTL_VERSION="1.9.6"
@@ -26,7 +26,7 @@ export ISTIO_VERSION="1.0.5"
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')
 
 # Used in: .envrc
-export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-32.g37e6301-30.80}
+export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-36.g03b4653-30.80}
 
 # Used in: bin/generate-dev-certs.sh
 

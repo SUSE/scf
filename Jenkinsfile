@@ -248,7 +248,7 @@ pipeline {
         )
         string(
             name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '12SP3-28.g972190a-0.219',
+            defaultValue: '12SP3-34.gcdd8986-0.220',
             description: 'Fissile stemcell version used as docker image tag',
         )
         booleanParam(
@@ -537,6 +537,7 @@ pipeline {
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run \
                         --set enable.autoscaler=true \
+                        --set enable.credhub=true \
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
