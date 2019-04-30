@@ -1,6 +1,28 @@
 # Changelog
 
-## [2.16.1] - 2019-02-16
+## [2.16.2] - 2019-04-30
+
+## Changed
+- Bumped binary-buildpack to 1.0.32
+- Bumped CAPI to 1.79.0
+- Bumped dotnet-core-buildpack to 2.2.10
+- Bumped Eirini release to 0.0.4
+- Bumped nginx-buildpack to 1.0.11
+- Bumped nodejs-buildpack to 1.6.49
+- Bumped php-buildpack to 4.3.75
+- Bumped python-buildpack to 1.6.32
+- Bumped ruby-buildpack to 1.7.38
+- Bumped SLE12 stack
+- Bumped SLE15 stack
+- Bumped staticfile-buildpack to 1.4.42
+
+
+## Fixed
+- Cleaned up role readiness probe outputs
+- Fix nfs-persi brain failures when running on NFS
+
+
+## [2.16.1] - 2019-04-16
 
 ## Added
 - Added support for user supplied annotations for Ingress
