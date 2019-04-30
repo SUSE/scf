@@ -132,9 +132,9 @@ releases:
   version: "4.44"
   sha1: "ef4a0b017807be2f78ce1728069ba8af0c40ff16"
 - name: app-autoscaler
-  version: "1.0.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
-  sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
+  version: "1.2.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
+  sha1: "1cc2cd3ed6c7c39f8c984316bb2afb95743ccba1"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
@@ -2094,9 +2094,8 @@ instance_groups:
   configuration:
     templates:
       properties.databases.databases: '[{"name":"autoscaler","tag":"default"}]'
-      properties.databases.max_connections : '"((AUTOSCALER_DATABASE_MAX_CONNECTIONS))"'
-      properties.databases.port: 5432
-      properties.databases.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+      properties.databases.port: '"((AUTOSCALER_DB_PORT))"'
+      properties.databases.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]' 
 - name: autoscaler-api
   if_feature: autoscaler
   environment_scripts:
@@ -2113,15 +2112,6 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
-        ports:
-        - name: api  # apiserverport
-          protocol: TCP
-          external: 7100
-          internal: 7100
-        - name: api-public  # apiserverpublicport
-          protocol: TCP
-          external: 7106
-          internal: 7106
         run:
           scaling:
             min: 1
@@ -2129,6 +2119,31 @@ instance_groups:
             ha: 2
           memory: 256
           virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9101
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-api
+                 topologyKey: "beta.kubernetes.io/os"
+        ports:
+        - name: api  # apiserverport
+          protocol: TCP
+          external: 7100
+          internal: 7100
+        - name: apihealthport
+          protocol: TCP
+          external: 9101
+          internal: 9101
   - name: route_registrar
     release: routing
   - name: bpm
@@ -2159,40 +2174,48 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          memory: 128
+          memory: 1024
           virtual-cpus: 4
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9103
+              - curl --silent --fail --head http://${HOSTNAME}:9105          
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-metrics
+                 topologyKey: "beta.kubernetes.io/os"           
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
           external: 7103
           internal: 7103
-- name: autoscaler-scalingengine
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: scalingengine
+        - name: mchealthport
+          protocol: TCP
+          external: 9103
+          internal: 9103  
+  - name: eventgenerator
     release: app-autoscaler
     properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
+      bosh_containerization:    
         ports:
-        - name: scaling-engine  # scalingengineport
+        - name: eventgen  # eventgenereatorport
           protocol: TCP
-          external: 7104
-          internal: 7104
-- name: autoscaler-scheduler
+          external: 7105
+          internal: 7105
+        - name: eghealthport
+          protocol: TCP
+          external: 9105
+          internal: 9105  
+- name: autoscaler-actors
   if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2213,103 +2236,55 @@ instance_groups:
             ha: 2
           memory: 2350
           virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9102
+              - curl --silent --fail --head http://${HOSTNAME}:9104
+              - curl --silent --fail --head http://${HOSTNAME}:9108          
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-actors
+                 topologyKey: "beta.kubernetes.io/os"           
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
           external: 7102
           internal: 7102
-- name: autoscaler-operator
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
+        - name: sdhealthport
+          protocol: TCP
+          external: 9102
+          internal: 9102
+  - name: scalingengine
+    release: app-autoscaler
+    properties:
+      bosh_containerization:      
+        ports:
+        - name: scaling-engine  # scalingengineport
+          protocol: TCP
+          external: 7104
+          internal: 7104
+        - name: sehealthport
+          protocol: TCP
+          external: 9104
+          internal: 9104          
   - name: operator
     release: app-autoscaler
     properties:
       bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
-- name: autoscaler-servicebroker
-  if_feature: autoscaler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: servicebroker
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
         ports:
-        - name: broker
+        - name: ophealthport
           protocol: TCP
-          external: 7107
-          internal: 7107
-        - name: broker-public  # brokerpublicport
-          protocol: TCP
-          external: 7101
-          internal: 7101
-  - name: route_registrar
-    release: routing
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: autoscaler-eventgenerator
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: eventgenerator
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
-        ports:
-        - name: eventgen  # eventgenereatorport
-          protocol: TCP
-          external: 7105
-          internal: 7105
+          external: 9108
+          internal: 9108                 
 - name: loggregator-agent
   type: colocated-container
   post_config_scripts:
@@ -2526,18 +2501,10 @@ configuration:
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.cache_ttl: '((AUTOSCALER_API_SERVER_CACHE_TTL))'
-    properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
-    properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
-    properties.autoscaler.api_server.db_config.min_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS))'
     properties.autoscaler.api_server.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-eventgenerator-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.api_server.info.build: '"((AUTOSCALER_API_SERVER_INFO_BUILD))"'
-    properties.autoscaler.api_server.info.description: '"((AUTOSCALER_API_SERVER_INFO_DESCRIPTION))"'
-    properties.autoscaler.api_server.info.name: '"((AUTOSCALER_API_SERVER_INFO_NAME))"'
-    properties.autoscaler.api_server.info.support_url: '"((AUTOSCALER_API_SERVER_INFO_SUPPORT_URL))"'
+    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-metrics-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.metrics_collector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.metrics_collector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.api_server.metrics_collector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
@@ -2548,142 +2515,61 @@ configuration:
     properties.autoscaler.api_server.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
     properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
     properties.autoscaler.api_server.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
-    properties.autoscaler.api_server.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.service_broker.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.api_server.service_broker.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.service_broker.host: '"autoscaler-servicebroker-servicebroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.api_server.service_offering_enabled: '((AUTOSCALER_SERVICE_OFFERING_ENABLED))'
-    properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.appmetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.appmetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.appmetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.appmetrics_db_connection_config.max_open_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.binding_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.binding_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+    properties.autoscaler.appmetrics_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.appmetrics_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.appmetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.cf.api: '"https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
-    properties.autoscaler.eventgenerator.aggregator.aggregator_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL))"'
-    properties.autoscaler.eventgenerator.aggregator.app_metric_channel_size: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE))"'
-    properties.autoscaler.eventgenerator.aggregator.app_monitor_channel_size: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE))'
-    properties.autoscaler.eventgenerator.aggregator.metric_poller_count: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT))'
-    properties.autoscaler.eventgenerator.aggregator.policy_poller_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL))"'
-    properties.autoscaler.eventgenerator.aggregator.save_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL))"'
     properties.autoscaler.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.back_off_initial_interval: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.back_off_max_interval: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.consecutive_failure_count: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT))"'
-    properties.autoscaler.eventgenerator.defaultBreachDurationSecs: '"((AUTOSCALER_DEFAULT_BREACH_DURATION_SECS))"'
-    properties.autoscaler.eventgenerator.defaultStatWindowSecs: '"((AUTOSCALER_DEFAULT_STAT_WINDOW_SECS))"'
-    properties.autoscaler.eventgenerator.evaluator.evaluation_manager_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL))"'
-    properties.autoscaler.eventgenerator.evaluator.evaluator_count: '((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT))'
-    properties.autoscaler.eventgenerator.evaluator.trigger_array_channel_size: '((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE))'
-    properties.autoscaler.eventgenerator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.eventgenerator.metricscollector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics-metricscollector.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
-    properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.instancemetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.instancemetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.instancemetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.instancemetrics_db_connection_config.max_open_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.lock_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.lock_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.lock_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.lock_db_connection_config.max_idle_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.lock_db_connection_config.max_open_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.instancemetrics_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.instancemetrics_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.instancemetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+    properties.autoscaler.lock_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.lock_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.lock_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.metricscollector.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.metricscollector.collector.collect_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL))"'
-    properties.autoscaler.metricscollector.collector.collect_method: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD))"'
-    properties.autoscaler.metricscollector.collector.refresh_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL))"'
-    properties.autoscaler.metricscollector.collector.save_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL))"'
-    properties.autoscaler.metricscollector.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
-    properties.autoscaler.operator.app_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.operator.app_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.operator.app_sync_interval: '((AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL))'
-    properties.autoscaler.operator.enable_db_lock: '"((AUTOSCALER_OPERATOR_ENABLE_DB_LOCK))"'
-    properties.autoscaler.operator.instance_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.operator.instance_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.operator.lock.lock_retry_interval: '"((AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL))"'
-    properties.autoscaler.operator.lock.lock_ttl: '"((AUTOSCALER_OPERATOR_LOCK_TTL))"'
-    properties.autoscaler.operator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.operator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.operator.scaling_engine.sync_interval: '((AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL))'
-    properties.autoscaler.operator.scaling_engine_db.cutoff_days: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
-    properties.autoscaler.operator.scaling_engine_db.refresh_interval: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.operator.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
     properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.operator.scheduler.sync_interval: '((AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL))'
-    properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.policy_db_connection_config.max_open_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.policy_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.policy_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.policy_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.scalingengine.defaultCoolDownSecs: '((AUTOSCALER_DEFAULT_COOLDOWN_SECS))'
-    properties.autoscaler.scalingengine.health.emit_interval: '((AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL))'
-    properties.autoscaler.scalingengine.lockSize: '"((AUTOSCALER_SCALING_ENGINE_LOCK_SIZE))"'
-    properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT_KEY))"'
-    properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.scalingengine_db_connection_config.max_idle_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.scalingengine_db_connection_config.max_open_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.scalingengine_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.scalingengine_db.port: '"((AUTOSCALER_DB_PORT))"'    
+    properties.autoscaler.scalingengine_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.scheduler.job_reschedule_interval_millisecond: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND))"'
-    properties.autoscaler.scheduler.job_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT))"'
-    properties.autoscaler.scheduler.notification_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler.server_cert: '"((AUTOSCALER_SCHEDULER_SERVER_CERT))"'
     properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_SCHEDULER_SERVER_CERT_KEY))"'
-    properties.autoscaler.scheduler_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.scheduler_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.scheduler_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.scheduler_db_connection_config.max_idle_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.scheduler_db_connection_config.max_open_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.service_broker.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.api_server.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.service_broker.api_server.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
-    properties.autoscaler.service_broker.api_server.host: '"autoscaler-api-apiserver.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.dashboard_redirect_uri: '"https://scalerui.((DOMAIN))"'
-    properties.autoscaler.service_broker.db_config.idle_timeout: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT))'
-    properties.autoscaler.service_broker.db_config.max_connections: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS))'
-    properties.autoscaler.service_broker.db_config.min_connections: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS))'
-    properties.autoscaler.service_broker.http_request_timeout: '((AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT))'
-    properties.autoscaler.service_broker.password: '"((AUTOSCALER_SERVICE_BROKER_PASSWORD))"'
-    properties.autoscaler.service_broker.public_ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
-    properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
-    properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
-    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
-
-
+    properties.autoscaler.scheduler_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.scheduler_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.scheduler_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.bits-service.active_signing_key.secret: "((BITS_SERVICE_SECRET))"
     properties.bits-service.app_stash.webdav_config.ca_cert: "((INTERNAL_CA_CERT))"
     properties.bits-service.app_stash.webdav_config.password: "((BLOBSTORE_PASSWORD))"
@@ -2710,7 +2596,6 @@ configuration:
     properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
-
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -3027,7 +2912,6 @@ configuration:
     properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
-    properties.smoke_tests.autoscaler_service_broker_endpoint: '"https://autoscalerservicebroker.((DOMAIN))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.system_domain: '"((DOMAIN))"'
@@ -3128,78 +3012,13 @@ variables:
     secret: true
     description: PEM-encoded server key
     required: true
-- name: AUTOSCALER_API_SERVER_CACHE_TTL
-  options:
-    default: 600
-    description: "The TTL of credential cache for the Autoscaler custom metrics, in seconds"
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
-  options:
-    default: 100
-    description: Idle connection timeout for the Autoscaler API Server database, in
-      seconds.
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler API Server database.
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
-  options:
-    default: 0
-    description: The minimum number of connections to the Autoscaler API Server database.
-- name: AUTOSCALER_API_SERVER_INFO_BUILD
-  options:
-    default: beta
-    description: The build version of Autoscaler. It should be defined when it is
-      deployed to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_DESCRIPTION
-  options:
-    default: autoscaler
-    description: The description of Autoscaler. It should be defined when it is deployed
-      to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_NAME
-  options:
-    default: autoscalerapiserver
-    description: The name of the Autoscaler API Server. It should be defined when
-      it is deployed to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_SUPPORT_URL
-  options:
-    default: ''
-    description: The support url of autoscaler where the users could find support
-      information. It should be defined when it is deployed to a product environment.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      appmetrics database.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler appmetrics database.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The minimum number of connections to the Autoscaler appmetrics database.
-- name: AUTOSCALER_ASAPI_CLIENT_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_api_client
-    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
-      API. This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
-  type: certificate
-- name: AUTOSCALER_ASAPI_CLIENT_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key for clients to connect to the Autoscaler API.
-      This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
 - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler.{{.DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler API public https
       server. This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -3216,6 +3035,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-api-apiserver.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler API https server.
       This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -3230,8 +3050,6 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_metrics_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
       Metrics. This includes the Autoscaler Metrics Collector and Event Generator.
     required: true
@@ -3248,6 +3066,8 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-metrics-metricscollector.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-metrics-eventgenerator.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Metrics https server.
       This includes the Autoscaler Metrics Collector.
     required: true
@@ -3258,218 +3078,29 @@ variables:
     description: A PEM-encoded TLS key of the Autoscaler Metrics https server. This
       includes the Autoscaler Metrics Collector.
     required: true
-- name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
+- name: AUTOSCALER_DB_ADDRESS
   options:
-    default: 1000
-    description: The maximum number of connections the Autoscaler postgres database
-      server could serve.
+    default: "autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    description: The password for the Autoscaler postgres database.
+    required: true
 - name: AUTOSCALER_DB_PASSWORD
   options:
     secret: true
     description: The password for the Autoscaler postgres database.
     required: true
   type: password
-- name: AUTOSCALER_DEFAULT_BREACH_DURATION_SECS
+- name: AUTOSCALER_DB_PORT
   options:
-    default: 300
-    description: The default breach duration for the Autoscaler Event Generator, in
-      seconds.The breach duration means the App Autoscaler won’t take the desired
-      adjustment until the application has been breaching the Autoscaler policy for
-      a period longer than breach_duration_secs setting.
-- name: AUTOSCALER_DEFAULT_COOLDOWN_SECS
+    default: 5432
+    description: "The tcp port of postgres database serves on"  
+- name: AUTOSCALER_DB_ROLE_NAME
   options:
-    default: 300
-    description: The default cooldown duration between two scaling action for the
-      Autoscaler Event Generator, in seconds.
-- name: AUTOSCALER_DEFAULT_STAT_WINDOW_SECS
-  options:
-    default: 300
-    description: The default statistic window duration between two scaling action
-      for the Autoscaler Event Generator, in seconds.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE
-  options:
-    default: 1000
-    description: The size of golang channel used by the Autoscaler Event Generator
-      as a buffer to save metrics by batch.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE
-  options:
-    default: 200
-    description: The size of golang channel used by the Autoscaler Event Generator
-      to exchange data.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does Autoscaler Event Generator aggregate
-      appmetrics.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT
-  options:
-    default: 20
-    description: The number of metricpollers in Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does the Autoscaler Event Generator
-      reload data from policy database.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL
-  options:
-    default: 5s
-    description: The duration defines how long does the Autoscaler Event Generator
-      save appmetrics to database by batch.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL
-  options:
-    default: 5m
-    description: The initial exponential back off interval for the circuit breaker
-      of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL
-  options:
-    default: 120m
-    description: The maximum exponential back off interval for the circuit breaker
-      of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT
-  options:
-    default: 3
-    description: The number of consecutive failure to trip the circuit down for the
-      circuit breaker of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does the Autoscaler Event Generator
-      evaluate appmetrics.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT
-  options:
-    default: 20
-    description: The number of evaluators in the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE
-  options:
-    default: 200
-    description: The size of golang channel used by the Autoscaler Event Generator
-      App Evaluation Manager to pass triggers to evaluators.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      instance metrics database.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler instance
-      metrics database.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler instance metrics
-      database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      lock database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler lock database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler lock database.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
-  options:
-    default: 30s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      aggregate collected instance metrics.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL
-  options:
-    default: 60s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      reload data from policy database.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL
-  options:
-    default: 30s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      save instance metrics to database by batch.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD
-  options:
-    default: streaming
-    description: >
-      The method type of the Autoscaler Metrics Collector to fetch metrics
-      from cloudfoundry: polling or streaming.
-- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of appmetrics data does the Autoscaler
-      Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for appmetrics database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing applications information between AutoScaler
-      policy database and Cloudfoundry."
-    default: 24h
-- name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
-  options:
-    default: true
-    description: Whether to enable the Autoscaler Operator's db lock. If there are more
-      than one operators, the value should be true
-- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of instance metrics data does
-      the Autoscaler Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for instance metrics database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL
-  options:
-    default: 10s
-    description: The interval for each Autoscaler Operator instance to retry to get
-      database lock.
-- name: AUTOSCALER_OPERATOR_LOCK_TTL
-  options:
-    default: 15s
-    description: The maximum duration of a Autoscaler Operator instance could hold the
-      database lock.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of the scaling history data does
-      the Autoscaler Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for scalingengine database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing the Autoscaler Scaling Engine active schedules with Autoscaler Scheduler."
-    default: 600s
-- name: AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing the Autoscaler Scheduler schedules with policy database."
-    default: 600s
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      policy database.
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler policy database.
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler policy database.
+    default: "postgres"
+    description: "The role name of autoscaler postgres database"       
 - name: AUTOSCALER_SCALING_ENGINE_CLIENT_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_scheduler_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scaling Engine.
     required: true
   type: certificate
@@ -3478,37 +3109,13 @@ variables:
     secret: true
     description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scaling Engine.
     required: true
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      Scaling Engine database.
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler Scaling
-      Engine database.
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler Scaling Engine
-      database.
-- name: AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL
-  options:
-    description: The time interval to emit health metrics for the Autoscaler Scaling
-      Engine."
-    default: 15s
-- name: AUTOSCALER_SCALING_ENGINE_LOCK_SIZE
-  options:
-    default: 32
-    description: The lock number of the Autoscaler Scaling Engine to do synchronization
-      for multiple scaling requests.
 - name: AUTOSCALER_SCALING_ENGINE_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-scalingengine-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Scaling Engine https server.
     required: true
   type: certificate
@@ -3521,8 +3128,6 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_scheduler_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scheduler.
     required: true
   type: certificate
@@ -3531,41 +3136,13 @@ variables:
     secret: true
     description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scheduler.
     required: true
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      Scheduler database.
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler Scheduler
-      database.
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler Scaling Engine
-      database.
-- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND
-  options:
-    default: 100
-    description: Rescheduling interval for quartz job for the Autoscaler Scheduler,
-      in milliseconds.
-- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT
-  options:
-    default: 6
-    description: Maximum number of jobs can be re-scheduled in the Autoscaler Scheduler.
-- name: AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT
-  options:
-    default: 3
-    description: Maximum number of notification sent to Autoscaler Scaling Engine
-      for job re-schedule.
 - name: AUTOSCALER_SCHEDULER_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-scheduler-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Scheduler https server.
     required: true
   type: certificate
@@ -3574,53 +3151,6 @@ variables:
     secret: true
     description: A PEM-encoded TLS key of the Autoscaler Scheduler https server.
     required: true
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
-  options:
-    default: 1000
-    description: Idle connection timeout for the Autoscaler Service Broker database,
-      in seconds.
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler Service Broker
-      database.
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
-  options:
-    default: 0
-    description: The minimum number of connections to the Autoscaler Service Broker
-      database.
-- name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
-  options:
-    default: 5000
-    description: The timeout in milliseconds for http request from Autoscaler Service
-      Broker to other Autoscaler components.
-- name: AUTOSCALER_SERVICE_BROKER_PASSWORD
-  options:
-    secret: true
-    description: The password for the Autoscaler Service Broker.
-    required: true
-  type: password
-- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - autoscaler-servicebroker-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    description: A PEM-encoded TLS certificate of the Autoscaler API https server.
-      This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
-  type: certificate
-- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key of the Autoscaler API https server. This includes
-      the Autoscaler ApiServer and the Service Broker.
-    required: true
-- name: AUTOSCALER_SERVICE_OFFERING_ENABLED
-  options:
-    default: false
-    description: Whether Autoscaler is provided as a cloudfoundry service, default
-      is false.
 - name: AUTOSCALER_UAA_CLIENT_SECRET
   options:
     secret: true
