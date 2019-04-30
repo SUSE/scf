@@ -300,8 +300,6 @@ properties:
       port: 24053
       uaa:
         client: cf-usb
-  cf:
-    admin_username: admin
   cf_mysql:
     broker:
       port: 8081
