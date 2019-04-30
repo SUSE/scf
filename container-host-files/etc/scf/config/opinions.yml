@@ -48,100 +48,97 @@ properties:
     cf:
       client_id: app_autoscaler
       grant_type: client_credentials
-      password: "" # unused
-      username: "" # unused
+      skip_ssl_validation: true
     api_server:
+      service_offering_enabled: false
+      require_consul: false
+      port: 7100
+      publicPort: 7106
+      health:
+        port: 9101
       eventgenerator:
         port: 7105
       metrics_collector:
         port: 7103
-      port: 7100
-      publicPort: 7106
-      require_consul: false
-      service_broker:
-        port: 7107
       scheduler:
         port: 7102
       scaling_engine:
         port: 7104
+      db_config:
+        max_connections: 5
+        min_connections: 1
+        idle_timeout: 60000
     appmetrics_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
-    binding_db:
-      databases:
-        - name: "autoscaler"
-          tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     eventgenerator:
-      metricscollector:
-        port: 7103
       require_consul: false
-      scaling_engine:
-        port: 7104
       server:
         port: 7105
+      health:
+        port: 9105   
+      metricscollector:
+        host: localhost
+        port: 7103
+      scaling_engine:
+        port: 7104
     instancemetrics_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     lock_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     metricscollector:
+      require_consul: false
       server:
         port: 7103
-      require_consul: false
+      health:
+        port: 9103        
     policy_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     operator:
       require_consul: false
+      health:
+        port: 9108   
       scaling_engine:
+        host: localhost
         port: 7104
       scheduler:
+        host: localhost      
         port: 7102
     scalingengine:
-      health:
-        port: 8083
       require_consul: false
       server:
         port: 7104
+      health:
+        port: 9104
     scalingengine_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     scheduler:
-      port: 7102
       require_consul: false
+      port: 7102
+      health:
+        port: 9102      
       scaling_engine:
+        host: localhost
         port: 7104
     scheduler_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
-    service_broker:
-      username: username
-      api_server:
-        port: 7100
-      port: 7107
-      publicPort: 7101
-      require_consul: false
+      db_scheme: postgres          
   bits-service:
     active_signing_key:
       key_id: key1
@@ -456,7 +453,7 @@ properties:
       # go into the SCF zone.
       app_autoscaler:
         # Requires read-only admin to look up stats, and write admin to do scaling
-        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin
+        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin,uaa.resource
         authorized-grant-types: client_credentials
       cc_routing:
         authorities: routing.router_groups.read
