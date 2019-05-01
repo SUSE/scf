@@ -201,7 +201,9 @@ Vagrant.configure(2) do |config|
   SHELL
 
   # Provision the custom config scripts and personal setup.
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+  config.vm.provision "shell", privileged: false, env: ENV.select { |e|
+    (!e.start_with? 'VAGRANT_OLD_ENV_') && (%w(FISSILE_ VAGRANT_ SCF_).any? { |prefix| e.start_with? prefix })
+  }, inline: <<-SHELL
     set -o errexit
 
     if [ -d "#{mounted_custom_setup_scripts}/provision.d" ]; then
