@@ -2458,7 +2458,7 @@ configuration:
         roles: [configgin-role, test-role]
         cluster-roles: [nonprivileged, test-cluster-role]
       tests-sits:
-        roles: [configgin-role, test-role]
+        roles: [configgin-role]
         cluster-roles: [nonprivileged, test-cluster-role]
       garden-runc:
         roles: [configgin-role]
