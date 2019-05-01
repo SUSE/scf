@@ -2331,7 +2331,7 @@ configuration:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role:
+      test-role-brain:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
@@ -2434,7 +2434,7 @@ configuration:
         roles: [configgin-role, secrets-role]
         cluster-roles: [nonprivileged]
       tests-brain:
-        roles: [configgin-role, test-role]
+        roles: [configgin-role, test-role-brain]
         cluster-roles: [nonprivileged, test-cluster-role]
       tests-sits:
         roles: [configgin-role]
