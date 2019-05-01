@@ -2353,6 +2353,10 @@ configuration:
       - apiGroups: [""]
         resources: ["secrets"]
         verbs: [get, list]
+      test-role-sits:
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
     cluster-roles:
       node-reader-role:
       - apiGroups: [""]
@@ -2437,8 +2441,8 @@ configuration:
         roles: [configgin-role, test-role-brain]
         cluster-roles: [nonprivileged, test-cluster-role]
       tests-sits:
-        roles: [configgin-role]
-        cluster-roles: [nonprivileged, test-cluster-role]
+        roles: [configgin-role, test-role-sits]
+        cluster-roles: [nonprivileged]
       garden-runc:
         roles: [configgin-role]
         cluster-roles: [privileged, node-reader-role]
