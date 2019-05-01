@@ -42,5 +42,5 @@ while true ; do
     esac
 done
 
-kubectl get pods ${NS:+--namespace="${NS}"} ${NS:---all-namespaces} \
+kubectl get pods ${NS:+--namespace} ${NS:---all-namespaces} \
     | perl -p -e 's@^((?:\S+\s+)?\S+\s*)(\d+)/(\d+)(\s+)(\w+)@"$1\e[0;" . (($2 == $3 || $5 eq "Completed") ? "32" : "31;1") . "m$2/$3\e[0m$4$5"@e'
