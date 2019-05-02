@@ -1794,7 +1794,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: tests
+          service-account: tests-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1840,7 +1840,7 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          service-account: tests
+          service-account: tests-sits
   configuration:
     templates:
       properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
@@ -2351,7 +2351,7 @@ configuration:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role:
+      test-role-brain:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
@@ -2373,6 +2373,10 @@ configuration:
       - apiGroups: [""]
         resources: ["secrets"]
         verbs: [get, list]
+      test-role-sits:
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
     cluster-roles:
       node-reader-role:
       - apiGroups: [""]
@@ -2453,9 +2457,12 @@ configuration:
       secret-generator:
         roles: [configgin-role, secrets-role]
         cluster-roles: [nonprivileged]
-      tests:
-        roles: [configgin-role, test-role]
+      tests-brain:
+        roles: [configgin-role, test-role-brain]
         cluster-roles: [nonprivileged, test-cluster-role]
+      tests-sits:
+        roles: [configgin-role, test-role-sits]
+        cluster-roles: [nonprivileged]
       garden-runc:
         roles: [configgin-role]
         cluster-roles: [privileged, node-reader-role]
