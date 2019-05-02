@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.16.3] - 2019-05-02
+
+## Fixed
+- Reverted the incompatible changes in statefulsets
+- Changed app autoscaler-postgres to a non-HA setup
+
 ## [2.16.2] - 2019-04-30
 
 ## Changed
