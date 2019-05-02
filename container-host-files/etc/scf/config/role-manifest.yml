@@ -2013,9 +2013,11 @@ instance_groups:
       bosh_containerization:
         run:
           scaling:
+            # The postgres-release BOSH release currently does not support HA; limit this to one replica.
+            # https://github.com/cloudfoundry/postgres-release#known-limitations
             min: 1
-            max: 3
-            ha: 2
+            max: 1
+            ha: 1
           volumes:
           - path: /var/vcap/store
             type: persistent
