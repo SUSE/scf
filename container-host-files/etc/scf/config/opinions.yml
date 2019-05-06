@@ -516,10 +516,10 @@ properties:
         scope: openid,cloud_controller.read,cloud_controller.write,cloud_controller.admin
       tcp_emitter:
         authorities: routing.routes.write,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
+        authorized-grant-types: client_credentials
       tcp_router:
         authorities: routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
+        authorized-grant-types: client_credentials
     user:
       authorities:
       - openid
