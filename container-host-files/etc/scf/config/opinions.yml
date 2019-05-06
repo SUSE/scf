@@ -433,7 +433,7 @@ properties:
     skip_cert_verify_external: false
   set_kernel_parameters: false
   smoke_tests:
-    user: 'admin'
+    client: cf_smoke_tests
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
@@ -471,6 +471,9 @@ properties:
         override: true
         refresh-token-validity: 2592000
         scope: network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+      cf_smoke_tests:
+        authorities: cloud_controller.admin
+        authorized-grant-types: client_credentials
       cf-usb:
         authorities: cloud_controller.admin,usb.management.admin
         authorized-grant-types: client_credentials

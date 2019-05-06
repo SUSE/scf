@@ -1885,6 +1885,9 @@ instance_groups:
         run:
           capabilities: [ALL]
         pod-security-policy: privileged
+  configuration:
+    templates:
+      properties.smoke_tests.client_secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -2887,6 +2890,7 @@ configuration:
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
+    properties.uaa.clients.cf_smoke_tests.secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.credhub_user_cli.secret: '"((UAA_CLIENTS_CREDHUB_USER_CLI_SECRET))"'
@@ -4239,6 +4243,12 @@ variables:
   options:
     secret: true
     description: Used for fetching service key values from CredHub.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET
+  options:
+    secret: true
+    description: Client secret for the CF smoke tests job
     required: true
   type: password
 - name: UAA_CLIENTS_CF_USB_SECRET
