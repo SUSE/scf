@@ -493,7 +493,7 @@ properties:
         authorized-grant-types: client_credentials
       doppler:
         authorities: uaa.resource
-        authorized-grant-types: authorization_code,refresh_token
+        authorized-grant-types: client_credentials
         override: true
       gorouter:
         authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
