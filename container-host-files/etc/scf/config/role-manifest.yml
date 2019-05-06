@@ -2891,14 +2891,12 @@ configuration:
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.cf_smoke_tests.secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
-    properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.credhub_user_cli.secret: '"((UAA_CLIENTS_CREDHUB_USER_CLI_SECRET))"'
     properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
-    properties.uaa.clients.login.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
+    properties.uaa.clients.routing_api_client.secret: ((UAA_CLIENTS_ROUTING_API_CLIENT_SECRET))
     properties.uaa.clients.scf_auto_config.secret: '"((UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.ssh-proxy.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
@@ -4222,12 +4220,6 @@ variables:
   options:
     description: The CA certificate for UAA
     secret: true
-- name: UAA_CC_CLIENT_SECRET
-  options:
-    secret: true
-    description: The password for UAA access by the Cloud Controller.
-    required: true
-  type: password
 - name: UAA_CLIENTS_CC_ROUTING_SECRET
   options:
     secret: true
@@ -4287,10 +4279,10 @@ variables:
     description: The password for UAA access by the gorouter.
     required: true
   type: password
-- name: UAA_CLIENTS_LOGIN_SECRET
+- name: UAA_CLIENTS_ROUTING_API_CLIENT_SECRET
   options:
     secret: true
-    description: The password for UAA access by the login client.
+    description: The OAuth client secret used by the routing-api.
     required: true
   type: password
 - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET

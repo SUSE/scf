@@ -454,7 +454,7 @@ properties:
         authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin,uaa.resource
         authorized-grant-types: client_credentials
       cc-service-dashboards:
-        scope: cloud_controller.write,openid,cloud_controller.read,cloud_controller_service_permissions.read
+        scope: cloud_controller_service_permissions.read,openid
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
       cc_routing:
@@ -466,11 +466,14 @@ properties:
       cf:
         access-token-validity: 600
         authorities: uaa.none
-        authorized-grant-types: implicit,password,refresh_token
-        autoapprove: true
+        authorized-grant-types: password,refresh_token
         override: true
         refresh-token-validity: 2592000
+        # We don't want scope perm.admin because it's for the perm service
+        # (https://github.com/cloudfoundry-incubator/perm) which is deprecated
+        # as it doesn't work with PXC
         scope: network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+        secret: ''
       cf_smoke_tests:
         authorities: cloud_controller.admin
         authorized-grant-types: client_credentials
@@ -478,10 +481,6 @@ properties:
         authorities: cloud_controller.admin,usb.management.admin
         authorized-grant-types: client_credentials
         scope: usb.management.admin
-      cloud_controller:
-        authorized-grant-types: client_credentials
-        authorities: scim.read,scim.write,password.write
-        access-token-validity: 604800
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials
@@ -493,15 +492,12 @@ properties:
         authorized-grant-types: client_credentials
         override: true
       gorouter:
-        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
-        scope: openid,cloud_controller_service_permissions.read
-      login:
-        authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
-        authorized-grant-types: authorization_code,client_credentials,refresh_token
-        autoapprove: true
-        override: true
-        scope: openid,oauth.approvals
+        authorities: routing.routes.read
+        authorized-grant-types: client_credentials
+        #scope: openid,cloud_controller_service_permissions.read
+      routing_api_client:
+        authorities: routing.routes.write,routing.routes.read,routing.router_groups.read
+        authorized-grant-types: client_credentials
       scf_auto_config:
         access-token-validity: 600
         # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
