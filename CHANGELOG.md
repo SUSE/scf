@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.16.4] - 2019-05-07
+
+## Fixed
+- Reverted cf-mysql-release to 36.15.0 to avoid intermittent database connectivity errors in HA setup
+
 ## [2.16.3] - 2019-05-02
 
 ## Fixed
