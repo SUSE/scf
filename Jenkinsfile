@@ -581,7 +581,9 @@ pipeline {
                     make/run-eirini \
                         --set enable.autoscaler=true \
                         --set enable.credhub=true \
-                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
+                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local" \
+                        --set env.EIRINI_FLUENTD_LOG_HOSTPATH="/data/docker/containers/" \
+                        --set env.EIRINI_FLUENTD_LOG_HOSTPATH_MOUNTPOINT="/data/docker/containers/"
 
                     echo Waiting for all pods to be ready...
                     for ns in "${uaaNamespace}" "${cfNamespace}" ; do
