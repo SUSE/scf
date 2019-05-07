@@ -2963,6 +2963,8 @@ configuration:
     properties.scf.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.scf.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
+    properties.scf.eirini.fluentd.log_hostpath: "((EIRINI_FLUENTD_LOG_HOSTPATH))"
+    properties.scf.eirini.fluentd.log_hostpath_mount_point: "((EIRINI_FLUENTD_LOG_HOSTPATH_MOUNTPOINT))"
     properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
     properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.scf.eirini.registry.address: "registry.((DOMAIN))"
@@ -3983,6 +3985,14 @@ variables:
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
+- name: EIRINI_FLUENTD_LOG_HOSTPATH
+  options:
+    default: ''
+    description: "The directory where the logs are stored on the node when on hostPath"
+- name: EIRINI_FLUENTD_LOG_HOSTPATH_MOUNTPOINT
+  options:
+    default: ''
+    description: "The path inside the fluentd pot where the log_hostpath should be mounted"
 - name: EIRINI_IMAGE
   options:
     default: 'eirini/recipe:ci-24.0.0'

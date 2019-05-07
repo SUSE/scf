@@ -51,6 +51,10 @@ spec:
           mountPath: /var/data
         - name: varlog
           mountPath: /var/log
+        <% if_p("scf.eirini.fluentd.log_hostpath","scf.eirini.fluentd.log_hostpath_mount_point") do |_, mount_point| %>
+        - name: log_hostpath
+          mountPath: <%= mount_point %>
+        <% end %>
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
@@ -86,6 +90,11 @@ spec:
           readOnly: true
       terminationGracePeriodSeconds: 30
       volumes:
+      <% if_p("scf.eirini.fluentd.log_hostpath") do |log_hostpath| %>
+      - name: log_hostpath
+        hostPath:
+          path: <%= log_hostpath %>
+      <% end %>
       - name: vardata
         hostPath:
           path: /var/data
