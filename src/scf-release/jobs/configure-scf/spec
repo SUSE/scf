@@ -61,6 +61,10 @@ properties:
     description: "Name of the Kubernetes secret containing all SCF certificates, passwords and keys"
   scf.eirini.namespace:
     description: "Name of the namespace where Eirini runs Cloud Foundry applications"
+  scf.eirini.fluentd.log_hostpath:
+    description: "The directory where the logs are stored on the node when on hostPath"
+  scf.eirini.fluentd.log_hostpath_mount_point:
+    description: "The path inside the fluentd pot where the log_hostpath should be mounted"
   scf.eirini.fluentd_image:
     description: "The docker image used by Eirini to consume Kubernetes container logs"
   scf.eirini.cert_copier_image:
