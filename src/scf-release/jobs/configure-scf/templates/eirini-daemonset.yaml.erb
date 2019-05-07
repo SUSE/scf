@@ -52,7 +52,7 @@ spec:
         - name: varlog
           mountPath: /var/log
         <% if_p("scf.eirini.fluentd.log_hostpath","scf.eirini.fluentd.log_hostpath_mount_point") do |_, mount_point| %>
-        - name: log_hostpath
+        - name: loghostpath
           mountPath: <%= mount_point %>
         <% end %>
         - name: varlibdockercontainers
@@ -91,7 +91,7 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
       <% if_p("scf.eirini.fluentd.log_hostpath") do |log_hostpath| %>
-      - name: log_hostpath
+      - name: loghostpath
         hostPath:
           path: <%= log_hostpath %>
       <% end %>
