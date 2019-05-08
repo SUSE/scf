@@ -579,9 +579,6 @@ pipeline {
                     export CF_CHART="output/unzipped/helm/cf"
                     log_uid=\$(hexdump -n 8 -e '2/4 "%08x"' /dev/urandom)
                     make/run-eirini \
-                        --set enable.autoscaler=true \
-                        --set enable.credhub=true \
-                        --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local" \
                         --set env.EIRINI_FLUENTD_LOG_HOSTPATH="/data/docker/containers/" \
                         --set env.EIRINI_FLUENTD_LOG_HOSTPATH_MOUNTPOINT="/data/docker/containers/"
 
