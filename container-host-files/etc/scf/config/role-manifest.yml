@@ -3983,7 +3983,7 @@ variables:
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
 - name: EIRINI_FLUENTD_IMAGE
   options:
-    default: 'eirini/loggregator-fluentd:0.1.0'
+    default: 'eirini/loggregator-fluentd:0.3.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
 - name: EIRINI_FLUENTD_LOG_HOSTPATH
   options:
