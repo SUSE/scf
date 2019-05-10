@@ -21,7 +21,7 @@ export UBUNTU_VERSION="14.04"
 
 # Used in: make/install-istio
 
-export ISTIO_VERSION="1.0.5"
+export ISTIO_VERSION="1.1.5"
 
 # For stampy we need the major+minor+patch as a separate value.
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')

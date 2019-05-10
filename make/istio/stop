@@ -7,8 +7,12 @@ source "${GIT_ROOT}/make/include/has_namespace"
 source "${GIT_ROOT}/make/include/has_release"
 source "${GIT_ROOT}/make/include/defaults"
 
-printf "Stopping and cleaning up %s release...\\n" "${ISTIO_HELM_RELEASE}"
+printf "Stopping and cleaning up %s release...\\n" "${ISTIO_INIT_HELM_RELEASE}"
+if has_release "${ISTIO_INIT_HELM_RELEASE}"; then
+  helm delete --purge "${ISTIO_INIT_HELM_RELEASE}"
+fi
 
+printf "Stopping and cleaning up %s release...\\n" "${ISTIO_HELM_RELEASE}"
 if has_release "${ISTIO_HELM_RELEASE}"; then
   helm delete --purge "${ISTIO_HELM_RELEASE}"
 fi
