@@ -2877,6 +2877,7 @@ configuration:
     properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-extensions.operator_webhook_host: "((EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST))"
     properties.eirini-persi-broker.auth_password: '"((EIRINI_PERSI_NFS_BROKER_PASSWORD))"'
     properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
@@ -4024,6 +4025,10 @@ variables:
   options:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
+  options:
+    type: environment
+    description: "The Eirini extensions service ClusterIP"
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
