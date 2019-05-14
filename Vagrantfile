@@ -52,8 +52,7 @@ Vagrant.configure(2) do |config|
 
   HOME = "/home/vagrant"
   FISSILE_CACHE_DIR = "#{HOME}/.fissile"
-  FISSILE_CACHE_SIZE = 120
-  VB_FISSILE_CACHE_VDI = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
+  FISSILE_CACHE_SIZE = ENV.fetch('VM_FISSILE_CACHE_SIZE', 120).to_i
 
   # Set this environment variable pointing to a directory containing shell scripts to be executed as
   # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
@@ -84,7 +83,8 @@ Vagrant.configure(2) do |config|
     # Create and attach a disk for Fissile cache.
     default_machine_folder = `VBoxManage list systemproperties | grep "Default machine folder"`
     vb_machine_folder = default_machine_folder.split(':')[1].strip()
-    fissile_cache_disk = File.join(vb_machine_folder, VB_FISSILE_CACHE_VDI)
+    fissile_cache_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
+    fissile_cache_disk = File.join(vb_machine_folder, fissile_cache_file)
 
     unless File.exist?(fissile_cache_disk)
       vb.customize ['createhd', '--filename', fissile_cache_disk, '--format', 'VDI', '--size', FISSILE_CACHE_SIZE * 1024]
@@ -94,7 +94,7 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk_virtualbox.sh",
+      path: "vagrant/fissile_cache_disk.sh",
       args: ["/dev/sdb", FISSILE_CACHE_DIR]
 
     # Mount NFS volumes.
@@ -135,7 +135,7 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk_libvirt.sh",
+      path: "vagrant/fissile_cache_disk.sh",
       args: ["/dev/vdb", FISSILE_CACHE_DIR]
 
     # Mount NFS volumes.
