@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Format and mount Fissile cache disk on KVM/libvirt.
+# Format and mount Fissile cache disk.
 
 set -o errexit -o nounset
 
