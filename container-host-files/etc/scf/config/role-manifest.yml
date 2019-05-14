@@ -124,9 +124,9 @@ releases:
   version: "1.75.11"
   sha1: "c9f52bd5f82e82721d65ab5fffdce1ebe7a04eec"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.29.tgz"
-  version: "4.29"
-  sha1: "2c13b1231a2ac4ec60d8fcad63097bf0fcd41a94"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.31.tgz"
+  version: "4.31"
+  sha1: "b8ae0d8322d91610b9b8dde967d2aa4406ec9492"
 - name: app-autoscaler
   version: "1.0.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
