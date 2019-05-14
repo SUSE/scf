@@ -518,49 +518,6 @@ You can access any URL or endpoint that references this address from your host.
 1. Test the changes.
     1. Run the `make compile images run` command.
 
-### What does my dev cycle look like when I work on Component X?
-
-1. Make a change to component `X`, in its respective release (`X-release`).
-1. Run `make X-release compile images run` to build your changes and run them.
-
-#### Bumping a version in a release (or just make a change)
-
-For this example, lets suppose we want to update a release to a later tag.
-First of all checkout the desired commit:
-
-```
-host> cd src/loggregator-release/ && git checkout v81
-```
-
-If the submodules has submodules of each own, you will have to "sync" and "update"
-them as well. See "Pulling updates" in [Deploying section](#deploying).
-
-Then from inside the vagrant box regenarate the image for this release:
-
-```
-vagrant> cd scf && make loggregator-release compile images
-```
-
-Then let kubernetes know about this new image and use it:
-
-```
-vagrant> make kube
-```
-
-And restart the pods:
-
-```
-vagrant> make stop && make run
-```
-
-If everything works, then you probably need to update the .gitmodules to point
-to the new submodule commit SHA:
-
-```
-host> git add src/loggregator-release && git commit -am "Bumped the version of loggregator-release"
-host> git push origin develop # or whatever your remote and branch are called
-```
-
 ### How do I expose new settings via environment variables?
 
 1. Edit `./container-host-files/etc/scf/config/role-manifest.yml`:
@@ -588,7 +545,7 @@ host> git push origin develop # or whatever your remote and branch are called
     make images run
     ```
 
-### How do I bump the submodules for the various releases?
+### How do I bump a BOSH release?
 
 __Note:__ Because this process involves downloading and compiling release(s), it may take a long time.
 
@@ -625,7 +582,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
     1. Consult the release notes of the new version of the release.
     1. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
-1. Test the release by running the `make <release-name>-release compile images run` command.
+1. Test the release by running the `make compile images run` command.
 
 1. Before committing the tested release update the line
    `export CF_VERSION=...` in `bin/common/version.sh` to the new CF version.
