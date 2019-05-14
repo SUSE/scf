@@ -94,7 +94,7 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk.sh",
+      path: "vagrant/format_and_mount_disk.sh",
       args: ["/dev/sdb", FISSILE_CACHE_DIR]
 
     # Mount NFS volumes.
@@ -135,7 +135,7 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk.sh",
+      path: "vagrant/format_and_mount_disk.sh",
       args: ["/dev/vdb", FISSILE_CACHE_DIR]
 
     # Mount NFS volumes.
