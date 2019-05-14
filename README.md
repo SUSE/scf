@@ -508,21 +508,15 @@ You can access any URL or endpoint that references this address from your host.
 
 ### How do I add a new BOSH release to SCF?
 
-1. Add a Git submodule to the BOSH release in `./src`.
-2. Mention the new release in `.envrc`
-3. Modify the `role-manifest.yml`:
-
+1. Edit the `role-manifest.yml`:
+    1. Add the BOSH release information to the `releases:` section
     1. Add new roles or change existing ones
     1. Add exposed environment variables (`yaml path: /variables`).
     1. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
-
 1. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
 1. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
-1. Change the `./Makefile` so it builds the new release:
-    1. Add a new target `<release-name>-release`.
-    1. Add the new target as a dependency for `make releases`.
 1. Test the changes.
-1. Run the `make <release-name>-release compile images run` command.
+    1. Run the `make compile images run` command.
 
 ### What does my dev cycle look like when I work on Component X?
 
