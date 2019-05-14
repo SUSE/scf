@@ -8,9 +8,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.79.0"
   sha1: "85d0765ad9815962e46fc99712294c21514e6f7f"
 - name: cf-cli
-  version: 1.11.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.11.0
-  sha1: 43a21ad63156f20a0f6f56343e59d11882a69ca0
+  version: 1.12.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.12.0
+  sha1: 8ac22d62d63e28abe67221b5c1cb8e6ab77e0414
 - name: cf-mysql
   version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
@@ -20,9 +20,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.46
   sha1: f1614779126730c88e0400a9e9482e6202aaff71
 - name: cf-syslog-drain
-  version: "8.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
-  sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
+  version: "8.2"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.2"
+  sha1: "b0a5f28a21a98d7cb53758287910eee93364afdc"
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
   version: "1.281.0"
@@ -44,9 +44,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.2
   sha1: 881aad6294233e7c80ee62a48841fbe21af4a35e
 - name: loggregator
-  version: 104.4
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.4
-  sha1: 133e3ddc86bc233ade19ba3303d39a00cc55af64
+  version: "104.5"
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.5
+  sha1: dc98ec8336eb1f1db6ef2c5931c196984171a34d
 - name: log-cache
   version: 2.0.2
   url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.2
@@ -63,18 +63,22 @@ releases:
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+- name: pxc
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.16.0
+  version: 0.16.0
+  sha1: eb53d366af2d6e49e8c2ac834191547b2ba44d30
 - name: routing
   version: 0.184.0
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.184.0
   sha1: f35eb9884e1c097ff21843e6f2d0eebd22ac2073
 - name: statsd-injector
-  version: 1.5.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
-  sha1: 49a38aca12e0fd2ec28f96c780c1971427dda04e
+  version: 1.6.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.6.0
+  sha1: 04b8fa5fbff2784f4ea58510ca9f1ea9d4d47645
 - name: loggregator-agent
-  version: "3.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.2"
-  sha1: "dd7c7bc6574823881c17dd180a834ab2076021ed"
+  version: "3.3"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.3"
+  sha1: "8f0953bfbeb20067e63727757a3d329737e40cdf"
 - name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.32.1.tgz"
   version: "1.0.32.1"
