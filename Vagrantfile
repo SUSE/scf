@@ -53,6 +53,8 @@ Vagrant.configure(2) do |config|
   HOME = "/home/vagrant"
   FISSILE_CACHE_DIR = "#{HOME}/.fissile"
   FISSILE_CACHE_SIZE = ENV.fetch('VM_FISSILE_CACHE_SIZE', 120).to_i
+  KUBERNETES_HOSTPATH_DIR = "/tmp/hostpath_pv"
+  KUBERNETES_HOSTPATH_SIZE = ENV.fetch('KUBERNETES_HOSTPATH_SIZE', 120).to_i
 
   # Set this environment variable pointing to a directory containing shell scripts to be executed as
   # part of the provisioning of the Vagrant machine. If the directory contains a subdirectory called
@@ -80,12 +82,12 @@ Vagrant.configure(2) do |config|
 
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    # Create and attach a disk for Fissile cache.
     default_machine_folder = `VBoxManage list systemproperties | grep "Default machine folder"`
     vb_machine_folder = default_machine_folder.split(':')[1].strip()
-    fissile_cache_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
-    fissile_cache_disk = File.join(vb_machine_folder, fissile_cache_file)
 
+    # Create and attach a disk for Fissile cache.
+    fissile_cache_disk_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
+    fissile_cache_disk = File.join(vb_machine_folder, fissile_cache_disk_file)
     unless File.exist?(fissile_cache_disk)
       vb.customize ['createhd', '--filename', fissile_cache_disk, '--format', 'VDI', '--size', FISSILE_CACHE_SIZE * 1024]
     end
@@ -94,8 +96,22 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk.sh",
+      path: "vagrant/format_and_mount_disk.sh",
       args: ["/dev/sdb", FISSILE_CACHE_DIR]
+
+    # Create and attach a disk for Kubernetes hostPath.
+    k8s_hostPath_disk_file = "disk_k8s_hostPath_#{SecureRandom.hex(16)}.vdi"
+    k8s_hostPath_disk = File.join(vb_machine_folder, k8s_hostPath_disk_file)
+    unless File.exist?(k8s_hostPath_disk)
+      vb.customize ['createhd', '--filename', k8s_hostPath_disk, '--format', 'VDI', '--size', KUBERNETES_HOSTPATH_SIZE * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', k8s_hostPath_disk]
+
+    # Format and mount Kubernetes hostPath disk.
+    override.vm.provision "shell",
+      privileged: true,
+      path: "vagrant/format_and_mount_disk.sh",
+      args: ["/dev/sdc", KUBERNETES_HOSTPATH_DIR]
 
     # Mount NFS volumes.
     # https://github.com/mitchellh/vagrant/issues/351
@@ -135,8 +151,17 @@ Vagrant.configure(2) do |config|
     # Format and mount Fissile cache disk.
     override.vm.provision "shell",
       privileged: true,
-      path: "vagrant/fissile_cache_disk.sh",
+      path: "vagrant/format_and_mount_disk.sh",
       args: ["/dev/vdb", FISSILE_CACHE_DIR]
+
+    # Create and attach a disk for Kubernetes hostPath.
+    libvirt.storage :file, :size => "#{KUBERNETES_HOSTPATH_SIZE}G"
+
+    # Format and mount Kubernetes hostPath disk.
+    override.vm.provision "shell",
+      privileged: true,
+      path: "vagrant/format_and_mount_disk.sh",
+      args: ["/dev/vdc", KUBERNETES_HOSTPATH_DIR]
 
     # Mount NFS volumes.
     override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
