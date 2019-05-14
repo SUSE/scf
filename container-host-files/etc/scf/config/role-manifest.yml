@@ -13,7 +13,7 @@ releases:
   sha1: 43a21ad63156f20a0f6f56343e59d11882a69ca0
 - name: cf-mysql
   version: 36.17.0
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.17.0
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   sha1: 04cbfafa0a2c11b133da20de8282595c98bc0049
 - name: cf-smoke-tests
   version: 40.0.46
