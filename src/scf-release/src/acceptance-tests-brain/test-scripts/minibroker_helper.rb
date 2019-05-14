@@ -37,7 +37,7 @@ class MiniBrokerTest
     attr_lazy(:sec_group) { random_suffix('sec-group', 'CF_SEC_GROUP') }
     attr_lazy(:broker_name) { random_suffix('minibroker', 'CF_BROKER') }
     attr_lazy(:minibroker_repo) { ENV.fetch('MINIBROKER_REPO', 'https://minibroker-helm-charts.s3.amazonaws.com/minibroker-charts/') }
-    attr_lazy(:kubernetes_repo) { ENV.fetch('KUBERNETES_REPO', 'https://minibroker-helm-charts.s3.amazonaws.com/kubernetes-charts/') }
+    attr_lazy(:kubernetes_repo) { ENV.fetch('KUBERNETES_REPO', 'https://minibroker-charts.s3.amazonaws.com/kubernetes-charts/') }
     attr_lazy(:helm_release) { random_suffix('minibroker') }
     attr_lazy(:minibroker_namespace) { random_suffix('minibroker') }
     attr_lazy(:minibroker_pods_namespace) { random_suffix('minibroker-pod') }
