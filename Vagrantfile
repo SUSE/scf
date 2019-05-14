@@ -22,6 +22,8 @@ def base_net_config
 end
 
 def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
+  config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
+
   config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
   config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
   config.vm.provision :shell, privileged: true, env: ENV.select { |e|
@@ -43,8 +45,6 @@ def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
 end
 
 Vagrant.configure(2) do |config|
-  config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
-
   vm_memory = ENV.fetch('SCF_VM_MEMORY', ENV.fetch('VM_MEMORY', 10 * 1024)).to_i
   vm_cpus = ENV.fetch('SCF_VM_CPUS', ENV.fetch('VM_CPUS', 4)).to_i
   vm_box_version = ENV.fetch('SCF_VM_BOX_VERSION', ENV.fetch('VM_BOX_VERSION', '2.0.17'))
