@@ -545,6 +545,13 @@ You can access any URL or endpoint that references this address from your host.
     make images run
     ```
 
+### How do I bump to a new cf-deployment version?
+
+1. Run `tooling/bin/import-bosh-releases <cf-deployment-version>`.
+1. Update `bin/common/version.sh` to record the new `CF_VERSION`.
+1. Run `make diff-releases` to check the changed BOSH properties; see
+   the next section for details.
+
 ### How do I bump a BOSH release?
 
 __Note:__ Because this process involves downloading and compiling release(s), it may take a long time.
