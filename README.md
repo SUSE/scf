@@ -551,6 +551,7 @@ You can access any URL or endpoint that references this address from your host.
 1. Update `bin/common/version.sh` to record the new `CF_VERSION`.
 1. Run `make diff-releases` to check the changed BOSH properties; see
    the next section for details.
+1. Run `tooling/bin/check-uaa-clients`
 
 ### How do I bump a BOSH release?
 
