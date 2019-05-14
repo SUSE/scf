@@ -105,7 +105,7 @@ Vagrant.configure(2) do |config|
     unless File.exist?(k8s_hostPath_disk)
       vb.customize ['createhd', '--filename', k8s_hostPath_disk, '--format', 'VDI', '--size', KUBERNETES_HOSTPATH_SIZE * 1024]
     end
-    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', k8s_hostPath_disk]
+    vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', k8s_hostPath_disk]
 
     # Format and mount Kubernetes hostPath disk.
     override.vm.provision "shell",
