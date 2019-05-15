@@ -82,12 +82,11 @@ Vagrant.configure(2) do |config|
 
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    default_machine_folder = `VBoxManage list systemproperties | grep "Default machine folder"`
-    vb_machine_folder = default_machine_folder.split(':')[1].strip()
+    disks_folder = File.join(Dir.home, ".vagrant.d", "disks")
 
     # Create and attach a disk for Fissile cache.
     fissile_cache_disk_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
-    fissile_cache_disk = File.join(vb_machine_folder, fissile_cache_disk_file)
+    fissile_cache_disk = File.join(disks_folder, fissile_cache_disk_file)
     unless File.exist?(fissile_cache_disk)
       vb.customize ['createhd', '--filename', fissile_cache_disk, '--format', 'VDI', '--size', FISSILE_CACHE_SIZE * 1024]
     end
@@ -101,7 +100,7 @@ Vagrant.configure(2) do |config|
 
     # Create and attach a disk for Kubernetes hostPath.
     k8s_hostPath_disk_file = "disk_k8s_hostPath_#{SecureRandom.hex(16)}.vdi"
-    k8s_hostPath_disk = File.join(vb_machine_folder, k8s_hostPath_disk_file)
+    k8s_hostPath_disk = File.join(disks_folder, k8s_hostPath_disk_file)
     unless File.exist?(k8s_hostPath_disk)
       vb.customize ['createhd', '--filename', k8s_hostPath_disk, '--format', 'VDI', '--size', KUBERNETES_HOSTPATH_SIZE * 1024]
     end
