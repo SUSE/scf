@@ -4028,7 +4028,7 @@ variables:
 - name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
   options:
     type: environment
-    description: "The Eirini extensions service ClusterIP"
+    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
