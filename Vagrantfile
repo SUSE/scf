@@ -82,8 +82,8 @@ Vagrant.configure(2) do |config|
 
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    default_machine_folder = `VBoxManage list systemproperties | grep "Default machine folder"`
-    vb_machine_folder = default_machine_folder.split(':')[1].strip()
+    default_machine_folder = `(which VBoxManage 1> /dev/null 2> /dev/null && (VBoxManage list systemproperties | grep "Default machine folder" | sed "s/Default machine folder://")) || echo "/tmp"`
+    vb_machine_folder = default_machine_folder.strip()
 
     # Create and attach a disk for Fissile cache.
     fissile_cache_disk_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
