@@ -82,7 +82,7 @@ Vagrant.configure(2) do |config|
 
     vb.customize ['modifyvm', :id, '--paravirtprovider', 'minimal']
 
-    disks_folder = File.join(".vagrant", "disks")
+    disks_folder = File.join(Dir.home, ".vagrant.d", "disks")
 
     # Create and attach a disk for Fissile cache.
     fissile_cache_disk_file = "disk_fissile_cache_#{SecureRandom.hex(16)}.vdi"
