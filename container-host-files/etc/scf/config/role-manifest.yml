@@ -980,6 +980,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1075,6 +1076,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1171,6 +1173,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
