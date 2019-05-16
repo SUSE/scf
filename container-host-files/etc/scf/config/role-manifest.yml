@@ -4053,6 +4053,7 @@ variables:
 - name: EIRINI_PERSI_PLANS
   options:
     description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
+    default: '[]'
     example: |
       - id: "dafault-storageclass"
         name: "default"
