@@ -109,6 +109,7 @@ status "Setting of external proxies complete."
 BROKER_URL='<%= p("eirini-persi-broker.url") %>'
 BROKER_USERNAME='<%= p("eirini-persi-broker.auth_username") %>'
 BROKER_PASSWORD='<%= p("eirini-persi-broker.auth_password") %>'
+BROKER_PLANS='<%= p("eirini-persi-broker.service_plans") %>'
 BROKER_NAME='eirini-persi-broker'
 
 <% else %>
@@ -120,22 +121,25 @@ BROKER_NAME='persi-nfs-broker'
 
 <% end %>
 
-status "Waiting for persi $BROKER_NAME to be available..."
+# If we are using eirini-persi, configure the broker only if plans were defined
+if [ "$BROKER_NAME" != "eirini-persi-broker" ] || [ "$BROKER_PLANS" != "[]" ]; then
+   status "Waiting for persi $BROKER_NAME to be available..."
 
-CATALOG_REQUEST=(
-   curl "${SILENT}"
-   --connect-timeout 5
-   --fail
-   --header 'Accept: application/json'
-   --header 'X-Broker-API-Version: 2.14'
-   -u "${BROKER_USERNAME}:${BROKER_PASSWORD}"
-   "${BROKER_URL}/v2/catalog"
-)
-retry 240 30s "${CATALOG_REQUEST[@]}"
+   CATALOG_REQUEST=(
+      curl "${SILENT}"
+      --connect-timeout 5
+      --fail
+      --header 'Accept: application/json'
+      --header 'X-Broker-API-Version: 2.14'
+      -u "${BROKER_USERNAME}:${BROKER_PASSWORD}"
+      "${BROKER_URL}/v2/catalog"
+   )
+   retry 240 30s "${CATALOG_REQUEST[@]}"
 
-cf create-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL" || cf update-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL"
+   cf create-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL" || cf update-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL"
 
-status "$BROKER_NAME configuration complete."
+   status "$BROKER_NAME configuration complete."
+fi
 
 status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"

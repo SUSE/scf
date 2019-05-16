@@ -80,3 +80,5 @@ properties:
     default: "admin"
   eirini-persi-broker.auth_password:
     description: "basic auth password to verify on incoming Service Broker requests"
+  eirini-persi-broker.service_plans:
+    description: 'Broker service plans'
