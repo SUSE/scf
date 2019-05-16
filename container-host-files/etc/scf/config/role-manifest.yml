@@ -471,16 +471,16 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.admin_password: ((CF_MYSQL_MYSQL_ADMIN_PASSWORD))
+      properties.admin_password: ((MYSQL_ADMIN_PASSWORD))
 
       # Deprecation start. Should go away with cf-mysql-release. >>
-      properties.cf_mysql.mysql.admin_password: ((CF_MYSQL_MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((CF_MYSQL_MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((GALERA_HEALTHCHECK_ENDPOINT_DATABASE_PASSWORD))
       # << Deprecation end
 
-      properties.db_password: ((CF_MYSQL_MYSQL_ADMIN_PASSWORD))
+      properties.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.endpoint_password: ((GALERA_HEALTHCHECK_ENDPOINT_DATABASE_PASSWORD))
       properties.engine_config.binlog.enabled: false
       properties.engine_config.galera.enabled: true
@@ -540,7 +540,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - pxc-mysql
+                      - mysql
                   topologyKey: "beta.kubernetes.io/os"
   - name: route_registrar
     release: routing
@@ -3886,14 +3886,6 @@ variables:
   options:
     description: Expiration for generated certificates (in days)
     default: 10950
-- name: CF_MYSQL_MYSQL_ADMIN_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_ADMIN_PASSWORD
-    secret: true
-    description: The password for the MySQL server admin user.
-    required: true
-  type: password
 - name: CF_MYSQL_PROXY_API_PASSWORD
   options:
     previous_names:
@@ -4431,6 +4423,12 @@ variables:
   options:
     secret: true
     description: Password used for the monit API.
+    required: true
+  type: password
+- name: MYSQL_ADMIN_PASSWORD
+  options:
+    secret: true
+    description: The password for the MySQL server admin user.
     required: true
   type: password
 - name: MYSQL_CLUSTER_HEALTH_PASSWORD
