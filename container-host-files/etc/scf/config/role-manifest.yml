@@ -2049,6 +2049,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2107,6 +2109,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent        
         run:
           scaling:
             min: 1
@@ -2167,6 +2171,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent        
         run:
           scaling:
             min: 1
