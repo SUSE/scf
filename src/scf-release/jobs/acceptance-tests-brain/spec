@@ -38,9 +38,6 @@ properties:
   acceptance_tests_brain.namespace:
     description: The k8s namespace the test role is run inside of
 
-  smoke_tests.autoscaler_service_broker_endpoint:
-    description: AutoScaler API endpoint (including scheme and port)
-    example: https://autoscalerservicebroker.bosh-lite.com/
   smoke_tests.api:
     description: Cloud Controller API endpoint
     example: api.bosh-lite.com
@@ -62,17 +59,3 @@ properties:
       to your CF instance; this is generally always true for BOSH-Lite
       deployments of CF.
     default: false
-  autoscaler.service_broker.username:
-    description: username to authenticate with service broker
-  autoscaler.service_broker.password:
-    description: password to authenticate with service broker
-  autoscaler.smoke.service_name:
-    description: >
-      The name of the registered auto-scaler service, use cf marketplace to
-      determine the name.
-    default: autoscaler
-  autoscaler.smoke.service_plan:
-    description: >
-      The plan name of the registered auto-scaler service, use cf marketplace
-      to determine the plan.
-    default: autoscaler-free-plan
