@@ -168,6 +168,38 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: eirini-persi-broker
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: broker
+          protocol: TCP
+          internal: 8999
+  - name: eirini-extensions
+    release: eirini
+    properties:
+      bosh_containerization:
+        pod-security-policy: privileged
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: webhook
+          protocol: TCP
+          internal: 2999
   - name: opi
     release: eirini
     properties:
@@ -1603,6 +1635,7 @@ instance_groups:
           protocol: TCP
           internal: 8080
 - name: nfs-broker
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -2841,6 +2874,16 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
+    properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-extensions.operator_webhook_host: "((EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST))"
+    properties.eirini-persi-broker.auth_password: '"((EIRINI_PERSI_NFS_BROKER_PASSWORD))"'
+    properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
+    properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
@@ -3981,6 +4024,10 @@ variables:
   options:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
+  options:
+    type: environment
+    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
@@ -3997,6 +4044,23 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
+- name: EIRINI_PERSI_NFS_BROKER_PASSWORD
+  options:
+    description: Basic auth password to verify on incoming Service Broker requests
+    secret: true
+    required: true
+  type: password
+- name: EIRINI_PERSI_PLANS
+  options:
+    description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
+    default: '[]'
+    example: |
+      - id: "dafault-storageclass"
+        name: "default"
+        description: "Eirini persistence broker"
+        free: true
+        kube_storage_class: "persistent"
+        default_size: "1Gi"
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
