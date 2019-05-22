@@ -1,3 +1,0 @@
-[submodule "src/scf-release/src/acceptance-tests-brain/test-resources/rails-example"]
-	path = src/scf-release/src/acceptance-tests-brain/test-resources/rails-example
-	url = https://github.com/scf-samples/rails-example.git
