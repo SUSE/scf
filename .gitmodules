@@ -1,6 +1,3 @@
-[submodule "src/scf-release/src/acceptance-tests-brain/test-resources/python-mongodb-blog"]
-	path = src/scf-release/src/acceptance-tests-brain/test-resources/python-mongodb-blog
-	url = https://github.com/scf-samples/python-mongodb-blog.git
 [submodule "src/scf-release/src/acceptance-tests-brain/test-resources/rails-example"]
 	path = src/scf-release/src/acceptance-tests-brain/test-resources/rails-example
 	url = https://github.com/scf-samples/rails-example.git
