@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-kubectl port-forward \
-  svc/<%= p("sync_integration_tests.bbs.svc.name") %> \
-  --namespace <%= p("sync_integration_tests.bbs.svc.namespace") %> \
-  8889:<%= p("sync_integration_tests.bbs.svc.port") %>
