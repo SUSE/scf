@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-sudo cp /tmp/scf/certs/internal/internalCA.crt /etc/pki/trust/anchors/
-sudo update-ca-certificates
-sudo perl -i -pe 's#--insecure-registry=0.0.0.0/0 ##' /etc/sysconfig/docker
-sudo service docker restart

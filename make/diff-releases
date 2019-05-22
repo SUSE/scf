@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-cd "${GIT_ROOT}"
-source .envrc
-
-ruby $GIT_ROOT/tooling/bin/diff-releases.rb

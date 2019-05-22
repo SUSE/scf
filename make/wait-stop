@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-echo "Waiting for pods to terminate..."
-while kubectl get pods --all-namespaces | grep --quiet Terminating ; do
-    sleep 1
-done

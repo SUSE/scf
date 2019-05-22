@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-has_release() {
-  helm list --short | grep --quiet "^${1}\$"
-}

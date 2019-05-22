@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-${GIT_ROOT}/make/upgrade --set "enable.eirini=true"

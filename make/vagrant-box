@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
-
-cd ${GIT_ROOT}/packer
-
-packer build vagrant-box.json
