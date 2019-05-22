@@ -1,6 +1,0 @@
-[Unit]
-Before=local-fs.target
-RequiresMountsFor=/data /tmp
-
-[Automount]
-Where=/tmp/hostpath_pv
