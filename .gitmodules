@@ -1,6 +1,3 @@
-[submodule "src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests"]
-	path = src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests
-	url = https://github.com/cloudfoundry/cf-acceptance-tests.git
 [submodule "src/scf-release/src/code.cloudfoundry.org/sync-integration-tests"]
 	path = src/scf-release/src/code.cloudfoundry.org/sync-integration-tests
 	url = https://github.com/cloudfoundry/sync-integration-tests.git
