@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -e -x
-
-mkdir -p ${BOSH_INSTALL_TARGET}/src
-cp -a . ${BOSH_INSTALL_TARGET}/src

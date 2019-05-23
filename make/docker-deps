@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit -o nounset
-
-if test -z $(docker images -q ${FISSILE_STEMCELL} 2>/dev/null) ; then
-    docker pull ${FISSILE_STEMCELL}
-fi

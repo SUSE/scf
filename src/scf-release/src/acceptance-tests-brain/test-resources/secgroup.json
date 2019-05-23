@@ -1,6 +1,0 @@
-[
-  {
-    "destination": "172.16.0.0/16",
-    "protocol": "all"
-  }
-]

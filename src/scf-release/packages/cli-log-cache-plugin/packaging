@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -e
-
-mkdir -p ${BOSH_INSTALL_TARGET}/plugin
-
-cp log-cache/log-cache-cf-plugin-linux ${BOSH_INSTALL_TARGET}/plugin/log-cache-cf-plugin-linux
-
-chmod +x ${BOSH_INSTALL_TARGET}/plugin/log-cache-cf-plugin-linux

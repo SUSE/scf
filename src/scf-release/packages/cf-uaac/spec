@@ -1,6 +1,0 @@
----
-name: cf-uaac
-dependencies:
-- ruby-2.3
-files:
-- cf-uaac/**/*

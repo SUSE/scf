@@ -1,9 +1,0 @@
-[Unit]
-Requires=data-hostpath-create.service
-After=data-hostpath-create.service
-
-[Mount]
-What=/data/hostpath
-Where=/tmp/hostpath_pv
-Type=none
-Options=bind

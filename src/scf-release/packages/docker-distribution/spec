@@ -1,6 +1,0 @@
----
-name: docker-distribution
-dependencies:
-- golang1.10
-files:
-- github.com/docker/distribution/**/*

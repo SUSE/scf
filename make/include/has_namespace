@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-has_namespace() {
-  kubectl get namespace "${1}" >/dev/null 2>/dev/null
-}

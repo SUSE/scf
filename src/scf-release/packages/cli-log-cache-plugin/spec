@@ -1,4 +1,0 @@
----
-name: cli-log-cache-plugin
-files:
-  - log-cache/log-cache-cf-plugin-linux
