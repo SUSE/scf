@@ -508,64 +508,15 @@ You can access any URL or endpoint that references this address from your host.
 
 ### How do I add a new BOSH release to SCF?
 
-1. Add a Git submodule to the BOSH release in `./src`.
-2. Mention the new release in `.envrc`
-3. Modify the `role-manifest.yml`:
-
+1. Edit the `role-manifest.yml`:
+    1. Add the BOSH release information to the `releases:` section
     1. Add new roles or change existing ones
     1. Add exposed environment variables (`yaml path: /variables`).
     1. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
-
 1. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
 1. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
-1. Change the `./Makefile` so it builds the new release:
-    1. Add a new target `<release-name>-release`.
-    1. Add the new target as a dependency for `make releases`.
 1. Test the changes.
-1. Run the `make <release-name>-release compile images run` command.
-
-### What does my dev cycle look like when I work on Component X?
-
-1. Make a change to component `X`, in its respective release (`X-release`).
-1. Run `make X-release compile images run` to build your changes and run them.
-
-#### Bumping a version in a release (or just make a change)
-
-For this example, lets suppose we want to update a release to a later tag.
-First of all checkout the desired commit:
-
-```
-host> cd src/loggregator-release/ && git checkout v81
-```
-
-If the submodules has submodules of each own, you will have to "sync" and "update"
-them as well. See "Pulling updates" in [Deploying section](#deploying).
-
-Then from inside the vagrant box regenarate the image for this release:
-
-```
-vagrant> cd scf && make loggregator-release compile images
-```
-
-Then let kubernetes know about this new image and use it:
-
-```
-vagrant> make kube
-```
-
-And restart the pods:
-
-```
-vagrant> make stop && make run
-```
-
-If everything works, then you probably need to update the .gitmodules to point
-to the new submodule commit SHA:
-
-```
-host> git add src/loggregator-release && git commit -am "Bumped the version of loggregator-release"
-host> git push origin develop # or whatever your remote and branch are called
-```
+    1. Run the `make compile images run` command.
 
 ### How do I expose new settings via environment variables?
 
@@ -594,7 +545,15 @@ host> git push origin develop # or whatever your remote and branch are called
     make images run
     ```
 
-### How do I bump the submodules for the various releases?
+### How do I bump to a new cf-deployment version?
+
+1. Run `tooling/bin/import-bosh-releases <cf-deployment-version>`.
+1. Update `bin/common/version.sh` to record the new `CF_VERSION`.
+1. Run `make diff-releases` to check the changed BOSH properties; see
+   the next section for details.
+1. Run `tooling/bin/check-uaa-clients`
+
+### How do I bump a BOSH release?
 
 __Note:__ Because this process involves downloading and compiling release(s), it may take a long time.
 
@@ -631,7 +590,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
     1. Consult the release notes of the new version of the release.
     1. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
-1. Test the release by running the `make <release-name>-release compile images run` command.
+1. Test the release by running the `make compile images run` command.
 
 1. Before committing the tested release update the line
    `export CF_VERSION=...` in `bin/common/version.sh` to the new CF version.

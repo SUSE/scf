@@ -9,29 +9,8 @@
 require 'open-uri'
 require 'rubygems'
 require 'yaml'
-
-# Psych::Nodes::Mappings doesn't have good indexing operators; patch them in
-module YAMLRefine
-    refine Psych::Nodes::Mapping do
-        def [](key)
-            children.each_slice(2) do |k, v|
-                return v if k.value == key
-            end
-            nil
-        end
-        def []=(key, value)
-            value_node = Psych::Visitors::YAMLTree.create.push(value).first
-            children.each_slice(2).each_with_index do |(k, v), index|
-                if k.value == key
-                    children[index * 2 + 1] = value_node
-                    return
-                end
-            end
-            key_node = Psych::Visitors::YAMLTree.create.push(key).first
-            children << key_node << value_node
-        end
-    end
-end
+require_relative '../lib/manifest'
+require_relative '../lib/yaml-refinements'
 
 using YAMLRefine
 
@@ -44,13 +23,7 @@ def load_upstream_manifest(target_version)
         STDERR.puts "    e.g. #{$0} 6.0.0"
         exit 1
     end
-    target_version = "v#{target_version}" unless target_version.start_with? 'v'
-
-    upstream_manifest = open("https://github.com/cloudfoundry/cf-deployment/raw/#{target_version}/cf-deployment.yml") do |f|
-        YAML.load(f)
-    end
-    fail "Error loading upstream manifest" unless upstream_manifest['releases']
-    upstream_manifest
+    Manifest.load_from_upstream target_version
 end
 
 # Load the role manifest, as a YAML document (not a Ruby object)
