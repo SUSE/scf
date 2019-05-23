@@ -3974,7 +3974,7 @@ variables:
     required: true
 - name: CLUSTER_BUILD
   options:
-    default: 2.0.2
+    default: 2.16.4
     description: "'build' attribute in the /v2/info endpoint"
     required: true
 - name: CLUSTER_DESCRIPTION
@@ -4761,7 +4761,7 @@ variables:
   type: password
 - name: SUPPORT_ADDRESS
   options:
-    default: support@example.com
+    default: https://scc.suse.com
     description: Support contact information for the cluster
     required: true
 - name: SYNC_INTEGRATION_TESTS_FOCUS
