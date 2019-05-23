@@ -4575,7 +4575,7 @@ variables:
   type: password
 - name: SUPPORT_ADDRESS
   options:
-    default: support@example.com
+    default: https://scc.suse.com
     description: Support contact information for the cluster
     required: true
 - name: SYNC_INTEGRATION_TESTS_FOCUS
