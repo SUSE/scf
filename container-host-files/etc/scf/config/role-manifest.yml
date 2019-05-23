@@ -23,10 +23,6 @@ releases:
   version: "9.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=9.0"
   sha1: "6971d973abb4710428784d91834850171e93ca20"
-- name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
-  version: "1.281.0"
-  sha1: "1bdcf24c1fb9baf324aebab8ba28f8e64b846305"
 - name: cflinuxfs3
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.92.0"
   version: "0.92.0"
@@ -1854,8 +1850,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
   - name: groot-btrfs
     release: groot-btrfs
-  - name: cflinuxfs2-rootfs-setup
-    release: cflinuxfs2
   - name: cflinuxfs3-rootfs-setup
     release: cflinuxfs3
   - name: cf-sle12-setup
@@ -2888,7 +2882,6 @@ configuration:
     properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((CF_USB_DATABASE_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
-    properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
