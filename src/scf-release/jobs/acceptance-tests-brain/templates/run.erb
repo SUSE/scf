@@ -48,13 +48,7 @@ for i in "${ASSETS}/plugins/"*; do
 done
 shopt -u nullglob
 
-PARAM=""
-
-if [ -n "${TIMEOUT}" ]; then
-    PARAM="${PARAM} --timeout ${TIMEOUT}"
-else
-    PARAM="${PARAM} --timeout 600"
-fi
+PARAM="--timeout ${TIMEOUT:-600}"
 
 if [[ "${VERBOSE}" == "true" || "${VERBOSE}" == "1" ]]; then
     PARAM="${PARAM} --verbose"
