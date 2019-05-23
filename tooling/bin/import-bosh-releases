@@ -23,7 +23,7 @@ def load_upstream_manifest(target_version)
         STDERR.puts "    e.g. #{$0} 6.0.0"
         exit 1
     end
-    Manifest.load_from_upstream target_version
+    Manifest.load_from_upstream version:target_version
 end
 
 # Load the role manifest, as a YAML document (not a Ruby object)
