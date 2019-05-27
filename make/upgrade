@@ -29,8 +29,11 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
 UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
 
 helm_args=(
+    # We need --recreate-pods in case an upgrade causes an existing pod to go unready.
+    # In which case, the normal StatefulSet logic would cause it to get stuck.
+    --recreate-pods
     --namespace "${NAMESPACE}"
-    --values "bin/settings.yaml" \
+    --values "bin/settings.yaml"
     --set "env.DOMAIN=${DOMAIN}"
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}"
     --set "env.UAA_HOST=${UAA_HOST}"
