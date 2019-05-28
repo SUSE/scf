@@ -590,6 +590,16 @@ __Note:__ Because this process involves downloading and compiling release(s), it
     1. Consult the release notes of the new version of the release.
     1. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
+1. Bump [CloudFoundry Acceptance Tests(CATs)](https://github.com/cloudfoundry/cf-acceptance-tests) submodule to match new `CF_VERSION`.
+
+    1. `cd src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests`
+    1. `git checkout <new-cf-version>`
+
+    > Note: 
+    > 1. If remote branch for `new-cf-version` doesn't exist then bump it to closest previous version available.
+    > 2. Run `git branch -a --sort=-committerdate | grep /cf` to check available CF release branches.
+
+
 1. Test the release by running the `make compile images run` command.
 
 1. Before committing the tested release update the line
