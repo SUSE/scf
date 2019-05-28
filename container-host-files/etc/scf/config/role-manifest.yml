@@ -4144,6 +4144,7 @@ variables:
   options:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+    imagename: true
 - name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
   options:
     type: environment
@@ -4152,10 +4153,12 @@ variables:
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
+    imagename: true
 - name: EIRINI_IMAGE
   options:
     default: 'eirini/recipe:ci-24.0.0'
     description: "Docker Image used for staging apps deployed using Eirini"
+    imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
     default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
