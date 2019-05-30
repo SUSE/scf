@@ -176,7 +176,6 @@ instance_groups:
     release: eirini
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           scaling:
             min: 1
@@ -192,7 +191,6 @@ instance_groups:
     release: eirini
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           scaling:
             min: 1
@@ -208,7 +206,6 @@ instance_groups:
     release: eirini
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           service-account: eirini
           scaling:
@@ -246,7 +243,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: bits-service
     release: bits-service
     properties:
@@ -314,7 +311,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: adapter
   scripts:
   - scripts/forward_logfiles.sh
@@ -367,7 +364,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -407,7 +404,6 @@ instance_groups:
                       values:
                       - nats
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
         ports:
         - name: nats
           protocol: TCP
@@ -421,7 +417,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: mysql
   scripts:
   - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
@@ -498,7 +494,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   tags:
   - sequential-startup
   configuration:
@@ -582,7 +578,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   tags:
   - sequential-startup
   configuration:
@@ -648,7 +644,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   tags:
   - sequential-startup
   configuration:
@@ -698,7 +694,6 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -764,7 +759,6 @@ instance_groups:
                       values:
                       - locket
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: locket
           protocol: TCP
@@ -789,7 +783,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: gorouter
     release: routing
     properties:
@@ -829,7 +823,6 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged # For port binding
         ports:
         - name: router
           protocol: TCP
@@ -905,7 +898,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
@@ -928,7 +921,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: routing-api
     release: routing
     properties:
@@ -957,7 +950,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
-          service-account: withsysresource
         ports:
         - name: routing-api
           protocol: TCP
@@ -1042,7 +1034,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: statsd_injector
     release: statsd-injector
   - name: go-buildpack
@@ -1114,7 +1106,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1162,7 +1154,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1221,7 +1213,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: log-cache-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -1247,7 +1239,6 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
-          service-account: privileged
           scaling:
             min: 1
             max: 65535
@@ -1273,7 +1264,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.maps: >
@@ -1375,7 +1366,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   - name: route_registrar
     release: routing
   configuration:
@@ -1539,7 +1530,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1583,7 +1574,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
-          service-account: privileged
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1642,7 +1632,6 @@ instance_groups:
                       values:
                       - cc-uploader
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1656,7 +1645,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: diego-ssh
   unless_feature: eirini
   environment_scripts:
@@ -1699,7 +1688,6 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1739,6 +1727,7 @@ instance_groups:
             max: 3
             ha: 2
           capabilities: [ALL]
+          privileged: true
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -1753,7 +1742,6 @@ instance_groups:
                       values:
                       - nfs-broker
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1820,6 +1808,7 @@ instance_groups:
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
           capabilities: [ALL]
+          privileged: true
           service-account: garden-runc
           volumes:
           - path: /var/vcap/data/grootfs
@@ -1930,7 +1919,6 @@ instance_groups:
             max: 1
           flight-stage: manual
           capabilities: []
-          #service-account: privileged # ???
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1998,7 +1986,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.smoke_tests.client_secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
@@ -2091,7 +2079,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
@@ -2190,7 +2178,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -2335,7 +2323,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -2389,7 +2377,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   configuration:
     templates:
       properties.counters: >
@@ -2464,6 +2452,11 @@ configuration:
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
+      psp-role:
+      - apiGroups: [extensions]
+        resourceNames: [default]
+        resources: [podsecuritypolicies]
+        verbs: [use]
       secrets-role:
       - apiGroups: [""]
         resources: [configmaps, secrets]
@@ -2499,21 +2492,6 @@ configuration:
       - apiGroups: [""]
         resources: [nodes]
         verbs: [get, list, watch]
-      nonprivileged:
-      - apiGroups: [extensions]
-        resourceNames: [nonprivileged]
-        resources: [podsecuritypolicies]
-        verbs: [use]
-      withsysresource:
-      - apiGroups: [extensions]
-        resourceNames: [withsysresource]
-        resources: [podsecuritypolicies]
-        verbs: [use]
-      privileged:
-      - apiGroups: [extensions]
-        resourceNames: [privileged]
-        resources: [podsecuritypolicies]
-        verbs: [use]
       eirini-role:
       - apiGroups: ["*"]
         resources: ["*"]
@@ -2538,8 +2516,13 @@ configuration:
         resources: [storageclasses]
         verbs: [get, list]
     pod-security-policies:
-      nonprivileged: &psp-nonprivileged
+      default:
+        allowPrivilegeEscalation: true
+        allowedCapabilities: ["*"]
+        defaultAllowPrivilegeEscalation: true
         fsGroup: { rule: RunAsAny }
+        hostPorts: [{ min: 0, max: 65535 }]
+        privileged: true
         runAsUser: { rule: RunAsAny }
         seLinux: { rule: RunAsAny }
         supplementalGroups: { rule: RunAsAny }
@@ -2551,38 +2534,19 @@ configuration:
         - projected
         - persistentVolumeClaim
         - nfs
-      withsysresource:
-        <<: *psp-nonprivileged
-        allowedCapabilities: [SYS_RESOURCE]
-      privileged:
-        <<: *psp-nonprivileged
-        allowPrivilegeEscalation: true
-        allowedCapabilities: ["*"]
-        defaultAllowPrivilegeEscalation: true
-        hostPorts: [{ min: 0, max: 65535 }]
-        privileged: true
     accounts:
       default:
-        roles: [configgin-role]
-        cluster-roles: [nonprivileged]
-      withsysresource:
-        roles: [configgin-role]
-        cluster-roles: [withsysresource]
-      privileged:
-        roles: [configgin-role]
-        cluster-roles: [privileged]
+        roles: [configgin-role, psp-role]
       secret-generator:
-        roles: [configgin-role, secrets-role]
-        cluster-roles: [nonprivileged]
+        roles: [configgin-role, secrets-role, psp-role]
       tests-brain:
-        roles: [configgin-role, test-role-brain]
-        cluster-roles: [nonprivileged, test-cluster-role]
+        roles: [configgin-role, test-role-brain, psp-role]
+        cluster-roles: [test-cluster-role]
       tests-sits:
-        roles: [configgin-role, test-role-sits]
-        cluster-roles: [nonprivileged]
+        roles: [configgin-role, test-role-sits, psp-role]
       garden-runc:
-        roles: [configgin-role]
-        cluster-roles: [privileged, node-reader-role]
+        roles: [configgin-role, psp-role]
+        cluster-roles: [node-reader-role]
       eirini:
         roles: [configgin-role]
         cluster-roles: [eirini-role]
