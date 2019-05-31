@@ -2036,7 +2036,7 @@ instance_groups:
           capabilities: []
           memory: 256
           virtual-cpus: 1
-          service-account: eirini
+          service-account: '{{if .Values.enable.eirini}}eirini{{else}}default{{end}}'
 - name: credhub-user
   if_feature: credhub
   environment_scripts:
