@@ -9,8 +9,4 @@ export KUBERNETES_STORAGE_CLASS_PERSISTENT="<%= properties.acceptance_tests_brai
 
 # Autoscaler settings
 export APPS_DOMAIN="<%= Array(properties.smoke_tests.apps_domain).first %>"
-export BROKER_URL="<%= p('smoke_tests.autoscaler_service_broker_endpoint') %>"
-export BROKER_USER="<%= p('autoscaler.service_broker.username') %>"
-export BROKER_PASS="<%= p('autoscaler.service_broker.password') %>"
-export SMOKE_SERVICE="<%= p('autoscaler.smoke.service_name') %>"
-export SMOKE_PLAN="<%= p('autoscaler.smoke.service_plan') %>"
+export AUTOSCALER_URL="<%= p('smoke_tests.autoscaler_endpoint') %>"
