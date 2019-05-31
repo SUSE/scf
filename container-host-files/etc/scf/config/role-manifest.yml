@@ -2225,7 +2225,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged            
+          privileged: true
 - name: autoscaler-actors
   if_feature: autoscaler
   scripts:
@@ -2304,7 +2304,7 @@ instance_groups:
       bosh_containerization:
         run:
           capabilities: [ALL]
-        pod-security-policy: privileged                           
+          privileged: true                    
 - name: loggregator-agent
   type: colocated-container
   post_config_scripts:
