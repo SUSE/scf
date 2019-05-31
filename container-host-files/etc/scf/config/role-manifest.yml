@@ -1464,7 +1464,8 @@ instance_groups:
       properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
-           "port": 8083,
+           "tls_port": 8083,
+           "server_cert_domain_san": "log-cache",
            "tags": { "component":"log-cache" },
            "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
            "registration_interval": "20s" }
