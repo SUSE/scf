@@ -2112,6 +2112,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2169,6 +2171,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2214,7 +2218,14 @@ instance_groups:
         - name: eghealthport
           protocol: TCP
           external: 9105
-          internal: 9105  
+          internal: 9105
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged            
 - name: autoscaler-actors
   if_feature: autoscaler
   scripts:
@@ -2229,6 +2240,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2284,7 +2297,14 @@ instance_groups:
         - name: ophealthport
           protocol: TCP
           external: 9108
-          internal: 9108                 
+          internal: 9108
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+        pod-security-policy: privileged                           
 - name: loggregator-agent
   type: colocated-container
   post_config_scripts:
@@ -2912,6 +2932,7 @@ configuration:
     properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
+    properties.smoke_tests.autoscaler_endpoint: '"https://autoscaler.((DOMAIN))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.system_domain: '"((DOMAIN))"'
