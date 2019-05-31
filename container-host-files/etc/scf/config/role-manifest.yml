@@ -242,7 +242,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   - name: bits-service
     release: bits-service
@@ -282,7 +281,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -310,7 +308,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: adapter
   scripts:
@@ -332,7 +329,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -363,7 +359,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: nats
   environment_scripts:
@@ -416,7 +411,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: mysql
   scripts:
@@ -454,7 +448,6 @@ instance_groups:
             min: 1
             max: 7
             ha: 3
-          capabilities: []
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -493,7 +486,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   tags:
   - sequential-startup
@@ -551,7 +543,6 @@ instance_groups:
             min: 1
             max: 5
             ha: 2
-          capabilities: []
           memory: 2500
           virtual-cpus: 2
           healthcheck:
@@ -577,7 +568,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   tags:
   - sequential-startup
@@ -614,7 +604,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -643,7 +632,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   tags:
   - sequential-startup
@@ -782,7 +770,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   - name: gorouter
     release: routing
@@ -862,7 +849,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -897,7 +883,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -920,7 +905,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   - name: routing-api
     release: routing
@@ -994,7 +978,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 3800
           virtual-cpus: 4
           healthcheck:
@@ -1033,7 +1016,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   - name: statsd_injector
     release: statsd-injector
@@ -1085,7 +1067,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 750
           virtual-cpus: 2
           affinity:
@@ -1105,7 +1086,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: blobstore
   environment_scripts:
@@ -1131,7 +1111,6 @@ instance_groups:
             min: 1
             max: 1
             # Not HA capable; use external HA storage instead
-          capabilities: []
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -1153,7 +1132,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -1190,7 +1168,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 750
           virtual-cpus: 2
           affinity:
@@ -1212,7 +1189,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: log-cache-scheduler
   scripts:
@@ -1243,7 +1219,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 410
           virtual-cpus: 2
           affinity:
@@ -1263,7 +1238,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -1322,7 +1296,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 410
           virtual-cpus: 2
           healthcheck:
@@ -1365,7 +1338,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   - name: route_registrar
     release: routing
@@ -1491,7 +1463,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -1529,7 +1500,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -1644,7 +1614,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: diego-ssh
   unless_feature: eirini
@@ -1726,7 +1695,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [ALL]
           privileged: true
           memory: 128
           virtual-cpus: 2
@@ -1807,7 +1775,6 @@ instance_groups:
             max: 254
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
-          capabilities: [ALL]
           privileged: true
           service-account: garden-runc
           volumes:
@@ -1896,7 +1863,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
           service-account: tests-brain
 - name: acceptance-tests
   type: bosh-task
@@ -1918,7 +1884,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
   configuration:
     templates:
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
@@ -1941,7 +1906,6 @@ instance_groups:
             min: 0
             max: 1
           flight-stage: manual
-          capabilities: []
           service-account: tests-sits
   configuration:
     templates:
@@ -1979,13 +1943,11 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
   - name: bpm
     release: bpm
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -2002,7 +1964,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: pre-flight
-          capabilities: []
           memory: 256
           virtual-cpus: 1
           service-account: secret-generator
@@ -2033,7 +1994,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: post-flight
-          capabilities: []
           memory: 256
           virtual-cpus: 1
           service-account: eirini
@@ -2059,7 +2019,6 @@ instance_groups:
             min: 1
             max: 1
             ha: 1
-          capabilities: []
           persistent-volumes: []
           shared-volumes: []
           memory: 2000
@@ -2078,7 +2037,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -2177,7 +2135,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -2322,7 +2279,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
@@ -2376,7 +2332,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
   configuration:
     templates:
