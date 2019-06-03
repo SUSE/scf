@@ -34,6 +34,7 @@ export UAA_CLIENT_ID=cf
 
 : "${ISTIO_NAMESPACE:=istio-system}"
 : "${ISTIO_HELM_RELEASE:=istio}"
+: "${ISTIO_INIT_HELM_RELEASE:=istio-init}"
 
 : "${NGINX_INGRESS_CHART:=suse/nginx-ingress}"
 : "${NGINX_INGRESS_NAMESPACE:=nginx-ingress}"

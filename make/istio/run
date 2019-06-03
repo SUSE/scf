@@ -16,11 +16,36 @@ if [ ! -d "$istio_path" ]; then
     | tar zx -C "${istio_path}" --strip-components=1
 fi
 
+istio_init_chart="${istio_path}/install/kubernetes/helm/istio-init"
+istio_chart="${istio_path}/install/kubernetes/helm/istio"
 
-chart="${istio_path}/install/kubernetes/helm/istio"
+# Install all the Istio Custom Resource Definitions.
+istio_init_args=(
+  "${ISTIO_INIT_HELM_RELEASE}"
+  --namespace "${ISTIO_NAMESPACE}"
+  --timeout 900 
+)
+helm upgrade --install --wait "${istio_init_args[@]}" "${istio_init_chart}"
 
 # Install the Istio Helm chart.
-args=(
+# Create kiali secret.
+kiali_username_encoded=$(echo -n "${KIALI_USERNAME:-admin}" | base64)
+kiali_passphrase_encoded=$(echo -n "${KIALI_PASSPHRASE:-admin}" | base64)
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kiali
+  namespace: ${ISTIO_NAMESPACE}
+  labels:
+    app: kiali
+type: Opaque
+data:
+  username: ${kiali_username_encoded}
+  passphrase: ${kiali_passphrase_encoded}
+EOF
+
+istio_args=(
   "${ISTIO_HELM_RELEASE}"
   --namespace "${ISTIO_NAMESPACE}"
   --timeout 1800
@@ -28,12 +53,12 @@ args=(
 
 values=(
   --set "gateways.istio-ingressgateway.type=NodePort"
-  --set "gateways.istio-egressgateway.enabled=false"
   --set "tracing.enabled=true"
   --set "grafana.enabled=true"
+  --set "kiali.enabled=true"
 )
 
-helm upgrade --install "${args[@]}" "${chart}" "${values[@]}"
+helm upgrade --install "${istio_args[@]}" "${istio_chart}" "${values[@]}"
 
 path_with_istio="PATH=\"${istio_path}/bin:\${PATH}\""
 printf "Done. You might want to 'export %s' to get Istio binaries onto your \$PATH.\\n" "${path_with_istio}"
