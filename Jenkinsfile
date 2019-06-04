@@ -267,11 +267,11 @@ pipeline {
             defaultValue: 'cred-scf-email-notification',
             required: false,
         )
-        string(
-            name: 'RETRY_ATTEMPTS',
-            defaultValue: '0',
-            description: 'Number of attempts before marking test suite failure'
-        )
+        // string(
+        //     name: 'RETRY_ATTEMPTS',
+        //     defaultValue: '0',
+        //     description: 'Number of attempts before marking test suite failure'
+        // )
     }
 
     environment {
@@ -411,7 +411,6 @@ pipeline {
             }
           }
         }
-
         stage('tools') {
             steps {
                 sh '''
@@ -649,7 +648,7 @@ pipeline {
                     expression { return params.TEST_SMOKE }
                 }
                 steps {
-                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                    retry(count: 2) {
                         setBuildStatus('smoke', 'pending')
                         runTest('smoke-tests')
                     }
@@ -671,7 +670,7 @@ pipeline {
                     expression { return params.TEST_BRAIN }
                 }
                 steps {
-                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                    retry(count: 2) {
                         setBuildStatus('brain', 'pending')
                         runTest('acceptance-tests-brain')
                     }
@@ -693,7 +692,7 @@ pipeline {
                     expression { return params.TEST_SITS }
                 }
                 steps {
-                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                    retry(count: 2) {
                         setBuildStatus('sits', 'pending')
                         runTest('sync-integration-tests')
                     }
@@ -715,7 +714,7 @@ pipeline {
                     expression { return params.TEST_CATS }
                 }
                 steps {
-                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                    retry(count: 2) {
                         setBuildStatus('cats', 'pending')
                         runTest('acceptance-tests')
                     }
