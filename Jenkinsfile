@@ -645,13 +645,14 @@ pipeline {
         }
 
         stage('smoke') {
-            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_SMOKE }
                 }
                 steps {
-                    setBuildStatus('smoke', 'pending')
-                    runTest('smoke-tests')
+                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                        setBuildStatus('smoke', 'pending')
+                        runTest('smoke-tests')
+                    }
                 }
                 post {
                     success {
@@ -663,17 +664,17 @@ pipeline {
                         kubectlGetAll(uaaNamespace)
                     }
                 }
-            }
         }
 
         stage('brain') {
-            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_BRAIN }
                 }
                 steps {
-                    setBuildStatus('brain', 'pending')
-                    runTest('acceptance-tests-brain')
+                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                        setBuildStatus('brain', 'pending')
+                        runTest('acceptance-tests-brain')
+                    }
                 }
                 post {
                     success {
@@ -685,17 +686,17 @@ pipeline {
                         kubectlGetAll(uaaNamespace)
                     }
                 }
-            }
         }
 
         stage('sits') {
-            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_SITS }
                 }
                 steps {
-                    setBuildStatus('sits', 'pending')
-                    runTest('sync-integration-tests')
+                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                        setBuildStatus('sits', 'pending')
+                        runTest('sync-integration-tests')
+                    }
                 }
                 post {
                     success {
@@ -707,17 +708,17 @@ pipeline {
                         kubectlGetAll(uaaNamespace)
                     }
                 }
-            }
         }
 
         stage('cats') {
-            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_CATS }
                 }
                 steps {
-                    setBuildStatus('cats', 'pending')
-                    runTest('acceptance-tests')
+                    retry(count: params.RETRY_ATTEMPTS.toInteger()) {
+                        setBuildStatus('cats', 'pending')
+                        runTest('acceptance-tests')
+                    }
                 }
                 post {
                     success {
@@ -729,7 +730,6 @@ pipeline {
                         kubectlGetAll(uaaNamespace)
                     }
                 }
-            }
         }
 
         stage('tar_sources') {
