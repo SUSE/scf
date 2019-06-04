@@ -645,7 +645,7 @@ pipeline {
         }
 
         stage('smoke') {
-            retry(count: params.RETRY_ATTEMPTS){
+            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_SMOKE }
                 }
@@ -667,7 +667,7 @@ pipeline {
         }
 
         stage('brain') {
-            retry(count: params.RETRY_ATTEMPTS){
+            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_BRAIN }
                 }
@@ -689,7 +689,7 @@ pipeline {
         }
 
         stage('sits') {
-            retry(count: params.RETRY_ATTEMPTS){
+            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_SITS }
                 }
@@ -711,7 +711,7 @@ pipeline {
         }
 
         stage('cats') {
-            retry(count: params.RETRY_ATTEMPTS){
+            retry(count: params.RETRY_ATTEMPTS.toInteger()){
                 when {
                     expression { return params.TEST_CATS }
                 }
