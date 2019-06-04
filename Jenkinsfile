@@ -267,6 +267,11 @@ pipeline {
             defaultValue: 'cred-scf-email-notification',
             required: false,
         )
+        string(
+            name: 'RETRY_ATTEMPTS',
+            defaultValue: '0',
+            description: 'Number of attempts before marking test suite failure'
+        )
     }
 
     environment {
@@ -640,81 +645,89 @@ pipeline {
         }
 
         stage('smoke') {
-            when {
-                expression { return params.TEST_SMOKE }
-            }
-            steps {
-                setBuildStatus('smoke', 'pending')
-                runTest('smoke-tests')
-            }
-            post {
-                success {
-                    setBuildStatus('smoke', 'success')
+            retry(count: params.RETRY_ATTEMPTS){
+                when {
+                    expression { return params.TEST_SMOKE }
                 }
-                failure {
-                    setBuildStatus('smoke', 'failure')
-                    kubectlGetAll(cfNamespace)
-                    kubectlGetAll(uaaNamespace)
+                steps {
+                    setBuildStatus('smoke', 'pending')
+                    runTest('smoke-tests')
+                }
+                post {
+                    success {
+                        setBuildStatus('smoke', 'success')
+                    }
+                    failure {
+                        setBuildStatus('smoke', 'failure')
+                        kubectlGetAll(cfNamespace)
+                        kubectlGetAll(uaaNamespace)
+                    }
                 }
             }
         }
 
         stage('brain') {
-            when {
-                expression { return params.TEST_BRAIN }
-            }
-            steps {
-                setBuildStatus('brain', 'pending')
-                runTest('acceptance-tests-brain')
-            }
-            post {
-                success {
-                    setBuildStatus('brain', 'success')
+            retry(count: params.RETRY_ATTEMPTS){
+                when {
+                    expression { return params.TEST_BRAIN }
                 }
-                failure {
-                    setBuildStatus('brain', 'failure')
-                    kubectlGetAll(cfNamespace)
-                    kubectlGetAll(uaaNamespace)
+                steps {
+                    setBuildStatus('brain', 'pending')
+                    runTest('acceptance-tests-brain')
+                }
+                post {
+                    success {
+                        setBuildStatus('brain', 'success')
+                    }
+                    failure {
+                        setBuildStatus('brain', 'failure')
+                        kubectlGetAll(cfNamespace)
+                        kubectlGetAll(uaaNamespace)
+                    }
                 }
             }
         }
 
         stage('sits') {
-            when {
-                expression { return params.TEST_SITS }
-            }
-            steps {
-                setBuildStatus('sits', 'pending')
-                runTest('sync-integration-tests')
-            }
-            post {
-                success {
-                    setBuildStatus('sits', 'success')
+            retry(count: params.RETRY_ATTEMPTS){
+                when {
+                    expression { return params.TEST_SITS }
                 }
-                failure {
-                    setBuildStatus('sits', 'failure')
-                    kubectlGetAll(cfNamespace)
-                    kubectlGetAll(uaaNamespace)
+                steps {
+                    setBuildStatus('sits', 'pending')
+                    runTest('sync-integration-tests')
+                }
+                post {
+                    success {
+                        setBuildStatus('sits', 'success')
+                    }
+                    failure {
+                        setBuildStatus('sits', 'failure')
+                        kubectlGetAll(cfNamespace)
+                        kubectlGetAll(uaaNamespace)
+                    }
                 }
             }
         }
 
         stage('cats') {
-            when {
-                expression { return params.TEST_CATS }
-            }
-            steps {
-                setBuildStatus('cats', 'pending')
-                runTest('acceptance-tests')
-            }
-            post {
-                success {
-                    setBuildStatus('cats', 'success')
+            retry(count: params.RETRY_ATTEMPTS){
+                when {
+                    expression { return params.TEST_CATS }
                 }
-                failure {
-                    setBuildStatus('cats', 'failure')
-                    kubectlGetAll(cfNamespace)
-                    kubectlGetAll(uaaNamespace)
+                steps {
+                    setBuildStatus('cats', 'pending')
+                    runTest('acceptance-tests')
+                }
+                post {
+                    success {
+                        setBuildStatus('cats', 'success')
+                    }
+                    failure {
+                        setBuildStatus('cats', 'failure')
+                        kubectlGetAll(cfNamespace)
+                        kubectlGetAll(uaaNamespace)
+                    }
                 }
             }
         }
