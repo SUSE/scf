@@ -31,6 +31,7 @@ name: cf
 version: ${GIT_TAG}
 EOF
     cp chart-parts/* "${FISSILE_OUTPUT_DIR}/templates/"
+    ruby bin/image-list.rb "${FISSILE_OUTPUT_DIR}"
 elif [ "${BUILD_TARGET}" = "kube" ]; then
     # This is a small hack to make the output of make kube be compatible with K8s 1.6
     perl -p -i -e 's@extensions/v1beta1@batch/v1@' $(grep -rl 'kind: "Job"' "${FISSILE_OUTPUT_DIR}")
