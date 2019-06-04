@@ -37,9 +37,9 @@ properties:
     # include_v3: false
 
     # timeouts
-    default_timeout:   300 # 5 minutes
-    cf_push_timeout:   300 # 5 minutes
-    long_curl_timeout: 300 # 5 minutes
+    default_timeout:   600 # 10 minutes
+    cf_push_timeout:   600 # 10 minutes
+    long_curl_timeout: 600 # 10 minutes
   acceptance_tests_brain:
     user: admin
     org: test-brain-org
