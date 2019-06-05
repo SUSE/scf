@@ -2108,6 +2108,8 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
   - name: apiserver
     release: app-autoscaler
     properties:
@@ -2211,7 +2213,7 @@ instance_groups:
     properties:
       bosh_containerization:    
         ports:
-        - name: eventgen  # eventgenereatorport
+        - name: eventgen  # eventgeneratorport
           protocol: TCP
           external: 7105
           internal: 7105
@@ -2224,7 +2226,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true
 - name: autoscaler-actors
   if_feature: autoscaler
@@ -2303,7 +2304,6 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
           privileged: true                    
 - name: loggregator-agent
   type: colocated-container
@@ -3102,8 +3102,7 @@ variables:
 - name: AUTOSCALER_DB_ADDRESS
   options:
     default: "autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
-    description: The password for the Autoscaler postgres database.
-    required: true
+    description: The db address for the Autoscaler postgres database.
 - name: AUTOSCALER_DB_PASSWORD
   options:
     secret: true
