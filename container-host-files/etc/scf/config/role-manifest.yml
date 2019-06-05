@@ -1886,6 +1886,7 @@ instance_groups:
           flight-stage: manual
   configuration:
     templates:
+      properties.acceptance_tests.flake_attempts: '"((ACCEPTANCE_TEST_FLAKE_ATTEMPTS))"'
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
 - name: sync-integration-tests
@@ -3066,6 +3067,12 @@ configuration:
     # Really a loggregator_agent job property
     properties.zone: '"((KUBE_AZ))"'
 variables:
+- name: ACCEPTANCE_TEST_FLAKE_ATTEMPTS
+  options:
+    default: 3
+    description: >
+      The number of times Ginkgo will run a test before treating it as a failure.
+      Individual failed runs will still be reported in the test output.
 - name: ACCEPTANCE_TEST_NODES
   options:
     default: 4

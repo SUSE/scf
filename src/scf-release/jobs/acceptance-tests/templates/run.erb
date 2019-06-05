@@ -32,6 +32,7 @@ echo "Running acceptance tests..."
 
 EXITSTATUS=0
 
+flakeAttempts=<%= properties.acceptance_tests.flake_attempts %>
 nodes=<%= properties.acceptance_tests.nodes %>
 
 skips=
@@ -48,7 +49,7 @@ fi
 
 set +e
 bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose \
-  -nodes=$nodes -skipPackage=helpers $skips -keepGoing "${focus[@]}" \
+  -flakeAttempts=$flakeAttempts -nodes=$nodes -skipPackage=helpers $skips -keepGoing "${focus[@]}" \
   > >( tee /var/vcap/sys/log/acceptance_tests.log ) \
   2> /var/vcap/sys/log/acceptance_tests.err.log
 EXITSTATUS=$?
