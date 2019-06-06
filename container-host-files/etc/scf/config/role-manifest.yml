@@ -112,9 +112,9 @@ releases:
   version: "1.4.43.1"
   sha1: "382e54325bfdafee052d6456294e1a6a5fddd2f5"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.12.1.tgz"
-  version: "1.0.12.1"
-  sha1: "b0919ebffda27c8a0af7f24e25fe037a27eca015"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.13.1.tgz"
+  version: "1.0.13.1"
+  sha1: "8f5ed12e477a5f4a6e17442d21e7ae5550d8266e"
 - name: dotnet-core-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.12.1.tgz"
   version: "2.2.12.1"
