@@ -1,1 +1,6 @@
 package(default_visibility = ["//visibility:public"])
+
+gazelle(
+    name = "gazelle",
+    prefix = "github.com/SUSE/scf",
+)
