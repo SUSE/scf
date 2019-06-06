@@ -23,7 +23,7 @@ else
     # the diego-cell instance group.
 
     QUERY="jsonpath={.metadata.labels.${PZ_LABEL_NAME}}"
-    NODE_PZ=$("${kubectl}" get node "${node}" -o "${QUERY}" || true)
+    NODE_PZ=$("${kubectl}" get node "${node}" -o "${QUERY}")
 
     if test -z "${NODE_PZ}"
     then
