@@ -48,6 +48,7 @@ properties:
     cf:
       client_id: app_autoscaler
       grant_type: client_credentials
+      skip_ssl_validation: true
     api_server:
       service_offering_enabled: false
       require_consul: false
