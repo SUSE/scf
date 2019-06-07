@@ -2,7 +2,8 @@
 
 set -e -x
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
+GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
+export GOROOT
 export PATH=${GOROOT}/bin:${PATH}
 
 export PATH=/var/vcap/packages/cli/bin:${PATH} # put the cli on the path
@@ -23,8 +24,8 @@ rm -rf /var/vcap/sys/log/acceptance_tests/*
 cd /var/vcap/packages/acceptance-tests/src/github.com/cloudfoundry/cf-acceptance-tests
 
 echo '################################################################################################################'
-echo $(go version)
-echo CONFIG=$CONFIG
+go version
+echo CONFIG=${CONFIG}
 env | sort
 echo '################################################################################################################'
 
@@ -32,6 +33,7 @@ echo "Running acceptance tests..."
 
 EXITSTATUS=0
 
+flakeAttempts=<%= properties.acceptance_tests.flake_attempts %>
 nodes=<%= properties.acceptance_tests.nodes %>
 
 skips=
@@ -47,20 +49,21 @@ if test -n "${CATS_FOCUS:-}" ; then
 fi
 
 set +e
-bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose \
-  -nodes=$nodes -skipPackage=helpers $skips -keepGoing "${focus[@]}" \
+# shellcheck disable=2065
+bin/test -r ${noColorFlag} -slowSpecThreshold=120 -randomizeAllSpecs ${verbose} \
+  -flakeAttempts=${flakeAttempts} -nodes=${nodes} -skipPackage=helpers ${skips} -keepGoing "${focus[@]}" \
   > >( tee /var/vcap/sys/log/acceptance_tests.log ) \
   2> /var/vcap/sys/log/acceptance_tests.err.log
 EXITSTATUS=$?
 set -e
 
-echo "Acceptance Tests Complete; exit status: $EXITSTATUS"
+echo "Acceptance Tests Complete; exit status: ${EXITSTATUS}"
 
 for i in /var/vcap/sys/log/acceptance_tests/*; do
-  if [ -e "$i" ]
+  if [ -e "${i}" ]
   then
-    mv $i $i.log # needed to make download-logs work
+    mv "${i}" "${i}.log" # needed to make download-logs work
   fi
 done
 
-exit $EXITSTATUS
+exit ${EXITSTATUS}

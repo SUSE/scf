@@ -23,7 +23,7 @@ rm -rf "/var/vcap/sys/log/sync_integration_tests/*"
 cd "${GOPATH}/src/code.cloudfoundry.org/sync-integration-tests"
 
 echo '################################################################################################################'
-echo "$(go version)"
+go version
 echo "CONFIG=${CONFIG}"
 env | sort
 echo '################################################################################################################'
@@ -38,6 +38,7 @@ ginkgo_options=(
   -keepGoing
   -slowSpecThreshold='<%= p("sync_integration_tests.setup.slow_spec_threshold") %>'
   -nodes='<%= p("sync_integration_tests.setup.nodes") %>'
+  -flakeAttempts='<%= p("sync_integration_tests.setup.flake_attempts") %>'
 <% if_p("sync_integration_tests.setup.skip") do |skip| %>
   <%= "-skip='#{skip}'" if skip != "" %>
 <% end %>
@@ -54,4 +55,4 @@ ginkgo ${ginkgo_options[@]} \
   1> >( tee /var/vcap/sys/log/sync_integration_tests/out.log ) \
   2> >( tee /var/vcap/sys/log/sync_integration_tests/err.log )
 EXITSTATUS=$?
-exit $EXITSTATUS
+exit ${EXITSTATUS}
