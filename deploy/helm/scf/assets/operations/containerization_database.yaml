@@ -1,0 +1,53 @@
+- type: replace
+  path: /instance_groups/name=database/persistent_disk_type
+  value: standard
+- type: replace
+  path: /instance_groups/name=database/persistent_disk?
+  value: 20480
+- type: replace
+  path: /instance_groups/name=database/jobs/name=pxc-mysql/properties/bosh_containerization?
+  value:
+    ports:
+    - name: pxc-mysql
+      protocol: TCP
+      internal: 13306
+    - name: galera-init-status
+      protocol: TCP
+      internal: 8114
+    - name: galera-tcp
+      protocol: TCP
+      internal: 4567
+    - name: galera-agent
+      protocol: TCP
+      internal: 2822
+    - name: galera-agent-healthcheck
+      protocol: TCP
+      internal: 9200
+    - name: cf-mysql-proxy-aggregator-api
+      protocol: TCP
+      internal: 8082
+    - name: cf-mysql-proxy-api
+      protocol: TCP
+      internal: 8083
+    - name: pxc-mysql-proxy
+      protocol: TCP
+      internal: 3306
+    - name: proxy-healthcheck
+      protocol: TCP
+      internal: 1936
+    run:
+      scaling:
+        min: 1
+        max: 7
+        ha: 3
+      capabilities: []
+      memory: 2500
+      virtual-cpus: 2
+      healthcheck:
+        readiness:
+          command:
+          - "[[ $(curl --silent http://${HOSTNAME}:9200/api/v1/status | jq '.healthy') == true ]]"
+- type: remove
+  path: /instance_groups/name=database/jobs/name=route_registrar
+- type: remove
+  path: /instance_groups/name=database/jobs/name=cluster-health-logger

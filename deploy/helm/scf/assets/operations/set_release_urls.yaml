@@ -122,7 +122,7 @@
 
 - type: replace
   path: /releases/name=pxc/url
-  value: docker.io/cfcontainerization
+  value: splatform
 - type: remove
   path: /releases/name=pxc/sha1
 

@@ -1,0 +1,17 @@
+- type: replace
+  path: /releases/name=routing
+  value:
+    name: routing
+    url: ~
+    version: 0.188.0
+    sha1: ~
+- type: replace
+  path: /releases/name=pxc
+  value:
+    name: pxc
+    url: ~
+    version: 0.17.0-2.16.4.1-dirty-75.g0370c35f
+    sha1: ~
+    stemcell:
+      os: opensuse-42.3
+      version: 36.g03b4653-30.80-7.0.0_332.g0d8469bb

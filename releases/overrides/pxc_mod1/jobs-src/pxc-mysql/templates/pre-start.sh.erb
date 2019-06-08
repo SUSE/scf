@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+<% if p('pxc_enabled') == true %>
+set -e
+set -o pipefail
+
+## NOTE: This script MUST ALWAYS run as root user.
+
+export TMPDIR=/var/vcap/data/pxc-mysql/tmp
+
+datadir=/var/vcap/store/pxc-mysql
+LOG_DIR=/var/vcap/sys/log/pxc-mysql
+PXC_JOB_DIR=/var/vcap/jobs/pxc-mysql
+RUN_DIR=/var/vcap/sys/run/pxc-ctl
+MYSQL_RUN_DIR=/var/vcap/sys/run/pxc-mysql
+SECURE_FILE_PRIV=/var/vcap/data/pxc-mysql/files
+SERVER_AUDIT_LOG_DIR=/var/vcap/store/mysql_audit_logs
+SLOW_QUERY_LOG_FILE=${LOG_DIR}/mysql_slow_query.log
+
+source /var/vcap/packages/pxc-utils/logging.sh
+source /var/vcap/packages/pxc-utils/pid_utils.sh
+
+shopt -s nullglob
+for script in /var/vcap/jobs/*/bin/disks/wait; do
+    $script
+    if [ $? -ne 0 ]; then
+        echo "failure"
+        exit 1
+    fi
+done
+shopt -u nullglob
+
+if [[ ! -d "${RUN_DIR}" ]]; then
+  mkdir -p ${RUN_DIR}
+fi
+chown -R vcap:vcap ${RUN_DIR}
+
+if [[ ! -d "${MYSQL_RUN_DIR}" ]]; then
+  mkdir -p ${MYSQL_RUN_DIR}
+fi
+chown -R vcap:vcap ${MYSQL_RUN_DIR}
+
+log "pre-start setup script: set up ENV and logging"
+
+<% if p('engine_config.audit_logs.enabled') %>
+mkdir -p ${SERVER_AUDIT_LOG_DIR}
+chown vcap:vcap ${SERVER_AUDIT_LOG_DIR}
+
+# logrotate audit logs
+ln -sf /var/vcap/jobs/pxc-mysql/config/mysql_clustered_audit_logs.logrotate /etc/logrotate.d/mysql_clustered_audit_logs
+<% end %>
+
+if [[ ! -d "${TMPDIR}" ]]; then
+  log "pre-start setup script: directory ${TMPDIR} does not exist, creating it now"
+  mkdir -p ${TMPDIR}
+fi
+chown -R vcap:vcap ${TMPDIR}
+
+mkdir -p ${SECURE_FILE_PRIV}
+chmod 0750 ${SECURE_FILE_PRIV}
+chown -R vcap:vcap ${SECURE_FILE_PRIV}
+
+touch ${SLOW_QUERY_LOG_FILE}
+date >> ${SLOW_QUERY_LOG_FILE} 2>> ${SLOW_QUERY_LOG_FILE}
+
+mkdir -p ${LOG_DIR}
+chown -R vcap:vcap ${LOG_DIR}
+
+# add mysql to path
+if [[ ! -f /usr/local/bin/mysql ]]; then
+  log "Adding mysql to path"
+  ln -sf /var/vcap/packages/pxc/bin/mysql /usr/local/bin
+fi
+
+
+ /var/vcap/packages/auto-tune-mysql/bin/generate-auto-tune-mysql \
+    -f /var/vcap/jobs/pxc-mysql/config/auto-tune.cnf \
+    -P <%= p('engine_config.innodb_buffer_pool_size_percent') %>
+
+ln -sf ${PXC_JOB_DIR}/config/pxc-sudoers /etc/sudoers.d/pxc-sudoers
+chmod 440 /etc/sudoers.d/pxc-sudoers
+
+rm -f /etc/profile.d/disable_mysql_cli_history.sh
+<% unless p('cli_history') %>
+ln -sf ${PXC_JOB_DIR}/config/disable_mysql_cli_history.sh /etc/profile.d/disable_mysql_cli_history.sh
+<% end %>
+
+ulimit -n 1048576
+
+
+function check_mysql_disk_persistence() {
+  if [[ (! -d /var/vcap/store) || $(mountpoint -d /var/vcap/store) == $(mountpoint -d /) ]]
+  then
+    err "Persistent disk not found"
+    exit 1
+  fi
+}
+
+function check_mysql_disk_capacity() {
+  local datadir_capacity=$(df --block-size=1M --output=target,size /var/vcap/store | awk ' NR==2 { print $2 } ')
+  local minimum_required_space_in_mb=5000
+  if [[ "${datadir_capacity}" -lt "${minimum_required_space_in_mb}" ]]
+  then
+    err "Datadir capacity is ${datadir_capacity}MB, which is under the minimum required: ${minimum_required_space_in_mb}MB"
+    exit 1
+  fi
+}
+
+check_mysql_disk_persistence
+check_mysql_disk_capacity
+
+# move the datadir
+if [ -d "/var/vcap/store/mysql-clustered" ]; then
+  mv "/var/vcap/store/mysql-clustered" "${datadir}"
+fi
+
+# remove the datadir if it's empty, so we initialize on it later.
+if rmdir "${datadir}" ; then
+  log "pre-start: empty datadir ${datadir} removed"
+fi
+
+if [ ! -d "${datadir}" ]; then
+  log "pre-start setup script: making ${datadir} and running /var/vcap/packages/pxc/bin/mysqld"
+  mkdir -p ${datadir}
+  /var/vcap/packages/pxc/bin/mysqld \
+         --defaults-file=/var/vcap/jobs/pxc-mysql/config/my.cnf \
+         --initialize
+fi
+chown -R vcap:vcap ${datadir}
+
+rm -f /etc/my.cnf
+<% end %>

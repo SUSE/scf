@@ -14,3 +14,7 @@ load(
     container_repositories = "repositories",
 )
 container_repositories()
+
+load("//releases:releases.bzl", "pull_releases")
+
+pull_releases()

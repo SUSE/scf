@@ -1,0 +1,9 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//releases/rules:custom_release.bzl", "custom_release")
+
+custom_release(
+    name = "pxc_mod1",
+    base_release = "pxc",
+    overrides = ["//releases/overrides/%s:overrides" % "pxc_mod1"],
+)
