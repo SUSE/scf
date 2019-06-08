@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+source environment
+
+: "${GIT_DESCRIBE:=$(git describe --tags --long || (git tag -a v0.0.0 -m "tag v0.0.0"; git describe --tags --long))}"
+
+: "${GIT_TAG:=$(echo "${GIT_DESCRIBE}" | awk -F - '{ print $1 }' )}"
+[ -z "$(git status --porcelain)" ] || GIT_TAG="${GIT_TAG}-dirty"
+: "${GIT_COMMITS:=$(echo "${GIT_DESCRIBE}" | awk -F - '{ print $2 }' )}"
+: "${GIT_SHA:=$(echo "${GIT_DESCRIBE}" | awk -F - '{ print $3 }' )}"
+
+ARTIFACT_VERSION="${GIT_TAG}+${GIT_COMMITS}.${GIT_SHA}"
+VERSION_TAG=${ARTIFACT_VERSION//+/-}
+
+echo STABLE_DOCKER_ORGANIZATION "${DOCKER_ORGANIZATION}"
+echo STABLE_ARTIFACT_VERSION "${ARTIFACT_VERSION}"
+echo STABLE_VERSION_TAG "${VERSION_TAG}"

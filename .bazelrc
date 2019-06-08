@@ -1,0 +1,2 @@
+build --workspace_status_command=bin/bazel_status
+run --workspace_status_command=bin/bazel_status
