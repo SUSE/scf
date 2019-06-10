@@ -1,32 +1,13 @@
-  {
-    "instanceMinCount":1,
-    "instanceMaxCount":3,
-    "policyTriggers":[{
-        "metricType":"Memory",
-        "statWindow":300,
-        "lowerThreshold":9,
-        "upperThreshold":10,
-        "instanceStepCountDown":1,
-        "instanceStepCountUp":1,
-        "stepDownCoolDownSecs":120,
-        "stepUpCoolDownSecs":120
-    }],
-    "schedules": {
-        "timezone":"(GMT -07:00) America/Vancouver",
-        "recurringSchedule":[{
-          "startTime":"00:00",
-          "endTime":"23:59",
-          "repeatOn":"[\"1\",\"2\",\"3\",\"4\",\"5\"]",
-          "minInstCount":2,
-          "maxInstCount":3
-          }],
-        "specificDate":[{
-           "startDate":"2017-06-19",
-           "startTime":"00:00",
-           "endDate":"2017-06-19",
-           "endTime":"23:59",
-           "minInstCount":1,
-           "maxInstCount":3
-        }]
-     }
-  }
+{
+  "instance_min_count": 1,
+  "instance_max_count": 4,
+  "scaling_rules": [{
+      "metric_type": "memoryused",
+      "stat_window_secs": 60,
+      "breach_duration_secs": 60,
+      "threshold": 10,
+      "operator": ">=",
+      "cool_down_secs": 300,
+      "adjustment": "+1"
+  }]
+}
