@@ -129,31 +129,4 @@ status "Persi NFS configuration complete."
 status "Remove temporary users"
 remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
-
-<% if p("scf.eirini.enabled") %>
-status "Configuring Eirini"
-
-scf_secrets="$(/var/vcap/packages/kubectl/bin/kubectl get secret "<%= p("scf.secrets_generation_name") %>" --namespace="$KUBERNETES_NAMESPACE" --export -o yaml | grep -E 'cc-.*|internal-ca-.*')"
-cat <<EOT >> secret.yml
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: scf-credentials
-type: Opaque
-data:
-${scf_secrets}
-EOT
-/var/vcap/packages/kubectl/bin/kubectl apply -f secret.yml --namespace "<%= p("scf.eirini.namespace") %>"
-
-status "Setting up Eirini daemonsets"
-
-/var/vcap/packages/kubectl/bin/kubectl apply -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml
-
-<% else %>
-
-/var/vcap/packages/kubectl/bin/kubectl delete -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml || true
-
-<% end %>
-
 status "SCF configuration complete."

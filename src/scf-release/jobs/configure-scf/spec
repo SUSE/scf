@@ -11,7 +11,6 @@ packages:
 
 templates:
   run.erb: bin/run
-  eirini-daemonset.yaml.erb: config/eirini-daemonset.yaml
 
 properties:
   cf.insecure_api_url:
@@ -73,3 +72,12 @@ properties:
     description: "Eirini's image registry public address"
   scf.eirini.enabled:
     description: "Whether Eirini is enabled or not"
+  eirini-persi-broker.url:
+    description: 'Internal URL of the Persi NFS broker'
+  eirini-persi-broker.auth_username:
+    description: "basic auth username to verify on incoming Service Broker requests"
+    default: "admin"
+  eirini-persi-broker.auth_password:
+    description: "basic auth password to verify on incoming Service Broker requests"
+  eirini-persi-broker.service_plans:
+    description: 'Broker service plans'
