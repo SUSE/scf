@@ -2002,6 +2002,22 @@ instance_groups:
       properties.scf.secrets.is_install: ((HELM_IS_INSTALL))
       properties.scf.secrets.name: ((KUBE_SECRETS_GENERATION_NAME))
       properties.scf.secrets.namespace: ((KUBERNETES_NAMESPACE))
+- name: configure-eirini
+  if_feature: eirini
+  type: bosh-task
+  jobs:
+  - name: configure-eirini
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+          flight-stage: post-flight
+          memory: 256
+          virtual-cpus: 1
+          service-account: eirini
 - name: post-deployment-setup
   type: bosh-task
   jobs:
@@ -2011,10 +2027,6 @@ instance_groups:
     release: scf
   - name: uaa-create-user
     release: scf
-  # TODO: Only configure eirini if eirini is enabled!!!!
-  if_feature: eirini
-  - name: configure-eirini
-    release: eirini
   - name: configure-scf
     release: scf
     properties:
@@ -2026,7 +2038,6 @@ instance_groups:
           flight-stage: post-flight
           memory: 256
           virtual-cpus: 1
-          service-account: eirini
 - name: credhub-user
   if_feature: credhub
   environment_scripts:
@@ -2496,6 +2507,25 @@ configuration:
         resources: [storageclasses]
         verbs: [get, list]
     pod-security-policies:
+      eirini:
+        allowPrivilegeEscalation: true
+        allowedCapabilities: ["*"]
+        defaultAllowPrivilegeEscalation: true
+        fsGroup: { rule: RunAsAny }
+        hostPorts: [{ min: 0, max: 65535 }]
+        privileged: true
+        runAsUser: { rule: RunAsAny }
+        seLinux: { rule: RunAsAny }
+        supplementalGroups: { rule: RunAsAny }
+        volumes:
+        - configMap
+        - secret
+        - emptyDir
+        - hostPath
+        - downwardAPI
+        - projected
+        - persistentVolumeClaim
+        - nfs
       default:
         allowPrivilegeEscalation: true
         allowedCapabilities: ["*"]
@@ -2510,7 +2540,6 @@ configuration:
         - configMap
         - secret
         - emptyDir
-        - hostPath # TODO: Do this only if Eirini is enabled! (fluentd daemonset needs this)
         - downwardAPI
         - projected
         - persistentVolumeClaim
