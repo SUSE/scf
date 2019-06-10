@@ -152,9 +152,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.6.tgz"
-  version: "0.0.6"
-  sha1: "6f8ac2c937b8413f833b726e1e578d8c58becb8d"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.7.tgz"
+  version: "0.0.7"
+  sha1: "a55d7e423a9cc427bb36ee5ad190fd1249b29d3d"
 
 instance_groups:
 - name: eirini
@@ -165,6 +165,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
@@ -172,6 +174,13 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
   - name: eirini-persi-broker
     release: eirini
     properties:
@@ -1988,6 +1997,10 @@ instance_groups:
     release: scf
   - name: uaa-create-user
     release: scf
+  # TODO: Only configure eirini if eirini is enabled!!!!
+  if_feature: eirini
+  - name: configure-eirini
+    release: eirini
   - name: configure-scf
     release: scf
     properties:
@@ -2488,6 +2501,7 @@ configuration:
         - configMap
         - secret
         - emptyDir
+        - hostPath # TODO: Do this only if Eirini is enabled! (fluentd daemonset needs this)
         - downwardAPI
         - projected
         - persistentVolumeClaim
@@ -2885,6 +2899,11 @@ configuration:
     properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
     properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
+    properties.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
+    properties.eirini.registry.address: "registry.((DOMAIN))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -3008,13 +3027,8 @@ configuration:
     properties.scalablesyslog.scheduler.tls.client.cert: '"((SYSLOG_SCHED_CERT))"'
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_CERT_KEY))"'
 
-    properties.scf.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
-    properties.scf.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
-    properties.scf.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
-    properties.scf.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
     properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.scf.eirini.registry.address: "registry.((DOMAIN))"
 
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.scf.secrets_generation_name: "((KUBE_SECRETS_GENERATION_NAME))"
@@ -4081,12 +4095,12 @@ variables:
     description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_FLUENTD_IMAGE
   options:
-    default: 'eirini/loggregator-fluentd:0.1.0'
+    default: 'eirini/loggregator-fluentd:0.3.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
     imagename: true
 - name: EIRINI_IMAGE
   options:
-    default: 'eirini/recipe:ci-24.0.0'
+    default: 'eirini/recipe:ci-44.0.0'
     description: "Docker Image used for staging apps deployed using Eirini"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
