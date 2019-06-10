@@ -1469,7 +1469,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
+              - curl --silent --fail --head --insecure https://${HOSTNAME}:8081/set-cookie
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -1504,7 +1504,12 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: >
+        [{ "name": "doppler",
+           "tls_port": 8081,
+           "registration_interval": "20s",
+           "server_cert_domain_san": "doppler",
+           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] }]
 - name: diego-brain
   unless_feature: eirini
   environment_scripts:
@@ -2319,6 +2324,8 @@ instance_groups:
   - name: loggregator_agent
     release: loggregator-agent
     properties:
+      grpc_port: 3459
+      disable_udp: true
       bosh_containerization:
         run:
           scaling:
@@ -2641,7 +2648,7 @@ configuration:
     properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_CRT_KEY))"'
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.traffic_controller_url: wss://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2681,7 +2688,7 @@ configuration:
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.loggregator.internal_url: http://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.cc.loggregator.internal_url: https://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3926,6 +3933,9 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "doppler"
+    - "log-api-loggregator-trafficcontroller.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
     description: TLS cert for outgoing dropsonde connection
     required: true
   type: certificate
