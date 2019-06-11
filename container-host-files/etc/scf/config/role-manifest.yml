@@ -2908,6 +2908,8 @@ configuration:
     properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
+    properties.eirini.fluentd.varlog_hostpath: "((EIRINI_FLUENTD_VARLOG_HOSTPATH))"
+    properties.eirini.fluentd.varlog_hostpath_mount_point: "((EIRINI_FLUENTD_VARLOG_HOSTPATH_MOUNT_POINT))"
     properties.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
     properties.eirini.registry.address: "registry.((DOMAIN))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
@@ -3758,6 +3760,14 @@ variables:
     default: 'eirini/loggregator-fluentd:0.3.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
     imagename: true
+- name: EIRINI_FLUENTD_VARLOG_HOSTPATH
+  options:
+    default: ''
+    description: "The directory where the logs are stored on the node when on hostPath"
+- name: EIRINI_FLUENTD_VARLOG_HOSTPATH_MOUNT_POINT
+  options:
+    default: ''
+    description: "The path inside the fluentd pod where the log hostpath should be mounted"
 - name: EIRINI_IMAGE
   options:
     default: 'eirini/recipe:ci-44.0.0'
