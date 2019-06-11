@@ -152,9 +152,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.7.tgz"
+  url: "https://tmp-aljfkdjadk-eirinifs-bucket.s3.eu-central-1.amazonaws.com/eirini-dev-2431858.tgz"
   version: "0.0.7"
-  sha1: "a55d7e423a9cc427bb36ee5ad190fd1249b29d3d"
+  sha1: "90de83880933cb714be3cc9223c858f756b4be21"
 - name: uaa
   version: 68.0
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
@@ -2911,7 +2911,8 @@ configuration:
     properties.eirini.fluentd.varlog_hostpath: "((EIRINI_FLUENTD_VARLOG_HOSTPATH))"
     properties.eirini.fluentd.varlog_hostpath_mount_point: "((EIRINI_FLUENTD_VARLOG_HOSTPATH_MOUNT_POINT))"
     properties.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
-    properties.eirini.registry.address: "registry.((DOMAIN))"
+    properties.eirini.source_secrets_name: "((KUBE_SECRETS_GENERATION_NAME))"
+    properties.eirini.source_secrets_namespace: "((KUBERNETES_NAMESPACE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -2985,6 +2986,7 @@ configuration:
     properties.opi.cc_internal_api: "https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023"
     properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
     properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
+    properties.opi.certs_secret_name: "((KUBE_SECRETS_GENERATION_NAME))"
     properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
     properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
@@ -3038,7 +3040,6 @@ configuration:
     properties.scalablesyslog.scheduler.tls.client.key: '"((SYSLOG_SCHED_CERT_KEY))"'
 
     properties.scf.eirini.enabled: ((FEATURE_EIRINI_ENABLED))
-    properties.scf.eirini.namespace: "((EIRINI_KUBE_NAMESPACE))"
 
     properties.scf.internal-ca-cert: '"((INTERNAL_CA_CERT))"'
     properties.scf.secrets_generation_name: "((KUBE_SECRETS_GENERATION_NAME))"
@@ -3946,7 +3947,6 @@ variables:
     description: The name of the kubernetes namespace all components will run in.
       This parameter cannot be set by the user. Its value is supplied by the kubernetes
       runtime.
-
 - name: KUBERNETES_SERVICE_HOST
   options:
     type: environment
