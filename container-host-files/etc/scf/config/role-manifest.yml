@@ -2507,25 +2507,6 @@ configuration:
         resources: [storageclasses]
         verbs: [get, list]
     pod-security-policies:
-      eirini:
-        allowPrivilegeEscalation: true
-        allowedCapabilities: ["*"]
-        defaultAllowPrivilegeEscalation: true
-        fsGroup: { rule: RunAsAny }
-        hostPorts: [{ min: 0, max: 65535 }]
-        privileged: true
-        runAsUser: { rule: RunAsAny }
-        seLinux: { rule: RunAsAny }
-        supplementalGroups: { rule: RunAsAny }
-        volumes:
-        - configMap
-        - secret
-        - emptyDir
-        - hostPath
-        - downwardAPI
-        - projected
-        - persistentVolumeClaim
-        - nfs
       default:
         allowPrivilegeEscalation: true
         allowedCapabilities: ["*"]
@@ -2540,6 +2521,7 @@ configuration:
         - configMap
         - secret
         - emptyDir
+        - hostPath # Needed for fluentd daemonset with Eirini
         - downwardAPI
         - projected
         - persistentVolumeClaim
