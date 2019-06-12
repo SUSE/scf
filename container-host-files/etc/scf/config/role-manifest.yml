@@ -155,6 +155,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.6.tgz"
   version: "0.0.6"
   sha1: "6f8ac2c937b8413f833b726e1e578d8c58becb8d"
+- name: uaa
+  version: 68.0
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
+  sha1: a06e5390463c760bcbcc0bacaec063f41a5ea089
 
 instance_groups:
 - name: eirini
@@ -506,7 +510,7 @@ instance_groups:
       properties.engine_config.galera.enabled: true
       properties.max_open_files: 1500
       properties.monit_startup_timeout: 300
-      properties.seeded_databases: '[{"name":"ccdb","password":"((CC_DATABASE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((DIEGO_DATABASE_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((ROUTING_API_DATABASE_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((CF_USB_DATABASE_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((PERSI_NFS_DATABASE_PASSWORD))"},{"name":"diego_locket","password":"((LOCKET_DATABASE_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((CREDHUB_DATABASE_PASSWORD))","username":"credhub_user"}]'
+      properties.seeded_databases: '[{"name":"ccdb","password":"((CC_DATABASE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((DIEGO_DATABASE_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((ROUTING_API_DATABASE_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((CF_USB_DATABASE_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((PERSI_NFS_DATABASE_PASSWORD))"},{"name":"diego_locket","password":"((LOCKET_DATABASE_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((CREDHUB_DATABASE_PASSWORD))","username":"credhub_user"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
       properties.tls.galera.ca: ((INTERNAL_CA_CERT))
       properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
       properties.tls.galera.private_key: ((GALERA_SERVER_CERT_KEY))
@@ -1955,6 +1959,82 @@ instance_groups:
   configuration:
     templates:
       properties.smoke_tests.client_secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
+- name: uaa
+  if_feature: uaa
+  environment_scripts:
+  - scripts/log_level_mappings.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/patches/fix_uaa_monit_timeout.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-uaa-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: wait-for-database
+    release: scf-helper
+  - name: uaa
+    release: uaa
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            ha: 2
+            min: 1
+            max: 65535
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 2100
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+        ports:
+        - name: uaa
+          protocol: TCP
+          external: 8080
+          internal: 8080
+          public: false
+        - name: uaa-ssl
+          protocol: TCP
+          external: 2793
+          internal: 8443
+          public: true
+  tags:
+  - sequential-startup
+  configuration:
+    templates:
+      properties.encryption.encryption_keys: '[{"label":"smorgasbrod","passphrase":"((AEK_PASSWORD))"}]'
+      properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
+      properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_CERT_KEY))"'
+      properties.login.smtp.auth: ((SMTP_AUTH))
+      properties.login.smtp.from_address: ((SMTP_FROM_ADDRESS))
+      properties.login.smtp.host: ((SMTP_HOST))
+      properties.login.smtp.password: ((SMTP_PASSWORD))
+      properties.login.smtp.port: ((SMTP_PORT))
+      properties.login.smtp.starttls: ((SMTP_STARTTLS))
+      properties.login.smtp.user: ((SMTP_USER))
+      properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
+      # Dummy reference to JWT_SIGNING_CERT so that fissile validator doesn't complain that it is not being used
+      properties.uaa.jwt.policy.keys: '{"default": {"signingKey": "((JWT_SIGNING_CERT_KEY))((#JWT_SIGNING_CERT))((/JWT_SIGNING_CERT))"}}'
+      properties.uaa.logging_level: ((LOG_LEVEL_LOG4J))((#LOG_LEVEL))((/LOG_LEVEL))
+      properties.uaa.ssl.port: 8443
+      # Save INTERNAL_CA cert and key in the kube secrets, so that a future update can use them to sign additional certs
+      properties.uaa.sslCertificate: ((UAA_SERVER_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))
+      properties.uaa.sslPrivateKey: ((UAA_SERVER_CERT_KEY))((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))
+      properties.uaa.url: "https://uaa.((DOMAIN)):((UAA_PUBLIC_PORT))"
+      properties.uaa.zones.internal.hostnames: >-
+        [
+          "uaa",
+          "uaa.((KUBERNETES_NAMESPACE))",
+          "uaa.((KUBERNETES_NAMESPACE)).svc",
+          "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+        ]
+      properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.wait-for-database.hostname: mysql-proxy-set
+      properties.wait-for-database.port: 3306
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -2043,7 +2123,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
@@ -2775,7 +2855,7 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
+    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
@@ -2955,6 +3035,7 @@ configuration:
     properties.uaa.clients.cf_smoke_tests.secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.credhub_user_cli.secret: '"((UAA_CLIENTS_CREDHUB_USER_CLI_SECRET))"'
+    properties.uaa.clients.default_zone_admin.secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
@@ -2988,6 +3069,12 @@ variables:
     description: >
       The number of parallel test executors to spawn for Cloud Foundry
       acceptance tests. The larger the number the higher the stress on the system.
+- name: AEK_PASSWORD
+  options:
+    secret: true
+    immutable: true
+    description: Password used for the active uaa encryption key.
+  type: password
 - name: ALLOWED_CORS_DOMAINS
   options:
     default: []
@@ -3787,6 +3874,18 @@ variables:
     secret: true
     description: PEM-encoded CA key.
     required: true
+- name: JWT_SIGNING_CERT
+  options:
+    secret: true
+    is_ca: true
+    description: PEM-encoded JWT certificate.
+    required: true
+  type: certificate
+- name: JWT_SIGNING_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded JWT signing key.
+    required: true
 - name: KUBERNETES_CLUSTER_DOMAIN
   options:
     type: environment
@@ -3968,6 +4067,12 @@ variables:
     description: >
       The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2.
     required: true
+- name: LOG_LEVEL_LOG4J
+  options:
+    type: environment
+    description: 'The log level for Log4j-using components.  This parameter is not
+      supposed to be set by the user.  To change the cluster''s log level set the
+      parameter `LOG_LEVEL` above instead, from which this one is derived.'
 - name: MAX_APP_DISK_IN_MB
   options:
     default: 2048
@@ -4228,6 +4333,16 @@ variables:
     description: The password for access to MySQL by the routing-api
     required: true
   type: password
+- name: SAML_SERVICEPROVIDER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+  type: certificate
+- name: SAML_SERVICEPROVIDER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
 - name: SCF_LOG_HOST
   options:
     internal: true
@@ -4245,6 +4360,34 @@ variables:
     description: The protocol used by rsyslog to talk to the log destination. The
       allowed values are tcp, and udp. The default is tcp.
     required: true
+- name: SMTP_AUTH
+  options:
+    default: false
+    description: >
+      If true, authenticate against the SMTP server using AUTH command.
+      See https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
+- name: SMTP_FROM_ADDRESS
+  options:
+    description: SMTP from address, for password reset emails etc.
+- name: SMTP_HOST
+  options:
+    description: SMTP server host address, for password reset emails etc.
+- name: SMTP_PASSWORD
+  options:
+    description: SMTP server password, for password reset emails etc.
+- name: SMTP_PORT
+  options:
+    default: 25
+    description: SMTP server port, for password reset emails etc.
+- name: SMTP_STARTTLS
+  options:
+    default: false
+    description: >
+      If true, send STARTTLS command before logging in to SMTP server.
+      See https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
+- name: SMTP_USER
+  options:
+    description: SMTP server username, for password reset emails etc.
 - name: STAGING_TIMEOUT
   options:
     default: 900
@@ -4364,6 +4507,11 @@ variables:
   options:
     description: Concatenation of trusted CA certificates to be made available on
       the cell.
+- name: UAADB_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the UAA database.
+  type: password
 - name: UAA_ADMIN_CLIENT_SECRET
   options:
     secret: true
@@ -4466,6 +4614,25 @@ variables:
   options:
     default: 2793
     description: The tcp port the UAA server (root zone) listens on for requests.
+- name: UAA_PUBLIC_PORT
+  options:
+    default: 2793
+    description: The TCP port to report as the public port for the UAA server (root zone).
+- name: UAA_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: uaa
+    alternative_names:
+    - uaa.{{.DOMAIN}}
+    - "*.uaa.{{.DOMAIN}}"
+    description: The server's ssl certificate. The default is a self-signed certificate
+      and should always be replaced for production deployments.
+  type: certificate
+- name: UAA_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: The server's ssl private key. Only passphrase-less keys are supported.
 - name: USE_DIEGO_PRIVILEGED_CONTAINERS
   options:
     default: false

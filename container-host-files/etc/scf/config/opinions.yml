@@ -354,6 +354,8 @@ properties:
     ssh_proxy:
       enable_cf_auth: true
   enable_consul_service_registration: false
+  encryption:
+    active_key_label: smorgasbrod
   etcd:
     bootstrap_node: etcd-0
   fissile:
@@ -485,6 +487,10 @@ properties:
       credhub_user_cli:
         authorities: credhub.write,credhub.read
         authorized-grant-types: client_credentials
+      default_zone_admin:
+        authorized-grant-types: client_credentials
+        scope: uaa.admin
+        authorities: uaa.admin
       doppler:
         authorities: uaa.resource
         authorized-grant-types: client_credentials
@@ -544,3 +550,14 @@ properties:
       - roles
       - user_attributes
       - uaa.offline_token
+    jwt:
+      policy:
+        active_key_id: default
+    logging_level: INFO
+  uaadb:
+    address: mysql-set
+    databases:
+    - name: uaadb
+      tag: uaa
+    db_scheme: mysql
+    port: 3306

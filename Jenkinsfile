@@ -71,7 +71,11 @@ void runTest(String testName) {
         set -x
 
         export NAMESPACE=${cfNamespace}
-        export UAA_NAMESPACE=${uaaNamespace}
+        if [ "\${EMBEDDED_UAA}" == "true" ]; then
+            export UAA_NAMESPACE=${cfNamespace}
+        else
+            export UAA_NAMESPACE=${uaaNamespace}
+        fi
 
         # this will look for tests under output/kube/bosh-tasks and not in output/unzipped/...
         make/tests "${testName}" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath"
@@ -195,6 +199,11 @@ pipeline {
             name: 'COMMIT_SOURCES',
             defaultValue: false,
             description: 'Push sources to obs',
+        )
+        booleanParam(
+            name: 'EMBEDDED_UAA',
+            defaultValue: false,
+            description: 'Use UAA included in the SCF chart',
         )
         credentials(
             name: 'OBS_CREDENTIALS',
@@ -506,28 +515,30 @@ pipeline {
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    helm install output/unzipped/helm/uaa \
-                        --name ${uaaNamespace} \
-                        --namespace ${uaaNamespace} \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
-                        --set kube.external_ips[0]=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath
-
-                    . make/include/secrets
-
                     has_internal_ca() {
                         test "\$(get_secret "${uaaNamespace}" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
-                    set +x
-                    until has_internal_ca ; do
-                        sleep 5
-                    done
-                    set -x
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        helm install output/unzipped/helm/uaa \
+                            --name ${uaaNamespace} \
+                            --namespace ${uaaNamespace} \
+                            --set env.DOMAIN=${domain()} \
+                            --set env.UAA_HOST=uaa.${domain()} \
+                            --set env.UAA_PORT=2793 \
+                            --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                            --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
+                            --set kube.external_ips[0]=${ipAddress()} \
+                            --set kube.storage_class.persistent=hostpath \
+
+                        . make/include/secrets
+
+                        set +x
+                        until has_internal_ca ; do
+                            sleep 5
+                        done
+                        set -x
+                    fi
 
                     # Use `make/run` to run the deployment to ensure we have updated settings
                     export NAMESPACE="${cfNamespace}"
@@ -541,9 +552,10 @@ pipeline {
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
-                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
-                        make/wait "\${ns}"
-                    done
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        make/wait "${uaaNamespace}"
+                    fi
+                    make/wait "${cfNamespace}"
                     kubectl get pods --all-namespaces
                 """
             }
@@ -573,26 +585,28 @@ pipeline {
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
-                        --namespace ${uaaNamespace} \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
-                        --set kube.external_ips[0]=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.secrets_generation_counter=2
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
+                            --namespace ${uaaNamespace} \
+                            --set env.DOMAIN=${domain()} \
+                            --set env.UAA_HOST=uaa.${domain()} \
+                            --set env.UAA_PORT=2793 \
+                            --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                            --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
+                            --set kube.external_ips[0]=${ipAddress()} \
+                            --set kube.storage_class.persistent=hostpath \
+                            --set kube.secrets_generation_counter=2
 
-                    # Ensure old pods have time to terminate
-                    sleep 60
-                    echo Waiting for all pods to be ready after the 'upgrade'...
-                    set +o xtrace
-                    for ns in "${uaaNamespace}" ; do
-                        # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
-                        make/wait "\${ns}"
-                    done
-                    set -o xtrace
+                        # Ensure old pods have time to terminate
+                        sleep 60
+                        echo Waiting for all pods to be ready after the 'upgrade'...
+                        set +o xtrace
+                        for ns in "${uaaNamespace}" ; do
+                            # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
+                            make/wait "\${ns}"
+                        done
+                        set -o xtrace
+                    fi
 
                     # Use `make/upgrade` to run the deployment to ensure we have updated settings
                     export DOMAIN="${domain()}"
@@ -611,9 +625,10 @@ pipeline {
 
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
-                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
-                        make/wait "\${ns}"
-                    done
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        make/wait "${uaaNamespace}"
+                    fi
+                    make/wait "${cfNamespace}"
                     kubectl get pods --all-namespaces
 
                     # Get the secret again to see that they have been rotated
