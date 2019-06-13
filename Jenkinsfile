@@ -872,9 +872,9 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                                 def prefix = distPrefix()
                                 // If prefix is not empty then trimming trailing "-" from path as distPrefix() returns "PR-${CHANGE_ID}-".
                                 if (prefix){
-                                    prefix = prefix.substring(0, prefix.length() - 1)
+                                    prefix = prefix.substring(0, prefix.length() - 1) + '/'
                                 }
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",
