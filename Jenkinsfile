@@ -485,6 +485,76 @@ pipeline {
             }
         }
 
+        stage('publish_docker') {
+            when {
+                expression { return params.PUBLISH_DOCKER }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.DOCKER_CREDENTIALS,
+                    usernameVariable: 'DOCKER_HUB_USERNAME',
+                    passwordVariable: 'DOCKER_HUB_PASSWORD',
+                )]) {
+                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}" '
+                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset SCF_PACKAGE_COMPILATION_CACHE
+                    make publish
+                '''
+            }
+        }
+
+        stage('publish_s3') {
+            when {
+                expression { return params.PUBLISH_S3 }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            def files = findFiles(glob: "output/*-sle-*")
+                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
+                            def prefix = distPrefix()
+
+                            for ( int i = 0 ; i < files.size() ; i ++ ) {
+                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+                                    s3Upload(
+                                        file: files[i].path,
+                                        bucket: "${params.S3_BUCKET}",
+                                        path: "${subdir}${prefix}${files[i].name}",
+                                    )
+                                    if (files[i].path =~ /\.zip$/ ) {
+                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                        echo "Download the bundle from ${capBundleUri}"
+                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
+                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                        echo "Install with helm from ${helmChartUri}"
+                                    }
+                                } else {
+                                    echo "Skipping file ${files[i].path}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('deploy') {
             when {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
@@ -756,76 +826,6 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 '''
                 }
           }
-        }
-
-        stage('publish_docker') {
-            when {
-                expression { return params.PUBLISH_DOCKER }
-            }
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: params.DOCKER_CREDENTIALS,
-                    usernameVariable: 'DOCKER_HUB_USERNAME',
-                    passwordVariable: 'DOCKER_HUB_PASSWORD',
-                )]) {
-                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}" '
-                }
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    set -x
-                    unset SCF_PACKAGE_COMPILATION_CACHE
-                    make publish
-                '''
-            }
-        }
-
-        stage('publish_s3') {
-            when {
-                expression { return params.PUBLISH_S3 }
-            }
-            steps {
-                withAWS(region: params.S3_REGION) {
-                    withCredentials([usernamePassword(
-                        credentialsId: params.S3_CREDENTIALS,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                    )]) {
-                        script {
-                            def files = findFiles(glob: "output/*-sle-*")
-                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
-                            def prefix = distPrefix()
-
-                            for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
-                                    s3Upload(
-                                        file: files[i].path,
-                                        bucket: "${params.S3_BUCKET}",
-                                        path: "${subdir}${prefix}${files[i].name}",
-                                    )
-                                    if (files[i].path =~ /\.zip$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
-                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Download the bundle from ${capBundleUri}"
-                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        echo "Install with helm from ${helmChartUri}"
-                                    }
-                                } else {
-                                    echo "Skipping file ${files[i].path}"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
