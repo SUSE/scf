@@ -36,6 +36,11 @@ run-eirini:
 	make/run-eirini
 	make/ingress/update_secrets
 
+run-uaa:
+	make/ingress/run
+	make/run-uaa
+	make/ingress/update_secrets
+
 upgrade:
 	make/ingress/run
 	make/uaa/upgrade
@@ -48,6 +53,11 @@ upgrade-eirini:
 	make/uaa/upgrade
 	make/wait uaa
 	make/upgrade-eirini
+	make/ingress/update_secrets
+
+upgrade-uaa:
+	make/ingress/run
+	make/upgrade-uaa
 	make/ingress/update_secrets
 
 wait:

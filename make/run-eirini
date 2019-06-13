@@ -12,4 +12,5 @@ ${GIT_ROOT}/make/run --set "enable.eirini=true" \
                      --set "env.EIRINI_PERSI_PLANS[0].free=true" \
                      --set "env.EIRINI_PERSI_PLANS[0].kube_storage_class=${STORAGE_CLASS}" \
                      --set "env.EIRINI_PERSI_PLANS[0].default_size=1Gi" \
-                     --set "env.EIRINI_PERSI_PLANS[0].name=default"
+                     --set "env.EIRINI_PERSI_PLANS[0].name=default" \
+                     "$@"

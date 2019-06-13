@@ -26,8 +26,6 @@ stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
 : "${UAA_HOST:=uaa.${DOMAIN}}"
 : "${INSECURE_DOCKER_REGISTRIES:=\"insecure-registry.${TCP_DOMAIN}:20005\"}"
 
-UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
-
 helm_args=(
     # We need --recreate-pods in case an upgrade causes an existing pod to go unready.
     # In which case, the normal StatefulSet logic would cause it to get stuck.
@@ -38,9 +36,20 @@ helm_args=(
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}"
     --set "env.UAA_HOST=${UAA_HOST}"
     --set "env.INSECURE_DOCKER_REGISTRIES=${INSECURE_DOCKER_REGISTRIES}"
-    --set "secrets.UAA_CA_CERT=${UAA_CA_CERT}"
     --set "kube.storage_class.persistent=${STORAGE_CLASS}"
 )
+
+if [ "${EMBEDDED_UAA:-false}" != "true" ]; then
+    CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
+
+    helm_args+=(
+        --set "secrets.UAA_CA_CERT=${CA_CERT}"
+    )
+else
+    helm_args+=(
+        --set "enable.uaa=true"
+    )
+fi
 
 if [ -n "${INGRESS_CONTROLLER:-}" ]; then
     helm_args+=(
