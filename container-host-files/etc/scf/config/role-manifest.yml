@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://tmp-aljfkdjadk-eirinifs-bucket.s3.eu-central-1.amazonaws.com/eirini-dev-2431858.tgz"
+  url: "https://tmp-aljfkdjadk-eirinifs-bucket.s3.eu-central-1.amazonaws.com/eirini-dev-18725a7.tgz"
   version: "0.0.7"
-  sha1: "90de83880933cb714be3cc9223c858f756b4be21"
+  sha1: "3e8d312f89412c05c62c91a6d983ccfa7adaab64"
 - name: uaa
   version: 68.0
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
@@ -2837,8 +2837,6 @@ configuration:
     properties.eirini.fluentd.varlog_hostpath: "((EIRINI_FLUENTD_VARLOG_HOSTPATH))"
     properties.eirini.fluentd.varlog_hostpath_mount_point: "((EIRINI_FLUENTD_VARLOG_HOSTPATH_MOUNT_POINT))"
     properties.eirini.fluentd_image: "((EIRINI_FLUENTD_IMAGE))"
-    properties.eirini.source_secrets_name: "((KUBE_SECRETS_GENERATION_NAME))"
-    properties.eirini.source_secrets_namespace: "((KUBERNETES_NAMESPACE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -2913,7 +2911,9 @@ configuration:
     properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
     properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
     properties.opi.certs_secret_name: "((KUBE_SECRETS_GENERATION_NAME))"
+    properties.opi.downloader_image: "((EIRINI_DOWNLOADER_IMAGE))"
     properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.executor_image: "((EIRINI_EXECUTOR_IMAGE))"
     properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.opi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
@@ -2926,7 +2926,7 @@ configuration:
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
     properties.opi.registry_address: "registry.((DOMAIN))"
-    properties.opi.stager_image: ((EIRINI_IMAGE))
+    properties.opi.uploader_image: "((EIRINI_UPLOADER_IMAGE))"
 
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
@@ -3633,6 +3633,20 @@ variables:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
     imagename: true
+- name: EIRINI_DOWNLOADER_IMAGE
+  options:
+    default: 'eirini/recipe-downloader:0.1.0'
+    description: "Downloads app-bits and buildpacks from the bits-service"
+    imagename: true
+- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
+  options:
+    type: environment
+    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
+- name: EIRINI_EXECUTOR_IMAGE
+  options:
+    default: 'eirini/recipe-executor:0.1.0'
+    description: "Executes the buildpackapplifecyle to build a Droplet"
+    imagename: true
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.3.0'
@@ -3646,11 +3660,6 @@ variables:
   options:
     default: ''
     description: "The path inside the fluentd pod where the log hostpath should be mounted"
-- name: EIRINI_IMAGE
-  options:
-    default: 'eirini/recipe:ci-44.0.0'
-    description: "Docker Image used for staging apps deployed using Eirini"
-    imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
     default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
@@ -3659,6 +3668,28 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
+- name: EIRINI_PERSI_NFS_BROKER_PASSWORD
+  options:
+    description: Basic auth password to verify on incoming Service Broker requests
+    secret: true
+    required: true
+  type: password
+- name: EIRINI_PERSI_PLANS
+  options:
+    description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
+    default: '[]'
+    example: |
+      - id: "dafault-storageclass"
+        name: "default"
+        description: "Eirini persistence broker"
+        free: true
+        kube_storage_class: "persistent"
+        default_size: "1Gi"
+- name: EIRINI_UPLOADER_IMAGE
+  options:
+    default: 'eirini/recipe-uploader:0.1.0'
+    description: "Uploads the Droplet to the bits-service"
+    imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
