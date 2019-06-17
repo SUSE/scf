@@ -501,16 +501,16 @@ instance_groups:
       properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
       properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
       properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((GALERA_HEALTHCHECK_ENDPOINT_DATABASE_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       # << Deprecation end
 
       properties.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.endpoint_password: ((GALERA_HEALTHCHECK_ENDPOINT_DATABASE_PASSWORD))
+      properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.engine_config.binlog.enabled: false
       properties.engine_config.galera.enabled: true
       properties.max_open_files: 1500
       properties.monit_startup_timeout: 300
-      properties.seeded_databases: '[{"name":"ccdb","password":"((CC_DATABASE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((DIEGO_DATABASE_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((ROUTING_API_DATABASE_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((CF_USB_DATABASE_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((PERSI_NFS_DATABASE_PASSWORD))"},{"name":"diego_locket","password":"((LOCKET_DATABASE_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((CREDHUB_DATABASE_PASSWORD))","username":"credhub_user"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
+      properties.seeded_databases: '[{"name":"ccdb","password":"((MYSQL_CCDB_ROLE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((MYSQL_DIEGO_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))","username":"credhub_user"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
       properties.tls.galera.ca: ((INTERNAL_CA_CERT))
       properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
       properties.tls.galera.private_key: ((GALERA_SERVER_CERT_KEY))
@@ -578,7 +578,7 @@ instance_groups:
   configuration:
     templates:
       properties.api_force_https: false
-      properties.api_password: ((CF_MYSQL_PROXY_API_PASSWORD))
+      properties.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.api_port: 8083
       properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.api_username: mysql_proxy
@@ -2139,7 +2139,7 @@ instance_groups:
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
       properties.credhub.data_storage.host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.credhub.data_storage.password: ((CREDHUB_DATABASE_PASSWORD))
+      properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: 3306
       properties.credhub.data_storage.require_tls: false
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
@@ -2187,7 +2187,7 @@ instance_groups:
     templates:
       properties.databases.databases: '[{"name":"autoscaler","tag":"default"}]'
       properties.databases.port: '"((AUTOSCALER_DB_PORT))"'
-      properties.databases.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]' 
+      properties.databases.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
 - name: autoscaler-api
   if_feature: autoscaler
   environment_scripts:
@@ -2278,7 +2278,7 @@ instance_groups:
             readiness:
               command:
               - curl --silent --fail --head http://${HOSTNAME}:9103
-              - curl --silent --fail --head http://${HOSTNAME}:9105          
+              - curl --silent --fail --head http://${HOSTNAME}:9105
           affinity:
            podAntiAffinity:
              preferredDuringSchedulingIgnoredDuringExecution:
@@ -2290,7 +2290,7 @@ instance_groups:
                      operator: In
                      values:
                      - autoscaler-metrics
-                 topologyKey: "beta.kubernetes.io/os"           
+                 topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
@@ -2299,11 +2299,11 @@ instance_groups:
         - name: mchealthport
           protocol: TCP
           external: 9103
-          internal: 9103  
+          internal: 9103
   - name: eventgenerator
     release: app-autoscaler
     properties:
-      bosh_containerization:    
+      bosh_containerization:
         ports:
         - name: eventgen  # eventgeneratorport
           protocol: TCP
@@ -2347,7 +2347,7 @@ instance_groups:
               command:
               - curl --silent --fail --head http://${HOSTNAME}:9102
               - curl --silent --fail --head http://${HOSTNAME}:9104
-              - curl --silent --fail --head http://${HOSTNAME}:9108          
+              - curl --silent --fail --head http://${HOSTNAME}:9108
           affinity:
            podAntiAffinity:
              preferredDuringSchedulingIgnoredDuringExecution:
@@ -2359,7 +2359,7 @@ instance_groups:
                      operator: In
                      values:
                      - autoscaler-actors
-                 topologyKey: "beta.kubernetes.io/os"           
+                 topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
@@ -2372,7 +2372,7 @@ instance_groups:
   - name: scalingengine
     release: app-autoscaler
     properties:
-      bosh_containerization:      
+      bosh_containerization:
         ports:
         - name: scaling-engine  # scalingengineport
           protocol: TCP
@@ -2381,7 +2381,7 @@ instance_groups:
         - name: sehealthport
           protocol: TCP
           external: 9104
-          internal: 9104          
+          internal: 9104
   - name: operator
     release: app-autoscaler
     properties:
@@ -2396,7 +2396,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          privileged: true                    
+          privileged: true
 - name: loggregator-agent
   type: colocated-container
   post_config_scripts:
@@ -2671,7 +2671,7 @@ configuration:
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT_KEY))"'
     properties.autoscaler.scalingengine_db.address: '((AUTOSCALER_DB_ADDRESS))'
-    properties.autoscaler.scalingengine_db.port: '"((AUTOSCALER_DB_PORT))"'    
+    properties.autoscaler.scalingengine_db.port: '"((AUTOSCALER_DB_PORT))"'
     properties.autoscaler.scalingengine_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2795,7 +2795,7 @@ configuration:
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((CC_DATABASE_PASSWORD))", "tag": "admin"}]'
+    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
@@ -2803,7 +2803,7 @@ configuration:
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
-    properties.cf-usb.mysql_password: "((CF_USB_DATABASE_PASSWORD))"
+    properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
@@ -2838,13 +2838,13 @@ configuration:
     properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
     properties.diego.bbs.sql.db_host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.diego.bbs.sql.db_password: ((DIEGO_DATABASE_PASSWORD))
+    properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.sql.db_host: '"mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.diego.locket.sql.db_password: '"((LOCKET_DATABASE_PASSWORD))"'
+    properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
@@ -2931,7 +2931,7 @@ configuration:
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
     properties.nfsbroker.db_hostname: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
-    properties.nfsbroker.db_password: '"((PERSI_NFS_DATABASE_PASSWORD))"'
+    properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
     properties.nfsbroker.url: 'http://nfs-broker-nfsbroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
@@ -2986,7 +2986,7 @@ configuration:
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: "mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
-    properties.routing_api.sqldb.password: "((ROUTING_API_DATABASE_PASSWORD))"
+    properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3219,11 +3219,11 @@ variables:
 - name: AUTOSCALER_DB_PORT
   options:
     default: 5432
-    description: "The tcp port of postgres database serves on"  
+    description: "The tcp port of postgres database serves on"
 - name: AUTOSCALER_DB_ROLE_NAME
   options:
     default: "postgres"
-    description: "The role name of autoscaler postgres database"       
+    description: "The role name of autoscaler postgres database"
 - name: AUTOSCALER_SCALING_ENGINE_CLIENT_CERT
   options:
     secret: true
@@ -3432,15 +3432,6 @@ variables:
     internal: true
     description: The set of CAT test suites to run. If not specified it falls back
       to a hardwired set of suites.
-- name: CC_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - CCDB_ROLE_PASSWORD
-    - MYSQL_CCDB_ROLE_PASSWORD
-    secret: true
-    description: The password for access to the Cloud Controller database.
-    required: true
-  type: password
 - name: CC_DB_CURRENT_KEY_LABEL
   options:
     description: The key used to encrypt entries in the CC database
@@ -3508,14 +3499,6 @@ variables:
   options:
     description: Expiration for generated certificates (in days)
     default: 10950
-- name: CF_MYSQL_PROXY_API_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_PROXY_ADMIN_PASSWORD
-    secret: true
-    description: The password for Basic Auth used to secure the MySQL proxy API.
-    required: true
-  type: password
 - name: CF_USB_BROKER_SERVER_CERT
   options:
     secret: true
@@ -3527,14 +3510,6 @@ variables:
   options:
     secret: true
     description: PEM-encoded broker server key.
-- name: CF_USB_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_CF_USB_PASSWORD
-    secret: true
-    example: password
-    description: The password for access to the usb config database.
-  type: password
 - name: CF_USB_PASSWORD
   options:
     secret: true
@@ -3571,14 +3546,6 @@ variables:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
-- name: CREDHUB_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_CREDHUB_USER_PASSWORD
-    secret: true
-    description: The password for access to the credhub-user database.
-    required: true
-  type: password
 - name: CREDHUB_ENCRYPT_KEY
   options:
     secret: true
@@ -3677,14 +3644,6 @@ variables:
     secret: true
     description: PEM-encoded client key
     required: true
-- name: DIEGO_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_DIEGO_PASSWORD
-    secret: true
-    description: The password for access to MySQL by diego.
-    required: true
-  type: password
 - name: DISABLE_CUSTOM_BUILDPACKS
   options:
     default: false
@@ -3784,14 +3743,6 @@ variables:
       value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol
       of the incoming request.
     required: true
-- name: GALERA_HEALTHCHECK_ENDPOINT_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
-    secret: true
-    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
-    required: true
-  type: password
 - name: GALERA_SERVER_CERT
   options:
     secret: true
@@ -3984,14 +3935,6 @@ variables:
   options:
     description: Lowest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
-- name: LOCKET_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_DIEGO_LOCKET_PASSWORD
-    description: Database password for the diego locket service.
-    secret: true
-    required: true
-  type: password
 - name: LOGGREGATOR_AGENT_CERT
   options:
     secret: true
@@ -4124,10 +4067,66 @@ variables:
     description: The password for the MySQL server admin user.
     required: true
   type: password
+- name: MYSQL_CCDB_ROLE_PASSWORD
+  options:
+    previous_names:
+    - CCDB_ROLE_PASSWORD
+    secret: true
+    description: The password for access to the Cloud Controller database.
+    required: true
+  type: password
+- name: MYSQL_CF_USB_PASSWORD
+  options:
+    secret: true
+    example: password
+    description: The password for access to the usb config database.
+  type: password
 - name: MYSQL_CLUSTER_HEALTH_PASSWORD
   options:
     secret: true
     description: The password for the cluster logger health user.
+    required: true
+  type: password
+- name: MYSQL_CREDHUB_USER_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the credhub-user database.
+    required: true
+  type: password
+- name: MYSQL_DIEGO_LOCKET_PASSWORD
+  options:
+    description: Database password for the diego locket service.
+    secret: true
+    required: true
+  type: password
+- name: MYSQL_DIEGO_PASSWORD
+  options:
+    secret: true
+    description: The password for access to MySQL by diego.
+    required: true
+  type: password
+- name: MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD
+  options:
+    secret: true
+    description: Password used to authenticate to the MySQL Galera healthcheck endpoint.
+    required: true
+  type: password
+- name: MYSQL_PERSI_NFS_PASSWORD
+  options:
+    description: Database password for storing broker state for the Persi NFS Broker
+    secret: true
+    required: true
+  type: password
+- name: MYSQL_PROXY_ADMIN_PASSWORD
+  options:
+    secret: true
+    description: The password for Basic Auth used to secure the MySQL proxy API.
+    required: true
+  type: password
+- name: MYSQL_ROUTING_API_PASSWORD
+  options:
+    secret: true
+    description: The password for access to MySQL by the routing-api
     required: true
   type: password
 - name: MYSQL_SERVER_CERT
@@ -4181,14 +4180,6 @@ variables:
 - name: PERSI_NFS_BROKER_PASSWORD
   options:
     description: Basic auth password to verify on incoming Service Broker requests
-    secret: true
-    required: true
-  type: password
-- name: PERSI_NFS_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_PERSI_NFS_PASSWORD
-    description: Database password for storing broker state for the Persi NFS Broker
     secret: true
     required: true
   type: password
@@ -4352,14 +4343,6 @@ variables:
           -----BEGIN RSA PRIVATE KEY-----
           -----END RSA PRIVATE KEY-----
     secret: true
-- name: ROUTING_API_DATABASE_PASSWORD
-  options:
-    previous_names:
-    - MYSQL_ROUTING_API_PASSWORD
-    secret: true
-    description: The password for access to MySQL by the routing-api
-    required: true
-  type: password
 - name: SAML_SERVICEPROVIDER_CERT
   options:
     secret: true
