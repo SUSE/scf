@@ -101,7 +101,7 @@ run "curl", "-X", "POST", "#{url}/stress_testers?vm=10&vm-bytes=100M"
 
 puts "Waiting for new instances to start..."
 STDOUT.flush
-run_with_retry 24, 5 do
+run_with_retry 60, 5 do
   run "cf", "app", app_name
   if get_count == 1
     # Force an error, i.e. a retry.
