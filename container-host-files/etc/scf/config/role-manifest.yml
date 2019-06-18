@@ -583,6 +583,7 @@ instance_groups:
       properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.api_username: mysql_proxy
       properties.route_registrar.routes: '[{"name":"cf-mysql-proxy","port":8083,"prepend_instance_index":true,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]},{"name":"cf-mysql-proxy-aggregator","port":8082,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]}]'
+      properties.startup_delay: 5
 - name: cf-usb-group
   default_feature: cf_usb
   environment_scripts:
