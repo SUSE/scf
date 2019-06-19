@@ -1,0 +1,1237 @@
+From 138b178fc7bb1a789f1cf48e367cb0ed9c60cd9c Mon Sep 17 00:00:00 2001
+From: Mark Yen <mark.yen@suse.com>
+Date: Wed, 15 May 2019 12:03:32 -0700
+Subject: [PATCH] db migration: add script to squash DB migrations
+
+This adds a rake task to squash DB migrations, outputting a SCF-style
+patch that will blank out the squashed migration scripts, and instead
+create a new migration that configures the database schema from scratch.
+This should lead to faster migrations (as we don't need to repeatedly
+do schema changes), and let things fail safer (as most migrations now do
+nothing, they can be replayed with no worries).
+
+The migration script has a hard-coded date that is the limit for
+squashing, so that we can still upgrade from existing installations that
+may have some of the migrations applied.
+
+It appears that there are still some differences with a database
+generated via the squashed migration, compared to a normal one:
+
+- Missing / added charset=utf8, collate=utf8_bin
+  (This shouldn't be an issue, because of table defaults)
+- Some indexes &c. are in a different column order.
+  This is not expected to cause any issues.
+
+To use the script:
+- Get a working cloud_controller_ng container (e.g. in api-group), where
+  the previous migrations have _not_ been patched.
+- Apply this patch.
+- Update the constants at the top of `db/helpers/squasher.rb`:
+  - MAXIMUM_MIGRATION_TIMESTAMP
+  - PREVIOUS_SQUASHED_MIGRATIONS
+- Run as the `vcap` user (i.e. `su vcap -`)
+- Source `/var/vcap/jobs/cloud_controller_ng/bin/ruby_version.sh`
+  (To pick the the correct ruby)
+- Run `bin/rake db:squash NAME=/tmp/patch.sh`
+- Copy `/tmp/patch.sh` where it would get used.
+- Update this patch file so we have a record of the new timestamps.
+---
+ db/helpers/squasher.rb              | 1128 +++++++++++++++++++++++++++++++++++
+ lib/cloud_controller/db_migrator.rb |    7 +-
+ lib/tasks/db.rake                   |   18 +-
+ 3 files changed, 1149 insertions(+), 4 deletions(-)
+ create mode 100644 db/helpers/squasher.rb
+
+diff --git a/db/helpers/squasher.rb b/db/helpers/squasher.rb
+new file mode 100644
+index 000000000..ca2509afd
+--- /dev/null
++++ b/db/helpers/squasher.rb
+@@ -0,0 +1,1128 @@
++require 'set'
++
++def status(msg)
++    puts "      #{msg}" if DBSquasher::Sequel.instance.verbose
++end
++
++module DBSquasher
++
++    # Any migrations after this time still not be squashed
++    MAXIMUM_MIGRATION_TIMESTAMP = '20190327'
++
++    # List of previous squashed migration timestamps; this list is used to
++    # create additional empty migrations (to ensure we can upgrade from
++    # previously-squashed migrations).
++    PREVIOUS_SQUASHED_MIGRATIONS = %w(
++    )
++
++    class Sequel
++
++        class Table
++            def initialize(name)
++                @name = name
++                @primary_key = nil
++                @members = []
++                @receiver = nil
++                @charset = nil
++                @dependent_tables = Set.new
++            end
++            attr_writer :name
++            attr_accessor :charset
++            attr_reader :dependent_tables
++
++            # receiver munging for context changes
++            def using_context(receiver)
++                raise "Nested use for using_context" if @receiver
++                @receiver = receiver
++                begin
++                    yield
++                ensure
++                    @receiver = nil
++                end
++            end
++
++            def method_missing(method, *args, &block)
++                raise "invalid receiver" if @receiver.eql? self
++                @receiver.send method, *args, &block
++            end
++
++            def primary_key(key, opts={})
++                raise "Adding primary key again to #{key}" unless @primary_key.nil?
++                @primary_key = [key, opts]
++            end
++            alias_method :add_primary_key, :primary_key
++
++            def column(type, name, opts={})
++                status "Adding column #{@name}::#{name} (type #{type}) (#{opts.inspect})"
++                column = { kind: :column, name: name, type: type, opts: opts }
++                @members << column
++                if opts[:unique]
++                    i = index([name], name: name)
++                    i[:auto] = [column, :unique]
++                end
++            end
++
++            def column_names
++                _members_of_kind(:column).map { |c| c[:opts][:name] || c[:name] }
++            end
++
++            def _show_full_columns
++                # We want to return an array of hashes, with the keys:
++                # :Field -> column name
++                # :Null -> opts[:null], as `YES` / `NO`
++                # :Default -> opts[:default]
++                # :Type
++                _members_of_kind(:column).map do |column|
++                    default = column[:opts][:default]
++                    default = 'CURRENT_TIMESTAMP' if default == ::Sequel::CURRENT_TIMESTAMP
++                    type = column[:method] || column[:type]
++                    null = case column[:opts][:null]
++                    when true then 'YES'
++                    when false then 'NO'
++                    else [:Timestamp].include?(type) ? 'NO' : 'YES'
++                    end
++                    {
++                        Field: column[:opts][:name] || column[:name],
++                        Null: null,
++                        Default: default,
++                        Type: column[:method] || column[:type],
++                    }
++                end
++            end
++
++            COLUMN_TYPES = %w(
++                Integer String File Fixnum Bignum Float BigDecimal Date
++                DateTime Time Timestamp Numeric TrueClass FalseClass Boolean
++            )
++
++            # We don't use method_missing? because that's a good way to figure
++            # out what functionality we need to implement
++            COLUMN_TYPES.each do |type_name|
++                type_name = type_name.to_sym
++                define_method type_name do |name, opts={}|
++                    status "Adding column #{@name}::#{name} (method #{type_name}) (#{opts.inspect})"
++                    column = { kind: :column, name: name, method: type_name, opts: opts }
++                    @members << column
++                    if opts[:unique]
++                        index_name = opts[:unique_constraint_name] || opts[:name]
++                        index_name ||= name
++                        i = index([name], name: index_name.to_sym, unique: true)
++                        i[:auto] = [column, :unique]
++                    end
++                    if opts[:index]
++                        idx_opts = { name: "#{@name}_#{name}".to_sym }
++                        idx_opts.merge! opts[:index] if opts[:index].is_a? Hash
++                        i = index([name], idx_opts)
++                        i[:auto] = [column, :index]
++                    end
++                end
++            end
++
++            def add_column(name, type, opts={})
++                raise "Adding duplicate column #{name} in table #{@name}" if _members_of_kind(:column).any? { |c| c[:name] == name }
++                if type.is_a? Class
++                    self.send type.name, name, opts
++                else
++                    column type, name, opts # yes the argument order is different
++                end
++            end
++
++            def rename_column(old_name, new_name, opts={})
++                opts = parse_column_definition(opts) if opts.is_a? String
++                status "Renaming column #{@name}::#{old_name} -> #{new_name} (#{opts.inspect})"
++                _find_column(old_name) do |c|
++                    c[:name] = new_name
++                    if [:type, :method].any? { |k| opts.has_key? k }
++                        c.delete_if { |k| [:type, :method].include? k }
++                        c[:type] = opts[:type] if opts.has_key? :type
++                        c[:method] = opts[:method] if opts.has_key? :method
++                        case (c[:method] || c[:type]).to_s.downcase.to_sym
++                        when :string, :text, :mediumtext
++                            # Delete existing text size when changing text type
++                            # Fixes:
++                            # 20151231224207_increase_security_group_rules_length.rb
++                            c[:opts].delete :size
++                            c[:opts].delete :text
++                        end
++                    end
++                    c[:opts].merge! opts.reject { |k| [:type, :method].include? k }
++                    status "  (Result: #{c.inspect})"
++                    _members_of_kind(:index).each do |index|
++                        index[:columns].map! { |k| k.to_sym == old_name ? new_name : k }
++                    end
++                    Sequel.instance.tables.each do |table|
++                        Sequel.instance._rename_foreign_column table, @name.to_sym, old_name, new_name
++                    end
++                end
++                # If there was a foreign key on this column, that was then dropped,
++                # delete the automatically-created index
++                dropped_indexes = []
++                @members.each_with_index do |member, i|
++                    next unless member[:kind] == :index
++                    next unless member[:auto]
++                    columns, reason = member[:auto]
++                    next unless reason = :foreign_key
++                    dropped_indexes << i if columns.include? new_name
++                end
++                dropped_indexes.reverse_each do |i|
++                    status "    Dropping index created due to foreign key: #{@members[i].inspect}"
++                    @members.delete i
++                end
++            end
++
++            # When a column in a table is renamed, we need to go through all the
++            # other tables and rename the foreign keys to match
++            def _rename_foreign_column(table, old_name, new_name)
++                old_name = old_name.to_sym
++                new_name = new_name.to_sym
++                _members_of_kind(:constraint).each do |constraint|
++                    next unless constraint[:type] == :foreign_key
++                    next unless constraint[:table] == table.to_sym
++                    key = constraint[:opts][:key] || constraint[:columns]
++                    key = [key] unless key.is_a? Array
++                    next unless key.include? :old_name
++                    if constraint[:opts][:key]
++                        if constraint[:opts][:key].is_a? Array
++                            constraint[:opts][:key].map! { |k| k.to_sym == old_name ? new_name : k }
++                        else
++                            constraint[:opts][:key] = new_name
++                        end
++                    else
++                        if constraint[:columns].is_a? Array
++                            constraint[:columns].map! { |k| k.to_sym == old_name ? new_name : k }
++                        else
++                            constraint[:columns] = new_name
++                        end
++                    end
++                end
++            end
++
++            def drop_column(name, opts={})
++                raise "drop_column with cascade not supported" if opts[:cascade]
++                status "Dropping column #{@name}::#{name} (#{opts.inspect})"
++                @members.reject! { |m| m[:kind] == :column && m[:name] == name }
++                dropped_indexes = []
++                @members.each_with_index do |member, i|
++                    next unless member[:kind] == :index
++                    member[:columns].delete name
++                    dropped_indexes << i if member[:columns].empty?
++                end
++                dropped_indexes.reverse.each do |i|
++                    @members.delete_at(i)
++                end
++            end
++
++            def set_column_allow_null(name, allow_null=true)
++                status "Setting #{@name}::#{name} to allow null #{allow_null}"
++                _find_column(name) { |c| c[:opts].merge! null: allow_null }
++            end
++
++            def set_column_not_null(name)
++                set_column_allow_null name, false
++            end
++
++            def set_column_type(name, type, opts={})
++                status "Setting #{@name}::#{name} to type #{type} (#{opts.inspect})"
++                if type.is_a? Class
++                    opts = opts.merge(method: type.name.to_sym)
++                else
++                    opts = opts.merge(type: type.to_sym)
++                end
++                rename_column name, name, opts
++            end
++
++            def set_column_default(name, default)
++                status "Setting #{@name}::#{name} to default #{default.inspect}"
++                _find_column(name) { |c| c[:opts].merge! default: default }
++            end
++
++            def index(columns, opts={})
++                columns = [columns] unless columns.is_a? Array
++                opts[:name] = opts[:name].to_sym if opts[:name]
++                # We need to explicitly give the index a name based on the
++                # current table name, in case the table gets renamed later.
++                opts[:name] ||= "#{@name}_#{columns.join('_')}_index".to_sym
++                existing = _members_of_kind(:index).find do |c|
++                    c[:opts][:name] == opts[:name]
++                end
++                if existing
++                    status "Updating existing index on #{@name}: #{columns} (#{opts.inspect})"
++                    existing[:columns] = columns
++                    existing[:opts].merge! opts
++                    existing
++                else
++                    @members << { kind: :index, columns: columns, opts: opts }
++                    status "Adding index on #{@name}: #{@members.last.inspect}"
++                    @members.last
++                end
++            end
++            alias_method :add_index, :index
++
++            def indexes
++                Hash.new.tap do |h|
++                    _members_of_kind(:index).map do |index|
++                        h[index[:opts][:name] || index[:columns]] = index
++                    end
++                end
++            end
++
++            def drop_index(columns, opts={})
++                raise "drop_index with cascade not supported" if opts[:cascade]
++                status "Dropping index on #{@name}: #{columns} (#{opts.inspect})"
++                index = nil
++                if opts[:name]
++                    index = @members.each_with_index.find_index do |member, i|
++                        next false unless member[:kind] == :index
++                        member[:opts][:name] == opts[:name]
++                    end
++                end
++                if index.nil?
++                    columns = [columns] unless columns.is_a? Array
++                    index = @members.each_with_index.reverse_each.find do |member, i|
++                        next false unless member[:kind] == :index
++                        member[:columns] == columns
++                    end.last
++                end
++                unless index.nil?
++                    message = "  Dropping #{@members[index].inspect}"
++                    if @members[index][:auto]
++                        column, key = @members[index][:auto]
++                        message += " (with auto-index #{key})"
++                        column[:opts].delete key
++                    end
++                    status message
++                    return @members.delete_at index
++                end
++                return if opts[:if_exists]
++                _members_of_kind(:index).each { |i| status "  unmatched index: #{i.inspect}" }
++                status "Could not find index #{columns} to drop (#{opts.inspect}), ignored"
++            end
++
++            def foreign_key(columns, table=nil, opts={})
++                opts = {table: table}.merge(opts)
++                @members << {
++                    kind: :constraint,
++                    type: :foreign_key,
++                    columns: columns,
++                    opts: opts
++                }
++                @dependent_tables << table unless table.nil?
++                status "Adding foreign key on #{@name}: #{@members.last.inspect} (#{columns.inspect})"
++            end
++            alias_method :add_foreign_key, :foreign_key
++
++            def drop_foreign_key(name, opts={})
++                # There are four ways to find the constraint to drop:
++                # 1. `opts[:name]` is given
++                # 2. `name` is the name of the foreign key
++                # 3. `name` is an array (of the column names)
++                # 4. `name` is the name of the column (i.e. as above, but array of 1)
++                status "Dropping foreign key on #{@name}: #{name} (#{opts.inspect})"
++                name = opts[:name] || name
++                opts = opts.merge(type: :foreign_key)
++                index = _find_constraint(name, opts)
++                if index.nil?
++                    _members_of_kind(:constraint).each { |c| status "     Remaining: #{c.inspect}" }
++                    raise "Could not drop foreign key #{name} / #{opts.inspect} on table #{@name}"
++                end
++                # When MySQL creates a foreign key, it also automatically creates
++                # an index; however, dropping that foreign key does _not_ then
++                # drop the index.  We need to compensate for that by converting
++                # the to-be-dropped foreign key into an index instead.
++                name = "#{@name}_#{name.join('_')}_index".to_sym if name.is_a? Array
++                existing_index = _members_of_kind(:index).find { |c| c[:opts][:name] == name }
++                if existing_index
++                    # We have the index already, somehow.  Just drop the FK.
++                    status "  Found existing index in #{@name}: #{existing_index.inspect}"
++                    @members.delete_at index
++                    return
++                end
++                # We do _not_ have an index for the FK; convert it.
++                columns = @members[index][:columns]
++                columns = [columns] unless columns.is_a? Array
++                @members[index] = {
++                    kind: :index,
++                    columns: columns,
++                    opts: { name: name },
++                    auto: [columns, :foreign_key]
++                }
++                status "  Converting foreign key #{@name}::#{name} into index #{@members[index].inspect}"
++            end
++
++            # This is a helper to select for foreign keys; not to be used by the
++            # migration scripts.
++            def foreign_keys
++                _members_of_kind(:constraint).select { |c| c[:type] == :foreign_key }
++            end
++
++            def foreign_key_list(opts={})
++                raise "foreign_key_list does not support opts" unless opts.empty?
++                # This is used in 20130530173342_fix_permission_fk_problems.rb
++                # It appears to expect a list of hashes, which contain the
++                # `:columns` key; the value is an array of the generated FK name?
++                # As well as a `:name` column with the name…
++                # We need a `:table` key with the referenced table, too, for FKs
++                status "      foreign_key_list(#{@name})"
++                foreign_keys.map do |fk|
++                    status "        foreign key: #{fk.inspect}"
++                    columns =  fk[:columns].is_a?(Array) ? fk[:columns] : [fk[:opts][:name]]
++                    fk[:opts].merge columns: columns
++                end
++            end
++
++            def unique(columns, opts={})
++                if opts[:name].is_a?(Array) && opts[:name].length == 1
++                    opts[:name] = opts[:name].first
++                end
++                @members << { kind: :constraint, type: :unique, columns: columns, opts: opts}
++                status "Adding uniqe constraint on #{@name}: #{@members.last.inspect}"
++            end
++            alias_method :add_unique_constraint, :unique
++
++            def drop_constraint(name, opts={})
++                status "Dropping constraint on #{@name}: #{name} (#{opts.inspect})"
++                index = _find_constraint(name, opts)
++                unless index.nil?
++                    status "    Dropping #{index}: #{@members[index]}"
++                    @members.delete_at index
++                    return
++                end
++                _members_of_kind(:constraint).each { |c| status "     Remaining: #{c.inspect}" }
++                raise "Could not drop constraint #{name} / #{opts} on table #{@name}"
++            end
++
++            def print(writer=STDOUT)
++                charset = @charset.nil? ? '' : ", charset: :#{@charset}"
++                writer.puts "    create_table! :#{@name}#{charset} do"
++
++                @members.each do |member|
++                    send "_print_#{member[:kind]}".to_sym, writer, member
++                end
++
++                unless @primary_key.nil?
++                    key = @primary_key.first.inspect
++                    args = _opts_to_arg_list @primary_key.last
++                    writer.puts "      primary_key #{key}#{args}"
++                end
++
++                writer.puts '    end'
++            end
++
++            # We print the foreign keys separately because we can actually end
++            # up with loops...
++            def print_foreign_keys(writer)
++                return if foreign_keys.empty?
++                writer.puts "    alter_table :#{@name} do"
++                foreign_keys.each do |foreign_key|
++                    #status "  Foreign key: #{@name} -> #{foreign_key.inspect}"
++                    columns = foreign_key[:columns].inspect
++                    opts = foreign_key[:opts]
++                    table = ''
++                    if opts[:table]
++                        table = ", #{opts[:table].inspect}"
++                        opts.delete :table
++                    end
++                    writer.puts "      add_foreign_key #{columns}#{table}#{_opts_to_arg_list opts}"
++                end
++                writer.puts '    end'
++            end
++
++            # When a table is renamed, we need to fix up all the foreign keys to
++            # point to the new table name.  This is called in that case.
++            def _on_rename_table(old_name, new_name)
++                foreign_keys.each do |fk|
++                    fk[:opts][:table] = new_name if fk[:opts][:table] == old_name
++                end
++            end
++
++            private
++
++            # We keep columns, keys, etc. all in the same list to preserve
++            # ordering where possible; this method returns all members of the
++            # given kind (:column, :index, :constraint)
++            def _members_of_kind(kind)
++                @members.select { |m| m[:kind] == kind }
++            end
++
++            # This makes the default name for a foreign key
++            def _make_foreign_key_name(name)
++                name = [name] unless name.is_a? Array
++                "fk_#{name.join('_')}_fkey".to_sym
++            end
++
++            # Find a column (with a given name) and yield it to a block.
++            # Raises an error if the column is not found.
++            def _find_column(name, &block)
++                column = _members_of_kind(:column).find { |c| c[:name] == name }
++                raise "Could not find column #{name} in table #{@name}" unless column
++                yield column
++            end
++
++            # Get the name of a constraint (for e.g. printing).
++            def _get_constraint_name(constraint)
++                return constraint[:opts][:name] if constraint[:opts][:name]
++                case constraint[:type]
++                when :foreign_key
++                    _make_foreign_key_name(constraint[:columns])
++                when :unique
++                    "#{@name}_#{constraint[:columns].map(&:to_s).join('_')}_key".to_sym
++                else
++                    raise "Don't know how to fake a name for constraint #{constraint.inspect}"
++                end
++            end
++
++            # Look for a constraint that matches the given name/options (the
++            # options are used as another way to pass in the name).  Confusingly
++            # the name may be the column(s) to match instead, due to how Sequel
++            # / MySQL actually does the matching...
++            def _find_constraint(name, opts={})
++                filters = case name
++                when String, Symbol
++                    [
++                        Proc.new do |constraint|
++                            _get_constraint_name(constraint) == name.to_sym
++                        end,
++                        Proc.new do |constraint|
++                            columns = constraint[:columns]
++                            (columns.is_a?(Array) ? columns : [columns]) == [name]
++                        end
++                    ]
++                when Array
++                    [
++                        Proc.new do |constraint|
++                            columns = constraint[:columns]
++                            (columns.is_a?(Array) ? columns : [columns]) == name
++                        end
++                    ]
++                else
++                    raise "Don't know how to drop constraints based on name #{name.inspect}"
++                end
++
++                index = nil
++                filters.each do |filter|
++                    index = @members.index do |member|
++                        next false unless member[:kind] == :constraint
++                        next false unless [nil, member[:type]].include? opts[:type]
++                        filter.call member
++                    end
++                    break if index
++                end
++                index
++            end
++
++            # Pretty-prints the given options list (using Ruby 1.9 hash syntax),
++            # and fix up things like how CURRENT_TIMESTAMP is referred to.
++            def _opts_to_arg_list(opts)
++                args = ''
++                opts.each do |k, v|
++                    v = case v
++                    when ::Sequel::CURRENT_TIMESTAMP, 'current_timestamp' then 'Sequel::CURRENT_TIMESTAMP'
++                    when Symbol, String, NilClass then v.inspect
++                    else v
++                    end
++                    args += ", #{k}: #{v}"
++                end
++                args
++            end
++
++            # Print out the statement required to create a column (via
++            # Sequel::Schema::CreateTableGenerator)
++            def _print_column(writer, column)
++                if column[:method]
++                    args = "#{column[:method]} #{column[:name].inspect}"
++                else
++                    args = "column #{column[:name].inspect}, #{column[:type].inspect}"
++                end
++                # For unknown reasons, the database we get from step-by-step
++                # migration (without squashing) does not contain indexes created
++                # with custom names in the column statement.  Drop those here
++                # too, to better match the correct output.
++                opts = column[:opts].dup
++                opts.delete :index if opts[:index].is_a? Hash
++                writer.puts "      #{args}#{_opts_to_arg_list opts}"
++            end
++
++            # Print out the statement required to create an index (via
++            # Sequel::Schema::CreateTableGenerator)
++            def _print_index(writer, index)
++                _, auto_reason = index[:auto] || [nil, nil]
++                # Do not actually add indexes that are implied
++                return if [:unqiue, :index].include? auto_reason
++                if auto_reason
++                    # Check for duplicate indexes; skip any auto-generated indexes
++                    # if they overlap (which would cause an error)
++                    return if _members_of_kind(:index).any? do |other_index|
++                        next false if other_index.equal? index
++                        next false unless index[:columns] == other_index[:columns]
++                        next false unless index[:unique]  == other_index[:unique]
++                        true
++                    end
++                end
++
++                name = index[:opts][:name]
++                if name.nil?
++                    index[:opts].delete :name
++                else
++                    # Remove indexes that are implied from other columns
++                    return if _members_of_kind(:column).any? do |column|
++                        column[:opts][:unique] && column[:opts][:unique_constraint_name] == name
++                    end
++                end
++                columns = index[:columns].inspect
++                if index[:columns].length == 1
++                    col = index[:columns].first
++                    return if _find_column(col) { |c| c[:opts][:index] }
++                    columns = col.inspect
++                end
++                writer.puts "      index #{columns}#{_opts_to_arg_list index[:opts]}"
++            end
++
++            # Print out the statement required to create a constraint (via
++            # Sequel::Schema::CreateTableGenerator)
++            def _print_constraint(writer, constraint)
++                case constraint[:type]
++                when :unique
++                    writer.puts "      unique #{constraint[:columns].inspect}#{_opts_to_arg_list constraint[:opts]}"
++                end
++            end
++
++            # this is used for `run()`, for ALTER TABLE (MODIFY / CHANGE)
++            # takes a table column definition and return the matching opts
++            def parse_column_definition(column_def)
++                opts = {}
++                column_def = column_def.strip.split.join(' ')
++                loop do
++                    case column_def
++                    when /default null$/i
++                        opts[:default] = nil
++                    when /default (?<default_value>[\w'"`]+)$/i
++                        opts[:default] = $~[:default_value]
++                    when /not null$/i
++                        opts[:null] = false
++                    when /null$/i
++                        opts[:null] = true
++                    when /collate (?<quote>[`"']?)(?<collation>\w+)\k<quote>$/i
++                        opts[:collate] = $~[:collation]
++                    else break
++                    end
++                    column_def = $~.pre_match.strip
++                end
++
++                type_mapping = {
++                    longtext:   :LongText,
++                    mediumtext: :MediumText,
++                    text:       String,
++                }
++
++                method = COLUMN_TYPES.find { |t| t.downcase == column_def.downcase }
++                if method
++                    opts.delete :type
++                    opts[:method] = method.to_sym
++                elsif type_mapping.has_key? column_def.downcase.to_sym
++                    opts.delete :method
++                    opts[:type] = type_mapping[column_def.downcase.to_sym]
++                else
++                    raise "Don't know how do handle ALTER TABLE column definition `#{column_def}`"
++                end
++
++                if opts.has_key? :default
++                    type = opts[:method] || opts[:type]
++                    case type
++                    when :TrueClass, :FalseClass, :Boolean
++                        opts[:default] = case opts[:default]
++                        when %q<true>, %q<'true'> then true
++                        when %q<false>, %q<'false'> then false
++                        else opts[:default]
++                        end
++                    when :DateTime, :Time, :Timestamp
++                        opts[:default] = case opts[:default]
++                        when %q<CURRENT_TIMESTAMP>, %q<'CURRENT_TIMESTAMP'> then ::Sequel::CURRENT_TIMESTAMP
++                        else opts[:default]
++                        end
++                    when :String
++                        if opts[:default] =~ /^(?<quote>['"`])(?<value>.*)\k<quote>$/
++                            opts[:default] = $~[:value]
++                        end
++                    when :Integer, :Fixnum, :Bignum, :BigDecimal, :Numeric
++                        if opts[:default] =~ /^(?<quote>['"`])(?<value>.*)\k<quote>$/
++                            opts[:default] = $~[:value].to_i
++                        end
++                    when :Float
++                        if opts[:default] =~ /^(?<quote>['"`])(?<value>.*)\k<quote>$/
++                            opts[:default] = $~[:value].to_f
++                        end
++                    else
++                        raise "Don't know how to munge default value #{opts[:default]} for type #{type.inspect}"
++                    end
++                end
++                opts
++            end
++
++        end
++
++        # Fake DataSet class; most of this only works because we rely on having
++        # no data to deal with (just schema modification).
++        class DataSet < Array
++            def initialize(db, data=[])
++                @db = db
++                concat data
++            end
++            attr_reader :db
++
++            def update(*args)
++                raise 'updating non-empty dataset' unless empty?
++            end
++
++            def truncate
++                raise 'truncate should not be called with non-empty data' unless empty?
++            end
++
++            def to_a
++                # confusingly, this gets used as a dataset instead of an array
++                self
++            end
++
++            def filter(opts={})
++                raise 'filtering non-empty dataset' unless empty?
++                self # filtering an empty dataset is still empty
++            end
++            alias_method :all, :filter
++            alias_method :where, :filter
++            alias_method :exclude, :filter
++
++            def select(*columns)
++                raise 'selecting from non-empty dataset' unless empty?
++                self # We assume no data to modify
++            end
++            alias_method :group_by, :select
++            alias_method :select_all, :select
++
++            def having(&block)
++                raise 'having from non-empty dataset' unless empty?
++                self
++            end
++
++            def join(dataset, expression={})
++                raise 'Cannot join on non-empty datasets' unless empty? && dataset.empty?
++                self
++            end
++
++            def with_sql(stmt)
++                case stmt
++                when /
++                        ^\s*
++                        SHOW \s+ FULL \s+ COLUMNS \s+ FROM \s+
++                            (?<table_quote>[`'"])
++                                (?<table_name>\w+)
++                            \k<table_quote>
++                        /ix
++                    # 20150514190458_fix_mysql_collations.rb
++                    @db.run stmt
++                else
++                    raise "Don't know how to run SQL statement #{stmt}"
++                end
++            end
++        end
++
++        CURRENT_TIMESTAMP = ::Sequel::CURRENT_TIMESTAMP
++
++        class FakeMySQLDB
++            def initialize
++                @tables = Hash.new
++                @receiver = nil
++                @default_charset = nil
++                @verbose = false
++                @migrations_files = Set.new
++            end
++            attr_writer :receiver
++            attr_accessor :verbose
++
++            def binding
++                Kernel.binding
++            end
++
++            def adapter_scheme
++                :mysql
++            end
++            alias :database_type :adapter_scheme
++
++            def migration(receiver, &block)
++                @receiver = receiver
++                begin
++                    instance_exec &block
++                ensure
++                    @receiver = nil
++                end
++            end
++
++            def add_migration_file filename
++                @migrations_files << filename
++            end
++
++            def up
++                yield
++            end
++            alias_method :change, :up
++            alias_method :transaction, :up # we don't need transactions
++
++            def down
++                # Do nothing for down migrations
++            end
++
++            def tables
++                @tables.keys
++            end
++
++            def create_table(table_name, &block)
++                raise "Table #{table_name} already exists" if @tables.has_key? table_name
++                table = Table.new(table_name)
++                @tables[table_name] = table
++                status "Creating table #{table_name}"
++                table.using_context(@receiver) do
++                    table.instance_eval &block
++                end
++            end
++
++            def alter_table(table_name, &block)
++                table = @tables[table_name]
++                raise "Tried to alter missing table #{table}" unless table
++                status "Altering table #{table_name}"
++                table.using_context(@receiver) do
++                    table.instance_eval &block
++                end
++            end
++
++            def drop_table(*names)
++                names.each { |name| @tables.delete(name) }
++            end
++            alias_method :drop_table?, :drop_table
++
++            def rename_table(old_name, new_name)
++                raise "Tried to renamed non-existent table #{old_name}" unless @tables.has_key? old_name
++                raise "Conflict renaming table #{old_name} to #{new_name}" if @tables.has_key? new_name
++                @tables[new_name] = @tables[old_name]
++                @tables.delete old_name
++                @tables[new_name].name = new_name
++                @tables.values.each do |table|
++                    table._on_rename_table(old_name, new_name)
++                end
++            end
++
++            def run(stmt)
++                # Uh-oh, we need to run arbitrary SQL
++                # Luckily, we can handle most things because we have no data
++
++                case stmt
++
++                # UPDATE …
++                when /^\s*update\b/i
++                    return
++
++                # INSERT INTO table SELECT …
++                # INSERT INTO table (column, column) SELECT …
++                # insert… select is okay, since select is always empty
++                when /
++                            ^\s*
++                            insert \s+ into \s+
++                            \w+\b # table name
++                            (?: \s* \( (?: \s* \w+ \s* , )* \s* \w+ \s* \) )? # optional columns
++                            \s* select
++                        /ix
++                    return
++
++                # DELETE FROM table …
++                # DELETE thing FROM table …
++                # deleting from empty tables is okay
++                when /
++                            ^\s*
++                            delete \s+
++                            (?: \w+ \s+ ) ?
++                            from \b
++                        /ix
++                    return
++
++                # 20150113201824_fix_created_at_column.rb
++                # 20150514190458_fix_mysql_collations.rb
++                # ALTER TABLE … MODIFY …
++                when /
++                        ^\s*
++                        ALTER \s+ TABLE \s+
++                        (?<table_quote> [`'"]? )
++                            (?<table_name> \w+)
++                        \k<table_quote> \s+
++                        (?<modifications>
++                            (?:
++                                MODIFY \s+
++                                (?<column_quote> [`'"]? )
++                                    (?<column_name> \w+ )
++                                \k<column_quote>
++                                (?<column_def> (?: \s+ [`'"\w]+)* )
++                                (?: \s* , \s* | \s* ; \s* $)
++                            )+
++                        )
++                        /ix
++                    table_name = $~[:table_name].to_sym
++                    table = @tables[table_name]
++                    modifications = $~[:modifications]
++                    raise "Failed to find table #{table_name} to alter" unless table
++                    modifications.scan(/
++                            MODIFY \s+
++                            (?<column_quote> [`'"]? )
++                                (?<column_name> \w+ )
++                            \k<column_quote>
++                            (?<column_def> [^,;]* )
++                            (?: , \s* | ; \s* $)
++                        /ix) do
++                            column_name =$~[:column_name].to_sym
++                            column_def = $~[:column_def]
++                            status "  Modifying table #{table_name}: #{column_name} -> #{column_def}"
++                            table.rename_column column_name, column_name, column_def
++                        end
++
++                # 20130318175647_convert_mysql_text_types_for_services.rb
++                # ALTER TABLE … CHANGE …
++                when /
++                            ^\s*
++                            ALTER \s+ TABLE \s+
++                                `?(?<table_name> \w+ )`? \s+
++                            CHANGE \s+ (?: COLUMN \s+ )?
++                                `?(?<old_column> \w+ )`? \s+
++                                `?(?<new_column> \w+ )`?
++                            (?<column_def> (?: \s+ \w+ )* )
++                            \s* ;?
++                            \s* $
++                        /ix
++
++                    table = @tables[$~[:table_name].to_sym]
++                    raise "Failed to find table #{$~[:table_name]} to alter" unless table
++                    old_column = $~[:old_column].to_sym
++                    new_column = $~[:new_column].to_sym
++                    table.rename_column old_column, new_column, $~[:column_def]
++                    return
++
++                # ALTER DATABASE DEFAULT CHARACTER SET…
++                when /
++                            ^\s*
++                            ALTER \s+ DATABASE \s+
++                            DEFAULT \s+ CHARACTER \s+ SET \s+
++                            (?<default_charset> \w+ )
++                            \s* ;?
++                            \s*$
++                        /ix
++
++                    @default_charset = $~[:default_charset]
++                    return
++
++                # ALTER TABLE … CONVERT TO CHARACTER SET…
++                when /
++                            ^\s*
++                            ALTER \s+ TABLE \s*
++                            `(?<table_name> \w+ )` \s*
++                            CONVERT \s+ TO \s+ CHARACTER \s+ SET \s+
++                            (?<charset> \w+ )
++                            \s* ;?
++                            \s* $
++                        /ix
++                    table = @tables[$~[:table_name].to_sym]
++                    raise "Failed to find table #{$~[:table_name]} to convert charset" unless table
++                    table.charset = $~[:charset].to_sym
++                    return
++
++
++                # 20150514190458_fix_mysql_collations.rb
++                # SHOW FULL COLUMNS FROM…
++                when /
++                            ^\s*
++                            SHOW \s+ FULL \s+ COLUMNS \s+ FROM \s+
++                                (?<table_quote>[`'"])
++                                    (?<table_name>\w+)
++                                \k<table_quote>
++                        /ix
++                    table_name = $~[:table_name].to_sym
++                    table = @tables[table_name]
++                    raise "Failed to find table #{table_name} to list columns" unless table
++                    table._show_full_columns
++
++                else
++                    raise "Could not run arbitrary SQL statement #{stmt}"
++                end
++            end
++
++            def dataset
++                DataSet.new self
++            end
++            alias_method :metadata_dataset, :dataset
++
++            def select(*args)
++                self
++            end
++
++            def from(table_name)
++                raise "Tried to use missing table #{table_name}" unless @tables.has_key? table_name
++                # We assume no data to modify
++                DataSet.new self
++            end
++
++            def [](selector)
++                return from(selector) if selector.is_a? Symbol
++                raise "Unexpected selector #{selector.inspect}" unless selector.is_a? String
++                case selector
++                when /
++                            ^\s*
++                            SELECT \s+ \* \s+
++                                FROM \s+ information_schema.columns \s+
++                            WHERE \s+
++                                table_name \s* = \s* (?<table_quote>'?) (?<table_name>\w+) \k<table_quote> \s+
++                            AND \s+
++                                column_name \s* = \s* (?<column_quote>'?) (?<column_name>\w+) \k<column_quote> \s*
++                        /ix
++                    # 20160621182906_remove_space_id_from_events.rb
++                    table = @tables[$~[:table_name].to_sym]
++                    return dataset unless table
++                    return DataSet.new self, table.column_names.select { |c| c == $~[:column_name].to_sym }
++                when /^select\b/i
++                    return dataset
++                else
++                    raise "Unsupported selector #{selector}"
++                end
++            end
++
++            def indexes(table_name)
++                @tables[table_name].tap do |table|
++                    raise "Tried to use missing table #{table_name}" unless table
++                end.indexes
++            end
++
++            # Annoyingly, this basically has to support all methods of Table,
++            # with an extra first argument specifying the table name
++            def method_missing(method, *args, &block)
++                return super if args.empty?
++                sample_table = @tables.values.first
++                return super unless sample_table.respond_to? method
++
++                table = @tables[args.first]
++                raise "Tried to #{method} from non-existent table #{args.first}" unless table
++                args.shift
++                table.send method, *args, &block
++            end
++
++            # Even more annoyingly, Table#primary_key *sets* the primary key,
++            # but primary_key(:table) *gets* the primary key
++            def primary_key(table_name)
++                table = @tables[table_name]
++                raise "Tried to get primary key from non-existent table #{table_name}" unless table
++                pk = @tables[table].instance_variable_get(:@primary_key)
++                return nil unless pk
++                return pk.last[:name] || pk.first
++            end
++
++            # print the migration patch script to the given IO object (writer)
++            def print(writer=STDOUT)
++                # Figure out the full timestamp for the squash output
++                squashed_timestamp = MAXIMUM_MIGRATION_TIMESTAMP
++                squashed_timestamp += (14 - squashed_timestamp.length).times.map{'0'}.join
++                # Add dummy migrations for previous squashes
++                replaced_migrations = @migrations_files.dup
++                replaced_migrations += PREVIOUS_SQUASHED_MIGRATIONS.map do |m|
++                    "#{m}#{(14 - m.length).times.map{'0'}.join}_squashed_migrations.rb"
++                end
++
++                writer.puts <<~ENDSCRIPT
++                    #!/bin/bash
++                    set -o errexit -o xtrace
++                    DIR=/var/vcap/packages/cloud_controller_ng/cloud_controller_ng/db/migrations/
++                    SQUASHED_MIGRATIONS=(
++                        #{replaced_migrations.sort.join("\n    ")}
++                    )
++                    for f in "${SQUASHED_MIGRATIONS[@]}" ; do
++                        echo 'Sequel.migration { up {} }' > "${DIR}/${f}"
++                    done
++                    cat > "${DIR}/#{squashed_timestamp}_squashed_migrations.rb" <<"EOF"
++                    Sequel.migration do
++                      up do
++                        # Skip the squash-migration if we already have a users table
++                        # (which probably means this has data from before we did the
++                        # squashing).
++                        break if tables.find { |t| t =~ /^users$/ }
++                ENDSCRIPT
++
++                unless @default_charset.nil?
++                    writer.puts "    run 'ALTER DATABASE DEFAULT CHARACTER SET #{@default_charset};'"
++                end
++
++                # Print all tables _without_ foreign keys, and then modify the
++                # tables to add the foreign keys.  This helps with broken
++                # migrations because it lets us delete the tables on a retry
++                # (which means debugging this script is easier).
++                @tables.sort.each do |name, table|
++                    table.print writer
++                end
++                @tables.sort.each do |name, table|
++                    table.print_foreign_keys writer
++                end
++
++                writer.puts <<~ENDSCRIPT
++                      end
++                    end
++                    EOF
++                ENDSCRIPT
++            end
++        end
++
++        def self.instance
++            @@instance ||= FakeMySQLDB.new
++        end
++
++        def self.migration(&block)
++            instance.migration block.binding.receiver, &block
++        end
++
++        module Model
++            def self.db
++                Sequel.instance
++            end
++        end
++
++        def self.function(name, *args)
++            "#{name}(#{args.join(', ')})"
++        end
++
++        def self.lit(s, *args)
++            s
++        end
++
++        def self.like(expr, *patterns)
++            "like(#{expr})"
++        end
++    end
++
++    class Squasher
++        def initialize(migrations_dir)
++            @migrations_dir = migrations_dir
++        end
++
++        def squash(writer=STDOUT, verbose=true)
++            migrator = Sequel.instance
++            migrator.verbose = verbose
++            Dir.new(@migrations_dir).sort.each do |migrations_file|
++                next unless migrations_file.end_with? '.rb'
++                prefix = migrations_file[0...MAXIMUM_MIGRATION_TIMESTAMP.length]
++                if prefix.to_i > MAXIMUM_MIGRATION_TIMESTAMP.to_i
++                    puts "Skipping migration #{migrations_file}, too new"
++                    next
++                end
++                path = File.join(@migrations_dir, migrations_file)
++                puts "Loading migration #{migrations_file}"
++                migrator.add_migration_file migrations_file
++                eval File.read(path), migrator.binding, path
++            end
++            puts 'Finished loading migrations'
++            puts
++            migrator.print writer
++        end
++    end
++
++    def self.create(migrations_dir)
++        Squasher.new(migrations_dir)
++    end
++end
+diff --git a/lib/cloud_controller/db_migrator.rb b/lib/cloud_controller/db_migrator.rb
+index 3053a465a..6de383844 100644
+--- a/lib/cloud_controller/db_migrator.rb
++++ b/lib/cloud_controller/db_migrator.rb
+@@ -15,7 +15,12 @@ class DBMigrator
+   def apply_migrations(opts={})
+     Sequel.extension :migration
+     require 'vcap/sequel_case_insensitive_string_monkeypatch'
+-    Sequel::Migrator.run(@db, SEQUEL_MIGRATIONS, opts)
++    migrations_dir = SEQUEL_MIGRATIONS
++    if opts[:migrations_dir]
++      migrations_dir = opts[:migrations_dir]
++      delete opts[:migrations_dir]
++    end
++    Sequel::Migrator.run(@db, migrations_dir, opts.merge(use_transactions: true))
+   end
+ 
+   def rollback(number_to_rollback)
+diff --git a/lib/tasks/db.rake b/lib/tasks/db.rake
+index 4e230a739..2cb086422 100644
+--- a/lib/tasks/db.rake
++++ b/lib/tasks/db.rake
+@@ -33,7 +33,19 @@ namespace :db do
+   task :migrate do
+     RakeConfig.context = :migrate
+ 
+-    migrate
++    opts = {}
++    opts[:migrations_dir] = ENV['DIR'] if ENV.include? 'DIR'
++    migrate opts
++  end
++
++  desc 'Dump out the current migrations as one giant one'
++  task :squash do
++    migrations_dir = File.absolute_path(File.join('db', 'migrations'))
++    require_relative '../../db/helpers/squasher'
++    verbose = !ENV.fetch('VERBOSE', '').empty?
++    writer = STDOUT
++    writer = open(ENV['NAME'], 'w') if ENV.has_key? 'NAME'
++    DBSquasher.create(migrations_dir).squash(writer, verbose)
+   end
+ 
+   desc 'Rollback migrations to the database (one migration by default)'
+@@ -172,10 +184,10 @@ namespace :db do
+     task recreate: %w[parallel:drop parallel:create]
+   end
+ 
+-  def migrate
++  def migrate(opts={})
+     Steno.init(Steno::Config.new(sinks: [Steno::Sink::IO.new(STDOUT)]))
+     db_logger = Steno.logger('cc.db.migrations')
+-    DBMigrator.from_config(RakeConfig.config, db_logger).apply_migrations
++    DBMigrator.from_config(RakeConfig.config, db_logger).apply_migrations(opts)
+   end
+ 
+   def rollback(number_to_rollback)
+-- 
+2.16.4
+
