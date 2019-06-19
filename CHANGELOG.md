@@ -8,8 +8,7 @@
 - Added support for embedded UAA
 
 ## Changed
-- Added Gingko -flakeAttempts support for CATS
-- Added Gingko -flakeAttempts support for SITS
+- Added Gingko flakeAttempts support for CATS and SITS
 - Bumped app-autoscaler to 1.2.1
 - Bumped cf-deployment to 7.11
 - Bumped cflinuxfs3 to 0.101.0
