@@ -904,7 +904,7 @@ squash all initial database migrations].  To update this patch:
 3. Apply [`0001-db-migration-add-script-to-squash-DB-migrations.patch`]
    to the `api-group` container
 4. Follow the instructions at the top of the patch file (updating timestamps)
-5. Run `rake db:squash` (as noted in the patch file) to generated the new
+5. Run `rake db:squash` (as noted in the patch file) to generate the new
    squashing patch.
 6. Update [`0001-db-migration-add-script-to-squash-DB-migrations.patch`]
    with the new timestamps.
