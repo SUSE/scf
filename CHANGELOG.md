@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.17.0] - 2019-06-19
+
+## Added
+- Added eirini-extensions and eirini-persi-broker jobs
+- Added PXC release
+- Added support for embedded UAA
+
+## Changed
+- Added Gingko -flakeAttempts support for CATS
+- Added Gingko -flakeAttempts support for SITS
+- Bumped app-autoscaler to 1.2.1
+- Bumped cf-deployment to 7.11
+- Bumped cflinuxfs3 to 0.101.0
+- Bumped CATS to 7.11
+- Bumped dotnet-core-buildpack to 2.2.12
+- Bumped go-buildpack to 1.8.40
+- Bumped nginx-buildpack to 1.0.13
+- Bumped nodejs-buildpack to 1.6.51
+- Bumped php-buildpack to 4.3.77
+- Bumped python-buildpack to 1.6.34
+- Bumped ruby-buildpack to 1.7.40
+- Bumped staticfile-buildpack to 1.4.43
+- Bumped SLE15 stack
+- Increased timeout for CATS
+- Simplified service accounts and pod security policies
+- Switched to log-cache for container metrics
+- Switched from cf-mysql-release to pxc-release
+
+## Fixed
+- Fixed version and SHA1 of cf-mysql-release 36.15.0
+- Fixed TLS issues in log-cache
+
+
 ## [2.16.4] - 2019-05-07
 
 ## Fixed
