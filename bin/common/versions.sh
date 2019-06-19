@@ -10,7 +10,7 @@ set -o errexit -o nounset
 export BOSH_CLI_VERSION="fcaa9c6caff58ab8da8c56481320681cdea492ee"
 export CFCLI_VERSION="6.42.0"
 export FISSILE_FLAVOR="develop"
-export FISSILE_VERSION="7.0.0+317.g8bc11764"
+export FISSILE_VERSION="7.0.0+332.g0d8469bb"
 
 export HELM_VERSION="2.11.0"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
@@ -21,13 +21,13 @@ export UBUNTU_VERSION="14.04"
 
 # Used in: make/install-istio
 
-export ISTIO_VERSION="1.0.5"
+export ISTIO_VERSION="1.1.5"
 
 # For stampy we need the major+minor+patch as a separate value.
 export STAMPY_MAJOR=$(echo "$STAMPY_VERSION" | sed -e 's/\.g.*//' -e 's/\.[^.]*$//')
 
 # Used in: .envrc
-export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-36.g03b4653-30.80}
+export FISSILE_STEMCELL_VERSION=${FISSILE_STEMCELL_VERSION:-42.3-36.g03b4653-30.81}
 
 # Used in: bin/generate-dev-certs.sh
 
@@ -36,7 +36,7 @@ export GOLANG_VERSION=1.7
 # Used in: make/include/versioning
 
 export PRODUCT_VERSION="1.4"
-export CF_VERSION="6.10.0"
+export CF_VERSION="7.11.0"
 
 # Show versions, if called on its own.
 # # ## ### ##### ######## ############# #####################

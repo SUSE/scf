@@ -29,6 +29,9 @@ properties:
   acceptance_tests.nodes:
     default: 4
     description: The number of parallel test executors to spawn. The larger the number the higher the stress on the system.
+  acceptance_tests.flake_attempts:
+    default: 1
+    description: The number of times Ginkgo will run a test before treating it as a failure.
   acceptance_tests.verbose:
     default: false
     description: Whether to pass the -v flag to cf-acceptance-tests

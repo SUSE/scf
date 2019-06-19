@@ -37,9 +37,9 @@ properties:
     # include_v3: false
 
     # timeouts
-    default_timeout:   300 # 5 minutes
-    cf_push_timeout:   300 # 5 minutes
-    long_curl_timeout: 300 # 5 minutes
+    default_timeout:   600 # 10 minutes
+    cf_push_timeout:   600 # 10 minutes
+    long_curl_timeout: 600 # 10 minutes
   acceptance_tests_brain:
     user: admin
     org: test-brain-org
@@ -48,100 +48,97 @@ properties:
     cf:
       client_id: app_autoscaler
       grant_type: client_credentials
-      password: "" # unused
-      username: "" # unused
+      skip_ssl_validation: true
     api_server:
+      service_offering_enabled: false
+      require_consul: false
+      port: 7100
+      publicPort: 7106
+      health:
+        port: 9101
       eventgenerator:
         port: 7105
       metrics_collector:
         port: 7103
-      port: 7100
-      publicPort: 7106
-      require_consul: false
-      service_broker:
-        port: 7107
       scheduler:
         port: 7102
       scaling_engine:
         port: 7104
+      db_config:
+        max_connections: 5
+        min_connections: 1
+        idle_timeout: 60000
     appmetrics_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
-    binding_db:
-      databases:
-        - name: "autoscaler"
-          tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     eventgenerator:
-      metricscollector:
-        port: 7103
       require_consul: false
-      scaling_engine:
-        port: 7104
       server:
         port: 7105
+      health:
+        port: 9105   
+      metricscollector:
+        host: localhost
+        port: 7103
+      scaling_engine:
+        port: 7104
     instancemetrics_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     lock_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     metricscollector:
+      require_consul: false
       server:
         port: 7103
-      require_consul: false
+      health:
+        port: 9103        
     policy_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     operator:
       require_consul: false
+      health:
+        port: 9108   
       scaling_engine:
+        host: localhost
         port: 7104
       scheduler:
+        host: localhost      
         port: 7102
     scalingengine:
-      health:
-        port: 8083
       require_consul: false
       server:
         port: 7104
+      health:
+        port: 9104
     scalingengine_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
+      db_scheme: postgres          
     scheduler:
-      port: 7102
       require_consul: false
+      port: 7102
+      health:
+        port: 9102      
       scaling_engine:
+        host: localhost
         port: 7104
     scheduler_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      port: 5432
-      db_scheme: postgres
-    service_broker:
-      username: username
-      api_server:
-        port: 7100
-      port: 7107
-      publicPort: 7101
-      require_consul: false
+      db_scheme: postgres          
   bits-service:
     active_signing_key:
       key_id: key1
@@ -313,9 +310,7 @@ properties:
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
       max_open_files: 1500
-    proxy:
-      api_force_https: false
-      api_username: 'mysql_proxy'
+  cf_mysql_enabled: false
   deployment: scf-deployment
   diego:
     auctioneer:
@@ -359,6 +354,8 @@ properties:
     ssh_proxy:
       enable_cf_auth: true
   enable_consul_service_registration: false
+  encryption:
+    active_key_label: smorgasbrod
   etcd:
     bootstrap_node: etcd-0
   fissile:
@@ -436,7 +433,7 @@ properties:
     skip_cert_verify_external: false
   set_kernel_parameters: false
   smoke_tests:
-    user: 'admin'
+    client: cf_smoke_tests
     org: smoke-test-org
     space: smoke-test-space
     skip_ssl_validation: true
@@ -454,14 +451,14 @@ properties:
       # go into the SCF zone.
       app_autoscaler:
         # Requires read-only admin to look up stats, and write admin to do scaling
-        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin
+        authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin,uaa.resource
+        authorized-grant-types: client_credentials
+      cc-service-dashboards:
+        scope: cloud_controller_service_permissions.read,openid
+        authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
       cc_routing:
         authorities: routing.router_groups.read
-        authorized-grant-types: client_credentials
-      cc-service-dashboards:
-        scope: cloud_controller.write,openid,cloud_controller.read,cloud_controller_service_permissions.read
-        authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
       cc_service_key_client:
         authorities: credhub.read,credhub.write
@@ -469,33 +466,42 @@ properties:
       cf:
         access-token-validity: 600
         authorities: uaa.none
-        authorized-grant-types: implicit,password,refresh_token
-        autoapprove: true
+        authorized-grant-types: password,refresh_token
         override: true
         refresh-token-validity: 2592000
+        # We don't want scope perm.admin because it's for the perm service
+        # (https://github.com/cloudfoundry-incubator/perm) which is deprecated
+        # as it doesn't work with PXC
         scope: network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+        secret: ''
+      cf_smoke_tests:
+        authorities: cloud_controller.admin
+        authorized-grant-types: client_credentials
       cf-usb:
         authorities: cloud_controller.admin,usb.management.admin
         authorized-grant-types: client_credentials
         scope: usb.management.admin
-      cloud_controller:
-        authorized-grant-types: client_credentials
-        authorities: scim.read,scim.write,password.write
-        access-token-validity: 604800
       cloud_controller_username_lookup:
         authorities: scim.userids
         authorized-grant-types: client_credentials
       credhub_user_cli:
         authorities: credhub.write,credhub.read
         authorized-grant-types: client_credentials
+      default_zone_admin:
+        authorized-grant-types: client_credentials
+        scope: uaa.admin
+        authorities: uaa.admin
       doppler:
         authorities: uaa.resource
-        authorized-grant-types: authorization_code,refresh_token
+        authorized-grant-types: client_credentials
         override: true
       gorouter:
-        authorities: clients.read,clients.write,clients.admin,route.admin,route.advertise,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
-        scope: openid,cloud_controller_service_permissions.read
+        authorities: routing.routes.read
+        authorized-grant-types: client_credentials
+        #scope: openid,cloud_controller_service_permissions.read
+      routing_api_client:
+        authorities: routing.routes.write,routing.routes.read,routing.router_groups.read
+        authorized-grant-types: client_credentials
       scf_auto_config:
         access-token-validity: 600
         # Due to CAPS-969, our UAA clients are missing `autoapprove` and `redirect-uri` configs
@@ -503,12 +509,6 @@ properties:
         # cloud_controller.admin is needed for scf-helper-release/scf-set-proxy job
         authorities: scim.read,scim.write,clients.admin,cloud_controller.admin
         authorized-grant-types: client_credentials
-      login:
-        authorities: oauth.login,scim.write,clients.read,notifications.write,critical_notifications.write,emails.write,scim.userids,password.write
-        authorized-grant-types: authorization_code,client_credentials,refresh_token
-        autoapprove: true
-        override: true
-        scope: openid,oauth.approvals
       ssh-proxy:
         authorized-grant-types: authorization_code
         autoapprove: true
@@ -516,10 +516,10 @@ properties:
         scope: openid,cloud_controller.read,cloud_controller.write,cloud_controller.admin
       tcp_emitter:
         authorities: routing.routes.write,routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
+        authorized-grant-types: client_credentials
       tcp_router:
         authorities: routing.routes.read
-        authorized-grant-types: client_credentials,refresh_token
+        authorized-grant-types: client_credentials
     user:
       authorities:
       - openid
@@ -550,3 +550,14 @@ properties:
       - roles
       - user_attributes
       - uaa.offline_token
+    jwt:
+      policy:
+        active_key_id: default
+    logging_level: INFO
+  uaadb:
+    address: mysql-set
+    databases:
+    - name: uaadb
+      tag: uaa
+    db_scheme: mysql
+    port: 3306

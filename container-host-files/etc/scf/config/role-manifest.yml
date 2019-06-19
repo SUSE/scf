@@ -1,56 +1,56 @@
 releases:
 - name: bpm
-  version: "1.0.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=1.0.0"
-  sha1: "42b95d4a0d6d15dd0b0ead62418ffb56208e2307"
+  version: "1.0.4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.0.4"
+  sha1: "c2cceb2d1e271a2f7c5e7c563a7b26f919ebc17a"
 - name: capi
   version: "1.79.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.79.0"
   sha1: "85d0765ad9815962e46fc99712294c21514e6f7f"
 - name: cf-cli
-  version: 1.11.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.11.0
-  sha1: 43a21ad63156f20a0f6f56343e59d11882a69ca0
+  version: 1.13.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.13.0
+  sha1: 9c0cd518a95ef3434e86cef4a35b80e2d3796df0
 - name: cf-mysql
-  version: 36.17.0
+  version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
-  sha1: 04cbfafa0a2c11b133da20de8282595c98bc0049
+  sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.44
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.44
-  sha1: 4f230c07e61bc01d374f9c56eb18dcdb84e29714
+  version: 40.0.51
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.51
+  sha1: 143f79828dbc7eb06fd03b0080d569b63c9f1c36
 - name: cf-syslog-drain
-  version: "8.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=8.1"
-  sha1: "1a4de5962d9f0d472271da7daf277c35b0969635"
+  version: "10.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.0"
+  sha1: "6b5154a3709cf2d7ac29211b0b4584e4b21db562"
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
   version: "1.281.0"
   sha1: "1bdcf24c1fb9baf324aebab8ba28f8e64b846305"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.81.0"
-  version: "0.81.0"
-  sha1: "47f4eb966f21881bdb0a7db879fec47dc04b8b9a"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.101.0"
+  version: "0.101.0"
+  sha1: "500a8fc6022a95dd84a3d19b7258fb65d5d17857"
 - name: credhub
-  version: 2.1.2
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.1.2
-  sha1: 754a24dbffe8bc5efce7e698d935b5f4df541f38
+  version: 2.2.0
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.2.0
+  sha1: 09d519b5577c387b8c56c14c240c487484e9a1ca
 - name: diego
-  version: 2.25.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.25.0
-  sha1: e896a1e8205eff27bf7778f5bfa1d42c8befe943
+  version: 2.30.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.30.0
+  sha1: 7bbe97d294ec26c0603e13755c07cc4bc2a23070
 - name: garden-runc
-  version: 1.17.2
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.17.2
-  sha1: 881aad6294233e7c80ee62a48841fbe21af4a35e
+  version: 1.19.1
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.1
+  sha1: 9fca045a0a90cf38cf79feabcc582efd5a20538e
 - name: loggregator
-  version: 104.4
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=104.4
-  sha1: 133e3ddc86bc233ade19ba3303d39a00cc55af64
+  version: "105.2"
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.2
+  sha1: a1e3258786cb4826080d819c91dd049a06cd3476
 - name: log-cache
-  version: 2.0.2
-  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.0.2
-  sha1: 1f52248096ce2263405f3c82278e4f2aaddf1599
+  version: 2.2.0
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.0
+  sha1: 1ebecd0adbfc50fdd61309e129b0292deb7e7b24
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
@@ -63,58 +63,62 @@ releases:
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+- name: pxc
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.16.0
+  version: 0.16.0
+  sha1: eb53d366af2d6e49e8c2ac834191547b2ba44d30
 - name: routing
-  version: 0.184.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.184.0
-  sha1: f35eb9884e1c097ff21843e6f2d0eebd22ac2073
+  version: 0.187.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.187.0
+  sha1: 50c7bb74ab094d93c0015f4617654335bad5ca7c
 - name: statsd-injector
-  version: 1.5.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.5.0
-  sha1: 49a38aca12e0fd2ec28f96c780c1971427dda04e
+  version: 1.9.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.9.0
+  sha1: d78bb60685498f653bfe258eeac3f1f3da961a9f
 - name: loggregator-agent
-  version: "3.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.2"
-  sha1: "dd7c7bc6574823881c17dd180a834ab2076021ed"
+  version: "3.9"
+  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
+  sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
 - name: binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.32.1.tgz"
   version: "1.0.32.1"
   sha1: "4a81e17b95b74aa92ec514fa96e2b6316fa785fa"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.35.1.tgz"
-  version: "1.8.35.1"
-  sha1: "892149a994765280320e221bba9193bca2c7a664"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.40.1.tgz"
+  version: "1.8.40.1"
+  sha1: "622ab7c10f417399adeacb444fb052b18098ebff"
 - name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.1.1.tgz"
   version: "4.19.1.1"
   sha1: "325d3bba6cf27a4446ddd5d9f70bd096813522b4"
 - name: nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.49.1.tgz"
-  version: "1.6.49.1"
-  sha1: "5cdf8c09109fb8ba1d45c9f8bb091c2c20315139"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.51.1.tgz"
+  version: "1.6.51.1"
+  sha1: "0a8be0e4c9a1831292cace3638a182557fe11909"
 - name: php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.75.1.tgz"
-  version: "4.3.75.1"
-  sha1: "2d66a1d7581fffc76b746239d09ff0c75e519c58"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.77.1.tgz"
+  version: "4.3.77.1"
+  sha1: "39a85968775afcc4be427cebff676fd14915a984"
 - name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.32.1.tgz"
-  version: "1.6.32.1"
-  sha1: "bb7f2712ff0a14af4427a1e85f947c8d7b6fe2b1"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.34.1.tgz"
+  version: "1.6.34.1"
+  sha1: "4678ec944bcc72ff7eca7396d58b452779381b41"
 - name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.38.1.tgz"
-  version: "1.7.38.1"
-  sha1: "37bf4c9762c2d7ed590677c4235032a2766d319f"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.40.1.tgz"
+  version: "1.7.40.1"
+  sha1: "c4eb8eca89fe0b31c3523fb7d95a632d64f80511"
 - name: staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.42.1.tgz"
-  version: "1.4.42.1"
-  sha1: "1ab72d15c2002a63de12a5ea7f7469518c19ac29"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.43.1.tgz"
+  version: "1.4.43.1"
+  sha1: "382e54325bfdafee052d6456294e1a6a5fddd2f5"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.11.1.tgz"
-  version: "1.0.11.1"
-  sha1: "f4d3998c6d8fa9592ce492b614593507ef1a8548"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.13.1.tgz"
+  version: "1.0.13.1"
+  sha1: "8f5ed12e477a5f4a6e17442d21e7ae5550d8266e"
 - name: dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.10.1.tgz"
-  version: "2.2.10.1"
-  sha1: "435a63f91eb9cd707901a95d751dce0886dc1664"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.12.1.tgz"
+  version: "2.2.12.1"
+  sha1: "ec0aed04c2b4cee7e1cc516b55a8483f04890d0d"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
@@ -124,13 +128,13 @@ releases:
   version: "1.75.11"
   sha1: "c9f52bd5f82e82721d65ab5fffdce1ebe7a04eec"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.25.tgz"
-  version: "4.25"
-  sha1: "0ec9ed97a85effc2b0fafdad222868fe7b97fc85"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.50.tgz"
+  version: "4.50"
+  sha1: "a382779ea354a2db45156c1d43ae9bd1c30500bd"
 - name: app-autoscaler
-  version: "1.0.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.0.0"
-  sha1: "2e6d2aa85e0b218e110d42ca207cac6530cfd861"
+  version: "1.2.1"
+  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
+  sha1: "1cc2cd3ed6c7c39f8c984316bb2afb95743ccba1"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
@@ -148,9 +152,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.4.tgz"
-  version: "0.0.4"
-  sha1: "c2766a1da006a7619852937fbf7ca94e99db1a97"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.6.tgz"
+  version: "0.0.6"
+  sha1: "6f8ac2c937b8413f833b726e1e578d8c58becb8d"
+- name: uaa
+  version: 68.0
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
+  sha1: a06e5390463c760bcbcc0bacaec063f41a5ea089
 
 instance_groups:
 - name: eirini
@@ -168,11 +176,40 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: eirini-persi-broker
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: broker
+          protocol: TCP
+          internal: 8999
+  - name: eirini-extensions
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: webhook
+          protocol: TCP
+          internal: 2999
   - name: opi
     release: eirini
     properties:
       bosh_containerization:
-        pod-security-policy: privileged
         run:
           service-account: eirini
           scaling:
@@ -209,8 +246,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: bits-service
     release: bits-service
     properties:
@@ -249,7 +285,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -267,7 +302,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8080/health
+              - curl --silent --fail --head http://localhost:8080/health
         ports:
         - name: sched-health
           protocol: TCP
@@ -277,8 +312,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: adapter
   scripts:
   - scripts/forward_logfiles.sh
@@ -299,7 +333,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -317,7 +350,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8080/health
+              - curl --silent --fail --head http://localhost:8080/health
         ports:
         - name: adapter
           protocol: TCP
@@ -330,8 +363,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: nats
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -371,7 +403,6 @@ instance_groups:
                       values:
                       - nats
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
         ports:
         - name: nats
           protocol: TCP
@@ -384,58 +415,43 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: mysql
   scripts:
-  - scripts/create_mysql_data_tmp.sh
+  - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/chown_vcap_store.sh
-  - scripts/patches/fix_mysql_advertise_ip.sh
+  - scripts/pxc/create_directories.sh
+  - scripts/patches/fix_mysql_advertise_ip.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/forward_logfiles.sh
-  - scripts/patches/enable_mysql_galera_bootstrap.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: patch-properties
     release: scf-helper
-  - name: mysql
-    release: cf-mysql
+  - name: pxc-mysql
+    release: pxc
     provides:
       mysql: {}
     properties:
       bosh_containerization:
         ports:
-        - name: mysql
+        - name: pxc-mysql
           protocol: TCP
-          internal: 13306
+          internal: 3306
         - name: galera-tcp
           protocol: TCP
           internal: 4567
-        - name: galera-udp
-          protocol: UDP
-          internal: 4567
-        - name: galera-ist
-          protocol: TCP
-          internal: 4568
-        - name: healthcheck
+        - name: galera-agent
           protocol: TCP
           internal: 9200
-        - name: xtrabackup
-          protocol: TCP
-          internal: 4444
-  - name: proxy
-    release: cf-mysql
-    provides:
-      proxy: {}
-    properties:
-      bosh_containerization:
         run:
           scaling:
             min: 1
-            max: 3
-            ha: 2
-          capabilities: []
+            max: 7
+            ha: 3
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -446,7 +462,96 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:9200/
+              - "[[ $(curl --silent http://${HOSTNAME}:9200/api/v1/status | jq '.healthy') == true ]]"
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - mysql
+                  topologyKey: "beta.kubernetes.io/os"
+  - name: galera-agent
+    release: pxc
+  - name: gra-log-purger
+    release: pxc
+  - name: cluster-health-logger
+    release: pxc
+  - name: bootstrap
+    release: pxc
+  - name: mysql
+    release: cf-mysql
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
+  tags:
+  - sequential-startup
+  configuration:
+    templates:
+      properties.admin_password: ((MYSQL_ADMIN_PASSWORD))
+
+      # Deprecation start. Should go away with cf-mysql-release. >>
+      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
+      # << Deprecation end
+
+      properties.db_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
+      properties.engine_config.binlog.enabled: false
+      properties.engine_config.galera.enabled: true
+      properties.max_open_files: 1500
+      properties.monit_startup_timeout: 300
+      properties.seeded_databases: '[{"name":"ccdb","password":"((MYSQL_CCDB_ROLE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((MYSQL_DIEGO_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))","username":"credhub_user"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
+      properties.tls.galera.ca: ((INTERNAL_CA_CERT))
+      properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
+      properties.tls.galera.private_key: ((GALERA_SERVER_CERT_KEY))
+      properties.tls.server.ca: ((INTERNAL_CA_CERT))
+      properties.tls.server.certificate: ((MYSQL_SERVER_CERT))
+      properties.tls.server.private_key: ((MYSQL_SERVER_CERT_KEY))
+- name: mysql-proxy
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: proxy
+    release: pxc
+    provides:
+      proxy: {}
+    properties:
+      bosh_containerization:
+        ports:
+        - name: api-proxy
+          protocol: TCP
+          internal: 8083
+        - name: pxc-mysql-proxy
+          protocol: TCP
+          internal: 3306
+        - name: healthck-proxy
+          protocol: TCP
+          internal: 1936
+        run:
+          scaling:
+            min: 1
+            max: 5
+            ha: 2
+          memory: 2500
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
               - curl --silent --fail --head http://${HOSTNAME}:1936/
           affinity:
             podAntiAffinity:
@@ -460,26 +565,24 @@ instance_groups:
                       values:
                       - mysql
                   topologyKey: "beta.kubernetes.io/os"
-        ports:
-        - name: api-proxy
-          protocol: TCP
-          internal: 8080
-        - name: mysql-proxy
-          protocol: TCP
-          internal: 3306
-        - name: healthck-proxy
-          protocol: TCP
-          internal: 1936
+  - name: route_registrar
+    release: routing
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
   tags:
   - sequential-startup
   configuration:
     templates:
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-      properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
+      properties.api_force_https: false
+      properties.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.api_port: 8083
+      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
+      properties.api_username: mysql_proxy
+      properties.route_registrar.routes: '[{"name":"cf-mysql-proxy","port":8083,"prepend_instance_index":true,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]},{"name":"cf-mysql-proxy-aggregator","port":8082,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]}]'
 - name: cf-usb-group
   default_feature: cf_usb
   environment_scripts:
@@ -505,7 +608,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -534,8 +636,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   tags:
   - sequential-startup
   configuration:
@@ -585,7 +686,6 @@ instance_groups:
                       values:
                       - diego-api
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -651,7 +751,6 @@ instance_groups:
                       values:
                       - locket
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: locket
           protocol: TCP
@@ -675,8 +774,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: gorouter
     release: routing
     properties:
@@ -716,7 +814,6 @@ instance_groups:
                       values:
                       - router
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged # For port binding
         ports:
         - name: router
           protocol: TCP
@@ -756,7 +853,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -791,11 +887,10 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: routing-api
   environment_scripts:
   - scripts/go_log_level.sh
@@ -814,8 +909,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: routing-api
     release: routing
     properties:
@@ -844,7 +938,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
-          service-account: withsysresource
         ports:
         - name: routing-api
           protocol: TCP
@@ -854,7 +947,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: api-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -889,7 +982,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 3800
           virtual-cpus: 4
           healthcheck:
@@ -928,8 +1020,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   - name: statsd_injector
     release: statsd-injector
   - name: go-buildpack
@@ -956,6 +1047,11 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
+      properties.cc.logcache.host: doppler-log-cache.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.cc.logcache_tls.certificate: '"((LOG_CACHE_CERT))"'
+      properties.cc.logcache_tls.private_key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.cc.logcache_tls.subject_name: "log-cache"
+      properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
   scripts:
@@ -980,7 +1076,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 750
           virtual-cpus: 2
           affinity:
@@ -1000,8 +1095,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: blobstore
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1026,7 +1120,6 @@ instance_groups:
             min: 1
             max: 1
             # Not HA capable; use external HA storage instead
-          capabilities: []
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -1048,8 +1141,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -1085,7 +1177,6 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: []
           memory: 750
           virtual-cpus: 2
           affinity:
@@ -1107,8 +1198,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: log-cache-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -1134,12 +1224,10 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
-          service-account: privileged
           scaling:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 410
           virtual-cpus: 2
           affinity:
@@ -1159,8 +1247,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.maps: >
@@ -1218,7 +1305,6 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 410
           virtual-cpus: 2
           healthcheck:
@@ -1261,8 +1347,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   - name: route_registrar
     release: routing
   configuration:
@@ -1351,7 +1436,8 @@ instance_groups:
       properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
-           "port": 8083,
+           "tls_port": 8083,
+           "server_cert_domain_san": "log-cache",
            "tags": { "component":"log-cache" },
            "uris": ["log-cache.((DOMAIN))", "*.log-cache.((DOMAIN))"],
            "registration_interval": "20s" }
@@ -1387,13 +1473,12 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: []
           memory: 128
           virtual-cpus: 2
           healthcheck:
             readiness:
               command:
-              - curl --silent --fail --head http://${HOSTNAME}:8081/set-cookie
+              - curl --silent --fail --head --insecure https://${HOSTNAME}:8081/set-cookie
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -1425,11 +1510,15 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"log-api", "port":8081, "uris":["doppler.((DOMAIN))"], "registration_interval":"10s"}, {"name":"loggregator_trafficcontroller", "port":8080, "uris":["loggregator.((DOMAIN))"], "registration_interval":"10s"}]'
+      properties.route_registrar.routes: >
+        [{ "name": "doppler",
+           "tls_port": 8081,
+           "registration_interval": "20s",
+           "server_cert_domain_san": "doppler",
+           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] }]
 - name: diego-brain
   unless_feature: eirini
   environment_scripts:
@@ -1470,7 +1559,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
-          service-account: privileged
         ports:
         - name: diego-auction
           protocol: TCP
@@ -1529,7 +1617,6 @@ instance_groups:
                       values:
                       - cc-uploader
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: withsysresource
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1542,8 +1629,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
 - name: diego-ssh
   unless_feature: eirini
   environment_scripts:
@@ -1586,7 +1672,6 @@ instance_groups:
                       values:
                       - diego-ssh
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1603,6 +1688,7 @@ instance_groups:
           protocol: TCP
           internal: 8080
 - name: nfs-broker
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -1624,7 +1710,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [ALL]
+          privileged: true
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -1639,7 +1725,6 @@ instance_groups:
                       values:
                       - nfs-broker
                   topologyKey: "beta.kubernetes.io/os"
-          service-account: privileged
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1705,7 +1790,7 @@ instance_groups:
             max: 254
             # Not sure why 2 isn't enough for HA, but https://docs.cloudfoundry.org/concepts/high-availability.html disagrees
             ha: 3
-          capabilities: [ALL]
+          privileged: true
           service-account: garden-runc
           volumes:
           - path: /var/vcap/data/grootfs
@@ -1793,8 +1878,7 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
-          service-account: tests
+          service-account: tests-brain
 - name: acceptance-tests
   type: bosh-task
   tags:
@@ -1815,10 +1899,9 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
-          #service-account: privileged # ???
   configuration:
     templates:
+      properties.acceptance_tests.flake_attempts: '"((ACCEPTANCE_TEST_FLAKE_ATTEMPTS))"'
       properties.acceptance_tests.nodes: '"((ACCEPTANCE_TEST_NODES))"'
       scf.cats-suites: '"((CATS_SUITES))"'
 - name: sync-integration-tests
@@ -1839,8 +1922,7 @@ instance_groups:
             min: 0
             max: 1
           flight-stage: manual
-          capabilities: []
-          service-account: tests
+          service-account: tests-sits
   configuration:
     templates:
       properties.sync_integration_tests.bbs.svc.name: diego-api-bbs
@@ -1851,6 +1933,7 @@ instance_groups:
       properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
       properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
       properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
+      properties.sync_integration_tests.setup.flake_attempts: "'((SYNC_INTEGRATION_TESTS_FLAKE_ATTEMPTS))'"
       properties.sync_integration_tests.setup.focus: "'((SYNC_INTEGRATION_TESTS_FOCUS))'"
       properties.sync_integration_tests.setup.nodes: "'((SYNC_INTEGRATION_TESTS_NODES))'"
       properties.sync_integration_tests.setup.skip: "'((SYNC_INTEGRATION_TESTS_SKIP))'"
@@ -1877,14 +1960,91 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: manual
-          capabilities: []
   - name: bpm
     release: bpm
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
+  configuration:
+    templates:
+      properties.smoke_tests.client_secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
+- name: uaa
+  if_feature: uaa
+  environment_scripts:
+  - scripts/log_level_mappings.sh
+  scripts:
+  - scripts/authorize_internal_ca.sh
+  - scripts/patches/fix_uaa_monit_timeout.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/forward_logfiles.sh
+  jobs:
+  - name: global-uaa-properties # needs to be first so images use it for processing monit templates
+    release: scf-helper
+  - name: wait-for-database
+    release: scf-helper
+  - name: uaa
+    release: uaa
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            ha: 2
+            min: 1
+            max: 65535
+          capabilities: []
+          persistent-volumes: []
+          shared-volumes: []
+          memory: 2100
+          virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+        ports:
+        - name: uaa
+          protocol: TCP
+          external: 8080
+          internal: 8080
+          public: false
+        - name: uaa-ssl
+          protocol: TCP
+          external: 2793
+          internal: 8443
+          public: true
+  tags:
+  - sequential-startup
+  configuration:
+    templates:
+      properties.encryption.encryption_keys: '[{"label":"smorgasbrod","passphrase":"((AEK_PASSWORD))"}]'
+      properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
+      properties.login.saml.serviceProviderKey: '"((SAML_SERVICEPROVIDER_CERT_KEY))"'
+      properties.login.smtp.auth: ((SMTP_AUTH))
+      properties.login.smtp.from_address: ((SMTP_FROM_ADDRESS))
+      properties.login.smtp.host: ((SMTP_HOST))
+      properties.login.smtp.password: ((SMTP_PASSWORD))
+      properties.login.smtp.port: ((SMTP_PORT))
+      properties.login.smtp.starttls: ((SMTP_STARTTLS))
+      properties.login.smtp.user: ((SMTP_USER))
+      properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
+      # Dummy reference to JWT_SIGNING_CERT so that fissile validator doesn't complain that it is not being used
+      properties.uaa.jwt.policy.keys: '{"default": {"signingKey": "((JWT_SIGNING_CERT_KEY))((#JWT_SIGNING_CERT))((/JWT_SIGNING_CERT))"}}'
+      properties.uaa.logging_level: ((LOG_LEVEL_LOG4J))((#LOG_LEVEL))((/LOG_LEVEL))
+      properties.uaa.ssl.port: 8443
+      # Save INTERNAL_CA cert and key in the kube secrets, so that a future update can use them to sign additional certs
+      properties.uaa.sslCertificate: ((UAA_SERVER_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))
+      properties.uaa.sslPrivateKey: ((UAA_SERVER_CERT_KEY))((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))
+      properties.uaa.url: "https://uaa.((DOMAIN)):((UAA_PUBLIC_PORT))"
+      properties.uaa.zones.internal.hostnames: >-
+        [
+          "uaa",
+          "uaa.((KUBERNETES_NAMESPACE))",
+          "uaa.((KUBERNETES_NAMESPACE)).svc",
+          "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+        ]
+      properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.wait-for-database.hostname: mysql-proxy-set
+      properties.wait-for-database.port: 3306
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -1897,7 +2057,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: pre-flight
-          capabilities: []
           memory: 256
           virtual-cpus: 1
           service-account: secret-generator
@@ -1928,7 +2087,6 @@ instance_groups:
             min: 1
             max: 1
           flight-stage: post-flight
-          capabilities: []
           memory: 256
           virtual-cpus: 1
           service-account: eirini
@@ -1954,7 +2112,6 @@ instance_groups:
             min: 1
             max: 1
             ha: 1
-          capabilities: []
           persistent-volumes: []
           shared-volumes: []
           memory: 2000
@@ -1973,16 +2130,15 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
-      properties.credhub.data_storage.host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.credhub.data_storage.host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: 3306
       properties.credhub.data_storage.require_tls: false
@@ -2030,9 +2186,8 @@ instance_groups:
   configuration:
     templates:
       properties.databases.databases: '[{"name":"autoscaler","tag":"default"}]'
-      properties.databases.max_connections : '"((AUTOSCALER_DATABASE_MAX_CONNECTIONS))"'
-      properties.databases.port: 5432
-      properties.databases.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+      properties.databases.port: '"((AUTOSCALER_DB_PORT))"'
+      properties.databases.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
 - name: autoscaler-api
   if_feature: autoscaler
   environment_scripts:
@@ -2045,19 +2200,14 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
   - name: apiserver
     release: app-autoscaler
     properties:
       bosh_containerization:
-        ports:
-        - name: api  # apiserverport
-          protocol: TCP
-          external: 7100
-          internal: 7100
-        - name: api-public  # apiserverpublicport
-          protocol: TCP
-          external: 7106
-          internal: 7106
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2065,6 +2215,31 @@ instance_groups:
             ha: 2
           memory: 256
           virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9101
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-api
+                 topologyKey: "beta.kubernetes.io/os"
+        ports:
+        - name: api  # apiserverport
+          protocol: TCP
+          external: 7100
+          internal: 7100
+        - name: apihealthport
+          protocol: TCP
+          external: 9101
+          internal: 9101
   - name: route_registrar
     release: routing
   - name: bpm
@@ -2072,8 +2247,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
+          privileged: true
   configuration:
     templates:
       properties.route_registrar.routes: '[{"name":"autoscalerapiserver", "port":7106, "tags":{"component":"autoscalerapiserver"}, "uris":["autoscaler.((DOMAIN))"], "registration_interval":"10s"}]'
@@ -2091,45 +2265,61 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
             max: 3
             ha: 2
-          memory: 128
+          memory: 1024
           virtual-cpus: 4
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9103
+              - curl --silent --fail --head http://${HOSTNAME}:9105
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-metrics
+                 topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
           external: 7103
           internal: 7103
-- name: autoscaler-scalingengine
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: scalingengine
+        - name: mchealthport
+          protocol: TCP
+          external: 9103
+          internal: 9103
+  - name: eventgenerator
     release: app-autoscaler
     properties:
       bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
         ports:
-        - name: scaling-engine  # scalingengineport
+        - name: eventgen  # eventgeneratorport
           protocol: TCP
-          external: 7104
-          internal: 7104
-- name: autoscaler-scheduler
+          external: 7105
+          internal: 7105
+        - name: eghealthport
+          protocol: TCP
+          external: 9105
+          internal: 9105
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
+- name: autoscaler-actors
   if_feature: autoscaler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2143,6 +2333,8 @@ instance_groups:
     release: app-autoscaler
     properties:
       bosh_containerization:
+        colocated_containers:
+        - loggregator-agent
         run:
           scaling:
             min: 1
@@ -2150,104 +2342,61 @@ instance_groups:
             ha: 2
           memory: 2350
           virtual-cpus: 2
+          healthcheck:
+            readiness:
+              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9102
+              - curl --silent --fail --head http://${HOSTNAME}:9104
+              - curl --silent --fail --head http://${HOSTNAME}:9108
+          affinity:
+           podAntiAffinity:
+             preferredDuringSchedulingIgnoredDuringExecution:
+             - weight: 100
+               podAffinityTerm:
+                 labelSelector:
+                   matchExpressions:
+                   - key: "app.kubernetes.io/component"
+                     operator: In
+                     values:
+                     - autoscaler-actors
+                 topologyKey: "beta.kubernetes.io/os"
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
           external: 7102
           internal: 7102
-- name: autoscaler-operator
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
+        - name: sdhealthport
+          protocol: TCP
+          external: 9102
+          internal: 9102
+  - name: scalingengine
+    release: app-autoscaler
+    properties:
+      bosh_containerization:
+        ports:
+        - name: scaling-engine  # scalingengineport
+          protocol: TCP
+          external: 7104
+          internal: 7104
+        - name: sehealthport
+          protocol: TCP
+          external: 9104
+          internal: 9104
   - name: operator
     release: app-autoscaler
     properties:
       bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
-- name: autoscaler-servicebroker
-  if_feature: autoscaler
-  environment_scripts:
-  - scripts/configure-HA-hosts.sh
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: servicebroker
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
         ports:
-        - name: broker
+        - name: ophealthport
           protocol: TCP
-          external: 7107
-          internal: 7107
-        - name: broker-public  # brokerpublicport
-          protocol: TCP
-          external: 7101
-          internal: 7101
-  - name: route_registrar
-    release: routing
+          external: 9108
+          internal: 9108
   - name: bpm
     release: bpm
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-        pod-security-policy: privileged
-  configuration:
-    templates:
-      properties.route_registrar.routes: '[{"name":"autoscalerservicebroker", "port":7101, "tags":{"component":"autoscalerservicebroker"}, "uris":["autoscalerservicebroker.((DOMAIN))"], "registration_interval":"10s"}]'
-- name: autoscaler-eventgenerator
-  if_feature: autoscaler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: eventgenerator
-    release: app-autoscaler
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 3
-            ha: 2
-          memory: 2350
-          virtual-cpus: 2
-        ports:
-        - name: eventgen  # eventgenereatorport
-          protocol: TCP
-          external: 7105
-          internal: 7105
+          privileged: true
 - name: loggregator-agent
   type: colocated-container
   post_config_scripts:
@@ -2271,8 +2420,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
-          capabilities: [ALL]
-          service-account: privileged
+          privileged: true
   configuration:
     templates:
       properties.counters: >
@@ -2347,11 +2495,16 @@ configuration:
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
+      psp-role:
+      - apiGroups: [extensions]
+        resourceNames: [default]
+        resources: [podsecuritypolicies]
+        verbs: [use]
       secrets-role:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role:
+      test-role-brain:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
@@ -2373,26 +2526,15 @@ configuration:
       - apiGroups: [""]
         resources: ["secrets"]
         verbs: [get, list]
+      test-role-sits:
+      - apiGroups: [""]
+        resources: [pods/portforward]
+        verbs: [create]
     cluster-roles:
       node-reader-role:
       - apiGroups: [""]
         resources: [nodes]
         verbs: [get, list, watch]
-      nonprivileged:
-      - apiGroups: [extensions]
-        resourceNames: [nonprivileged]
-        resources: [podsecuritypolicies]
-        verbs: [use]
-      withsysresource:
-      - apiGroups: [extensions]
-        resourceNames: [withsysresource]
-        resources: [podsecuritypolicies]
-        verbs: [use]
-      privileged:
-      - apiGroups: [extensions]
-        resourceNames: [privileged]
-        resources: [podsecuritypolicies]
-        verbs: [use]
       eirini-role:
       - apiGroups: ["*"]
         resources: ["*"]
@@ -2417,8 +2559,13 @@ configuration:
         resources: [storageclasses]
         verbs: [get, list]
     pod-security-policies:
-      nonprivileged: &psp-nonprivileged
+      default:
+        allowPrivilegeEscalation: true
+        allowedCapabilities: ["*"]
+        defaultAllowPrivilegeEscalation: true
         fsGroup: { rule: RunAsAny }
+        hostPorts: [{ min: 0, max: 65535 }]
+        privileged: true
         runAsUser: { rule: RunAsAny }
         seLinux: { rule: RunAsAny }
         supplementalGroups: { rule: RunAsAny }
@@ -2430,35 +2577,19 @@ configuration:
         - projected
         - persistentVolumeClaim
         - nfs
-      withsysresource:
-        <<: *psp-nonprivileged
-        allowedCapabilities: [SYS_RESOURCE]
-      privileged:
-        <<: *psp-nonprivileged
-        allowPrivilegeEscalation: true
-        allowedCapabilities: ["*"]
-        defaultAllowPrivilegeEscalation: true
-        hostPorts: [{ min: 0, max: 65535 }]
-        privileged: true
     accounts:
       default:
-        roles: [configgin-role]
-        cluster-roles: [nonprivileged]
-      withsysresource:
-        roles: [configgin-role]
-        cluster-roles: [withsysresource]
-      privileged:
-        roles: [configgin-role]
-        cluster-roles: [privileged]
+        roles: [configgin-role, psp-role]
       secret-generator:
-        roles: [configgin-role, secrets-role]
-        cluster-roles: [nonprivileged]
-      tests:
-        roles: [configgin-role, test-role]
-        cluster-roles: [nonprivileged, test-cluster-role]
+        roles: [configgin-role, secrets-role, psp-role]
+      tests-brain:
+        roles: [configgin-role, test-role-brain, psp-role]
+        cluster-roles: [test-cluster-role]
+      tests-sits:
+        roles: [configgin-role, test-role-sits, psp-role]
       garden-runc:
-        roles: [configgin-role]
-        cluster-roles: [privileged, node-reader-role]
+        roles: [configgin-role, psp-role]
+        cluster-roles: [node-reader-role]
       eirini:
         roles: [configgin-role]
         cluster-roles: [eirini-role]
@@ -2482,18 +2613,10 @@ configuration:
     properties.app_domains: '["((DOMAIN))"]'
     properties.app_ssh.host_key_fingerprint: '"((APP_SSH_KEY_FINGERPRINT))"'
     properties.autoscaler.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.cache_ttl: '((AUTOSCALER_API_SERVER_CACHE_TTL))'
-    properties.autoscaler.api_server.db_config.idle_timeout: '((AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT))'
-    properties.autoscaler.api_server.db_config.max_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS))'
-    properties.autoscaler.api_server.db_config.min_connections: '((AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS))'
     properties.autoscaler.api_server.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.api_server.eventgenerator.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-eventgenerator-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.api_server.info.build: '"((AUTOSCALER_API_SERVER_INFO_BUILD))"'
-    properties.autoscaler.api_server.info.description: '"((AUTOSCALER_API_SERVER_INFO_DESCRIPTION))"'
-    properties.autoscaler.api_server.info.name: '"((AUTOSCALER_API_SERVER_INFO_NAME))"'
-    properties.autoscaler.api_server.info.support_url: '"((AUTOSCALER_API_SERVER_INFO_SUPPORT_URL))"'
+    properties.autoscaler.api_server.eventgenerator.host: '"autoscaler-metrics-eventgenerator.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.metrics_collector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.metrics_collector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.api_server.metrics_collector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
@@ -2504,142 +2627,61 @@ configuration:
     properties.autoscaler.api_server.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.api_server.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.api_server.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
     properties.autoscaler.api_server.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.api_server.scheduler.host: '"autoscaler-actors-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.api_server.server_cert: '"((AUTOSCALER_ASAPI_SERVER_CERT))"'
     properties.autoscaler.api_server.server_key: '"((AUTOSCALER_ASAPI_SERVER_CERT_KEY))"'
-    properties.autoscaler.api_server.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.api_server.service_broker.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.api_server.service_broker.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
-    properties.autoscaler.api_server.service_broker.host: '"autoscaler-servicebroker-servicebroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.api_server.service_offering_enabled: '((AUTOSCALER_SERVICE_OFFERING_ENABLED))'
-    properties.autoscaler.appmetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.appmetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.appmetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.appmetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.appmetrics_db_connection_config.max_open_connections: '((AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.binding_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.binding_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+    properties.autoscaler.appmetrics_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.appmetrics_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.appmetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.cf.api: '"https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024"'
     properties.autoscaler.cf.secret: '"((AUTOSCALER_UAA_CLIENT_SECRET))"'
-    properties.autoscaler.eventgenerator.aggregator.aggregator_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL))"'
-    properties.autoscaler.eventgenerator.aggregator.app_metric_channel_size: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE))"'
-    properties.autoscaler.eventgenerator.aggregator.app_monitor_channel_size: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE))'
-    properties.autoscaler.eventgenerator.aggregator.metric_poller_count: '((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT))'
-    properties.autoscaler.eventgenerator.aggregator.policy_poller_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL))"'
-    properties.autoscaler.eventgenerator.aggregator.save_interval: '"((AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL))"'
     properties.autoscaler.eventgenerator.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.back_off_initial_interval: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.back_off_max_interval: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL))"'
-    properties.autoscaler.eventgenerator.circuitBreaker.consecutive_failure_count: '"((AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT))"'
-    properties.autoscaler.eventgenerator.defaultBreachDurationSecs: '"((AUTOSCALER_DEFAULT_BREACH_DURATION_SECS))"'
-    properties.autoscaler.eventgenerator.defaultStatWindowSecs: '"((AUTOSCALER_DEFAULT_STAT_WINDOW_SECS))"'
-    properties.autoscaler.eventgenerator.evaluator.evaluation_manager_execute_interval: '"((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL))"'
-    properties.autoscaler.eventgenerator.evaluator.evaluator_count: '((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT))'
-    properties.autoscaler.eventgenerator.evaluator.trigger_array_channel_size: '((AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE))'
-    properties.autoscaler.eventgenerator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.eventgenerator.metricscollector.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_cert: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.metricscollector.client_key: '"((AUTOSCALER_ASMETRICS_CLIENT_CERT_KEY))"'
-    properties.autoscaler.eventgenerator.metricscollector.host: '"autoscaler-metrics-metricscollector.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.eventgenerator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.autoscaler.eventgenerator.scaling_engine.host: '"autoscaler-actors-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.eventgenerator.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.eventgenerator.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
-    properties.autoscaler.instancemetrics_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.instancemetrics_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.instancemetrics_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.instancemetrics_db_connection_config.max_idle_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.instancemetrics_db_connection_config.max_open_connections: '((AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.lock_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.lock_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.lock_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.lock_db_connection_config.max_idle_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.lock_db_connection_config.max_open_connections: '((AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.instancemetrics_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.instancemetrics_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.instancemetrics_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
+    properties.autoscaler.lock_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.lock_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.lock_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.metricscollector.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.metricscollector.collector.collect_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL))"'
-    properties.autoscaler.metricscollector.collector.collect_method: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD))"'
-    properties.autoscaler.metricscollector.collector.refresh_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL))"'
-    properties.autoscaler.metricscollector.collector.save_interval: '"((AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL))"'
-    properties.autoscaler.metricscollector.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.metricscollector.server_cert: '"((AUTOSCALER_ASMETRICS_SERVER_CERT))"'
     properties.autoscaler.metricscollector.server_key: '"((AUTOSCALER_ASMETRICS_SERVER_CERT_KEY))"'
-    properties.autoscaler.operator.app_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.operator.app_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.operator.app_sync_interval: '((AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL))'
-    properties.autoscaler.operator.enable_db_lock: '"((AUTOSCALER_OPERATOR_ENABLE_DB_LOCK))"'
-    properties.autoscaler.operator.instance_metrics_db.cutoff_days: '((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS))'
-    properties.autoscaler.operator.instance_metrics_db.refresh_interval: '"((AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL))"'
-    properties.autoscaler.operator.lock.lock_retry_interval: '"((AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL))"'
-    properties.autoscaler.operator.lock.lock_ttl: '"((AUTOSCALER_OPERATOR_LOCK_TTL))"'
-    properties.autoscaler.operator.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.operator.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.operator.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.operator.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.operator.scaling_engine.sync_interval: '((AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL))'
-    properties.autoscaler.operator.scaling_engine_db.cutoff_days: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS))"'
-    properties.autoscaler.operator.scaling_engine_db.refresh_interval: '"((AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL))"'
     properties.autoscaler.operator.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.operator.scheduler.client_cert: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT))"'
     properties.autoscaler.operator.scheduler.client_key: '"((AUTOSCALER_SCHEDULER_CLIENT_CERT_KEY))"'
-    properties.autoscaler.operator.scheduler.host: '"autoscaler-scheduler-scheduler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.operator.scheduler.sync_interval: '((AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL))'
-    properties.autoscaler.policy_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.policy_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.policy_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.policy_db_connection_config.max_idle_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.policy_db_connection_config.max_open_connections: '((AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.policy_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.policy_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.policy_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scalingengine.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.scalingengine.defaultCoolDownSecs: '((AUTOSCALER_DEFAULT_COOLDOWN_SECS))'
-    properties.autoscaler.scalingengine.health.emit_interval: '((AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL))'
-    properties.autoscaler.scalingengine.lockSize: '"((AUTOSCALER_SCALING_ENGINE_LOCK_SIZE))"'
-    properties.autoscaler.scalingengine.logging.level: '"((LOG_LEVEL))"'
     properties.autoscaler.scalingengine.server_cert: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT))"'
     properties.autoscaler.scalingengine.server_key: '"((AUTOSCALER_SCALING_ENGINE_SERVER_CERT_KEY))"'
-    properties.autoscaler.scalingengine_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.scalingengine_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.scalingengine_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.scalingengine_db_connection_config.max_idle_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.scalingengine_db_connection_config.max_open_connections: '((AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
+    properties.autoscaler.scalingengine_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.scalingengine_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.scalingengine_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.autoscaler.scheduler.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.scheduler.job_reschedule_interval_millisecond: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND))"'
-    properties.autoscaler.scheduler.job_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT))"'
-    properties.autoscaler.scheduler.notification_reschedule_maxcount: '"((AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT))"'
     properties.autoscaler.scheduler.scaling_engine.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_cert: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT))"'
     properties.autoscaler.scheduler.scaling_engine.client_key: '"((AUTOSCALER_SCALING_ENGINE_CLIENT_CERT_KEY))"'
-    properties.autoscaler.scheduler.scaling_engine.host: '"autoscaler-scalingengine-scalingengine.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.autoscaler.scheduler.server_cert: '"((AUTOSCALER_SCHEDULER_SERVER_CERT))"'
     properties.autoscaler.scheduler.server_key: '"((AUTOSCALER_SCHEDULER_SERVER_CERT_KEY))"'
-    properties.autoscaler.scheduler_db.address: '"autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.scheduler_db.roles: '[{"name": "postgres", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
-    properties.autoscaler.scheduler_db_connection_config.connection_max_lifetime: '"((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME))"'
-    properties.autoscaler.scheduler_db_connection_config.max_idle_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS))'
-    properties.autoscaler.scheduler_db_connection_config.max_open_connections: '((AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS))'
-    properties.autoscaler.service_broker.api_server.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.api_server.client_cert: '"((AUTOSCALER_ASAPI_CLIENT_CERT))"'
-    properties.autoscaler.service_broker.api_server.client_key: '"((AUTOSCALER_ASAPI_CLIENT_CERT_KEY))"'
-    properties.autoscaler.service_broker.api_server.host: '"autoscaler-api-apiserver.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.autoscaler.service_broker.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.dashboard_redirect_uri: '"https://scalerui.((DOMAIN))"'
-    properties.autoscaler.service_broker.db_config.idle_timeout: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT))'
-    properties.autoscaler.service_broker.db_config.max_connections: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS))'
-    properties.autoscaler.service_broker.db_config.min_connections: '((AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS))'
-    properties.autoscaler.service_broker.http_request_timeout: '((AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT))'
-    properties.autoscaler.service_broker.password: '"((AUTOSCALER_SERVICE_BROKER_PASSWORD))"'
-    properties.autoscaler.service_broker.public_ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.autoscaler.service_broker.public_server_cert: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT))"'
-    properties.autoscaler.service_broker.public_server_key: '"((AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT_KEY))"'
-    properties.autoscaler.service_broker.server_cert: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT))"'
-    properties.autoscaler.service_broker.server_key: '"((AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY))"'
-
-
+    properties.autoscaler.scheduler_db.address: '((AUTOSCALER_DB_ADDRESS))'
+    properties.autoscaler.scheduler_db.port: '"((AUTOSCALER_DB_PORT))"'
+    properties.autoscaler.scheduler_db.roles: '[{"name": "((AUTOSCALER_DB_ROLE_NAME))", "password": "((AUTOSCALER_DB_PASSWORD))", "tag": "default"}]'
     properties.bits-service.active_signing_key.secret: "((BITS_SERVICE_SECRET))"
     properties.bits-service.app_stash.webdav_config.ca_cert: "((INTERNAL_CA_CERT))"
     properties.bits-service.app_stash.webdav_config.password: "((BLOBSTORE_PASSWORD))"
@@ -2666,7 +2708,6 @@ configuration:
     properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
-
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
     properties.blobstore.internal_access_rules: '[((BLOBSTORE_ACCESS_RULES))]'
     properties.blobstore.max_upload_size: ((BLOBSTORE_MAX_UPLOAD_SIZE))m
@@ -2690,7 +2731,7 @@ configuration:
     properties.capi.tps.cc.client_key: '"((TPS_CC_CLIENT_CRT_KEY))"'
     properties.capi.tps.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.capi.tps.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.capi.tps.traffic_controller_url: ws://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.capi.tps.traffic_controller_url: wss://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.capi.tps.watcher.locket.api_location: '"locket-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.cc.allow_app_ssh_access: ((ALLOW_APP_SSH_ACCESS))
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
@@ -2730,7 +2771,7 @@ configuration:
     properties.cc.internal_api_password: '"((INTERNAL_API_PASSWORD))"'
     properties.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cc.logging_level: '"((LOG_LEVEL))"'
-    properties.cc.loggregator.internal_url: http://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
+    properties.cc.loggregator.internal_url: https://log-api-loggregator-trafficcontroller.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8081
     properties.cc.maximum_app_disk_in_mb: ((MAX_APP_DISK_IN_MB))
     properties.cc.maximum_health_check_timeout: ((MAX_HEALTH_CHECK_TIMEOUT))
     properties.cc.mutual_tls.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2753,7 +2794,7 @@ configuration:
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -2761,11 +2802,9 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
-    properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
@@ -2798,13 +2837,13 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: '"mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
@@ -2826,11 +2865,23 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.ssh_proxy.uaa.ca_cert: ((UAA_CA_CERT))
+    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
+    properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-extensions.operator_webhook_host: "((EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST))"
+    properties.eirini-persi-broker.auth_password: '"((EIRINI_PERSI_NFS_BROKER_PASSWORD))"'
+    properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
+    properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
+    properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.garden.apparmor_profile: '"((GARDEN_APPARMOR_PROFILE))"' # Quoting needed to pass through empty string
     properties.garden.btrfs-active: "((^GARDEN_DISABLE_BTRFS))true((/GARDEN_DISABLE_BTRFS))"
@@ -2854,6 +2905,8 @@ configuration:
     properties.loggregator.ca_cert: ((INTERNAL_CA_CERT))
     properties.loggregator.cert: ((LOGGREGATOR_CLIENT_CERT))
     properties.loggregator.key: ((LOGGREGATOR_CLIENT_CERT_KEY))
+    properties.loggregator.outgoing_cert: ((LOGGREGATOR_OUTGOING_CERT))
+    properties.loggregator.outgoing_key: ((LOGGREGATOR_OUTGOING_CERT_KEY))
     properties.loggregator.tls.agent.cert: '"((LOGGREGATOR_AGENT_CERT))"'
     properties.loggregator.tls.agent.key: '"((LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.loggregator.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -2877,7 +2930,7 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -2918,7 +2971,7 @@ configuration:
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
-    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+    properties.router.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2932,7 +2985,7 @@ configuration:
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
-    properties.routing_api.sqldb.host: "mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.routing_api.sqldb.host: "mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -2973,7 +3026,7 @@ configuration:
     properties.sle15-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.smoke_tests.api: '"api.((DOMAIN))"'
     properties.smoke_tests.apps_domain: '["((DOMAIN))"]'
-    properties.smoke_tests.autoscaler_service_broker_endpoint: '"https://autoscalerservicebroker.((DOMAIN))"'
+    properties.smoke_tests.autoscaler_endpoint: '"https://autoscaler.((DOMAIN))"'
     properties.smoke_tests.password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.support_address: '"((SUPPORT_ADDRESS))"'
     properties.system_domain: '"((DOMAIN))"'
@@ -2991,14 +3044,14 @@ configuration:
     properties.uaa.clients.cc_service_key_client.secret: '"((UAA_CLIENTS_CC_SERVICE_KEY_CLIENT_SECRET))"'
     properties.uaa.clients.cf-usb.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
     properties.uaa.clients.cf.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
-    properties.uaa.clients.cloud_controller.secret: ((UAA_CC_CLIENT_SECRET))
+    properties.uaa.clients.cf_smoke_tests.secret: ((UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET))
     properties.uaa.clients.cloud_controller_username_lookup.secret: '"((UAA_CLIENTS_CLOUD_CONTROLLER_USERNAME_LOOKUP_SECRET))"'
     properties.uaa.clients.credhub_user_cli.secret: '"((UAA_CLIENTS_CREDHUB_USER_CLI_SECRET))"'
+    properties.uaa.clients.default_zone_admin.secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
     properties.uaa.clients.doppler.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     properties.uaa.clients.doppler.secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.uaa.clients.gorouter.secret: '"((UAA_CLIENTS_GOROUTER_SECRET))"'
-    properties.uaa.clients.login.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
-    properties.uaa.clients.login.secret: '"((UAA_CLIENTS_LOGIN_SECRET))"'
+    properties.uaa.clients.routing_api_client.secret: ((UAA_CLIENTS_ROUTING_API_CLIENT_SECRET))
     properties.uaa.clients.scf_auto_config.secret: '"((UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET))"'
     properties.uaa.clients.ssh-proxy.redirect-uri: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))/login
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
@@ -3016,12 +3069,24 @@ configuration:
     # Really a loggregator_agent job property
     properties.zone: '"((KUBE_AZ))"'
 variables:
+- name: ACCEPTANCE_TEST_FLAKE_ATTEMPTS
+  options:
+    default: 3
+    description: >
+      The number of times Ginkgo will run a CATS test before treating it as a failure.
+      Individual failed runs will still be reported in the test output.
 - name: ACCEPTANCE_TEST_NODES
   options:
     default: 4
     description: >
       The number of parallel test executors to spawn for Cloud Foundry
       acceptance tests. The larger the number the higher the stress on the system.
+- name: AEK_PASSWORD
+  options:
+    secret: true
+    immutable: true
+    description: Password used for the active uaa encryption key.
+  type: password
 - name: ALLOWED_CORS_DOMAINS
   options:
     default: []
@@ -3075,78 +3140,13 @@ variables:
     secret: true
     description: PEM-encoded server key
     required: true
-- name: AUTOSCALER_API_SERVER_CACHE_TTL
-  options:
-    default: 600
-    description: "The TTL of credential cache for the Autoscaler custom metrics, in seconds"
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_IDLE_TIMEOUT
-  options:
-    default: 100
-    description: Idle connection timeout for the Autoscaler API Server database, in
-      seconds.
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_MAX_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler API Server database.
-- name: AUTOSCALER_API_SERVER_DB_CONFIG_MIN_CONNECTIONS
-  options:
-    default: 0
-    description: The minimum number of connections to the Autoscaler API Server database.
-- name: AUTOSCALER_API_SERVER_INFO_BUILD
-  options:
-    default: beta
-    description: The build version of Autoscaler. It should be defined when it is
-      deployed to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_DESCRIPTION
-  options:
-    default: autoscaler
-    description: The description of Autoscaler. It should be defined when it is deployed
-      to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_NAME
-  options:
-    default: autoscalerapiserver
-    description: The name of the Autoscaler API Server. It should be defined when
-      it is deployed to a product environment.
-- name: AUTOSCALER_API_SERVER_INFO_SUPPORT_URL
-  options:
-    default: ''
-    description: The support url of autoscaler where the users could find support
-      information. It should be defined when it is deployed to a product environment.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      appmetrics database.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler appmetrics database.
-- name: AUTOSCALER_APPMETRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The minimum number of connections to the Autoscaler appmetrics database.
-- name: AUTOSCALER_ASAPI_CLIENT_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_api_client
-    description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
-      API. This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
-  type: certificate
-- name: AUTOSCALER_ASAPI_CLIENT_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key for clients to connect to the Autoscaler API.
-      This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
 - name: AUTOSCALER_ASAPI_PUBLIC_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler.{{.DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler API public https
       server. This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -3163,6 +3163,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-api-apiserver.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler API https server.
       This includes the Autoscaler ApiServer and the Service Broker.
     required: true
@@ -3177,8 +3178,6 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_metrics_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler
       Metrics. This includes the Autoscaler Metrics Collector and Event Generator.
     required: true
@@ -3195,6 +3194,8 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - autoscaler-metrics-metricscollector.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-metrics-eventgenerator.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Metrics https server.
       This includes the Autoscaler Metrics Collector.
     required: true
@@ -3205,218 +3206,28 @@ variables:
     description: A PEM-encoded TLS key of the Autoscaler Metrics https server. This
       includes the Autoscaler Metrics Collector.
     required: true
-- name: AUTOSCALER_DATABASE_MAX_CONNECTIONS
+- name: AUTOSCALER_DB_ADDRESS
   options:
-    default: 1000
-    description: The maximum number of connections the Autoscaler postgres database
-      server could serve.
+    default: "autoscaler-postgres-postgres.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    description: The db address for the Autoscaler postgres database.
 - name: AUTOSCALER_DB_PASSWORD
   options:
     secret: true
     description: The password for the Autoscaler postgres database.
     required: true
   type: password
-- name: AUTOSCALER_DEFAULT_BREACH_DURATION_SECS
+- name: AUTOSCALER_DB_PORT
   options:
-    default: 300
-    description: The default breach duration for the Autoscaler Event Generator, in
-      seconds.The breach duration means the App Autoscaler won’t take the desired
-      adjustment until the application has been breaching the Autoscaler policy for
-      a period longer than breach_duration_secs setting.
-- name: AUTOSCALER_DEFAULT_COOLDOWN_SECS
+    default: 5432
+    description: "The tcp port of postgres database serves on"
+- name: AUTOSCALER_DB_ROLE_NAME
   options:
-    default: 300
-    description: The default cooldown duration between two scaling action for the
-      Autoscaler Event Generator, in seconds.
-- name: AUTOSCALER_DEFAULT_STAT_WINDOW_SECS
-  options:
-    default: 300
-    description: The default statistic window duration between two scaling action
-      for the Autoscaler Event Generator, in seconds.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_METRIC_CHANNEL_SIZE
-  options:
-    default: 1000
-    description: The size of golang channel used by the Autoscaler Event Generator
-      as a buffer to save metrics by batch.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_APP_MONITOR_CHANNEL_SIZE
-  options:
-    default: 200
-    description: The size of golang channel used by the Autoscaler Event Generator
-      to exchange data.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_EXECUTE_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does Autoscaler Event Generator aggregate
-      appmetrics.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_METRIC_POLLER_COUNT
-  options:
-    default: 20
-    description: The number of metricpollers in Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_POLICY_POLLER_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does the Autoscaler Event Generator
-      reload data from policy database.
-- name: AUTOSCALER_EVENT_GENERATOR_AGGREGATOR_SAVE_INTERVAL
-  options:
-    default: 5s
-    description: The duration defines how long does the Autoscaler Event Generator
-      save appmetrics to database by batch.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_INITIAL_INTERVAL
-  options:
-    default: 5m
-    description: The initial exponential back off interval for the circuit breaker
-      of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_BACK_OFF_MAX_INTERVAL
-  options:
-    default: 120m
-    description: The maximum exponential back off interval for the circuit breaker
-      of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_CIRCUIT_BREAKER_CONSECUTIVE_FAILURE_COUNT
-  options:
-    default: 3
-    description: The number of consecutive failure to trip the circuit down for the
-      circuit breaker of the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATION_MANAGER_EXECUTE_INTERVAL
-  options:
-    default: 40s
-    description: The duration defines how long does the Autoscaler Event Generator
-      evaluate appmetrics.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_EVALUATOR_COUNT
-  options:
-    default: 20
-    description: The number of evaluators in the Autoscaler Event Generator.
-- name: AUTOSCALER_EVENT_GENERATOR_EVALUATOR_TRIGGER_ARRAY_CHANNEL_SIZE
-  options:
-    default: 200
-    description: The size of golang channel used by the Autoscaler Event Generator
-      App Evaluation Manager to pass triggers to evaluators.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      instance metrics database.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler instance
-      metrics database.
-- name: AUTOSCALER_INSTANCE_METRICS_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler instance metrics
-      database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      lock database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler lock database.
-- name: AUTOSCALER_LOCK_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler lock database.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_COLLECT_INTERVAL
-  options:
-    default: 30s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      aggregate collected instance metrics.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_REFRESH_INTERVAL
-  options:
-    default: 60s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      reload data from policy database.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECTOR_SAVE_INTERVAL
-  options:
-    default: 30s
-    description: The duration defines how long does the Autoscaler Metrics Collector
-      save instance metrics to database by batch.
-- name: AUTOSCALER_METRICS_COLLECTOR_COLLECT_METHOD
-  options:
-    default: streaming
-    description: >
-      The method type of the Autoscaler Metrics Collector to fetch metrics
-      from cloudfoundry: polling or streaming.
-- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of appmetrics data does the Autoscaler
-      Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_APP_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for appmetrics database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_APP_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing applications information between AutoScaler
-      policy database and Cloudfoundry."
-    default: 24h
-- name: AUTOSCALER_OPERATOR_ENABLE_DB_LOCK
-  options:
-    default: true
-    description: Whether to enable the Autoscaler Operator's db lock. If there are more
-      than one operators, the value should be true
-- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of instance metrics data does
-      the Autoscaler Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_INSTANCE_METRICS_DB_REFRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for instance metrics database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_LOCK_RETRY_INTERVAL
-  options:
-    default: 10s
-    description: The interval for each Autoscaler Operator instance to retry to get
-      database lock.
-- name: AUTOSCALER_OPERATOR_LOCK_TTL
-  options:
-    default: 15s
-    description: The maximum duration of a Autoscaler Operator instance could hold the
-      database lock.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_CUTOFF_DAYS
-  options:
-    default: 30
-    description: The duration defines how many days of the scaling history data does
-      the Autoscaler Operator kept for each pruning.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_DB_FRESH_INTERVAL
-  options:
-    default: 24h
-    description: The duration between two pruning opertions for scalingengine database
-      in the Autoscaler Operator.
-- name: AUTOSCALER_OPERATOR_SCALING_ENGINE_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing the Autoscaler Scaling Engine active schedules with Autoscaler Scheduler."
-    default: 600s
-- name: AUTOSCALER_OPERATOR_SCHEDULER_SYNC_INTERVAL
-  options:
-    description: "The interval of synchronizing the Autoscaler Scheduler schedules with policy database."
-    default: 600s
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      policy database.
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler policy database.
-- name: AUTOSCALER_POLICY_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler policy database.
+    default: "postgres"
+    description: "The role name of autoscaler postgres database"
 - name: AUTOSCALER_SCALING_ENGINE_CLIENT_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_scheduler_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scaling Engine.
     required: true
   type: certificate
@@ -3425,37 +3236,13 @@ variables:
     secret: true
     description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scaling Engine.
     required: true
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      Scaling Engine database.
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler Scaling
-      Engine database.
-- name: AUTOSCALER_SCALING_ENGINE_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler Scaling Engine
-      database.
-- name: AUTOSCALER_SCALING_ENGINE_HEALTH_EMIT_INTERVAL
-  options:
-    description: The time interval to emit health metrics for the Autoscaler Scaling
-      Engine."
-    default: 15s
-- name: AUTOSCALER_SCALING_ENGINE_LOCK_SIZE
-  options:
-    default: 32
-    description: The lock number of the Autoscaler Scaling Engine to do synchronization
-      for multiple scaling requests.
 - name: AUTOSCALER_SCALING_ENGINE_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-scalingengine-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scalingengine.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Scaling Engine https server.
     required: true
   type: certificate
@@ -3468,8 +3255,6 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
-    alternative_names:
-    - as_scheduler_client
     description: A PEM-encoded TLS certificate for clients to connect to the Autoscaler Scheduler.
     required: true
   type: certificate
@@ -3478,41 +3263,13 @@ variables:
     secret: true
     description: A PEM-encoded TLS key for clients to connect to the Autoscaler Scheduler.
     required: true
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_CONNECTION_MAX_LIFETIME
-  options:
-    default: 60s
-    description: The maximum age of a connection that can be reused for the Autoscaler
-      Scheduler database.
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_IDLE_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of idle connections to the Autoscaler Scheduler
-      database.
-- name: AUTOSCALER_SCHEDULER_DB_CONNECTION_CONFIG_MAX_OPEN_CONNECTIONS
-  options:
-    default: 100
-    description: The maximum number of connections to the Autoscaler Scaling Engine
-      database.
-- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_INTERVAL_MILISECOND
-  options:
-    default: 100
-    description: Rescheduling interval for quartz job for the Autoscaler Scheduler,
-      in milliseconds.
-- name: AUTOSCALER_SCHEDULER_JOB_RESCHEDULE_MAXCOUNT
-  options:
-    default: 6
-    description: Maximum number of jobs can be re-scheduled in the Autoscaler Scheduler.
-- name: AUTOSCALER_SCHEDULER_NOTIFICATION_RESCHEDULE_MAXCOUNT
-  options:
-    default: 3
-    description: Maximum number of notification sent to Autoscaler Scaling Engine
-      for job re-schedule.
 - name: AUTOSCALER_SCHEDULER_SERVER_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - autoscaler-scheduler-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - autoscaler-actors-scheduler.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - localhost
     description: A PEM-encoded TLS certificate of the Autoscaler Scheduler https server.
     required: true
   type: certificate
@@ -3521,53 +3278,6 @@ variables:
     secret: true
     description: A PEM-encoded TLS key of the Autoscaler Scheduler https server.
     required: true
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_IDLE_TIMEOUT
-  options:
-    default: 1000
-    description: Idle connection timeout for the Autoscaler Service Broker database,
-      in seconds.
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MAX_CONNECTIONS
-  options:
-    default: 10
-    description: The maximum number of connections to the Autoscaler Service Broker
-      database.
-- name: AUTOSCALER_SERVICE_BROKER_DB_CONFIG_MIN_CONNECTIONS
-  options:
-    default: 0
-    description: The minimum number of connections to the Autoscaler Service Broker
-      database.
-- name: AUTOSCALER_SERVICE_BROKER_HTTP_REQUEST_TIMEOUT
-  options:
-    default: 5000
-    description: The timeout in milliseconds for http request from Autoscaler Service
-      Broker to other Autoscaler components.
-- name: AUTOSCALER_SERVICE_BROKER_PASSWORD
-  options:
-    secret: true
-    description: The password for the Autoscaler Service Broker.
-    required: true
-  type: password
-- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - autoscaler-servicebroker-servicebroker.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
-    description: A PEM-encoded TLS certificate of the Autoscaler API https server.
-      This includes the Autoscaler ApiServer and the Service Broker.
-    required: true
-  type: certificate
-- name: AUTOSCALER_SERVICE_BROKER_SERVER_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key of the Autoscaler API https server. This includes
-      the Autoscaler ApiServer and the Service Broker.
-    required: true
-- name: AUTOSCALER_SERVICE_OFFERING_ENABLED
-  options:
-    default: false
-    description: Whether Autoscaler is provided as a cloudfoundry service, default
-      is false.
 - name: AUTOSCALER_UAA_CLIENT_SECRET
   options:
     secret: true
@@ -3818,7 +3528,7 @@ variables:
     required: true
 - name: CLUSTER_BUILD
   options:
-    default: 2.0.2
+    default: 2.16.4
     description: "'build' attribute in the /v2/info endpoint"
     required: true
 - name: CLUSTER_DESCRIPTION
@@ -3972,14 +3682,21 @@ variables:
   options:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
+    imagename: true
+- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
+  options:
+    type: environment
+    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
     description: "The docker image used by Eirini to consume Kubernetes container logs"
+    imagename: true
 - name: EIRINI_IMAGE
   options:
     default: 'eirini/recipe:ci-24.0.0'
     description: "Docker Image used for staging apps deployed using Eirini"
+    imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
     default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
@@ -3988,6 +3705,23 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
+- name: EIRINI_PERSI_NFS_BROKER_PASSWORD
+  options:
+    description: Basic auth password to verify on incoming Service Broker requests
+    secret: true
+    required: true
+  type: password
+- name: EIRINI_PERSI_PLANS
+  options:
+    description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
+    default: '[]'
+    example: |
+      - id: "dafault-storageclass"
+        name: "default"
+        description: "Eirini persistence broker"
+        free: true
+        kube_storage_class: "persistent"
+        default_size: "1Gi"
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
@@ -4008,6 +3742,20 @@ variables:
       to true, the gorouter sets the header X-Forwarded-Proto to https. When this
       value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol
       of the incoming request.
+    required: true
+- name: GALERA_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - galera_server_certificate
+    description: A PEM-encoded TLS certificate for the Galera server.
+    required: true
+  type: certificate
+- name: GALERA_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for the Galera server.
     required: true
 - name: GARDEN_APPARMOR_PROFILE
   options:
@@ -4089,6 +3837,18 @@ variables:
     secret: true
     description: PEM-encoded CA key.
     required: true
+- name: JWT_SIGNING_CERT
+  options:
+    secret: true
+    is_ca: true
+    description: PEM-encoded JWT certificate.
+    required: true
+  type: certificate
+- name: JWT_SIGNING_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded JWT signing key.
+    required: true
 - name: KUBERNETES_CLUSTER_DOMAIN
   options:
     type: environment
@@ -4159,6 +3919,10 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       Its default value is 'secret-1' and cannot be set by the user.
+- name: KUBE_SIZING_MYSQL_COUNT
+  options:
+    description: The number of mysql replicas deployed. This value is set automatically
+      by the helm charts of SCF.
 - name: KUBE_SIZING_NATS_COUNT
   options:
     description: The number of nats replicas deployed. This value is set automatically
@@ -4171,7 +3935,6 @@ variables:
   options:
     description: Lowest internal TCP routing port. This value is set automatically
       by the helm charts of SCF.
-
 - name: LOGGREGATOR_AGENT_CERT
   options:
     secret: true
@@ -4211,6 +3974,21 @@ variables:
     secret: true
     description: PEM-encoded client key for loggregator forwarder authentication
     required: true
+- name: LOGGREGATOR_OUTGOING_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "doppler"
+    - "log-api-loggregator-trafficcontroller.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    description: TLS cert for outgoing dropsonde connection
+    required: true
+  type: certificate
+- name: LOGGREGATOR_OUTGOING_CERT_KEY
+  options:
+    secret: true
+    description: TLS key for outgoing dropsonde connection
+    required: true
 - name: LOG_CACHE_CERT
   options:
     secret: true
@@ -4224,6 +4002,20 @@ variables:
   options:
     secret: true
     description: PEM-encoded key.
+    required: true
+- name: LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-cache
+    description: The TLS cert for the auth proxy.
+    required: true
+  type: certificate
+- name: LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY
+  options:
+    secret: true
+    description: The TLS key for the auth proxy.
     required: true
 - name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT
   options:
@@ -4245,6 +4037,12 @@ variables:
     description: >
       The cluster's log level: off, fatal, error, warn, info, debug, debug1, debug2.
     required: true
+- name: LOG_LEVEL_LOG4J
+  options:
+    type: environment
+    description: 'The log level for Log4j-using components.  This parameter is not
+      supposed to be set by the user.  To change the cluster''s log level set the
+      parameter `LOG_LEVEL` above instead, from which this one is derived.'
 - name: MAX_APP_DISK_IN_MB
   options:
     default: 2048
@@ -4325,18 +4123,27 @@ variables:
     description: The password for Basic Auth used to secure the MySQL proxy API.
     required: true
   type: password
-- name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
-  options:
-    default: 30000
-    description: The time allowed for the MySQL server to respond to healthcheck queries,
-      in milliseconds.
-    required: true
 - name: MYSQL_ROUTING_API_PASSWORD
   options:
     secret: true
     description: The password for access to MySQL by the routing-api
     required: true
   type: password
+- name: MYSQL_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "mysql-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    - "mysql-proxy-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    description: A PEM-encoded TLS certificate for the MySQL server.
+    required: true
+  type: certificate
+- name: MYSQL_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for the MySQL server.
+    required: true
 - name: NATS_PASSWORD
   options:
     secret: true
@@ -4536,6 +4343,16 @@ variables:
           -----BEGIN RSA PRIVATE KEY-----
           -----END RSA PRIVATE KEY-----
     secret: true
+- name: SAML_SERVICEPROVIDER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded certificate
+  type: certificate
+- name: SAML_SERVICEPROVIDER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
 - name: SCF_LOG_HOST
   options:
     internal: true
@@ -4553,6 +4370,34 @@ variables:
     description: The protocol used by rsyslog to talk to the log destination. The
       allowed values are tcp, and udp. The default is tcp.
     required: true
+- name: SMTP_AUTH
+  options:
+    default: false
+    description: >
+      If true, authenticate against the SMTP server using AUTH command.
+      See https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
+- name: SMTP_FROM_ADDRESS
+  options:
+    description: SMTP from address, for password reset emails etc.
+- name: SMTP_HOST
+  options:
+    description: SMTP server host address, for password reset emails etc.
+- name: SMTP_PASSWORD
+  options:
+    description: SMTP server password, for password reset emails etc.
+- name: SMTP_PORT
+  options:
+    default: 25
+    description: SMTP server port, for password reset emails etc.
+- name: SMTP_STARTTLS
+  options:
+    default: false
+    description: >
+      If true, send STARTTLS command before logging in to SMTP server.
+      See https://javamail.java.net/nonav/docs/api/com/sun/mail/smtp/package-summary.html
+- name: SMTP_USER
+  options:
+    description: SMTP server username, for password reset emails etc.
 - name: STAGING_TIMEOUT
   options:
     default: 900
@@ -4566,9 +4411,15 @@ variables:
   type: password
 - name: SUPPORT_ADDRESS
   options:
-    default: support@example.com
+    default: https://scc.suse.com
     description: Support contact information for the cluster
     required: true
+- name: SYNC_INTEGRATION_TESTS_FLAKE_ATTEMPTS
+  options:
+    default: 3
+    description: >
+      The number of times Ginkgo will run a SITS test before treating it as a failure.
+      Individual failed runs will still be reported in the test output.
 - name: SYNC_INTEGRATION_TESTS_FOCUS
   options:
     description: >
@@ -4666,6 +4517,11 @@ variables:
   options:
     description: Concatenation of trusted CA certificates to be made available on
       the cell.
+- name: UAADB_PASSWORD
+  options:
+    secret: true
+    description: The password for access to the UAA database.
+  type: password
 - name: UAA_ADMIN_CLIENT_SECRET
   options:
     secret: true
@@ -4676,12 +4532,6 @@ variables:
   options:
     description: The CA certificate for UAA
     secret: true
-- name: UAA_CC_CLIENT_SECRET
-  options:
-    secret: true
-    description: The password for UAA access by the Cloud Controller.
-    required: true
-  type: password
 - name: UAA_CLIENTS_CC_ROUTING_SECRET
   options:
     secret: true
@@ -4697,6 +4547,12 @@ variables:
   options:
     secret: true
     description: Used for fetching service key values from CredHub.
+    required: true
+  type: password
+- name: UAA_CLIENTS_CF_SMOKE_TESTS_CLIENT_SECRET
+  options:
+    secret: true
+    description: Client secret for the CF smoke tests job
     required: true
   type: password
 - name: UAA_CLIENTS_CF_USB_SECRET
@@ -4735,10 +4591,10 @@ variables:
     description: The password for UAA access by the gorouter.
     required: true
   type: password
-- name: UAA_CLIENTS_LOGIN_SECRET
+- name: UAA_CLIENTS_ROUTING_API_CLIENT_SECRET
   options:
     secret: true
-    description: The password for UAA access by the login client.
+    description: The OAuth client secret used by the routing-api.
     required: true
   type: password
 - name: UAA_CLIENTS_SCF_AUTO_CONFIG_SECRET
@@ -4768,6 +4624,25 @@ variables:
   options:
     default: 2793
     description: The tcp port the UAA server (root zone) listens on for requests.
+- name: UAA_PUBLIC_PORT
+  options:
+    default: 2793
+    description: The TCP port to report as the public port for the UAA server (root zone).
+- name: UAA_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: uaa
+    alternative_names:
+    - uaa.{{.DOMAIN}}
+    - "*.uaa.{{.DOMAIN}}"
+    description: The server's ssl certificate. The default is a self-signed certificate
+      and should always be replaced for production deployments.
+  type: certificate
+- name: UAA_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: The server's ssl private key. Only passphrase-less keys are supported.
 - name: USE_DIEGO_PRIVILEGED_CONTAINERS
   options:
     default: false

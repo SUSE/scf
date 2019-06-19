@@ -71,7 +71,11 @@ void runTest(String testName) {
         set -x
 
         export NAMESPACE=${cfNamespace}
-        export UAA_NAMESPACE=${uaaNamespace}
+        if [ "\${EMBEDDED_UAA}" == "true" ]; then
+            export UAA_NAMESPACE=${cfNamespace}
+        else
+            export UAA_NAMESPACE=${uaaNamespace}
+        fi
 
         # this will look for tests under output/kube/bosh-tasks and not in output/unzipped/...
         make/tests "${testName}" "env.KUBERNETES_STORAGE_CLASS_PERSISTENT=hostpath"
@@ -196,6 +200,11 @@ pipeline {
             defaultValue: false,
             description: 'Push sources to obs',
         )
+        booleanParam(
+            name: 'EMBEDDED_UAA',
+            defaultValue: false,
+            description: 'Use UAA included in the SCF chart',
+        )
         credentials(
             name: 'OBS_CREDENTIALS',
             description: 'Password for build.opensuse.org',
@@ -248,7 +257,7 @@ pipeline {
         )
         string(
             name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '12SP3-34.gcdd8986-0.220',
+            defaultValue: '12SP3-34.gcdd8986-0.222',
             description: 'Fissile stemcell version used as docker image tag',
         )
         booleanParam(
@@ -485,6 +494,76 @@ pipeline {
             }
         }
 
+        stage('publish_docker') {
+            when {
+                expression { return params.PUBLISH_DOCKER }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: params.DOCKER_CREDENTIALS,
+                    usernameVariable: 'DOCKER_HUB_USERNAME',
+                    passwordVariable: 'DOCKER_HUB_PASSWORD',
+                )]) {
+                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}" '
+                }
+                sh '''
+                    set -e +x
+                    source ${PWD}/.envrc
+                    set -x
+                    unset SCF_PACKAGE_COMPILATION_CACHE
+                    make publish
+                '''
+            }
+        }
+
+        stage('publish_s3') {
+            when {
+                expression { return params.PUBLISH_S3 }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            def files = findFiles(glob: "output/*-sle-*")
+                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
+                            def prefix = distPrefix()
+
+                            for ( int i = 0 ; i < files.size() ; i ++ ) {
+                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+                                    s3Upload(
+                                        file: files[i].path,
+                                        bucket: "${params.S3_BUCKET}",
+                                        path: "${subdir}${prefix}${files[i].name}",
+                                    )
+                                    if (files[i].path =~ /\.zip$/ ) {
+                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                                        echo "Download the bundle from ${capBundleUri}"
+                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
+                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
+                                        echo "Install with helm from ${helmChartUri}"
+                                    }
+                                } else {
+                                    echo "Skipping file ${files[i].path}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('deploy') {
             when {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
@@ -506,28 +585,30 @@ pipeline {
                     # This is more informational -- even if it fails, we want to try running things anyway to see how far we get.
                     ./output/unzipped/kube-ready-state-check.sh || /bin/true
 
-                    helm install output/unzipped/helm/uaa \
-                        --name ${uaaNamespace} \
-                        --namespace ${uaaNamespace} \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
-                        --set kube.external_ips[0]=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath
-
-                    . make/include/secrets
-
                     has_internal_ca() {
                         test "\$(get_secret "${uaaNamespace}" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
-                    set +x
-                    until has_internal_ca ; do
-                        sleep 5
-                    done
-                    set -x
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        helm install output/unzipped/helm/uaa \
+                            --name ${uaaNamespace} \
+                            --namespace ${uaaNamespace} \
+                            --set env.DOMAIN=${domain()} \
+                            --set env.UAA_HOST=uaa.${domain()} \
+                            --set env.UAA_PORT=2793 \
+                            --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                            --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
+                            --set kube.external_ips[0]=${ipAddress()} \
+                            --set kube.storage_class.persistent=hostpath \
+
+                        . make/include/secrets
+
+                        set +x
+                        until has_internal_ca ; do
+                            sleep 5
+                        done
+                        set -x
+                    fi
 
                     # Use `make/run` to run the deployment to ensure we have updated settings
                     export NAMESPACE="${cfNamespace}"
@@ -541,9 +622,10 @@ pipeline {
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
-                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
-                        make/wait "\${ns}"
-                    done
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        make/wait "${uaaNamespace}"
+                    fi
+                    make/wait "${cfNamespace}"
                     kubectl get pods --all-namespaces
                 """
             }
@@ -573,26 +655,28 @@ pipeline {
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
-                        --namespace ${uaaNamespace} \
-                        --set env.DOMAIN=${domain()} \
-                        --set env.UAA_HOST=uaa.${domain()} \
-                        --set env.UAA_PORT=2793 \
-                        --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
-                        --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
-                        --set kube.external_ips[0]=${ipAddress()} \
-                        --set kube.storage_class.persistent=hostpath \
-                        --set kube.secrets_generation_counter=2
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
+                            --namespace ${uaaNamespace} \
+                            --set env.DOMAIN=${domain()} \
+                            --set env.UAA_HOST=uaa.${domain()} \
+                            --set env.UAA_PORT=2793 \
+                            --set secrets.CLUSTER_ADMIN_PASSWORD=changeme \
+                            --set secrets.UAA_ADMIN_CLIENT_SECRET=admin_secret \
+                            --set kube.external_ips[0]=${ipAddress()} \
+                            --set kube.storage_class.persistent=hostpath \
+                            --set kube.secrets_generation_counter=2
 
-                    # Ensure old pods have time to terminate
-                    sleep 60
-                    echo Waiting for all pods to be ready after the 'upgrade'...
-                    set +o xtrace
-                    for ns in "${uaaNamespace}" ; do
-                        # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
-                        make/wait "\${ns}"
-                    done
-                    set -o xtrace
+                        # Ensure old pods have time to terminate
+                        sleep 60
+                        echo Waiting for all pods to be ready after the 'upgrade'...
+                        set +o xtrace
+                        for ns in "${uaaNamespace}" ; do
+                            # Note that we only check UAA here; SCF is probably going to fall over because the secrets changed
+                            make/wait "\${ns}"
+                        done
+                        set -o xtrace
+                    fi
 
                     # Use `make/upgrade` to run the deployment to ensure we have updated settings
                     export DOMAIN="${domain()}"
@@ -611,9 +695,10 @@ pipeline {
 
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
-                    for ns in "${uaaNamespace}" "${cfNamespace}" ; do
-                        make/wait "\${ns}"
-                    done
+                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                        make/wait "${uaaNamespace}"
+                    fi
+                    make/wait "${cfNamespace}"
                     kubectl get pods --all-namespaces
 
                     # Get the secret again to see that they have been rotated
@@ -757,76 +842,6 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 }
           }
         }
-
-        stage('publish_docker') {
-            when {
-                expression { return params.PUBLISH_DOCKER }
-            }
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: params.DOCKER_CREDENTIALS,
-                    usernameVariable: 'DOCKER_HUB_USERNAME',
-                    passwordVariable: 'DOCKER_HUB_PASSWORD',
-                )]) {
-                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}" "${FISSILE_DOCKER_REGISTRY}" '
-                }
-                sh '''
-                    set -e +x
-                    source ${PWD}/.envrc
-                    set -x
-                    unset SCF_PACKAGE_COMPILATION_CACHE
-                    make publish
-                '''
-            }
-        }
-
-        stage('publish_s3') {
-            when {
-                expression { return params.PUBLISH_S3 }
-            }
-            steps {
-                withAWS(region: params.S3_REGION) {
-                    withCredentials([usernamePassword(
-                        credentialsId: params.S3_CREDENTIALS,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
-                    )]) {
-                        script {
-                            def files = findFiles(glob: "output/*-sle-*")
-                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
-                            def prefix = distPrefix()
-
-                            for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
-                                    s3Upload(
-                                        file: files[i].path,
-                                        bucket: "${params.S3_BUCKET}",
-                                        path: "${subdir}${prefix}${files[i].name}",
-                                    )
-                                    if (files[i].path =~ /\.zip$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
-                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Download the bundle from ${capBundleUri}"
-                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        echo "Install with helm from ${helmChartUri}"
-                                    }
-                                } else {
-                                    echo "Skipping file ${files[i].path}"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     post {
@@ -872,9 +887,9 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                                 def prefix = distPrefix()
                                 // If prefix is not empty then trimming trailing "-" from path as distPrefix() returns "PR-${CHANGE_ID}-".
                                 if (prefix){
-                                    prefix = prefix.substring(0, prefix.length() - 1)
+                                    prefix = prefix.substring(0, prefix.length() - 1) + '/'
                                 }
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}/${env.BUILD_TAG}/"
+                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",

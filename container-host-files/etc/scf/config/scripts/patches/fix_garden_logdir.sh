@@ -10,16 +10,15 @@ if [ -f "${SENTINEL}" ]; then
 fi
 
 patch -d "$PATCH_DIR" --force -p0 <<'PATCH'
---- garden_start.erb	2019-03-04 13:49:04.802582929 -0800
-+++ garden_start.erb	2019-03-04 13:49:23.218622592 -0800
-@@ -6,6 +6,7 @@
- source /var/vcap/packages/greenskeeper/bin/system-preparation
+--- garden_ctl	2019-05-23 14:21:37.655428344 -0700
++++ garden_ctl	2019-05-23 14:22:04.235429437 -0700
+@@ -5,6 +5,7 @@
+ # shellcheck disable=SC1091
+ source /var/vcap/jobs/garden/bin/envs
  
- <% if !p("bpm.enabled") %>
-+  mkdir -p "${LOG_DIR}"
-   exec 1>> "${LOG_DIR}/garden_start.stdout.log"
-   exec 2>> "${LOG_DIR}/garden_start.stderr.log"
- 
++mkdir -p "${LOG_DIR}"
+ exec 1>> "${LOG_DIR}/garden_ctl.stdout.log"
+ exec 2>> "${LOG_DIR}/garden_ctl.stderr.log"
 PATCH
 
 touch "${SENTINEL}"

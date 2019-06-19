@@ -1,0 +1,153 @@
+#!/usr/bin/env ruby
+
+# This scripts checks the opinions to ensure our UAA clients list
+# matches the upstream
+
+require 'set'
+require_relative '../lib/manifest'
+
+# CheckUAAClients confirms that the UAA clients in our opinions file matches the
+# upstream values
+class CheckUAAClients
+
+    def source_root
+        File.dirname(File.dirname(__dir__))
+    end
+
+    # upstream_version returns the current cf-deployment version
+    def upstream_version
+        return @upstream_version if @upstream_version
+        version_file = File.join(source_root, 'bin/common/versions.sh')
+        version = `source #{version_file}; echo ${CF_VERSION}`
+        fail "Could not find upstream version" if version.chomp.empty?
+        @upstream_version = version.chomp
+    end
+
+    # upstream_manifest downloads the cf-deployment manifest
+    def upstream_manifest
+        @upstream_manifest ||= Manifest.load_from_upstream(version: upstream_version)
+    end
+
+    # upstream_clients returns the upstream UAA clients list
+    def upstream_clients
+        return @upstream_clients if @upstream_clients
+        instance_groups = upstream_manifest['instance_groups']
+        group = instance_groups.find { |group| group['name'] == 'uaa' }
+        job = group['jobs'].find { |job| job['name'] == 'uaa' }
+        @upstream_clients = job['properties']['uaa']['clients']
+    end
+
+    # flat_upstream_clients is upstream_clients using dotted keys
+    def flat_upstream_clients
+        @flat_upstream_clients ||= flatten_hash(upstream_clients)
+    end
+
+    # opinions_path returns the path to the opinions file
+    def opinions_path
+        File.join(source_root, 'container-host-files/etc/scf/config/opinions.yml')
+    end
+
+    # opinions_clients returns the UAA clients in the opinions file
+    def opinions_clients
+        @opinions_clients ||=
+            open(opinions_path, 'r', &YAML.method(:load))['properties']['uaa']['clients']
+    end
+
+    # flat_opinions_clients returns opinions_clients using dotted keys
+    def flat_opinions_clients
+        @flat_opinions_clients ||= flatten_hash(opinions_clients)
+    end
+
+    def role_manifest_path
+        File.join(source_root, 'container-host-files/etc/scf/config/role-manifest.yml')
+    end
+
+    def role_manifest
+        @role_manifest ||= open(role_manifest_path, 'r', &YAML.method(:load))
+    end
+
+    def templates
+        role_manifest['configuration']['templates']
+    end
+
+    # flat_downstream_clients returns the SCF UAA clients using dotted keys
+    def flat_downstream_clients
+        @flat_downstream_clients ||= flat_opinions_clients.dup.tap do |clients|
+            templates.each do |key, value|
+                next unless key.start_with? 'properties.uaa.clients.'
+                keys = key.split('.').drop(3)
+                clients[keys.join('.')] = value
+            end
+        end
+    end
+
+    # flatten_hash takes a hash and converts it to dotted keys (instead of
+    # nested hashes)
+    def flatten_hash(hash)
+        Hash.new.tap do |result|
+            hash.each do |k, v|
+                if v.is_a? Hash
+                    flatten_hash(v).each do |flatten_k, flatten_v|
+                        result["#{k}.#{flatten_k}"] = flatten_v
+                    end
+                else
+                    result[k] = v
+                end
+            end
+        end
+    end
+
+    # allowed_added_clients are clients which do not exist upstream and are
+    # therefore allowed to be added
+    def allowed_added_clients
+        %w(app_autoscaler cf-usb credhub_user_cli scf_auto_config)
+    end
+
+    # allowed_removed_clients are clients which are not used in SCF and are
+    # therefore allowed to be missing
+    def allowed_removed_clients
+        %w(credhub_admin_client network-policy)
+    end
+
+    # comma_separated_lists are the property suffixes that should be treated as
+    # comma separated lists; we will colourize the diff, and ignore ordering.
+    def comma_separated_lists
+        %w(scope authorized-grant-types authorities)
+    end
+
+    # show_difference displays text based on the old and new values of a key
+    def show_difference(key, old, new)
+        if old == nil
+            return if allowed_added_clients.any? { |k| key.start_with? "#{k}." }
+            puts "Added  : #{key}"
+            return
+        end
+        if new == nil
+            return if allowed_removed_clients.any? { |k| key.start_with? "#{k}." }
+            puts "Removed: #{key}"
+            return
+        end
+        return if old == new
+        return if new.include? '((' # Dynamic
+        if comma_separated_lists.any? { |k| key.end_with? ".#{k}" }
+            old_list = Set.new(old.split(','))
+            new_list = Set.new(new.split(','))
+            all = Hash.new
+            (new_list - old_list).each { |i| all[i] = "\e[0;32m#{i}\e[0m" }
+            (old_list - new_list).each { |i| all[i] = "\e[0;31m#{i}\e[0m" }
+            (old_list & new_list).each { |i| all[i] = i }
+            puts "Changed: #{key}: #{all.to_a.sort.map{|k, v| v}.join(',')}"
+            return
+        end
+        puts "Edited : #{key}: #{old} -> #{new}"
+    end
+
+    def run
+        all_keys = Set.new(flat_upstream_clients.keys + flat_downstream_clients.keys)
+        all_keys.to_a.sort.each do |key|
+            show_difference key, flat_upstream_clients[key], flat_downstream_clients[key]
+        end
+    end
+end
+
+CheckUAAClients.new.run

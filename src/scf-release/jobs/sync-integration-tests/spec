@@ -16,6 +16,8 @@ templates:
   run.erb: bin/run
 
 properties:
+  sync_integration_tests.setup.flake_attempts:
+    description: The number of times Ginkgo will run a test before treating it as a failure.
   sync_integration_tests.setup.nodes:
     description: The number of parallel test executors to spawn.
   sync_integration_tests.setup.verbose:
