@@ -501,15 +501,42 @@ Try each of the following solutions sequentially:
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
-You can target the cluster on the hardcoded `cf-dev.io` address assigned to a host-only network adapter.
-You can access any URL or endpoint that references this address from your host.
+You can target the cluster on the hardcoded `cf-dev.io` address
+assigned to a host-only network adapter.  You can access any URL or
+endpoint that references this address from your host.
 
 ### How do I connect to the Cloud Foundry database?
 
-1. Use the role manifest to expose the port for the mysql proxy role
-2. The MySQL instance is exposed at `cf-dev.io:3306`.
-3. The default username is: `root`.
-4. You can find the password in the kubernetes secret.
+1. Use the role manifest to expose the port for the mysql proxy role.
+   This is done by adding the key `public: true` to the
+   `pxc-mysql-proxy` port in `properties.bosh_containerization.ports`
+   of job `proxy` in instance_group `mysql-proxy`.
+2. With that the MySQL instance is exposed at `cf-dev.io:3306`.
+3. The username is: `ccadmin`.
+4. The password can be retrieved from the environment variable
+   `CC_DATABASE_PASSWORD` found in the `api-group` pod.
+
+Basic access is then achieved using
+
+```
+mysql --database ccdb --user=ccadmin --port=3306 --host=cf-dev.io --password=...
+```
+
+If `mysqldump` is available the schema can be retrieved via
+
+```
+mysqldump (conn+auth-as-above) --no-data --single-transaction ccdb
+```
+
+or
+
+```
+mysqldump (conn+auth-as-above) --no-data --single-transaction ccdb | grep -v '^/\*'
+```
+
+to remove the comments holding dump action tracing.
+
+
 
 ### How do I add a new BOSH release to SCF?
 
