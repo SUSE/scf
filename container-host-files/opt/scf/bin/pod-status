@@ -3,7 +3,9 @@
 set -o errexit -o nounset
 
 NS=""
-OPTS=$(getopt --options=wn:h --longoptions=watch,namespace:,help -- "$@")
+KUBE_SYSTEM=kube-system
+
+OPTS=$(getopt --options=wsn:h --longoptions=watch,system,namespace:,help -- "$@")
 
 eval set -- "${OPTS}"
 
@@ -27,8 +29,13 @@ while true ; do
             fi
             exec watch -c "${args[@]}"
             ;;
+        -s|--system)
+            shift 1
+            KUBE_SYSTEM=this-namespace-does-not-exist
+            ;;
         -n|--namespace)
             NS="${2}"
+            KUBE_SYSTEM=this-namespace-does-not-exist
             shift 2
             ;;
         -h|--help)
@@ -43,5 +50,5 @@ while true ; do
 done
 
 kubectl get pods ${NS:+--namespace} ${NS:---all-namespaces} \
-    | grep -v ^kube-system \
+    | grep -v "^${KUBE_SYSTEM}" \
     | perl -p -e 's@^((?:\S+\s+)?\S+\s*)(\d+)/(\d+)(\s+)(\w+)@"$1\e[0;" . (($2 == $3 || $5 eq "Completed") ? "32" : "31;1") . "m$2/$3\e[0m$4$5"@e'
