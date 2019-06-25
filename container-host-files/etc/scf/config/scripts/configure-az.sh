@@ -22,8 +22,8 @@ else
     # information available to the container, scripts, and binaries of
     # the diego-cell instance group.
 
-    QUERY="jsonpath={.metadata.labels.${AZ_LABEL_NAME}}"
-    NODE_AZ=$("${kubectl}" get node "${node}" -o "${QUERY}")
+    # Note that $AZ_LABEL_NAME may contain dots, which is why we use go-template instead of jsonpath here:
+    NODE_AZ=$("${kubectl}" get node "${node}" -o "go-template={{index .metadata.labels \"${AZ_LABEL_NAME}\"}}")
 
     if test -z "${NODE_AZ}"
     then
