@@ -71,7 +71,7 @@ void runTest(String testName) {
         set -x
 
         export NAMESPACE=${cfNamespace}
-        if [ "\${EMBEDDED_UAA}" == "true" ]; then
+        if [ "\${EMBEDDED_UAA:-false}" == "true" ]; then
             export UAA_NAMESPACE=${cfNamespace}
         else
             export UAA_NAMESPACE=${uaaNamespace}
@@ -589,7 +589,7 @@ pipeline {
                         test "\$(get_secret "${uaaNamespace}" "uaa" "INTERNAL_CA_CERT")" != ""
                     }
 
-                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                    if [ "\${EMBEDDED_UAA:-false}" == "false" ]; then
                         helm install output/unzipped/helm/uaa \
                             --name ${uaaNamespace} \
                             --namespace ${uaaNamespace} \
@@ -622,7 +622,7 @@ pipeline {
                         --set env.SCF_LOG_HOST="log-\${log_uid}.${cfNamespace}.svc.cluster.local"
 
                     echo Waiting for all pods to be ready...
-                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                    if [ "\${EMBEDDED_UAA:-false}" == "false" ]; then
                         make/wait "${uaaNamespace}"
                     fi
                     make/wait "${cfNamespace}"
@@ -655,7 +655,7 @@ pipeline {
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
-                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                    if [ "\${EMBEDDED_UAA:-false}" == "false" ]; then
                         helm upgrade "${uaaNamespace}" output/unzipped/helm/uaa \
                             --namespace ${uaaNamespace} \
                             --set env.DOMAIN=${domain()} \
@@ -695,7 +695,7 @@ pipeline {
 
                     echo Waiting for all pods to be ready after the 'upgrade'...
                     set +o xtrace
-                    if [ "\${EMBEDDED_UAA}" == "false" ]; then
+                    if [ "\${EMBEDDED_UAA:-false}" == "false" ]; then
                         make/wait "${uaaNamespace}"
                     fi
                     make/wait "${cfNamespace}"
