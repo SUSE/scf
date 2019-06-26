@@ -72,13 +72,13 @@ properties:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
     eventgenerator:
       require_consul: false
       server:
         port: 7105
       health:
-        port: 9105   
+        port: 9105
       metricscollector:
         host: localhost
         port: 7103
@@ -88,32 +88,32 @@ properties:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
     lock_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
     metricscollector:
       require_consul: false
       server:
         port: 7103
       health:
-        port: 9103        
+        port: 9103
     policy_db:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
     operator:
       require_consul: false
       health:
-        port: 9108   
+        port: 9108
       scaling_engine:
         host: localhost
         port: 7104
       scheduler:
-        host: localhost      
+        host: localhost
         port: 7102
     scalingengine:
       require_consul: false
@@ -125,12 +125,12 @@ properties:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
     scheduler:
       require_consul: false
       port: 7102
       health:
-        port: 9102      
+        port: 9102
       scaling_engine:
         host: localhost
         port: 7104
@@ -138,7 +138,7 @@ properties:
       databases:
         - name: "autoscaler"
           tag: "default"
-      db_scheme: postgres          
+      db_scheme: postgres
   bits-service:
     active_signing_key:
       key_id: key1
@@ -310,7 +310,9 @@ properties:
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
       max_open_files: 1500
-  cf_mysql_enabled: false
+    proxy:
+      api_force_https: false
+      api_username: 'mysql_proxy'
   deployment: scf-deployment
   diego:
     auctioneer:
