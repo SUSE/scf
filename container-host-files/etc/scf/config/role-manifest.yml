@@ -1644,6 +1644,7 @@ instance_groups:
           protocol: TCP
           internal: 8080
 - name: nfs-broker
+  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
