@@ -28,9 +28,9 @@ releases:
   version: "1.281.0"
   sha1: "1bdcf24c1fb9baf324aebab8ba28f8e64b846305"
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.101.0"
-  version: "0.101.0"
-  sha1: "500a8fc6022a95dd84a3d19b7258fb65d5d17857"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.108.0"
+  version: "0.108.0"
+  sha1: "78ec07a3bebfee754251fcf9dc4993bb82acf93a"
 - name: credhub
   version: 2.2.0
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.2.0
@@ -63,10 +63,6 @@ releases:
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
-- name: pxc
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.16.0
-  version: 0.16.0
-  sha1: eb53d366af2d6e49e8c2ac834191547b2ba44d30
 - name: routing
   version: 0.187.0
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.187.0
@@ -84,9 +80,9 @@ releases:
   version: "1.0.32.1"
   sha1: "4a81e17b95b74aa92ec514fa96e2b6316fa785fa"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.40.1.tgz"
-  version: "1.8.40.1"
-  sha1: "622ab7c10f417399adeacb444fb052b18098ebff"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.41.1.tgz"
+  version: "1.8.41.1"
+  sha1: "bc6e11c2fbb7a46fa8af820875f4571edb0c04bd"
 - name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.19.1.1.tgz"
   version: "4.19.1.1"
@@ -112,9 +108,9 @@ releases:
   version: "1.4.43.1"
   sha1: "382e54325bfdafee052d6456294e1a6a5fddd2f5"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.13.1.tgz"
-  version: "1.0.13.1"
-  sha1: "8f5ed12e477a5f4a6e17442d21e7ae5550d8266e"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.14.1.tgz"
+  version: "1.0.14.1"
+  sha1: "81d49edb7b0e0cbc368e7875674b86696a3d5ed9"
 - name: dotnet-core-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.12.1.tgz"
   version: "2.2.12.1"
@@ -128,9 +124,9 @@ releases:
   version: "1.75.11"
   sha1: "c9f52bd5f82e82721d65ab5fffdce1ebe7a04eec"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.50.tgz"
-  version: "4.50"
-  sha1: "a382779ea354a2db45156c1d43ae9bd1c30500bd"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-4.53.tgz"
+  version: "4.53"
+  sha1: "55fa6ee4fca519962b1ce53cc97559068b247836"
 - name: app-autoscaler
   version: "1.2.1"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
@@ -152,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.6.tgz"
-  version: "0.0.6"
-  sha1: "6f8ac2c937b8413f833b726e1e578d8c58becb8d"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.4.tgz"
+  version: "0.0.4"
+  sha1: "c2766a1da006a7619852937fbf7ca94e99db1a97"
 - name: uaa
   version: 68.0
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
@@ -176,36 +172,6 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
-  - name: eirini-persi-broker
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-        ports:
-        - name: broker
-          protocol: TCP
-          internal: 8999
-  - name: eirini-extensions
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-        ports:
-        - name: webhook
-          protocol: TCP
-          internal: 2999
   - name: opi
     release: eirini
     properties:
@@ -418,40 +384,53 @@ instance_groups:
           privileged: true
 - name: mysql
   scripts:
-  - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
+  - scripts/create_mysql_data_tmp.sh
   - scripts/chown_vcap_store.sh
-  - scripts/pxc/create_directories.sh
-  - scripts/patches/fix_mysql_advertise_ip.sh # Deprecated. Should go away with cf-mysql-release.
+  - scripts/patches/fix_mysql_advertise_ip.sh
   - scripts/forward_logfiles.sh
+  - scripts/patches/enable_mysql_galera_bootstrap.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
   - name: patch-properties
     release: scf-helper
-  - name: pxc-mysql
-    release: pxc
+  - name: mysql
+    release: cf-mysql
     provides:
       mysql: {}
     properties:
       bosh_containerization:
         ports:
-        - name: pxc-mysql
+        - name: mysql
           protocol: TCP
-          internal: 3306
+          internal: 13306
         - name: galera-tcp
           protocol: TCP
           internal: 4567
-        - name: galera-agent
+        - name: galera-udp
+          protocol: UDP
+          internal: 4567
+        - name: galera-ist
+          protocol: TCP
+          internal: 4568
+        - name: healthcheck
           protocol: TCP
           internal: 9200
+        - name: xtrabackup
+          protocol: TCP
+          internal: 4444
+  - name: proxy
+    release: cf-mysql
+    provides:
+      proxy: {}
+    properties:
+      bosh_containerization:
         run:
           scaling:
             min: 1
-            max: 7
-            ha: 3
+            max: 3
+            ha: 2
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -462,96 +441,7 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - "[[ $(curl --silent http://${HOSTNAME}:9200/api/v1/status | jq '.healthy') == true ]]"
-          affinity:
-            podAntiAffinity:
-              preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                    - key: "app.kubernetes.io/component"
-                      operator: In
-                      values:
-                      - mysql
-                  topologyKey: "beta.kubernetes.io/os"
-  - name: galera-agent
-    release: pxc
-  - name: gra-log-purger
-    release: pxc
-  - name: cluster-health-logger
-    release: pxc
-  - name: bootstrap
-    release: pxc
-  - name: mysql
-    release: cf-mysql
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
-  tags:
-  - sequential-startup
-  configuration:
-    templates:
-      properties.admin_password: ((MYSQL_ADMIN_PASSWORD))
-
-      # Deprecation start. Should go away with cf-mysql-release. >>
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      # << Deprecation end
-
-      properties.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.engine_config.binlog.enabled: false
-      properties.engine_config.galera.enabled: true
-      properties.max_open_files: 1500
-      properties.monit_startup_timeout: 300
-      properties.seeded_databases: '[{"name":"ccdb","password":"((MYSQL_CCDB_ROLE_PASSWORD))","username":"ccadmin"},{"name":"diego","password":"((MYSQL_DIEGO_PASSWORD))","username":"diego"},{"name":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))","username":"routing-api"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))","username":"diego_locket"},{"name":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))","username":"credhub_user"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
-      properties.tls.galera.ca: ((INTERNAL_CA_CERT))
-      properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
-      properties.tls.galera.private_key: ((GALERA_SERVER_CERT_KEY))
-      properties.tls.server.ca: ((INTERNAL_CA_CERT))
-      properties.tls.server.certificate: ((MYSQL_SERVER_CERT))
-      properties.tls.server.private_key: ((MYSQL_SERVER_CERT_KEY))
-- name: mysql-proxy
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: proxy
-    release: pxc
-    provides:
-      proxy: {}
-    properties:
-      bosh_containerization:
-        ports:
-        - name: api-proxy
-          protocol: TCP
-          internal: 8083
-        - name: pxc-mysql-proxy
-          protocol: TCP
-          internal: 3306
-        - name: healthck-proxy
-          protocol: TCP
-          internal: 1936
-        run:
-          scaling:
-            min: 1
-            max: 5
-            ha: 2
-          memory: 2500
-          virtual-cpus: 2
-          healthcheck:
-            readiness:
-              command:
+              - curl --silent --fail --head http://${HOSTNAME}:9200/
               - curl --silent --fail --head http://${HOSTNAME}:1936/
           affinity:
             podAntiAffinity:
@@ -565,24 +455,26 @@ instance_groups:
                       values:
                       - mysql
                   topologyKey: "beta.kubernetes.io/os"
-  - name: route_registrar
-    release: routing
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
+        ports:
+        - name: api-proxy
+          protocol: TCP
+          internal: 8080
+        - name: mysql-proxy
+          protocol: TCP
+          internal: 3306
+        - name: healthck-proxy
+          protocol: TCP
+          internal: 1936
   tags:
   - sequential-startup
   configuration:
     templates:
-      properties.api_force_https: false
-      properties.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
-      properties.api_port: 8083
-      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
-      properties.api_username: mysql_proxy
-      properties.route_registrar.routes: '[{"name":"cf-mysql-proxy","port":8083,"prepend_instance_index":true,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]},{"name":"cf-mysql-proxy-aggregator","port":8082,"registration_interval":"10s","uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]}]'
+      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
+      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
+      properties.cf_mysql.proxy.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
+      properties.cf_mysql.proxy.healthcheck_timeout_millis: ((MYSQL_PROXY_HEALTHCHECK_TIMEOUT))
 - name: cf-usb-group
   default_feature: cf_usb
   environment_scripts:
@@ -890,7 +782,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: routing-api
   environment_scripts:
   - scripts/go_log_level.sh
@@ -947,7 +839,7 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: api-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -960,6 +852,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1058,6 +951,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1150,6 +1044,7 @@ instance_groups:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/cc_migration_squash.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1688,7 +1583,6 @@ instance_groups:
           protocol: TCP
           internal: 8080
 - name: nfs-broker
-  unless_feature: eirini
   environment_scripts:
   - scripts/go_log_level.sh
   scripts:
@@ -2043,7 +1937,7 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
-      properties.wait-for-database.hostname: mysql-proxy-set
+      properties.wait-for-database.hostname: mysql-set
       properties.wait-for-database.port: 3306
 - name: secret-generation
   type: bosh-task
@@ -2138,7 +2032,7 @@ instance_groups:
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
-      properties.credhub.data_storage.host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.credhub.data_storage.host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: 3306
       properties.credhub.data_storage.require_tls: false
@@ -2794,7 +2688,7 @@ configuration:
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -2802,9 +2696,11 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
+    properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"}]'
     properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
@@ -2837,13 +2733,13 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: '"mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
@@ -2870,16 +2766,6 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
-    properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
-    properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-extensions.operator_webhook_host: "((EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST))"
-    properties.eirini-persi-broker.auth_password: '"((EIRINI_PERSI_NFS_BROKER_PASSWORD))"'
-    properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
-    properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
-    properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
-    properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -2930,7 +2816,7 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -2971,7 +2857,7 @@ configuration:
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
-    properties.router.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+    properties.router.dns_health_check_host: 'mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -3285,12 +3171,8 @@ variables:
   type: password
 - name: AZ_LABEL_NAME
   options:
-    default: ''
-    description: The name of the metadata label to query on worker
-      nodes to get AZ information. When set, the cells will query
-      their worker node for AZ information and inject the result into
-      cloudfoundry via the KUBE_AZ parameter. When left to the default
-      no custom AZ processing is done.
+    default: 'failure-domain.beta.kubernetes.io/zone'
+    description: The name of the metadata label to query on worker nodes to get AZ information.
     internal: true
 - name: BBS_ACTIVE_KEY_PASSPHRASE
   options:
@@ -3683,10 +3565,6 @@ variables:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
     imagename: true
-- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
-  options:
-    type: environment
-    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_FLUENTD_IMAGE
   options:
     default: 'eirini/loggregator-fluentd:0.1.0'
@@ -3705,23 +3583,6 @@ variables:
   options:
     default: 'eirini'
     description: "The namespace used by Eirini for deploying applications."
-- name: EIRINI_PERSI_NFS_BROKER_PASSWORD
-  options:
-    description: Basic auth password to verify on incoming Service Broker requests
-    secret: true
-    required: true
-  type: password
-- name: EIRINI_PERSI_PLANS
-  options:
-    description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
-    default: '[]'
-    example: |
-      - id: "dafault-storageclass"
-        name: "default"
-        description: "Eirini persistence broker"
-        free: true
-        kube_storage_class: "persistent"
-        default_size: "1Gi"
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
@@ -3742,20 +3603,6 @@ variables:
       to true, the gorouter sets the header X-Forwarded-Proto to https. When this
       value set to false, the gorouter sets the header X-Forwarded-Proto to the protocol
       of the incoming request.
-    required: true
-- name: GALERA_SERVER_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - galera_server_certificate
-    description: A PEM-encoded TLS certificate for the Galera server.
-    required: true
-  type: certificate
-- name: GALERA_SERVER_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key for the Galera server.
     required: true
 - name: GARDEN_APPARMOR_PROFILE
   options:
@@ -3919,10 +3766,6 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       Its default value is 'secret-1' and cannot be set by the user.
-- name: KUBE_SIZING_MYSQL_COUNT
-  options:
-    description: The number of mysql replicas deployed. This value is set automatically
-      by the helm charts of SCF.
 - name: KUBE_SIZING_NATS_COUNT
   options:
     description: The number of nats replicas deployed. This value is set automatically
@@ -4123,27 +3966,18 @@ variables:
     description: The password for Basic Auth used to secure the MySQL proxy API.
     required: true
   type: password
+- name: MYSQL_PROXY_HEALTHCHECK_TIMEOUT
+  options:
+    default: 30000
+    description: The time allowed for the MySQL server to respond to healthcheck queries,
+      in milliseconds.
+    required: true
 - name: MYSQL_ROUTING_API_PASSWORD
   options:
     secret: true
     description: The password for access to MySQL by the routing-api
     required: true
   type: password
-- name: MYSQL_SERVER_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - "mysql-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
-    - "mysql-proxy-set.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
-    description: A PEM-encoded TLS certificate for the MySQL server.
-    required: true
-  type: certificate
-- name: MYSQL_SERVER_CERT_KEY
-  options:
-    secret: true
-    description: A PEM-encoded TLS key for the MySQL server.
-    required: true
 - name: NATS_PASSWORD
   options:
     secret: true

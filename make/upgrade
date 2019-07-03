@@ -71,6 +71,8 @@ if [ -n "${SCF_SECRETS_GENERATION_COUNTER:-}" ] ; then
     )
 fi
 
+echo helm upgrade "${RELEASE}" "${CF_CHART}" "${helm_args[@]}" "$@"
+
 helm upgrade "${RELEASE}" "${CF_CHART}" "${helm_args[@]}" "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade end

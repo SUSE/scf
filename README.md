@@ -65,6 +65,7 @@ Table of Contents
       * [How do I use an authenticated registry for my Docker images?](#how-do-i-use-an-authenticated-registry-for-my-docker-images)
       * [Using Persi NFS](#using-persi-nfs)
       * [How do I rotate the CCDB secrets?](#how-do-i-rotate-the-ccdb-secrets)
+      * [CCDB Migration Squashing](#ccdb-migration-squashing)
 
 # Deploying SCF on Vagrant
 
@@ -245,41 +246,45 @@ cf login -u admin -p changeme
 
 Typically Vagrant box deployments encounter one of few problems:
 
-* uaa does not come up correctly (constantly not ready in pod-status)
+* `uaa` does not come up correctly (constantly not ready in `pod-status`).
 
     In this case perform the following
 
     ```bash
     # Delete everything in the uaa namespace
-    k delete namespace uaa
+    helm delete --purge uaa
+    kubectl delete namespace uaa
 
     # Delete the pv related to uaa/mysql-data-mysql-0
-    k get pv # Find it
-    k delete pv pvc-63aab845-4fe7-11e7-9c8d-525400652dd8
+    kubectl get pv # Find it
+    kubectl delete pv pvc-63aab845-4fe7-11e7-9c8d-525400652dd8
 
     make uaa-run
     ```
 
-* api does not come up correctly and is not performing migrations (curl output in logs)
+* `api-group` does not come up correctly and is not performing migrations (curl output in logs).
 
-    uaa is not functioning, try steps above
+    `uaa` is not functioning, try steps above
 
-* vagrant under VirtualBox freezing for no obvious reason: try enabling the "Use Host I/O Cache" option in `Settings->Storage->SATA Controller`.
+* Vagrant under VirtualBox freezing for no obvious reason.
 
-* volumes don't get mounted when suspending/resuming the box
+    Try enabling the _Use Host I/O Cache_ option in `Settings->Storage->SATA Controller`.
+
+* Volumes don't get mounted when suspending/resuming the box.
 
   For now only `vagrant stop` and then `vagrant up` fixes it.
 
 * When restarting the box with either `vagrant reload` or `vagrant stop/up` some
-  pods never come up automatically. You have to do a `make stop` and then
-  `make run` to bring this up.
+  pods never come up automatically.
+
+  You have to do a `make stop` and then `make run` to bring this up.
 
 * Pulling images during any of `vagrant up` or `make vagrant-prep` or `make docker-deps`
   fails.
 
   In order to have access to the internet inside the vagrant box and inside the
   containers (withing the box) you need to enable ip forwarding for both the host
-  and the vagrant box (which is the host for containers)
+  and the vagrant box (which is the host for containers).
 
   To enable temporarily:
 
@@ -289,7 +294,7 @@ Typically Vagrant box deployments encounter one of few problems:
 
   ```echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/50-docker-ipv4-ipforward.conf```
 
-  and restart your docker service (or run `vagrant up` again if changed on the host)
+  and restart your docker service (or run `vagrant up` again if changed on the host).
 
 # Deploying SCF on Kubernetes
 
@@ -435,10 +440,10 @@ cf enable-feature-flag diego_docker
 and execute the following commands:
 
 ```bash
-make smoke
-make brain
-make scaler-smoke
-make cats
+make smoke         # Cloud Foundry smoke tests
+make brain         # SCF-specific additional acceptance tests
+make scaler-smoke  # Auto-scaler smoke tests
+make cats          # Cloud Foundry acceptance tests
 ```
 
 #### How do I run a subset of SCF acceptance tests?
@@ -496,15 +501,42 @@ Try each of the following solutions sequentially:
 
 ### Can I target the cluster from the host using the `cf` CLI?
 
-You can target the cluster on the hardcoded `cf-dev.io` address assigned to a host-only network adapter.
-You can access any URL or endpoint that references this address from your host.
+You can target the cluster on the hardcoded `cf-dev.io` address
+assigned to a host-only network adapter.  You can access any URL or
+endpoint that references this address from your host.
 
 ### How do I connect to the Cloud Foundry database?
 
-1. Use the role manifest to expose the port for the mysql proxy role
-2. The MySQL instance is exposed at `cf-dev.io:3306`.
-3. The default username is: `root`.
-4. You can find the password in the kubernetes secret.
+1. Use the role manifest to expose the port for the mysql proxy role.
+   This is done by adding the key `public: true` to the
+   `pxc-mysql-proxy` port in `properties.bosh_containerization.ports`
+   of job `proxy` in instance_group `mysql-proxy`.
+2. With that the MySQL instance is exposed at `cf-dev.io:3306`.
+3. The username is: `ccadmin`.
+4. The password can be retrieved from the environment variable
+   `CC_DATABASE_PASSWORD` found in the `api-group` pod.
+
+Basic access is then achieved using
+
+```
+mysql --database ccdb --user=ccadmin --port=3306 --host=cf-dev.io --password=...
+```
+
+If `mysqldump` is available the schema can be retrieved via
+
+```
+mysqldump (conn+auth-as-above) --no-data --single-transaction ccdb
+```
+
+or
+
+```
+mysqldump (conn+auth-as-above) --no-data --single-transaction ccdb | grep -v '^/\*'
+```
+
+to remove the comments holding dump action tracing.
+
+
 
 ### How do I add a new BOSH release to SCF?
 
@@ -894,3 +926,28 @@ equivalent) can be run again with the same parameters. Some commands need to be 
 * tasks: While tasks have an encryption key label, they are generally meant to be a
   one-off event, and left to run to completion. If there is a task still running, it
   could be stopped with `cf terminate-task`, then run again with `cf run-task`.
+
+## CCDB migration squashing
+
+As we tend to develop using from-scratch databases, we run CCDB migrations more
+than typical.  Additionally, it appears that (due to the use of MySQL and its
+lack of transactional support around schema changes) we have a high failure rate
+when doing the initial database migration from nothing.  Given that we only
+support upgrades from the previous verison, we have implemented a [patch to
+squash all initial database migrations].  To update this patch:
+
+1. Remove the patch (so that we can correctly generate a new one).
+2. Deploy SCF until it is ready.
+3. Apply [`0001-db-migration-add-script-to-squash-DB-migrations.patch`]
+   to the `api-group` container
+4. Follow the instructions at the top of the patch file (updating timestamps)
+5. Run `rake db:squash` (as noted in the patch file) to generate the new
+   squashing patch.
+6. Update [`0001-db-migration-add-script-to-squash-DB-migrations.patch`]
+   with the new timestamps.
+
+It may be a good idea to use `mysqldump` to confirm that the database schema
+before and after the new patch match.
+
+[patch to squash all initial database migrations]: container-host-files/etc/scf/config/scripts/patches/cc_migration_squash.sh
+[`0001-db-migration-add-script-to-squash-DB-migrations.patch`]: tooling/helpers/0001-db-migration-add-script-to-squash-DB-migrations.patch

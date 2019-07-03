@@ -85,6 +85,8 @@ else
     )
 fi
 
+echo helm install "${CF_CHART}" "${helm_args[@]}" "$@"
+
 helm install "${CF_CHART}" "${helm_args[@]}" "$@"
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::create end
