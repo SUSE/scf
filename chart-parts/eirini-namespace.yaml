@@ -1,0 +1,7 @@
+---
+{{- if .Values.enable.eirini }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.env.EIRINI_KUBE_NAMESPACE | quote}}
+{{- end }}
