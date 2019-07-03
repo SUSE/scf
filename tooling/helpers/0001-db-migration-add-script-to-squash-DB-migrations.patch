@@ -1093,7 +1093,7 @@ index 000000000..ca2509afd
 +                        # Skip the squash-migration if we already have a users table
 +                        # (which probably means this has data from before we did the
 +                        # squashing).
-+                        break if tables.find { |t| t =~ /^users$/ }
++                        next if tables.find { |t| t =~ /^users$/ }
 +                ENDSCRIPT
 +
 +                unless @default_charset.nil?

@@ -425,7 +425,7 @@ Sequel.migration do
     # Skip the squash-migration if we already have a users table
     # (which probably means this has data from before we did the
     # squashing).
-    break if tables.find { |t| t =~ /^users$/ }
+    next if tables.find { |t| t =~ /^users$/ }
     run 'ALTER DATABASE DEFAULT CHARACTER SET utf8;'
     create_table! :app_annotations do
       String :guid, null: false
