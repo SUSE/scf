@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.17.1] - 2019-07-03
+
+## Added
+
+## Changed
+- Bumped cflinuxfs3 to 0.108.0
+- Bumped go-builpack to 1.8.41
+- Bumped nginx-buildpack to 1.0.14
+- eirini release is reverted back to 0.0.4
+- eirini-extensions and eirini-persi-broker jobs are removed
+- Bumped SLE15 stack
+- Switched back from pxc-release to cf-mysql-release
+
+## Fixed
+- Implemented a patch to squash Cloud Controller database migrations
+
+
 ## [2.17.0] - 2019-06-19
 
 ## Added
@@ -8,7 +25,6 @@
 - Added support for embedded UAA
 
 ## Changed
-- Added Gingko flakeAttempts support for CATS and SITS
 - Bumped app-autoscaler to 1.2.1
 - Bumped cf-deployment to 7.11
 - Bumped cflinuxfs3 to 0.101.0
@@ -22,7 +38,6 @@
 - Bumped ruby-buildpack to 1.7.40
 - Bumped staticfile-buildpack to 1.4.43
 - Bumped SLE15 stack
-- Increased timeout for CATS
 - Simplified service accounts and pod security policies
 - Switched to log-cache for container metrics
 - Switched from cf-mysql-release to pxc-release
