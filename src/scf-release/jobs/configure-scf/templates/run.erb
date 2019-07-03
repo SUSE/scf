@@ -146,14 +146,6 @@ ${scf_secrets}
 EOT
 /var/vcap/packages/kubectl/bin/kubectl apply -f secret.yml --namespace "<%= p("scf.eirini.namespace") %>"
 
-status "Setting up Eirini daemonsets"
-
-/var/vcap/packages/kubectl/bin/kubectl apply -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml
-
-<% else %>
-
-/var/vcap/packages/kubectl/bin/kubectl delete -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml || true
-
 <% end %>
 
 status "SCF configuration complete."
