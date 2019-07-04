@@ -5,6 +5,7 @@
 ## Added
 
 ## Changed
+- Set the default value of AZ_LABEL_NAME to failure-domain.beta.kubernetes.io/zone
 - Bumped cflinuxfs3 to 0.108.0
 - Bumped go-builpack to 1.8.41
 - Bumped nginx-buildpack to 1.0.14
