@@ -2429,10 +2429,6 @@ configuration:
       - apiGroups: [""]
         resources: [nodes]
         verbs: [get, list, watch]
-      eirini-role:
-      - apiGroups: ["*"]
-        resources: ["*"]
-        verbs: ["*"]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
@@ -2485,8 +2481,7 @@ configuration:
         roles: [configgin-role, psp-role]
         cluster-roles: [node-reader-role]
       eirini:
-        roles: [configgin-role]
-        cluster-roles: [eirini-role]
+        roles: [configgin-role, psp-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
