@@ -2027,7 +2027,7 @@ instance_groups:
   if_feature: eirini
   type: bosh-task
   jobs:
-  - name: configure-eirini
+  - name: configure-eirini-scf
     release: eirini
     properties:
       bosh_containerization:
