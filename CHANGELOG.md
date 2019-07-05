@@ -3,7 +3,7 @@
 ## [2.17.0] - 2019-06-19
 
 ## Added
-- Added eirini-extensions and eirini-persi-broker jobs
+- Added eirini-persi and eirini-persi-broker jobs
 - Added PXC release
 - Added support for embedded UAA
 
