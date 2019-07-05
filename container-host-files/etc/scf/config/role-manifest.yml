@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.26.0"
   sha1: "f6a6598fbbac233f94c4a0cfe914970ec34db7b3"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.8.tgz"
+  url: "https://tmp-aljfkdjadk-eirinifs-bucket.s3.eu-central-1.amazonaws.com/eirini-with-eirini-persi.tgz"
   version: "0.0.8"
-  sha1: "a6dcf740e6e641b9b9f0fa21680615bf483052c4"
+  sha1: "02747b48b38e91ebc6333627e1fa65e29b87e970"
 - name: uaa
   version: 68.0
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
@@ -196,7 +196,7 @@ instance_groups:
         - name: broker
           protocol: TCP
           internal: 8999
-  - name: eirini-extensions
+  - name: eirini-persi
     release: eirini
     properties:
       bosh_containerization:
@@ -2822,16 +2822,16 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
-    properties.eirini-extensions.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
-    properties.eirini-extensions.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
-    properties.eirini-extensions.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-extensions.operator_webhook_host: "((EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST))"
     properties.eirini-persi-broker.auth_password: '"((EIRINI_PERSI_NFS_BROKER_PASSWORD))"'
     properties.eirini-persi-broker.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
     properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.eirini-persi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-persi.operator_webhook_host: "((EIRINI_EIRINI_PERSI_SERVICE_HOST))"
     properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.eirini.doppler_address: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
     properties.eirini.doppler_address_with_az: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
@@ -3639,7 +3639,7 @@ variables:
     default: 'eirini/recipe-downloader:0.1.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
-- name: EIRINI_EIRINI_EXTENSIONS_SERVICE_HOST
+- name: EIRINI_EIRINI_PERSI_SERVICE_HOST
   options:
     type: environment
     description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
