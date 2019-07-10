@@ -427,6 +427,30 @@ pipeline {
             }
         }
 
+        stage('tag-release-candidate') {
+            when {
+                expression { return isReleaseCandidateBuild() }
+            }
+            steps {
+                sh '''
+                    set -o errexit -o nounset
+                    source ${PWD}/.envrc
+                    set -o xtrace
+                    version="$(awk '/^## / { print $2 ; exit }' CHANGELOG.md | tr -d '[]')"
+                    max_rc=0
+                    for tag in $(git tag --list "${version}-rc*") ; do
+                        this_rc=${tag##*-rc}
+                        if (( this_rc > max_rc )) ; then
+                            max_rc=this_rc
+                        fi
+                    done
+                    new_tag="${version}-rc$((max_rc + 1))"
+                    message="Automatic tagging for ${version} release candidate $((max_rc + 1))"
+                    git tag --message="${message}" "${new_tag}" HEAD
+                '''
+            }
+        }
+
         stage('tools') {
             steps {
                 sh '''
