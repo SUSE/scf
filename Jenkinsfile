@@ -83,6 +83,9 @@ void runTest(String testName) {
 }
 
 String distSubDir() {
+    if (isReleaseCandidateBuild()) {
+        return 'rc/'
+    }
     try {
         "${CHANGE_ID}"
         return 'prs/'
@@ -102,6 +105,9 @@ String distSubDir() {
 }
 
 String distPrefix() {
+    if (isReleaseCandidateBuild()) {
+        return ''
+    }
     try {
         return "PR-${CHANGE_ID}-"
     } catch (Exception ex) {
@@ -110,6 +116,10 @@ String distPrefix() {
         }
         return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
     }
+}
+
+Boolean isReleaseCandidateBuild() {
+    return env.BRANCH_NAME == "release-candidate"
 }
 
 Boolean noOverwrites() {
@@ -387,33 +397,70 @@ pipeline {
             }
         }
         stage('check_for_changed_files') {
-          when {
-              expression { return (env.BRANCH_NAME != 'master') }
-          }
-          steps {
-            script {
-	      def all_files = new HashSet<String>()
-
-              // Nothing will build if no relevant files changed since
-              // the last build on the same branch happened.
-              for (set in currentBuild.changeSets) {
-                def entries = set.items
-                for (entry in entries) {
-                  for (file in entry.affectedFiles) {
-                    all_files << file.path
-                  }
-                }
-              }
-
-              echo "All files changed since last build: ${all_files}"
-
-              if (areIgnoredFiles(all_files)) {
-                currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                echo "RESULT: ${currentBuild.rawBuild.result}"
-                throw new hudson.AbortException('Exiting pipeline early')
-              }
+            when {
+                expression { return (env.BRANCH_NAME != 'master') }
             }
-          }
+            steps {
+                script {
+                    def all_files = new HashSet<String>()
+
+                    // Nothing will build if no relevant files changed since
+                    // the last build on the same branch happened.
+                    for (set in currentBuild.changeSets) {
+                        for (entry in set) {
+                            for (path in entry.affectedPaths) {
+                                all_files << path
+                            }
+                        }
+                    }
+
+                    echo "All files changed since last build: ${all_files}"
+
+                    if (isReleaseCandidateBuild()) {
+                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
+                        if (!changelogFiles.containsAll(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early (non-changelog commit on RC branch)')
+                        }
+                    } else {
+                        if (areIgnoredFiles(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early')
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('tag-release-candidate') {
+            when {
+                expression { return isReleaseCandidateBuild() }
+            }
+            steps {
+                sh '''
+                    set -o errexit -o nounset
+                    set +o xtrace
+                    source ${PWD}/.envrc
+                    version="$(awk '/^## / { print $2 ; exit }' CHANGELOG.md | tr -d '[]')"
+                    if [ -n "$(git tag --list "${version}")" ] ; then
+                        echo "ERROR: Tag ${version} already exists; please update CHANGELOG.md" >&2
+                        exit 1
+                    fi
+                    set -o xtrace
+                    max_rc=0
+                    for tag in $(git tag --list "${version}-rc*") ; do
+                        this_rc=${tag##*-rc}
+                        if (( this_rc > max_rc )) ; then
+                            max_rc=this_rc
+                        fi
+                    done
+                    new_tag="${version}-rc$((max_rc + 1))"
+                    git tag "${new_tag}" HEAD
+                '''
+                // TODO: git push here
+            }
         }
 
         stage('tools') {
