@@ -3,8 +3,8 @@
     The endpoint for use by the `cf` client is
         [1;36mhttps://api.{{ .Values.env.DOMAIN }}[0m
 
-    To target this endpoint run
-        [1;36mcf api --skip-ssl-validation https://api.{{ .Values.env.DOMAIN }}[0m
+    To target this endpoint and login, run
+        [1;36mcf login --skip-ssl-validation -a https://api.{{ .Values.env.DOMAIN }} -u admin[0m
 
     Please remember, it may take some time for everything to come online.
 
