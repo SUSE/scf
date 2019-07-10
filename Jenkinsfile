@@ -112,6 +112,9 @@ String distPrefix() {
     }
 }
 
+Boolean isReleaseCandidateBuild() {
+    return env.BRANCH_NAME in ["release-candidate", "marky/release-candidate-machinery"]
+}
 Boolean noOverwrites() {
     switch (env.BRANCH_NAME) {
         case 'master':
@@ -387,33 +390,41 @@ pipeline {
             }
         }
         stage('check_for_changed_files') {
-          when {
-              expression { return (env.BRANCH_NAME != 'master') }
-          }
-          steps {
-            script {
-	      def all_files = new HashSet<String>()
-
-              // Nothing will build if no relevant files changed since
-              // the last build on the same branch happened.
-              for (set in currentBuild.changeSets) {
-                def entries = set.items
-                for (entry in entries) {
-                  for (file in entry.affectedFiles) {
-                    all_files << file.path
-                  }
-                }
-              }
-
-              echo "All files changed since last build: ${all_files}"
-
-              if (areIgnoredFiles(all_files)) {
-                currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                echo "RESULT: ${currentBuild.rawBuild.result}"
-                throw new hudson.AbortException('Exiting pipeline early')
-              }
+            when {
+                expression { return (env.BRANCH_NAME != 'master') }
             }
-          }
+            steps {
+                script {
+                    def all_files = new HashSet<String>()
+
+                    // Nothing will build if no relevant files changed since
+                    // the last build on the same branch happened.
+                    for (set in currentBuild.changeSets) {
+                        for (entry in set) {
+                            for (path in entry.affectedPaths) {
+                                all_files << path
+                            }
+                        }
+                    }
+
+                    echo "All files changed since last build: ${all_files}"
+
+                    if (isReleaseCandidateBuild()) {
+                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
+                        if (changelogFiles.containsAll(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early')
+                        }
+                    } else {
+                        if (areIgnoredFiles(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early')
+                        }
+                    }
+                }
+            }
         }
 
         stage('tools') {
