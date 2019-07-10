@@ -83,6 +83,9 @@ void runTest(String testName) {
 }
 
 String distSubDir() {
+    if (isReleaseCandidateBuild()) {
+        return 'rc/'
+    }
     try {
         "${CHANGE_ID}"
         return 'prs/'
@@ -115,6 +118,7 @@ String distPrefix() {
 Boolean isReleaseCandidateBuild() {
     return env.BRANCH_NAME in ["release-candidate", "marky/release-candidate-machinery"]
 }
+
 Boolean noOverwrites() {
     switch (env.BRANCH_NAME) {
         case 'master':
