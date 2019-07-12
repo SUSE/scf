@@ -408,6 +408,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Checkout') {
             when {
                 expression { return (!params.SKIP_CHECKOUT) || params.WIPE }
@@ -415,10 +416,14 @@ pipeline {
             steps {
                 sh '''
                     git config --global --replace-all submodule.fetchJobs 0
+                    # Remove all RC tags in case we had any un-pushed RCs left
+                    # over on the build slave.
+                    git tag --list '*-rc*' | xargs git tag -d
                 '''
                 checkout scm
             }
         }
+
         stage('Check for Changed Files') {
             when {
                 expression { return getBuildType() != BuildType.Master }
