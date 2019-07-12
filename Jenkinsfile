@@ -296,7 +296,9 @@ pipeline {
     }
 
     stages {
-        stage('ensure_triggered_master') {
+        // Builds off the master branch must be triggered to ensure we have the
+        // correct paremeters set
+        stage('Ensure master Build Triggered Correctly') {
             when {
                 expression { return env.BRANCH_NAME == 'master' }
             }
@@ -309,7 +311,7 @@ pipeline {
             }
         }
 
-        stage('wipe') {
+        stage('Wipe') {
             when {
                 expression { return params.WIPE }
             }
@@ -318,7 +320,7 @@ pipeline {
             }
         }
 
-        stage('clean') {
+        stage('Clean') {
             when {
                 expression { return params.CLEAN }
             }
@@ -385,7 +387,7 @@ pipeline {
                 '''
             }
         }
-        stage('checkout') {
+        stage('Checkout') {
             when {
                 expression { return (!params.SKIP_CHECKOUT) || params.WIPE }
             }
@@ -396,7 +398,7 @@ pipeline {
                 checkout scm
             }
         }
-        stage('check_for_changed_files') {
+        stage('Check for Changed Files') {
             when {
                 expression { return (env.BRANCH_NAME != 'master') }
             }
@@ -434,7 +436,7 @@ pipeline {
             }
         }
 
-        stage('tag-release-candidate') {
+        stage('Tag Release Candidate') {
             when {
                 expression { return isReleaseCandidateBuild() }
             }
@@ -463,7 +465,7 @@ pipeline {
             }
         }
 
-        stage('tools') {
+        stage('Tools') {
             steps {
                 sh '''
                     set -e +x
@@ -475,7 +477,7 @@ pipeline {
             }
         }
 
-        stage('verify_no_overwrite') {
+        stage('Verify Not Overwriting S3 Artifacts') {
             when {
                 expression { return params.PUBLISH_S3 && noOverwrites() }
             }
@@ -504,7 +506,7 @@ pipeline {
             }
         }
 
-        stage('build') {
+        stage('Build') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: params.DOCKER_CREDENTIALS,
@@ -528,7 +530,7 @@ pipeline {
             }
         }
 
-        stage('dist') {
+        stage('Dist') {
             steps {
                 sh '''
                     set -e +x
@@ -541,7 +543,7 @@ pipeline {
             }
         }
 
-        stage('publish_docker') {
+        stage('Publish Docker Images') {
             when {
                 expression { return params.PUBLISH_DOCKER }
             }
@@ -563,7 +565,7 @@ pipeline {
             }
         }
 
-        stage('publish_s3') {
+        stage('Publish Archives to S3') {
             when {
                 expression { return params.PUBLISH_S3 }
             }
@@ -611,7 +613,7 @@ pipeline {
             }
         }
 
-        stage('deploy') {
+        stage('Deploy to Kubernetes') {
             when {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
             }
@@ -678,7 +680,7 @@ pipeline {
             }
         }
 
-        stage('rotate') {
+        stage('Test Secret Rotation') {
             when {
                 expression { return params.TEST_ROTATE }
             }
@@ -771,7 +773,7 @@ pipeline {
             }
         }
 
-        stage('smoke') {
+        stage('Smoke Tests') {
             when {
                 expression { return params.TEST_SMOKE }
             }
@@ -791,7 +793,7 @@ pipeline {
             }
         }
 
-        stage('brain') {
+        stage('Brains Tests') {
             when {
                 expression { return params.TEST_BRAIN }
             }
@@ -811,7 +813,7 @@ pipeline {
             }
         }
 
-        stage('sits') {
+        stage('Sync Integration Tests') {
             when {
                 expression { return params.TEST_SITS }
             }
@@ -831,7 +833,7 @@ pipeline {
             }
         }
 
-        stage('cats') {
+        stage('Cloud Foundry Acceptance Tests') {
             when {
                 expression { return params.TEST_CATS }
             }
@@ -851,7 +853,7 @@ pipeline {
             }
         }
 
-        stage('tar_sources') {
+        stage('Tar Sources') {
           when {
                 expression { return params.TAR_SOURCES }
           }
@@ -864,7 +866,7 @@ pipeline {
           }
         }
 
-        stage('commit_sources') {
+        stage('Commit Sources to OBS') {
           when {
                 expression { return params.COMMIT_SOURCES }
           }
