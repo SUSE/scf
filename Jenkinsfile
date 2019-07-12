@@ -17,6 +17,37 @@ String getBuildLog() {
     return currentBuild.rawBuild.getLogFile().getText()
 }
 
+enum BuildType {
+    Master,
+    ReleaseCandidate,
+    Nightly,
+    Develop,
+    PullRequest,
+    Unknown
+
+    public BuildType() {}
+}
+
+BuildType getBuildType() {
+    try {
+        switch (env.BRANCH_NAME) {
+            case 'master':
+                return BuildType.Master
+            case 'develop':
+                if (params.IS_NIGHTLY) {
+                    return BuildType.Nightly
+                }
+                return BuildType.Develop
+            case 'release-candidate':
+                return BuildType.ReleaseCandidate
+        }
+        "${CHANGE_ID}"
+        return BuildType.PullRequest
+    } catch (Exception ex) {
+        return BuildType.Unknown
+    }
+}
+
 // The entries are the full path to the files, relative to the root of
 // the repository
 boolean areIgnoredFiles(HashSet<String> changedFiles) {
@@ -83,52 +114,42 @@ void runTest(String testName) {
 }
 
 String distSubDir() {
-    if (isReleaseCandidateBuild()) {
-        return 'rc/'
-    }
-    try {
-        "${CHANGE_ID}"
-        return 'prs/'
-    } catch (Exception ex) {
-        switch (env.BRANCH_NAME) {
-            case 'develop':
-                if (params.IS_NIGHTLY) {
-                    return 'nightly/'
-                }
-                return 'develop/'
-            case 'master':
-                return 'master/'
-            default:
-                return 'branches/'
-        }
+    switch (getBuildType()) {
+        case BuildType.Master:
+            return 'master/'
+        case BuildType.ReleaseCandidate:
+            return 'rc/'
+        case BuildType.Nightly:
+            return 'nightly/'
+        case BuildType.Develop:
+            return 'develop/'
+        case BuildType.PullRequest:
+            return 'prs/'
+        case BuildType.Unknown:
+            return 'branches/'
+        default:
+            error "Unknown build type ${getBuildType()}"
     }
 }
 
 String distPrefix() {
-    if (isReleaseCandidateBuild()) {
-        return ''
-    }
-    try {
-        return "PR-${CHANGE_ID}-"
-    } catch (Exception ex) {
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+    switch (getBuildType()) {
+        case BuildType.Master:
+        case BuildType.ReleaseCandidate:
+        case BuildType.Nightly:
+        case BuildType.Develop:
             return ''
-        }
-        return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        case BuildType.PullRequest:
+            return "PR-${CHANGE_ID}-"
+        case BuildType.Unknown:
+            return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        default:
+            error "Unknown build type ${getBuildType()}"
     }
-}
-
-Boolean isReleaseCandidateBuild() {
-    return env.BRANCH_NAME == "release-candidate"
 }
 
 Boolean noOverwrites() {
-    switch (env.BRANCH_NAME) {
-        case 'master':
-            return true
-        default:
-            return false
-    }
+    return getBuildType() == BuildType.Master
 }
 
 void kubectlGetAll(String namespace) {
@@ -300,7 +321,7 @@ pipeline {
         // correct paremeters set
         stage('Ensure master Build Triggered Correctly') {
             when {
-                expression { return env.BRANCH_NAME == 'master' }
+                expression { return getBuildType() == BuildType.Master }
             }
             steps {
                 script {
@@ -400,7 +421,7 @@ pipeline {
         }
         stage('Check for Changed Files') {
             when {
-                expression { return (env.BRANCH_NAME != 'master') }
+                expression { return getBuildType() != BuildType.Master }
             }
             steps {
                 script {
@@ -418,7 +439,7 @@ pipeline {
 
                     echo "All files changed since last build: ${all_files}"
 
-                    if (isReleaseCandidateBuild()) {
+                    if (getBuildType() == BuildType.ReleaseCandidate) {
                         HashSet<String> changelogFiles = ["CHANGELOG.md"]
                         if (!changelogFiles.containsAll(all_files)) {
                             currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
@@ -438,7 +459,7 @@ pipeline {
 
         stage('Tag Release Candidate') {
             when {
-                expression { return isReleaseCandidateBuild() }
+                expression { return getBuildType() == BuildType.ReleaseCandidate }
             }
             steps {
                 sh '''
@@ -897,7 +918,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
         failure {
             // Send mail, but only if we're develop or master
             script {
-                if ((params.NOTIFICATION_EMAIL != null) && (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master')) {
+                if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
                             mail(
@@ -922,7 +943,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
             // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
             script {
-                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+                if (getBuildType() in [BuildType.Master, BuildType.Develop]) {
                     writeFile(file: 'build.log', text: getBuildLog())
                     sh "bin/clean-jenkins-log"
                     sh "container-host-files/opt/scf/bin/klog.sh -f ${cfNamespace}"
