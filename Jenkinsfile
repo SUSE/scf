@@ -634,6 +634,37 @@ pipeline {
             }
         }
 
+        stage('Push Release Canididate Tag') {
+            when {
+                expression { return getBuildType() == BuildType.ReleaseCandidate }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                        credentialsId: scm.userRemoteConfigs[0].credentialsId,
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD',
+                )]) {
+                    sh '''
+                        set -o errexit -o nounset
+                        git config --local --replace-all credential.helper \
+                            '/bin/bash -c "echo \"username=${GIT_USERNAME}\"; echo \"password=${GIT_PASSWORD}\""'
+                        # Figure out what the tag was from earlier in this build pipeline
+                        git config --add versionsort.suffix '-alpha'
+                        git config --add versionsort.suffix '-beta'
+                        git config --add versionsort.suffix '-rc'
+                        version="$(awk '/^## / { print $2 ; exit }' CHANGELOG.md | tr -d '[]')"
+                        tag_name="$(git tag --list --points-at HEAD --sort version:refname | grep "${version}-rc" | tail -n 1)"
+                        if [[ -z "${tag_name}" ]] ; then
+                            echo "Failed to find correct RC tag (looking for ${version})" >&2
+                            git tag --list --points-at HEAD --sort version:refname
+                            exit 1
+                        fi
+                        git push origin "refs/tags/${tag_name}"
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             when {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
