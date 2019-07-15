@@ -2467,6 +2467,8 @@ configuration:
         - projected
         - persistentVolumeClaim
         - nfs
+        # hostPath is only used by the Eirini DaemonSet
+        - hostPath
     accounts:
       default:
         roles: [configgin-role, psp-role]
@@ -2481,7 +2483,7 @@ configuration:
         roles: [configgin-role, psp-role]
         cluster-roles: [node-reader-role]
       eirini:
-        roles: [configgin-role, psp-role]
+        roles: [configgin-role, secrets-role, psp-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
