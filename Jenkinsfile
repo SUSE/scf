@@ -418,7 +418,7 @@ pipeline {
                     git config --global --replace-all submodule.fetchJobs 0
                     # Remove all RC tags in case we had any un-pushed RCs left
                     # over on the build slave.
-                    git tag --list '*-rc*' | xargs git tag -d
+                    git tag --list '*-rc*' | xargs --no-run-if-empty git tag -d
                 '''
                 checkout scm
             }
