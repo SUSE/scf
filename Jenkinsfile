@@ -38,7 +38,7 @@ BuildType getBuildType() {
                     return BuildType.Nightly
                 }
                 return BuildType.Develop
-            case 'release-candidate':
+            case 'rc':
                 return BuildType.ReleaseCandidate
         }
         "${CHANGE_ID}"
