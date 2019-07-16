@@ -639,7 +639,7 @@ pipeline {
             }
         }
 
-        stage('Push Release Canididate Tag') {
+        stage('Push Release Candidate Tag') {
             when {
                 expression { return getBuildType() == BuildType.ReleaseCandidate }
             }
