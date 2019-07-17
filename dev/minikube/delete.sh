@@ -2,4 +2,4 @@
 
 set -o nounset
 
-helm del scf --purge
+"${MINIKUBE}" delete

@@ -1,6 +1,11 @@
 package(default_visibility = ["//visibility:public"])
 
-sh_binary(
+load(":def.bzl", "minikube_start", "minikube_delete")
+
+minikube_start(
     name = "start",
-    srcs = ["start.sh"],
+)
+
+minikube_delete(
+    name = "delete",
 )
