@@ -17,6 +17,9 @@ while getopts "h" opt; do
 	    usage
 	    exit
 	    ;;
+	*)  usage
+	    exit
+	    ;;
     esac
 done
 
@@ -41,22 +44,30 @@ function has_command() {
 }
 
 function green() {
-    printf "\033[32m%b\033[0m\n" "$1"
+    printf '\e[32m%b\e[0m' "$1"
 }
 
 function red() {
-    printf "\033[31m%b\033[0m\n" "$1"
+    printf '\e[31m%b\e[0m' "$1"
 }
 
 function verified() {
-    green "Verified: $1"
+    printf 'Verified: %s\n' "$(green "${1}")"
 }
 
 function trouble() {
-    red "Configuration problem detected: $1"
+    printf 'Configuration problem detected: %s\n' "$(red "${1}")"
 }
 
 function status() {
+    # While the indirect check is not nice to shellcheck, at the
+    # higher-level our use of `... check command ; status label ; ...`
+    # is much more readable. It also avoids the creation of a lot of
+    # helper functions otherwise needed to group the more complex
+    # checking commands into something which can be run by `if cmd`.
+    # --> Overriding shellcheck here.
+    #
+    # shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
 	verified "$1"
     else
@@ -137,10 +148,10 @@ fi
 if having_category node ; then
     if has_command systemctl ; then
         if systemctl cat --quiet containerd.service >/dev/null 2>/dev/null ; then
-            test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
+            test "$(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))"
             status "TasksMax must be set to infinity"
         else
-            red "containerd.service not available"
+            trouble "containerd.service not available"
         fi
     else
         test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
