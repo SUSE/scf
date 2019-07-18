@@ -2852,6 +2852,8 @@ configuration:
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.domain: '"((DOMAIN))"'
+    properties.eirini-loggregator-bridge.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-loggregator-bridge.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-loggregator-bridge.loggregator_ca: '((INTERNAL_CA_CERT))'
     properties.eirini-loggregator-bridge.loggregator_cert: '((LOGGREGATOR_FORWARD_CERT))'
     properties.eirini-loggregator-bridge.loggregator_endpoint: "doppler-doppler.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"
