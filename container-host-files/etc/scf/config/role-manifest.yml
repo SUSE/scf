@@ -2533,7 +2533,7 @@ configuration:
         - configMap
         - secret
         - emptyDir
-        - hostPath # Needed for fluentd daemonset with Eirini
+        - hostPath # Needed for the Eirini Cert copier ( /etc/docker )
         - downwardAPI
         - projected
         - persistentVolumeClaim
@@ -3680,7 +3680,7 @@ variables:
     description: "Array of plans that the Eirini persi broker will expose to Cloud Foundry."
     default: '[]'
     example: |
-      - id: "dafault-storageclass"
+      - id: "default-storageclass"
         name: "default"
         description: "Eirini persistence broker"
         free: true
