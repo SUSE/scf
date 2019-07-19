@@ -31,9 +31,8 @@
       healthcheck:
         uaa:
           readiness: &probe
-            handler:
-              exec:
-                command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
+            exec:
+              command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
           liveness: *probe
 
 # Selectively remove jobs temporarily.

@@ -91,12 +91,11 @@
       healthcheck:
         mariadb_ctrl:
           readiness: &probe
-            handler:
-              exec:
-                command:
-                - /var/vcap/packages/mariadb/bin/mysqladmin
-                - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
-                - ping
+            exec:
+              command:
+              - /var/vcap/packages/mariadb/bin/mysqladmin
+              - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
+              - ping
           liveness: *probe
     bpm:
       processes:
