@@ -17,6 +17,37 @@ String getBuildLog() {
     return currentBuild.rawBuild.getLogFile().getText()
 }
 
+enum BuildType {
+    Master,
+    ReleaseCandidate,
+    Nightly,
+    Develop,
+    PullRequest,
+    Unknown
+
+    public BuildType() {}
+}
+
+BuildType getBuildType() {
+    try {
+        switch (env.BRANCH_NAME) {
+            case 'master':
+                return BuildType.Master
+            case 'develop':
+                if (params.IS_NIGHTLY) {
+                    return BuildType.Nightly
+                }
+                return BuildType.Develop
+            case 'rc':
+                return BuildType.ReleaseCandidate
+        }
+        "${CHANGE_ID}"
+        return BuildType.PullRequest
+    } catch (Exception ex) {
+        return BuildType.Unknown
+    }
+}
+
 // The entries are the full path to the files, relative to the root of
 // the repository
 boolean areIgnoredFiles(HashSet<String> changedFiles) {
@@ -83,42 +114,42 @@ void runTest(String testName) {
 }
 
 String distSubDir() {
-    try {
-        "${CHANGE_ID}"
-        return 'prs/'
-    } catch (Exception ex) {
-        switch (env.BRANCH_NAME) {
-            case 'develop':
-                if (params.IS_NIGHTLY) {
-                    return 'nightly/'
-                }
-                return 'develop/'
-            case 'master':
-                return 'master/'
-            default:
-                return 'branches/'
-        }
+    switch (getBuildType()) {
+        case BuildType.Master:
+            return 'master/'
+        case BuildType.ReleaseCandidate:
+            return 'rc/'
+        case BuildType.Nightly:
+            return 'nightly/'
+        case BuildType.Develop:
+            return 'develop/'
+        case BuildType.PullRequest:
+            return 'prs/'
+        case BuildType.Unknown:
+            return 'branches/'
+        default:
+            error "Unknown build type ${getBuildType()}"
     }
 }
 
 String distPrefix() {
-    try {
-        return "PR-${CHANGE_ID}-"
-    } catch (Exception ex) {
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+    switch (getBuildType()) {
+        case BuildType.Master:
+        case BuildType.ReleaseCandidate:
+        case BuildType.Nightly:
+        case BuildType.Develop:
             return ''
-        }
-        return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        case BuildType.PullRequest:
+            return "PR-${CHANGE_ID}-"
+        case BuildType.Unknown:
+            return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
+        default:
+            error "Unknown build type ${getBuildType()}"
     }
 }
 
 Boolean noOverwrites() {
-    switch (env.BRANCH_NAME) {
-        case 'master':
-            return true
-        default:
-            return false
-    }
+    return getBuildType() == BuildType.Master
 }
 
 void kubectlGetAll(String namespace) {
@@ -286,9 +317,11 @@ pipeline {
     }
 
     stages {
-        stage('ensure_triggered_master') {
+        // Builds off the master branch must be triggered to ensure we have the
+        // correct paremeters set
+        stage('Ensure master Build Triggered Correctly') {
             when {
-                expression { return env.BRANCH_NAME == 'master' }
+                expression { return getBuildType() == BuildType.Master }
             }
             steps {
                 script {
@@ -299,7 +332,7 @@ pipeline {
             }
         }
 
-        stage('wipe') {
+        stage('Wipe') {
             when {
                 expression { return params.WIPE }
             }
@@ -308,7 +341,7 @@ pipeline {
             }
         }
 
-        stage('clean') {
+        stage('Clean') {
             when {
                 expression { return params.CLEAN }
             }
@@ -375,48 +408,90 @@ pipeline {
                 '''
             }
         }
-        stage('checkout') {
+
+        stage('Checkout') {
             when {
                 expression { return (!params.SKIP_CHECKOUT) || params.WIPE }
             }
             steps {
                 sh '''
                     git config --global --replace-all submodule.fetchJobs 0
+                    # Remove all RC tags in case we had any un-pushed RCs left
+                    # over on the build slave.
+                    git tag --list '*-rc*' | xargs --no-run-if-empty git tag -d
                 '''
                 checkout scm
             }
         }
-        stage('check_for_changed_files') {
-          when {
-              expression { return (env.BRANCH_NAME != 'master') }
-          }
-          steps {
-            script {
-	      def all_files = new HashSet<String>()
 
-              // Nothing will build if no relevant files changed since
-              // the last build on the same branch happened.
-              for (set in currentBuild.changeSets) {
-                def entries = set.items
-                for (entry in entries) {
-                  for (file in entry.affectedFiles) {
-                    all_files << file.path
-                  }
-                }
-              }
-
-              echo "All files changed since last build: ${all_files}"
-
-              if (areIgnoredFiles(all_files)) {
-                currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                echo "RESULT: ${currentBuild.rawBuild.result}"
-                throw new hudson.AbortException('Exiting pipeline early')
-              }
+        stage('Check for Changed Files') {
+            when {
+                expression { return getBuildType() != BuildType.Master }
             }
-          }
+            steps {
+                script {
+                    def all_files = new HashSet<String>()
+
+                    // Nothing will build if no relevant files changed since
+                    // the last build on the same branch happened.
+                    for (set in currentBuild.changeSets) {
+                        for (entry in set) {
+                            for (path in entry.affectedPaths) {
+                                all_files << path
+                            }
+                        }
+                    }
+
+                    echo "All files changed since last build: ${all_files}"
+
+                    if (getBuildType() == BuildType.ReleaseCandidate) {
+                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
+                        if (!changelogFiles.containsAll(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early (non-changelog commit on RC branch)')
+                        }
+                    } else {
+                        if (areIgnoredFiles(all_files)) {
+                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                            echo "RESULT: ${currentBuild.rawBuild.result}"
+                            throw new hudson.AbortException('Exiting pipeline early')
+                        }
+                    }
+                }
+            }
         }
 
-        stage('tools') {
+        stage('Tag Release Candidate') {
+            when {
+                expression { return getBuildType() == BuildType.ReleaseCandidate }
+            }
+            steps {
+                sh '''
+                    set -o errexit -o nounset
+                    set +o xtrace
+                    source ${PWD}/.envrc
+                    version="$(awk '/^## / { print $2 ; exit }' CHANGELOG.md | tr -d '[]')"
+                    if [ -n "$(git tag --list "${version}")" ] ; then
+                        echo "ERROR: Tag ${version} already exists; please update CHANGELOG.md" >&2
+                        exit 1
+                    fi
+                    set -o xtrace
+                    max_rc=0
+                    for tag in $(git tag --list "${version}-rc*") ; do
+                        this_rc=${tag##*-rc}
+                        if (( this_rc > max_rc )) ; then
+                            max_rc=this_rc
+                        fi
+                    done
+                    new_tag="${version}-rc$((max_rc + 1))"
+                    git tag "${new_tag}" HEAD
+                '''
+                // TODO: git push here
+            }
+        }
+
+        stage('Tools') {
             steps {
                 sh '''
                     set -e +x
@@ -428,7 +503,7 @@ pipeline {
             }
         }
 
-        stage('verify_no_overwrite') {
+        stage('Verify Not Overwriting S3 Artifacts') {
             when {
                 expression { return params.PUBLISH_S3 && noOverwrites() }
             }
@@ -457,7 +532,7 @@ pipeline {
             }
         }
 
-        stage('build') {
+        stage('Build') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: params.DOCKER_CREDENTIALS,
@@ -481,7 +556,7 @@ pipeline {
             }
         }
 
-        stage('dist') {
+        stage('Dist') {
             steps {
                 sh '''
                     set -e +x
@@ -494,7 +569,7 @@ pipeline {
             }
         }
 
-        stage('publish_docker') {
+        stage('Publish Docker Images') {
             when {
                 expression { return params.PUBLISH_DOCKER }
             }
@@ -516,7 +591,7 @@ pipeline {
             }
         }
 
-        stage('publish_s3') {
+        stage('Publish Archives to S3') {
             when {
                 expression { return params.PUBLISH_S3 }
             }
@@ -564,7 +639,38 @@ pipeline {
             }
         }
 
-        stage('deploy') {
+        stage('Push Release Candidate Tag') {
+            when {
+                expression { return getBuildType() == BuildType.ReleaseCandidate }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                        credentialsId: scm.userRemoteConfigs[0].credentialsId,
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD',
+                )]) {
+                    sh '''
+                        set -o errexit -o nounset
+                        git config --local --replace-all credential.helper \
+                            '/bin/bash -c "echo \"username=${GIT_USERNAME}\"; echo \"password=${GIT_PASSWORD}\""'
+                        # Figure out what the tag was from earlier in this build pipeline
+                        git config --add versionsort.suffix '-alpha'
+                        git config --add versionsort.suffix '-beta'
+                        git config --add versionsort.suffix '-rc'
+                        version="$(awk '/^## / { print $2 ; exit }' CHANGELOG.md | tr -d '[]')"
+                        tag_name="$(git tag --list --points-at HEAD --sort version:refname | grep "${version}-rc" | tail -n 1)"
+                        if [[ -z "${tag_name}" ]] ; then
+                            echo "Failed to find correct RC tag (looking for ${version})" >&2
+                            git tag --list --points-at HEAD --sort version:refname
+                            exit 1
+                        fi
+                        git push origin "refs/tags/${tag_name}"
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
             when {
                 expression { return params.TEST_SMOKE || params.TEST_BRAIN || params.TEST_SITS || params.TEST_CATS }
             }
@@ -631,7 +737,7 @@ pipeline {
             }
         }
 
-        stage('rotate') {
+        stage('Test Secret Rotation') {
             when {
                 expression { return params.TEST_ROTATE }
             }
@@ -724,7 +830,7 @@ pipeline {
             }
         }
 
-        stage('smoke') {
+        stage('Smoke Tests') {
             when {
                 expression { return params.TEST_SMOKE }
             }
@@ -744,7 +850,7 @@ pipeline {
             }
         }
 
-        stage('brain') {
+        stage('Brains Tests') {
             when {
                 expression { return params.TEST_BRAIN }
             }
@@ -764,7 +870,7 @@ pipeline {
             }
         }
 
-        stage('sits') {
+        stage('Sync Integration Tests') {
             when {
                 expression { return params.TEST_SITS }
             }
@@ -784,7 +890,7 @@ pipeline {
             }
         }
 
-        stage('cats') {
+        stage('Cloud Foundry Acceptance Tests') {
             when {
                 expression { return params.TEST_CATS }
             }
@@ -804,7 +910,7 @@ pipeline {
             }
         }
 
-        stage('tar_sources') {
+        stage('Tar Sources') {
           when {
                 expression { return params.TAR_SOURCES }
           }
@@ -817,7 +923,7 @@ pipeline {
           }
         }
 
-        stage('commit_sources') {
+        stage('Commit Sources to OBS') {
           when {
                 expression { return params.COMMIT_SOURCES }
           }
@@ -848,7 +954,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
         failure {
             // Send mail, but only if we're develop or master
             script {
-                if ((params.NOTIFICATION_EMAIL != null) && (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master')) {
+                if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
                             mail(
@@ -873,7 +979,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
             }
             // Save logs of failed builds to s3 - we want to analyze where we may have jenkins issues.
             script {
-                if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+                if (getBuildType() in [BuildType.Master, BuildType.Develop]) {
                     writeFile(file: 'build.log', text: getBuildLog())
                     sh "bin/clean-jenkins-log"
                     sh "container-host-files/opt/scf/bin/klog.sh -f ${cfNamespace}"
