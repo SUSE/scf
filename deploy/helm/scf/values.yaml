@@ -1,2 +1,5 @@
 system_domain: ~
 deployment_name: scf
+
+sizing:
+  HA: false
