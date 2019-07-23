@@ -3649,7 +3649,7 @@ variables:
     imagename: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'eirini/recipe-downloader:0.1.0'
+    default: 'eirini/recipe-downloader:0.2.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EIRINI_PERSI_SERVICE_HOST
@@ -3658,7 +3658,7 @@ variables:
     description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'eirini/recipe-executor:0.1.0'
+    default: 'eirini/recipe-executor:0.2.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -3688,7 +3688,7 @@ variables:
         default_size: "1Gi"
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'eirini/recipe-uploader:0.1.0'
+    default: 'eirini/recipe-uploader:0.2.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
