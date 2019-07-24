@@ -20,9 +20,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.51
   sha1: 143f79828dbc7eb06fd03b0080d569b63c9f1c36
 - name: cf-syslog-drain
-  version: "10.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.0"
-  sha1: "6b5154a3709cf2d7ac29211b0b4584e4b21db562"
+  version: '10.1'
+  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.1"
+  sha1: fd2fbd81bea4af956deff0f8a4b355af05c72910
 - name: cflinuxfs2
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
   version: "1.281.0"
@@ -44,9 +44,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.1
   sha1: 9fca045a0a90cf38cf79feabcc582efd5a20538e
 - name: loggregator
-  version: "105.2"
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.2
-  sha1: a1e3258786cb4826080d819c91dd049a06cd3476
+  version: '105.3'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.3
+  sha1: b4288a9a17f99226143ee82489df193791bbdf68
 - name: log-cache
   version: 2.2.0
   url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.0
@@ -68,9 +68,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.187.0
   sha1: 50c7bb74ab094d93c0015f4617654335bad5ca7c
 - name: statsd-injector
-  version: 1.9.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.9.0
-  sha1: d78bb60685498f653bfe258eeac3f1f3da961a9f
+  version: 1.10.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.10.0
+  sha1: 255cfb2815e692576efd5caa082f5a48f6799ca0
 - name: loggregator-agent
   version: "3.9"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
@@ -152,9 +152,9 @@ releases:
   version: "0.0.11"
   sha1: "75448acb49f647ed8ecd3534f88aaf220a3af019"
 - name: uaa
-  version: 68.0
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
-  sha1: a06e5390463c760bcbcc0bacaec063f41a5ea089
+  version: '72.0'
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
+  sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
 
 instance_groups:
 - name: eirini
