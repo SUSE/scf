@@ -4,9 +4,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.0.4"
   sha1: "c2cceb2d1e271a2f7c5e7c563a7b26f919ebc17a"
 - name: "capi"
-  version: "1.82.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.82.0"
-  sha1: "6840b6a91f919ab4e5410f9d3f76dccdb9b0ad41"
+  version: "1.83.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0"
+  sha1: "339e21175080d77e648e0181b394a6aa2679d271"
 - name: cf-cli
   version: 1.13.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.13.0
