@@ -1,2 +1,3 @@
 system_domain: ~
 deployment_name: scf
+container_image_prefix: docker.io/cfcontainerization
