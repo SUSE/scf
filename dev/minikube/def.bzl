@@ -6,6 +6,7 @@ def _minikube_start_impl(ctx):
         set -o errexit
         export MINIKUBE="{minikube}"
         export K8S_VERSION="${{K8S_VERSION:-{k8s_version}}}"
+        export VM_DRIVER="${{VM_DRIVER:-{vm_driver}}}"
         export VM_CPUS="${{VM_CPUS:-{vm_cpus}}}"
         export VM_MEMORY="${{VM_MEMORY:-{vm_memory}}}"
         export VM_DISK_SIZE="${{VM_DISK_SIZE:-{vm_disk_size}}}"
@@ -15,6 +16,7 @@ def _minikube_start_impl(ctx):
     """.format(
         minikube = ctx.executable._minikube.path,
         k8s_version = ctx.attr.k8s_version,
+        vm_driver = ctx.attr.vm_driver,
         vm_cpus = ctx.attr.vm_cpus,
         vm_memory = ctx.attr.vm_memory,
         vm_disk_size = ctx.attr.vm_disk_size,
@@ -38,6 +40,9 @@ attrs = {
     "k8s_version": attr.string(
         default = "v{}".format(project.kubernetes.version),
     ),
+    "vm_driver": attr.string(
+        default = "virtualbox",
+    ),
     "vm_cpus": attr.string(
         default = "4",
     ),
@@ -48,7 +53,7 @@ attrs = {
         default = "120g",
     ),
     "iso_url": attr.string(
-        default = "https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.0/minikube-openSUSE.x86_64-1.0.0.iso",
+        default = "https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.2/minikube-openSUSE.x86_64-0.1.2.iso",
     ),
     "_minikube": attr.label(
         allow_single_file = True,

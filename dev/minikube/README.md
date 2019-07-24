@@ -11,6 +11,9 @@ bazel run //dev/minikube:start
 The following environment variables are used by the `start` target to allocate the resources used by
 Minikube:
 
+  - VM_DRIVER - the driver to be used by Minikube for the virtualization. Available options:
+      - virtualbox
+      - kvm2
   - VM_CPUS - the number of CPUs Minikube will use.
   - VM_MEMORY - the amount of RAM Minikube will be allowed to use.
   - VM_DISK_SIZE - the disk size Minikube will be allowed to use.

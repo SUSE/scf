@@ -4,6 +4,7 @@ set -o errexit -o nounset
 
 if ! "${MINIKUBE}" status > /dev/null; then
   "${MINIKUBE}" start \
+    --vm-driver "${VM_DRIVER}" \
     --kubernetes-version "${K8S_VERSION}" \
     --cpus "${VM_CPUS}" \
     --memory "${VM_MEMORY}" \
