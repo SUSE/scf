@@ -14,8 +14,6 @@
       virtual-cpus: 2
       healthcheck:
         nats:
-          readiness: &probe
-            handler:
-              exec:
-                command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:4222" && ss -nlt | grep "LISTEN.*:4223"']
-          liveness: *probe
+          readiness:
+            exec:
+              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:4222" && ss -nlt | grep "LISTEN.*:4223"']

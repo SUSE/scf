@@ -4,12 +4,6 @@
 - type: remove
   path: /instance_groups/name=smoke-tests
 - type: remove
-  path: /instance_groups/name=adapter
-- type: remove
-  path: /instance_groups/name=cc-worker
-- type: remove
-  path: /instance_groups/name=scheduler
-- type: remove
   path: /instance_groups/name=tcp-router
 - type: remove
   path: /instance_groups/name=credhub

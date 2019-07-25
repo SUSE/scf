@@ -1,9 +1,5 @@
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=diego-api/jobs/name=cfdot
-- type: remove
-  path: /instance_groups/name=diego-api/jobs/name=bbs
-- type: remove
   path: /instance_groups/name=diego-api/jobs/name=silk-controller
 
 # Set the common name for the diego_locket_server certificate.
@@ -17,18 +13,41 @@
   # included "*.locket.service.cf.internal".
   # - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
+  # localhost is needed by bbs to talk to locket without having to hairpin.
+  - 127.0.0.1
 
-# Override the database address for the jobs under the diego-api instance group.
+# Set the common name for the diego_bbs_server certificate.
+- type: replace
+  path: /variables/name=diego_bbs_server/options/common_name
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /variables/name=diego_bbs_server/options/alternative_names
+  value:
+  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
+  # included "*.bbs.service.cf.internal".
+  # - "*.((deployment-name))-diego-api"
+  - ((deployment-name))-diego-api
+
+# Override the addresses for the jobs under the diego-api instance group.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
   value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host
+  value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/locket?/api_location
+  value: 127.0.0.1:8891
 
-# Disable tuning /proc/sys kernel parameters as locket is running on a container.
+# Disable tuning /proc/sys kernel parameters as locket and bbs are running on containers.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/set_kernel_parameters?
   value: false
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/set_kernel_parameters?
+  value: false
 
-# Add bosh_containerization properties.
+# Add bosh_containerization properties for locket.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/bosh_containerization?
   value:
@@ -39,3 +58,19 @@
     run:
       memory: 128
       virtual-cpus: 2
+
+# Add bosh_containerization properties for bbs.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/bosh_containerization?
+  value:
+    ports:
+    - name: cell-bbs-api
+      protocol: TCP
+      internal: 8889
+    run:
+      memory: 128
+      virtual-cpus: 2
+
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  value: []

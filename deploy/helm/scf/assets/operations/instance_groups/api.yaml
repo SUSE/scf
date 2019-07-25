@@ -1,18 +1,12 @@
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=api/jobs/name=route_registrar
-- type: remove
   path: /instance_groups/name=api/jobs/name=statsd_injector
-- type: remove
-  path: /instance_groups/name=api/jobs/name=file_server
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server-internal
 - type: remove
   path: /instance_groups/name=api/jobs/name=cc_uploader
-- type: remove
-  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder
 
 # TODO: Remove this replace once all buildpacks are included.
 - type: replace
@@ -43,24 +37,24 @@
 - type: remove
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack
 
+# Set the common name for the cc_bridge_cc_uploader_server certificate.
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
+  value: ((deployment-name))-api
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?
+  value:
+  - ((deployment-name))-api
+
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
   value: false
 
-# Override the blobstore URL.
+# Disable tuning /proc/sys kernel parameters as file_server is running on a container.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config?/private_endpoint?
-  value: *blobstore_url
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
-  value: *blobstore_url
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/resource_pool?/webdav_config?/private_endpoint?
-  value: *blobstore_url
+  path: /instance_groups/name=api/jobs/name=file_server/properties/set_kernel_parameters?
+  value: false
 
 # TODO: Figure out the DB encryption validation.
 - type: replace
@@ -69,8 +63,41 @@
 
 # Override the addresses for the jobs under the api instance group.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address
   value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/resource_pool?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/bbs/url
+  value: https://((deployment-name))-diego-api:8889
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/file_server_url
+  value: http://localhost.:8080
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
+  value: localhost.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?
+  value: ((deployment-name))-doppler
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/loggregator?/internal_url
+  value: http://((deployment-name))-log-api:8081
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/hostname
+  value: ((deployment-name))-credhub
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/uaa?/internal_url
+  value: ((deployment-name))-uaa
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/host
   value: ((deployment-name))-database
@@ -83,11 +110,36 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/uaa/token_endpoint?
   value: ((deployment-name))-uaa
+- type: replace
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
 
 # Add empty BPM processes to buildpacks.
 - type: replace
   path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/bosh_containerization?/bpm?/processes?
   value: []
+
+# Add bosh_containerization properties for cloud_controller_ng.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/bosh_containerization?
+  value:
+    ports:
+    - name: api
+      protocol: TCP
+      internal: 9022
+    - name: api-tls
+      protocol: TCP
+      internal: 9023
+    - name: api-mutual-tls
+      protocol: TCP
+      internal: 9024
+    - name: statsd
+      protocol: TCP
+      internal: 8125
+    run:
+      memory: 4096
+      virtual-cpus: 4
 
 # Add bosh_containerization properties for routing-api.
 - type: replace
@@ -100,3 +152,43 @@
     run:
       memory: 128
       virtual-cpus: 4
+
+# # Add bosh_containerization properties for cc_uploader.
+# - type: replace
+#   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/bosh_containerization?
+#   value:
+#     ports:
+#     - name: cc-uploader
+#       protocol: TCP
+#       internal: 9090
+#     run:
+#       memory: 128
+#       virtual-cpus: 4
+
+# # Add bosh_containerization properties for file_server.
+# - type: replace
+#   path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
+#   value:
+#     ports:
+#     - name: file-server
+#       protocol: TCP
+#       internal: 8080
+#     run:
+#       memory: 512
+#       virtual-cpus: 4
+# Add bosh_containerization properties for file_server.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
+  value:
+    ports:
+    - name: file-server
+      protocol: TCP
+      internal: &file-server-port 8080
+    run:
+      memory: 512
+      virtual-cpus: 4
+      healthcheck:
+        file_server:
+          readiness:
+            tcpSocket:
+              port: *file-server-port
