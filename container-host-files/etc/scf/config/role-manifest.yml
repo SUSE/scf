@@ -241,7 +241,6 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/bits_add_missing_config_keys.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -2686,6 +2685,7 @@ configuration:
     properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
     properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
+    properties.bits-service.registry_endpoint: "https://registry.((DOMAIN))"
     properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))

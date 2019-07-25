@@ -157,6 +157,7 @@ properties:
       directory_key: cc-droplets
       webdav_config:
         username: blobstore_user
+    enable_registry: true
     packages:
       blobstore_type: webdav
       directory_key: cc-packages
