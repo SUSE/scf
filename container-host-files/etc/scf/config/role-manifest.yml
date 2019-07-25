@@ -3706,12 +3706,10 @@ variables:
   options:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
-    imagename: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
     default: 'eirini/recipe-downloader:0.2.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
-    imagename: true
 - name: EIRINI_EIRINI_PERSI_SERVICE_HOST
   options:
     type: environment
@@ -3720,7 +3718,6 @@ variables:
   options:
     default: 'eirini/recipe-executor:0.2.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
-    imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
   options:
     default: 'http://heapster.kube-system/apis/metrics/v1alpha1'
@@ -3750,7 +3747,6 @@ variables:
   options:
     default: 'eirini/recipe-uploader:0.2.0'
     description: "Uploads the Droplet to the bits-service"
-    imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
   options:
     default: 'false'
