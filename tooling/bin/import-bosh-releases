@@ -83,4 +83,4 @@ upstream_manifest = load_upstream_manifest(ARGV.first)
 patch_role_manifest role_manifest: role_manifest, upstream_manifest: upstream_manifest
 write_role_manifest role_manifest
 
-puts "Please rememeber to update `\e[0;33mbin/common/versions.sh\e[0m`"
+puts "Please remember to update `\e[0;33mbin/common/versions.sh\e[0m`"

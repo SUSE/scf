@@ -186,7 +186,6 @@ properties:
       lifecycle_bundles:
         'buildpack/sle15':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         'buildpack/sle12':      "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
-        'buildpack/cflinuxfs2': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         'buildpack/cflinuxfs3': "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz"
         docker:                 "docker_app_lifecycle/docker_app_lifecycle.tgz"
     droplets:
@@ -259,8 +258,6 @@ properties:
         ports: "53"
         protocol: udp
     stacks:
-    - name: "cflinuxfs2"
-      description: "Cloud Foundry Linux-based filesystem"
     - name: "cflinuxfs3"
       description: "Cloud Foundry Linux-based filesystem"
     - name: "sle12"
@@ -348,7 +345,6 @@ properties:
       preloaded_rootfses:
       - "sle15:/var/vcap/packages/sle15/rootfs.tar"
       - "sle12:/var/vcap/packages/cf-sle12/rootfs.tar"
-      - "cflinuxfs2:/var/vcap/packages/cflinuxfs2/rootfs.tar"
       - "cflinuxfs3:/var/vcap/packages/cflinuxfs3/rootfs.tar"
     route_emitter:
       local_mode: true
@@ -374,7 +370,7 @@ properties:
     listen_address: 0.0.0.0:7777
     listen_network: tcp
   grootfs:
-    # Garden should at least be able to cache the cflinuxfs2 rootfs
+    # Garden should at least be able to cache the cflinuxfs3 rootfs
     # to avoid copy operations on every garden healthcheck from rep
     # when there is no app running with the healthcheck rootfs.
     reserved_space_for_other_jobs_in_mb: 3000
@@ -475,7 +471,7 @@ properties:
         # We don't want scope perm.admin because it's for the perm service
         # (https://github.com/cloudfoundry-incubator/perm) which is deprecated
         # as it doesn't work with PXC
-        scope: network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+        scope: clients.read,perm.admin,network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
         secret: ''
       cf_smoke_tests:
         authorities: cloud_controller.admin
