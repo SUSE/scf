@@ -453,7 +453,7 @@ properties:
         authorities: cloud_controller.read,cloud_controller.write,cloud_controller.admin,uaa.resource
         authorized-grant-types: client_credentials
       cc-service-dashboards:
-        scope: cloud_controller_service_permissions.read,openid
+        scope: cf.redirect-uri,cloud_controller_service_permissions.read,openid
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
       cc_routing:
@@ -471,7 +471,7 @@ properties:
         # We don't want scope perm.admin because it's for the perm service
         # (https://github.com/cloudfoundry-incubator/perm) which is deprecated
         # as it doesn't work with PXC
-        scope: clients.read,perm.admin,network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
+        scope: default_zone_admin.authorities,default_zone_admin.authorized-grant-types,default_zone_admin.scope,default_zone_admin.secret,doppler.redirect-uri,clients.read,perm.admin,network.admin,network.write,cloud_controller.read,cloud_controller.write,openid,password.write,cloud_controller.admin,scim.read,scim.write,doppler.firehose,uaa.user,routing.router_groups.read,routing.router_groups.write,cloud_controller.admin_read_only,cloud_controller.global_auditor
         secret: ''
       cf_smoke_tests:
         authorities: cloud_controller.admin
