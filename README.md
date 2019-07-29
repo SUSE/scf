@@ -584,6 +584,7 @@ to remove the comments holding dump action tracing.
 1. Run `make diff-releases` to check the changed BOSH properties; see
    the next section for details.
 1. Run `tooling/bin/check-uaa-clients`
+1. Bump [CloudFoundry Acceptance Tests(CATs)](https://github.com/cloudfoundry/cf-acceptance-tests) submodule to match new `CF_VERSION`, before testing.
 
 ### How do I bump a BOSH release?
 
