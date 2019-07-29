@@ -4,18 +4,40 @@
 - type: remove
   path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy
 
-# Fix the nats address for the route_registrar.
+# Override the addresses for the jobs under the doppler instance group.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/nats?/machines
   value:
   - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
+  value: http://((deployment-name))-api:3000
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
+  value: https://((deployment-name))-uaa:8443
 
 # Add bosh_containerization properties for doppler.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=doppler/properties/bosh_containerization?
   value:
+    ports:
+    - name: dropsonde-tcp
+      protocol: TCP
+      internal: 3458
+    - name: doppler-tls
+      protocol: TCP
+      internal: 3459
+    - name: doppler-ws
+      protocol: TCP
+      internal: 8081
+    - name: doppler-grpc
+      protocol: TCP
+      internal: 8082
+    - name: log-cache-proxy # log-cache-cf-auth-proxy
+      protocol: TCP
+      internal: 8083
     run:
-      memory: 410
+      memory: 512
       virtual-cpus: 2
 
 # Add bosh_containerization properties for log-cache.
