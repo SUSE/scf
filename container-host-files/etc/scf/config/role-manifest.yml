@@ -1394,6 +1394,14 @@ instance_groups:
         - name: rlp
           protocol: TCP
           internal: 8082
+  - name: reverse_log_proxy_gateway
+    release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rlp-gateway
+          protocol: TCP
+          internal: 8088
   - name: route_registrar
     release: routing
   - name: bpm
@@ -1404,12 +1412,26 @@ instance_groups:
           privileged: true
   configuration:
     templates:
+      properties.cc.ca_cert:                    ((INTERNAL_CA_CERT))
+      properties.cc.cert:                       ((RLP_GATEWAY_CERT))
+      properties.cc.common_name: log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.cc.key:                        ((RLP_GATEWAY_CERT_KEY))
+      properties.http.cert:                     ((RLP_GATEWAY_CERT))
+      properties.http.key:                      ((RLP_GATEWAY_CERT_KEY))
+      properties.logs_provider.ca_cert:         ((INTERNAL_CA_CERT))
+      properties.logs_provider.client_cert:     ((SYSLOG_RLP_CERT))
+      properties.logs_provider.client_key:      ((SYSLOG_RLP_CERT_KEY))
+      #properties.logs_provider.common_name:    "reverselogproxy"
       properties.route_registrar.routes: >
         [{ "name": "doppler",
            "tls_port": 8081,
            "registration_interval": "20s",
            "server_cert_domain_san": "doppler",
            "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] }]
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.client_id: 'doppler'
+      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
 - name: diego-brain
   unless_feature: eirini
   environment_scripts:
@@ -4102,6 +4124,21 @@ variables:
   options:
     secret: true
     description: PEM-encoded server key
+    required: true
+- name: RLP_GATEWAY_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - syslog_rlp_gateway
+    - reverselogproxy_gateway
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: RLP_GATEWAY_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
     required: true
 - name: ROOTFS_TRUSTED_CERTS
   options:
