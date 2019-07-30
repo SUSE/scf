@@ -48,3 +48,12 @@
     run:
       memory: 128
       virtual-cpus: 2
+
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization/envs?/-
+  value:
+    name: TRAFFIC_CONTROLLER_IP
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: status.podIP
