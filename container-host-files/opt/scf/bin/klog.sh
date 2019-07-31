@@ -89,8 +89,6 @@ function get_all_events() {
 rm -rf "${KLOG:?}/${NS:?}"
 NAMESPACE_DIR="${KLOG}/${NS}"
 
-mkdir -p "${NAMESPACE_DIR}"
-
 # Iterate over pods and their containers.
 PODS=($(get_all_the_pods))
 

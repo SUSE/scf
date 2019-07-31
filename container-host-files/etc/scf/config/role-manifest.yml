@@ -1421,7 +1421,6 @@ instance_groups:
       properties.logs_provider.ca_cert:         ((INTERNAL_CA_CERT))
       properties.logs_provider.client_cert:     ((SYSLOG_RLP_CERT))
       properties.logs_provider.client_key:      ((SYSLOG_RLP_CERT_KEY))
-      #properties.logs_provider.common_name:    "reverselogproxy"
       properties.route_registrar.routes: >
         [{ "name": "doppler",
            "tls_port": 8081,
