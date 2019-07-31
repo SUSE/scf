@@ -1,76 +1,72 @@
 releases:
 - name: bpm
-  version: "1.0.4"
-  url: "https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.0.4"
-  sha1: "c2cceb2d1e271a2f7c5e7c563a7b26f919ebc17a"
+  version: 1.1.0
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.0
+  sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
 - name: capi
-  version: "1.79.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.79.0"
-  sha1: "85d0765ad9815962e46fc99712294c21514e6f7f"
+  version: 1.83.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0
+  sha1: 339e21175080d77e648e0181b394a6aa2679d271
 - name: cf-cli
-  version: 1.13.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.13.0
-  sha1: 9c0cd518a95ef3434e86cef4a35b80e2d3796df0
+  version: 1.16.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.16.0
+  sha1: fa5d89b88a07822665d82e00f1629b98935b17e8
 - name: cf-mysql
   version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.51
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.51
-  sha1: 143f79828dbc7eb06fd03b0080d569b63c9f1c36
+  version: 40.0.112
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.112
+  sha1: 26a8c40836fe8b0168fd4f0b02260d9b70cec595
 - name: cf-syslog-drain
-  version: "10.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.0"
-  sha1: "6b5154a3709cf2d7ac29211b0b4584e4b21db562"
-- name: cflinuxfs2
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=1.281.0"
-  version: "1.281.0"
-  sha1: "1bdcf24c1fb9baf324aebab8ba28f8e64b846305"
+  version: '10.2'
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
+  sha1: fe9fd8946c39554425b534cdb8ce14f3923a31f8
 - name: cflinuxfs3
   url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.118.0"
   version: "0.118.0"
   sha1: "5a957226acf878e53059971510f7755215d9face"
 - name: credhub
-  version: 2.2.0
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.2.0
-  sha1: 09d519b5577c387b8c56c14c240c487484e9a1ca
+  version: 2.4.0
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
+  sha1: 2e08e5de86288f421fb7eff72a095adb78c31ea8
 - name: diego
-  version: 2.30.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.30.0
-  sha1: 7bbe97d294ec26c0603e13755c07cc4bc2a23070
+  version: 2.34.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.34.0
+  sha1: 2ef1517f78126e0ef079244a83941a83b6dd0731
 - name: garden-runc
-  version: 1.19.1
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.1
-  sha1: 9fca045a0a90cf38cf79feabcc582efd5a20538e
+  version: 1.19.3
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.3
+  sha1: 76810f5dd66d8320b344b3eca197c5b669a3a633
 - name: loggregator
-  version: "105.2"
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.2
-  sha1: a1e3258786cb4826080d819c91dd049a06cd3476
+  version: '105.5'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.5
+  sha1: 62b9210def7c5179f6088b9449f551f57f1a1ee8
 - name: log-cache
-  version: 2.2.0
-  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.0
-  sha1: 1ebecd0adbfc50fdd61309e129b0292deb7e7b24
+  version: 2.2.2
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.2
+  sha1: 634dd3e134d0dac00f3f86beb00c06653579af4b
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
   sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
-  version: '26'
-  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=26
-  sha1: 2f2c27acdfff81f3519968921686522518ab5783
+  version: '27'
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=27
+  sha1: 9817e8e460b8619a99a0a0fbec8220dc12b2a6f5
 - name: nfs-volume
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
 - name: routing
-  version: 0.187.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.187.0
-  sha1: 50c7bb74ab094d93c0015f4617654335bad5ca7c
+  version: 0.188.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.188.0
+  sha1: d3420851c470790e8980ff0c506f75e3e52c15d9
 - name: statsd-injector
-  version: 1.9.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.9.0
-  sha1: d78bb60685498f653bfe258eeac3f1f3da961a9f
+  version: 1.10.0
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.10.0
+  sha1: 255cfb2815e692576efd5caa082f5a48f6799ca0
 - name: loggregator-agent
   version: "3.9"
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
@@ -152,9 +148,9 @@ releases:
   version: "0.0.4"
   sha1: "c2766a1da006a7619852937fbf7ca94e99db1a97"
 - name: uaa
-  version: 68.0
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=68.0
-  sha1: a06e5390463c760bcbcc0bacaec063f41a5ea089
+  version: '72.0'
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
+  sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
 
 instance_groups:
 - name: eirini
@@ -1398,6 +1394,14 @@ instance_groups:
         - name: rlp
           protocol: TCP
           internal: 8082
+  - name: reverse_log_proxy_gateway
+    release: loggregator
+    properties:
+      bosh_containerization:
+        ports:
+        - name: rlp-gateway
+          protocol: TCP
+          internal: 8088
   - name: route_registrar
     release: routing
   - name: bpm
@@ -1408,12 +1412,30 @@ instance_groups:
           privileged: true
   configuration:
     templates:
+      properties.cc.ca_cert:                    ((INTERNAL_CA_CERT))
+      properties.cc.cert:                       ((RLP_GATEWAY_CERT))
+      properties.cc.common_name: api-group.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.cc.key:                        ((RLP_GATEWAY_CERT_KEY))
+      properties.http.cert:                     ((RLP_GATEWAY_CERT))
+      properties.http.key:                      ((RLP_GATEWAY_CERT_KEY))
+      properties.logs_provider.ca_cert:         ((INTERNAL_CA_CERT))
+      properties.logs_provider.client_cert:     ((SYSLOG_RLP_CERT))
+      properties.logs_provider.client_key:      ((SYSLOG_RLP_CERT_KEY))
       properties.route_registrar.routes: >
         [{ "name": "doppler",
            "tls_port": 8081,
            "registration_interval": "20s",
            "server_cert_domain_san": "doppler",
-           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] }]
+           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] },
+         { "name": "rlp-gateway",
+           "tls_port": 8088,
+           "registration_interval": "20s",
+           "server_cert_domain_san": "log-stream",
+           "uris": ["log-stream.((DOMAIN))", "*.log-stream.((DOMAIN))"] }]
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.client_id: 'doppler'
+      properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
+      properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
 - name: diego-brain
   unless_feature: eirini
   environment_scripts:
@@ -1719,8 +1741,6 @@ instance_groups:
                   topologyKey: "beta.kubernetes.io/os"
   - name: groot-btrfs
     release: groot-btrfs
-  - name: cflinuxfs2-rootfs-setup
-    release: cflinuxfs2
   - name: cflinuxfs3-rootfs-setup
     release: cflinuxfs3
   - name: cf-sle12-setup
@@ -2701,7 +2721,6 @@ configuration:
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.cf_mysql.mysql.seeded_databases: '[{"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},{"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},{"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},{"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},{"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},{"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},{"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
-    properties.cflinuxfs2-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.containers.trusted_ca_certificates: '((#TRUSTED_CERTS))[((TRUSTED_CERTS))]((/TRUSTED_CERTS))'
     properties.copilot.client_ca_file: ((INTERNAL_CA_CERT))
@@ -4109,6 +4128,25 @@ variables:
   options:
     secret: true
     description: PEM-encoded server key
+    required: true
+- name: RLP_GATEWAY_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-stream
+    - log-stream.((DOMAIN))
+    - rlp-gateway
+    - rlp-gateway.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    - log-api
+    - log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    description: PEM-encoded certificate
+    required: true
+  type: certificate
+- name: RLP_GATEWAY_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
     required: true
 - name: ROOTFS_TRUSTED_CERTS
   options:
