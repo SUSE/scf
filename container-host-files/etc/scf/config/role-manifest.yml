@@ -1414,7 +1414,7 @@ instance_groups:
     templates:
       properties.cc.ca_cert:                    ((INTERNAL_CA_CERT))
       properties.cc.cert:                       ((RLP_GATEWAY_CERT))
-      properties.cc.common_name: log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.cc.common_name: api-group.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.cc.key:                        ((RLP_GATEWAY_CERT_KEY))
       properties.http.cert:                     ((RLP_GATEWAY_CERT))
       properties.http.key:                      ((RLP_GATEWAY_CERT_KEY))
@@ -1427,7 +1427,12 @@ instance_groups:
            "tls_port": 8081,
            "registration_interval": "20s",
            "server_cert_domain_san": "doppler",
-           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] }]
+           "uris": ["doppler.((DOMAIN))", "*.doppler.((DOMAIN))"] },
+         { "name": "rlp-gateway",
+           "tls_port": 8088,
+           "registration_interval": "20s",
+           "server_cert_domain_san": "log-stream",
+           "uris": ["log-stream.((DOMAIN))", "*.log-stream.((DOMAIN))"] }]
       properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
       properties.uaa.client_id: 'doppler'
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
@@ -4130,8 +4135,12 @@ variables:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
-    - syslog_rlp_gateway
-    - reverselogproxy_gateway
+    - log-stream
+    - log-stream.((DOMAIN))
+    - rlp-gateway
+    - rlp-gateway.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    - log-api
+    - log-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     description: PEM-encoded certificate
     required: true
   type: certificate
