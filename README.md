@@ -66,6 +66,7 @@ Table of Contents
       * [Using Persi NFS](#using-persi-nfs)
       * [How do I rotate the CCDB secrets?](#how-do-i-rotate-the-ccdb-secrets)
       * [CCDB Migration Squashing](#ccdb-migration-squashing)
+      * [Minibroker Assessment](#minibroker-assessment)
 
 # Deploying SCF on Vagrant
 
@@ -952,3 +953,8 @@ before and after the new patch match.
 
 [patch to squash all initial database migrations]: container-host-files/etc/scf/config/scripts/patches/cc_migration_squash.sh
 [`0001-db-migration-add-script-to-squash-DB-migrations.patch`]: tooling/helpers/0001-db-migration-add-script-to-squash-DB-migrations.patch
+
+## Minibroker Assessment
+
+See the [README](tooling/mb-chart-assessment/README.md)
+specific to the task for all details, user and maintainer alike.

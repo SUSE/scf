@@ -48,7 +48,7 @@ class MiniBrokerTest
     attr_lazy(:service_instances) { |inst| JSON.load capture("cf curl '/v2/services?q=service_broker_guid:#{inst.broker_guid}&q=label:#{inst.service_type}'") }
     attr_lazy(:service_guid) { |inst| inst.service_instances['resources'].find { |service| service['metadata']['guid'] }['metadata']['guid'] }
     attr_lazy(:service_plans) { |inst| JSON.load capture("cf curl '/v2/services/#{inst.service_guid}/service_plans'") }
-    attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
+    attr_lazy(:service_plan_id) { |inst| ENV.fetch('MINIBROKER_PLAN', inst.service_plans['resources'].first['entity']['name']) }
 
     def print_all_container_logs_in_namespace(ns)
         capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
@@ -127,6 +127,7 @@ class MiniBrokerTest
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
             run "cf create-service-broker #{broker_name} user pass #{broker_url}"
             run "cf enable-service-access #{service_type}"
+            run "cf marketplace"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
                 f.puts [{
                     protocol: 'tcp',
@@ -146,7 +147,6 @@ class MiniBrokerTest
             puts "# service GUID: #{service_guid}"
             run "echo '#{service_plans.to_json}' | jq -C ."
             puts "# service plan ID: #{service_plan_id}"
-
             File.open("#{tmpdir}/service-params.json", 'w') { |f| f.puts service_params.to_json }
             run "jq -C . #{tmpdir}/service-params.json"
             started_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)

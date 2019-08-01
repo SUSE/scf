@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -o errexit -o nounset
+
+TOP=$(pwd)
+bin="${TOP}/tooling/mb-chart-assessment"
+wrk="${TOP}/_work"
+rstem=dbe
+
+source "${TOP}/make/include/colors"
+
+stats() {
+    t=$(cat "${wrk}/${rstem}-${1}-charts.csv" | wc -l)
+    n=$(( $t - $eok - $efails ))
+    echo 1>&2 "$(cyan "$1"):	$(green "${eok}") ok, $(red "${efails}") failed, $(yellow "${n}") non-starters, $(blue "${t}") total"
+}
+
+lastengine=""
+tfails=0
+tok=0
+efails=0
+eok=0
+header=0
+
+sort -k 2,5 \
+     < "${wrk}/${rstem}-chart-results.csv" \
+     > "${wrk}/${rstem}-chart-results-sorted.csv"
+
+while read state engine enginev chartv
+do
+    # Reached new engine block, reset engine counters. After printing the statistics.
+    if [ "${lastengine}" != "${engine}" ] ; then
+	if [ -n "${lastengine}" ] ; then
+	    stats "${lastengine}"
+	fi
+	lastengine="${engine}"
+	eok=0
+	efails=0
+	header=1
+    fi
+    # Print successful charts to stdout, as yaml. Count everything for statistics.
+    case $state in
+	_OK_)
+	    tok=$(( $tok + 1 ))
+	    eok=$(( $eok + 1 ))
+	    if [ $header -gt 0 ] ; then
+		echo "${engine}:"
+		header=0
+	    fi
+	    echo "  - appVersion: $enginev"
+	    echo "    version:    $chartv"
+	;;
+	FAIL)
+	    tfails=$(( $tfails + 1 ))
+	    efails=$(( $efails + 1 ))
+	;;
+    esac
+done < "${wrk}/${rstem}-chart-results-sorted.csv"
+
+stats "${lastengine}"
+
+t=$(cat ${wrk}/${rstem}-*-charts.csv | wc -l)
+n=$(( $t - $tok - $tfails ))
+
+echo 1>&2 ====================================================================
+echo 1>&2 "$(cyan "Totals"):		$(green "${tok}") ok, $(red "${tfails}") failed, $(yellow "${n}") non-starters, $(blue "${t}") total"

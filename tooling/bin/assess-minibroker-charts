@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -o errexit -o nounset
+
+# Location .............................................................
+
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+cd "${GIT_ROOT}"
+
+CAP=changeme
+CF_NAMESPACE=cf
+FRESHRUN=1
+MODE="fresh, clearing previous data"
+
+function usage() {
+    cat <<EOF
+Usage: $(basename "${0}") [options]
+
+  -h:      Displays this help message
+  -p PASS: Specified cluster admin password
+  -n NAME: Specifies cluster namespace, default: cf
+  -r:      Activates resumption mode tp keep data from a previous partial run
+EOF
+}
+
+while getopts "hp:n:r" opt; do
+    case $opt in
+	h)  usage
+	    exit
+	    ;;
+	p)  CAP=
+	    ;;
+	n)  CF_NAMESPACE=
+	    ;;
+	r)  FRESHRUN=0
+	    MODE="resume, keeping previous data"
+	    ;;
+    esac
+done
+
+TOP=$(pwd)
+source "${TOP}/make/include/colors"
+
+echo $(cyan Configuration):
+echo '  - Namespace:' $(blue "${CF_NAMESPACE}")
+echo '  - Password: ' $(blue "${CAP}")
+echo '  - Mode:     ' $(blue "${MODE}")
+
+# General operation
+# 1. Get the master index from the stable helm repository at google.
+# 2. Get the entries for our supported databases out of the master.
+#    a. For all engines, get a list of (engine-version, chart-version,
+#       location) tuples out of the files from the previous step.
+#    b. For all engines, and all their tuples, create a proper helm index
+#       referencing exactly that engine and chart.
+# 3. For all engines, and all their tuples, test.
+
+# Configuration ........................................................
+
+engines=""
+engines="${engines} mariadb"
+engines="${engines} mongodb"
+engines="${engines} postgresql"
+engines="${engines} redis"
+# Add new engines here, and at (x).
+
+bin="${TOP}/tooling/mb-chart-assessment"
+wrk="${TOP}/_work"
+stem=kube-chart-index
+rstem=dbe
+master="${wrk}/${rstem}-charts-master-index.yaml"
+
+stable=https://kubernetes-charts.storage.googleapis.com
+index="${stable}/index.yaml"
+
+nodeenv=src/scf-release/src/acceptance-tests-brain/test-resources/node-env
+
+# Setup ................................................................
+
+if [ $FRESHRUN -gt 0 ] ; then
+    echo $(cyan Cleared) previous run, starting from empty
+    mkdir -p "${wrk}"
+    # Clear leftovers from previous runs
+    rm -rf ${wrk}/${rstem}-*
+else
+    echo $(cyan Resuming) a partial run, keeping data, will skip processed charts
+fi
+
+# 1. Get master index .....................................................
+
+echo $(cyan Retrieving) master index ...
+curl --silent "${index}" > "${master}"
+
+# 2. Extract the full data for all the supported engines ..................
+
+for engine in $engines
+do
+    echo -n $(cyan Extracting) engine $(blue "${engine}") ...
+    # Originally attempted to use a pipeline using `y2j | jq ...`.
+    # y2j failed on the incoming yaml, claiming a number of things as
+    # not serializable to json.
+    ruby "${bin}/get-charts-for-engine.rb" "${engine}" "${master}" \
+	 > "${wrk}/${rstem}-${engine}.yaml"
+
+    # 2.a
+    echo -n "$(left 4)$(eeol), list charts ..."
+    ruby "${bin}/get-chart-listing.rb" "${wrk}/${rstem}-${engine}.yaml" \
+	 > "${wrk}/${rstem}-${engine}-charts.csv"
+    # CSV using space as field separator (-> processable by shell, see below)
+    echo -n "$(left 3)$(eeol)$(cyan "$(cat "${wrk}/${rstem}-${engine}-charts.csv" | wc -l)")"
+    
+    mkdir -p "${wrk}/${rstem}-${engine}"
+
+    # 2.b
+    echo -n ", indices per chart ..."
+    while read enginev chartv chartlocation
+    do
+	# Generate a helm repo index for the specific engine and chart.
+	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" "${wrk}/${rstem}-${engine}.yaml" \
+	     > "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.yaml" 2>&1
+
+    done < "${wrk}/${rstem}-${engine}-charts.csv"
+    echo "$(left 3)$(eeol)$(green OK)"
+done
+
+#.......................................................................
+#exit
+
+# 3. Iterate over engines & charts, capture pass/fail for test ............
+
+if [ $FRESHRUN -gt 0 ] ; then
+    rm -f "${wrk}/dbe-chart-results.csv"
+fi
+
+echo $(cyan Testing) ... Charts: $(cyan "$(cat  ${wrk}/${rstem}-*-charts.csv  | wc -l)")
+
+for engine in $engines
+do
+    while read enginev chartv chartlocation
+    do
+	if [ $FRESHRUN -eq 0 ] ; then
+	    # In resume mode, skip all processed charts.
+	    if [ -f "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.log" ] ; then
+		echo -en "\r$(eeol)Skipping ${engine}" "${enginev}" "${chartv}"
+		continue
+	    fi
+	fi
+	echo -en "\r$(eeol)"
+	"${bin}/assess-single-chart" \
+	    "${CF_NAMESPACE}" "${engine}" "${enginev}" "${chartv}" "${chartlocation}" "${CAP}" \
+	    || true
+	# Failures are ignored in favor of checking more charts.
+	# The logs can be looked at later.
+	
+    done < "${wrk}/${rstem}-${engine}-charts.csv"
+done
