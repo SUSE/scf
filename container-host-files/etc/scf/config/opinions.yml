@@ -306,10 +306,7 @@ properties:
       startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
-      max_open_files: 1500
-    proxy:
-      api_force_https: false
-      api_username: 'mysql_proxy'
+  cf_mysql_enabled: false
   deployment: scf-deployment
   diego:
     auctioneer:
