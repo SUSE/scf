@@ -43,9 +43,9 @@
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/locket?/hostname
   value: ((deployment-name))-diego-api
 
-# Add bosh_containerization properties.
+# Add quarks properties.
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bosh_containerization?
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/quarks?
   value:
     run:
       memory: 4096
@@ -64,8 +64,8 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []

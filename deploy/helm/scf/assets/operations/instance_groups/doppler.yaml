@@ -16,9 +16,9 @@
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
   value: https://((deployment-name))-uaa:8443
 
-# Add bosh_containerization properties for doppler.
+# Add quarks properties for doppler.
 - type: replace
-  path: /instance_groups/name=doppler/jobs/name=doppler/properties/bosh_containerization?
+  path: /instance_groups/name=doppler/jobs/name=doppler/properties/quarks?
   value:
     ports:
     - name: dropsonde-tcp
@@ -40,9 +40,9 @@
       memory: 512
       virtual-cpus: 2
 
-# Add bosh_containerization properties for log-cache.
+# Add quarks properties for log-cache.
 - type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache/properties/bosh_containerization?
+  path: /instance_groups/name=doppler/jobs/name=log-cache/properties/quarks?
   value:
     ports:
     - name: log-cache
