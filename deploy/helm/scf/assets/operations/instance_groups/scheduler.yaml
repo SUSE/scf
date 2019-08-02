@@ -85,18 +85,18 @@
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/uaa?/url
   value: https://((deployment-name))-uaa
 
-# Add bosh_containerization properties for the auctioneer job.
+# Add quarks properties for the auctioneer job.
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/bosh_containerization?
+  path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/quarks?
   value:
     ports:
     - name: auctioneer
       protocol: TCP
       internal: 9016
 
-# Add bosh_containerization properties for the ssh_proxy job.
+# Add quarks properties for the ssh_proxy job.
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/bosh_containerization?
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/quarks?
   value:
     ports:
     - name: ssh-proxy
@@ -104,7 +104,7 @@
       internal: 2222
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/bosh_containerization?/bpm/processes
+  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
 - type: replace

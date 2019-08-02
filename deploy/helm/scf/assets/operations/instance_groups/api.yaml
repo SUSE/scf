@@ -162,12 +162,12 @@
 
 # Add empty BPM processes to buildpacks.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks?/bpm?/processes?
   value: []
 
-# Add bosh_containerization properties for cloud_controller_ng.
+# Add quarks properties for cloud_controller_ng.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/quarks?
   value:
     ports:
     - name: api
@@ -181,27 +181,27 @@
       internal: 9024
 
 
-# Add bosh_containerization properties for routing-api.
+# Add quarks properties for routing-api.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=routing-api/properties/quarks?
   value:
     ports:
     - name: routing-api
       protocol: TCP
       internal: 3000
 
-# Add bosh_containerization properties for cc_uploader.
+# Add quarks properties for cc_uploader.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/quarks?
   value:
     ports:
     - name: cc-uploader
       protocol: TCP
       internal: 9090
 
-# Add bosh_containerization properties for file_server.
+# Add quarks properties for file_server.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=file_server/properties/quarks?
   value:
     ports:
     - name: file-server
@@ -209,9 +209,9 @@
       internal: &file-server-port 8080
 
 
-# Add bosh_containerization properties for statsd_injector.
+# Add quarks properties for statsd_injector.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?
   value:
     ports:
     # TODO: Can we remove this port?
@@ -219,9 +219,9 @@
       protocol: TCP
       internal: 8125
 
-# Add bosh_containerization properties for policy-server.
+# Add quarks properties for policy-server.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/quarks?
   value:
     ports:
     - name: policy-server

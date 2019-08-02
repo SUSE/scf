@@ -64,10 +64,10 @@
       internal: 1801
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
 - type: replace
