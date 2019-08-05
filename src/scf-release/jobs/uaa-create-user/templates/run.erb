@@ -55,8 +55,8 @@ function retry () {
     done
 }
 
-export PATH="/var/vcap/packages/ruby-2.3/bin:/var/vcap/packages/cf-uaac/bin:${PATH}"
-export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.3.0/
+export PATH="/var/vcap/packages/ruby-2.5.5-r0.15.0/bin:/var/vcap/packages/cf-uaac/bin:${PATH}"
+export GEM_HOME=/var/vcap/packages/cf-uaac/vendor/bundle/ruby/2.5.0
 
 <%
 curl_ssl = properties.ssl.skip_cert_verify ? '--insecure' : ''
