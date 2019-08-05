@@ -5,7 +5,7 @@ description: Uses the cf CLI to configure SCF once it's online (things like prox
 
 packages:
   - cli
-  - ruby-2.3
+  - ruby-2.5.5-r0.15.0
   - service-registration-utils
   - kubectl
 

@@ -1,6 +1,6 @@
 ---
 name: cf-uaac
 dependencies:
-- ruby-2.3
+- ruby-2.5.5-r0.15.0
 files:
 - cf-uaac/**/*
