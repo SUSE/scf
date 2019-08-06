@@ -1,4 +1,4 @@
-{{- if and .Values.enable.eirini }}
+{{- if .Values.enable.eirini }}
 
 {{- if ne .Values.env.EIRINI_KUBE_NAMESPACE .Release.Namespace }}
 ---
