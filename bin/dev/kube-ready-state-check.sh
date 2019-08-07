@@ -92,6 +92,22 @@ if having_category node ; then
     status "docker info should not show aufs"
 fi
 
+# kernel must be >= 3.19
+if having_category kube ; then
+    min_ver="3.19"
+    ver_check_rc=0
+    for i in $(kubectl get nodes --no-headers -o=custom-columns=NODES:.status.nodeInfo.kernelVersion); do
+        if test "$(printf '%s\n%s\n' "$i" "$min_ver" | sort -V | head -n 1)" != "$min_ver" ; then
+            ver_check_rc=1
+            break
+        fi
+    done
+    if [[ $ver_check_rc -ne 0 ]]; then
+        false
+    fi
+    status "nodes should have kernel version $min_ver or higher"
+fi
+
 # kube auth
 if having_category kube ; then
     kubectl auth can-i get pods --namespace=kube-system &> /dev/null
