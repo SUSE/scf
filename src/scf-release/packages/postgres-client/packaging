@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e -x
+
+mkdir -p ${BOSH_INSTALL_TARGET}/lib
+
+BIN_DIR=${BOSH_INSTALL_TARGET}/bin
+
+mkdir -p ${BIN_DIR}
+
+# This is totally sketchy...
+zypper install -y postgresql
+cp /usr/bin/psql "${BOSH_INSTALL_TARGET}/lib/"
+for f in $(ldd -r /usr/bin/psql | awk '/=>/ { print $3 }') ; do
+    case "${f}" in
+        */libpq.so*)
+            cp "${f}" "${BOSH_INSTALL_TARGET}/lib/"
+            ;;
+    esac
+done
+
+cat > "${BOSH_INSTALL_TARGET}/bin/psql" <<'EOF'
+    #!/bin/sh
+    LIB_DIR=/var/vcap/packages/postgres-client/lib/
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}${LIB_DIR}"
+    exec "/var/vcap/packages/postgres-client/lib/psql" "$@"
+EOF
+
+chmod a+x "${BOSH_INSTALL_TARGET}/bin/psql"

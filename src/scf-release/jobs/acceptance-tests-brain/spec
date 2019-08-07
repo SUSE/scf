@@ -12,6 +12,7 @@ packages:
   - docker-distribution
   - credhub-cli
   - mariadb-client
+  - postgres-client
 
 templates:
   run.erb: bin/run
