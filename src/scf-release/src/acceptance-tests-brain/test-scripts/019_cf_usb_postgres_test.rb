@@ -16,9 +16,24 @@ class CFUSBPostgresTest < CFUSBTestBase
         @postgres_server_image_server_image ||= ENV.fetch('POSTGRES_SERVER_IMAGE', 'postgres:11.4')
     end
 
-    # Return the docker image to use for the side car
-    def postgres_sidecar_image
-        @postgres_sidecar_image ||= ENV.fetch('POSTGRES_SIDECAR_IMAGE', 'registry.suse.com/cap/cf-usb-sidecar-postgres:1.0.1')
+    def helm_release
+        @helm_release ||= random_suffix('postgres-sidecar')
+    end
+
+    def helm_namespace
+        helm_release
+    end
+
+    def helm_repo
+        @helm_repo ||= ENV.fetch('POSTGRES_REPO', 'https://kubernetes-charts.suse.com/')
+    end
+
+    def helm_chart
+        @helm_chart ||= ENV.fetch('POSTGRES_CHART', 'cf-usb-sidecar-postgres')
+    end
+
+    def helm_version
+        @helm_version ||= ENV.fetch('POSTGRES_CHART_VERSION', '1.0.1')
     end
 
     def server_app
@@ -71,38 +86,25 @@ class CFUSBPostgresTest < CFUSBTestBase
                 run "cf logs --recent #{server_app}"
             end
         end
+        wait_on_database
     end
 
-    def deploy_sidecar
-        at_exit do
-            set errexit: false do
-                run "cf delete -f #{sidecar_app}"
-            end
-        end
-        run "cf push #{sidecar_app} --no-start -o #{postgres_sidecar_image}"
-
-        # Use a secret key that will be used by the USB to talk to your
-        # sidecar, and set the connection parameters for the mysql client
-        # sidecar so that it can talk to the mysql server from the previous
-        # step.
-        run "cf set-env #{sidecar_app} SIDECAR_API_KEY           #{sidecar_api_key}"
-        run "cf set-env #{sidecar_app} SERVICE_TYPE              #{service_type}"
-        run "cf set-env #{sidecar_app} SERVICE_POSTGRES_HOST     #{tcp_domain}"
-        run "cf set-env #{sidecar_app} SERVICE_POSTGRES_PORT     #{service_port}"
-        run "cf set-env #{sidecar_app} SERVICE_POSTGRES_SSLMODE  disable"
-        run "cf set-env #{sidecar_app} SERVICE_POSTGRES_USER     #{postgres_user}"
-        run "cf set-env #{sidecar_app} SERVICE_POSTGRES_PASSWORD #{postgres_pass}"
-        run "cf set-env #{sidecar_app} SIDECAR_LOG_LEVEL         debug"
-
-        at_exit do
-            set errexit: false do
-                run "cf logs --recent #{sidecar_app}"
-            end
-        end
-
-        run "cf start   #{sidecar_app}"
+    def helm_chart_values
+        ({
+            CF_ADMIN_PASSWORD: ENV['CLUSTER_ADMIN_PASSWORD'],
+            CF_ADMIN_USER: 'admin',
+            CF_CA_CERT: ENV['INTERNAL_CA_CERT'],
+            CF_DOMAIN: ENV['DOMAIN'],
+            SERVICE_LOCATION: "http://cf-usb-sidecar-postgres.#{helm_namespace}.svc.#{ENV['KUBERNETES_CLUSTER_DOMAIN']}:8081",
+            SERVICE_POSTGRESQL_HOST: tcp_domain,
+            SERVICE_POSTGRESQL_PORT: service_port,
+            SERVICE_POSTGRESQL_SSLMODE: 'disable',
+            SERVICE_POSTGRESQL_USER: postgres_user,
+            SERVICE_POSTGRESQL_PASS: postgres_pass,
+            SERVICE_TYPE: service_type,
+            UAA_CA_CERT: ENV['UAA_CA_CERT'].empty? ? ENV['INTERNAL_CA_CERT'] : ENV['UAA_CA_CERT'],
+        })
     end
-
 end
 
 CFUSBPostgresTest.new.run_test

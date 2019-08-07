@@ -17,9 +17,24 @@ class CFUSBMySQLTest < CFUSBTestBase
         @mysql_server_image ||= ENV.fetch('MYSQL_SERVER_IMAGE', 'mysql/mysql-server:8.0.3')
     end
 
-    # Return the docker image to use for the MySQL side car
-    def mysql_sidecar_image
-        @mysql_sidecar_image ||= ENV.fetch('MYSQL_SIDECAR_IMAGE', 'registry.suse.com/cap/cf-usb-sidecar-mysql:1.0.1')
+    def helm_release
+        @helm_release ||= random_suffix('mysql-sidecar')
+    end
+
+    def helm_namespace
+        helm_release
+    end
+
+    def helm_repo
+        @helm_repo ||= ENV.fetch('MYSQL_REPO', 'https://kubernetes-charts.suse.com/')
+    end
+
+    def helm_chart
+        @helm_chart ||= ENV.fetch('MYSQL_CHART', 'cf-usb-sidecar-mysql')
+    end
+
+    def helm_version
+        @helm_version ||= ENV.fetch('MYSQL_CHART_VERSION', '1.0.1')
     end
 
     def server_app
@@ -59,32 +74,20 @@ class CFUSBMySQLTest < CFUSBTestBase
         wait_on_database service_port, MYSQL_USER, MYSQL_PASS
     end
 
-    def deploy_sidecar
-        at_exit do
-            set errexit: false do
-                run "cf delete -f #{sidecar_app}"
-            end
-        end
-        run "cf push #{sidecar_app} --no-start -o #{mysql_sidecar_image}"
-
-        # Use a secret key that will be used by the USB to talk to your
-        # sidecar, and set the connection parameters for the mysql client
-        # sidecar so that it can talk to the mysql server from the previous
-        # step.
-        run "cf set-env #{sidecar_app} SIDECAR_API_KEY    #{sidecar_api_key}"
-        run "cf set-env #{sidecar_app} SERVICE_TYPE       #{service_type}"
-        run "cf set-env #{sidecar_app} SERVICE_MYSQL_HOST #{tcp_domain}"
-        run "cf set-env #{sidecar_app} SERVICE_MYSQL_PORT #{service_port}"
-        run "cf set-env #{sidecar_app} SERVICE_MYSQL_USER #{MYSQL_USER}"
-        run "cf set-env #{sidecar_app} SERVICE_MYSQL_PASS #{MYSQL_PASS}"
-        begin
-            run "cf start   #{sidecar_app}"
-        rescue
-            set errexit: false do
-                run "cf logs --recent #{sidecar_app}"
-            end
-            raise
-        end
+    def helm_chart_values
+        ({
+            CF_ADMIN_PASSWORD: ENV['CLUSTER_ADMIN_PASSWORD'],
+            CF_ADMIN_USER: 'admin',
+            CF_CA_CERT: ENV['INTERNAL_CA_CERT'],
+            CF_DOMAIN: ENV['DOMAIN'],
+            SERVICE_LOCATION: "http://cf-usb-sidecar-mysql.#{helm_namespace}.svc.#{ENV['KUBERNETES_CLUSTER_DOMAIN']}:8081",
+            SERVICE_MYSQL_HOST: tcp_domain,
+            SERVICE_MYSQL_PORT: service_port,
+            SERVICE_MYSQL_USER: MYSQL_USER,
+            SERVICE_MYSQL_PASS: MYSQL_PASS,
+            SERVICE_TYPE: service_type,
+            UAA_CA_CERT: ENV['UAA_CA_CERT'].empty? ? ENV['INTERNAL_CA_CERT'] : ENV['UAA_CA_CERT'],
+        })
     end
 
 end

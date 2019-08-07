@@ -140,6 +140,43 @@ class CFUSBTestBase
         run "cf services | grep #{service_instance}"
     end
 
+    def deploy_sidecar
+        at_exit do
+            set errexit: false do
+                show_pods_for_namespace helm_namespace
+                print_all_container_logs_in_namespace helm_namespace
+                run "yes | cf usb-delete-driver-endpoint #{service_type}"
+                run "helm delete --purge #{helm_release}"
+                run "kubectl delete ns #{helm_namespace}"
+                run "kubectl wait --for=delete ns/#{helm_namespace}"
+            end
+        end
+
+        run 'helm init --client-only'
+
+        values = helm_chart_values.dup
+        File.open("#{tmpdir}/helm-values.json", 'w') do |f|
+            f.puts({env: values}.to_json)
+        end
+        # Print out the values used, but filter out the passwords
+        values.keys.each { |k| values[k] = '<redacted>' if k.to_s.include? 'PASS' }
+        puts values.to_json
+
+        args = %W(helm upgrade #{helm_release}
+            --install
+            --repo #{helm_repo}
+            --namespace #{helm_namespace}
+            --wait
+            --values #{tmpdir}/helm-values.json
+        )
+        args += ['--version', helm_version] unless helm_version.empty?
+        args << helm_chart
+        run *args
+        wait_for_jobs helm_namespace
+        wait_for_namespace helm_namespace
+        run "kubectl get pods --namespace=#{helm_namespace}"
+    end
+
     def run_test
         use_global_timeout
         login
@@ -148,7 +185,6 @@ class CFUSBTestBase
         initialize_tcp_routing
         deploy_server
         deploy_sidecar
-        create_driver_endpoint
         create_service
     end
 end

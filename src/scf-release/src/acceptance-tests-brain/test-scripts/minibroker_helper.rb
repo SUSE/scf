@@ -50,17 +50,6 @@ class MiniBrokerTest
     attr_lazy(:service_plans) { |inst| JSON.load capture("cf curl '/v2/services/#{inst.service_guid}/service_plans'") }
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
-    def print_all_container_logs_in_namespace(ns)
-        capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
-            failed = false
-            capture("kubectl get --namespace #{ns} #{pod} --output jsonpath='{.spec.containers[*].name}'").split.each do |container|
-                status = run_with_status("kubectl logs --namespace #{ns} #{pod} --container #{container}")
-                failed ||= !status.success?
-            end
-            run "kubectl describe --namespace #{ns} #{pod}" if failed
-        end
-    end
-
     # Run the minibroker test.
     # The MiniBrokerTest instance will be yielded to the given block.
     def run_test

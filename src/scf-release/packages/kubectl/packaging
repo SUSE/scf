@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION=v1.13.2
+VERSION=v1.15.0
 
 echo Retrieving kubetcl ${VERSION}
 
