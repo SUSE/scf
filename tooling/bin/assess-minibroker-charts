@@ -18,7 +18,7 @@ Usage: $(basename "${0}") [options]
   -h:      Displays this help message
   -p PASS: Specified cluster admin password
   -n NAME: Specifies cluster namespace, default: cf
-  -r:      Activates resumption mode tp keep data from a previous partial run
+  -i:      Activates incremental mode which skips processed charts
 EOF
 }
 

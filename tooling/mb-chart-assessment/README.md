@@ -20,21 +20,30 @@ The script and its helpers require:
 Run the the script using
 
 ```
-    /path/to/assess-minibroker-charts password namespace? flag
+    /path/to/assess-minibroker-charts
 ```
 
-All arguments can be left out. Their defaults are
+This runs the script with CF namespace `cf`, cluster password
+`changeme`, and non-incremental. IOW all found charts are tested. Such
+a run takes about 2 days at the moment.
 
-  - password = `changeme`
-  - namespace = `cf`
-  - flag = `1` == Start a fresh run.
+Use
 
-Setting the flag to `0` activates `resume` mode where the script
-ignores all charts for which it has log files, indicating that they
-have been processed already.
+```
+    /path/to/assess-minibroker-charts -h
+```
+
+to see the options for changing namespace, password and execution mode.
+
+Using option `-i` activates `incremental` mode where the script
+ignores all charts for which it has results, indicating that they have
+been processed already.
 
 This enables easy resumption of operation if the script was aborted,
 be it a bug, or the user.
+
+This also enables effective use from within a CI system, checking for
+and processing only new charts as they are added to the stable.
 
 All files and directories used by the script will be placed into the
 sub directory `_work/` of the current working directory, and all with
