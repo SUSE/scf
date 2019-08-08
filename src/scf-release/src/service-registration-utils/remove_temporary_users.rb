@@ -1,4 +1,4 @@
-#!/var/vcap/packages/ruby-2.3/bin/ruby
+#!/var/vcap/packages/ruby-2.5.5-r0.15.0/bin/ruby
 
 # This script gets the users from the cloud-controller and deletes any
 # that look bogus:
