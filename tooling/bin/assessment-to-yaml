@@ -21,7 +21,7 @@ efails=0
 eok=0
 header=0
 
-sort -k 2,5 \
+sort -r -k 2,5 \
      < "${wrk}/${rstem}-chart-results.csv" \
      > "${wrk}/${rstem}-chart-results-sorted.csv"
 
