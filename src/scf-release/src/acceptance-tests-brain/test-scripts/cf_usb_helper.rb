@@ -75,6 +75,16 @@ class CFUSBTestBase
         @service_port ||= get_port server_app, tcp_domain
     end
 
+    def extra_helm_arguments
+        args = []
+        %w(hostname username password).each do |param|
+            val = ENV["HELM_REGISTRY_#{param.upcase}"]
+            next if val.nil?
+            args << '--set' << "kube.registry.#{param}=#{val}"
+        end
+        args
+    end
+
     # --(0)-- Initialize tcp routing
     def initialize_tcp_routing
         # --(0.1) -- Initialize a security group to allow for inter-app comms
@@ -170,6 +180,7 @@ class CFUSBTestBase
             --values #{tmpdir}/helm-values.json
         )
         args += ['--version', helm_version] unless helm_version.empty?
+        args += extra_helm_arguments
         args << helm_chart
         run *args
         wait_for_jobs helm_namespace
