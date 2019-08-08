@@ -124,14 +124,17 @@ fi
 
 echo $(cyan Testing) ... Charts: $(cyan "$(cat  ${wrk}/${rstem}-*-charts.csv  | wc -l)")
 
+skipped=0
 for engine in $engines
 do
     while read enginev chartv chartlocation
     do
 	if [ $INCREMENTAL -gt 0 ] ; then
 	    # In incremental mode, skip all processed charts.
-	    if [ -f "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.log" ] ; then
+
+	    if grep -q "${engine} ${enginev} ${chartv}" "${wrk}/${rstem}-chart-results.csv" ; then
 		echo -en "\r$(eeol)Skipping ${engine}" "${enginev}" "${chartv}"
+		skipped=$(( $skipped + 1 ))
 		continue
 	    fi
 	fi
@@ -149,4 +152,8 @@ do
 	
     done < "${wrk}/${rstem}-${engine}-charts.csv"
 done
-echo -e "\r$(eeol)"
+if [ $skipped -gt 0 ] ; then
+    echo -e "\r$(eeol)$(cyan Skipped): $skipped"
+else
+    echo -e "\r$(eeol)"
+fi

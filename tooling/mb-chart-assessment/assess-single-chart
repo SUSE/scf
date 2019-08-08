@@ -91,6 +91,7 @@ HREPOS="$("${bin}/local-chart-repository" start \
 if [ "${HREPOS}" == "" ]
 then
     echo "$(left 12)$(eeol)$(red "start failed"), likely a patch failure"
+    echo FAIL "${engine}" "${enginev}" "${chartv}" >> "${wrk}/${rstem}-chart-results.csv"
     exit 1
 fi
 
