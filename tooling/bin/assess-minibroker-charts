@@ -102,14 +102,11 @@ do
 	 > "${wrk}/${rstem}-${engine}.yaml"
 
     # 2.a
-    echo -n "$(left 4)$(eeol), list charts ..."
+    echo -n "$(left 4)$(eeol), listing ..."
     ruby "${bin}/get-chart-listing.rb" "${wrk}/${rstem}-${engine}.yaml" \
 	 > "${wrk}/${rstem}-${engine}-charts.csv"
     # CSV using space as field separator (-> processable by shell, see below)
-    echo -n "$(left 3)$(eeol)$(cyan "$(cat "${wrk}/${rstem}-${engine}-charts.csv" | wc -l)")"
-    
-    mkdir -p "${wrk}/${rstem}-${engine}"
-
+    echo -n "$(left 13)$(eeol): $(cyan "$(cat "${wrk}/${rstem}-${engine}-charts.csv" | wc -l)")"
     echo " $(green OK)"
 done
 
@@ -139,6 +136,8 @@ do
 	    fi
 	fi
 	echo -en "\r$(eeol)"
+
+	mkdir -p "${wrk}/${rstem}-${engine}"
 
 	# 2.b Generate a helm repo index for the specific engine and chart.
 	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" "${wrk}/${rstem}-${engine}.yaml" \
