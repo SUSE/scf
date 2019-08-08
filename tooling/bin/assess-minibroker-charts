@@ -8,7 +8,7 @@ cd "${GIT_ROOT}"
 
 CAP=changeme
 CF_NAMESPACE=cf
-FRESHRUN=1
+INCREMENTAL=0
 MODE="fresh, clearing previous data"
 
 function usage() {
@@ -22,7 +22,7 @@ Usage: $(basename "${0}") [options]
 EOF
 }
 
-while getopts "hp:n:r" opt; do
+while getopts "hp:n:i" opt; do
     case $opt in
 	h)  usage
 	    exit
@@ -31,8 +31,8 @@ while getopts "hp:n:r" opt; do
 	    ;;
 	n)  CF_NAMESPACE=
 	    ;;
-	r)  FRESHRUN=0
-	    MODE="resume, keeping previous data"
+	i)  INCREMENTAL=1
+	    MODE="incremental, keeping previous data"
 	    ;;
     esac
 done
@@ -76,13 +76,13 @@ nodeenv=src/scf-release/src/acceptance-tests-brain/test-resources/node-env
 
 # Setup ................................................................
 
-if [ $FRESHRUN -gt 0 ] ; then
+if [ $INCREMENTAL -eq 0 ] ; then
     echo $(cyan Cleared) previous run, starting from empty
     mkdir -p "${wrk}"
     # Clear leftovers from previous runs
     rm -rf ${wrk}/${rstem}-*
 else
-    echo $(cyan Resuming) a partial run, keeping data, will skip processed charts
+    echo $(cyan Incremental) run, keeping data, will skip processed charts
 fi
 
 # 1. Get master index .....................................................
@@ -110,16 +110,7 @@ do
     
     mkdir -p "${wrk}/${rstem}-${engine}"
 
-    # 2.b
-    echo -n ", indices per chart ..."
-    while read enginev chartv chartlocation
-    do
-	# Generate a helm repo index for the specific engine and chart.
-	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" "${wrk}/${rstem}-${engine}.yaml" \
-	     > "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.yaml" 2>&1
-
-    done < "${wrk}/${rstem}-${engine}-charts.csv"
-    echo "$(left 3)$(eeol)$(green OK)"
+    echo " $(green OK)"
 done
 
 #.......................................................................
@@ -127,7 +118,7 @@ done
 
 # 3. Iterate over engines & charts, capture pass/fail for test ............
 
-if [ $FRESHRUN -gt 0 ] ; then
+if [ $INCREMENTAL -eq 0 ] ; then
     rm -f "${wrk}/dbe-chart-results.csv"
 fi
 
@@ -137,14 +128,19 @@ for engine in $engines
 do
     while read enginev chartv chartlocation
     do
-	if [ $FRESHRUN -eq 0 ] ; then
-	    # In resume mode, skip all processed charts.
+	if [ $INCREMENTAL -gt 0 ] ; then
+	    # In incremental mode, skip all processed charts.
 	    if [ -f "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.log" ] ; then
 		echo -en "\r$(eeol)Skipping ${engine}" "${enginev}" "${chartv}"
 		continue
 	    fi
 	fi
 	echo -en "\r$(eeol)"
+
+	# 2.b Generate a helm repo index for the specific engine and chart.
+	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" "${wrk}/${rstem}-${engine}.yaml" \
+	     > "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.yaml" 2>&1
+
 	"${bin}/assess-single-chart" \
 	    "${CF_NAMESPACE}" "${engine}" "${enginev}" "${chartv}" "${chartlocation}" "${CAP}" \
 	    || true
@@ -153,3 +149,4 @@ do
 	
     done < "${wrk}/${rstem}-${engine}-charts.csv"
 done
+echo -e "\r$(eeol)"
