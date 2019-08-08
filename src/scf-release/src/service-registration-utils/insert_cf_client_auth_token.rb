@@ -1,4 +1,4 @@
-#!/var/vcap/packages/ruby-2.3/bin/ruby
+#!/var/vcap/packages/ruby-2.5.5-r0.15.0/bin/ruby
 
 # This file will get a client credential from UAA, and set the CF CLI's config
 # to use that credential (which is normally impossible; the CF client is
