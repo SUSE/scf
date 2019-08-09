@@ -178,7 +178,6 @@
       protocol: TCP
       internal: 9024
 
-
 # Add quarks properties for routing-api.
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/quarks?
@@ -205,7 +204,12 @@
     - name: file-server
       protocol: TCP
       internal: &file-server-port 8080
-
+    run:
+      healthcheck:
+        file_server:
+          readiness:
+            tcpSocket:
+              port: *file-server-port
 
 # Add quarks properties for statsd_injector.
 - type: replace

@@ -85,6 +85,17 @@
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/uaa?/url
   value: https://((deployment-name))-uaa
 
+# Add quarks properties for the scheduler job.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        scheduler:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+
 # Add quarks properties for the auctioneer job.
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/quarks?
@@ -93,6 +104,12 @@
     - name: auctioneer
       protocol: TCP
       internal: 9016
+    run:
+      healthcheck:
+        auctioneer:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
 
 # Add quarks properties for the ssh_proxy job.
 - type: replace
