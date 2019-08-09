@@ -51,10 +51,11 @@
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
-# Add bosh_containerization properties for the rep.
+# Add quarks properties for the rep.
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/bosh_containerization?
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
   value:
+    privileged: true
     ports:
     - name: rep
       protocol: TCP
@@ -112,10 +113,6 @@
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
-  value: true
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/bosh_containerization?/privileged?
   value: true
 
 - type: replace
