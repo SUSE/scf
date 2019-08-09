@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
 
-TOP=$(pwd)
-bin="${TOP}/tooling/mb-chart-assessment"
-wrk="${TOP}/_work"
-rstem=dbe
+: "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
+cd "${GIT_ROOT}"
 
-source "${TOP}/make/include/colors"
+bin="${GIT_ROOT}/tooling/mb-chart-assessment"
+workdir="${GIT_ROOT}/_work/mb-chart-assessment"
+
+source "${GIT_ROOT}/make/include/colors"
 
 stats() {
-    t=$(cat "${wrk}/${rstem}-${1}-charts.csv" | wc -l)
+    t=$(cat "${workdir}/${1}-charts.csv" | wc -l)
     n=$(( $t - $eok - $efails ))
     echo 1>&2 "$(cyan "$1"):	$(green "${eok}") ok, $(red "${efails}") failed, $(yellow "${n}") non-starters, $(blue "${t}") total"
 }
@@ -22,8 +23,8 @@ eok=0
 header=0
 
 sort -r -k 2,5 \
-     < "${wrk}/${rstem}-chart-results.csv" \
-     > "${wrk}/${rstem}-chart-results-sorted.csv"
+     < "${workdir}/chart-results.csv" \
+     > "${workdir}/chart-results-sorted.csv"
 
 while read state engine enginev chartv
 do
@@ -54,11 +55,11 @@ do
 	    efails=$(( $efails + 1 ))
 	;;
     esac
-done < "${wrk}/${rstem}-chart-results-sorted.csv"
+done < "${workdir}/chart-results-sorted.csv"
 
 stats "${lastengine}"
 
-t=$(cat ${wrk}/${rstem}-*-charts.csv | wc -l)
+t=$(cat "${workdir}/"*-charts.csv | wc -l)
 n=$(( $t - $tok - $tfails ))
 
 echo 1>&2 ====================================================================

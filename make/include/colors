@@ -1,57 +1,63 @@
+# -*- bash -*-
 # terminal control sequences
 # mainly colors
 # some cursor movement
 
+# Erase (from cursor) to End Of Line
 function eeol() {
     printf "\033[K"
 }
 
+# Move cursor up. Argument numeric (int > 0), optional, default 1
 function up() {
     printf "\033[%bA" "$1"
 }
 
+# Move cursor down. Argument numeric (int > 0), optional, default 1
 function down() {
     printf "\033[%bB" "$1"
 }
 
+# Move cursor left/backward. Argument numeric (int > 0), optional, default 1
 function left() {
     printf "\033[%bD" "$1"
 }
 
+# Move cursor right/forward. Argument numeric (int > 0), optional, default 1
 function right() {
     printf "\033[%bC" "$1"
 }
 
 function red() {
-    printf "\033[31m%b\033[0m\n" "$1"
+    printf "\033[31m%b\033[0m" "$1"
 }
 
 function green() {
-    printf "\033[32m%b\033[0m\n" "$1"
+    printf "\033[32m%b\033[0m" "$1"
 }
 
 function yellow() {
-    printf "\033[33m%b\033[0m\n" "$1"
+    printf "\033[33m%b\033[0m" "$1"
 }
 
 function blue() {
-    printf "\033[34m%b\033[0m\n" "$1"
+    printf "\033[34m%b\033[0m" "$1"
 }
 
 function magenta() {
-    printf "\033[35m%b\033[0m\n" "$1"
+    printf "\033[35m%b\033[0m" "$1"
 }
 
 function cyan() {
-    printf "\033[36m%b\033[0m\n" "$1"
+    printf "\033[36m%b\033[0m" "$1"
 }
 
 function white() {
-    printf "\033[37m%b\033[0m\n" "$1"
+    printf "\033[37m%b\033[0m" "$1"
 }
 
 function black() {
-    printf "\033[38m%b\033[0m\n" "$1"
+    printf "\033[38m%b\033[0m" "$1"
 }
 
 #echo $(red red)

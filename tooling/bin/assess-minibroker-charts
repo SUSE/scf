@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
 
+# The main purpose of the tooling here is to assess which of the
+# publicly available charts for the databases supported by minibroker
+# will work with SCF. This is the main script coordinating a number of
+# helpers to achive this.
+
 # Location .............................................................
 
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
 cd "${GIT_ROOT}"
 
-CAP=changeme
+# Argument processing ..................................................
+
+CLUSTER_ADMIN_PASSWORD=changeme
 CF_NAMESPACE=cf
 INCREMENTAL=0
 MODE="fresh, clearing previous data"
@@ -27,9 +34,9 @@ while getopts "hp:n:i" opt; do
 	h)  usage
 	    exit
 	    ;;
-	p)  CAP=
+	p)  CLUSTER_ADMIN_PASSWORD="${OPTARG}"
 	    ;;
-	n)  CF_NAMESPACE=
+	n)  CF_NAMESPACE="${OPTARG}"
 	    ;;
 	i)  INCREMENTAL=1
 	    MODE="incremental, keeping previous data"
@@ -37,13 +44,12 @@ while getopts "hp:n:i" opt; do
     esac
 done
 
-TOP=$(pwd)
-source "${TOP}/make/include/colors"
+source "make/include/colors"
 
 echo $(cyan Configuration):
-echo '  - Namespace:' $(blue "${CF_NAMESPACE}")
-echo '  - Password: ' $(blue "${CAP}")
-echo '  - Mode:     ' $(blue "${MODE}")
+printf "  - Namespace: %b\n" "$(blue "${CF_NAMESPACE}")"
+printf "  - Password:  %b\n" "$(blue "${CLUSTER_ADMIN_PASSWORD}")"
+printf "  - Mode:      %b\n" "$(blue "${MODE}")"
 
 # General operation
 # 1. Get the master index from the stable helm repository at google.
@@ -55,19 +61,21 @@ echo '  - Mode:     ' $(blue "${MODE}")
 # 3. For all engines, and all their tuples, test.
 
 # Configuration ........................................................
+# Add new engines here. May also have to change the test case
+# selection in `assess-single-chart` if the name of the test case in
+# the brain tests deviates from the name of the database engine. We
+# assume a name of the form `<nnn>_minibroker_<engine>_test`.
+engines=(
+    mariadb
+    mongodb
+    postgresql
+    redis
+)
 
-engines=""
-engines="${engines} mariadb"
-engines="${engines} mongodb"
-engines="${engines} postgresql"
-engines="${engines} redis"
-# Add new engines here, and at (x).
-
-bin="${TOP}/tooling/mb-chart-assessment"
-wrk="${TOP}/_work"
+bin="${GIT_ROOT}/tooling/mb-chart-assessment"
+workdir="${GIT_ROOT}/_work/mb-chart-assessment"
 stem=kube-chart-index
-rstem=dbe
-master="${wrk}/${rstem}-charts-master-index.yaml"
+master="${workdir}/charts-master-index.yaml"
 
 stable=https://kubernetes-charts.storage.googleapis.com
 index="${stable}/index.yaml"
@@ -78,9 +86,9 @@ nodeenv=src/scf-release/src/acceptance-tests-brain/test-resources/node-env
 
 if [ $INCREMENTAL -eq 0 ] ; then
     echo $(cyan Cleared) previous run, starting from empty
-    mkdir -p "${wrk}"
-    # Clear leftovers from previous runs
-    rm -rf ${wrk}/${rstem}-*
+    # Clear leftover state from previous runs
+    rm -rf   "${workdir}"
+    mkdir -p "${workdir}"
 else
     echo $(cyan Incremental) run, keeping data, will skip processed charts
 fi
@@ -88,25 +96,27 @@ fi
 # 1. Get master index .....................................................
 
 echo $(cyan Retrieving) master index ...
-curl --silent "${index}" > "${master}"
+curl --silent -o "${master}" "${index}"
 
 # 2. Extract the full data for all the supported engines ..................
 
-for engine in $engines
+for engine in "${engines[@]}"
 do
     echo -n $(cyan Extracting) engine $(blue "${engine}") ...
     # Originally attempted to use a pipeline using `y2j | jq ...`.
     # y2j failed on the incoming yaml, claiming a number of things as
     # not serializable to json.
     ruby "${bin}/get-charts-for-engine.rb" "${engine}" "${master}" \
-	 > "${wrk}/${rstem}-${engine}.yaml"
+	 > "${workdir}/${engine}.yaml"
 
     # 2.a
     echo -n "$(left 4)$(eeol), listing ..."
-    ruby "${bin}/get-chart-listing.rb" "${wrk}/${rstem}-${engine}.yaml" \
-	 > "${wrk}/${rstem}-${engine}-charts.csv"
-    # CSV using space as field separator (-> processable by shell, see below)
-    echo -n "$(left 13)$(eeol): $(cyan "$(cat "${wrk}/${rstem}-${engine}-charts.csv" | wc -l)")"
+    ruby "${bin}/get-chart-listing.rb" "${workdir}/${engine}.yaml" \
+	 > "${workdir}/${engine}-charts.csv"
+    # CSV using space as field separator -> trivially processable by
+    # shell, see below. This works because the engine names and
+    # version numbers do not have spaces in them.
+    echo -n "$(left 13)$(eeol): $(cyan "$(cat "${workdir}/${engine}-charts.csv" | wc -l)")"
     echo " $(green OK)"
 done
 
@@ -116,20 +126,20 @@ done
 # 3. Iterate over engines & charts, capture pass/fail for test ............
 
 if [ $INCREMENTAL -eq 0 ] ; then
-    rm -f "${wrk}/dbe-chart-results.csv"
+    rm -f "${workdir}/dbe-chart-results.csv"
 fi
 
-echo $(cyan Testing) ... Charts: $(cyan "$(cat  ${wrk}/${rstem}-*-charts.csv  | wc -l)")
+echo $(cyan Testing) ... Charts: $(cyan "$(cat "${workdir}/"*-charts.csv | wc -l)")
 
 skipped=0
-for engine in $engines
+for engine in "${engines[@]}"
 do
     while read enginev chartv chartlocation
     do
 	if [ $INCREMENTAL -gt 0 ] ; then
 	    # In incremental mode, skip all processed charts.
 
-	    if grep -q "${engine} ${enginev} ${chartv}" "${wrk}/${rstem}-chart-results.csv" ; then
+	    if grep -q "${engine} ${enginev} ${chartv}" "${workdir}/chart-results.csv" ; then
 		echo -en "\r$(eeol)Skipping ${engine}" "${enginev}" "${chartv}"
 		skipped=$(( $skipped + 1 ))
 		continue
@@ -137,19 +147,21 @@ do
 	fi
 	echo -en "\r$(eeol)"
 
-	mkdir -p "${wrk}/${rstem}-${engine}"
+	mkdir -p "${workdir}/${engine}"
 
 	# 2.b Generate a helm repo index for the specific engine and chart.
-	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" "${wrk}/${rstem}-${engine}.yaml" \
-	     > "${wrk}/${rstem}-${engine}/${enginev}-${chartv}.yaml" 2>&1
+	ruby "${bin}/make-chart-index.rb" "${engine}" "${enginev}" "${chartv}" \
+	     "${workdir}/${engine}.yaml" \
+	     > "${workdir}/${engine}/${enginev}-${chartv}.yaml" 2>&1
 
 	"${bin}/assess-single-chart" \
-	    "${CF_NAMESPACE}" "${engine}" "${enginev}" "${chartv}" "${chartlocation}" "${CAP}" \
+	    "${workdir}" "${CF_NAMESPACE}" "${engine}" "${enginev}" "${chartv}" \
+	    "${chartlocation}" "${CLUSTER_ADMIN_PASSWORD}" \
 	    || true
 	# Failures are ignored in favor of checking more charts.
 	# The logs can be looked at later.
 	
-    done < "${wrk}/${rstem}-${engine}-charts.csv"
+    done < "${workdir}/${engine}-charts.csv"
 done
 if [ $skipped -gt 0 ] ; then
     echo -e "\r$(eeol)$(cyan Skipped): $skipped"

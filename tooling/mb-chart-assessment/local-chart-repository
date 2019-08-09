@@ -40,14 +40,14 @@ case $1 in
     ;;
 esac
 
-LOG="${1}"		; shift
-top="${1}"		; shift
-wrk="${1}"		; shift
-CF_NAMESPACE="${1}"	; shift
-index="${1}"		; shift
-db="${1}"		; shift
-chart="${1}"		; shift
-CAP="${1}"		; shift
+LOG="${1}"			; shift
+top="${1}"			; shift
+workdir="${1}"			; shift
+CF_NAMESPACE="${1}"		; shift
+index="${1}"			; shift
+db="${1}"			; shift
+chart="${1}"			; shift
+CLUSTER_ADMIN_PASSWORD="${1}"	; shift
 
 # Configuration ........................................................
 
@@ -71,7 +71,7 @@ index-as-is() {
     # 3.c
     echo '  - Index As Is ...'
 
-    cat "${index}" | fixtime > "${wrk}/dbe-charts/index.yaml"
+    cat "${index}" | fixtime > "${workdir}/charts/index.yaml"
 }
 
 index-patched() {
@@ -85,33 +85,33 @@ index-patched() {
     echo 
 
     # 3.d.1 - Get chart archive to edit
-    curl --silent "${chart}" > "${wrk}/dbe-archive-orig.tgz"
+    curl --silent "${chart}" > "${workdir}/archive-orig.tgz"
 
     # 3.d.2 - Unpack, Modify, Repack
-    rm -rf   "${wrk}/dbe-tmp"
-    mkdir -p "${wrk}/dbe-tmp"
+    rm -rf   "${workdir}/tmp"
+    mkdir -p "${workdir}/tmp"
     (
-	cd "${wrk}/dbe-tmp"
-	tar xfz ../dbe-archive-orig.tgz
+	cd "${workdir}/tmp"
+	tar xfz ../archive-orig.tgz
 	(
 	    cd "${db}/templates"
 	    patch < "${patch}" > "${patchlog}" || grep Reversed "${patchlog}"
 	    # Note: We are keeping the patch log in case of having to debug failures.
 	    rm -f *.rej
 	)
-	tar cfz "${wrk}/dbe-archive-relocated.tgz" "${db}"
+	tar cfz "${workdir}/archive-relocated.tgz" "${db}"
     )
-    rm -rf "${wrk}/dbe-tmp"
+    rm -rf "${workdir}/tmp"
     
     # 3.d.3 - Place edited chart archive into the repository, ...
-    cp "${wrk}/dbe-archive-relocated.tgz" "${wrk}/dbe-charts/chart.tgz"
+    cp "${workdir}/archive-relocated.tgz" "${workdir}/charts/chart.tgz"
 
     # 3.d.4 - ... and update the index to refer to the new location
     echo '  - Index Patched ...'
     
     ruby "${bin}/change-chart-location.rb" \
 	 "${index}" "${db}" "${HREPOS}/chart.tgz" \
-	| fixtime > "${wrk}/dbe-charts/index.yaml"
+	| fixtime > "${workdir}/charts/index.yaml"
 }
 
 # ______________________________________________________________________
@@ -121,14 +121,14 @@ index-patched() {
     # server for static files. The placed file(s) make it a HELM
     # repository server.
     
-    rm -rf          "${wrk}/dbe-charts"
-    cp -rf $nodeenv "${wrk}/dbe-charts"
+    rm -rf          "${workdir}/charts"
+    cp -rf $nodeenv "${workdir}/charts"
 
     # Change name, better link to current operation.
     sed -e "s|node-env|$APP|" \
-	< "${wrk}/dbe-charts/manifest.yml" \
+	< "${workdir}/charts/manifest.yml" \
 	> $$ && \
-	mv $$ "${wrk}/dbe-charts/manifest.yml"
+	mv $$ "${workdir}/charts/manifest.yml"
 
     # Determine if we can use the index we have as is, or if we have
     # to edit both index and referenced chart.
@@ -144,14 +144,14 @@ index-patched() {
 
     # 3.e - Start application / repository.
     cf api --skip-ssl-validation "${TARGET}"
-    cf auth admin "${CAP}"
+    cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
     cf create-org   mb-charting
     cf target    -o mb-charting
     cf create-space mb-charting
     cf target    -o mb-charting
     cf enable-feature-flag diego_docker
 
-    cd  "${wrk}/dbe-charts"
+    cd  "${workdir}/charts"
     cf push -n "${APP}"
 ) >> "${LOG}" 2>&1
 

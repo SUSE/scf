@@ -123,6 +123,7 @@ class MiniBrokerTest
                 --set image=minibroker:latest
                 --set imagePullPolicy=Always
             ))
+            run "helm list -a"
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
             run "cf create-service-broker #{broker_name} user pass #{broker_url}"

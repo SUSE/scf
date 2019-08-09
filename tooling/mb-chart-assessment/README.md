@@ -2,7 +2,7 @@
 
 The main purpose of the tooling in this directory is to assess which
 of the publicly available charts for the databases supported by
-minibroker will work with CAP.
+minibroker will work with SCF.
 
 ## How to use the tooling
 
@@ -13,9 +13,14 @@ the main tooling `bin/` directory.
 
 The script and its helpers require:
 
-- A working `kubectl` command in the `PATH`, with its config pointing to
-- A working CAP cluster
-- A working `cf` client command in the `PATH`. The tooling will target it to the CAP cluster.
+  - A working `kubectl` command in the `PATH`, with its config
+    pointing to
+  - A working SCF+UAA cluster
+  - A working `cf` client command in the `PATH`. The tooling will
+    target it to the CAP cluster.
+  - A working `patch` command in the `PATH`. For a vagrant box this
+    means that is is necessary to run `sudo zypper install patch`
+    before attempting an assessment.
 
 Run the the script using
 
@@ -46,8 +51,7 @@ This also enables effective use from within a CI system, checking for
 and processing only new charts as they are added to the stable.
 
 All files and directories used by the script will be placed into the
-sub directory `_work/` of the current working directory, and all with
-have the prefix `dbe-` in their names.
+sub directory `_work/mb-chart-assessment` of the git repository root.
 
 During operation the script will print progress information to its
 standard output.
@@ -78,23 +82,34 @@ Both are shell scripts.
 The second entrypoint is self-contained.
 The first uses the shell and ruby scripts in this directory to perform its purpose.
 
-  - `get-charts-for-engine.rb`: Using the master index of charts as input it pulls
-    out the information for the supported databases
-  - `get-chart-listing.rb`: Goes over the per-engine yaml and makes a list of the
-    charts (versions, archive location).
-  - `make-chart-index.rb`: Creates a helm repository index for each chart of each
-    engine, referencing just that chart.
-  - `assess-single-chart`: Runs the assessment process for a single chart of an
-    engine.
-  - `local-chart-repository`: Used by the assessment process to start and stop a
-    helm repository referencing a single chart of an engine.
+  - `get-charts-for-engine.rb`: Using the master index of charts as
+    input it pulls out the information for the supported databases
 
-Beyond the above we have a number of engine-dependent patch files in the
+  - `get-chart-listing.rb`: Goes over the per-engine yaml and makes a
+    list of the charts (versions, archive location).
+
+  - `make-chart-index.rb`: Creates a helm repository index for each
+    chart of each engine, referencing just that chart.
+
+  - `assess-single-chart`: Runs the assessment process for a single
+    chart of an engine.
+
+  - `local-chart-repository`: Used by the assessment process to start
+    and stop a helm repository referencing a single chart of an
+    engine.
+
+    We need to use a helm repository, instead of just an expanded
+    local file, because we're re-using the brains tests here, which
+    take a helm repo override and we have no way of making it use a
+    file instead.
+
+Beyond the above we have a number of engine-dependent patch files in
+the
 
   - `patches/`
 
-directory which fix issues in the charts when used with
-minibroker. Without these patches no chart will work.
+directory which fix issues in the charts when used with minibroker.
+Without these patches no chart will work.
 
 The script `local-chart-repository` determines the patch to use and
 applies it as part of setting up a helm repository for a chart.

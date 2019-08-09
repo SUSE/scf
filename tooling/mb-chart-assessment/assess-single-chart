@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset
 
-CF_NAMESPACE="${1}"	; shift
-engine="${1}"		; shift
-enginev="${1}"		; shift
-chartv="${1}"		; shift
-chartlocation="${1}"	; shift
-CAP="${1}"		; shift
+workdir="${1}"			; shift
+CF_NAMESPACE="${1}"		; shift
+engine="${1}"			; shift
+enginev="${1}"			; shift
+chartv="${1}"			; shift
+chartlocation="${1}"		; shift
+CLUSTER_ADMIN_PASSWORD="${1}"	; shift
 
 # General operation - Testing a single chart for a specific engine.
 # a. Make a copy of the node-env application in the brain test resources.
@@ -30,53 +31,35 @@ cd "${GIT_ROOT}"
 
 # Configuration ........................................................
 
-TOP=$(pwd)
-bin="${TOP}/tooling/mb-chart-assessment"
-wrk="${TOP}/_work"
+bin="${GIT_ROOT}/tooling/mb-chart-assessment"
 stem=kube-chart-index
-rstem=dbe
-master="${wrk}/${rstem}-charts-master-index.yaml"
+master="${workdir}/charts-master-index.yaml"
 
 stable=https://kubernetes-charts.storage.googleapis.com
 index="${stable}/index.yaml"
 
 # Setup ................................................................
 
-source "${TOP}/make/include/colors"
+source "${GIT_ROOT}/make/include/colors"
 
-LOG="${wrk}/${rstem}-${engine}/${enginev}-${chartv}.log"
+LOG="${workdir}/${engine}/${enginev}-${chartv}.log"
 
 sep() {
     >> "${LOG}" echo -e "\n....................................... $1\n"
 }
 
 rm -f "${LOG}"
+touch "${LOG}"
 
 echo -n '  -' $(blue "${engine}") $(blue "${enginev}"), chart $(blue "${chartv}") ...
 
+# When engines are added we may have to adapt this to any other
+# special cases, i.e. divergences between engine name and test case
+# name.
 case $engine in
-    mariadb)	testcase=014_minibroker_mariadb_test	;;
-    mongodb)	testcase=016_minibroker_mongodb_test	;;
-    postgresql)	testcase=015_minibroker_postgres_test	;;
-    redis)	testcase=012_minibroker_redis_test	;;
-    *)		echo " $(magenta Skipping), $(red "no testcase known")"
-		exit
-		;;
+    postgresql) testcase="_minibroker_postgres"	 ;;
+    *)          testcase="_minibroker_${engine}" ;; 
 esac
-
-# ______________________________________________________________________
-# 3.a, 3.b, 3.c
-#
-# sep 'cluster starting ...'
-# echo -n ' cluster setup ...'
-# (
-#     make/uaa/run;
-#     make/wait uaa;
-#     make/run --set "env.SCF_LOG_HOST=log-fake.cf.svc.cluster.local" "$@";
-#     make/wait cf;
-
-# ) >> "${LOG}" 2>&1
-# echo -n "$(left 12)$(eeol)$(green up),"
 
 # ______________________________________________________________________
 # 3.d, 3.e
@@ -84,14 +67,14 @@ esac
 sep 'helm repo setup ...'
 echo -n ' helm repo starting ...'
 HREPOS="$("${bin}/local-chart-repository" start \
-		"${LOG}" "${TOP}" "${wrk}" "${CF_NAMESPACE}" \
-		"${wrk}/${rstem}-${engine}/${enginev}-${chartv}.yaml" \
-		"${engine}" "${chartlocation}" "${CAP}" || true)"
+		"${LOG}" "${GIT_ROOT}" "${workdir}" "${CF_NAMESPACE}" \
+		"${workdir}/${engine}/${enginev}-${chartv}.yaml" \
+		"${engine}" "${chartlocation}" "${CLUSTER_ADMIN_PASSWORD}" || true)"
 
 if [ "${HREPOS}" == "" ]
 then
     echo "$(left 12)$(eeol)$(red "start failed"), likely a patch failure"
-    echo FAIL "${engine}" "${enginev}" "${chartv}" >> "${wrk}/${rstem}-chart-results.csv"
+    echo FAIL "${engine}" "${enginev}" "${chartv}" >> "${workdir}/chart-results.csv"
     exit 1
 fi
 
@@ -110,10 +93,10 @@ if make/tests acceptance-tests-brain \
 	      >> "${LOG}" 2>&1
 then
     echo -n "$(left 3)$(eeol)$(green OK)"
-    echo _OK_ "${engine}" "${enginev}" "${chartv}" >> "${wrk}/${rstem}-chart-results.csv"
+    echo _OK_ "${engine}" "${enginev}" "${chartv}" >> "${workdir}/chart-results.csv"
 else
     echo -n "$(left 3)$(eeol)$(red FAIL)"
-    echo FAIL "${engine}" "${enginev}" "${chartv}" >> "${wrk}/${rstem}-chart-results.csv"
+    echo FAIL "${engine}" "${enginev}" "${chartv}" >> "${workdir}/chart-results.csv"
 fi
 
 # ______________________________________________________________________
@@ -128,8 +111,8 @@ sep 'post assessment service & broker state ...'
 
     if cf service-brokers | grep minibroker
     then
-	cf purge-service-offering -f "${engine}"
-	cf delete-service-broker -f "$(cf service-brokers | grep minibroker | awk '{print $1}')"
+	cf purge-service-offering -f "${engine}" || true
+	cf delete-service-broker -f "$(cf service-brokers | grep minibroker | awk '{print $1}')" || true
     fi
 ) >> "${LOG}" 2>&1
 
@@ -142,19 +125,4 @@ echo -n ' helm repo stopping ...'
 ) >> "${LOG}" 2>&1
 echo -n "$(left 12)$(eeol)$(blue down),"
 
-# ______________________________________________________________________
-# 3.h
-#
-# sep 'cluster teardown ...'
-# echo -n ' cluster stopping ...'
-# (
-#     helm delete --purge uaa;
-#     helm delete --purge cf;
-#     k delete namespace uaa & k delete namespace cf
-#     make/wait-stop cf;
-#     make/wait-stop uaa;
-# ) >> "${LOG}" 2>&1
-# echo -n "$(left 12)$(eeol)$(blue down),"
-
 echo ' done'
-sleep 10
