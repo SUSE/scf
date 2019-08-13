@@ -2514,10 +2514,10 @@ configuration:
       - apiGroups: [""]
         resources: [nodes]
         verbs: [get, list, watch]
-      mutating-webhook-role:
-      - apiGroups: ["admissionregistration.k8s.io"]
-        resources: [mutatingwebhookconfigurations]
-        verbs: ['*']
+      eirini-role:
+      - apiGroups: ["*"]
+        resources: ["*"]
+        verbs: ["*"]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
@@ -2571,8 +2571,8 @@ configuration:
         roles: [configgin-role, psp-role]
         cluster-roles: [node-reader-role]
       eirini:
-        roles: [configgin-role, secrets-role, psp-role]
-        cluster-roles: [mutating-webhook-role]
+        roles: [configgin-role]
+        cluster-roles: [eirini-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
