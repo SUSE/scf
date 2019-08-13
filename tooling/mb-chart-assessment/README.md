@@ -6,7 +6,7 @@ minibroker will work with SCF.
 
 ## How to use the tooling
 
-The main entry point / script is `../bin/assess-minibroker-charts`.
+The main entry point / script is `../bin/assess-minibroker-charts.rb`.
 
 Note how this script is not in this subdirectory of `tooling/`, but in
 the main tooling `bin/` directory.
@@ -25,24 +25,26 @@ The script and its helpers require:
 Run the the script using
 
 ```
-    /path/to/assess-minibroker-charts
+    /path/to/assess-minibroker-charts.rb --help
 ```
 
-This runs the script with CF namespace `cf`, cluster password
-`changeme`, and non-incremental. IOW all found charts are tested. Such
-a run takes about 2 days at the moment.
+to get help about its options. Without `--help` the script runs with
+the default configuration, i.e.
 
-Use
+|Setting	|Value			|Option			|
+|---		|---			|---			|
+|CF namespace	|`cf`			|-n, --namespace	|
+|Admin password	|(Vagrant standard)	|-p, --password		|
+|Mode		|Full run		|-i, --incremental	|
+|Work directory	|(Git root)/`_work/mb-chart-assessment`	|-w, --work-dir		|
 
-```
-    /path/to/assess-minibroker-charts -h
-```
+The mode of `full run` means that all found charts are tested,
+regardless of any previous results. Such a run takes about 2 days at
+the moment.
 
-to see the options for changing namespace, password and execution mode.
-
-Using option `-i` activates `incremental` mode where the script
-ignores all charts for which it has results, indicating that they have
-been processed already.
+An incremental run should be much faster. It is activated with option
+`-i`. In this mode the script ignores all charts for which it has
+results, indicating that they have been processed already.
 
 This enables easy resumption of operation if the script was aborted,
 be it a bug, or the user.
@@ -50,8 +52,8 @@ be it a bug, or the user.
 This also enables effective use from within a CI system, checking for
 and processing only new charts as they are added to the stable.
 
-All files and directories used by the script will be placed into the
-sub directory `_work/mb-chart-assessment` of the git repository root.
+All transient files and directories used by the script will be placed
+into the work directory. The same is true for results.
 
 During operation the script will print progress information to its
 standard output.
@@ -61,47 +63,11 @@ although the average looks to be about 4 to 5 minutes. With about 140
 charts to test per engine on average, and four engines we are looking
 at just shy of two days for a full assessment all engines.
 
-After the assessments is done run the script `../bin/assessment-to-yaml`.
-
-This secondary entrypoint will convert the base results into
-yaml-structured data listing the engines and working charts.
-
-This yaml data is printed to the standard output, to be directed into
-a file at the user's discretion and needs.
-
-Result statistics will be printed to the standard error.
-
 ## Tool internals, for the maintainer.
 
-The two entrypoints are are
+The entrypoint is
 
-  - ../bin/assess-minibroker-charts
-  - ../bin/assessment-to-yaml
-
-Both are shell scripts.
-The second entrypoint is self-contained.
-The first uses the shell and ruby scripts in this directory to perform its purpose.
-
-  - `get-charts-for-engine.rb`: Using the master index of charts as
-    input it pulls out the information for the supported databases
-
-  - `get-chart-listing.rb`: Goes over the per-engine yaml and makes a
-    list of the charts (versions, archive location).
-
-  - `make-chart-index.rb`: Creates a helm repository index for each
-    chart of each engine, referencing just that chart.
-
-  - `assess-single-chart`: Runs the assessment process for a single
-    chart of an engine.
-
-  - `local-chart-repository`: Used by the assessment process to start
-    and stop a helm repository referencing a single chart of an
-    engine.
-
-    We need to use a helm repository, instead of just an expanded
-    local file, because we're re-using the brains tests here, which
-    take a helm repo override and we have no way of making it use a
-    file instead.
+  - ../bin/assess-minibroker-charts.rb
 
 Beyond the above we have a number of engine-dependent patch files in
 the
@@ -110,6 +76,3 @@ the
 
 directory which fix issues in the charts when used with minibroker.
 Without these patches no chart will work.
-
-The script `local-chart-repository` determines the patch to use and
-applies it as part of setting up a helm repository for a chart.
