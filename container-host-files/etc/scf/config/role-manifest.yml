@@ -544,8 +544,6 @@ instance_groups:
                       values:
                       - mysql
                   topologyKey: "beta.kubernetes.io/os"
-  - name: route_registrar
-    release: routing
   - name: bpm
     release: bpm
     properties:
@@ -561,22 +559,6 @@ instance_groups:
       properties.api_port: 8083
       properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
       properties.api_username: mysql_proxy
-      properties.route_registrar.routes: >
-        [
-          {
-            "name":"cf-mysql-proxy",
-            "port":8083,
-            "prepend_instance_index":true,
-            "registration_interval":"10s",
-            "uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]
-          },
-          {
-           "name":"cf-mysql-proxy-aggregator",
-           "port":8082,
-           "registration_interval":"10s",
-           "uris":["mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"]
-          }
-        ]
 - name: cf-usb-group
   default_feature: cf_usb
   environment_scripts:
