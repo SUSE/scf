@@ -462,6 +462,23 @@ pipeline {
             }
         }
 
+        stage('Version Bump for Develpoment Builds') {
+            when {
+                expression { return !(getBuildType() in [BuildType.Master, BuildType.ReleaseCandidate]) }
+            }
+            steps {
+                script {
+                    def version = sh(returnStdout: true, script: '''
+                        set -o errexit -o nounset
+                        set +o xtrace
+                        source ${PWD}/.envrc
+                        make/show-versions | awk '/^Tag\\s*=/ { print $NF }'
+                    ''').trim()
+                    env.GIT_TAG = "${version}.1"
+                }
+            }
+        }
+
         stage('Tag Release Candidate') {
             when {
                 expression { return getBuildType() == BuildType.ReleaseCandidate }
@@ -487,7 +504,6 @@ pipeline {
                     new_tag="${version}-rc$((max_rc + 1))"
                     git tag "${new_tag}" HEAD
                 '''
-                // TODO: git push here
             }
         }
 
