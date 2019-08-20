@@ -982,6 +982,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 if (getBuildType() in [BuildType.Master, BuildType.Develop]) {
                     writeFile(file: 'build.log', text: getBuildLog())
                     sh "bin/clean-jenkins-log"
+                    sh "container-host-files/opt/scf/bin/klog.sh -f ${uaaNamespace}"
                     sh "container-host-files/opt/scf/bin/klog.sh -f ${cfNamespace}"
                     withAWS(region: params.S3_REGION) {
                         withCredentials([usernamePassword(
