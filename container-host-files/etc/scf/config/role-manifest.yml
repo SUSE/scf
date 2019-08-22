@@ -48,17 +48,17 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.2
   sha1: 634dd3e134d0dac00f3f86beb00c06653579af4b
 - name: mapfs
-  version: "1.1.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
-  sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
+  version: "1.1.5"
+  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.5"
+  sha1: "44c6dc3b8eeb7c5769e44b78484c32ee68cc97fc"
 - name: nats
   version: '27'
   url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=27
   sha1: 9817e8e460b8619a99a0a0fbec8220dc12b2a6f5
 - name: nfs-volume
-  version: "2.0.5"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=2.0.5"
-  sha1: "d5fccd5585842e241e889aea509671943f5ec430"
+  version: "2.1.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=2.1.0"
+  sha1: "f43bd1128d477132473b8fffc3c975c7393b6728"
 - name: pxc
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.18.0
   version: 0.18.0
