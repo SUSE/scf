@@ -1755,7 +1755,7 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
-  - name: nfsbroker
+  - name: nfsbroker-bbr
     release: nfs-volume
     properties:
       bosh_containerization:
