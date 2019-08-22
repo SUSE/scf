@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+
+# This script recovers from autoscaler-metrics failing to start because it could
+# not continue schema migrations.  The error looks something like:
+
+# Starting Liquibase at Wed, 21 Aug 2019 22:38:00 UTC (version 3.6.3 built at 2019-01-29 11:34:48)
+# Unexpected error running Liquibase: Could not acquire change log lock.  Currently locked by autoscaler-metrics-0.autoscaler-metrics-set.cf.svc.cluster.local (172.16.0.173) since 8/21/19, 9:20 PM
+# liquibase.exception.LockException: Could not acquire change log lock.  Currently locked by autoscaler-metrics-0.autoscaler-metrics-set.cf.svc.cluster.local (172.16.0.173) since 8/21/19, 9:20 PM
+#         at liquibase.lockservice.StandardLockService.waitForLock(StandardLockService.java:230)
+#         at liquibase.Liquibase.update(Liquibase.java:184)
+#         at liquibase.Liquibase.update(Liquibase.java:179)
+#         at liquibase.integration.commandline.Main.doMigration(Main.java:1220)
+#         at liquibase.integration.commandline.Main.run(Main.java:199)
+#         at liquibase.integration.commandline.Main.main(Main.java:137)
+
+require 'json'
+require 'open3'
+
+EXPECTED_ERROR='Could not acquire change log lock.  Currently locked by'
+
+def capture(*args)
+    stdout, status = Open3.capture2(*args)
+    return stdout if status.success?
+    cmd = args.dup
+    cmd.shift while Hash.try_convert(cmd.first)
+    cmd.pop while Hash.try_convert(cmd.last)
+    fail %Q<"#{cmd.join(' ')}" failed with exit status #{status.exitstatus}>
+end
+
+def namespace
+    $namespace ||= JSON.parse(capture('helm list --output json'))['Releases']
+        .select { |r| r['Status'].downcase == 'deployed' }
+        .select { |r| r['Chart'].start_with? 'cf-' }
+        .first['Namespace']
+end
+
+def run(*args)
+    Process.wait Process.spawn(*args)
+    return if $?.success?
+    cmd = args.dup
+    cmd.shift while Hash.try_convert(cmd.first)
+    cmd.pop while Hash.try_convert(cmd.last)
+    fail %Q<"#{cmd.join(' ')}" failed with exit status #{$?.exitstatus}>
+end
+
+postgres_pod = JSON.load(capture('kubectl', 'get', 'pods',
+    '--namespace', namespace,
+    '--selector', 'skiff-role-name==autoscaler-postgres',
+    '--output', 'json'))['items']
+    .find { |pod|
+        pod['status']['conditions']
+            .find {|status| status['type'] == 'Ready'}['status'] == 'True'
+    }['metadata']['name']
+
+psql_binary = capture('kubectl', 'exec', postgres_pod,
+    '--namespace', namespace,
+    '--', 'sh', '-c', 'echo /var/vcap/packages/postgres-*/bin/psql').split.first
+
+run 'kubectl', 'exec', postgres_pod,
+    '--namespace', namespace,
+    '--',
+    psql_binary,
+    '--username', 'postgres',
+    '--dbname', 'autoscaler',
+    '--command', 'SELECT * FROM databasechangeloglock'
+
+locked_bys = (1..Float::INFINITY).each do |count|
+    STDOUT.printf "\rWaiting for pod to get stuck (try %s)...", count
+    candidate_locked_bys = capture('kubectl', 'get', 'pods',
+                        '--namespace', namespace,
+                        '--selector', 'skiff-role-name==autoscaler-metrics',
+                        '--output', 'jsonpath={.items[*].metadata.name}')
+        .split
+        .map do |pod_name|
+            capture('kubectl', 'logs', pod_name,
+                    '--namespace', namespace,
+                    '--container', 'autoscaler-metrics')
+        end
+        .select { |message| message.include? EXPECTED_ERROR }
+        .map { |message| /Currently locked by (.*?) since /.match(message)[1]}
+
+    break candidate_locked_bys unless candidate_locked_bys.empty?
+    sleep 1
+end
+puts '' # new line after the wait
+locked_bys.each do |locked_by|
+    puts "Releasing lock for #{locked_by}"
+    run 'kubectl', 'exec', postgres_pod,
+        '--namespace', namespace,
+        '--',
+        psql_binary,
+        '--username', 'postgres',
+        '--dbname', 'autoscaler',
+        '--command', %Q<UPDATE databasechangeloglock SET locked = FALSE WHERE lockedby = '#{locked_by}'>
+end
