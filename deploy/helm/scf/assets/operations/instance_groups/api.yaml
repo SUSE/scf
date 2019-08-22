@@ -38,12 +38,8 @@
 
 # Set the correct names for the cc_logcache_tls certificate.
 - type: replace
-  path: /variables/name=cc_logcache_tls/options/common_name
+  path: /variables/name=cc_logcache_tls/options/alternative_names/-
   value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=cc_logcache_tls/options/alternative_names
-  value:
-  - ((deployment-name))-api
 
 # Set the correct names for the cc_tls certificate.
 - type: replace
