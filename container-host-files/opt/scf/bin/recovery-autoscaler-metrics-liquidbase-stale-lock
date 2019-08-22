@@ -43,19 +43,6 @@ def run(*args)
     fail %Q<"#{cmd.join(' ')}" failed with exit status #{$?.exitstatus}>
 end
 
-locked_bys = capture('kubectl', 'get', 'pods',
-    '--namespace', namespace,
-    '--selector', 'skiff-role-name==autoscaler-metrics',
-    '--output', 'jsonpath={.items[*].metadata.name}')
-    .split
-    .map do |pod_name|
-        capture('kubectl', 'logs', pod_name,
-            '--namespace', namespace,
-            '--container', 'autoscaler-metrics')
-    end
-    .select { |message| message.include? EXPECTED_ERROR }
-    .map { |message| /Currently locked by (.*?) since /.match(message)[1]}
-
 postgres_pod = JSON.load(capture('kubectl', 'get', 'pods',
     '--namespace', namespace,
     '--selector', 'skiff-role-name==autoscaler-postgres',
@@ -77,6 +64,25 @@ run 'kubectl', 'exec', postgres_pod,
     '--dbname', 'autoscaler',
     '--command', 'SELECT * FROM databasechangeloglock'
 
+locked_bys = (1..Float::INFINITY).each do |count|
+    STDOUT.printf "\rWaiting for pod to get stuck (try %s)...", count
+    locked_bys = capture('kubectl', 'get', 'pods',
+                        '--namespace', namespace,
+                        '--selector', 'skiff-role-name==autoscaler-metrics',
+                        '--output', 'jsonpath={.items[*].metadata.name}')
+        .split
+        .map do |pod_name|
+            capture('kubectl', 'logs', pod_name,
+                    '--namespace', namespace,
+                    '--container', 'autoscaler-metrics')
+        end
+        .select { |message| message.include? EXPECTED_ERROR }
+        .map { |message| /Currently locked by (.*?) since /.match(message)[1]}
+
+    break locked_bys unless locked_bys.empty?
+    sleep 1
+end
+puts '' # new line after the wait
 locked_bys.each do |locked_by|
     puts "Releasing lock for #{locked_by}"
     run 'kubectl', 'exec', postgres_pod,
