@@ -66,7 +66,7 @@ run 'kubectl', 'exec', postgres_pod,
 
 locked_bys = (1..Float::INFINITY).each do |count|
     STDOUT.printf "\rWaiting for pod to get stuck (try %s)...", count
-    locked_bys = capture('kubectl', 'get', 'pods',
+    candidate_locked_bys = capture('kubectl', 'get', 'pods',
                         '--namespace', namespace,
                         '--selector', 'skiff-role-name==autoscaler-metrics',
                         '--output', 'jsonpath={.items[*].metadata.name}')
@@ -79,7 +79,7 @@ locked_bys = (1..Float::INFINITY).each do |count|
         .select { |message| message.include? EXPECTED_ERROR }
         .map { |message| /Currently locked by (.*?) since /.match(message)[1]}
 
-    break locked_bys unless locked_bys.empty?
+    break candidate_locked_bys unless candidate_locked_bys.empty?
     sleep 1
 end
 puts '' # new line after the wait
