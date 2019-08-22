@@ -288,7 +288,7 @@ pipeline {
         )
         string(
             name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '12SP4-0.gcdd8986-0.225',
+            defaultValue: '12SP4-2.gfc2305c-0.228',
             description: 'Fissile stemcell version used as docker image tag',
         )
         booleanParam(
