@@ -25,34 +25,6 @@
   - name: binary_buildpack
     file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.31.zip
 
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
-  value:
-  - name: binary_buildpack
-    package: binary-buildpack-cflinuxfs3
-
-# TODO: Remove these `remove` once all buildpack images are built.
-- type: remove
-  path: /instance_groups/name=api/jobs/name=dotnet-core-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=go-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=java-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=nodejs-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=nginx-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=r-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=php-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=python-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=ruby-buildpack
-- type: remove
-  path: /instance_groups/name=api/jobs/name=staticfile-buildpack
-
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
