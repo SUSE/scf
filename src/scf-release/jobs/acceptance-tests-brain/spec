@@ -11,8 +11,7 @@ packages:
   - acceptance-tests
   - docker-distribution
   - credhub-cli
-  - mariadb-client
-  - postgres-client
+  - sql-readiness
 
 templates:
   run.erb: bin/run

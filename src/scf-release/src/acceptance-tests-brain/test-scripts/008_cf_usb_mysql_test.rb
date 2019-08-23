@@ -55,7 +55,9 @@ class CFUSBMySQLTest < CFUSBTestBase
 
     def wait_on_database(port, user, password)
         run_with_retry 60, 5 do
-            run "mysql -u#{user} -p#{password} -P #{port} -h #{tcp_domain} > /dev/null"
+            run '/var/vcap/packages/sql-readiness/bin/sql-readiness',
+                'mysql',
+                "#{user}:#{password}@tcp(#{tcp_domain}:#{port})/mysql"
         end
     end
 

@@ -54,14 +54,18 @@ class CFUSBPostgresTest < CFUSBTestBase
 
     def wait_on_database
         run_with_retry 60, 5 do
-            run({
-                'PGHOST'       => tcp_domain,
-                'PGPORT'       => "#{service_port}",
-                'PGUSER'       => postgres_user,
-                'PGPASSWORD'   => postgres_pass,
-                'PGREQUIRESSL' => 'false',
-                'PGDATABASE'   => postgres_user,
-            }, 'psql --command "SELECT 1;"')
+            conn_string = {
+                host: tcp_domain,
+                port: service_port,
+                dbname: postgres_user,
+                user: postgres_user,
+                password: postgres_pass,
+                sslmode: 'disable',
+            }
+
+            run '/var/vcap/packages/sql-readiness/bin/sql-readiness',
+                'postgres',
+                conn_string.map { |k, v| "#{k.to_s}=#{v.to_s}" }.join(' ')
         end
     end
 

@@ -10,6 +10,10 @@ golang/go1.10.linux-amd64.tar.gz:
   size: 119905205
   object_id: go1.10.linux-amd64.tar.gz
   sha: 693e2dfd99ef2d608b41c450efd9d277bf2a7f2f
+golang/go1.12.9.src.tar.gz:
+  size: 21979950
+  object_id: go1.12.9.src.tar.gz
+  sha: sha256:ab0e56ed9c4732a653ed22e232652709afbf573e710f56a07f7fdeca578d62fc
 log-cache/log-cache-cf-plugin-linux:
   size: 13161855
   object_id: log-cache/log-cache-cf-plugin-linux-v2.1.0

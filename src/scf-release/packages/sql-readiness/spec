@@ -1,0 +1,7 @@
+---
+name: sql-readiness
+dependencies:
+- golang1.12
+- git
+files:
+- acceptance-tests-brain/sql-readiness/**/*
