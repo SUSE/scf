@@ -445,8 +445,8 @@ pipeline {
                     echo "All files changed since last build: ${all_files}"
 
                     if (getBuildType() == BuildType.ReleaseCandidate) {
-                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
-                        if (!changelogFiles.containsAll(all_files)) {
+                        HashSet<String> allowedFiles = ["CHANGELOG.md", "bin/common/versions.sh"]
+                        if (!allowedFiles.containsAll(all_files)) {
                             currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
                             echo "RESULT: ${currentBuild.rawBuild.result}"
                             throw new hudson.AbortException('Exiting pipeline early (non-changelog commit on RC branch)')
