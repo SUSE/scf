@@ -10,7 +10,7 @@ set -o errexit -o nounset
 export BOSH_CLI_VERSION="fcaa9c6caff58ab8da8c56481320681cdea492ee"
 export CFCLI_VERSION="6.42.0"
 export FISSILE_FLAVOR="develop"
-export FISSILE_VERSION="7.0.0+342.g095b130f"
+export FISSILE_VERSION="7.0.0+348.gc8fb3864"
 
 export HELM_VERSION="2.11.0"
 export KK_VERSION="576a42386770423ced46ab4ae9955bee59b0d4dd"
@@ -35,7 +35,7 @@ export GOLANG_VERSION=1.7
 
 # Used in: make/include/versioning
 
-export PRODUCT_VERSION="1.4.1"
+export PRODUCT_VERSION="1.5.0"
 export CF_VERSION="9.5.0"
 
 # Show versions, if called on its own.
