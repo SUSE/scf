@@ -444,6 +444,19 @@ pipeline {
 
                     echo "All files changed since last build: ${all_files}"
 
+                    // For user-caused builds, always allow
+                    if (!all_files.isEmpty()) {
+                        for (cause in currentBuild.getBuildCauses()) {
+                            if (cause?.userId) {
+                                // Clear the set so that we always build
+                                all_files = new HashSet<String>()
+                            }
+                        }
+                        if (all_files.isEmpty()) {
+                            echo "Manually triggered build, ignoring changed files"
+                        }
+                    }
+
                     if (getBuildType() == BuildType.ReleaseCandidate) {
                         HashSet<String> changelogFiles = ["CHANGELOG.md"]
                         if (!changelogFiles.containsAll(all_files)) {
