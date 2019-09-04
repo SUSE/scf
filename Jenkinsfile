@@ -444,19 +444,17 @@ pipeline {
 
                     echo "All files changed since last build: ${all_files}"
 
-                    if (getBuildType() == BuildType.ReleaseCandidate) {
-                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
-                        if (!changelogFiles.containsAll(all_files)) {
-                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                            echo "RESULT: ${currentBuild.rawBuild.result}"
-                            throw new hudson.AbortException('Exiting pipeline early (non-changelog commit on RC branch)')
-                        }
-                    } else {
-                        if (areIgnoredFiles(all_files)) {
-                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                            echo "RESULT: ${currentBuild.rawBuild.result}"
-                            throw new hudson.AbortException('Exiting pipeline early')
-                        }
+                    switch (getBuildType()) {
+                        case BuildType.ReleaseCandidate:
+                            // RC builds are manually-triggered only
+                            // Allow all builds
+                            break
+                        default:
+                            if (areIgnoredFiles(all_files)) {
+                                currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                                echo "RESULT: ${currentBuild.rawBuild.result}"
+                                throw new hudson.AbortException('Exiting pipeline early')
+                            }
                     }
                 }
             }
