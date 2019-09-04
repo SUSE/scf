@@ -1,25 +1,7 @@
-
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=expvar_forwarder/options?/alternative_names?/-
-#   value: '((deployment_name))-'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=loggregator_tls_agent/options?/alternative_names?/-
-#   value: '((deployment_name))'
-
 - type: replace
   path: /variables/name=log_cache_ca/options/common_name?
   value: log-cache-ca
 
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_controller/options?/alternative_names?/-
-#   value: '((deployment_name))-diego-api'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_daemon/options?/alternative_names?/-
-#   value: '((deployment_name))-diego-api'
 # ---------------------------------------
 - type: replace
   path: /variables/name=network_policy_server/options?/alternative_names?/-
@@ -32,6 +14,9 @@
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
   value: '((deployment_name))-singleton-blobstore'
+- type: replace
+  path: /variables/name=blobstore_tls/options?/alternative_names?/-
+  value: '((deployment_name))-singleton-blobstore.{{ .Release.Namespace }}'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
@@ -155,6 +140,14 @@
   value: '((deployment_name))-api'
 # ---------------------------------------
 - type: replace
+  path: /variables/name=cc_tls/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+# ---------------------------------------
+- type: replace
+  path: /variables/name=cc_public_tls/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+# ---------------------------------------
+- type: replace
   path: /variables/name=cc_bridge_tps/options?/alternative_names?/-
   value: '((deployment_name))-scheduler'
 # ---------------------------------------
@@ -168,6 +161,10 @@
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options?/alternative_names?/-
   value: '127.0.0.1'
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_locket_server/options?/alternative_names?/-
@@ -180,18 +177,10 @@
 - type: replace
   path: /variables/name=gorouter_backend_tls/options?/alternative_names?/-
   value: '((deployment_name))-router'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=credhub_tls/options?/alternative_names?/-
-#   value: '((deployment_name))-credhub'
 # ---------------------------------------
 - type: replace
   path: /variables/name=ssh_proxy_backends_tls/options?/alternative_names?/-
   value: '((deployment_name))-scheduler'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=galera_server_certificate/options?/alternative_names?/-
-#   value: '((deployment_name))-database'
 # ---------------------------------------
 - type: replace
   path: /variables/name=mysql_server_certificate/options?/alternative_names?/-
@@ -204,18 +193,6 @@
 - type: replace
   path: /variables/name=loggregator_trafficcontroller_tls/options?/alternative_names?/-
   value: '((deployment_name))-log-api'
-
-
-
-
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_controller/options?/alternative_names?/-
-#   value: '*.((deployment_name))-diego-api'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_daemon/options?/alternative_names?/-
-#   value: '*.((deployment_name))-diego-api'
 # ---------------------------------------
 - type: replace
   path: /variables/name=network_policy_server/options?/alternative_names?/-
@@ -228,6 +205,9 @@
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-singleton-blobstore'
+- type: replace
+  path: /variables/name=blobstore_tls/options?/alternative_names?/-
+  value: '*.((deployment_name))-singleton-blobstore.{{ .Release.Namespace }}'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
@@ -375,18 +355,10 @@
 - type: replace
   path: /variables/name=gorouter_backend_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-router'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=credhub_tls/options?/alternative_names?/-
-#   value: '*.((deployment_name))-credhub'
 # ---------------------------------------
 - type: replace
   path: /variables/name=ssh_proxy_backends_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-scheduler'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=galera_server_certificate/options?/alternative_names?/-
-#   value: '*.((deployment_name))-database'
 # ---------------------------------------
 - type: replace
   path: /variables/name=mysql_server_certificate/options?/alternative_names?/-

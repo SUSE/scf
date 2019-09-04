@@ -13,7 +13,7 @@ http_archive(
 package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "cf_deployment",
-    srcs = ["cf-deployment.yml"],
+    srcs = ["cf-deployment.yml", "operations/bits-service/use-bits-service.yml"],
 )
 """,
     sha256 = project.cf_deployment.sha256,
@@ -23,31 +23,44 @@ filegroup(
 
 helm_binary(
     name = "helm",
-    version = project.helm.version,
     platforms = project.helm.platforms,
+    version = project.helm.version,
 )
 
 kubectl_binary(
     name = "kubectl",
-    version = project.kubernetes.version,
     platforms = project.kubernetes.platforms,
+    version = project.kubernetes.version,
 )
 
 minikube_binary(
     name = "minikube",
-    version = project.minikube.version,
     platforms = project.minikube.platforms,
+    version = project.minikube.version,
 )
 
 kind_binary(
     name = "kind",
-    version = project.kind.version,
     platforms = project.kind.platforms,
+    version = project.kind.version,
 )
 
-skylib_version = "0.8.0"
 http_archive(
     name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format(skylib_version, skylib_version),
-    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+    sha256 = project.skylib.sha256,
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib.{version}.tar.gz".format(version = project.skylib.version),
+)
+
+http_archive(
+    name = "com_github_kubernetes_incubator_metrics_server",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "deploy",
+    srcs = glob(["deploy/1.8+/**/*"]),
+)
+""",
+    sha256 = project.metrics_server.sha256,
+    strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
+    url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
 )

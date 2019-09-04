@@ -1,0 +1,162 @@
+{{- if eq .Values.features.eirini true -}}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: configure-eirini
+    lifecycle: auto-errand
+    release: eirini
+    instances: 1
+    stemcell: default
+    env:
+      bosh:
+        agent:
+          settings:
+            serviceAccountName: ((deployment-name))-eirini
+            disable_log_sidecar: true
+    jobs:
+    - name: configure-eirini-scf
+      release: eirini
+      properties:
+        quarks:
+          bpm:
+            processes:
+            - name: configure-eirini
+              executable: /bin/bash
+              args:
+                - -c
+                - /var/vcap/jobs/configure-eirini-scf/bin/run
+        capi:
+          cc_uploader:
+            mutual_tls:
+              server_cert: "((cc_bridge_cc_uploader_server.certificate))"
+              server_key: "((cc_bridge_cc_uploader_server.private_key))"
+        eirini:
+          run_cert_copier: ~
+          cert_copier_image: ""
+        opi:
+          registry_address: ""
+          kube_namespace: ((deployment-name))-eirini
+          certs_secret_name: eirini-staging-secret
+          cc_cert: ((cc_bridge_tps.certificate))
+          cc_key: ((cc_bridge_tps.private_key))
+          cc_ca: ((service_cf_internal_ca.certificate))
+
+# Add eirini
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: eirini
+    release: eirini
+    instances: 1
+    stemcell: default
+    env:
+      bosh:
+        agent:
+          settings:
+            serviceAccountName: ((deployment-name))-eirini
+    jobs:
+    - name: eirini-loggregator-bridge
+      release: eirini
+      properties:
+        quarks:
+          envs:
+          - name: EIRINI_LOGGREGATOR_BRIDGE_LOGLEVEL
+            value: debug
+        eirini-loggregator-bridge:
+          loggregator_ca: '((loggregator_ca.certificate))'
+          loggregator_cert: '((loggregator_tls_agent.certificate))'
+          loggregator_key: '((loggregator_tls_agent.private_key))'
+          loggregator_endpoint: "((deployment-name))-doppler:8082"
+          namespace: '((deployment-name))-eirini'
+    - name: opi
+      release: eirini
+      properties:
+        opi:
+          kube_namespace: ((deployment-name))-eirini
+          kube_service_host: ""
+          kube_service_port: ""
+          nats_password: ((nats_password))
+          nats_ip: ((deployment-name))-nats
+          certs_secret_name: eirini-staging-secret
+          cc_internal_api: https://((deployment-name))-api.{{ .Release.Namespace }}:9023
+          eirini_address: http://((deployment-name))-eirini.{{ .Release.Namespace }}:8085
+          downloader_image: "eirini/recipe-downloader:0.2.0"
+          uploader_image: "eirini/recipe-uploader:0.2.0"
+          executor_image: "eirini/recipe-executor:0.2.0"
+          # TODO: make this configurable
+          metrics_source_address: ""
+          loggregator_address: localhost:3458
+          loggregator_cert: ((loggregator_tls_agent.certificate))
+          loggregator_key: ((loggregator_tls_agent.private_key))
+          loggregator_ca: ((loggregator_tls_agent.certificate))
+          cc_cert: ((cc_bridge_tps.certificate))
+          cc_key: ((cc_bridge_tps.private_key))
+          cc_ca: ((service_cf_internal_ca.certificate))
+
+# Add eirinifs job to the bits-service to copy the tarball into the bits-service VM
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=eirinifs?
+  value:
+    name: eirinifs
+    release: eirini
+
+- type: replace
+  path: /releases/-
+  value:
+    name: eirini
+    version: 0.0.14
+    url: ((releases-defaults-url))
+    stemcell:
+      alias: default
+      os: opensuse-42.3
+      version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
+
+# Enable OPI in CC
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
+  value: true
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
+  value: http://((deployment-name))-eirini:8085
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/enabled?
+  value: true
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
+  value: http://((deployment-name))-eirini:8085
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/enabled?
+  value: true
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
+  value: http://((deployment-name))-eirini:8085
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
+  value: true
+
+
+# Add quarks information to the Eirini jobs
+- type: replace
+  path: /instance_groups/name=eirini/jobs/name=opi/properties/quarks?
+  value:
+    ports:
+    - name: opi
+      protocol: TCP
+      internal: 8085
+
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=eirinifs/properties?/quarks?
+  value:
+    bpm:
+      processes: []
+
+{{- end }}
