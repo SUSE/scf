@@ -113,14 +113,20 @@ void runTest(String testName) {
     """
 }
 
-String distSubDir() {
+String distSubDir(boolean tested) {
     switch (getBuildType()) {
         case BuildType.Master:
             return 'master/'
         case BuildType.ReleaseCandidate:
-            return 'rc/'
+            if (tested) {
+                return 'rc/'
+            }
+            return 'rc-untested/'
         case BuildType.Nightly:
-            return 'nightly/'
+            if (tested) {
+                return 'nightly/'
+            }
+            return 'nightly-untested/'
         case BuildType.Develop:
             return 'develop/'
         case BuildType.PullRequest:
@@ -145,6 +151,40 @@ String distPrefix() {
             return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
         default:
             error "Unknown build type ${getBuildType()}"
+    }
+}
+
+void publishArchives(boolean tested) {
+    def files = findFiles(glob: "output/*-sle-*")
+    def prefix = "${params.S3_PREFIX}${distSubDir(tested)}${distPrefix()}"
+
+    for ( int i = 0 ; i < files.size() ; i ++ ) {
+        if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+            s3Upload(
+                file: files[i].path,
+                bucket: "${params.S3_BUCKET}",
+                path: "${prefix}${files[i].name}",
+            )
+            if (files[i].path =~ /\.zip$/ ) {
+                def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${prefix}${encodedFileName}"
+                def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                if (tested) {
+                    echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                    echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                }
+                echo "Download the bundle from ${capBundleUri}"
+            } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
+                def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${prefix}${encodedFileName}"
+                echo "Install with helm from ${helmChartUri}"
+            }
+        } else {
+            echo "Skipping file ${files[i].path}"
+        }
     }
 }
 
@@ -605,7 +645,7 @@ pipeline {
             }
         }
 
-        stage('Publish Archives to S3') {
+        stage('Publish Untested Archives to S3') {
             when {
                 expression { return params.PUBLISH_S3 }
             }
@@ -617,36 +657,7 @@ pipeline {
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/*-sle-*")
-                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
-                            def prefix = distPrefix()
-
-                            for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
-                                    s3Upload(
-                                        file: files[i].path,
-                                        bucket: "${params.S3_BUCKET}",
-                                        path: "${subdir}${prefix}${files[i].name}",
-                                    )
-                                    if (files[i].path =~ /\.zip$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
-                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Download the bundle from ${capBundleUri}"
-                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        echo "Install with helm from ${helmChartUri}"
-                                    }
-                                } else {
-                                    echo "Skipping file ${files[i].path}"
-                                }
-                            }
+                            publishArchives(false)
                         }
                     }
                 }
@@ -668,6 +679,7 @@ pipeline {
                         git config --local --replace-all credential.helper \
                             '/bin/bash -c "echo \"username=${GIT_USERNAME}\"; echo \"password=${GIT_PASSWORD}\""'
                         # Figure out what the tag was from earlier in this build pipeline
+                        git config --unset-all versionsort.suffix
                         git config --add versionsort.suffix '-alpha'
                         git config --add versionsort.suffix '-beta'
                         git config --add versionsort.suffix '-rc'
@@ -961,6 +973,25 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 '''
                 }
           }
+        }
+
+        stage('Publish Tested Archives to S3') {
+            when {
+                expression { return params.PUBLISH_S3 && (getBuildType() in [BuildType.ReleaseCandidate, BuildType.Nightly]) }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            publishArchives(true)
+                        }
+                    }
+                }
+            }
         }
     }
 
