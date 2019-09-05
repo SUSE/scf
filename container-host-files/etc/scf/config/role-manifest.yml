@@ -2591,7 +2591,7 @@ configuration:
         resources: ["pods/log"]
         verbs: [create, delete, get, list]
       - apiGroups: [""]
-        resources: ["secrets"]
+        resources: [secrets]
         verbs: [get, list]
       test-role-sits:
       - apiGroups: [""]
@@ -2615,7 +2615,7 @@ configuration:
         resources: [namespaces]
         verbs: [create, get, delete]
       - apiGroups: [""]
-        resources: [pods, pods/log]
+        resources: [pods, pods/log, namespaces]
         verbs: [get, list, watch]
       - apiGroups: [""]
         resources: [pods/portforward]
@@ -2628,6 +2628,9 @@ configuration:
         verbs: [get, list]
       - apiGroups: [storage.k8s.io]
         resources: [storageclasses]
+        verbs: [get, list]
+      - apiGroups: [batch]
+        resources: [jobs]
         verbs: [get, list]
     pod-security-policies:
       default:
