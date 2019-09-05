@@ -1910,6 +1910,8 @@ instance_groups:
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.key: ((REP_SERVER_CERT_KEY))
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
+      properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
+      properties.uaa.port: ((UAA_PORT))
 - name: acceptance-tests-brain
   type: bosh-task
   tags:
@@ -3134,9 +3136,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
     properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT)) # For loggregator
-    properties.uaa.port: ((UAA_PORT))
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
