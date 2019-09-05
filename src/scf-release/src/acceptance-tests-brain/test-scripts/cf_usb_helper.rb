@@ -30,10 +30,10 @@
 require_relative 'testutils'
 require 'json'
 
+# Base class for running a test for a CF-USB sidecar.  See the `run_test` method
+# for where the tests actually run.  Any methods which raise NotImplementedError
+# should be overridden by the derived class.
 class CFUSBTestBase
-    MYSQL_USER = 'root'
-    MYSQL_PASS = 'testpass'
-
     # Return the TCP domain to use (as the FQDN).  Creates it if it does not
     # already exist, also setting up the teardown as necessary.
     def tcp_domain
@@ -71,8 +71,60 @@ class CFUSBTestBase
         fail "Failed for find TCP port for #{app_name} in domain #{domain_name}"
     end
 
+    def sidecar_type
+        self.class.name.downcase.sub(/^cfusb/, '').sub(/test$/, '')
+    end
+
+    def server_app
+        @server_app ||= random_suffix(sidecar_type)
+    end
+
+    def sidecar_app
+        @sidecar_app ||= random_suffix("#{sidecar_type}-sidecar")
+    end
+
+    def service_type
+        @service_type ||= random_suffix("#{sidecar_type}-service")
+    end
+
+    def service_instance
+        @service_instance ||= random_suffix("#{sidecar_type}-inst")
+    end
+
     def service_port
         @service_port ||= get_port server_app, tcp_domain
+    end
+
+    # The helm release to deploy to
+    def helm_release
+        @helm_release ||= random_suffix("#{sidecar_type}-sidecar")
+    end
+
+    # The namespace to deploy the helm chart to
+    def helm_namespace
+        helm_release
+    end
+
+    # The helm repository which contains the charts to use for the sidecar
+    def helm_repo
+        raise NotImplementedError, 'The derived class is expected to implement this'
+    end
+
+    # The name of the helm chart to install for the sidecar.
+    def helm_chart
+        raise NotImplementedError, 'The derived class is expected to implement this'
+    end
+
+    # The version of the sidecar helm chart to install; return empty string to
+    # install the latest available version (not recommended for test stability)
+    def helm_version
+        raise NotImplementedError, 'The derived class is expected to implement this'
+    end
+
+    # A hash which contains extra values to be set in the deployment of the
+    # sidecar.
+    def helm_chart_values
+        raise NotImplementedError, 'The derived class is expected to implement this'
     end
 
     def extra_helm_arguments
@@ -107,49 +159,14 @@ class CFUSBTestBase
     end
 
     ## --(1)-- Create and configure the server
+    # It should be deployed as a CF app named #{sever_app} with a TCP route to
+    # the domain #{tcp_domain} on a random port.
+    # This should only return once the server is accepting connections.
     def deploy_server
         raise NotImplementedError, 'The derived class is expected to implement this'
     end
 
     ## --(2)-- Create and configure the sidecar for usb.
-    def deploy_sidecar
-        raise NotImplementedError, 'The derived class is expected to implement this'
-    end
-
-    # --(3)-- Create a driver endpoint to the mysql sidecar (== service type)
-    def create_driver_endpoint
-        at_exit do
-            set errexit: false do
-                run "yes | cf usb-delete-driver-endpoint #{service_type}"
-            end
-        end
-        # Note that the -c ":" is required as a workaround to a known issue
-        run 'cf', 'usb-create-driver-endpoint', service_type,
-            "https://#{sidecar_app}.#{ENV['CF_DOMAIN']}",
-            sidecar_api_key,
-            '-c', ':'
-    end
-
-    # --(4)-- Check that the service is available in the marketplace and use it
-    def create_service
-        ## Note: The commands without grep filtering are useful in case of
-        ## failures, providing immediate information about the data which runs
-        ## through and fails the filter.
-
-        run "cf marketplace"
-        run "cf marketplace | grep #{service_type}"
-
-        at_exit do
-            set errexit: false do
-                run "cf delete-service -f #{service_instance}"
-            end
-        end
-        run "cf create-service #{service_type} default #{service_instance}"
-
-        run "cf services"
-        run "cf services | grep #{service_instance}"
-    end
-
     def deploy_sidecar
         at_exit do
             set errexit: false do
@@ -186,6 +203,40 @@ class CFUSBTestBase
         wait_for_jobs helm_namespace
         wait_for_namespace helm_namespace
         run "kubectl get pods --namespace=#{helm_namespace}"
+    end
+
+    # --(3)-- Create a driver endpoint to the sidecar (== service type)
+    def create_driver_endpoint
+        at_exit do
+            set errexit: false do
+                run "yes | cf usb-delete-driver-endpoint #{service_type}"
+            end
+        end
+        # Note that the -c ":" is required as a workaround to a known issue
+        run 'cf', 'usb-create-driver-endpoint', service_type,
+            "https://#{sidecar_app}.#{ENV['CF_DOMAIN']}",
+            sidecar_api_key,
+            '-c', ':'
+    end
+
+    # --(4)-- Check that the service is available in the marketplace and use it
+    def create_service
+        ## Note: The commands without grep filtering are useful in case of
+        ## failures, providing immediate information about the data which runs
+        ## through and fails the filter.
+
+        run "cf marketplace"
+        run "cf marketplace | grep #{service_type}"
+
+        at_exit do
+            set errexit: false do
+                run "cf delete-service -f #{service_instance}"
+            end
+        end
+        run "cf create-service #{service_type} default #{service_instance}"
+
+        run "cf services"
+        run "cf services | grep #{service_instance}"
     end
 
     def run_test

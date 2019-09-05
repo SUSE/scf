@@ -17,14 +17,6 @@ class CFUSBMySQLTest < CFUSBTestBase
         @mysql_server_image ||= ENV.fetch('MYSQL_SERVER_IMAGE', 'mysql/mysql-server:8.0.3')
     end
 
-    def helm_release
-        @helm_release ||= random_suffix('mysql-sidecar')
-    end
-
-    def helm_namespace
-        helm_release
-    end
-
     def helm_repo
         @helm_repo ||= ENV.fetch('MYSQL_REPO', 'https://kubernetes-charts.suse.com/')
     end
@@ -35,22 +27,6 @@ class CFUSBMySQLTest < CFUSBTestBase
 
     def helm_version
         @helm_version ||= ENV.fetch('MYSQL_CHART_VERSION', '1.0.1')
-    end
-
-    def server_app
-        @server_app ||= random_suffix('mysql')
-    end
-
-    def sidecar_app
-        @sidecar_app ||= random_suffix('mysql-sidecar')
-    end
-
-    def service_type
-        @service_type ||= random_suffix('mysql-service')
-    end
-
-    def service_instance
-        @service_instance ||= random_suffix('my-db')
     end
 
     def wait_on_database(port, user, password)

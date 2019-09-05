@@ -16,14 +16,6 @@ class CFUSBPostgresTest < CFUSBTestBase
         @postgres_server_image_server_image ||= ENV.fetch('POSTGRES_SERVER_IMAGE', 'postgres:11.4')
     end
 
-    def helm_release
-        @helm_release ||= random_suffix('postgres-sidecar')
-    end
-
-    def helm_namespace
-        helm_release
-    end
-
     def helm_repo
         @helm_repo ||= ENV.fetch('POSTGRES_REPO', 'https://kubernetes-charts.suse.com/')
     end
@@ -34,22 +26,6 @@ class CFUSBPostgresTest < CFUSBTestBase
 
     def helm_version
         @helm_version ||= ENV.fetch('POSTGRES_CHART_VERSION', '1.0.1')
-    end
-
-    def server_app
-        @server_app ||= random_suffix('postgres')
-    end
-
-    def sidecar_app
-        @sidecar_app ||= random_suffix('postgres-sidecar')
-    end
-
-    def service_type
-        @service_type ||= random_suffix('postgres-service')
-    end
-
-    def service_instance
-        @service_instance ||= random_suffix('pg-inst')
     end
 
     def wait_on_database
