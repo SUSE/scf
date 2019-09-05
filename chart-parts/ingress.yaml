@@ -65,18 +65,18 @@ spec:
     - "*.{{ .Values.env.DOMAIN }}"
     - "{{ .Values.env.DOMAIN }}"
   rules:
-    - host: "*.{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
-    - host: "{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
+  - host: "*.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
+  - host: "{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
 {{- end }}
