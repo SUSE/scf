@@ -125,6 +125,23 @@ class MiniBrokerTest
             ))
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
+            
+            attempts = 0
+            while attempts < 20
+                puts "# Waiting for service catalog, attempt: #{attempts}"
+                status_code = capture("curl -s -o /dev/null -w %{http_code} #{broker_url}/v2/catalog")
+                if status_code.eql? "200"
+                    puts "Successfully retrieved service catalog..."
+                    break
+                end
+                sleep 6
+                attempts += 1
+            end
+
+            unless status_code.eql? "200"
+                raise "Failed to retrieve service catalog."
+            end
+
             run "cf create-service-broker #{broker_name} user pass #{broker_url}"
             run "cf enable-service-access #{service_type}"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
