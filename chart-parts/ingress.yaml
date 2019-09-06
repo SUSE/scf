@@ -62,21 +62,40 @@ spec:
   tls:
   - secretName: "ingress-tls"
     hosts:
+    {{- if .Values.enable.uaa }}
+    - "*.uaa.{{ .Values.env.DOMAIN }}"
+    {{- end }}
     - "*.{{ .Values.env.DOMAIN }}"
     - "{{ .Values.env.DOMAIN }}"
   rules:
-    - host: "*.{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
-    - host: "{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
+  {{- if .Values.enable.uaa }}
+  - host: "*.uaa.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "uaa-uaa"
+          servicePort: 2793
+  - host: "uaa.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "uaa-uaa"
+          servicePort: 2793
+  {{- end }}
+  - host: "*.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
+  - host: "{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
 {{- end }}
