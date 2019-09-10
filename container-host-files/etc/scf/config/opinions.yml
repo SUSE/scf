@@ -349,6 +349,10 @@ properties:
         user: nats
     ssh_proxy:
       enable_cf_auth: true
+  eirini-persi:
+    # picking 443 as default for webhook extensions
+    # otherwise GKE needs specific fw rules for each operator port
+    operator_webhook_port: 443
   enable_consul_service_registration: false
   encryption:
     active_key_label: smorgasbrod
