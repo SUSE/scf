@@ -1,0 +1,7 @@
+---
+name: database-seeder
+dependencies:
+- golang1.12
+- git
+files:
+- database-seeder/**/*

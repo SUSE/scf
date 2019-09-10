@@ -1,0 +1,42 @@
+---
+name: database-seeder
+description: >
+  When using an external database server, seed it with the necessary databases.
+
+templates:
+  pre-start.erb: bin/pre-start
+
+packages:
+- database-seeder
+
+properties:
+  seeded_databases:
+    description: The databases to seed
+    default: []
+    example: |
+      - name: db1
+        username: user1
+        password: pw1
+      - name: db2
+        username: user2
+        password: pw2
+
+  database-seeder.driver:
+    description: The database driver to use
+    example: mysql
+
+  database-seeder.host:
+    description: The external host name of the database server
+    default: ''
+  database-seeder.port:
+    description: The external port of the database server
+    default: 3306
+  database-seeder.username:
+    description: User name to use to connect to external database server
+    default: root
+  database-seeder.password:
+    description: Password to use to connect to external database server
+  database-seeder.sslmode:
+    description: >
+      SSL configuration for the database; valid values depend on which driver is
+      in use.

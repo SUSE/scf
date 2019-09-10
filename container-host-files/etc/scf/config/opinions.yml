@@ -288,7 +288,6 @@ properties:
     - name: ccdb
       tag: cc
     db_scheme: mysql
-    port: 3306
   cf-usb:
     broker:
       username: broker-admin

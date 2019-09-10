@@ -527,7 +527,7 @@ instance_groups:
       properties.engine_config.binlog.enabled: false
       properties.engine_config.galera.enabled: true
       properties.monit_startup_timeout: 300
-      properties.seeded_databases: >
+      properties.seeded_databases: &seeded_databases >
         [
           {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
           {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
@@ -2096,9 +2096,23 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc",
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
+      properties.uaadb.address: >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.uaadb.port: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
-      properties.wait-for-database.hostname: mysql-set
-      properties.wait-for-database.port: 3306
+      properties.wait-for-database.hostname: >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.wait-for-database.port: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -2146,6 +2160,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
+  - name: database-seeder
+    release: scf
   - name: uaa-create-user
     release: scf
   - name: configure-scf
@@ -2159,6 +2175,15 @@ instance_groups:
           flight-stage: post-flight
           memory: 256
           virtual-cpus: 1
+  configuration:
+    templates:
+      properties.database-seeder.driver: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_DRIVER))((/DB_EXTERNAL_HOST))
+      properties.database-seeder.host: ((DB_EXTERNAL_HOST))
+      properties.database-seeder.password: ((DB_EXTERNAL_PASSWORD))
+      properties.database-seeder.port: ((DB_EXTERNAL_PORT))
+      properties.database-seeder.sslmode: ((DB_EXTERNAL_SSL_MODE))
+      properties.database-seeder.username: ((DB_EXTERNAL_USER))
+      properties.seeded_databases: *seeded_databases
 - name: credhub-user
   if_feature: credhub
   environment_scripts:
@@ -2207,9 +2232,15 @@ instance_groups:
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
-      properties.credhub.data_storage.host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.credhub.data_storage.host: >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
-      properties.credhub.data_storage.port: 3306
+      properties.credhub.data_storage.port: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
       properties.credhub.data_storage.require_tls: false
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
@@ -2872,7 +2903,14 @@ configuration:
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
+    properties.ccdb.port: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -2880,7 +2918,13 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
@@ -2914,13 +2958,25 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
@@ -3015,7 +3071,13 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -3073,7 +3135,13 @@ configuration:
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
-    properties.routing_api.sqldb.host: "mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.routing_api.sqldb.host: >
+      ((#DB_EXTERNAL_HOST))
+        ((DB_EXTERNAL_HOST))
+      ((/DB_EXTERNAL_HOST))
+      ((^DB_EXTERNAL_HOST))
+        mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      ((/DB_EXTERNAL_HOST))
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3658,6 +3726,49 @@ variables:
     description: Key for encrypting sensitive values in the Cloud Controller database.
     required: true
   type: password
+- name: DB_EXTERNAL_DRIVER
+  options:
+    immutable: true
+    description: >
+      Database driver to use for the external database server used to manage the
+      CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Currently
+      only `mysql` is valid.
+    default: mysql
+- name: DB_EXTERNAL_HOST
+  options:
+    immutable: true
+    description: >
+      Hostname for an external database server to use for the CF-internal databases
+      (such as for the cloud controller database).  If not set, the internal database
+      is used.
+    default: null
+- name: DB_EXTERNAL_PASSWORD
+  options:
+    immutable: true
+    description: >
+      Administrator password for an external database server; this is required
+      to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
+    secret: true
+- name: DB_EXTERNAL_PORT
+  options:
+    immutable: true
+    description: >
+      Port for an external database server to use for the CF-internal databases.
+      Only used if DB_EXTERNAL_HOST is set.
+    default: "3306"
+- name: DB_EXTERNAL_SSL_MODE
+  options:
+    immutable: true
+    description: >
+      TLS configuration for the external database server to use for the
+      CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
+      values depend on which database driver is in use.
+- name: DB_EXTERNAL_USER
+  options:
+    immutable: true
+    description: >
+      Administrator user name for an external database server; this is required
+      to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
 - name: DEFAULT_APP_DISK_IN_MB
   options:
     default: 1024

@@ -1,0 +1,34 @@
+#!/bin/bash
+<%
+require 'json'
+require 'shellwords'
+%>
+
+set -o errexit -o nounset
+
+case "<%= p('database-seeder.driver', '') %>" in
+    mysql)
+        SEEDER_DSN="$(printf \
+            "%s:%s@tcp(%s:%s)/mysql?allowCleartextPasswords=true&charset=utf8mb4" \
+            <%= p('database-seeder.username', '').shellescape %> \
+            <%= p('database-seeder.password', '').shellescape %> \
+            <%= p('database-seeder.host', '').shellescape %> \
+            <%= p('database-seeder.port', '').to_s.shellescape %> )"
+        <% if_p('database-seeder.sslmode') do |tls| %>
+            SEEDER_DSN="${SEEDER_DSN}&tls=<%= tls %>"
+        <% end %>
+        export SEEDER_DSN
+        ;;
+    '')
+        echo "Database seeder driver not specified, exiting"
+        exit 0
+        ;;
+    *)
+        echo "Unrecognized database driver <%= p('database-seeder.driver', '') %>" >&2
+        exit 1
+        ;;
+esac
+export SEEDER_CONFIGS=<%= p('seeded_databases').to_json.shellescape %>
+
+exec /var/vcap/packages/database-seeder/bin/database-seeder \
+    -driver <%= p('database-seeder.driver', '') %>
