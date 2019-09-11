@@ -9,7 +9,7 @@
 # If there is no swap, we can drop the swap accounting requirement.
 no_swap="$(awk '/^SwapTotal:/ { print ($2 == 0) ? "true" : "false" }' /proc/meminfo)"
 
-if [ ! "${no_swap}" ] && [ ! -e /sys/fs/cgroup/memory/memory.memsw.limit_in_bytes ]; then
+if [ ! -e /sys/fs/cgroup/memory/memory.memsw.limit_in_bytes ] && ! "${no_swap}" ; then
 	red='\033[0;31m'
 	no_color='\033[0m'
 	(>&2 printf "${red}")
