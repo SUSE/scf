@@ -16,7 +16,7 @@
   value: '{{ .Values.deployment_name }}-singleton-blobstore'
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
-  value: '{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}'
+  value: '{{ .Values.deployment_name }}-singleton-blobstore'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
@@ -211,7 +211,7 @@
   value: '*.{{ .Values.deployment_name }}-singleton-blobstore'
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
-  value: '*.{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}'
+  value: '*.{{ .Values.deployment_name }}-singleton-blobstore'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
