@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.14.tgz"
-  version: "0.0.14"
-  sha1: "00da08139303de6d42746d99da5c89c0e5ae53d5"
+  url: "https://suse-final-releases.s3.amazonaws.com/eirini-release-0.0.17.tgz"
+  version: "0.0.17"
+  sha1: "e969742c39743302836190b3be033ddf22beb411"
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
@@ -237,7 +237,7 @@ instance_groups:
         ports:
         - name: opi-server
           protocol: TCP
-          internal: 8085
+          internal: 8484
 - name: bits
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -2856,9 +2856,12 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.cc.opi.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.cc.opi.client_cert: "((EIRINI_CLIENT_CRT))"
+    properties.cc.opi.client_key: "((EIRINI_CLIENT_CRT_KEY))"
     properties.cc.opi.enabled: ((FEATURE_EIRINI_ENABLED))
     properties.cc.opi.opi_staging: ((FEATURE_EIRINI_ENABLED))
-    properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+    properties.cc.opi.url: https://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8484
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -3039,8 +3042,9 @@ configuration:
     properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
     properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
     properties.opi.certs_secret_name: "((KUBE_SECRETS_GENERATION_NAME))"
+    properties.opi.client_ca: "((INTERNAL_CA_CERT))"
     properties.opi.downloader_image: "((EIRINI_DOWNLOADER_IMAGE))"
-    properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.eirini_address: "https://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8484"
     properties.opi.executor_image: "((EIRINI_EXECUTOR_IMAGE))"
     properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
@@ -3054,8 +3058,11 @@ configuration:
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
     properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.registry_password: "((EIRINI_REGISTRY_PASSWORD))"
+    properties.opi.registry_username: "((EIRINI_REGISTRY_USERNAME))"
+    properties.opi.server_cert: "((EIRINI_SERVER_CERT))"
+    properties.opi.server_key: "((EIRINI_SERVER_CERT_KEY))"
     properties.opi.uploader_image: "((EIRINI_UPLOADER_IMAGE))"
-
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
@@ -3759,9 +3766,21 @@ variables:
     default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
     description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
     imagename: true
+- name: EIRINI_CLIENT_CRT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: TLS certificate for Eirini server
+    required: true
+  type: certificate
+- name: EIRINI_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: Private key associated with TLS certificate for Eirini server
+    required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'eirini/recipe-downloader:0.2.0'
+    default: 'eirini/recipe-downloader:0.3.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EIRINI_PERSI_SERVICE_HOST
@@ -3770,7 +3789,7 @@ variables:
     description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'eirini/recipe-executor:0.2.0'
+    default: 'eirini/recipe-executor:0.3.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -3798,9 +3817,35 @@ variables:
         free: true
         kube_storage_class: "persistent"
         default_size: "1Gi"
+
+- name: EIRINI_REGISTRY_PASSWORD
+  options:
+    secret: true
+    description: "Basic auth user password for registry"
+    required: true
+  type: password
+- name: EIRINI_REGISTRY_USERNAME
+  options:
+    type: environment
+    default: 'admin'
+    description: "Basic auth username for registry"
+- name: EIRINI_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "eirini-opi.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    description: TLS certificate for Eirini server
+    required: true
+  type: certificate
+- name: EIRINI_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: Private key associated with TLS certificate for Eirini server
+    required: true
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'eirini/recipe-uploader:0.2.0'
+    default: 'eirini/recipe-uploader:0.3.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
