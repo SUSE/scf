@@ -151,6 +151,11 @@ releases:
   url: "https://suse-final-releases.s3.amazonaws.com/eirini-release-0.0.17.tgz"
   version: "0.0.17"
   sha1: "e969742c39743302836190b3be033ddf22beb411"
+- name: "eirinifs-sle15-release"
+  url: "https://suse-final-releases.s3.amazonaws.com/eirinifs-sle15-release-0.1.1.tgz"
+  version: "0.1.1"
+  sha1: "1ccb423a9e9463d334e55680a21db423d6ac7314"
+
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
@@ -254,8 +259,8 @@ instance_groups:
     release: routing
   - name: statsd_injector
     release: statsd-injector
-  - name: eirinifs
-    release: eirini
+  - name: eirinifs-sle15
+    release: eirinifs-sle15-release
   - name: bpm
     release: bpm
     properties:
