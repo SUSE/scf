@@ -1,5 +1,4 @@
 {{ if not .Values.sizing.HA -}}
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
