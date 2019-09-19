@@ -3915,10 +3915,6 @@ variables:
     default: 'eirini/recipe-downloader:0.3.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
-- name: EIRINI_EIRINI_PERSI_SERVICE_HOST
-  options:
-    type: environment
-    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
     default: 'eirini/recipe-executor:0.3.0'
