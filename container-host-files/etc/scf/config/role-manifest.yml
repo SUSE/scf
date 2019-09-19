@@ -223,36 +223,6 @@ instance_groups:
         run:
           capabilities: [ALL]
           privileged: true
-  - name: eirini-persi-broker
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-        ports:
-        - name: broker
-          protocol: TCP
-          internal: 8999
-  - name: eirini-persi
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-        ports:
-        - name: webhook
-          protocol: TCP
-          internal: 2999
   - name: eirini-loggregator-bridge
     release: eirini
     properties:
@@ -280,6 +250,61 @@ instance_groups:
         - name: opi-server
           protocol: TCP
           internal: 8484
+- name: eirini-persi
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
+  - name: eirini-persi-broker
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: broker
+          protocol: TCP
+          internal: 8999
+  - name: eirini-persi
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: webhook
+          protocol: TCP
+          internal: 443
 - name: bits
   if_feature: eirini
   environment_scripts:
@@ -3038,7 +3063,7 @@ configuration:
     properties.eirini-persi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-persi.operator_webhook_host: "((EIRINI_EIRINI_PERSI_SERVICE_HOST))"
+    properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
     properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
