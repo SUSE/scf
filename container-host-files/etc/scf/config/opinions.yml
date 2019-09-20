@@ -369,7 +369,7 @@ properties:
   eirini-persi:
     # picking 443 as default for webhook extensions
     # otherwise GKE needs specific fw rules for each operator port
-    operator_webhook_port: 443
+    operator_webhook_port: 8443
     operator_webhook_host: 0.0.0.0
     operator_webhook_servicename: eirini-persi-eirini-persi
   enable_consul_service_registration: false
