@@ -977,6 +977,7 @@ instance_groups:
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
@@ -1080,6 +1081,8 @@ instance_groups:
       properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
+  environment_scripts:
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
@@ -1173,6 +1176,8 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
+  environment_scripts:
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_disable_credhub.sh
@@ -2833,7 +2838,7 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
-    properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.default_stack: '"((DEFAULT_STACK))((#FEATURE_EIRINI_ENABLED))((/FEATURE_EIRINI_ENABLED))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
