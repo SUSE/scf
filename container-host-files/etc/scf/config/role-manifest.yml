@@ -432,6 +432,7 @@ instance_groups:
         run:
           privileged: true
 - name: mysql
+  default_feature: mysql
   scripts:
   - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/chown_vcap_store.sh
@@ -545,6 +546,7 @@ instance_groups:
       properties.tls.server.certificate: ((MYSQL_SERVER_CERT))
       properties.tls.server.private_key: ((MYSQL_SERVER_CERT_KEY))
 - name: mysql-proxy
+  default_feature: mysql
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
