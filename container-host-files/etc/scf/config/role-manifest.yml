@@ -264,7 +264,8 @@ instance_groups:
         ports:
         - name: webhook
           protocol: TCP
-          internal: 443
+          external: 443
+          internal: 8443
 - name: bits
   if_feature: eirini
   environment_scripts:
