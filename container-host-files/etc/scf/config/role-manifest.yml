@@ -140,9 +140,9 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.3.tgz"
-  version: "1.0.3"
-  sha1: "c6187d732f0b49f837bdadd0221fe0d91eb55515"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.4.tgz"
+  version: "1.0.4"
+  sha1: "1ac9ec02495ca1660089fdb4343336666fc058eb"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
@@ -161,6 +161,8 @@ instance_groups:
   if_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
+  # eirini-bosh-release already includes kubectl package, so we don't need get-kubectl job from scf-release.
+  - scripts/set-opi-registry-port.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -279,7 +281,8 @@ instance_groups:
           internal: 443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))", "registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
+      properties.bits-service.registry_endpoint: "https://127.0.0.1"
+      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2116,9 +2119,11 @@ instance_groups:
           service-account: secret-generator
   configuration:
     templates:
+      properties.scf.secrets.auto_approval: ((KUBE_CSR_AUTO_APPROVAL))
       properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
       properties.scf.secrets.cluster_domain: ((KUBERNETES_CLUSTER_DOMAIN))
       properties.scf.secrets.domain: ((DOMAIN))
+      properties.scf.secrets.env: '["FEATURE_EIRINI_ENABLED=((FEATURE_EIRINI_ENABLED))"]'
       properties.scf.secrets.generation: ((KUBE_SECRETS_GENERATION_COUNTER))
       properties.scf.secrets.is_install: ((HELM_IS_INSTALL))
       properties.scf.secrets.name: ((KUBE_SECRETS_GENERATION_NAME))
@@ -2139,6 +2144,9 @@ instance_groups:
           memory: 256
           virtual-cpus: 1
           service-account: eirini
+  configuration:
+    templates:
+      properties.eirini.run_cert_copier: ""
 - name: post-deployment-setup
   type: bosh-task
   jobs:
@@ -2600,18 +2608,6 @@ configuration:
         resources: [pods/portforward]
         verbs: [create]
     cluster-roles:
-      node-reader-role:
-      - apiGroups: [""]
-        resources: [nodes]
-        verbs: [get, list, watch]
-      mutating-webhook-role:
-      - apiGroups: ["admissionregistration.k8s.io"]
-        resources: [mutatingwebhookconfigurations]
-        verbs: ['*']
-      daemonset-role:
-      - apiGroups: [extensions]
-        resources: [daemonsets]
-        verbs: [create, get, list, delete, update]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
@@ -2649,7 +2645,6 @@ configuration:
         - configMap
         - secret
         - emptyDir
-        - hostPath # Needed for the Eirini Cert copier ( /etc/docker )
         - downwardAPI
         - projected
         - persistentVolumeClaim
@@ -2666,10 +2661,8 @@ configuration:
         roles: [configgin-role, test-role-sits, psp-role]
       garden-runc:
         roles: [configgin-role, psp-role]
-        cluster-roles: [node-reader-role]
       eirini:
         roles: [configgin-role, secrets-role, psp-role]
-        cluster-roles: [mutating-webhook-role, daemonset-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2782,7 +2775,6 @@ configuration:
     properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
     properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
-    properties.bits-service.registry_endpoint: "https://registry.((DOMAIN))"
     properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
@@ -3057,7 +3049,7 @@ configuration:
     # TODO: this needs to be fixed upstream - it should be an array
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
-    properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.registry_address: "127.0.0.1:((OPI_REGISTRY_NODEPORT))"
     properties.opi.registry_password: "((EIRINI_REGISTRY_PASSWORD))"
     properties.opi.registry_username: "((EIRINI_REGISTRY_USERNAME))"
     properties.opi.server_cert: "((EIRINI_SERVER_CERT))"
@@ -3447,12 +3439,13 @@ variables:
 - name: BITS_SERVICE_SSL_CERT
   options:
     secret: true
-    ca: INTERNAL_CA_CERT
+    ca: '{{if eq .FEATURE_EIRINI_ENABLED "true"}}~{{else}}INTERNAL_CA_CERT{{end}}'
     role_name: bits
     description: PEM-encoded client certificate.
     required: true
     alternative_names:
     - bits-bits-service.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - 127.0.0.1
   type: certificate
 - name: BITS_SERVICE_SSL_CERT_KEY
   options:
@@ -3954,6 +3947,7 @@ variables:
   options:
     secret: true
     is_ca: true
+    append_kube_ca: '{{.FEATURE_EIRINI_ENABLED}}'
     description: PEM-encoded CA certificate used to sign the TLS certificate used
       by all components to secure their communications.
     required: true
@@ -4020,6 +4014,11 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       It's set to a numeric index for roles with multiple replicas.
+- name: KUBE_CSR_AUTO_APPROVAL
+  options:
+    default: false
+    description: >
+      Allow the secrets-generator to auto-approve the kube cert signing requests it makes.
 - name: KUBE_NATS_CLUSTER_IPS
   options:
     type: environment
@@ -4296,6 +4295,10 @@ variables:
     description: Comma separated list of IP addresses and domains which should not
       be directoed through a proxy, if any.
     required: false
+- name: OPI_REGISTRY_NODEPORT
+  options:
+    type: environment
+    description: "OPI registry port on the localhost nodePort"
 - name: PERSI_NFS_ALLOWED_OPTIONS
   options:
     description: Comma separated list of white-listed options that may be set during

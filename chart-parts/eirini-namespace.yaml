@@ -6,6 +6,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{.Values.env.EIRINI_KUBE_NAMESPACE | quote}}
+  labels:
+    {{- template "scf.role-labels" "eirini-namespace" }}
+    {{- template "scf.labels" . }}
 {{- end }}
 
 {{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
@@ -13,7 +16,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: eirini
+  name: eirini-namespace-admin
   namespace: {{.Values.env.EIRINI_KUBE_NAMESPACE | quote}}
 rules:
 - apiGroups: ['*']
@@ -23,12 +26,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: eirini
+  name: eirini-namespace-admin
   namespace: {{.Values.env.EIRINI_KUBE_NAMESPACE | quote}}
+  labels:
+    {{- template "scf.role-labels" "eirini-namespace-admin" }}
+    {{- template "scf.labels" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: eirini
+  name: eirini-namespace-admin
 subjects:
 - kind: ServiceAccount
   name: eirini
