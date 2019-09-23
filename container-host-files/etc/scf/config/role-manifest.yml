@@ -140,9 +140,9 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.3.tgz"
-  version: "1.0.3"
-  sha1: "c6187d732f0b49f837bdadd0221fe0d91eb55515"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.5.tgz"
+  version: "1.0.5"
+  sha1: "c06bd583eb655ce9ed562f812ede5a6ace27d9d2"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
