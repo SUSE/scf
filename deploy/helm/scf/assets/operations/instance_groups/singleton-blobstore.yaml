@@ -10,6 +10,9 @@
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/internal_server_name?
   value: {{ .Values.deployment_name }}-singleton-blobstore
 - type: replace
+  path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/blobstore/internal_access_rules?
+  value: [ "allow all" ]
+- type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/nats?/machines
   value:
   - {{ .Values.deployment_name }}-nats
