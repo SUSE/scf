@@ -210,7 +210,11 @@ properties:
     - name: php_buildpack
       package: php-buildpack
     - name: binary_buildpack
-      package: binary-buildpack
+      package: binary-buildpack-sle12
+    - name: binary_buildpack
+      package: binary-buildpack-sle15
+    - name: binary_buildpack
+      package: binary-buildpack-cflinuxfs3
     - name: dotnet-core_buildpack
       package: dotnet-core-buildpack
     jobs:

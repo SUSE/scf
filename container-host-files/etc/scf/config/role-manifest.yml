@@ -79,6 +79,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.33.1.tgz"
   version: "1.0.33.1"
   sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
+- name: "binary-buildpack-upstream"
+  version: "1.0.33"
+  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.33"
+  sha1: "61dc701f2b851f18282cd249aaf153479fdd620c"
 - name: go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
   version: "1.8.42.1"
@@ -1057,6 +1061,8 @@ instance_groups:
     release: go-buildpack
   - name: binary-buildpack
     release: binary-buildpack
+  - name: binary-buildpack
+    release: binary-buildpack-upstream
   - name: nodejs-buildpack
     release: nodejs-buildpack
   - name: ruby-buildpack
