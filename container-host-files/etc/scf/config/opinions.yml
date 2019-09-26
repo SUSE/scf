@@ -194,7 +194,9 @@ properties:
     - name: staticfile_buildpack
       package: staticfile-buildpack
     - name: nginx_buildpack
-      package: nginx-buildpack
+      package: nginx-buildpack-sle15
+    - name: nginx_buildpack
+      package: nginx-buildpack-cflinuxfs3
     - name: java_buildpack
       package: java-buildpack
     - name: ruby_buildpack
