@@ -76,9 +76,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
   sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
 - name: binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.33.1.tgz"
-  version: "1.0.33.1"
-  sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
+  version: "1.0.33"
+  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.33"
+  sha1: "61dc701f2b851f18282cd249aaf153479fdd620c"
+- name: suse-binary-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.34.1.tgz"
+  version: "1.0.34.1"
+  sha1: "860e15dcd26c1a68fbe78bc5055407f30342cdf4"
 - name: go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
   version: "1.8.42.1"
@@ -1058,6 +1062,8 @@ instance_groups:
     release: go-buildpack
   - name: binary-buildpack
     release: binary-buildpack
+  - name: binary-buildpack
+    release: suse-binary-buildpack
   - name: nodejs-buildpack
     release: nodejs-buildpack
   - name: ruby-buildpack
