@@ -163,14 +163,12 @@ properties:
       directory_key: cc-packages
       webdav_config:
         username: blobstore_user
+    signing_users: []
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
-    bits_service:
-      enabled: true
-      username: admin
     buildpacks:
       blobstore_type: webdav
       webdav_config:
