@@ -1,3 +1,4 @@
+{{- if .Values.features.suse_buildpacks }}
 - type: replace
   path: /releases/name=binary-buildpack
   value:
@@ -77,3 +78,4 @@
     url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.13.1.tgz"
     version: "2.2.13.1"
     sha1: "2891486988d66aaae783c6f8df506695a916201b"
+{{- end }}
