@@ -1,0 +1,5 @@
+{{- if (index .Values.features "external-nats") }}
+# Disable the built-in NATS BOSH release, and use a helm chart instead.
+- type: remove
+  path: /instance_groups/name=nats
+{{- end }}

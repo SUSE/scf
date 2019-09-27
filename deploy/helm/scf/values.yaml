@@ -31,6 +31,9 @@ features:
   # published to docker.io.
   suse_buildpacks: false
 
+  # Set this to true to disable the NATS release, and use the official helm chart
+  external-nats: false
+
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
