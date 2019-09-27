@@ -241,6 +241,7 @@ instance_groups:
           protocol: TCP
           internal: 8484
 - name: bits
+  if_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -252,8 +253,6 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: route_registrar
-    release: routing
   - name: statsd_injector
     release: statsd-injector
   - name: eirinifs
@@ -275,14 +274,9 @@ instance_groups:
             ha: 1
           memory: 256
           virtual-cpus: 2
-        ports:
-        - name: server
-          protocol: TCP
-          internal: 443
   configuration:
     templates:
       properties.bits-service.registry_endpoint: "https://127.0.0.1"
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -2780,7 +2774,6 @@ configuration:
     properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
     properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
-    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
@@ -2812,12 +2805,6 @@ configuration:
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
-
-    properties.cc.bits_service.ca_cert: "((INTERNAL_CA_CERT))"
-    properties.cc.bits_service.password: "((BITS_ADMIN_USERS_PASSWORD))"
-    properties.cc.bits_service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
-    properties.cc.bits_service.public_endpoint: "https://bits.((DOMAIN))"
-
     properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -3428,13 +3415,6 @@ variables:
     secret: true
     description: PEM-encoded client key.
     required: true
-
-- name: BITS_ADMIN_USERS_PASSWORD
-  options:
-    secret: true
-    description: The basic auth password that the Cloud Controller uses to connect to the admin endpoint on webdav.
-    required: true
-  type: password
 - name: BITS_SERVICE_SECRET
   options:
     secret: true
@@ -3445,11 +3425,9 @@ variables:
   options:
     secret: true
     ca: '{{if eq .FEATURE_EIRINI_ENABLED "true"}}~{{else}}INTERNAL_CA_CERT{{end}}'
-    role_name: bits
     description: PEM-encoded client certificate.
     required: true
     alternative_names:
-    - bits-bits-service.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
     - 127.0.0.1
   type: certificate
 - name: BITS_SERVICE_SSL_CERT_KEY
