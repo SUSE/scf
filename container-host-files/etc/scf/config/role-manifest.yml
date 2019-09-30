@@ -148,9 +148,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://suse-final-releases.s3.amazonaws.com/eirini-release-0.0.17.tgz"
-  version: "0.0.17"
-  sha1: "e969742c39743302836190b3be033ddf22beb411"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.19.tgz"
+  version: "0.0.19"
+  sha1: "52587cda0d0f98dc921681358dff7d1c67be65c1"
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
