@@ -967,9 +967,25 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
     }
 
     post {
+        success {
+            script {
+                withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                    sh '''
+                    echo -n 'Notification destination: '
+                    echo "${NOTIFICATION_EMAIL}" | base64
+                    '''
+                }
+            }
+        }
         failure {
             // Send mail, but only if we're develop or master
             script {
+                withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                    sh '''
+                    echo -n 'Notification destination: '
+                    echo "${NOTIFICATION_EMAIL}" | base64
+                    '''
+                }
                 if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
