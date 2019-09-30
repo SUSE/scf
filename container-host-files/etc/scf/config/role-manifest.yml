@@ -2154,9 +2154,9 @@ instance_groups:
   - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
   - name: uaa-create-user
-    release: scf
+    release: scf-helper
   - name: configure-scf
-    release: scf
+    release: scf-helper
     properties:
       bosh_containerization:
         run:
