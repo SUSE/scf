@@ -576,7 +576,7 @@ pipeline {
                             echo "Found expected version: ${expectedVersion}"
 
                             def glob = "*scf-sle-${expectedVersion}.*.zip"
-                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
+                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir(false)}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
                             }
@@ -1041,7 +1041,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                                 if (prefix){
                                     prefix = prefix.substring(0, prefix.length() - 1) + '/'
                                 }
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}${env.BUILD_TAG}/"
+                                def subdir = "${params.S3_PREFIX}${distSubDir(false)}${prefix}${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",
