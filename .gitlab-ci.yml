@@ -1,0 +1,32 @@
+.bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
+.default_branch: &default_branch v3-develop
+
+stages:
+- lint
+- build
+- publish
+
+lint:
+  stage: lint
+  image: *bazel_docker_image
+  script:
+  - ./dev/linters/shellcheck.sh
+
+build:chart:
+  stage: build
+  image: *bazel_docker_image
+  script:
+  - .gitlab/pipelines/stages/build.sh
+  artifacts:
+    paths:
+    - output/scf-*.tgz
+    expire_in: 1 week
+
+publish:chart:
+  stage: publish
+  only:
+    refs:
+    - *default_branch
+  image: minio/mc
+  script:
+  - .gitlab/pipelines/stages/publish.sh
