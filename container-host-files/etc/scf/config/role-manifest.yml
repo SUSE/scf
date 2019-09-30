@@ -400,7 +400,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -466,7 +466,7 @@ instance_groups:
             ha: 3
             # To avoid split-brain.
             must_be_odd: true
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -579,7 +579,7 @@ instance_groups:
             min: 1
             max: 5
             ha: 2
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           memory: 2500
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/switchboard-leader/bin/readiness/switchboard
@@ -691,7 +691,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
@@ -758,7 +758,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -812,7 +812,7 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           healthcheck:
@@ -947,7 +947,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1602,7 +1602,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1662,7 +1662,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1713,7 +1713,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -2052,7 +2052,7 @@ instance_groups:
             ha: 2
             min: 1
             max: 65535
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           persistent-volumes: []
           shared-volumes: []
           memory: 2100
