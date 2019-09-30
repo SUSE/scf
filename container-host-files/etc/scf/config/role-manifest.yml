@@ -277,6 +277,7 @@ instance_groups:
   configuration:
     templates:
       properties.bits-service.registry_endpoint: "https://127.0.0.1"
+      properties.bpm.enabled: true
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
