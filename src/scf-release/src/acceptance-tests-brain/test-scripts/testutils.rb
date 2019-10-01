@@ -236,8 +236,8 @@ def wait_for_pod_ready(name, namespace, timeout=300)
 end
 
 # Show the status of a Kubernetes namespace
-def show_pods_for_namespace(namespace)
-  run("kubectl get pods --namespace #{namespace} --no-headers")
+def show_resources_in_namespace(namespace, *resource_types)
+    run "kubectl get #{resource_types.join(','))} --namespace #{namespace} --output-wide"
 end
 
 def print_all_container_logs_in_namespace(ns)

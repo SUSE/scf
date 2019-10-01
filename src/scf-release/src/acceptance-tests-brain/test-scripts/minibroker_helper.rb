@@ -64,6 +64,7 @@ class MiniBrokerTest
                 set errexit: false do
                     unless @success
                         [minibroker_namespace, minibroker_pods_namespace].each do |ns|
+                            show_resources_in_namespace ns, 'pods', 'endpoints', 'services'
                             print_all_container_logs_in_namespace ns
                         end
                     end
