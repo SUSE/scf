@@ -979,7 +979,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                     withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
                         mail(
                             subject: "Jenkins success: ${env.JOB_NAME} #${env.BUILD_ID}",
-                            from: env.NOTIFICATION_EMAIL,
+                            from: 'cf-ci-bot@suse.de',
                             to: env.NOTIFICATION_EMAIL,
                             body: ("""
                             Jenkins build ok: ${env.JOB_NAME} on branch ${env.BRANCH_NAME} after ${currentBuild.durationString}
