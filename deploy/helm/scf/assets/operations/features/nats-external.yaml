@@ -1,5 +1,34 @@
-{{- if (index .Values.features "external-nats") }}
+{{- if .Values.nats.external }}
 # Disable the built-in NATS BOSH release, and use a helm chart instead.
 - type: remove
   path: /instance_groups/name=nats
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/nats?
+  value: &nats-config
+    machines: [ {{ $.Values.deployment_name }}-nats-client ]
+    port: 4222
+    user: {{ $.Values.nats.auth.user }}
+    password: {{ $.Values.nats.auth.password }}
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/nats?
+  value: *nats-config
+
+{{- range ( list "api" "doppler" "log-api" "singleton-blobstore" "uaa" ) }}
+- type: replace
+  path: /instance_groups/name={{.}}/jobs/name=route_registrar/properties/nats?
+  value: *nats-config
+{{- end }}
+
+{{- if .Values.features.eirini }}
+# If Eirini is enabled, force the NATS password manually
+- type: replace
+  path: /instance_groups/name=eirini/jobs/name=opi/properties/opi/nats_ip
+  value: {{ .Values.deployment_name }}-nats-client
+- type: replace
+  path: /instance_groups/name=eirini/jobs/name=opi/properties/opi/nats_password
+  value: {{ .Values.nats.auth.password }}
+{{- end }}
+
 {{- end }}

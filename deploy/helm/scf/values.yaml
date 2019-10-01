@@ -31,9 +31,6 @@ features:
   # published to docker.io.
   suse_buildpacks: false
 
-  # Set this to true to disable the NATS release, and use the official helm chart
-  external-nats: false
-
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
@@ -42,3 +39,11 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+nats:
+  # Set this to true to disable the NATS release, and use the official helm chart
+  # In that case the nats password is required.
+  external: false
+  auth:
+    user:     nats # Erini hard codes this to "nats"
+    password: pikachu

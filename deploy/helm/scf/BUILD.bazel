@@ -19,6 +19,12 @@ pkg_tar(
     ],
 )
 
+pkg_tar(
+    name = "helm_charts_stable_nats",
+    package_dir = "charts",
+    srcs = ["@helm_charts_stable_nats//file"],
+)
+
 helm_package(
     name = "chart",
     srcs = [
@@ -26,6 +32,7 @@ helm_package(
     ],
     tars = [
         ":cf_deployment",
+        ":helm_charts_stable_nats",
         "//bosh/releases:pre_render_scripts",
     ],
     chart_name = "scf",

@@ -1,6 +1,6 @@
 workspace(name = "scf")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//dev/kind:binary.bzl", "kind_binary")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
@@ -71,4 +71,11 @@ filegroup(
     sha256 = project.metrics_server.sha256,
     strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
     url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
+)
+
+http_file(
+    name = "helm_charts_stable_nats",
+    downloaded_file_path = "nats.tgz",
+    sha256 = project.helm_charts_stable_nats.sha256,
+    urls = ["https://kubernetes-charts.storage.googleapis.com/nats-{}.tgz".format(project.helm_charts_stable_nats.version)],
 )

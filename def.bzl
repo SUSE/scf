@@ -21,6 +21,10 @@ project = struct(
             },
         ],
     ),
+    helm_charts_stable_nats = struct(
+        version = "4.0.0",
+        sha256 = "15bc7ea023ce663f6480131f1e0b8a937679de8019d481183ab158ac9e33fb02",
+    ),
     kubernetes = struct(
         version = "1.14.6",
         platforms = [
