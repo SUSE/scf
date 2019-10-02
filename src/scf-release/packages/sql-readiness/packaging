@@ -7,7 +7,6 @@ export PATH="${PATH}:${GOROOT}/bin:/var/vcap/packages/git/bin"
 export GOBIN="${BOSH_INSTALL_TARGET}/bin"
 
 mkdir -p "${GOBIN}"
-ls -l $PWD acceptance-tests-brain acceptance-tests-brain/sql-readiness
 export GO111MODULE=on
 cd acceptance-tests-brain/sql-readiness
 go install -mod=vendor
