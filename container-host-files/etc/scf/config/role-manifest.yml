@@ -112,9 +112,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.3.78"
   sha1: "d613d9523ff9fd172f0788bd1ebd79db6ea8ac77"
 - name: suse-python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.36.1.tgz"
-  version: "1.6.36.1"
-  sha1: "4f0a35780ee32df8b0809fee23bcfb2176ea4d73"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.1.tgz"
+  version: "1.6.37.1"
+  sha1: "52f57402d790222e9602ed007c88f3dbb04bd1ee"
 - name: "python-buildpack"
   version: "1.6.36"
   url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.6.36"
