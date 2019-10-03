@@ -40,6 +40,8 @@ k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
 
+# Settings for using the upstream helm chart for NATS
+# This needs to be here so that it can propagate into the subchart correctly.
 nats:
   # Set this to true to disable the NATS release, and use the official helm chart
   # In that case the nats password is required.
