@@ -237,7 +237,7 @@ end
 
 # Show the status of a Kubernetes namespace
 def show_resources_in_namespace(namespace, *resource_types)
-    run "kubectl get #{resource_types.join(','))} --namespace #{namespace} --output-wide"
+    run "kubectl get #{resource_types.join(',')} --namespace #{namespace} --output-wide"
 end
 
 def print_all_container_logs_in_namespace(ns)
