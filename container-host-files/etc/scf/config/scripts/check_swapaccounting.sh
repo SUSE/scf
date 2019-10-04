@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 # This script checks if swap is available, and if yes, if swapaccounting is
 # enabled on the kernel.  It is an error to have swap without swapaccounting (as
 # that would lead to mis-tracking of memory usage).  If there is no swap,
