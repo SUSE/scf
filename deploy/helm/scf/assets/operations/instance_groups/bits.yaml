@@ -31,7 +31,7 @@
     namespace: {{ .Release.Namespace }}
 - type: replace
   path: /variables/name=bits_service_ssl/options/signer_type?
-  value: cluster
+  value: local
 - type: replace
   path: /variables/name=bits_service_ssl/options/alternative_names/-
   value: "*.{{ .Values.deployment_name }}-bits"

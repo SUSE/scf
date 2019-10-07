@@ -35,7 +35,7 @@
           run_cert_copier: ~
           cert_copier_image: ""
         opi:
-          registry_address: ""
+          registry_address: registry.((system_domain))
           kube_namespace: {{ .Values.deployment_name }}-eirini
           certs_secret_name: eirini-staging-secret
           cc_cert: ((cc_bridge_tps.certificate))
@@ -85,7 +85,7 @@
           kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
-          registry_address: {{ .Values.deployment_name }}-eirini-registry # registry.((system_domain))
+          registry_address: registry.((system_domain))
           registry_username: admin
           registry_password: ((bits_service_signing_password))
           nats_password: ((nats_password))
@@ -93,7 +93,7 @@
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}:9023
           cc_uploader_ip: ""
-          eirini_address: http://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8484
+          eirini_address: https://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8484
           downloader_image: "eirini/recipe-downloader:0.3.0"
           uploader_image: "eirini/recipe-uploader:0.3.0"
           executor_image: "eirini/recipe-executor:0.3.0"
@@ -198,6 +198,8 @@
     options:
       ca: service_cf_internal_ca
       common_name: {{ .Values.deployment_name }}-eirini
+      alternative_names:
+      - {{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}
       extended_key_usage:
       - server_auth
 - type: replace
