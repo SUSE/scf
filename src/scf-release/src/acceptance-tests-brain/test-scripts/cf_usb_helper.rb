@@ -170,7 +170,7 @@ class CFUSBTestBase
     def deploy_sidecar
         at_exit do
             set errexit: false do
-                show_pods_for_namespace helm_namespace
+                show_resources_in_namespace helm_namespace, 'pods'
                 print_all_container_logs_in_namespace helm_namespace
                 run "yes | cf usb-delete-driver-endpoint #{service_type}"
                 run "helm delete --purge #{helm_release}"
