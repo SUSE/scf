@@ -996,9 +996,45 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
     }
 
     post {
+        success {
+            script {
+                withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                    sh '''
+                    echo -n 'Notification destination: '
+                    echo "${NOTIFICATION_EMAIL}" | base64
+                    '''
+                }
+                try {
+                    withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                        mail(
+                            subject: "Jenkins success: ${env.JOB_NAME} #${env.BUILD_ID}",
+                            from: 'cf-ci-bot@suse.de',
+                            to: env.NOTIFICATION_EMAIL,
+                            body: ("""
+                            Jenkins build ok: ${env.JOB_NAME} on branch ${env.BRANCH_NAME} after ${currentBuild.durationString}
+
+                            See logs on ${currentBuild.absoluteUrl}console
+                            """).toString().replaceAll('\n[ \t]*', '\n'),
+                        )
+                    }
+                    echo 'Build success notification mail sent'
+                } catch (e) {
+                    // Jenkins normally doesn't catch any exceptions here; catch it manually so we can see when
+                    // there is an error with the mail queuing.  Note that succeeding past this does not mean
+                    // the mail was successfully delivered.
+                    echo "${e}"
+                }
+            }
+        }
         failure {
             // Send mail, but only if we're develop or master
             script {
+                withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
+                    sh '''
+                    echo -n 'Notification destination: '
+                    echo "${NOTIFICATION_EMAIL}" | base64
+                    '''
+                }
                 if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
