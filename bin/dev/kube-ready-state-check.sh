@@ -48,6 +48,10 @@ function red() {
     printf "\033[31m%b\033[0m\n" "$1"
 }
 
+function blue() {
+    printf "\033[34m%b\033[0m\n" "$1"
+}
+
 function verified() {
     green "Verified: $1"
 }
@@ -78,6 +82,14 @@ function having_category() {
 
 echo "Testing $(green "${category}")"
 
+if has_command crictl ; then
+    # cri-o based system
+    green "cri-o system, will not have docker"
+    crio=1
+else
+    crio=0
+fi
+
 # swap should be accounted
 if having_category node ; then
     # https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt - section 2.4.
@@ -88,8 +100,10 @@ fi
 
 # docker info should not show aufs
 if having_category node ; then
-    docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
-    status "docker info should not show aufs"
+    if [ $crio -eq 0 ] ; then
+	docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
+	status "docker info should not show aufs"
+    fi
 fi
 
 # kernel must be >= 3.19
@@ -140,7 +154,7 @@ fi
 
 # privileged pods are enabled in K8s
 if having_category api ; then
-    pgrep -ax 'hyperkube|apiserver' | grep apiserver | grep --silent -- --allow-privileged
+    pgrep -ax 'hyperkube|apiserver|kube-apiserver' | grep apiserver | grep --silent -- --allow-privileged
     status "Privileged must be enabled in 'kube-apiserver'"
 fi
 
@@ -156,11 +170,15 @@ if having_category node ; then
             test $(systemctl show containerd | awk -F= '/TasksMax/ { print substr($2,0,10) }') -gt $((1024 * 1024))
             status "TasksMax must be set to infinity"
         else
-            red "containerd.service not available"
+            blue "containerd.service not available, no task limits to verify"
         fi
     else
-        test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
-        status "Max processes should be unlimited, or as high as possible for the system"
+	if pgrep -x containerd ; then
+            test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
+            status "Max processes should be unlimited, or as high as possible for the system"
+	else
+	    blue "containerd not available, no task limits to verify"
+	fi
     fi
 fi
 
