@@ -999,7 +999,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
         failure {
             // Send mail, but only if we're develop or master
             script {
-                if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
+                if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop, BuildType.Nightly])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
                             mail(
