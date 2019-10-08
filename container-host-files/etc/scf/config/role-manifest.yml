@@ -144,9 +144,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.0.15"
   sha1: "0d62a3f8c7af747854035d105a50e52c7ddb57f2"
 - name: suse-dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.13.1.tgz"
-  version: "2.2.13.1"
-  sha1: "2891486988d66aaae783c6f8df506695a916201b"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.1.tgz"
+  version: "2.3.0.1"
+  sha1: "1d558c0d33d342b5a63b055c3401c071569465f3"
 - name: "dotnet-core-buildpack"
   version: "2.2.12"
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.2.12"
