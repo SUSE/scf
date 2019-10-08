@@ -3836,7 +3836,7 @@ variables:
     description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'eirini/recipe-executor:0.3.0'
+    default: 'latest'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
