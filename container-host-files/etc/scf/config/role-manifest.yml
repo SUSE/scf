@@ -3892,7 +3892,7 @@ variables:
     required: true
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'eirini/recipe-uploader:0.3.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader@sha256:0d6905d1b597b36bd17e135e3de07899b6e643cab9da854008c3e060f0a6926a'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
