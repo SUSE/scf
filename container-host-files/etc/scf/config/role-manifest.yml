@@ -80,9 +80,9 @@ releases:
   version: "1.0.33.1"
   sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
 - name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
-  version: "1.8.42.1"
-  sha1: "f811bef86bfba4532d6a7f9653444c7901c59989"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.1.1.tgz"
+  version: "1.9.1.1"
+  sha1: "ce9579dccf4aa4efa6c17fe4cd91a8a457fd0f17"
 - name: java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.22.0.1.tgz"
   version: "4.22.0.1"
