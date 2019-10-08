@@ -11,9 +11,12 @@ set -x
 # First a set of commands to show us what the following checks are seeing.
 
 grep Swap /proc/meminfo ;# Do we have swap, how much ?
-if [ -e /etc/default/grub ] ; then
+if [ -r /etc/default/grub ] ; then
     grep CMDLINE /etc/default/grub ;# what does the boot loader say about swap/cgroup ?
 fi
+
+cat /proc/cmdline ;# and what does the running kernel believes about how it is configured?
+
 if [ ! -e /sys/fs/cgroup/memory/memory.memsw.limit_in_bytes ] ; then
     echo No swap accounting
 fi
