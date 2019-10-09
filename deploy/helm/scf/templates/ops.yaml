@@ -18,9 +18,6 @@ data:
 {{- end -}}
 
 {{- $root := . -}}
-{{- if .Values.features.suse_buildpacks }}
-{{ include "scf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
-{{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
@@ -28,5 +25,8 @@ data:
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+{{ include "scf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/features/*" }}
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
