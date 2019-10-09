@@ -3881,7 +3881,7 @@ variables:
     required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'eirini/recipe-downloader:0.3.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader@sha256:c026b3d672223252365134d4a444603f7eec512cb5c965cc743d8d72cb94f3f7'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EIRINI_PERSI_SERVICE_HOST
