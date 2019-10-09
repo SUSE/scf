@@ -123,6 +123,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.0.1.tgz"
   version: "1.8.0.1"
   sha1: "a82185088066518573716edc1b4d216043908657"
+- name: "java-buildpack"
+  version: "4.23"
+  url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.23"
+  sha1: "fe0d3e8a25cf1ab5616b7ac8acfd05eb6ee7a9c2"
 - name: "ruby-buildpack"
   version: "1.7.42"
   url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.7.42"
@@ -1124,6 +1128,8 @@ instance_groups:
     release: nginx-buildpack
   - name: java-buildpack
     release: suse-java-buildpack
+  - name: java-buildpack
+    release: java-buildpack
   - name: dotnet-core-buildpack
     release: suse-dotnet-core-buildpack
   - name: dotnet-core-buildpack

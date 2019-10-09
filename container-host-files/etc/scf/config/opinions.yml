@@ -201,6 +201,8 @@ properties:
       package: nginx-buildpack-cflinuxfs3
     - name: java_buildpack
       package: java-buildpack-sle15
+    - name: java_buildpack
+      package: java-buildpack-cflinuxfs3
     - name: ruby_buildpack
       package: ruby-buildpack-sle15
     - name: ruby_buildpack
