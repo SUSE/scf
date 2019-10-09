@@ -91,7 +91,7 @@ releases:
   version: "1.8.42"
   url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.8.42"
   sha1: "c6841bcd189f4593765958f0df8b01e9abb2b046"
-- name: java-buildpack
+- name: suse-java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.23.0.1.tgz"
   version: "4.23.0.1"
   sha1: "df9271b965423b5f8df9c9ea224f3467160a0d79"
@@ -1123,7 +1123,7 @@ instance_groups:
   - name: nginx-buildpack
     release: nginx-buildpack
   - name: java-buildpack
-    release: java-buildpack
+    release: suse-java-buildpack
   - name: dotnet-core-buildpack
     release: suse-dotnet-core-buildpack
   - name: dotnet-core-buildpack
