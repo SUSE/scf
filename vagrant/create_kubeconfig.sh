@@ -6,9 +6,9 @@
 
 set -o errexit -o nounset -o xtrace
 
-SECRET=$(kubectl get sa default -n kube-system -o jsonpath="{.secrets[0].name}")
-CA_CRT=$(kubectl get secrets ${SECRET} -n kube-system -o jsonpath="{.data['ca\.crt']}")
-TOKEN=$(kubectl get secrets ${SECRET} -n kube-system -o jsonpath="{.data['token']}" | base64 -d)
+SECRET=$(kubectl get serviceaccount default --namespace kube-system --output jsonpath="{.secrets[0].name}")
+CA_CRT=$(kubectl get secrets ${SECRET} --namespace kube-system --output jsonpath="{.data['ca\.crt']}")
+TOKEN=$(kubectl get secrets ${SECRET} --namespace kube-system --output jsonpath="{.data['token']}" | base64 --decode)
 
 sudo chown -R vagrant:users ~/.kube
 
