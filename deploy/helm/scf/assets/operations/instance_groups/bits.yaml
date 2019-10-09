@@ -33,6 +33,9 @@
   path: /variables/name=bits_service_ssl/options/signer_type?
   value: cluster
 - type: replace
+  path: /variables/name=bits_service_ssl/options/activateEKSWorkaroundForSAN?
+  value: true
+- type: replace
   path: /variables/name=bits_service_ssl/options/alternative_names/-
   value: "*.{{ .Values.deployment_name }}-bits"
 - type: replace
