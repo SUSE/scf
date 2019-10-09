@@ -192,25 +192,43 @@ properties:
         username: 'blobstore_user'
     install_buildpacks:
     - name: staticfile_buildpack
-      package: staticfile-buildpack
+      package: staticfile-buildpack-sle15
+    - name: staticfile_buildpack
+      package: staticfile-buildpack-cflinuxfs3
     - name: nginx_buildpack
-      package: nginx-buildpack
+      package: nginx-buildpack-sle15
+    - name: nginx_buildpack
+      package: nginx-buildpack-cflinuxfs3
     - name: java_buildpack
       package: java-buildpack
     - name: ruby_buildpack
-      package: ruby-buildpack
+      package: ruby-buildpack-sle15
+    - name: ruby_buildpack
+      package: ruby-buildpack-cflinuxfs3
     - name: nodejs_buildpack
-      package: nodejs-buildpack
+      package: nodejs-buildpack-sle15
+    - name: nodejs_buildpack
+      package: nodejs-buildpack-cflinuxfs3
     - name: go_buildpack
-      package: go-buildpack
+      package: go-buildpack-sle15
+    - name: go_buildpack
+      package: go-buildpack-cflinuxfs3
     - name: python_buildpack
-      package: python-buildpack
+      package: python-buildpack-sle15
+    - name: python_buildpack
+      package: python-buildpack-cflinuxfs3
     - name: php_buildpack
-      package: php-buildpack
+      package: php-buildpack-sle15
+    - name: php_buildpack
+      package: php-buildpack-cflinuxfs3
     - name: binary_buildpack
-      package: binary-buildpack
+      package: binary-buildpack-sle15
+    - name: binary_buildpack
+      package: binary-buildpack-cflinuxfs3
     - name: dotnet-core_buildpack
-      package: dotnet-core-buildpack
+      package: dotnet-core-buildpack-sle15
+    - name: dotnet-core_buildpack
+      package: dotnet-core-buildpack-cflinuxfs3
     jobs:
       generic:
         number_of_workers: null
