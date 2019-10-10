@@ -100,9 +100,9 @@ releases:
   version: "1.6.56.1"
   sha1: "2b50d0ff5158fca9928cf6a101105a74455406cc"
 - name: "nodejs-buildpack"
-  version: "1.6.52"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.6.52"
-  sha1: "33832018e3a33a73f812a45388ae6c3e4621dd37"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.6.56"
+  version: "1.6.56"
+  sha1: "6b3198b3bac7bba9cccdbaeb1600a32928621cfc"
 - name: suse-php-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.82.1.tgz"
   version: "4.3.82.1"
