@@ -90,9 +90,9 @@ crio=0
 if ! has_command docker ; then
     # No docker, but ...
     if has_command crictl ; then
-	# ... cri-o => cri-o based system
-	green "cri-o system, without docker"
-	crio=1
+        # ... cri-o => cri-o based system
+        green "cri-o system, without docker"
+        crio=1
     fi
 fi
 
