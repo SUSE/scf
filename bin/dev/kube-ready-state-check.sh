@@ -13,10 +13,10 @@ EOF
 
 while getopts "h" opt; do
     case $opt in
-	h)
-	    usage
-	    exit
-	    ;;
+        h)
+            usage
+            exit
+            ;;
     esac
 done
 
@@ -25,11 +25,11 @@ shift $((OPTIND-1))
 category="${1:-all}"
 case ${category} in
     all|api|kube|node)
-	: # ok, nothing to do
-	;;
+        : # ok, nothing to do
+        ;;
     *) usage
-	exit 1
-	;;
+        exit 1
+        ;;
 esac
 
 #Script to determine is the K8s host is "ready" for cf deployment
@@ -62,10 +62,10 @@ function trouble() {
 
 function status() {
     if [ $? -eq 0 ]; then
-	verified "$1"
+        verified "$1"
     else
-	trouble "$1"
-	FAILED=1
+        trouble "$1"
+        FAILED=1
     fi
 }
 
@@ -73,9 +73,9 @@ function having_category() {
     # `all` matches always
     set -- all "$@"
     case "$@" in
-	*${category}*)
-	    return 0
-	    ;;
+        *${category}*)
+            return 0
+            ;;
     esac
     return 1
 }
@@ -101,8 +101,8 @@ fi
 # docker info should not show aufs
 if having_category node ; then
     if [ $crio -eq 0 ] ; then
-	docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
-	status "docker info should not show aufs"
+        docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
+        status "docker info should not show aufs"
     fi
 fi
 
@@ -173,12 +173,12 @@ if having_category node ; then
             blue "containerd.service not available, no task limits to verify"
         fi
     else
-	if pgrep -x containerd ; then
+        if pgrep -x containerd ; then
             test "$(awk '/processes/ {print $3}' /proc/"$(pgrep -x containerd)"/limits)" -gt 4096
             status "Max processes should be unlimited, or as high as possible for the system"
-	else
-	    blue "containerd not available, no task limits to verify"
-	fi
+        else
+            blue "containerd not available, no task limits to verify"
+        fi
     fi
 fi
 
