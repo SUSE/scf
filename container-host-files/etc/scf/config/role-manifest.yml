@@ -80,9 +80,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.33"
   sha1: "61dc701f2b851f18282cd249aaf153479fdd620c"
 - name: suse-binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.34.1.tgz"
-  version: "1.0.34.1"
-  sha1: "860e15dcd26c1a68fbe78bc5055407f30342cdf4"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
+  version: "1.0.35.1"
+  sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
 - name: suse-go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.1.1.tgz"
   version: "1.9.1.1"
