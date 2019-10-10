@@ -88,8 +88,8 @@ releases:
   version: "1.9.1.1"
   sha1: "ce9579dccf4aa4efa6c17fe4cd91a8a457fd0f17"
 - name: "go-buildpack"
-  version: "1.8.42"
   url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.8.42"
+  version: "1.8.42"
   sha1: "c6841bcd189f4593765958f0df8b01e9abb2b046"
 - name: suse-java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.23.0.1.tgz"
