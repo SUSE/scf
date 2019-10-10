@@ -128,9 +128,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.23"
   sha1: "fe0d3e8a25cf1ab5616b7ac8acfd05eb6ee7a9c2"
 - name: "ruby-buildpack"
-  version: "1.7.42"
-  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.7.42"
-  sha1: "c2118a686a670f96d92e12dbda545ff70b0cc98b"
+  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.0"
+  version: "1.8.0"
+  sha1: "07738f22401a7c66f78535b2065e78dfd3489dec"
 - name: suse-staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.45.1.tgz"
   version: "1.4.45.1"
