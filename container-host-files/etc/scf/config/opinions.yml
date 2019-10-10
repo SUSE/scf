@@ -1,5 +1,8 @@
 ---
 properties:
+  global-properties:
+    switchboard:
+      renewal: 60
   acceptance_tests:
     admin_user: admin
     skip_ssl_validation: true
