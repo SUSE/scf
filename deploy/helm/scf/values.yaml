@@ -1,6 +1,17 @@
 system_domain: ~
 deployment_name: scf
 
+# Set or override job properties. The first level of the map is the instance group name. The second
+# level of the map is the job name. E.g.:
+#  properties:
+#    adapter:
+#      adapter:
+#        scalablesyslog:
+#          adapter:
+#            logs:
+#              addr: scf-log-api:8082
+properties: {}
+
 releases:
   # The defaults for all releases, where we do not otherwise override them.
   defaults:
@@ -12,10 +23,17 @@ releases:
 sizing:
   HA: false
 
+# Service is only valid to set an external endpoint for the router if features.ingress.enabled is
+# false.
+service:
+  type: LoadBalancer
+  externalIPs: []
+  clusterIP: ~
+
 features:
   eirini: false
   ingress:
-    enabled: true
+    enabled: false
     tls:
       crt: ~
       key: ~

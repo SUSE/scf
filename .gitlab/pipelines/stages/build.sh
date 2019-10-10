@@ -2,6 +2,9 @@
 
 set -o errexit -o nounset
 
+bazel build //deploy/helm/scf:chart
+mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - scf-*.tgz) | (cd output; tar xvf -)
+
 built_file="$(find output/ -name 'scf-*.tgz' -print0 | xargs -0 basename)"
 commit_hash="$(git rev-parse --short HEAD)"
 release_filename="$(basename "${built_file}" .tgz)-${commit_hash}"
