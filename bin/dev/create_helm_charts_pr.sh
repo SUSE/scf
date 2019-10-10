@@ -59,6 +59,8 @@ sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/u
 sed -i 's@^\(\s\+\)organization:\s\+".*"$@\1organization: "cap"@' stable/cf/values.yaml
 sed -i 's@^\(\s\+\)organization:\s\+".*"$@\1organization: "cap"@' stable/uaa/values.yaml
 
+sed -i 's@\(\s\+EIRINI_.*_IMAGE:\s\+"registry.suse.com\/\)cap-staging@\1cap@' stable/cf/values.yaml
+
 $HUB config user.email "cf-ci-bot@suse.de"
 $HUB config user.name "${GITHUB_USER}"
 $HUB checkout -b $bundle
