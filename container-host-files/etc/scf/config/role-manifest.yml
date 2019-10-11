@@ -188,9 +188,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://suse-final-releases.s3.amazonaws.com/eirini-release-0.0.17.tgz"
-  version: "0.0.17"
-  sha1: "e969742c39743302836190b3be033ddf22beb411"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.18.tgz"
+  version: "0.0.18"
+  sha1: "624b3282473e40678a1d91f687bf02197d37db18"
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
@@ -203,6 +203,57 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   # eirini-bosh-release already includes kubectl package, so we don't need get-kubectl job from scf-release.
   - scripts/set-opi-registry-port.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
+  - name: eirini-loggregator-bridge
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+  - name: opi
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: opi-server
+          protocol: TCP
+          internal: 8484
+- name: eirini-persi
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
   scripts:
   - scripts/forward_logfiles.sh
@@ -243,6 +294,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
+          service-account: eirini
           scaling:
             min: 1
             max: 1
@@ -252,34 +304,8 @@ instance_groups:
         ports:
         - name: webhook
           protocol: TCP
-          internal: 2999
-  - name: eirini-loggregator-bridge
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-  - name: opi
-    release: eirini
-    properties:
-      bosh_containerization:
-        run:
-          service-account: eirini
-          scaling:
-            min: 1
-            max: 1
-            ha: 1
-          memory: 256
-          virtual-cpus: 2
-        ports:
-        - name: opi-server
-          protocol: TCP
-          internal: 8484
+          external: 443
+          internal: 8443
 - name: bits
   if_feature: eirini
   environment_scripts:
@@ -3034,11 +3060,11 @@ configuration:
     properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
-    properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.eirini-persi-broker.url: 'http://eirini-persi-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
     properties.eirini-persi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-persi.operator_webhook_host: "((EIRINI_EIRINI_PERSI_SERVICE_HOST))"
+    properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
     properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
@@ -3890,10 +3916,6 @@ variables:
     default: 'eirini/recipe-downloader:0.3.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
-- name: EIRINI_EIRINI_PERSI_SERVICE_HOST
-  options:
-    type: environment
-    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
     default: 'eirini/recipe-executor:0.3.0'
