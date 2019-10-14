@@ -17,11 +17,10 @@ Dir.glob(File.join(helm, "templates", "*.yaml")).each do |file|
   end
 end
 
-File.open(File.join(helm, "values.yaml")).each do |line|
-  ["DOWNLOADER","EXECUTOR","UPLOADER"].each do |image|
-    /^\s+EIRINI_#{image}_IMAGE: ["'].+\/([^\/]*)["']$/.match(line) do |match|
-      images[match[1]] = true
-    end
+# Eirini staging images
+values['env'].each_value do |value|
+  /^registry\.suse\.com\/cap-staging\/(.*)$/.match(value) do |match|
+    images[match[1]] = true
   end
 end
 
