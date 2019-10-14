@@ -15,6 +15,14 @@ It makes use of the [Cloud Foundry Operator](https://github.com/cloudfoundry-inc
 | Cloud Foundry Operator     | https://github.com/cloudfoundry-incubator/cf-operator/       |
 | CF Operator builds         | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
 
+### CF Login
+
+Running `cf login` requires a password, which can be determined as follows
+
+```bash
+kubectl get secrets -n <namespace>  scf.var-cf-admin-password -o json | jq -r ".data.password | @base64d "
+```
+
 ## Developing
 
 Refer to [dev/README.md](dev/README.md).
