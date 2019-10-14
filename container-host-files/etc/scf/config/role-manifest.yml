@@ -3069,7 +3069,6 @@ configuration:
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
-    properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -3897,12 +3896,6 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
-
-- name: EIRINI_CERT_COPIER_IMAGE
-  options:
-    default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
-    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
-    imagename: true
 - name: EIRINI_CLIENT_CRT
   options:
     secret: true
