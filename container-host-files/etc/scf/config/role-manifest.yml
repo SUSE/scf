@@ -132,9 +132,9 @@ releases:
   version: "1.8.0"
   sha1: "07738f22401a7c66f78535b2065e78dfd3489dec"
 - name: suse-staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.45.1.tgz"
-  version: "1.4.45.1"
-  sha1: "d30e0392800ad8ce228a7fb13a97ddb8fc49691c"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.0.1.tgz"
+  version: "1.5.0.1"
+  sha1: "6fd4e8e8b011a132b16500be0a53ad692047d9d4"
 - name: "staticfile-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.4.45"
   version: "1.4.45"
