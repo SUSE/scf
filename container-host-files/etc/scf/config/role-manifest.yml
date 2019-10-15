@@ -188,9 +188,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.18.tgz"
-  version: "0.0.18"
-  sha1: "624b3282473e40678a1d91f687bf02197d37db18"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.20.tgz"
+  version: "0.0.20"
+  sha1: "86e0a2b2e809bd957026ed80f68e339f9c9494d2"
 - name: "eirinifs-sle15-release"
   url: "https://s3.amazonaws.com/suse-final-releases/eirinifs-sle15-release-0.1.2.tgz"
   version: "0.1.2"
@@ -2249,9 +2249,6 @@ instance_groups:
           memory: 256
           virtual-cpus: 1
           service-account: eirini
-  configuration:
-    templates:
-      properties.eirini.run_cert_copier: ""
 - name: post-deployment-setup
   type: bosh-task
   jobs:
