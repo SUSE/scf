@@ -2652,6 +2652,9 @@ configuration:
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
+      - apiGroups: [""]
+        resources: [secrets]
+        verbs: [create, get, delete]
       psp-role:
       - apiGroups: [extensions]
         resourceNames: [default]
