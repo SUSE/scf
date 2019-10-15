@@ -17,6 +17,13 @@ Dir.glob(File.join(helm, "templates", "*.yaml")).each do |file|
   end
 end
 
+# Eirini staging images
+values['env'].each_value do |value|
+  /^registry\.suse\.com\/cap-staging\/(.*)$/.match(value) do |match|
+    images[match[1]] = true
+  end
+end
+
 File.open(File.join(helm, "imagelist.txt"), "w") do |file|
   file.puts(images.keys.sort)
 end

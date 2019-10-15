@@ -188,9 +188,13 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.18.tgz"
-  version: "0.0.18"
-  sha1: "624b3282473e40678a1d91f687bf02197d37db18"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.20.tgz"
+  version: "0.0.20"
+  sha1: "86e0a2b2e809bd957026ed80f68e339f9c9494d2"
+- name: "eirinifs-sle15-release"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirinifs-sle15-release-0.1.2.tgz"
+  version: "0.1.2"
+  sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
@@ -321,8 +325,8 @@ instance_groups:
     release: scf-helper
   - name: statsd_injector
     release: statsd-injector
-  - name: eirinifs
-    release: eirini
+  - name: eirinifs-sle15
+    release: eirinifs-sle15-release
   - name: bpm
     release: bpm
     properties:
@@ -2245,9 +2249,6 @@ instance_groups:
           memory: 256
           virtual-cpus: 1
           service-account: eirini
-  configuration:
-    templates:
-      properties.eirini.run_cert_copier: ""
 - name: post-deployment-setup
   type: bosh-task
   jobs:
@@ -3065,7 +3066,6 @@ configuration:
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
-    properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -3893,12 +3893,6 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
-
-- name: EIRINI_CERT_COPIER_IMAGE
-  options:
-    default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
-    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
-    imagename: true
 - name: EIRINI_CLIENT_CRT
   options:
     secret: true
@@ -3913,12 +3907,12 @@ variables:
     required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'eirini/recipe-downloader:0.3.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader:0.4.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'eirini/recipe-executor:0.3.0'
+    default: 'registry.suse.com/cap-staging/recipe-executor:0.4.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -3974,7 +3968,7 @@ variables:
     required: true
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'eirini/recipe-uploader:0.3.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader:0.4.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING

@@ -309,16 +309,16 @@ pipeline {
         credentials(
             name: 'DOCKER_CREDENTIALS',
             description: 'Docker credentials used for publishing',
-            defaultValue: 'cred-docker-scf-staging',
+            defaultValue: 'cred-docker-scf-staging-public',
         )
         string(
             name: 'FISSILE_DOCKER_REGISTRY',
-            defaultValue: 'staging.registry.howdoi.website/',
+            defaultValue: 'registry.suse.com/',
             description: 'Docker registry to publish to',
         )
         string(
             name: 'FISSILE_DOCKER_ORGANIZATION',
-            defaultValue: 'splatform',
+            defaultValue: 'cap-staging',
             description: 'Docker organization to publish to',
         )
         string(
