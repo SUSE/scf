@@ -24,9 +24,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
   sha1: fe9fd8946c39554425b534cdb8ce14f3923a31f8
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.133.0"
-  version: "0.133.0"
-  sha1: "df87b8794fc80f77216b00225d02667d6091c725"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.135.0"
+  version: "0.135.0"
+  sha1: "96a2454ae4e284a619c35f31710046ff4cb117ef"
 - name: credhub
   version: 2.4.0
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
@@ -104,9 +104,9 @@ releases:
   version: "1.7.0"
   sha1: "58892526e2fa213feb30eb7f492d44f018eabbfa"
 - name: suse-php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.82.1.tgz"
-  version: "4.3.82.1"
-  sha1: "ff2ade55abdfd4fb21012a9bb22f7b0b1f0829c3"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.0.1.tgz"
+  version: "4.4.0.1"
+  sha1: "9f2955299b62ac1b2eb859c7a488e6fc82e7d0a6"
 - name: "php-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.0"
   version: "4.4.0"
@@ -160,9 +160,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.38.tgz"
-  version: "1.81.38"
-  sha1: "ae5bdc8756645bc68ec930054348b5f4bba28d30"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.41.tgz"
+  version: "1.81.41"
+  sha1: "c2c8f23ab77adbccae46c1a22a4ca34d84143afa"
 - name: sle15
   url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.53.tgz"
   version: "10.53"
@@ -3907,12 +3907,12 @@ variables:
     required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-downloader:0.4.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader:0.8.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-executor:0.4.0'
+    default: 'registry.suse.com/cap-staging/recipe-executor:0.8.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -3968,7 +3968,7 @@ variables:
     required: true
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-uploader:0.4.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader:0.8.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
