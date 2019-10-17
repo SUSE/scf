@@ -310,6 +310,63 @@ instance_groups:
           protocol: TCP
           external: 443
           internal: 8443
+- name: eirini-ssh
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
+  - name: eirini-ssh-proxy
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: eirini-ssh
+          protocol: TCP
+          internal: 2222
+          public: true
+  - name: eirini-ssh-extension
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: webhook
+          protocol: TCP
+          external: 443
+          internal: 8443
 - name: bits
   if_feature: eirini
   environment_scripts:
@@ -3069,6 +3126,14 @@ configuration:
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
+    properties.eirini-ssh-extension.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-ssh-extension.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-ssh-extension.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-ssh-extension.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
+    properties.eirini-ssh-proxy.host_key: '"((APP_SSH_KEY))"'
+    properties.eirini-ssh-proxy.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-ssh-proxy.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-ssh-proxy.port: '"((EIRINI_SSH_PORT))"'
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -3969,6 +4034,10 @@ variables:
     secret: true
     description: Private key associated with TLS certificate for Eirini server
     required: true
+- name: EIRINI_SSH_PORT
+  options:
+    default: '2222'
+    description: "The port of the ssh proxy for Eirini"
 - name: EIRINI_UPLOADER_IMAGE
   options:
     default: 'registry.suse.com/cap-staging/recipe-uploader:0.15.0'
