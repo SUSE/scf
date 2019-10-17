@@ -312,6 +312,11 @@ pipeline {
             defaultValue: 'cred-docker-scf-staging-public',
         )
         string(
+            name: 'FISSILE_STEMCELL',
+            defaultValue: 'registry.opensuse.org/cloud/platform/fissile-stemcell/sle_12_sp4/fissile-stemcell-sle12:latest',
+            description: 'Fissile stemcell override',
+        )
+        string(
             name: 'FISSILE_DOCKER_REGISTRY',
             defaultValue: 'registry.suse.com/',
             description: 'Docker registry to publish to',
@@ -351,6 +356,7 @@ pipeline {
 
     environment {
         FISSILE_DOCKER_REGISTRY = "${params.FISSILE_DOCKER_REGISTRY}"
+        FISSILE_STEMCELL = "${params.FISSILE_STEMCELL}"
         FISSILE_DOCKER_ORGANIZATION = "${params.FISSILE_DOCKER_ORGANIZATION}"
         FISSILE_DOCKER_REPO = "${params.FISSILE_DOCKER_REPO}"
         FISSILE_STEMCELL_VERSION = "${params.FISSILE_STEMCELL_VERSION}"
