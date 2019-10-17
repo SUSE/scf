@@ -92,9 +92,9 @@ releases:
   version: "1.9.1"
   sha1: "8746184bbfdb246e58dd89f5049454437ba0a13c"
 - name: suse-java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.23.0.1.tgz"
-  version: "4.23.0.1"
-  sha1: "df9271b965423b5f8df9c9ea224f3467160a0d79"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.24.0.1.tgz"
+  version: "4.24.0.1"
+  sha1: "902678082a41c6d45d3ef4d60049c6f7418db303"
 - name: suse-nodejs-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.0.1.tgz"
   version: "1.7.0.1"
