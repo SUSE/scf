@@ -779,6 +779,7 @@ pipeline {
 
                     # Get the last updated secret
                     secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=name --sort-by=.metadata.resourceVersion | grep secrets- | tail -n1)"
+                    # secret_resource is something like "secret/secrets-2.18.0.1-1", including the resource type
 
                     # Get a random secret that should be rotated (TODO: choose this better)
                     secret_name=internal-ca-cert
@@ -839,6 +840,7 @@ pipeline {
 
                     # Get the secret again to see that they have been rotated
                     secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=name --sort-by=.metadata.resourceVersion | grep secret- | tail -n1)"
+                    # secret_resource is something like "secret/secrets-2.18.0.1-2", including the resource type
                     new_secret_value="\$(kubectl get --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
 
                     if test "\${old_secret_value}" = "\${new_secret_value}" ; then
