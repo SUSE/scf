@@ -679,7 +679,9 @@ pipeline {
                         git config --local --replace-all credential.helper \
                             '/bin/bash -c "echo \"username=${GIT_USERNAME}\"; echo \"password=${GIT_PASSWORD}\""'
                         # Figure out what the tag was from earlier in this build pipeline
-                        git config --unset-all versionsort.suffix
+                        if git config --get-all versionsort.suffix ; then
+                            git config --unset-all versionsort.suffix
+                        fi
                         git config --add versionsort.suffix '-alpha'
                         git config --add versionsort.suffix '-beta'
                         git config --add versionsort.suffix '-rc'
