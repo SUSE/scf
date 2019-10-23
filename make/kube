@@ -29,6 +29,7 @@ appVersion: ${PRODUCT_VERSION}
 description: A Helm chart for SUSE Cloud Foundry
 name: cf
 version: ${GIT_TAG}
+scfVersion: ${APP_VERSION}
 EOF
     cp chart-parts/* "${FISSILE_OUTPUT_DIR}/templates/"
     ruby bin/image-list.rb "${FISSILE_OUTPUT_DIR}"
