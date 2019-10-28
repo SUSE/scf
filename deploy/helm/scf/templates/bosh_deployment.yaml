@@ -1,5 +1,4 @@
 {{- $root := . -}}
----
 apiVersion: fissile.cloudfoundry.org/v1alpha1
 kind: BOSHDeployment
 metadata:
