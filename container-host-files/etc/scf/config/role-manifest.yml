@@ -3133,6 +3133,7 @@ configuration:
     properties.eirini-ssh-proxy.api_url: 'https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9023' # TODO: Handle https cert in eirini-ssh-proxy, now currently skips validation
     properties.eirini-ssh-proxy.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.eirini-ssh-proxy.host_key: '"((APP_SSH_KEY))"'
+    properties.eirini-ssh-proxy.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-ssh-proxy.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-ssh-proxy.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-ssh-proxy.port: '"((EIRINI_SSH_PORT))"'
