@@ -3910,7 +3910,7 @@ variables:
     required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-downloader:0.14.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader:0.15.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EXECUTOR_IMAGE
