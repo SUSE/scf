@@ -267,7 +267,7 @@ properties:
       startup_timeout: 300
       galera_healthcheck:
         endpoint_username: 'galera_healthcheck_bootstrap_user'
-      max_open_files: 1500
+      max_connections: 20000
     proxy:
       api_force_https: false
       api_username: 'mysql_proxy'
