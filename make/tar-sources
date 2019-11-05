@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-DIRECTORY_BLACKLIST=".*-buildpack|cflinuxfs2|cflinuxfs3|sle12|sle15|opensuse42|opensuse15|busybox|golang.*"
+DIRECTORY_BLACKLIST=".*-buildpack|cflinuxfs3|sle12|sle15|opensuse42|opensuse15|busybox|golang.*"
 
 GIT_ROOT=${GIT_ROOT:-$(git rev-parse --show-toplevel)}
 BASEDIR="$FISSILE_WORK_DIR/compilation"

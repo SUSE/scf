@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.18.0] - 2019-08-26
+
+## Added
+- Added a config.HA_strict flag to allow role size overrides on top of config.HA 
+
+## Changed
+- Bumped binary-buildpack release to 1.0.33
+- Bumped cf-deployment to 9.5
+- Bumped cflinuxfs3 to 0.118.0
+- Bumped dotnet-core-buildpack release to 2.2.13
+- Bumped eirini release to 0.0.15  
+- Bumped go-buildpack release to 1.8.42
+- Bumped groot-btrfs release to 1.0.5
+- Bumped java-buildpack release to 4.20.0
+- Bumped nginx-buildpack release to 1.0.15
+- Bump nodejs-buildpack release to 1.6.53
+- Bumped PHP buildpack release to 4.3.80
+- Bumped python-buildpack release to 1.6.36
+- Bumped ruby-buildpack release to 1.7.42
+- Bumped scf-helper release to 1.0.3
+- Bumped SLE12 and SLE15 stacks
+- Removed the cluster-admin role binding for the eirini service account
+- Switched SCF over to PXC from cf-mysql for database management
+
+
 ## [2.17.1] - 2019-07-03
 
 ## Added
@@ -21,7 +46,7 @@
 ## [2.17.0] - 2019-06-19
 
 ## Added
-- Added eirini-extensions and eirini-persi-broker jobs
+- Added eirini-persi and eirini-persi-broker jobs
 - Added PXC release
 - Added support for embedded UAA
 

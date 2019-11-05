@@ -1,4 +1,4 @@
-#!/var/vcap/packages/ruby-2.3/bin/ruby
+#!/var/vcap/packages/ruby-2.5.5-r0.15.0/bin/ruby
 
 # This assumes STDIN is JSON and evaluates ARGV[0] on it
 

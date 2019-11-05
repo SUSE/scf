@@ -72,8 +72,8 @@ Table of Contents
 ## Requirements
 
 1. We recommend running on a machine with more than 16G of ram _for now_.
-1. You must install vagrant (1.9.5+): [https://www.vagrantup.com](https://www.vagrantup.com)
-1. Install the following vagrant plugins
+2. You must install vagrant (1.9.5+): [https://www.vagrantup.com](https://www.vagrantup.com)
+3. Install the following vagrant plugins
 
     * vagrant-libvirt (if using libvirt)
       ```bash
@@ -328,7 +328,7 @@ and higher. They do not work for CAP 1.3, and will not work for the
 CAP 2 series to be.
 
 1. Follow the basic steps for deploying UAA and SCF.
-1. When deploying SCF, add a section like
+2. When deploying SCF, add a section like
 
    ```
    bosh:
@@ -372,7 +372,7 @@ container.
     k logs cf:^router-[0-9]
     ```
 
-1. Container process logs
+2. Container process logs
 
     ```bash
     # Normal form
@@ -542,12 +542,12 @@ to remove the comments holding dump action tracing.
 
 1. Edit the `role-manifest.yml`:
     1. Add the BOSH release information to the `releases:` section
-    1. Add new roles or change existing ones
-    1. Add exposed environment variables (`yaml path: /variables`).
-    1. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
-1. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
-1. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
-1. Test the changes.
+    2. Add new roles or change existing ones
+    3. Add exposed environment variables (`yaml path: /variables`).
+    4. Add configuration templates (`yaml path: /configuration/templates` and `yaml path: /roles/*/configuration/templates`).
+2. Add development defaults for your configuration settings to `~/scf/bin/settings/settings.env`.
+3. Add any opinions (static defaults) and dark opinions (configuration that must be set by user) to `./container-host-files/etc/scf/config/opinions.yml` and `./container-host-files/etc/scf/config/dark-opinions.yml`, respectively.
+4. Test the changes.
     1. Run the `make compile images run` command.
 
 ### How do I expose new settings via environment variables?
@@ -555,13 +555,13 @@ to remove the comments holding dump action tracing.
 1. Edit `./container-host-files/etc/scf/config/role-manifest.yml`:
 
     1. Add the new exposed environment variables (`yaml path: /variables`).
-    1. Add or change configuration templates:
+    2. Add or change configuration templates:
 
         1. `yaml path: /configuration/templates`
-        1. `yaml path: /roles/*/configuration/templates`
+        2. `yaml path: /roles/*/configuration/templates`
 
 1. Add development defaults for your new settings in `~/scf/bin/settings/settings.env`.
-1. Rebuild the role images that need this new setting:
+2. Rebuild the role images that need this new setting:
 
     ```bash
     docker stop <role>
@@ -580,10 +580,11 @@ to remove the comments holding dump action tracing.
 ### How do I bump to a new cf-deployment version?
 
 1. Run `tooling/bin/import-bosh-releases <cf-deployment-version>`.
-1. Update `bin/common/version.sh` to record the new `CF_VERSION`.
-1. Run `make diff-releases` to check the changed BOSH properties; see
+2. Update `bin/common/version.sh` to record the new `CF_VERSION`.
+3. Run `make diff-releases` to check the changed BOSH properties; see
    the next section for details.
-1. Run `tooling/bin/check-uaa-clients`
+4. Run `tooling/bin/check-uaa-clients`
+5. Bump [CloudFoundry Acceptance Tests(CATs)](https://github.com/cloudfoundry/cf-acceptance-tests) submodule to match new `CF_VERSION`, before testing.
 
 ### How do I bump a BOSH release?
 
@@ -591,7 +592,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
 
 1. In the manifest, update the version and SHA of the release(s)
 
-1. Compare the BOSH releases
+2. Compare the BOSH releases
 
 
     ```bash
@@ -603,7 +604,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
 
    > Note: don't commit the changes to the releases before you run the diff target.
 
-1. Act on configuration changes:
+3. Act on configuration changes:
 
     __Important:__ If you are not sure how to treat a configuration
     setting, discuss it with the SCF team.
@@ -617,12 +618,12 @@ __Note:__ Because this process involves downloading and compiling release(s), it
 
     Define any secrets in the dark opinions file `./container-host-files/etc/scf/config/dark-opinions.yml` and expose them as environment variables.
 
-1. Evaluate role changes:
+4. Evaluate role changes:
 
     1. Consult the release notes of the new version of the release.
     1. If there are any role changes, discuss them with the SCF team, [follow steps 3 and 4 from this guide](#how-do-i-add-a-new-bosh-release-to-scf).
 
-1. Bump [CloudFoundry Acceptance Tests(CATs)](https://github.com/cloudfoundry/cf-acceptance-tests) submodule to match new `CF_VERSION`.
+5. Bump [CloudFoundry Acceptance Tests(CATs)](https://github.com/cloudfoundry/cf-acceptance-tests) submodule to match new `CF_VERSION`.
 
     1. `cd src/scf-release/src/github.com/cloudfoundry/cf-acceptance-tests`
     1. `git checkout <new-cf-version>`
@@ -632,12 +633,12 @@ __Note:__ Because this process involves downloading and compiling release(s), it
     > 2. Run `git branch -a --sort=-committerdate | grep /cf` to check available CF release branches.
 
 
-1. Test the release by running the `make compile images run` command.
+6. Test the release by running the `make compile images run` command.
 
-1. Before committing the tested release update the line
+7. Before committing the tested release update the line
    `export CF_VERSION=...` in `bin/common/version.sh` to the new CF version.
 
-1. Cleanup the diff work dir (`/tmp/scf-releases-diff`)
+8. Cleanup the diff work dir (`/tmp/scf-releases-diff`)
 
 ### Can I suspend or resume my vagrant VM?
 
@@ -652,9 +653,9 @@ __Note:__ Because this process involves downloading and compiling release(s), it
 ## How do I publish SCF and BOSH images?
 
 1. Ensure that the Vagrant box is running.
-1. `ssh` into the Vagrant box.
-1. To tag the images into the selected registry and to push them, run the `make tag publish` command.
-1. This target uses the `make` variables listed below to construct the image names and tags:
+2. `ssh` into the Vagrant box.
+3. To tag the images into the selected registry and to push them, run the `make tag publish` command.
+4. This target uses the `make` variables listed below to construct the image names and tags:
 
     | Variable       | Default          | Meaning |
     | -------------- | ---------------- | ------- |
@@ -663,7 +664,7 @@ __Note:__ Because this process involves downloading and compiling release(s), it
     | IMAGE_ORG      | splatform        | The organization in the image registry |
     | BRANCH         | _current branch_ | The tag to use for the images |
 
-1. To publish to the standard trusted registry run the `make tag publish` command, for example:
+5. To publish to the standard trusted registry run the `make tag publish` command, for example:
 
     ```bash
     make tag publish IMAGE_REGISTRY=docker.example.com/

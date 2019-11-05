@@ -104,56 +104,44 @@ end %>
 
 status "Setting of external proxies complete."
 
-
-status "Waiting for persi NFS broker to be available..."
-
-NFS_BROKER_URL='<%= p("nfsbroker.url") %>'
-NFS_BROKER_USERNAME='<%= p("nfsbroker.username") %>'
-NFS_BROKER_PASSWORD='<%= p("nfsbroker.password") %>'
-
-CATALOG_REQUEST=(
-   curl "${SILENT}"
-   --connect-timeout 5
-   --fail
-   --header 'Accept: application/json'
-   --header 'X-Broker-API-Version: 2.14'
-   -u "${NFS_BROKER_USERNAME}:${NFS_BROKER_PASSWORD}"
-   "${NFS_BROKER_URL}/v2/catalog"
-)
-retry 240 30s "${CATALOG_REQUEST[@]}"
-
-cf create-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL" || cf update-service-broker persi-nfs-broker "$NFS_BROKER_USERNAME" "$NFS_BROKER_PASSWORD" "$NFS_BROKER_URL"
-
-status "Persi NFS configuration complete."
-
-status "Remove temporary users"
-remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
-
-
 <% if p("scf.eirini.enabled") %>
-status "Configuring Eirini"
 
-scf_secrets="$(/var/vcap/packages/kubectl/bin/kubectl get secret "<%= p("scf.secrets_generation_name") %>" --namespace="$KUBERNETES_NAMESPACE" --export -o yaml | grep -E 'cc-.*|internal-ca-.*')"
-cat <<EOT >> secret.yml
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: scf-credentials
-type: Opaque
-data:
-${scf_secrets}
-EOT
-/var/vcap/packages/kubectl/bin/kubectl apply -f secret.yml --namespace "<%= p("scf.eirini.namespace") %>"
-
-status "Setting up Eirini daemonsets"
-
-/var/vcap/packages/kubectl/bin/kubectl apply -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml
+BROKER_URL='<%= p("eirini-persi-broker.url") %>'
+BROKER_USERNAME='<%= p("eirini-persi-broker.auth_username") %>'
+BROKER_PASSWORD='<%= p("eirini-persi-broker.auth_password") %>'
+BROKER_PLANS='<%= p("eirini-persi-broker.service_plans") %>'
+BROKER_NAME='eirini-persi-broker'
 
 <% else %>
 
-/var/vcap/packages/kubectl/bin/kubectl delete -f /var/vcap/jobs/configure-scf/config/eirini-daemonset.yaml || true
+BROKER_URL='<%= p("nfsbroker.url") %>'
+BROKER_USERNAME='<%= p("nfsbroker.username") %>'
+BROKER_PASSWORD='<%= p("nfsbroker.password") %>'
+BROKER_NAME='persi-nfs-broker'
 
 <% end %>
+
+# If we are using eirini-persi, configure the broker only if plans were defined
+if [ "$BROKER_NAME" != "eirini-persi-broker" ] || [ "$BROKER_PLANS" != "[]" ]; then
+   status "Waiting for persi $BROKER_NAME to be available..."
+
+   CATALOG_REQUEST=(
+      curl "${SILENT}"
+      --connect-timeout 5
+      --fail
+      --header 'Accept: application/json'
+      --header 'X-Broker-API-Version: 2.14'
+      -u "${BROKER_USERNAME}:${BROKER_PASSWORD}"
+      "${BROKER_URL}/v2/catalog"
+   )
+   retry 240 30s "${CATALOG_REQUEST[@]}"
+
+   cf create-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL" || cf update-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL"
+
+   status "$BROKER_NAME configuration complete."
+fi
+
+status "Remove temporary users"
+remove_temporary_users.rb "${API_ENDPOINT}" "${CURL_SKIP}"
 
 status "SCF configuration complete."

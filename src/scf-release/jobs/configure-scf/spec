@@ -5,13 +5,12 @@ description: Uses the cf CLI to configure SCF once it's online (things like prox
 
 packages:
   - cli
-  - ruby-2.3
+  - ruby-2.5.5-r0.15.0
   - service-registration-utils
   - kubectl
 
 templates:
   run.erb: bin/run
-  eirini-daemonset.yaml.erb: config/eirini-daemonset.yaml
 
 properties:
   cf.insecure_api_url:
@@ -59,17 +58,14 @@ properties:
     description: "basic auth password to verify on incoming Service Broker requests"
   scf.secrets_generation_name:
     description: "Name of the Kubernetes secret containing all SCF certificates, passwords and keys"
-  scf.eirini.namespace:
-    description: "Name of the namespace where Eirini runs Cloud Foundry applications"
-  scf.eirini.fluentd_image:
-    description: "The docker image used by Eirini to consume Kubernetes container logs"
-  scf.eirini.cert_copier_image:
-    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
-  scf.eirini.doppler_address:
-    description: "SCF's doppler address, used to stream application logs"
-  scf.eirini.doppler_address_with_az:
-    description: "SCF's doppler address for the current AZ, used to stream application logs"
-  scf.eirini.registry.address:
-    description: "Eirini's image registry public address"
   scf.eirini.enabled:
     description: "Whether Eirini is enabled or not"
+  eirini-persi-broker.url:
+    description: 'Internal URL of the Persi NFS broker'
+  eirini-persi-broker.auth_username:
+    description: "basic auth username to verify on incoming Service Broker requests"
+    default: "admin"
+  eirini-persi-broker.auth_password:
+    description: "basic auth password to verify on incoming Service Broker requests"
+  eirini-persi-broker.service_plans:
+    description: 'Broker service plans'
