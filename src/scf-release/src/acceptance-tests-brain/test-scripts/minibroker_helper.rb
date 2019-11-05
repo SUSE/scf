@@ -115,7 +115,11 @@ class MiniBrokerTest
             ))
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
-            run "cf create-service-broker #{broker_name} user pass #{broker_url}"
+
+            run_with_retry 30, 5 do
+                run "cf create-service-broker #{broker_name} user pass #{broker_url}" 
+            end
+            
             run "cf enable-service-access #{service_type}"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
                 f.puts [{
