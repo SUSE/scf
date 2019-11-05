@@ -120,7 +120,7 @@ class MiniBrokerTest
                 run "cf create-service-broker #{broker_name} user pass #{broker_url}" 
             end
             
-            run "cf enable-service-access #{service_type}"
+            run "cf enable-service-access -b #{broker_name} #{service_type}"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
                 f.puts [{
                     protocol: 'tcp',
@@ -146,7 +146,7 @@ class MiniBrokerTest
             started_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             
             run_with_retry 30, 5 do
-                run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
+                run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -b #{broker_name} -c #{tmpdir}/service-params.json"
             end
             
             status = wait_for_async_service_operation(service_instance, 30)
