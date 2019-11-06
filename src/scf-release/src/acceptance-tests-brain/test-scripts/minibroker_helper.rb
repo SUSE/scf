@@ -120,7 +120,7 @@ class MiniBrokerTest
                 run "cf create-service-broker #{broker_name} user pass #{broker_url}" 
             end
             
-            run "cf enable-service-access -b #{broker_name} #{service_type}"
+            run "cf enable-service-access #{service_type} -b #{broker_name}"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
                 f.puts [{
                     protocol: 'tcp',
