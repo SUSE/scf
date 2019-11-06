@@ -1,7 +1,7 @@
-cli/cf-cli_6.45.0_linux_x86-64.tgz:
-  size: 7989031
-  object_id: cf-cli_6.45.0_linux_x86-64.tgz
-  sha: b9dc8d6a7984455f4aef43298c500fb1268c3117
+cli/cf-cli_6.42.0_linux_x86-64.tgz:
+  size: 7361332
+  object_id: cf-cli_6.42.0_linux_x86-64.tgz
+  sha: 8cde11d372b6a022c101e78df1a563cd5d034269
 container-networking/v0-14-0-network-policy-plugin-linux64:
   size: 8472248
   object_id: v0-14-0-network-policy-plugin-linux64
