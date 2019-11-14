@@ -650,7 +650,7 @@ instance_groups:
 
       properties.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.engine_config.binlog.enabled: false
+      properties.engine_config.binlog.enabled: true
       properties.engine_config.galera.enabled: true
       properties.monit_startup_timeout: 300
       properties.seeded_databases: &seeded_databases >
