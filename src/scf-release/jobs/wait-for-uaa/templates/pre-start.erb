@@ -39,6 +39,6 @@ CURL_SKIP="<%= properties.skip_ssl_validation ? '--insecure' : '' %>"
 UAA_ENDPOINT="<%= p('uaa.url') %>"
 
 status "Waiting for UAA ..."
-retry 240 30s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
+retry 1440 5s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
 
 exit 0

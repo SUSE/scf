@@ -180,9 +180,12 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.7.tgz"
-  version: "1.0.7"
-  sha1: "d8f4eb845f18dfd89dbad2a7aab7284d81151367"
+  url: "file:///home/vagrant/scf/output/scf-helper-release.tgz"
+  version: "2"
+  sha1: "abcd2"
+  #url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.7.tgz"
+  #version: "1.0.7"
+  #sha1: "d8f4eb845f18dfd89dbad2a7aab7284d81151367"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
@@ -787,6 +790,8 @@ instance_groups:
           internal: 24053
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1112,6 +1117,7 @@ instance_groups:
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/patches/fix_logcache_ca_cert.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1127,8 +1133,13 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: wait-for-database
+    release: scf-helper
   - name: cloud_controller_ng
     release: capi
+    consumes:
+      # XXX needs a patch to set the cert: capi-release/jobs/cloud_controller_ng/templates/logcache_tls_ca.crt.erb
+      log-cache: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1173,6 +1184,8 @@ instance_groups:
           internal: 8125
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1231,6 +1244,15 @@ instance_groups:
       properties.cc.logcache_tls.subject_name: "log-cache"
       properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
+      properties.wait-for-database.hostname: &cf-internal-database-host >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.wait-for-database.port: &cf-internal-database-port >
+        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
 - name: cc-worker
   environment_scripts:
   - scripts/override-default-stack.sh
@@ -1317,6 +1339,8 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1448,9 +1472,13 @@ instance_groups:
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: doppler
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  # Don't use bosh link to get the RLP address and port
+  - scripts/patches/set_logs_provider_addr.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1463,6 +1491,8 @@ instance_groups:
     # gateway_addr - default - ":8081"
   - name: log-cache-nozzle
     release: log-cache
+    consumes:
+      reverse_log_proxy: {ignore: true}
     # mostly default, logs_provider cert, see below
   - name: log-cache-cf-auth-proxy
     release: log-cache
@@ -1472,6 +1502,8 @@ instance_groups:
   - name: log-cache
     release: log-cache
     # certs, see below
+    provides:
+      log-cache: {}
     properties:
       bosh_containerization:
         ports:
@@ -1534,6 +1566,8 @@ instance_groups:
           privileged: true
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   configuration:
     templates:
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -1681,6 +1715,8 @@ instance_groups:
           internal: 8081
   - name: reverse_log_proxy
     release: loggregator
+    provides:
+      reverse_log_proxy: {}
     properties:
       bosh_containerization:
         ports:
@@ -1697,6 +1733,8 @@ instance_groups:
           internal: 8088
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2191,8 +2229,6 @@ instance_groups:
   jobs:
   - name: global-uaa-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
-  - name: wait-for-database
-    release: scf-helper
   - name: uaa
     release: uaa
     properties:
@@ -2222,6 +2258,8 @@ instance_groups:
           external: 2793
           internal: 8443
           public: true
+  - name: wait-for-database
+    release: scf-helper
   tags:
   - sequential-startup
   configuration:
@@ -2252,15 +2290,8 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc",
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
-      properties.uaadb.address: &cf-internal-database-host >
-        ((#DB_EXTERNAL_HOST))
-          ((DB_EXTERNAL_HOST))
-        ((/DB_EXTERNAL_HOST))
-        ((^DB_EXTERNAL_HOST))
-          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-        ((/DB_EXTERNAL_HOST))
-      properties.uaadb.port: &cf-internal-database-port >
-        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
+      properties.uaadb.address: *cf-internal-database-host
+      properties.uaadb.port: *cf-internal-database-port
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
       properties.wait-for-database.hostname: *cf-internal-database-host
       properties.wait-for-database.port: *cf-internal-database-port
@@ -2372,6 +2403,8 @@ instance_groups:
           internal: 8844
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2489,6 +2522,8 @@ instance_groups:
           internal: 9101
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2744,7 +2779,7 @@ configuration:
         verbs: [get, patch]
       - apiGroups: [""]
         resources: [secrets]
-        verbs: [create, get, delete]
+        verbs: [create, get, update, delete]
       psp-role:
       - apiGroups: [extensions]
         resourceNames: [default]

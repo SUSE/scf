@@ -88,10 +88,10 @@ UAA_ENDPOINT="<%= p('scf.uaa.internal-url') %>"
 API_ENDPOINT="<%= p('cf.insecure_api_url') %>"
 
 status "Waiting for CC ..."
-retry 240 30s cf api $CF_SKIP "$API_ENDPOINT"
+retry 1440 5s cf api $CF_SKIP "$API_ENDPOINT"
 
 status "Waiting for UAA ..."
-retry 240 30s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
+retry 1440 5s curl --connect-timeout 5 --fail --header 'Accept: application/json' $UAA_ENDPOINT/info
 
 insert_cf_client_auth_token.rb "$UAA_ENDPOINT" scf_auto_config:<%= p("uaa.clients.scf_auto_config.secret").shellescape %> ${CURL_SKIP}
 
@@ -134,7 +134,7 @@ if [ "$BROKER_NAME" != "eirini-persi-broker" ] || [ "$BROKER_PLANS" != "[]" ]; t
       -u "${BROKER_USERNAME}:${BROKER_PASSWORD}"
       "${BROKER_URL}/v2/catalog"
    )
-   retry 240 30s "${CATALOG_REQUEST[@]}"
+   retry 1440 5s "${CATALOG_REQUEST[@]}"
 
    cf create-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL" || cf update-service-broker "$BROKER_NAME" "$BROKER_USERNAME" "$BROKER_PASSWORD" "$BROKER_URL"
 
