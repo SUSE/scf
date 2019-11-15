@@ -5,8 +5,8 @@ releases:
   sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
 - name: capi
   version: 1.83.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0
-  sha1: 339e21175080d77e648e0181b394a6aa2679d271
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.88.0
+  sha1: 7a7ef183de3252724b6f8e6ca39ad7cf4995fe27
 - name: cf-cli
   version: 1.16.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.16.0
