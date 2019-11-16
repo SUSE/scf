@@ -1126,6 +1126,8 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: wait-for-database
+    release: scf-helper
   - name: cloud_controller_ng
     release: capi
     properties:
@@ -1230,6 +1232,15 @@ instance_groups:
       properties.cc.logcache_tls.subject_name: "log-cache"
       properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
+      properties.wait-for-database.hostname: &cf-internal-database-host >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.wait-for-database.port: &cf-internal-database-port >
+        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
 - name: cc-worker
   environment_scripts:
   - scripts/override-default-stack.sh
@@ -2251,15 +2262,8 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc",
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
-      properties.uaadb.address: &cf-internal-database-host >
-        ((#DB_EXTERNAL_HOST))
-          ((DB_EXTERNAL_HOST))
-        ((/DB_EXTERNAL_HOST))
-        ((^DB_EXTERNAL_HOST))
-          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-        ((/DB_EXTERNAL_HOST))
-      properties.uaadb.port: &cf-internal-database-port >
-        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
+      properties.uaadb.address: *cf-internal-database-host
+      properties.uaadb.port: *cf-internal-database-port
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
       properties.wait-for-database.hostname: *cf-internal-database-host
       properties.wait-for-database.port: *cf-internal-database-port
