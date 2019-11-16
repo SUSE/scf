@@ -1111,6 +1111,7 @@ instance_groups:
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/patches/fix_logcache_ca_cert.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1130,6 +1131,8 @@ instance_groups:
     release: scf-helper
   - name: cloud_controller_ng
     release: capi
+    consumes:
+      log-cache: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1482,6 +1485,8 @@ instance_groups:
   - name: log-cache
     release: log-cache
     # certs, see below
+    provides:
+      log-cache: {}
     properties:
       bosh_containerization:
         ports:
