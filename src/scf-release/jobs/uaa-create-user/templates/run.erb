@@ -69,7 +69,7 @@ uaac_ssl = properties.ssl.skip_cert_verify ? '--skip-ssl-validation' : ''
 UAA_ZONE_ID="${KUBERNETES_NAMESPACE:-scf}"
 
 status "Waiting for root UAA to be available..."
-retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("scf.uaa.root-zone.url") %>/info'
+retry 1440 5s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("scf.uaa.root-zone.url") %>/info'
 
 # We need to create the zone manually
 status "Checking for UAA zone ${UAA_ZONE_ID}..."
@@ -132,7 +132,7 @@ status "Populating clients..."
 <% end %>
 
 status "Waiting for UAA zone to be available ..."
-retry 240 30s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
+retry 1440 5s curl ${SILENT} --connect-timeout 5 --fail <%= curl_ssl %> --header 'Accept: application/json' '<%= p("uaa.url") %>/info'
 
 status "Logging in to %s" '<%= p("uaa.url") %>'
 uaac target <%= uaac_ssl %> <%= p("uaa.url") %>
