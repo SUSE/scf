@@ -1472,6 +1472,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  # Don't use bosh link to get the RLP address and port
+  - scripts/patches/set_logs_provider_addr.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1484,6 +1486,8 @@ instance_groups:
     # gateway_addr - default - ":8081"
   - name: log-cache-nozzle
     release: log-cache
+    consumes:
+      reverse_log_proxy: {ignore: true}
     # mostly default, logs_provider cert, see below
   - name: log-cache-cf-auth-proxy
     release: log-cache
@@ -1706,6 +1710,8 @@ instance_groups:
           internal: 8081
   - name: reverse_log_proxy
     release: loggregator
+    provides:
+      reverse_log_proxy: {}
     properties:
       bosh_containerization:
         ports:
