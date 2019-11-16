@@ -2774,7 +2774,7 @@ configuration:
         verbs: [get, patch]
       - apiGroups: [""]
         resources: [secrets]
-        verbs: [create, get, delete]
+        verbs: [create, get, update, delete]
       psp-role:
       - apiGroups: [extensions]
         resourceNames: [default]
