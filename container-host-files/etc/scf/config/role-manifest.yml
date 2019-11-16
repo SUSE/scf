@@ -786,6 +786,8 @@ instance_groups:
           internal: 24053
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1177,6 +1179,8 @@ instance_groups:
           internal: 8125
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1330,6 +1334,8 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1461,6 +1467,8 @@ instance_groups:
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: doppler
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -1549,6 +1557,8 @@ instance_groups:
           privileged: true
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   configuration:
     templates:
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -1712,6 +1722,8 @@ instance_groups:
           internal: 8088
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2380,6 +2392,8 @@ instance_groups:
           internal: 8844
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2497,6 +2511,8 @@ instance_groups:
           internal: 9101
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
