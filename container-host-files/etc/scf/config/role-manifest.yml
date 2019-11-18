@@ -80,49 +80,49 @@ releases:
   version: "1.0.35"
   sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
 - name: suse-binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
-  version: "1.0.35.1"
-  sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
+  version: "1.0.35.2"
+  sha1: "20c8467d63a76af42ea17524eaa6d344c79f2dbf"
 - name: suse-go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.1.tgz"
-  version: "1.9.2.1"
-  sha1: "06578c373f9bf7646de7a41c4daed6bb8aafa150"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.2.tgz"
+  version: "1.9.2.2"
+  sha1: "078d0541e56534e88892f501b5b7fde75953746b"
 - name: "go-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.1"
   version: "1.9.1"
   sha1: "8746184bbfdb246e58dd89f5049454437ba0a13c"
 - name: suse-java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.24.0.1.tgz"
-  version: "4.24.0.1"
-  sha1: "902678082a41c6d45d3ef4d60049c6f7418db303"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.25.0.3.tgz"
+  version: "4.25.0.3"
+  sha1: "5a8a56946f8bf5302a2b9d6f16383d2c5fe918d1"
 - name: suse-nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.1.tgz"
-  version: "1.7.1.1"
-  sha1: "d3d2d6eaf06af926537240d251fa5c1beaf76319"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.2.tgz"
+  version: "1.7.1.2"
+  sha1: "745ef72eb751bca70ca13221a8c373b0f499eaf6"
 - name: "nodejs-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.0"
   version: "1.7.0"
   sha1: "58892526e2fa213feb30eb7f492d44f018eabbfa"
 - name: suse-php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.0.1.tgz"
-  version: "4.4.0.1"
-  sha1: "9f2955299b62ac1b2eb859c7a488e6fc82e7d0a6"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.0.2.tgz"
+  version: "4.4.0.2"
+  sha1: "35f7c38fecd60182fc96da2e36e0105127990f1a"
 - name: "php-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.0"
   version: "4.4.0"
   sha1: "36c5afeffcc3364bda84470f351d40bf67f69731"
 - name: suse-python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.1.tgz"
-  version: "1.6.37.1"
-  sha1: "52f57402d790222e9602ed007c88f3dbb04bd1ee"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.2.tgz"
+  version: "1.6.37.2"
+  sha1: "0feb39aec38210c354a5c22a42e31cb4f2181881"
 - name: "python-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.6.37"
   version: "1.6.37"
   sha1: "ab2f2eb702ecb942ed3c6c25ba9fa7d59513fce7"
 - name: suse-ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.1.1.tgz"
-  version: "1.8.1.1"
-  sha1: "7cdca18f62ca219e67861124fadd464b095eecd3"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.1.2.tgz"
+  version: "1.8.1.2"
+  sha1: "383d65e8ad1d2b1d2b8e09835ad3093d7c02e4c8"
 - name: "java-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.24"
   version: "4.24"
@@ -132,25 +132,25 @@ releases:
   version: "1.8.1"
   sha1: "f1c4732441f3525e96e4cf6dfceee0c68a73e84f"
 - name: suse-staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.0.1.tgz"
-  version: "1.5.0.1"
-  sha1: "6fd4e8e8b011a132b16500be0a53ad692047d9d4"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.0.2.tgz"
+  version: "1.5.0.2"
+  sha1: "8292ba5ad988080141b73de4c619f15e4d9b0451"
 - name: "staticfile-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.0"
   version: "1.5.0"
   sha1: "f65ba2e39e540ea1137644037d520a57ed899ac5"
 - name: suse-nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.0.1.tgz"
-  version: "1.1.0.1"
-  sha1: "bfd2252f118ac3e56377e47c7d525a1dca3873d1"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.0.2.tgz"
+  version: "1.1.0.2"
+  sha1: "a061531e778692720311d8e40d3d48448cdf2644"
 - name: nginx-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.0"
   version: "1.1.0"
   sha1: "03478e46e3af5302ce7f4e82cdc03dd9b77c815d"
 - name: suse-dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.1.tgz"
-  version: "2.3.0.1"
-  sha1: "1d558c0d33d342b5a63b055c3401c071569465f3"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
+  version: "2.3.0.2"
+  sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
 - name: "dotnet-core-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.1"
   version: "2.3.1"
@@ -1180,43 +1180,43 @@ instance_groups:
           privileged: true
   - name: statsd_injector
     release: statsd-injector
-  - name: go-buildpack
+  - name: suse-go-buildpack
     release: suse-go-buildpack
   - name: go-buildpack
     release: go-buildpack
   - name: binary-buildpack
     release: binary-buildpack
-  - name: binary-buildpack
+  - name: suse-binary-buildpack
     release: suse-binary-buildpack
-  - name: nodejs-buildpack
+  - name: suse-nodejs-buildpack
     release: suse-nodejs-buildpack
   - name: nodejs-buildpack
     release: nodejs-buildpack
-  - name: ruby-buildpack
+  - name: suse-ruby-buildpack
     release: suse-ruby-buildpack
   - name: ruby-buildpack
     release: ruby-buildpack
-  - name: php-buildpack
+  - name: suse-php-buildpack
     release: suse-php-buildpack
   - name: php-buildpack
     release: php-buildpack
-  - name: python-buildpack
+  - name: suse-python-buildpack
     release: suse-python-buildpack
   - name: python-buildpack
     release: python-buildpack
-  - name: staticfile-buildpack
+  - name: suse-staticfile-buildpack
     release: suse-staticfile-buildpack
   - name: staticfile-buildpack
     release: staticfile-buildpack
-  - name: nginx-buildpack
+  - name: suse-nginx-buildpack
     release: suse-nginx-buildpack
   - name: nginx-buildpack
     release: nginx-buildpack
-  - name: java-buildpack
+  - name: suse-java-buildpack
     release: suse-java-buildpack
   - name: java-buildpack
     release: java-buildpack
-  - name: dotnet-core-buildpack
+  - name: suse-dotnet-core-buildpack
     release: suse-dotnet-core-buildpack
   - name: dotnet-core-buildpack
     release: dotnet-core-buildpack
