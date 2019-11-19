@@ -80,9 +80,9 @@ releases:
   version: "1.0.35"
   sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
 - name: suse-binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
-  version: "1.0.35.1"
-  sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
+  version: "1.0.35.2"
+  sha1: "20c8467d63a76af42ea17524eaa6d344c79f2dbf"
 - name: suse-go-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.1.tgz"
   version: "1.9.2.1"
