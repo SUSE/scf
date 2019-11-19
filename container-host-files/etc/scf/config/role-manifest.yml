@@ -112,9 +112,9 @@ releases:
   version: "4.4.0"
   sha1: "36c5afeffcc3364bda84470f351d40bf67f69731"
 - name: suse-python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.1.tgz"
-  version: "1.6.37.1"
-  sha1: "52f57402d790222e9602ed007c88f3dbb04bd1ee"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.2.tgz"
+  version: "1.6.37.2"
+  sha1: "0feb39aec38210c354a5c22a42e31cb4f2181881"
 - name: "python-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.6.37"
   version: "1.6.37"
