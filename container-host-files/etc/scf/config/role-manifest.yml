@@ -96,9 +96,9 @@ releases:
   version: "4.24.0.1"
   sha1: "902678082a41c6d45d3ef4d60049c6f7418db303"
 - name: suse-nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.1.tgz"
-  version: "1.7.1.1"
-  sha1: "d3d2d6eaf06af926537240d251fa5c1beaf76319"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.2.tgz"
+  version: "1.7.1.2"
+  sha1: "745ef72eb751bca70ca13221a8c373b0f499eaf6"
 - name: "nodejs-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.0"
   version: "1.7.0"
