@@ -98,7 +98,8 @@ class MiniBrokerTest
 
             run "kubectl get namespace #{minibroker_namespace} 2> /dev/null || kubectl create namespace #{minibroker_namespace}"
             run "helm init --client-only"
-            run(*%W(helm upgrade #{helm_release} minibroker
+            run_with_retry 30, 5 do
+              run(*%W(helm upgrade #{helm_release} minibroker
                 --install
                 --wait
                 --repo #{minibroker_repo}
@@ -112,7 +113,8 @@ class MiniBrokerTest
                 --set kube.organization=splatform
                 --set image=minibroker:latest
                 --set imagePullPolicy=Always
-            ))
+              ))
+            end
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
 
