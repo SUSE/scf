@@ -155,9 +155,13 @@ class MiniBrokerTest
                 elapsed = failed_service_creation - started_service_creation
                 raise "Failed to create service instance #{service_instance} after #{elapsed} seconds."
             end
+
+            STDERR.puts "#{c_bold}# Show instance...#{c_reset}"
             run "cf service #{service_instance}"
+
             wait_for_namespace minibroker_pods_namespace
 
+            STDERR.puts "#{c_bold}# Setup complete, entering user testcase#{c_reset}"
             yield self
 
             @success = true
