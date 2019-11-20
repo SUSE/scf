@@ -140,9 +140,9 @@ releases:
   version: "1.5.0"
   sha1: "f65ba2e39e540ea1137644037d520a57ed899ac5"
 - name: suse-nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.0.1.tgz"
-  version: "1.1.0.1"
-  sha1: "bfd2252f118ac3e56377e47c7d525a1dca3873d1"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.1.1.tgz"
+  version: "1.1.1.1"
+  sha1: "399f3f4617f75f04bd48b19c01ab464e44f918ce"
 - name: nginx-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.0"
   version: "1.1.0"
