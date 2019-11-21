@@ -42,7 +42,7 @@ def use_global_timeout(shutdown_time=60)
             main_thread.raise e
         else
             # Timeout reached
-            STDERR.puts "\e[0;1;31mGlobal timeout triggered at #{DateTime.now}\e[0m"
+            puts "\e[0;1;31mGlobal timeout triggered at #{DateTime.now}\e[0m"
             main_thread.raise Timeout::Error, "timeout reached after #{sleep_duration} seconds"
         end
     end
@@ -83,8 +83,8 @@ def _print_command(*args)
     cmd.pop if cmd.last.is_a? Hash
     opts = $opts.dup
     opts.merge! args.last if args.last.is_a? Hash
-    STDERR.puts "#{c_bold}+ #{cmd.join(" ")}#{c_reset}" if opts[:xtrace]
-    STDERR.flush
+    puts "#{c_bold}+ #{cmd.join(" ")}#{c_reset}" if opts[:xtrace]
+    STDOUT.flush
 end
 
 # Run the given command line, and return the exit status (as a Process::Status).
@@ -195,7 +195,7 @@ end
 # Poll the status of a Kubernetes namespace, until all the pods in that
 # namespace are ready and all the jobs have run.
 def wait_for_namespace(namespace, sleep_duration=10)
-    STDERR.puts "#{c_bold}# Waiting for: #{namespace}, in increments of #{sleep_duration}s#{c_reset}"
+    puts "#{c_blue}# Waiting for: #{namespace}, every #{sleep_duration}s#{c_reset}"
     loop do
         output, status = capture_with_status("kubectl get pods --namespace #{namespace} --no-headers")
         ready = status.success? && !output.empty?
@@ -257,7 +257,7 @@ end
 # Wait for a cf service asynchronous operation to complete.
 def wait_for_async_service_operation(service_instance_name, retries=0)
     duration = 5
-    STDERR.puts "#{c_bold}# Waiting for service instance #{service_instance} to complete operation, at most #{retries} retries, in increments of #{duration}s#{c_reset}"
+    puts "#{c_blue}# Waiting for service instance #{service_instance} to complete, every #{duration}s, #{retries} times#{c_reset}"
     service_instance_guid = capture("cf service --guid #{service_instance_name}")
     return { success: false, reason: :not_found } if service_instance_guid == 'FAILED'
     attempts = 0
@@ -281,7 +281,7 @@ def cf_curl(*args)
 end
 
 def wait_for_statefulset(namespace, statefulset, sleep_duration=10)
-    STDERR.puts "#{c_bold}# Waiting for statefulset #{statefulset}, in increments of #{sleep_duration}s#{c_reset}"
+    puts "#{c_blue}# Waiting for statefulset #{statefulset}, every #{sleep_duration}s#{c_reset}"
     loop do
         break if statefulset_ready(namespace, statefulset)
         sleep sleep_duration
@@ -322,6 +322,10 @@ end
 
 def c_green
   "\e[0;32m"
+end
+
+def c_blue
+  "\e[0;34m"
 end
 
 def c_reset
