@@ -99,21 +99,21 @@ class MiniBrokerTest
             run "kubectl get namespace #{minibroker_namespace} 2> /dev/null || kubectl create namespace #{minibroker_namespace}"
             run "helm init --client-only"
             run_with_retry 30, 5 do
-              run(*%W(helm upgrade #{helm_release} minibroker
-                --install
-                --wait
-                --repo #{minibroker_repo}
-                --devel
-                --reset-values
-                --namespace #{minibroker_namespace}
-                --set helmRepoUrl=#{kubernetes_repo}
-                --set deployServiceCatalog=false
-                --set defaultNamespace=#{minibroker_pods_namespace}
-                --set kube.registry.hostname=index.docker.io
-                --set kube.organization=splatform
-                --set image=minibroker:latest
-                --set imagePullPolicy=Always
-              ))
+                run(*%W(helm upgrade #{helm_release} minibroker
+                    --install
+                    --wait
+                    --repo #{minibroker_repo}
+                    --devel
+                    --reset-values
+                    --namespace #{minibroker_namespace}
+                    --set helmRepoUrl=#{kubernetes_repo}
+                    --set deployServiceCatalog=false
+                    --set defaultNamespace=#{minibroker_pods_namespace}
+                    --set kube.registry.hostname=index.docker.io
+                    --set kube.organization=splatform
+                    --set image=minibroker:latest
+                    --set imagePullPolicy=Always
+                ))
             end
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
