@@ -27,7 +27,7 @@
 - AUDIT_WRITE capabilities added for CRI-O
 
 ## Changed
-- Eirini will use cflinuxfs3 as its default stack
+- Eirini will use SLE15 as its default stack
 - Moved to stack-associated (or stackful) buildpacks, away from multi-stack
 - Enabled BPM for bits-service for reliability
 - garden.disable_swap_limit set to "true" to remove the need for swap accounting
