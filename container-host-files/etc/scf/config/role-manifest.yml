@@ -120,9 +120,9 @@ releases:
   version: "1.7.2"
   sha1: "be453857ec5e054f41539eda19bdc28d458583a4"
 - name: suse-ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.1.2.tgz"
-  version: "1.8.1.2"
-  sha1: "383d65e8ad1d2b1d2b8e09835ad3093d7c02e4c8"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.2.1.tgz"
+  version: "1.8.2.1"
+  sha1: "bf69d0b5e1b8555fb7e9159a20483cc24a31f7fa"
 - name: "java-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.26"
   version: "4.26"
