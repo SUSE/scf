@@ -24,11 +24,12 @@ fissile build "${BUILD_TARGET}"
 
 if [ "${BUILD_TARGET}" = "helm" ]; then
     cat > "${FISSILE_OUTPUT_DIR}/Chart.yaml" << EOF
-apiVersion: ${APP_VERSION}
+apiVersion: v1
 appVersion: ${PRODUCT_VERSION}
 description: A Helm chart for SUSE Cloud Foundry
 name: cf
 version: ${GIT_TAG}
+scfVersion: ${APP_VERSION}
 EOF
     cp chart-parts/* "${FISSILE_OUTPUT_DIR}/templates/"
     ruby bin/image-list.rb "${FISSILE_OUTPUT_DIR}"

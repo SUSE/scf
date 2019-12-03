@@ -113,14 +113,20 @@ void runTest(String testName) {
     """
 }
 
-String distSubDir() {
+String distSubDir(boolean tested) {
     switch (getBuildType()) {
         case BuildType.Master:
             return 'master/'
         case BuildType.ReleaseCandidate:
-            return 'rc/'
+            if (tested) {
+                return 'rc/'
+            }
+            return 'rc-untested/'
         case BuildType.Nightly:
-            return 'nightly/'
+            if (tested) {
+                return 'nightly/'
+            }
+            return 'nightly-untested/'
         case BuildType.Develop:
             return 'develop/'
         case BuildType.PullRequest:
@@ -145,6 +151,40 @@ String distPrefix() {
             return java.net.URLEncoder.encode("${BRANCH_NAME}-", "UTF-8")
         default:
             error "Unknown build type ${getBuildType()}"
+    }
+}
+
+void publishArchives(boolean tested) {
+    def files = findFiles(glob: "output/*-sle-*")
+    def prefix = "${params.S3_PREFIX}${distSubDir(tested)}${distPrefix()}"
+
+    for ( int i = 0 ; i < files.size() ; i ++ ) {
+        if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
+            s3Upload(
+                file: files[i].path,
+                bucket: "${params.S3_BUCKET}",
+                path: "${prefix}${files[i].name}",
+            )
+            if (files[i].path =~ /\.zip$/ ) {
+                def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
+                def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${prefix}${encodedFileName}"
+                def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
+                def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
+
+                if (tested) {
+                    echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                    echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
+                }
+                echo "Download the bundle from ${capBundleUri}"
+            } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
+                def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
+                def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${prefix}${encodedFileName}"
+                echo "Install with helm from ${helmChartUri}"
+            }
+        } else {
+            echo "Skipping file ${files[i].path}"
+        }
     }
 }
 
@@ -269,16 +309,16 @@ pipeline {
         credentials(
             name: 'DOCKER_CREDENTIALS',
             description: 'Docker credentials used for publishing',
-            defaultValue: 'cred-docker-scf-staging',
+            defaultValue: 'cred-docker-scf-staging-public',
         )
         string(
             name: 'FISSILE_DOCKER_REGISTRY',
-            defaultValue: 'staging.registry.howdoi.website/',
+            defaultValue: 'registry.suse.com/',
             description: 'Docker registry to publish to',
         )
         string(
             name: 'FISSILE_DOCKER_ORGANIZATION',
-            defaultValue: 'splatform',
+            defaultValue: 'cap-staging',
             description: 'Docker organization to publish to',
         )
         string(
@@ -288,7 +328,7 @@ pipeline {
         )
         string(
             name: 'FISSILE_STEMCELL_VERSION',
-            defaultValue: '12SP4-2.gfc2305c-0.228',
+            defaultValue: '12SP4-4.ga824718-0.230',
             description: 'Fissile stemcell version used as docker image tag',
         )
         booleanParam(
@@ -444,19 +484,17 @@ pipeline {
 
                     echo "All files changed since last build: ${all_files}"
 
-                    if (getBuildType() == BuildType.ReleaseCandidate) {
-                        HashSet<String> changelogFiles = ["CHANGELOG.md"]
-                        if (!changelogFiles.containsAll(all_files)) {
-                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                            echo "RESULT: ${currentBuild.rawBuild.result}"
-                            throw new hudson.AbortException('Exiting pipeline early (non-changelog commit on RC branch)')
-                        }
-                    } else {
-                        if (areIgnoredFiles(all_files)) {
-                            currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
-                            echo "RESULT: ${currentBuild.rawBuild.result}"
-                            throw new hudson.AbortException('Exiting pipeline early')
-                        }
+                    switch (getBuildType()) {
+                        case BuildType.ReleaseCandidate:
+                            // RC builds are manually-triggered only
+                            // Allow all builds
+                            break
+                        default:
+                            if (areIgnoredFiles(all_files)) {
+                                currentBuild.rawBuild.result = hudson.model.Result.NOT_BUILT
+                                echo "RESULT: ${currentBuild.rawBuild.result}"
+                                throw new hudson.AbortException('Exiting pipeline early')
+                            }
                     }
                 }
             }
@@ -538,7 +576,7 @@ pipeline {
                             echo "Found expected version: ${expectedVersion}"
 
                             def glob = "*scf-sle-${expectedVersion}.*.zip"
-                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir()}", glob: glob)
+                            def files = s3FindFiles(bucket: params.S3_BUCKET, path: "${params.S3_PREFIX}${distSubDir(false)}", glob: glob)
                             if (files.size() > 0) {
                                 error "found a file that matches our current version: ${files[0].name}"
                             }
@@ -607,7 +645,7 @@ pipeline {
             }
         }
 
-        stage('Publish Archives to S3') {
+        stage('Publish Untested Archives to S3') {
             when {
                 expression { return params.PUBLISH_S3 }
             }
@@ -619,36 +657,7 @@ pipeline {
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY',
                     )]) {
                         script {
-                            def files = findFiles(glob: "output/*-sle-*")
-                            def subdir = "${params.S3_PREFIX}${distSubDir()}"
-                            def prefix = distPrefix()
-
-                            for ( int i = 0 ; i < files.size() ; i ++ ) {
-                                if ( files[i].path =~ /\.zip$|\.tgz$/ ) {
-                                    s3Upload(
-                                        file: files[i].path,
-                                        bucket: "${params.S3_BUCKET}",
-                                        path: "${subdir}${prefix}${files[i].name}",
-                                    )
-                                    if (files[i].path =~ /\.zip$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        // Escape twice or the url will be unescaped when passed to the Jenkins form. It will then not work in the script.
-                                        def capBundleUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        def encodedCapBundleUri = java.net.URLEncoder.encode(capBundleUri, "UTF-8")
-                                        def encodedBuildUri = java.net.URLEncoder.encode(BUILD_URL, "UTF-8")
-
-                                        echo "Create a cap release using this link: https://cap-release-tool.suse.de/?release_archive_url=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Open a Pull Request for the helm repository using this link: http://jenkins-new.howdoi.website/job/helm-charts/parambuild?CAP_BUNDLE=${encodedCapBundleUri}&SOURCE_BUILD=${encodedBuildUri}"
-                                        echo "Download the bundle from ${capBundleUri}"
-                                    } else if (files[i].path =~ /^.*-helm-.*\.tgz$/ ) {
-                                        def encodedFileName = java.net.URLEncoder.encode(files[i].name, "UTF-8")
-                                        def helmChartUri = "https://s3.amazonaws.com/${params.S3_BUCKET}/${params.S3_PREFIX}${distSubDir()}${distPrefix()}${encodedFileName}"
-                                        echo "Install with helm from ${helmChartUri}"
-                                    }
-                                } else {
-                                    echo "Skipping file ${files[i].path}"
-                                }
-                            }
+                            publishArchives(false)
                         }
                     }
                 }
@@ -670,6 +679,9 @@ pipeline {
                         git config --local --replace-all credential.helper \
                             '/bin/bash -c "echo \"username=${GIT_USERNAME}\"; echo \"password=${GIT_PASSWORD}\""'
                         # Figure out what the tag was from earlier in this build pipeline
+                        if git config --get-all versionsort.suffix ; then
+                            git config --unset-all versionsort.suffix
+                        fi
                         git config --add versionsort.suffix '-alpha'
                         git config --add versionsort.suffix '-beta'
                         git config --add versionsort.suffix '-rc'
@@ -768,12 +780,17 @@ pipeline {
                     . make/include/secrets
 
                     # Get the last updated secret
-                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
+                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=name --sort-by=.metadata.resourceVersion | grep secrets- | tail -n1)"
+                    # secret_resource is something like "secret/secrets-2.18.0.1-1", including the resource type
 
                     # Get a random secret that should be rotated (TODO: choose this better)
                     secret_name=internal-ca-cert
                     # And its value
-                    old_secret_value="\$(kubectl get secret --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+                    old_secret_value="\$(kubectl get --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+
+                    if test -z "\${old_secret_value}" ; then
+                        echo "Secret \${secret_name} is missing in resource \${secret_resource}"
+                    fi
 
                     # Run helm upgrade with a new kube setting to test that secrets are regenerated
 
@@ -824,8 +841,9 @@ pipeline {
                     kubectl get pods --all-namespaces
 
                     # Get the secret again to see that they have been rotated
-                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=jsonpath='{.items[-1:].metadata.name}' --sort-by=.metadata.resourceVersion)"
-                    new_secret_value="\$(kubectl get secret --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
+                    secret_resource="\$(kubectl get secrets --namespace="${cfNamespace}" --output=name --sort-by=.metadata.resourceVersion | grep secret- | tail -n1)"
+                    # secret_resource is something like "secret/secrets-2.18.0.1-2", including the resource type
+                    new_secret_value="\$(kubectl get --namespace="${cfNamespace}" "\${secret_resource}" -o jsonpath="{.data.\${secret_name}}" | base64 -d)"
 
                     if test "\${old_secret_value}" = "\${new_secret_value}" ; then
                         echo "Secret \${secret_name} not correctly rotated"
@@ -964,13 +982,32 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                 }
           }
         }
+
+        stage('Publish Tested Archives to S3') {
+            when {
+                expression { return params.PUBLISH_S3 && (getBuildType() in [BuildType.ReleaseCandidate, BuildType.Nightly]) }
+            }
+            steps {
+                withAWS(region: params.S3_REGION) {
+                    withCredentials([usernamePassword(
+                        credentialsId: params.S3_CREDENTIALS,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                    )]) {
+                        script {
+                            publishArchives(true)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
         failure {
             // Send mail, but only if we're develop or master
             script {
-                if ((params.NOTIFICATION_EMAIL != null) && (getBuildType() in [BuildType.Master, BuildType.Develop])) {
+                if ((params.NOTIFICATION_EMAIL != null) && !(getBuildType() in [BuildType.PullRequest, BuildType.Unknown])) {
                     try {
                         withCredentials([string(credentialsId: params.NOTIFICATION_EMAIL, variable: 'NOTIFICATION_EMAIL')]) {
                             mail(
@@ -1012,7 +1049,7 @@ pass = ${OBS_CREDENTIALS_PASSWORD}
                                 if (prefix){
                                     prefix = prefix.substring(0, prefix.length() - 1) + '/'
                                 }
-                                def subdir = "${params.S3_PREFIX}${distSubDir()}${prefix}${env.BUILD_TAG}/"
+                                def subdir = "${params.S3_PREFIX}${distSubDir(false)}${prefix}${env.BUILD_TAG}/"
                                 s3Upload(
                                     file: 'cleaned-build.log',
                                     bucket: "${params.S3_LOG_BUCKET}",

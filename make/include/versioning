@@ -11,8 +11,6 @@ GIT_DESCRIBE=${GIT_DESCRIBE:-$(git describe --tags --long)}
 GIT_BRANCH=${GIT_BRANCH:-$(git name-rev --name-only HEAD | sed -e 's/[^-a-zA-Z0-9_.]/_/g')}
 
 GIT_TAG=${GIT_TAG:-${GIT_DESCRIBE%-*-*}} # Remove the last two hyphen-separated sections
-# shellcheck disable=2001 # can't use ${x//y} or ${x%y} here
-GIT_TAG="$(echo "${GIT_TAG}" | sed 's@-rc[0-9]\+$@@')" # Remove trailing "-rc1" marker
 GIT_COMMITS=${GIT_COMMITS:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $(NF - 1) }' )}
 GIT_SHA=${GIT_SHA:-$(echo ${GIT_DESCRIBE} | awk -F - '{ print $NF }' )}
 

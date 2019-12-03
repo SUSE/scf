@@ -1,0 +1,136 @@
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+
+{{- if .Values.enable.eirini }}
+
+# eirini-webhook cluster role for eirini service account.
+# Used to implement eirinix extensions.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-webhook" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-webhook" }}
+    {{- template "scf.labels" . }}
+rules:
+- apiGroups: ['admissionregistration.k8s.io']
+  resources: ['mutatingwebhookconfigurations']
+  verbs:     ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-webhook" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-webhook" }}
+    {{- template "scf.labels" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-webhook" .Release.Namespace) }}
+subjects:
+- kind: ServiceAccount
+  name: eirini
+  namespace: {{.Release.Namespace}}
+
+# eirini-csr cluster role for secret-generator service account.
+# Used to create certificate signing requests for the opi-registry certificate.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-csr" }}
+    {{- template "scf.labels" . }}
+rules:
+- apiGroups: [certificates.k8s.io]
+  resources: [certificatesigningrequests]
+  verbs:     [create, get, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-csr" }}
+    {{- template "scf.labels" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr" .Release.Namespace) }}
+subjects:
+- kind: ServiceAccount
+  name: secret-generator
+  namespace: {{ .Release.Namespace }}
+
+{{- if eq (toString .Values.env.KUBE_CSR_AUTO_APPROVAL) "true" }}
+
+# eirini-csr-approver cluster role for secret-generator service account.
+# Used to auto-aaprove certificate signing requests for the opi-registry certificate.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr-approver" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-csr-approver" }}
+    {{- template "scf.labels" . }}
+rules:
+- apiGroups: [certificates.k8s.io]
+  resources: [certificatesigningrequests/approval]
+  verbs:     [update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr-approver" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "eirini-csr-approver" }}
+    {{- template "scf.labels" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "fissile.SanitizeName" (printf "%s-eirini-csr-approver" .Release.Namespace) }}
+subjects:
+- kind: ServiceAccount
+  name: secret-generator
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+
+{{- else }}{{/* if .Values.enable.eirini */}}
+
+# diego-node-reader role for garden-runc service account.
+# Used to read the node labels to determine the availability zone for diego-cell.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-diego-node-reader" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "diego-node-reader" }}
+    {{- template "scf.labels" . }}
+rules:
+- apiGroups: [""]
+  resources: [nodes]
+  verbs:     [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "fissile.SanitizeName" (printf "%s-diego-node-reader" .Release.Namespace) }}
+  labels:
+    {{- template "scf.role-labels" "diego-node-reader" }}
+    {{- template "scf.labels" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "fissile.SanitizeName" (printf "%s-diego-node-reader" .Release.Namespace) }}
+subjects:
+- kind: ServiceAccount
+  name: garden-runc
+  namespace: {{ .Release.Namespace }}
+
+{{- end }}
+
+{{- end }}

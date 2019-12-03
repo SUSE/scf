@@ -163,14 +163,12 @@ properties:
       directory_key: cc-packages
       webdav_config:
         username: blobstore_user
+    signing_users: []
   capi:
     tps:
       watcher:
         skip_consul_lock: true
   cc:
-    bits_service:
-      enabled: true
-      username: admin
     buildpacks:
       blobstore_type: webdav
       webdav_config:
@@ -194,25 +192,45 @@ properties:
         username: 'blobstore_user'
     install_buildpacks:
     - name: staticfile_buildpack
-      package: staticfile-buildpack
+      package: staticfile-buildpack-sle15
+    - name: staticfile_buildpack
+      package: staticfile-buildpack-cflinuxfs3
     - name: nginx_buildpack
-      package: nginx-buildpack
+      package: nginx-buildpack-sle15
+    - name: nginx_buildpack
+      package: nginx-buildpack-cflinuxfs3
     - name: java_buildpack
-      package: java-buildpack
+      package: java-buildpack-sle15
+    - name: java_buildpack
+      package: java-buildpack-cflinuxfs3
     - name: ruby_buildpack
-      package: ruby-buildpack
+      package: ruby-buildpack-sle15
+    - name: ruby_buildpack
+      package: ruby-buildpack-cflinuxfs3
     - name: nodejs_buildpack
-      package: nodejs-buildpack
+      package: nodejs-buildpack-sle15
+    - name: nodejs_buildpack
+      package: nodejs-buildpack-cflinuxfs3
     - name: go_buildpack
-      package: go-buildpack
+      package: go-buildpack-sle15
+    - name: go_buildpack
+      package: go-buildpack-cflinuxfs3
     - name: python_buildpack
-      package: python-buildpack
+      package: python-buildpack-sle15
+    - name: python_buildpack
+      package: python-buildpack-cflinuxfs3
     - name: php_buildpack
-      package: php-buildpack
+      package: php-buildpack-sle15
+    - name: php_buildpack
+      package: php-buildpack-cflinuxfs3
     - name: binary_buildpack
-      package: binary-buildpack
+      package: binary-buildpack-sle15
+    - name: binary_buildpack
+      package: binary-buildpack-cflinuxfs3
     - name: dotnet-core_buildpack
-      package: dotnet-core-buildpack
+      package: dotnet-core-buildpack-sle15
+    - name: dotnet-core_buildpack
+      package: dotnet-core-buildpack-cflinuxfs3
     jobs:
       generic:
         number_of_workers: null
@@ -288,7 +306,6 @@ properties:
     - name: ccdb
       tag: cc
     db_scheme: mysql
-    port: 3306
   cf-usb:
     broker:
       username: broker-admin
@@ -349,6 +366,18 @@ properties:
         user: nats
     ssh_proxy:
       enable_cf_auth: true
+  eirini-persi:
+    # picking 443 as default for webhook extensions
+    # otherwise GKE needs specific fw rules for each operator port
+    operator_webhook_port: 8443
+    operator_webhook_host: 0.0.0.0
+    operator_webhook_servicename: eirini-persi-eirini-persi
+  eirini-ssh-extension:
+    # picking 443 as default for webhook extensions
+    # otherwise GKE needs specific fw rules for each operator port
+    operator_webhook_port: 8443
+    operator_webhook_host: 0.0.0.0
+    operator_webhook_servicename: eirini-ssh-eirini-ssh-extension
   enable_consul_service_registration: false
   encryption:
     active_key_label: smorgasbrod

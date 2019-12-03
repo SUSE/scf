@@ -12,12 +12,8 @@ metadata:
   name: "ingress-tls"
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app.kubernetes.io/component: "ingress-tls"
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+    {{- template "scf.role-labels" "ingress-tls" }}
+    {{- template "scf.labels" . }}
 data:
   tls.crt: {{ .Values.ingress.tls.crt | default "" | b64enc | quote }}
   tls.key: {{ .Values.ingress.tls.key | default "" | b64enc | quote }}
@@ -52,31 +48,46 @@ metadata:
     {{ $_ := set .Values.ingress.annotations "nginx.org/websocket-services" "router-gorouter-public" }}
 {{ toYaml .Values.ingress.annotations | indent 4 }}
   labels:
-    app.kubernetes.io/component: "ingress"
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+    {{- template "scf.role-labels" "ingress" }}
+    {{- template "scf.labels" . }}
 spec:
   tls:
   - secretName: "ingress-tls"
     hosts:
+    {{- if .Values.enable.uaa }}
+    - "*.uaa.{{ .Values.env.DOMAIN }}"
+    {{- end }}
     - "*.{{ .Values.env.DOMAIN }}"
     - "{{ .Values.env.DOMAIN }}"
   rules:
-    - host: "*.{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
-    - host: "{{ .Values.env.DOMAIN }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: "router-gorouter-public"
-              servicePort: 443
+  {{- if .Values.enable.uaa }}
+  - host: "*.uaa.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "uaa-uaa"
+          servicePort: 2793
+  - host: "uaa.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "uaa-uaa"
+          servicePort: 2793
+  {{- end }}
+  - host: "*.{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
+  - host: "{{ .Values.env.DOMAIN }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "router-gorouter-public"
+          servicePort: 443
 {{- end }}

@@ -34,6 +34,7 @@ def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
   config.vm.provision :shell, privileged: true, path: "vagrant/ensure_kubelet_is_running.sh"
   config.vm.provision :shell, privileged: false, path: "vagrant/setup_storage_class.sh"
   config.vm.provision :shell, privileged: false, path: "vagrant/wait_pods_ready.sh"
+  config.vm.provision :shell, privileged: false, path: "vagrant/create_kubeconfig.sh"
   config.vm.provision :shell, privileged: false,
                       env: {"FISSILE_COMPILATION_CACHE_CONFIG" => ENV["FISSILE_COMPILATION_CACHE_CONFIG"]},
                       path: "vagrant/restore_fissile_cache.sh"

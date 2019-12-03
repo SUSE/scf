@@ -24,9 +24,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
   sha1: fe9fd8946c39554425b534cdb8ce14f3923a31f8
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.118.0"
-  version: "0.118.0"
-  sha1: "5a957226acf878e53059971510f7755215d9face"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.141.0"
+  version: "0.141.0"
+  sha1: "08620d118b6f2e2a66dc880c6b871a28f78e6032"
 - name: credhub
   version: 2.4.0
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
@@ -76,57 +76,97 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
   sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
 - name: binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.33.1.tgz"
-  version: "1.0.33.1"
-  sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
-- name: go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
-  version: "1.8.42.1"
-  sha1: "f811bef86bfba4532d6a7f9653444c7901c59989"
-- name: java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.20.0.1.tgz"
-  version: "4.20.0.1"
-  sha1: "4a66ada3d16b7daaa6afde9a8ddd9925dbf4c68d"
-- name: nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.53.1.tgz"
-  version: "1.6.53.1"
-  sha1: "24e426b2bcd28bb6dc0e456b70f121d5228074fa"
-- name: php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.80.1.tgz"
-  version: "4.3.80.1"
-  sha1: "6f175c1c116c70542521e404394926c9be3017bb"
-- name: python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.36.1.tgz"
-  version: "1.6.36.1"
-  sha1: "4f0a35780ee32df8b0809fee23bcfb2176ea4d73"
-- name: ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.42.1.tgz"
-  version: "1.7.42.1"
-  sha1: "5b4dedf8bc8f8b127dd96e51da0a1cefb69c2624"
-- name: staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.43.1.tgz"
-  version: "1.4.43.1"
-  sha1: "382e54325bfdafee052d6456294e1a6a5fddd2f5"
+  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35"
+  version: "1.0.35"
+  sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
+- name: suse-binary-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
+  version: "1.0.35.1"
+  sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
+- name: suse-go-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.1.tgz"
+  version: "1.9.2.1"
+  sha1: "06578c373f9bf7646de7a41c4daed6bb8aafa150"
+- name: "go-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.1"
+  version: "1.9.1"
+  sha1: "8746184bbfdb246e58dd89f5049454437ba0a13c"
+- name: suse-java-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.24.0.1.tgz"
+  version: "4.24.0.1"
+  sha1: "902678082a41c6d45d3ef4d60049c6f7418db303"
+- name: suse-nodejs-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.1.tgz"
+  version: "1.7.1.1"
+  sha1: "d3d2d6eaf06af926537240d251fa5c1beaf76319"
+- name: "nodejs-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.0"
+  version: "1.7.0"
+  sha1: "58892526e2fa213feb30eb7f492d44f018eabbfa"
+- name: suse-php-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.0.1.tgz"
+  version: "4.4.0.1"
+  sha1: "9f2955299b62ac1b2eb859c7a488e6fc82e7d0a6"
+- name: "php-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.0"
+  version: "4.4.0"
+  sha1: "36c5afeffcc3364bda84470f351d40bf67f69731"
+- name: suse-python-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.1.tgz"
+  version: "1.6.37.1"
+  sha1: "52f57402d790222e9602ed007c88f3dbb04bd1ee"
+- name: "python-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.6.37"
+  version: "1.6.37"
+  sha1: "ab2f2eb702ecb942ed3c6c25ba9fa7d59513fce7"
+- name: suse-ruby-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.1.1.tgz"
+  version: "1.8.1.1"
+  sha1: "7cdca18f62ca219e67861124fadd464b095eecd3"
+- name: "java-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.24"
+  version: "4.24"
+  sha1: "bd21d3ece9092b597f6228c28380b9e4326296a7"
+- name: "ruby-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.1"
+  version: "1.8.1"
+  sha1: "f1c4732441f3525e96e4cf6dfceee0c68a73e84f"
+- name: suse-staticfile-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.0.1.tgz"
+  version: "1.5.0.1"
+  sha1: "6fd4e8e8b011a132b16500be0a53ad692047d9d4"
+- name: "staticfile-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.0"
+  version: "1.5.0"
+  sha1: "f65ba2e39e540ea1137644037d520a57ed899ac5"
+- name: suse-nginx-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.0.1.tgz"
+  version: "1.1.0.1"
+  sha1: "bfd2252f118ac3e56377e47c7d525a1dca3873d1"
 - name: nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.15.1.tgz"
-  version: "1.0.15.1"
-  sha1: "2fa942f67f435e4a1f0bbf13e9cfc21a4183712f"
-- name: dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.13.1.tgz"
-  version: "2.2.13.1"
-  sha1: "2891486988d66aaae783c6f8df506695a916201b"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.0"
+  version: "1.1.0"
+  sha1: "03478e46e3af5302ce7f4e82cdc03dd9b77c815d"
+- name: suse-dotnet-core-buildpack
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.1.tgz"
+  version: "2.3.0.1"
+  sha1: "1d558c0d33d342b5a63b055c3401c071569465f3"
+- name: "dotnet-core-buildpack"
+  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.1"
+  version: "2.3.1"
+  sha1: "b3b41f4d8581cdcafbc4ddd6f78cbc59a412a9db"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.26.tgz"
-  version: "1.81.26"
-  sha1: "42e55ddb3c6177d4df03269b4db844374f23c112"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.55.tgz"
+  version: "1.81.55"
+  sha1: "d15a620e7de04d913f1fb331e27b952c6d9f9d36"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.28.tgz"
-  version: "10.28"
-  sha1: "c04e5519cc7100e2a77bd517acacd82a5475c5aa"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.65.tgz"
+  version: "10.65"
+  sha1: "0fbad8a3c3478df659c4fd7717edb0b079a5eb6b"
 - name: app-autoscaler
   version: "1.2.1"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
@@ -140,17 +180,21 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.3.tgz"
-  version: "1.0.3"
-  sha1: "c6187d732f0b49f837bdadd0221fe0d91eb55515"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.7.tgz"
+  version: "1.0.7"
+  sha1: "d8f4eb845f18dfd89dbad2a7aab7284d81151367"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.14.tgz"
-  version: "0.0.14"
-  sha1: "00da08139303de6d42746d99da5c89c0e5ae53d5"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.23.tgz"
+  version: "0.0.23"
+  sha1: "12064f9af140738622bc5c7e23c4abcb659d1a1c"
+- name: "eirinifs-sle15-release"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirinifs-sle15-release-0.1.2.tgz"
+  version: "0.1.2"
+  sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
   version: '72.0'
   url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
@@ -158,6 +202,59 @@ releases:
 
 instance_groups:
 - name: eirini
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  # eirini-bosh-release already includes kubectl package, so we don't need get-kubectl job from scf-release.
+  - scripts/set-opi-registry-port.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
+  - name: eirini-loggregator-bridge
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+  - name: opi
+    release: eirini
+    properties:
+      bosh_containerization:
+        run:
+          service-account: eirini
+          scaling:
+            min: 1
+            max: 1
+            ha: 1
+          memory: 256
+          virtual-cpus: 2
+        ports:
+        - name: opi-server
+          protocol: TCP
+          internal: 8484
+- name: eirini-persi
   if_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -201,6 +298,7 @@ instance_groups:
     properties:
       bosh_containerization:
         run:
+          service-account: eirini
           scaling:
             min: 1
             max: 1
@@ -210,8 +308,33 @@ instance_groups:
         ports:
         - name: webhook
           protocol: TCP
-          internal: 2999
-  - name: eirini-loggregator-bridge
+          external: 443
+          internal: 8443
+- name: eirini-ssh
+  if_feature: eirini
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
+  - scripts/go_log_level.sh
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
+  - name: patch-properties
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          capabilities: [ALL]
+          privileged: true
+  - name: eirini-ssh-proxy
     release: eirini
     properties:
       bosh_containerization:
@@ -222,7 +345,12 @@ instance_groups:
             ha: 1
           memory: 256
           virtual-cpus: 2
-  - name: opi
+        ports:
+        - name: eirini-ssh
+          protocol: TCP
+          internal: 2222
+          public: true
+  - name: eirini-ssh-extension
     release: eirini
     properties:
       bosh_containerization:
@@ -235,10 +363,12 @@ instance_groups:
           memory: 256
           virtual-cpus: 2
         ports:
-        - name: opi-server
+        - name: webhook
           protocol: TCP
-          internal: 8085
+          external: 443
+          internal: 8443
 - name: bits
+  if_feature: eirini
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/go_log_level.sh
@@ -250,12 +380,10 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: route_registrar
-    release: routing
   - name: statsd_injector
     release: statsd-injector
-  - name: eirinifs
-    release: eirini
+  - name: eirinifs-sle15
+    release: eirinifs-sle15-release
   - name: bpm
     release: bpm
     properties:
@@ -273,13 +401,10 @@ instance_groups:
             ha: 1
           memory: 256
           virtual-cpus: 2
-        ports:
-        - name: server
-          protocol: TCP
-          internal: 443
   configuration:
     templates:
-      properties.route_registrar.routes: '[{"name":"bits-service","tls_port":443,"uris":["bits.((DOMAIN))", "registry.((DOMAIN))"],"registration_interval":"20s","server_cert_domain_san":"bits","tags":{"component":"bits-service"}}]'
+      properties.bits-service.registry_endpoint: "https://127.0.0.1"
+      properties.bpm.enabled: true
 - name: syslog-scheduler
   scripts:
   - scripts/forward_logfiles.sh
@@ -403,7 +528,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           affinity:
@@ -432,6 +557,7 @@ instance_groups:
         run:
           privileged: true
 - name: mysql
+  default_feature: mysql
   scripts:
   - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/chown_vcap_store.sh
@@ -469,7 +595,7 @@ instance_groups:
             ha: 3
             # To avoid split-brain.
             must_be_odd: true
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           volumes:
           - path: /var/vcap/store
             type: persistent
@@ -524,10 +650,9 @@ instance_groups:
 
       properties.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      properties.engine_config.binlog.enabled: false
       properties.engine_config.galera.enabled: true
       properties.monit_startup_timeout: 300
-      properties.seeded_databases: >
+      properties.seeded_databases: &seeded_databases >
         [
           {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
           {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
@@ -545,6 +670,7 @@ instance_groups:
       properties.tls.server.certificate: ((MYSQL_SERVER_CERT))
       properties.tls.server.private_key: ((MYSQL_SERVER_CERT_KEY))
 - name: mysql-proxy
+  default_feature: mysql
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
@@ -553,6 +679,14 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
+  - name: switchboard-leader
+    release: scf-helper
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
   - name: proxy
     release: pxc
     provides:
@@ -574,9 +708,10 @@ instance_groups:
             min: 1
             max: 5
             ha: 2
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           memory: 2500
           virtual-cpus: 2
+          active-passive-probe: /var/vcap/jobs/switchboard-leader/bin/readiness/switchboard
           healthcheck:
             readiness:
               command:
@@ -593,13 +728,8 @@ instance_groups:
                       values:
                       - mysql
                   topologyKey: "beta.kubernetes.io/os"
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
   tags:
+  - active-passive
   - sequential-startup
   configuration:
     templates:
@@ -690,7 +820,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           active-passive-probe: /var/vcap/jobs/global-properties/bin/readiness/diego-api
@@ -757,7 +887,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -811,7 +941,7 @@ instance_groups:
             min: 1
             max: 65535
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           healthcheck:
@@ -915,7 +1045,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: routing-api
   environment_scripts:
   - scripts/go_log_level.sh
@@ -946,7 +1076,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -972,11 +1102,12 @@ instance_groups:
   - sequential-startup
   configuration:
     templates:
-      properties.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+      properties.dns_health_check_host: 'nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
 - name: api-group
   environment_scripts:
   - scripts/configure-HA-hosts.sh
   - scripts/nginx_log_level.sh
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
@@ -1050,23 +1181,43 @@ instance_groups:
   - name: statsd_injector
     release: statsd-injector
   - name: go-buildpack
+    release: suse-go-buildpack
+  - name: go-buildpack
     release: go-buildpack
   - name: binary-buildpack
     release: binary-buildpack
+  - name: binary-buildpack
+    release: suse-binary-buildpack
+  - name: nodejs-buildpack
+    release: suse-nodejs-buildpack
   - name: nodejs-buildpack
     release: nodejs-buildpack
   - name: ruby-buildpack
+    release: suse-ruby-buildpack
+  - name: ruby-buildpack
     release: ruby-buildpack
+  - name: php-buildpack
+    release: suse-php-buildpack
   - name: php-buildpack
     release: php-buildpack
   - name: python-buildpack
+    release: suse-python-buildpack
+  - name: python-buildpack
     release: python-buildpack
+  - name: staticfile-buildpack
+    release: suse-staticfile-buildpack
   - name: staticfile-buildpack
     release: staticfile-buildpack
   - name: nginx-buildpack
+    release: suse-nginx-buildpack
+  - name: nginx-buildpack
     release: nginx-buildpack
   - name: java-buildpack
+    release: suse-java-buildpack
+  - name: java-buildpack
     release: java-buildpack
+  - name: dotnet-core-buildpack
+    release: suse-dotnet-core-buildpack
   - name: dotnet-core-buildpack
     release: dotnet-core-buildpack
   tags:
@@ -1080,6 +1231,8 @@ instance_groups:
       properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
 - name: cc-worker
+  environment_scripts:
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_worker_disable_credhub.sh
@@ -1173,6 +1326,8 @@ instance_groups:
     templates:
       properties.route_registrar.routes: '[{"name":"blobstore", "port":8080, "tags":{"component":"blobstore"}, "uris":["blobstore.((DOMAIN))"], "registration_interval":"10s"}]'
 - name: cc-clock
+  environment_scripts:
+  - scripts/override-default-stack.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/cc_clock_disable_credhub.sh
@@ -1596,7 +1751,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1656,7 +1811,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 4
           affinity:
@@ -1707,7 +1862,7 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
-          capabilities: [SYS_RESOURCE]
+          capabilities: [AUDIT_WRITE, SYS_RESOURCE]
           memory: 128
           virtual-cpus: 2
           healthcheck:
@@ -1910,6 +2065,8 @@ instance_groups:
       properties.tls.certificate: '"((BBS_REP_CERT))"'                      # cfdot property
       properties.tls.key: ((REP_SERVER_CERT_KEY))
       properties.tls.private_key: '"((BBS_REP_CERT_KEY))"'                  # cfdot property
+      properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
+      properties.uaa.port: ((UAA_PORT))
 - name: acceptance-tests-brain
   type: bosh-task
   tags:
@@ -2044,7 +2201,7 @@ instance_groups:
             ha: 2
             min: 1
             max: 65535
-          capabilities: []
+          capabilities: [AUDIT_WRITE]
           persistent-volumes: []
           shared-volumes: []
           memory: 2100
@@ -2094,9 +2251,18 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc",
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
+      properties.uaadb.address: &cf-internal-database-host >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.uaadb.port: &cf-internal-database-port >
+        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
-      properties.wait-for-database.hostname: mysql-set
-      properties.wait-for-database.port: 3306
+      properties.wait-for-database.hostname: *cf-internal-database-host
+      properties.wait-for-database.port: *cf-internal-database-port
 - name: secret-generation
   type: bosh-task
   jobs:
@@ -2114,9 +2280,11 @@ instance_groups:
           service-account: secret-generator
   configuration:
     templates:
+      properties.scf.secrets.auto_approval: ((KUBE_CSR_AUTO_APPROVAL))
       properties.scf.secrets.cert_expiration: ((CERT_EXPIRATION))
       properties.scf.secrets.cluster_domain: ((KUBERNETES_CLUSTER_DOMAIN))
       properties.scf.secrets.domain: ((DOMAIN))
+      properties.scf.secrets.env: '["FEATURE_EIRINI_ENABLED=((FEATURE_EIRINI_ENABLED))"]'
       properties.scf.secrets.generation: ((KUBE_SECRETS_GENERATION_COUNTER))
       properties.scf.secrets.is_install: ((HELM_IS_INSTALL))
       properties.scf.secrets.name: ((KUBE_SECRETS_GENERATION_NAME))
@@ -2144,6 +2312,8 @@ instance_groups:
     release: scf-helper
   - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
     release: scf
+  - name: database-seeder
+    release: scf-helper
   - name: uaa-create-user
     release: scf
   - name: configure-scf
@@ -2157,6 +2327,15 @@ instance_groups:
           flight-stage: post-flight
           memory: 256
           virtual-cpus: 1
+  configuration:
+    templates:
+      properties.database-seeder.driver: ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_DRIVER))((/DB_EXTERNAL_HOST))
+      properties.database-seeder.host: ((DB_EXTERNAL_HOST))
+      properties.database-seeder.password: ((DB_EXTERNAL_PASSWORD))
+      properties.database-seeder.port: ((DB_EXTERNAL_PORT))
+      properties.database-seeder.sslmode: ((DB_EXTERNAL_SSL_MODE))
+      properties.database-seeder.username: ((DB_EXTERNAL_USER))
+      properties.seeded_databases: *seeded_databases
 - name: credhub-user
   if_feature: credhub
   environment_scripts:
@@ -2205,9 +2384,9 @@ instance_groups:
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
-      properties.credhub.data_storage.host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+      properties.credhub.data_storage.host: *cf-internal-database-host
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
-      properties.credhub.data_storage.port: 3306
+      properties.credhub.data_storage.port: *cf-internal-database-port
       properties.credhub.data_storage.require_tls: false
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
@@ -2558,10 +2737,13 @@ configuration:
         verbs: [get, list, patch]
       - apiGroups: [""]
         resources: [services]
-        verbs: [get]
+        verbs: [get, list, patch]
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
+      - apiGroups: [""]
+        resources: [secrets]
+        verbs: [create, get, delete]
       psp-role:
       - apiGroups: [extensions]
         resourceNames: [default]
@@ -2591,31 +2773,19 @@ configuration:
         resources: ["pods/log"]
         verbs: [create, delete, get, list]
       - apiGroups: [""]
-        resources: ["secrets"]
+        resources: [secrets]
         verbs: [get, list]
       test-role-sits:
       - apiGroups: [""]
         resources: [pods/portforward]
         verbs: [create]
     cluster-roles:
-      node-reader-role:
-      - apiGroups: [""]
-        resources: [nodes]
-        verbs: [get, list, watch]
-      mutating-webhook-role:
-      - apiGroups: ["admissionregistration.k8s.io"]
-        resources: [mutatingwebhookconfigurations]
-        verbs: ['*']
-      daemonset-role:
-      - apiGroups: [extensions]
-        resources: [daemonsets]
-        verbs: [create, get, list, delete, update]
       test-cluster-role:
       - apiGroups: [""]
         resources: [namespaces]
         verbs: [create, get, delete]
       - apiGroups: [""]
-        resources: [pods, pods/log]
+        resources: [pods, pods/log, namespaces]
         verbs: [get, list, watch]
       - apiGroups: [""]
         resources: [pods/portforward]
@@ -2628,6 +2798,9 @@ configuration:
         verbs: [get, list]
       - apiGroups: [storage.k8s.io]
         resources: [storageclasses]
+        verbs: [get, list]
+      - apiGroups: [batch]
+        resources: [jobs]
         verbs: [get, list]
     pod-security-policies:
       default:
@@ -2644,7 +2817,6 @@ configuration:
         - configMap
         - secret
         - emptyDir
-        - hostPath # Needed for the Eirini Cert copier ( /etc/docker )
         - downwardAPI
         - projected
         - persistentVolumeClaim
@@ -2661,10 +2833,8 @@ configuration:
         roles: [configgin-role, test-role-sits, psp-role]
       garden-runc:
         roles: [configgin-role, psp-role]
-        cluster-roles: [node-reader-role]
       eirini:
         roles: [configgin-role, secrets-role, psp-role]
-        cluster-roles: [mutating-webhook-role, daemonset-role]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
@@ -2777,8 +2947,6 @@ configuration:
     properties.bits-service.packages.webdav_config.public_endpoint: https://blobstore.((DOMAIN))
     properties.bits-service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.bits-service.public_endpoint: "https://bits.((DOMAIN))"
-    properties.bits-service.registry_endpoint: "https://registry.((DOMAIN))"
-    properties.bits-service.signing_users: '[{"username": "admin", "password": "((BITS_ADMIN_USERS_PASSWORD))"}]'
     properties.bits-service.tls.cert: ((BITS_SERVICE_SSL_CERT))
     properties.bits-service.tls.key: ((BITS_SERVICE_SSL_CERT_KEY))
     properties.blobstore.admin_users: '[{"username": "blobstore_user", "password": "((BLOBSTORE_PASSWORD))"}]'
@@ -2810,12 +2978,6 @@ configuration:
     properties.cc.allowed_cors_domains: ((ALLOWED_CORS_DOMAINS))
     properties.cc.app_bits_max_body_size: ((NGINX_MAX_REQUEST_BODY_SIZE))M
     properties.cc.app_bits_upload_grace_period_in_seconds: ((APP_TOKEN_UPLOAD_GRACE_PERIOD))
-
-    properties.cc.bits_service.ca_cert: "((INTERNAL_CA_CERT))"
-    properties.cc.bits_service.password: "((BITS_ADMIN_USERS_PASSWORD))"
-    properties.cc.bits_service.private_endpoint: "https://bits-bits-service.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
-    properties.cc.bits_service.public_endpoint: "https://bits.((DOMAIN))"
-
     properties.cc.broker_client_timeout_seconds: '"((BROKER_CLIENT_TIMEOUT_SECONDS))"'
     properties.cc.buildpacks.cdn.uri: '"((CDN_URI))"'
     properties.cc.buildpacks.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
@@ -2828,7 +2990,7 @@ configuration:
     properties.cc.default_app_disk_in_mb: '"((DEFAULT_APP_DISK_IN_MB))"'
     properties.cc.default_app_memory: '"((DEFAULT_APP_MEMORY))"'
     properties.cc.default_app_ssh_access: '"((DEFAULT_APP_SSH_ACCESS))"'
-    properties.cc.default_stack: '"((DEFAULT_STACK))"'
+    properties.cc.default_stack: '"((DEFAULT_STACK))((#FEATURE_EIRINI_ENABLED))((/FEATURE_EIRINI_ENABLED))"'
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
@@ -2851,9 +3013,12 @@ configuration:
     properties.cc.mutual_tls.private_key: '"((CC_SERVER_CRT_KEY))"'
     properties.cc.mutual_tls.public_cert: '"((CC_SERVER_CRT))"'
     properties.cc.nginx_error_log_level: '"((NGINX_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.cc.opi.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.cc.opi.client_cert: "((EIRINI_CLIENT_CRT))"
+    properties.cc.opi.client_key: "((EIRINI_CLIENT_CRT_KEY))"
     properties.cc.opi.enabled: ((FEATURE_EIRINI_ENABLED))
     properties.cc.opi.opi_staging: ((FEATURE_EIRINI_ENABLED))
-    properties.cc.opi.url: http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085
+    properties.cc.opi.url: https://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8484
     properties.cc.packages.webdav_config.password: '"((BLOBSTORE_PASSWORD))"'
     properties.cc.packages.webdav_config.private_endpoint: https://blobstore-blobstore.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):4443
     properties.cc.packages.webdav_config.public_endpoint: '"https://blobstore.((DOMAIN))"'
@@ -2867,7 +3032,8 @@ configuration:
     properties.cc.staging_timeout_in_seconds: ((STAGING_TIMEOUT))
     properties.cc.staging_upload_password: '"((STAGING_UPLOAD_PASSWORD))"'
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
-    properties.ccdb.address: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.ccdb.address: *cf-internal-database-host
+    properties.ccdb.port: *cf-internal-database-port
     properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
@@ -2875,7 +3041,7 @@ configuration:
     properties.cf-usb.broker.server_cert: '"((CF_USB_BROKER_SERVER_CERT))"'
     properties.cf-usb.broker.server_key: '"((CF_USB_BROKER_SERVER_CERT_KEY))"'
     properties.cf-usb.management.uaa.secret: '"((UAA_CLIENTS_CF_USB_SECRET))"'
-    properties.cf-usb.mysql_address: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.cf-usb.mysql_address: *cf-internal-database-host
     properties.cf-usb.mysql_password: "((MYSQL_CF_USB_PASSWORD))"
     properties.cf.insecure_api_url: http://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9022 # For post-deployment-setup, because cf cli has no client certs.
     properties.cflinuxfs3-rootfs.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
@@ -2909,13 +3075,13 @@ configuration:
     properties.diego.bbs.server_cert: '"((BBS_SERVER_CRT))"'
     properties.diego.bbs.server_key: '"((BBS_SERVER_CRT_KEY))"'
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
-    properties.diego.bbs.sql.db_host: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+    properties.diego.bbs.sql.db_host: *cf-internal-database-host
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.locket.sql.db_host: '"mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.diego.locket.sql.db_host: *cf-internal-database-host
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
@@ -2954,12 +3120,23 @@ configuration:
     properties.eirini-persi-broker.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi-broker.namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.eirini-persi-broker.service_plans: '((EIRINI_PERSI_PLANS))'
-    properties.eirini-persi-broker.url: 'http://eirini-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
+    properties.eirini-persi-broker.url: 'http://eirini-persi-eirini-persi-broker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
     properties.eirini-persi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
     properties.eirini-persi.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
     properties.eirini-persi.namespace: "((EIRINI_KUBE_NAMESPACE))"
-    properties.eirini-persi.operator_webhook_host: "((EIRINI_EIRINI_PERSI_SERVICE_HOST))"
-    properties.eirini.cert_copier_image: "((EIRINI_CERT_COPIER_IMAGE))"
+    properties.eirini-persi.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
+    properties.eirini-ssh-extension.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-ssh-extension.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-ssh-extension.namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-ssh-extension.operator_webhook_namespace: "((KUBERNETES_NAMESPACE))"
+    properties.eirini-ssh-proxy.api_url: 'https://api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9024' # TODO: Handle https cert in eirini-ssh-proxy, now currently skips validation
+    properties.eirini-ssh-proxy.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.eirini-ssh-proxy.host_key: '"((APP_SSH_KEY))"'
+    properties.eirini-ssh-proxy.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
+    properties.eirini-ssh-proxy.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
+    properties.eirini-ssh-proxy.kube_service_port: "((KUBERNETES_SERVICE_PORT))"
+    properties.eirini-ssh-proxy.port: '"((EIRINI_SSH_PORT))"'
+    properties.eirini-ssh-proxy.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.external_cert: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT))"'
     properties.external_key: '"((LOG_CACHE_CF_AUTH_PROXY_EXTERNAL_CERT_KEY))"'
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
@@ -3010,7 +3187,7 @@ configuration:
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
-    properties.nfsbroker.db_hostname: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))'
+    properties.nfsbroker.db_hostname: *cf-internal-database-host
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
@@ -3034,8 +3211,9 @@ configuration:
     properties.opi.cc_key: "((CC_SERVER_CRT_KEY))"
     properties.opi.cc_uploader_ip: "((CC_UPLOADER_CC_UPLOADER_SERVICE_HOST))"
     properties.opi.certs_secret_name: "((KUBE_SECRETS_GENERATION_NAME))"
+    properties.opi.client_ca: "((INTERNAL_CA_CERT))"
     properties.opi.downloader_image: "((EIRINI_DOWNLOADER_IMAGE))"
-    properties.opi.eirini_address: "http://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8085"
+    properties.opi.eirini_address: "https://eirini-opi.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8484"
     properties.opi.executor_image: "((EIRINI_EXECUTOR_IMAGE))"
     properties.opi.kube_namespace: "((EIRINI_KUBE_NAMESPACE))"
     properties.opi.kube_service_host: "((KUBERNETES_SERVICE_HOST))"
@@ -3048,13 +3226,16 @@ configuration:
     # TODO: this needs to be fixed upstream - it should be an array
     properties.opi.nats_ip: "nats-0.nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
     properties.opi.nats_password: "((NATS_PASSWORD))"
-    properties.opi.registry_address: "registry.((DOMAIN))"
+    properties.opi.registry_address: "127.0.0.1:((OPI_REGISTRY_NODEPORT))"
+    properties.opi.registry_password: "((EIRINI_REGISTRY_PASSWORD))"
+    properties.opi.registry_username: "((EIRINI_REGISTRY_USERNAME))"
+    properties.opi.server_cert: "((EIRINI_SERVER_CERT))"
+    properties.opi.server_key: "((EIRINI_SERVER_CERT_KEY))"
     properties.opi.uploader_image: "((EIRINI_UPLOADER_IMAGE))"
-
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
-    properties.router.dns_health_check_host: 'mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
+    properties.router.dns_health_check_host: 'nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
     properties.router.force_forwarded_proto_https: ((FORCE_FORWARDED_PROTO_AS_HTTPS))
     properties.router.forwarded_client_cert: "((ROUTER_FORWARDED_CLIENT_CERT))"
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -3068,7 +3249,7 @@ configuration:
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
-    properties.routing_api.sqldb.host: "mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
+    properties.routing_api.sqldb.host: *cf-internal-database-host
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3134,9 +3315,7 @@ configuration:
     properties.uaa.clients.ssh-proxy.secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
     properties.uaa.clients.tcp_emitter.secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.tcp_router.secret: '"((UAA_CLIENTS_TCP_ROUTER_SECRET))"'
-    properties.uaa.hostname: '((KUBERNETES_NAMESPACE)).((UAA_HOST))'
     properties.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT)) # For loggregator
-    properties.uaa.port: ((UAA_PORT))
     properties.uaa.scim.users: '[{name: admin, password: ((CLUSTER_ADMIN_PASSWORD)), groups: [((CLUSTER_ADMIN_AUTHORITIES))]}]'
     properties.uaa.ssl.port: ((UAA_PORT))
     properties.uaa.tls_port: ((UAA_PORT))
@@ -3421,13 +3600,6 @@ variables:
     secret: true
     description: PEM-encoded client key.
     required: true
-
-- name: BITS_ADMIN_USERS_PASSWORD
-  options:
-    secret: true
-    description: The basic auth password that the Cloud Controller uses to connect to the admin endpoint on webdav.
-    required: true
-  type: password
 - name: BITS_SERVICE_SECRET
   options:
     secret: true
@@ -3437,12 +3609,11 @@ variables:
 - name: BITS_SERVICE_SSL_CERT
   options:
     secret: true
-    ca: INTERNAL_CA_CERT
-    role_name: bits
+    ca: '{{if eq .FEATURE_EIRINI_ENABLED "true"}}~{{else}}INTERNAL_CA_CERT{{end}}'
     description: PEM-encoded client certificate.
     required: true
     alternative_names:
-    - bits-bits-service.{{.KUBERNETES_NAMESPACE}}.svc.{{.KUBERNETES_CLUSTER_DOMAIN}}
+    - 127.0.0.1
   type: certificate
 - name: BITS_SERVICE_SSL_CERT_KEY
   options:
@@ -3655,6 +3826,49 @@ variables:
     description: Key for encrypting sensitive values in the Cloud Controller database.
     required: true
   type: password
+- name: DB_EXTERNAL_DRIVER
+  options:
+    immutable: true
+    description: >
+      Database driver to use for the external database server used to manage the
+      CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Currently
+      only `mysql` is valid.
+    default: mysql
+- name: DB_EXTERNAL_HOST
+  options:
+    immutable: true
+    description: >
+      Hostname for an external database server to use for the CF-internal databases
+      (such as for the cloud controller database).  If not set, the internal database
+      is used.
+    default: null
+- name: DB_EXTERNAL_PASSWORD
+  options:
+    immutable: true
+    description: >
+      Administrator password for an external database server; this is required
+      to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
+    secret: true
+- name: DB_EXTERNAL_PORT
+  options:
+    immutable: true
+    description: >
+      Port for an external database server to use for the CF-internal databases.
+      Only used if DB_EXTERNAL_HOST is set.
+    default: "3306"
+- name: DB_EXTERNAL_SSL_MODE
+  options:
+    immutable: true
+    description: >
+      TLS configuration for the external database server to use for the
+      CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
+      values depend on which database driver is in use.
+- name: DB_EXTERNAL_USER
+  options:
+    immutable: true
+    description: >
+      Administrator user name for an external database server; this is required
+      to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
 - name: DEFAULT_APP_DISK_IN_MB
   options:
     default: 1024
@@ -3750,24 +3964,26 @@ variables:
     description: The number of versions of an application to keep. You will be able
       to rollback to this amount of versions.
     required: true
-
-- name: EIRINI_CERT_COPIER_IMAGE
+- name: EIRINI_CLIENT_CRT
   options:
-    default: 'splatform/eirini-cert-copier:1.0.0.4.gd8e7208'
-    description: "The docker image used by Eirini to register the image registry CA cert with Docker, on each Kubernetes node"
-    imagename: true
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: TLS certificate for Eirini server
+    required: true
+  type: certificate
+- name: EIRINI_CLIENT_CRT_KEY
+  options:
+    secret: true
+    description: Private key associated with TLS certificate for Eirini server
+    required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'eirini/recipe-downloader:0.2.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader:0.18.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
-- name: EIRINI_EIRINI_PERSI_SERVICE_HOST
-  options:
-    type: environment
-    description: "The Eirini extensions service ClusterIP (automatically set by Kubernetes)"
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'eirini/recipe-executor:0.2.0'
+    default: 'registry.suse.com/cap-staging/recipe-executor:0.18.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -3795,9 +4011,39 @@ variables:
         free: true
         kube_storage_class: "persistent"
         default_size: "1Gi"
+
+- name: EIRINI_REGISTRY_PASSWORD
+  options:
+    secret: true
+    description: "Basic auth user password for registry"
+    required: true
+  type: password
+- name: EIRINI_REGISTRY_USERNAME
+  options:
+    type: environment
+    default: 'admin'
+    description: "Basic auth username for registry"
+- name: EIRINI_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - "eirini-opi.{{ .KUBERNETES_NAMESPACE }}.svc.{{ .KUBERNETES_CLUSTER_DOMAIN }}"
+    description: TLS certificate for Eirini server
+    required: true
+  type: certificate
+- name: EIRINI_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: Private key associated with TLS certificate for Eirini server
+    required: true
+- name: EIRINI_SSH_PORT
+  options:
+    default: '2222'
+    description: "The port of the ssh proxy for Eirini"
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'eirini/recipe-uploader:0.2.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader:0.17.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
@@ -3906,6 +4152,7 @@ variables:
   options:
     secret: true
     is_ca: true
+    append_kube_ca: '{{.FEATURE_EIRINI_ENABLED}}'
     description: PEM-encoded CA certificate used to sign the TLS certificate used
       by all components to secure their communications.
     required: true
@@ -3972,6 +4219,11 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       It's set to a numeric index for roles with multiple replicas.
+- name: KUBE_CSR_AUTO_APPROVAL
+  options:
+    default: false
+    description: >
+      Allow the secrets-generator to auto-approve the kube cert signing requests it makes.
 - name: KUBE_NATS_CLUSTER_IPS
   options:
     type: environment
@@ -4248,6 +4500,10 @@ variables:
     description: Comma separated list of IP addresses and domains which should not
       be directoed through a proxy, if any.
     required: false
+- name: OPI_REGISTRY_NODEPORT
+  options:
+    type: environment
+    description: "OPI registry port on the localhost nodePort"
 - name: PERSI_NFS_ALLOWED_OPTIONS
   options:
     description: Comma separated list of white-listed options that may be set during

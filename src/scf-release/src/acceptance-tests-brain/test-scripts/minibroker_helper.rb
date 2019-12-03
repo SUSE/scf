@@ -50,17 +50,6 @@ class MiniBrokerTest
     attr_lazy(:service_plans) { |inst| JSON.load capture("cf curl '/v2/services/#{inst.service_guid}/service_plans'") }
     attr_lazy(:service_plan_id) { |inst| inst.service_plans['resources'].first['entity']['name'] }
 
-    def print_all_container_logs_in_namespace(ns)
-        capture("kubectl get pods --namespace #{ns} --output name").split.each do |pod|
-            failed = false
-            capture("kubectl get --namespace #{ns} #{pod} --output jsonpath='{.spec.containers[*].name}'").split.each do |container|
-                status = run_with_status("kubectl logs --namespace #{ns} #{pod} --container #{container}")
-                failed ||= !status.success?
-            end
-            run "kubectl describe --namespace #{ns} #{pod}" if failed
-        end
-    end
-
     # Run the minibroker test.
     # The MiniBrokerTest instance will be yielded to the given block.
     def run_test
@@ -75,6 +64,7 @@ class MiniBrokerTest
                 set errexit: false do
                     unless @success
                         [minibroker_namespace, minibroker_pods_namespace].each do |ns|
+                            show_resources_in_namespace ns, 'pods', 'endpoints', 'services'
                             print_all_container_logs_in_namespace ns
                         end
                     end
@@ -125,7 +115,11 @@ class MiniBrokerTest
             ))
 
             broker_url = "http://#{helm_release}-minibroker.#{minibroker_namespace}.svc.cluster.local"
-            run "cf create-service-broker #{broker_name} user pass #{broker_url}"
+
+            run_with_retry 30, 5 do
+                run "cf create-service-broker #{broker_name} user pass #{broker_url}" 
+            end
+            
             run "cf enable-service-access #{service_type}"
             File.open("#{tmpdir}/secgroup.json", 'w') do |f|
                 f.puts [{
@@ -150,7 +144,11 @@ class MiniBrokerTest
             File.open("#{tmpdir}/service-params.json", 'w') { |f| f.puts service_params.to_json }
             run "jq -C . #{tmpdir}/service-params.json"
             started_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
+            
+            run_with_retry 30, 5 do
+                run "cf create-service #{service_type} #{service_plan_id} #{service_instance} -c #{tmpdir}/service-params.json"
+            end
+            
             status = wait_for_async_service_operation(service_instance, 30)
             unless status[:success]
                 failed_service_creation = Process.clock_gettime(Process::CLOCK_MONOTONIC)
