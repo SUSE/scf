@@ -8,5 +8,7 @@ templates:
 packages: []
 
 properties:
+  scf.internal-ca-cert:
+    description: "The certificate authority being used by SCF internally"
   uaa.ca_cert:
     description: "The certificate authority being used by UAA"

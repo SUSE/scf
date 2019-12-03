@@ -52,6 +52,7 @@ else
     fi
 fi
 
+INTERNAL_CA_CERT="<%= p("scf.internal-ca-cert") %>"
 if [ -r /etc/secrets/internal-ca-cert ]; then
     cp /etc/secrets/internal-ca-cert "${ca_path}"/internalCA.crt
 elif [ -n "${INTERNAL_CA_CERT:-}" ]; then

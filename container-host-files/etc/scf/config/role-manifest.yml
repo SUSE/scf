@@ -180,9 +180,9 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.9.tgz"
-  version: "1.0.9"
-  sha1: "8e8c03d7fbd4e7664fc8ebc19fcf3baa3c1c579f"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.10.tgz"
+  version: "1.0.10"
+  sha1: "9bd4aca7178014b7b7d84b4dbf331d01cdbf3878"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
@@ -201,6 +201,25 @@ releases:
   sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
 
 instance_groups:
+- name: configgin-helper
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: configgin-helper
+    release: scf-helper
+    properties:
+      bosh_containerization:
+        run:
+          service-account: configgin
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          memory: 64
+          virtual-cpus: 1
 - name: eirini
   if_feature: eirini
   environment_scripts:
@@ -704,6 +723,7 @@ instance_groups:
           protocol: TCP
           internal: 1936
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 5
@@ -818,6 +838,7 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -1074,6 +1095,7 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -1781,6 +1803,7 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -2762,29 +2785,45 @@ instance_groups:
 configuration:
   auth:
     roles:
-      configgin-role:
+      active-passive:
       - apiGroups: [""]
         resources: [pods]
-        verbs: [get, list, patch]
+        verbs: [patch]
+      # switchboard-leader for mysql-proxy is annotating services
       - apiGroups: [""]
         resources: [services]
         verbs: [get, list, patch]
+      configgin:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get, list]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
       - apiGroups: [""]
         resources: [secrets]
         verbs: [create, get, update, delete]
-      psp-role:
+      garden-runc:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get]
+      psp:
       - apiGroups: [extensions]
         resourceNames: [default]
         resources: [podsecuritypolicies]
         verbs: [use]
-      secrets-role:
+      secrets:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role-brain:
+      services:
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
+      test-brain:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
@@ -2806,12 +2845,15 @@ configuration:
       - apiGroups: [""]
         resources: [secrets]
         verbs: [get, list]
-      test-role-sits:
+      test-sits:
       - apiGroups: [""]
-        resources: [pods/portforward]
-        verbs: [create]
+        resources: [pods, pods/portforward]
+        verbs: [get, list, create]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
     cluster-roles:
-      test-cluster-role:
+      test-cluster:
       - apiGroups: [""]
         resources: [namespaces]
         verbs: [create, get, delete]
@@ -2826,7 +2868,7 @@ configuration:
         verbs: [delete]
       - apiGroups: [""]
         resources: [persistentvolumes, persistentvolumeclaims]
-        verbs: [get, list]
+        verbs: [get, list, delete]
       - apiGroups: [storage.k8s.io]
         resources: [storageclasses]
         verbs: [get, list]
@@ -2853,19 +2895,25 @@ configuration:
         - persistentVolumeClaim
         - nfs
     accounts:
+      active-passive:
+        roles: [active-passive, psp]
+      configgin:
+        roles: [configgin, psp]
       default:
-        roles: [configgin-role, psp-role]
-      secret-generator:
-        roles: [configgin-role, secrets-role, psp-role]
-      tests-brain:
-        roles: [configgin-role, test-role-brain, psp-role]
-        cluster-roles: [test-cluster-role]
-      tests-sits:
-        roles: [configgin-role, test-role-sits, psp-role]
-      garden-runc:
-        roles: [configgin-role, psp-role]
+        roles: [psp]
       eirini:
-        roles: [configgin-role, secrets-role, psp-role]
+        # etc/scf/config/scripts/set-opi-registry-port.sh needs "get service"
+        roles: [services, psp]
+      garden-runc:
+        roles: [garden-runc, psp]
+      secret-generator:
+        # Include configgin role so that we don't deadlock with configgin-helper
+        roles: [configgin, secrets, psp]
+      tests-brain:
+        roles: [test-brain, psp]
+        cluster-roles: [test-cluster]
+      tests-sits:
+        roles: [test-sits, psp]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
