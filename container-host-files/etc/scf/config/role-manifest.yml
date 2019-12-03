@@ -1193,10 +1193,10 @@ instance_groups:
     release: suse-go-buildpack
   - name: go-buildpack
     release: go-buildpack
-  - name: binary-buildpack
-    release: binary-buildpack
   - name: suse-binary-buildpack
     release: suse-binary-buildpack
+  - name: binary-buildpack
+    release: binary-buildpack
   - name: suse-nodejs-buildpack
     release: suse-nodejs-buildpack
   - name: nodejs-buildpack

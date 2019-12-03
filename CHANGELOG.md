@@ -1,5 +1,57 @@
 # Changelog
 
+## [2.19.1] - 2019-11-17
+
+## Added
+- Support for eirini SSH feature
+
+## Changed
+- Bumped cflinuxfs3 release to 0.141.0
+- Bumped eirini release to 0.0.23
+- Bumped go-buildpack release to 1.9.2
+- Bumped nodejs-buildpack release to 1.7.1
+- Bumped java-buildpack release to 4.24.0
+- Bumped SLE12 and SLE15 stack
+ 
+## Fixed
+- Fixed apiVersion in Chart yaml(s) to point to Helm API version (v1)
+- Turned binlog on for pxc config to enable transaction recovery
+
+## [2.19.0] - 2019-10-17
+
+## Added
+- Support for external CF-related databases, including CCDB & UAA when embedded in SCF
+- Support for eirini to run on GKE and EKS
+- Support for eirini to run on CRI-O-based Kubernetes environments
+- Ingress controller now available for UAA embedded in SCF
+- AUDIT_WRITE capabilities added for CRI-O
+
+## Changed
+- Eirini will use SLE15 as its default stack
+- Moved to stack-associated (or stackful) buildpacks, away from multi-stack
+- Enabled BPM for bits-service for reliability
+- garden.disable_swap_limit set to "true" to remove the need for swap accounting
+- Bumped binary-buildpack release to 1.0.35
+- Bumped cf-acceptance-tests to 9.5
+- Bumped cflinuxfs3 to 0.135.0
+- Bumped dotnetcore-buildpack release to 2.3.0
+- Bumped eirini release to 0.0.21
+- Bumped go-buildpack release to 1.9.1
+- Bumped java-buildpack release to 4.23.0
+- Bumped nginx-buildpack release to 1.1.0
+- Bumped nodejs-buildpack release to 1.7.0
+- Bumped php-buildpack release to 4.4.0
+- Bumped python-buildpack release to 1.6.37
+- Bumped ruby-buildpack release to 1.8.1
+- Bumped scf-helper release to 1.0.7
+- Bumped staticfile-buildpack release to 1.5.0
+- Bumped SLE12 & SLE15 stacks
+
+## Fixed
+- Enforced odd number of mysql replicas for HA scenarios to improve consistency with PXC
+- eirini-cert-copier no longer appears when scheduler is diego
+- Improved mysql-proxy active/passive handling
+
 ## [2.18.0] - 2019-08-26
 
 ## Added
