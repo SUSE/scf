@@ -18,3 +18,10 @@
 
     The online documentation (release notes, deployment guide) can be found at
         [1;36mhttps://www.suse.com/documentation/cloud-application-platform-1[0m
+{{- if and .Values.enable.eirini (ne (toString .Values.env.KUBE_CSR_AUTO_APPROVAL) "true") }}
+
+    [1;31mThe secret generator will create a certificate signing request that
+    must be approved by an administrator before deployment will continue.
+    To do so run the command[0m
+        [1;32mkubectl certificate approve {{ .Release.Namespace }}-bits-service-ssl-cert[0m
+{{- end }}
