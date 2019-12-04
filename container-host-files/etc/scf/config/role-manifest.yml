@@ -2196,7 +2196,7 @@ instance_groups:
       properties.sync_integration_tests.bbs.svc.port: 8889
       properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
       properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
-      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
       properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
       properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
       properties.sync_integration_tests.setup.flake_attempts: "'((SYNC_INTEGRATION_TESTS_FLAKE_ATTEMPTS))'"
@@ -2923,9 +2923,11 @@ configuration:
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
     # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
-    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.acceptance_tests_brain.ca_cert_uaa: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.namespace: '"((KUBERNETES_NAMESPACE))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'

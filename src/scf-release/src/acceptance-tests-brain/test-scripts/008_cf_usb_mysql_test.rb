@@ -54,20 +54,19 @@ class CFUSBMySQLTest < CFUSBTestBase
 
     def helm_chart_values
         ({
-            CF_ADMIN_PASSWORD: ENV['CLUSTER_ADMIN_PASSWORD'],
-            CF_ADMIN_USER: 'admin',
-            CF_CA_CERT: ENV['INTERNAL_CA_CERT'],
-            CF_DOMAIN: ENV['DOMAIN'],
+            CF_ADMIN_PASSWORD: ENV['CF_PASSWORD'],
+            CF_ADMIN_USER: ENV['CF_USERNAME'],
+            CF_CA_CERT: ENV['CF_CA_CERT'],
+            CF_DOMAIN: ENV['CF_DOMAIN'],
             SERVICE_LOCATION: "http://cf-usb-sidecar-mysql.#{helm_namespace}.svc.#{ENV['KUBERNETES_CLUSTER_DOMAIN']}:8081",
             SERVICE_MYSQL_HOST: tcp_domain,
             SERVICE_MYSQL_PORT: service_port,
             SERVICE_MYSQL_USER: MYSQL_USER,
             SERVICE_MYSQL_PASS: MYSQL_PASS,
             SERVICE_TYPE: service_type,
-            UAA_CA_CERT: ENV['UAA_CA_CERT'].empty? ? ENV['INTERNAL_CA_CERT'] : ENV['UAA_CA_CERT'],
+            UAA_CA_CERT: ENV['CF_CA_CERT_UAA'].empty? ? ENV['CF_CA_CERT'] : ENV['CF_CA_CERT_UAA'],
         })
     end
-
 end
 
 CFUSBMySQLTest.new.run_test

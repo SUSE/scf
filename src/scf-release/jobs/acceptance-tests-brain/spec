@@ -19,6 +19,11 @@ templates:
   pre-start.erb: bin/pre-start
 
 properties:
+  acceptance_tests_brain.ca_cert:
+    description: The Elastic Runtime CA Cert
+  acceptance_tests_brain.ca_cert_uaa:
+    description: The Elastic Runtime UAA CA Cert
+    default: ""
   acceptance_tests_brain.domain:
     description: The Elastic Runtime System Domain
   acceptance_tests_brain.tcp_domain:

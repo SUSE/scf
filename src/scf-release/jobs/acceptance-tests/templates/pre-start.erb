@@ -5,6 +5,10 @@ set -o nounset
 
 PATH=$PATH:/var/vcap/packages/cli/bin
 
+CLUSTER_ADMIN_PASSWORD="<%= p("acceptance_tests.admin_password") %>"
+DOMAIN="<%= p("acceptance_tests.apps_domain") %>"
+
+
 cf api --skip-ssl-validation "https://api.$DOMAIN"
 cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
 cf enable-feature-flag diego_docker
