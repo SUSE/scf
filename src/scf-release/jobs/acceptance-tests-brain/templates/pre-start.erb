@@ -5,6 +5,6 @@ set -o nounset
 
 PATH=$PATH:/var/vcap/packages/cli/bin
 
-cf api --skip-ssl-validation "https://api.$DOMAIN"
-cf auth admin "${CLUSTER_ADMIN_PASSWORD}"
+cf api --skip-ssl-validation "https://api.<%= properties.acceptance_tests_brain.domain %>"
+cf auth admin "<%= properties.acceptance_tests_brain.password %>"
 cf enable-feature-flag diego_docker

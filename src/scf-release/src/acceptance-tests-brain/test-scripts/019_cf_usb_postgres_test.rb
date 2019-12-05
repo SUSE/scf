@@ -71,10 +71,10 @@ class CFUSBPostgresTest < CFUSBTestBase
 
     def helm_chart_values
         ({
-            CF_ADMIN_PASSWORD: ENV['CLUSTER_ADMIN_PASSWORD'],
-            CF_ADMIN_USER: 'admin',
-            CF_CA_CERT: ENV['INTERNAL_CA_CERT'],
-            CF_DOMAIN: ENV['DOMAIN'],
+            CF_ADMIN_PASSWORD: ENV['CF_PASSWORD'],
+            CF_ADMIN_USER: ENV['CF_USERNAME'],
+            CF_CA_CERT: ENV['CF_CA_CERT'],
+            CF_DOMAIN: ENV['CF_DOMAIN'],
             SERVICE_LOCATION: "http://cf-usb-sidecar-postgres.#{helm_namespace}.svc.#{ENV['KUBERNETES_CLUSTER_DOMAIN']}:8081",
             SERVICE_POSTGRESQL_HOST: tcp_domain,
             SERVICE_POSTGRESQL_PORT: service_port,
@@ -82,7 +82,7 @@ class CFUSBPostgresTest < CFUSBTestBase
             SERVICE_POSTGRESQL_USER: postgres_user,
             SERVICE_POSTGRESQL_PASS: postgres_pass,
             SERVICE_TYPE: service_type,
-            UAA_CA_CERT: ENV['UAA_CA_CERT'].empty? ? ENV['INTERNAL_CA_CERT'] : ENV['UAA_CA_CERT'],
+            UAA_CA_CERT: ENV['CF_CA_CERT_UAA'].empty? ? ENV['CF_CA_CERT'] : ENV['CF_CA_CERT_UAA'],
         })
     end
 end
