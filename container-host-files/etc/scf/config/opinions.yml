@@ -434,7 +434,6 @@ properties:
       user: router_user
   routing_api:
     enabled: true
-    skip_consul_lock: true
     sqldb:
       type: mysql
       port: 3306

@@ -1,24 +1,24 @@
 releases:
 - name: bpm
-  version: 1.1.0
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.0
-  sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
+  version: 1.1.1
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.1
+  sha1: a7ea57aaf44a8217bae2a3df72a1afc51334e930
 - name: capi
-  version: 1.83.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0
-  sha1: 339e21175080d77e648e0181b394a6aa2679d271
+  version: 1.84.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.84.0
+  sha1: 486f45b43b58663582011bbd4d3265db8c55e602
 - name: cf-cli
-  version: 1.16.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.16.0
-  sha1: fa5d89b88a07822665d82e00f1629b98935b17e8
+  version: 1.17.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.17.0
+  sha1: f04e1e5a7644c73b8a216a7385813ae55d544d6f
 - name: cf-mysql
   version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.112
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.112
-  sha1: 26a8c40836fe8b0168fd4f0b02260d9b70cec595
+  version: 40.0.116
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.116
+  sha1: c90cd0a82394dd636d5e12aba13bd19be862a3ca
 - name: cf-syslog-drain
   version: '10.2'
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
@@ -28,25 +28,25 @@ releases:
   version: "0.151.0"
   sha1: "69dadce013b1be20356980e5f4d4736c50c3de31"
 - name: credhub
-  version: 2.4.0
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
-  sha1: 2e08e5de86288f421fb7eff72a095adb78c31ea8
+  version: 2.5.0
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.0
+  sha1: 89c5ab853980fbfa4525e04851766cb3e0e3f8c5
 - name: diego
-  version: 2.34.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.34.0
-  sha1: 2ef1517f78126e0ef079244a83941a83b6dd0731
+  version: 2.35.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.35.0
+  sha1: 8b65e5caf06822310b7f2d84263bffaf8a0ca65d
 - name: garden-runc
-  version: 1.19.3
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.3
-  sha1: 76810f5dd66d8320b344b3eca197c5b669a3a633
+  version: 1.19.5
+  url: https://suse-garden-runc-release.s3-us-west-2.amazonaws.com/garden-runc-release-v1.19.5.tgz
+  sha1: 237f31a449ea9de4f1b79f68818e3bb40ce36b33
 - name: loggregator
-  version: '105.5'
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.5
-  sha1: 62b9210def7c5179f6088b9449f551f57f1a1ee8
+  version: '105.6'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.6
+  sha1: eccfbd65e1d217a2b46afd414163e82553fb3084
 - name: log-cache
-  version: 2.2.2
-  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.2
-  sha1: 634dd3e134d0dac00f3f86beb00c06653579af4b
+  version: 2.3.1
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.3.1
+  sha1: 467c7f48e6a31c87d3ce36f854e6416b5a9f8a86
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
@@ -60,21 +60,21 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
 - name: pxc
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.18.0
-  version: 0.18.0
-  sha1: eb9abbca28e2c04da796300cd7efbb75611ddf66
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.19.0
+  version: 0.19.0
+  sha1: 936c7db7e0f881d50333347b630844849d76c1ca
 - name: routing
-  version: 0.188.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.188.0
-  sha1: d3420851c470790e8980ff0c506f75e3e52c15d9
+  version: 0.190.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.190.0
+  sha1: 6ab42838311e3b7f096e0459bf1161ee9d76d596
 - name: statsd-injector
   version: 1.10.0
   url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.10.0
   sha1: 255cfb2815e692576efd5caa082f5a48f6799ca0
 - name: loggregator-agent
-  version: "3.9"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
-  sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
+  version: '3.20'
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.20
+  sha1: ffb5adaf5f5c6c3bb351c3901a7fb5f437614f4e
 - name: binary-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35"
   version: "1.0.35"
@@ -196,9 +196,9 @@ releases:
   version: "0.1.2"
   sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
-  version: '72.0'
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
-  sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
+  version: "74.0.0"
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=74.0.0
+  sha1: e47171a9013095e60b4a7d6926257a3b23c1afbe
 
 instance_groups:
 - name: configgin-helper
@@ -1453,9 +1453,6 @@ instance_groups:
   - name: log-cache-scheduler
     release: log-cache
     # defaults
-  - name: log-cache-expvar-forwarder
-    release: log-cache
-    # defaults
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1487,16 +1484,6 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.maps: >
-        [{ "name": "worker-assignments",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerAssignments | jsonMap}}" },
-         { "name": "worker-health",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerHealth | jsonMap}}" }
-        ]
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
@@ -1524,8 +1511,6 @@ instance_groups:
       reverse_log_proxy: {ignore: true}
     # mostly default, logs_provider cert, see below
   - name: log-cache-cf-auth-proxy
-    release: log-cache
-  - name: log-cache-expvar-forwarder
     release: log-cache
     # defaults
   - name: log-cache
@@ -1601,82 +1586,6 @@ instance_groups:
     templates:
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.counters: >
-        [{ "name": "egress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Ingress}}" },
-         { "name": "expired",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Expired}}" },
-         { "name": "dropped",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Dropped}}" },
-         { "name": "promql-timeout",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.PromQLTimeout}}" },
-         { "name": "egress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Ingress}}" },
-         { "name": "err",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Err}}" },
-         { "name": "dropped",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Dropped}}" }
-        ]
-      properties.gauges: >
-        [{ "name": "cache-period",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.CachePeriod}}" },
-         { "name": "store-size",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.StoreSize}}" },
-         { "name": "total-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.TotalSystemMemory}}" },
-         { "name": "available-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.AvailableSystemMemory}}" },
-         { "name": "last-uaa-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastUAALatency}}" },
-         { "name": "last-capi-v3-apps-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" },
-         { "name": "last-capi-v2-list-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" },
-         { "name": "last-capi-v4-log-access-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" },
-         { "name": "last-capi-v2-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
-        ]
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
@@ -2728,8 +2637,6 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: loggr-expvar-forwarder
-    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -2747,65 +2654,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.counters: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.Dropped}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedEgressV2}}",
-           "tags": {
-             "direction": "egress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedIngressV2}}",
-           "tags": {
-             "direction": "ingress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.Egress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.EgressV2}}",
-           "tags": {
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.Ingress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.IngressV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.default_source_id: 'metron'
       properties.fissile.monit.port: 2290
-      properties.gauges: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelope}}",
-           "tags": {
-             "loggregator": "v1" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelopeV2}}",
-           "tags": {
-             "metric_version": "2.0",
-             "loggregator": "v2" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "origin_mappings",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.OriginMappingsV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
-      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
-      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
 configuration:
   auth:
     roles:
@@ -3283,9 +3132,6 @@ configuration:
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.loggregator_agent.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator_agent.tls.cert: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT))"'
-    properties.loggregator_agent.tls.key: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
@@ -3353,13 +3199,18 @@ configuration:
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.mtls_ca: '"((INTERNAL_CA_CERT))"'
+    properties.routing_api.mtls_client_cert: '"((ROUTING_API_MTLS_CLIENT_CERT))"'
+    properties.routing_api.mtls_client_key: '"((ROUTING_API_MTLS_CLIENT_CERT_KEY))"'
+    properties.routing_api.mtls_server_cert: '"((ROUTING_API_MTLS_SERVER_CERT))"'
+    properties.routing_api.mtls_server_key: '"((ROUTING_API_MTLS_SERVER_CERT_KEY))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: *cf-internal-database-host
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.uri: '"https://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.url: '"https://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.scalablesyslog.adapter.logs.addr: '"log-api-reverse-log-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
@@ -4456,20 +4307,6 @@ variables:
     secret: true
     description: The TLS key for the auth proxy.
     required: true
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT
-  options:
-    secret: true
-    ca: INTERNAL_CA_CERT
-    alternative_names:
-    - log-cache
-    description: PEM-encoded certificate.
-    required: true
-  type: certificate
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY
-  options:
-    secret: true
-    description: PEM-encoded key.
-    required: true
 - name: LOG_LEVEL
   options:
     default: info
@@ -4805,6 +4642,28 @@ variables:
           -----BEGIN RSA PRIVATE KEY-----
           -----END RSA PRIVATE KEY-----
     secret: true
+- name: ROUTING_API_MTLS_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls client certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls client key.
+- name: ROUTING_API_MTLS_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls server certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls server key.
 - name: SAML_SERVICEPROVIDER_CERT
   options:
     secret: true
