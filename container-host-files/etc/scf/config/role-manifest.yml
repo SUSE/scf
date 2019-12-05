@@ -160,9 +160,9 @@ releases:
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.63.tgz"
-  version: "1.81.63"
-  sha1: "9870eb08505800f95119ec8e17a4ecef24ec5eeb"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.64.tgz"
+  version: "1.81.64"
+  sha1: "a12e92cd51f066ddd5cddd6dbac06c1c687a6b7d"
 - name: sle15
   url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.72.tgz"
   version: "10.72"
