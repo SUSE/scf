@@ -1169,6 +1169,15 @@ instance_groups:
     release: capi
     consumes:
       log-cache: {ignore: true}
+      file_server: {ignore: true}
+  - name: cloud_controller_worker
+    release: capi
+    consumes:
+      file_server: {ignore: true}
+  - name: cloud_controller_clock
+    release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1866,6 +1875,8 @@ instance_groups:
           public: true
   - name: file_server
     release: diego
+    provides:
+      file_server: {}
     properties:
       bosh_containerization:
         # XXX Maintain old service name so DesiredLRPs remain valid after upgrades
@@ -1874,6 +1885,12 @@ instance_groups:
         - name: diego-files
           protocol: TCP
           internal: 8080
+  configuration:
+    templates:
+      properties.https_server_enabled: true
+      properties.https_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
+      properties.tls.cert: '"((FILE_SERVER_CERT))"'
+      properties.tls.key: '"((FILE_SERVER_CERT_KEY))"'
 - name: nfs-broker
   unless_feature: eirini
   environment_scripts:
@@ -2948,7 +2965,7 @@ configuration:
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
@@ -3209,8 +3226,8 @@ configuration:
     properties.routing_api.sqldb.host: *cf-internal-database-host
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
-    properties.routing_api.uri: '"https://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
-    properties.routing_api.url: '"https://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
+    properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.scalablesyslog.adapter.logs.addr: '"log-api-reverse-log-proxy.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8082"'
     properties.scalablesyslog.adapter.tls.ca: '"((INTERNAL_CA_CERT))"'
     properties.scalablesyslog.adapter.tls.cert: '"((SYSLOG_ADAPT_CERT))"'
@@ -4019,6 +4036,18 @@ variables:
     type: environment
     default: 'false'
     description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
+- name: FILE_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded tls certificate that can be used for server auth.
+    required: true
+  type: certificate
+- name: FILE_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for the file server.
+    required: true
 - name: FORCE_FORWARDED_PROTO_AS_HTTPS
   options:
     default: false
