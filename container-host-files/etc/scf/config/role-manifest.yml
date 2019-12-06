@@ -1170,14 +1170,6 @@ instance_groups:
     consumes:
       log-cache: {ignore: true}
       file_server: {ignore: true}
-  - name: cloud_controller_worker
-    release: capi
-    consumes:
-      file_server: {ignore: true}
-  - name: cloud_controller_clock
-    release: capi
-    consumes:
-      file_server: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1308,6 +1300,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1414,6 +1408,8 @@ instance_groups:
     # system from coming up.
   - name: cloud_controller_clock
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
