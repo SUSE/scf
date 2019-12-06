@@ -432,6 +432,7 @@ properties:
     secure_cookies: null
     status:
       user: router_user
+    set_kernel_parameters: false
   routing_api:
     enabled: true
     sqldb:

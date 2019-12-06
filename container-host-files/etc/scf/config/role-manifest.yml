@@ -1170,6 +1170,7 @@ instance_groups:
     consumes:
       log-cache: {ignore: true}
       file_server: {ignore: true}
+      credhub: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1594,6 +1595,9 @@ instance_groups:
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.proxy_ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.proxy_cert: '"((LOG_CACHE_GATEWAY_PROXY_CERT))"'
+      properties.proxy_key: '"((LOG_CACHE_GATEWAY_PROXY_CERT_KEY))"'
       properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
@@ -2347,6 +2351,8 @@ instance_groups:
     release: scf-helper
   - name: credhub
     release: credhub
+    provides:
+      credhub: {}
     properties:
       bosh_containerization:
         run:
@@ -4331,6 +4337,20 @@ variables:
   options:
     secret: true
     description: The TLS key for the auth proxy.
+    required: true
+- name: LOG_CACHE_GATEWAY_PROXY_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - log-cache
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: LOG_CACHE_GATEWAY_PROXY_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
     required: true
 - name: LOG_LEVEL
   options:
