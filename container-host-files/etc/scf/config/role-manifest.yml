@@ -1884,7 +1884,7 @@ instance_groups:
         ports:
         - name: diego-files
           protocol: TCP
-          internal: 8080
+          internal: 8443
   configuration:
     templates:
       properties.https_server_enabled: true
@@ -4042,6 +4042,7 @@ variables:
   options:
     secret: true
     ca: INTERNAL_CA_CERT
+    role_name: diego-access
     description: PEM-encoded tls certificate that can be used for server auth.
     required: true
   type: certificate
