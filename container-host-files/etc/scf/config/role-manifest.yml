@@ -3102,6 +3102,11 @@ configuration:
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
 
+    # Same-named properties, for the jobs `reverse_log_proxy_gateway`,
+    # `log-cache-cf-auth-proxy`, `log-cache-gateway`, `log-cache`, and
+    # `loggregator-agent`. All but last are in log-cache release. It
+    # is a trial to give them all the same cert, key, and
+    # `metrics.server_name` (over in opinions.yml).
     properties.metrics.ca_cert: "((INTERNAL_CA_CERT))"
     properties.metrics.cert: "((METRICS_CERT))"
     properties.metrics.key: "((METRICS_CERT_KEY))"
