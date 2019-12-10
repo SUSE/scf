@@ -1102,6 +1102,8 @@ instance_groups:
           privileged: true
   - name: routing-api
     release: routing
+    provides:
+      routing_api: {}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1930,6 +1932,8 @@ instance_groups:
     release: diego
   - name: route_emitter
     release: diego
+    consumes:
+      routing_api: {ignore: true}
   - name: garden
     release: garden-runc
     properties:
