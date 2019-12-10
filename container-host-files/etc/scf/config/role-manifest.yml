@@ -37,8 +37,8 @@ releases:
   sha1: d7b151e6a714660d9dc486c043cde294d6930a18
 - name: garden-runc
   version: 1.19.9
-  url: https://suse-garden-runc-release.s3-us-west-2.amazonaws.com/garden-runc-release-v1.19.9.tgz
-  sha1: 1c678e1c7a3506c0e408860571560081c15e3c6d
+  url: https://s3-us-west-2.amazonaws.com/suse-garden-runc-release/garden-runc-release-v1.19.9.tgz
+  sha1: b1801e4ad91f4c176d9efe4166e1aee0cfd0c4ac
 - name: loggregator
   version: 106.2.1
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=106.2.1

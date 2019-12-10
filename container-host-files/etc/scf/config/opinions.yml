@@ -164,10 +164,6 @@ properties:
       webdav_config:
         username: blobstore_user
     signing_users: []
-  capi:
-    tps:
-      watcher:
-        skip_consul_lock: true
   cc:
     buildpacks:
       blobstore_type: webdav
