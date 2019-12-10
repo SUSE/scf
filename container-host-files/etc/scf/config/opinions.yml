@@ -402,6 +402,8 @@ properties:
     reserved_space_for_other_jobs_in_mb: 3000
   loggregator:
     use_v2_api: true
+  metrics:
+    server_name: 'metrics_server'
   nats:
     port: 4222
     user: nats

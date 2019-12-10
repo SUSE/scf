@@ -3152,6 +3152,11 @@ configuration:
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+
+    properties.metrics.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.metrics.cert: "((METRICS_CERT))"
+    properties.metrics.key: "((METRICS_CERT_KEY))"
+
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
@@ -4377,6 +4382,22 @@ variables:
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
     required: true
+
+- name: METRICS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - metrics_server
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: METRICS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+
 - name: MONIT_PASSWORD
   options:
     secret: true
