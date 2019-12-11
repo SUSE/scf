@@ -746,7 +746,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - mysql
+                      - mysql-proxy
                   topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   tags:
   - active-passive
@@ -795,7 +795,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - cf-usb
+                      - cf-usb-group
                   topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: usb
@@ -1465,7 +1465,7 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - doppler
+                      - log-cache-scheduler
                   topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: bpm
     release: bpm
