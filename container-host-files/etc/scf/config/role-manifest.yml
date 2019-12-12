@@ -220,6 +220,18 @@ instance_groups:
             ha: 2
           memory: 64
           virtual-cpus: 1
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - configgin-helper
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
 - name: eirini
   if_feature: eirini
   environment_scripts:
@@ -457,7 +469,7 @@ instance_groups:
                       operator: In
                       values:
                       - syslog-scheduler
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           healthcheck:
             readiness:
               command:
@@ -505,7 +517,7 @@ instance_groups:
                       operator: In
                       values:
                       - adapter
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           healthcheck:
             readiness:
               command:
@@ -561,7 +573,7 @@ instance_groups:
                       operator: In
                       values:
                       - nats
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: nats
           protocol: TCP
@@ -637,7 +649,7 @@ instance_groups:
                       operator: In
                       values:
                       - mysql
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: galera-agent
     release: pxc
   - name: gra-log-purger
@@ -746,8 +758,8 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - mysql
-                  topologyKey: "beta.kubernetes.io/os"
+                      - mysql-proxy
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   tags:
   - active-passive
   - sequential-startup
@@ -795,8 +807,8 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - cf-usb
-                  topologyKey: "beta.kubernetes.io/os"
+                      - cf-usb-group
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: usb
           protocol: TCP
@@ -863,7 +875,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -928,7 +940,7 @@ instance_groups:
                       operator: In
                       values:
                       - locket
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: locket
           protocol: TCP
@@ -982,7 +994,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-cell
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
               - weight: 100
                 podAffinityTerm:
                   labelSelector:
@@ -991,7 +1003,7 @@ instance_groups:
                       operator: In
                       values:
                       - router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: router
           protocol: TCP
@@ -1048,7 +1060,7 @@ instance_groups:
                       operator: In
                       values:
                       - tcp-router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: healthcheck
           protocol: TCP
@@ -1114,7 +1126,7 @@ instance_groups:
                       operator: In
                       values:
                       - routing-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
         ports:
@@ -1185,7 +1197,7 @@ instance_groups:
                       operator: In
                       values:
                       - api-group
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: api
           protocol: TCP
@@ -1309,7 +1321,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-worker
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: bpm
     release: bpm
     properties:
@@ -1415,7 +1427,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-clock
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: statsd_injector
     release: statsd-injector
   - name: bpm
@@ -1465,8 +1477,8 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - doppler
-                  topologyKey: "beta.kubernetes.io/os"
+                      - log-cache-scheduler
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: bpm
     release: bpm
     properties:
@@ -1555,7 +1567,7 @@ instance_groups:
                       operator: In
                       values:
                       - doppler
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: dropsonde-udp
           protocol: UDP
@@ -1725,7 +1737,7 @@ instance_groups:
                       operator: In
                       values:
                       - log-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: dropsonde
           protocol: TCP
@@ -1822,7 +1834,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-brain
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
         ports:
@@ -1882,7 +1894,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-uploader
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1937,7 +1949,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-ssh
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1990,7 +2002,7 @@ instance_groups:
                       operator: In
                       values:
                       - nfs-broker
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -2079,7 +2091,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-cell
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
               - weight: 100
                 podAffinityTerm:
                   labelSelector:
@@ -2088,7 +2100,7 @@ instance_groups:
                       operator: In
                       values:
                       - router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: groot-btrfs
     release: groot-btrfs
   - name: cflinuxfs3-rootfs-setup
@@ -2265,6 +2277,18 @@ instance_groups:
             readiness:
               command:
               - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - uaa
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: uaa
           protocol: TCP
@@ -2518,17 +2542,17 @@ instance_groups:
               command:
               - curl --silent --fail --head http://${HOSTNAME}:9101
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-api
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-api
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: api  # apiserverport
           protocol: TCP
@@ -2580,17 +2604,17 @@ instance_groups:
               - curl --silent --fail --head http://${HOSTNAME}:9103
               - curl --silent --fail --head http://${HOSTNAME}:9105
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-metrics
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-metrics
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
@@ -2649,17 +2673,17 @@ instance_groups:
               - curl --silent --fail --head http://${HOSTNAME}:9104
               - curl --silent --fail --head http://${HOSTNAME}:9108
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-actors
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-actors
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
