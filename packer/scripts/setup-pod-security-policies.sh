@@ -9,7 +9,7 @@ set -o errexit -o xtrace
 # and should only be assigned to highly trusted users.
 kubectl create -f - <<EOF
 {
-  "apiVersion": "extensions/v1beta1",
+  "apiVersion": "policy/v1beta1",
   "kind": "PodSecurityPolicy",
   "metadata": {
     "annotations": {
@@ -58,7 +58,7 @@ EOF
 # users and service accounts.
 kubectl create -f - <<EOF
 {
-  "apiVersion": "extensions/v1beta1",
+  "apiVersion": "policy/v1beta1",
   "kind": "PodSecurityPolicy",
   "metadata": {
     "annotations": {
