@@ -12,7 +12,7 @@ k8s_api() {
     local svcacct=/var/run/secrets/kubernetes.io/serviceaccount
     curl --silent \
         --cacert "${svcacct}/ca.crt" \
-        -H "Authorization: bearer $(cat "${svcacct}/token")" \
+        -H "Authorization: bearer ${CONFIGGIN_SA_TOKEN}" \
         "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/${api_ver}/namespaces/$(cat "${svcacct}/namespace")/${1#/}"
 }
 
