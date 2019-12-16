@@ -115,7 +115,6 @@ Vagrant.configure(2) do |config|
 
     # Mount NFS volumes.
     # https://github.com/mitchellh/vagrant/issues/351
-    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_setup_scripts_env
@@ -164,7 +163,6 @@ Vagrant.configure(2) do |config|
       args: ["/dev/vdc", KUBERNETES_HOSTPATH_DIR]
 
     # Mount NFS volumes.
-    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_setup_scripts_env
