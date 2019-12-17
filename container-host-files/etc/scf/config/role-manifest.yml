@@ -2158,7 +2158,12 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+              - >
+                curl
+                --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }')
+                --fail
+                -H \"Host: uaa.${DOMAIN}\"
+                -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
