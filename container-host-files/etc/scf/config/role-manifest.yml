@@ -2134,7 +2134,10 @@ instance_groups:
   - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_uaa_monit_timeout.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_uaa_prestart_suse_compat.sh
   - scripts/forward_logfiles.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-uaa-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -2179,6 +2182,12 @@ instance_groups:
           external: 2793
           internal: 8443
           public: true
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
   - name: wait-for-database
     release: scf-helper
   tags:
