@@ -2632,6 +2632,8 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
+  - name: prom_scraper
+    release: loggregator-agent
   - name: bpm
     release: bpm
     properties:
@@ -2641,6 +2643,13 @@ instance_groups:
   configuration:
     templates:
       properties.fissile.monit.port: 2290
+      properties.metrics.ca_cert: ((INTERNAL_CA_CERT))
+      properties.metrics.cert: ((PROM_SCRAPER_METRICS_TLS_CERT))
+      properties.metrics.key: ((PROM_SCRAPER_METRICS_TLS_CERT_KEY))
+      properties.metrics.server_name: prom_scraper_metrics
+      properties.scrape.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.scrape.tls.cert: ((PROM_SCRAPER_SCRAPE_TLS_CERT))
+      properties.scrape.tls.key: ((PROM_SCRAPER_SCRAPE_TLS_CERT_KEY))
 configuration:
   auth:
     roles:
@@ -2778,6 +2787,7 @@ configuration:
     id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
+    name: ((HOSTNAME))
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
@@ -4570,6 +4580,31 @@ variables:
       user uids (required for LDAP integration only)
     example: cn=Users,dc=corp,dc=test,dc=com
     default: ''
+- name: PROM_SCRAPER_METRICS_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: prom_scraper_metrics
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_METRICS_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
 - name: PZ_LABEL_NAME
   options:
     default: ''
