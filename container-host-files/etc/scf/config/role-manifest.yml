@@ -28,9 +28,9 @@ releases:
   version: "0.151.0"
   sha1: "69dadce013b1be20356980e5f4d4736c50c3de31"
 - name: credhub
-  version: 2.5.7
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.7
-  sha1: 9647fff0fcb249e71ba2290849b4cdbbf7550165
+  version: 2.5.9
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.9
+  sha1: 225d508eed11c3f6f4a360118de068d5db9fa427
 - name: diego
   version: 2.40.0
   url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.40.0
@@ -64,21 +64,21 @@ releases:
   version: 0.21.0
   sha1: 499e1bb3d90f9532229ff915f7704ac48b8a9741
 - name: routing
-  version: 0.193.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.193.0
-  sha1: eb74a7c1f2775382daea61dc2f666833febe2dc9
+  version: 0.195.0
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.195.0
+  sha1: 2b899d7bd6d35b9aacb410f0343989e82397d86d
 - name: statsd-injector
   version: 1.11.4
   url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.11.4
   sha1: 255e718ed424a8e3d6ccfe8a4c5c5c0718fced17
 - name: loggregator-agent
-  version: 5.2.1
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=5.2.1
-  sha1: 5f4c1826cd6c0b3c995ac83edee4fde404bb1e62
+  version: 5.2.2
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=5.2.2
+  sha1: da2da3417936921a692bda4fa5390cb113e137dd
 - name: binary-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35"
-  version: "1.0.35"
-  sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
+  url: https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35
+  version: 1.0.35
+  sha1: d735bedac8a9c7346b4c0f41edeabc779223928c
 - name: suse-binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
   version: "1.0.35.2"
@@ -87,10 +87,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.4.1.tgz"
   version: "1.9.4.1"
   sha1: "b674759cfa33e2064fd794ea5019421b1a181502"
-- name: "go-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.3"
-  version: "1.9.3"
-  sha1: "0c86b47463b72709d0c070308ddf691d29f45f55"
+- name: go-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.3
+  version: 1.9.3
+  sha1: 0c86b47463b72709d0c070308ddf691d29f45f55
 - name: suse-java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.26.0.1.tgz"
   version: "4.26.0.1"
@@ -99,62 +99,62 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.7.1.tgz"
   version: "1.7.7.1"
   sha1: "55ee7c15c4a7d702d93144801758f12e51cacb86"
-- name: "nodejs-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.4"
-  version: "1.7.4"
-  sha1: "31635640d0e52b899386dbcd3911c8c92b92f112"
+- name: nodejs-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.4
+  version: 1.7.4
+  sha1: 31635640d0e52b899386dbcd3911c8c92b92f112
 - name: suse-php-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.2.1.tgz"
   version: "4.4.2.1"
   sha1: "0468d080a7069b0e9ccaeac23d89caa42922a50b"
-- name: "php-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.2"
-  version: "4.4.2"
-  sha1: "90c5eff395300cef53a2817aede7ef869e06853c"
+- name: php-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.2
+  version: 4.4.2
+  sha1: 90c5eff395300cef53a2817aede7ef869e06853c
 - name: suse-python-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.7.3.1.tgz"
   version: "1.7.3.1"
   sha1: "1ac8725fc0881f24e34bbe7cbf894593290421fb"
-- name: "python-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.7.2"
-  version: "1.7.2"
-  sha1: "be453857ec5e054f41539eda19bdc28d458583a4"
+- name: python-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.7.2
+  version: 1.7.2
+  sha1: be453857ec5e054f41539eda19bdc28d458583a4
 - name: suse-ruby-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.3.1.tgz"
   version: "1.8.3.1"
   sha1: "ae62f8120a9ab2324ccb3ca2da3f44402986d569"
-- name: "java-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.26"
-  version: "4.26"
-  sha1: "24e8c51cbf364fc38f40d0e261dd3bb663e145e3"
-- name: "ruby-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.2"
-  version: "1.8.2"
-  sha1: "af14339b39d0d22db2fe2fc7c3abde57eb2b59e5"
+- name: java-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.26
+  version: '4.26'
+  sha1: 24e8c51cbf364fc38f40d0e261dd3bb663e145e3
+- name: ruby-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.2
+  version: 1.8.2
+  sha1: af14339b39d0d22db2fe2fc7c3abde57eb2b59e5
 - name: suse-staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.2.1.tgz"
   version: "1.5.2.1"
   sha1: "ea6594775ed472b79d1364d1f6ea1e6eab76bd77"
-- name: "staticfile-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.1"
-  version: "1.5.1"
-  sha1: "3e73d59a9e0210a36ca2ac8db74a9a263b85fbb4"
+- name: staticfile-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.1
+  version: 1.5.1
+  sha1: 3e73d59a9e0210a36ca2ac8db74a9a263b85fbb4
 - name: suse-nginx-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.2.1.tgz"
   version: "1.1.2.1"
   sha1: "678c9c9332300a365740929d6aaf107500664cba"
 - name: nginx-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.1"
-  version: "1.1.1"
-  sha1: "7730085576fbccf84e8a01b3180e2e021151449d"
+  url: https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.1
+  version: 1.1.1
+  sha1: 7730085576fbccf84e8a01b3180e2e021151449d
 - name: suse-dotnet-core-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
   version: "2.3.0.2"
   sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
-- name: "dotnet-core-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.2"
-  version: "2.3.2"
-  sha1: "82baada4dc48cb499abb49ca5aff91e59e7e7b48"
+- name: dotnet-core-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.2
+  version: 2.3.2
+  sha1: 82baada4dc48cb499abb49ca5aff91e59e7e7b48
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
@@ -196,9 +196,9 @@ releases:
   version: "0.1.2"
   sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
-  version: 74.10.0
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=74.10.0
-  sha1: 8fbc7344691240859a628140b9220045f264aa8e
+  version: 74.12.0
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=74.12.0
+  sha1: 5fdd99addec2aebe521a468dba0bcd52e66c86c6
 
 instance_groups:
 - name: configgin-helper
