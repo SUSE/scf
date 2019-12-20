@@ -2,7 +2,7 @@
 
 set -e -x
 
-GOROOT=$(readlink -nf /var/vcap/packages/golang1.10)
+GOROOT=$(readlink -nf /var/vcap/packages/golang*)
 export GOROOT
 export PATH=${GOROOT}/bin:${PATH}
 
