@@ -587,6 +587,9 @@ instance_groups:
       bosh_containerization:
         run:
           privileged: true
+  configuration:
+    templates:
+      properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
 - name: mysql
   default_feature: mysql
   scripts:
@@ -768,7 +771,7 @@ instance_groups:
       properties.api_force_https: false
       properties.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.api_port: 8083
-      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
+      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.api_username: mysql_proxy
 - name: cf-usb-group
   default_feature: cf_usb
@@ -3199,7 +3202,7 @@ configuration:
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
+    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
     properties.diego.ssh_proxy.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3289,7 +3292,7 @@ configuration:
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
-    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
+    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
     properties.nfsbroker.db_hostname: *cf-internal-database-host
@@ -4358,10 +4361,6 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       Its default value is 'secret-1' and cannot be set by the user.
-- name: KUBE_SIZING_MYSQL_COUNT
-  options:
-    description: The number of mysql replicas deployed. This value is set automatically
-      by the helm charts of SCF.
 - name: KUBE_SIZING_NATS_COUNT
   options:
     description: The number of nats replicas deployed. This value is set automatically
