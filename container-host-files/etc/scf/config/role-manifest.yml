@@ -349,6 +349,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_eirini_ssh_proxy.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1157,6 +1158,7 @@ instance_groups:
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_ng.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1293,6 +1295,7 @@ instance_groups:
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_worker.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1390,6 +1393,7 @@ instance_groups:
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_clock.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1511,6 +1515,7 @@ instance_groups:
   - scripts/patches/fix_monit_rsyslog.sh
   # Don't use bosh link to get the RLP address and port
   - scripts/patches/set_logs_provider_addr.sh
+  - scripts/patches/uaa_ca_cert_log_cache_cf_auth_proxy.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1695,7 +1700,7 @@ instance_groups:
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
-      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
       properties.uaa.client_id: 'doppler'
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
       properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
@@ -1705,6 +1710,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_loggregator_trafficcontroller.sh
+  - scripts/patches/uaa_ca_cert_reverse_log_proxy_gateway.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1795,7 +1802,7 @@ instance_groups:
            "registration_interval": "20s",
            "server_cert_domain_san": "log-stream",
            "uris": ["log-stream.((DOMAIN))", "*.log-stream.((DOMAIN))"] }]
-      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
       properties.uaa.client_id: 'doppler'
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
       properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
@@ -1918,6 +1925,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_ssh_proxy.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
@@ -2035,6 +2043,7 @@ instance_groups:
   - scripts/patches/mapfs_pre_start.sh
   - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
   - scripts/patches/fix_garden_logdir.sh
+  - scripts/patches/uaa_ca_cert_route_emitter.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
@@ -2255,13 +2264,14 @@ instance_groups:
   environment_scripts:
   - scripts/log_level_mappings.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_uaa_monit_timeout.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/forward_logfiles.sh
   jobs:
   - name: global-uaa-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
   - name: uaa
     release: uaa
     properties:
@@ -2421,6 +2431,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_credhub.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -2458,7 +2469,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
@@ -2466,7 +2477,8 @@ instance_groups:
       properties.credhub.data_storage.host: *cf-internal-database-host
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
-      properties.credhub.data_storage.require_tls: false
+      # require_tls must be set also when UAA is using the INTERNAL_CA_CERT
+      properties.credhub.data_storage.require_tls: true
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
       properties.credhub.data_storage.username: "credhub_user"
@@ -2954,7 +2966,7 @@ configuration:
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.acceptance_tests_brain.ca_cert_uaa: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+    properties.acceptance_tests_brain.ca_cert_uaa: '"((UAA_CA_CERT))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.namespace: '"((KUBERNETES_NAMESPACE))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -3211,7 +3223,7 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))"'
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
@@ -3403,7 +3415,7 @@ configuration:
     properties.tls.cert: '"((DIEGO_CLIENT_CERT))"'
     properties.tls.key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
-    properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+    properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.app_autoscaler.secret: ((AUTOSCALER_UAA_CLIENT_SECRET))
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET))"'
