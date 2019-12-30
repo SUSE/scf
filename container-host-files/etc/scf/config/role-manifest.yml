@@ -48,9 +48,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.6.4
   sha1: 13a87a88128fb5231febce678cf9350d0979a116
 - name: mapfs
-  version: "1.2.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.2.2"
-  sha1: "ccdd798cc523f64037e01e0a888a206ceb018536"
+  version: "1.1.0"
+  url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
+  sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
   version: '30'
   url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=30
