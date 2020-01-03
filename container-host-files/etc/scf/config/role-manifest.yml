@@ -4304,6 +4304,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -4318,6 +4319,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: The TLS cert for the auth proxy.
     required: true
   type: certificate
@@ -4332,6 +4334,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -4371,6 +4374,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - metrics_server
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
