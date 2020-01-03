@@ -6,6 +6,10 @@ container-networking/v0-14-0-network-policy-plugin-linux64:
   size: 8472248
   object_id: v0-14-0-network-policy-plugin-linux64
   sha: df087aee2480e2ec67a6b0433fddd351b9f2cc21
+golang/go1.10.linux-amd64.tar.gz:
+  size: 119905205
+  object_id: go1.10.linux-amd64.tar.gz
+  sha: 693e2dfd99ef2d608b41c450efd9d277bf2a7f2f
 golang/go1.13.5.linux-amd64.tar.gz:
   size: 120074076
   object_id: go1.13.5.linux-amd64.tar.gz
