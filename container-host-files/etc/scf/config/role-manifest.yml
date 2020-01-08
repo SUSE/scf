@@ -136,9 +136,9 @@ releases:
   version: "1.5.2.1"
   sha1: "ea6594775ed472b79d1364d1f6ea1e6eab76bd77"
 - name: "staticfile-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.1"
-  version: "1.5.1"
-  sha1: "3e73d59a9e0210a36ca2ac8db74a9a263b85fbb4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.3"
+  version: "1.5.3"
+  sha1: "950427d4f8556d26ccc457fd8dabbeb93d14a16c"
 - name: suse-nginx-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.2.1.tgz"
   version: "1.1.2.1"
