@@ -116,9 +116,9 @@ releases:
   version: "1.7.3.1"
   sha1: "1ac8725fc0881f24e34bbe7cbf894593290421fb"
 - name: "python-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.7.2"
-  version: "1.7.2"
-  sha1: "be453857ec5e054f41539eda19bdc28d458583a4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.7.5"
+  version: "1.7.5"
+  sha1: "a48bdaa36bfe8f73c8a31d6d81608df7b3706c75"
 - name: suse-ruby-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.3.1.tgz"
   version: "1.8.3.1"
