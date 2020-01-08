@@ -167,10 +167,6 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.84.tgz"
   version: "10.84"
   sha1: "f379bece659bae5e8258469281089a76d4e4b734"
-- name: app-autoscaler
-  version: "1.2.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
-  sha1: "1cc2cd3ed6c7c39f8c984316bb2afb95743ccba1"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
