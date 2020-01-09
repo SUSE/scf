@@ -176,8 +176,12 @@ uaa-helm: ${FISSILE_BINARY}
 scf-release:
 	make/bosh-release src/scf-release
 
+app-autoscaler-release:
+	make/bosh-release src/app-autoscaler-release
+
 releases: \
 	scf-release \
+	app-autoscaler-release \
 	uaa-releases \
 	${NULL}
 
