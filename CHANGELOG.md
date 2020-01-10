@@ -4,7 +4,7 @@
 
 ## Added
 - Added/fixed podAntiAffinity rules for various roles
-- Set topologyKey for podAntiAffinity rule to kubernetes.io/hostname and made it configurable
+- Set topologyKey for podAntiAffinity rule to kubernetes.io/hostname
 - Advise operator of the need for CSR approval for Eirini internal registry in helm NOTEs 
 
 
@@ -14,22 +14,22 @@
 - Bumped cflinuxfs3 release to 0.153.0
 - Bumped eirini release to 0.0.26
 - Bumped go-buildpack release to 1.9.4
-- Bumped nginx-buildpack release to 1.1.1
+- Bumped nginx-buildpack release to 1.1.2
 - Bumped java-buildpack release to 4.27.0
 - Bumped nodejs-buildpack release to 1.7.7
 - Bumped php-buildpack release to 4.4.2
 - Bumped python-buildpack release to 1.7.3
 - Bumped staticfile-buildpack release to 1.5.2 
 - Bumped ruby-buildpack release to 1.8.3
-- Bumped scf-helper-release to 1.0.9
+- Bumped scf-helper-release to 1.0.13
 - Bumped SLE12 and SLE15 stack
 - Optimized startup time for various roles
  
 ## Fixed
 - Avoid pod restarts for many roles during UAA and SCF startup
 - Expand GoRouter ciphersuite to be compatible with a wider range of clients
-- Use apps/v1 apiVersion for Statefulsets
-- Use system cert store if UAA_CA_CERT is empty
+- Make helm chart compatible with kubernetes 1.16
+- Use system cert store if UAA_CA_CERT is not specified
 
 
 ## [2.19.1] - 2019-11-17
