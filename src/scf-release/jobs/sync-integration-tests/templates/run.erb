@@ -5,7 +5,7 @@ set -o errexit
 export PATH="/var/vcap/packages/cli/bin:${PATH}"
 export PATH="/var/vcap/packages/kubectl/bin:${PATH}"
 
-GOROOT="$(readlink -nf /var/vcap/packages/golang1.10)"
+GOROOT="$(readlink -nf /var/vcap/packages/golang*)"
 export GOROOT
 export PATH="${GOROOT}/bin:${PATH}"
 
