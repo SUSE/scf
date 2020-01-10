@@ -11,10 +11,6 @@ releases:
   version: 1.23.0
   url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.23.0
   sha1: cda431fa1e550c28bf6f5c82b3a3cf2c168771f2
-- name: cf-mysql
-  version: 36.15.0
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
-  sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
   version: 40.0.123
   url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.123
@@ -590,10 +586,8 @@ instance_groups:
 - name: mysql
   default_feature: mysql
   scripts:
-  - scripts/create_mysql_data_tmp.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/chown_vcap_store.sh
   - scripts/pxc/create_directories.sh
-  - scripts/patches/fix_mysql_advertise_ip.sh # Deprecated. Should go away with cf-mysql-release.
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   post_config_scripts:
@@ -658,8 +652,6 @@ instance_groups:
     release: pxc
   - name: bootstrap
     release: pxc
-  - name: mysql
-    release: cf-mysql
   - name: bpm
     release: bpm
     properties:
@@ -671,14 +663,6 @@ instance_groups:
   configuration:
     templates:
       properties.admin_password: ((MYSQL_ADMIN_PASSWORD))
-
-      # Deprecation start. Should go away with cf-mysql-release. >>
-      properties.cf_mysql.mysql.admin_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.cluster_health.password: ((MYSQL_CLUSTER_HEALTH_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.db_password: ((MYSQL_ADMIN_PASSWORD))
-      properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
-      # << Deprecation end
-
       properties.db_password: ((MYSQL_ADMIN_PASSWORD))
       properties.endpoint_password: ((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))
       properties.engine_config.galera.enabled: true
