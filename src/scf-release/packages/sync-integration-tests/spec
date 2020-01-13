@@ -3,7 +3,7 @@ name: sync-integration-tests
 dependencies:
   - cli
   - git
-  - golang1.10
+  - golang1.13.5
 files:
   - code.cloudfoundry.org/sync-integration-tests/**/*
 excluded_files:
