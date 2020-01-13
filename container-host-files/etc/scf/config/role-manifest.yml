@@ -76,9 +76,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=5.2.4
   sha1: bc041f05b49bca8670df4ead2b471de4efee602a
 - name: binary-buildpack
-  url: https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35
-  version: 1.0.35
-  sha1: d735bedac8a9c7346b4c0f41edeabc779223928c
+  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.36"
+  version: "1.0.36"
+  sha1: "0269a613be68f988682bbf56504b78477965b1c4"
 - name: suse-binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
   version: "1.0.35.2"
