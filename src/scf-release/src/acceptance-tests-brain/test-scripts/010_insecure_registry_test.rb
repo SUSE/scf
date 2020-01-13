@@ -104,4 +104,7 @@ REGISTRIES.each_pair do |regname, registry_url|
         end
     end
 end
-raise caught_error if caught_error
+if caught_error
+    run "cf logs --recent uploader", errexit: false
+    raise caught_error
+end

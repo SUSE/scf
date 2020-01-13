@@ -1,84 +1,84 @@
 releases:
 - name: bpm
-  version: 1.1.0
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.0
-  sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
+  version: 1.1.6
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.6
+  sha1: 5bad6161dbbcf068830a100b6a76056fe3b99bc8
 - name: capi
-  version: 1.83.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0
-  sha1: 339e21175080d77e648e0181b394a6aa2679d271
+  version: 1.89.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.89.0
+  sha1: 472966da017bda3118eb9cf71f9bcca1c23c344a
 - name: cf-cli
-  version: 1.16.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.16.0
-  sha1: fa5d89b88a07822665d82e00f1629b98935b17e8
+  version: 1.23.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.23.0
+  sha1: cda431fa1e550c28bf6f5c82b3a3cf2c168771f2
 - name: cf-mysql
   version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.112
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.112
-  sha1: 26a8c40836fe8b0168fd4f0b02260d9b70cec595
+  version: 40.0.123
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.123
+  sha1: aeea22d0d7003d69b1d6154bae41360f821be420
 - name: cf-syslog-drain
-  version: '10.2'
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
-  sha1: fe9fd8946c39554425b534cdb8ce14f3923a31f8
+  version: 10.2.5
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2.5
+  sha1: 6c4f683ac26a02c632726330572d3130e6f61704
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.151.0"
-  version: "0.151.0"
-  sha1: "69dadce013b1be20356980e5f4d4736c50c3de31"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.153.0"
+  version: "0.153.0"
+  sha1: "5178640a101050f3e7a7ba6710e3f99200c3c0f3"
 - name: credhub
-  version: 2.4.0
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
-  sha1: 2e08e5de86288f421fb7eff72a095adb78c31ea8
+  version: 2.5.9
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.9
+  sha1: 225d508eed11c3f6f4a360118de068d5db9fa427
 - name: diego
-  version: 2.34.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.34.0
-  sha1: 2ef1517f78126e0ef079244a83941a83b6dd0731
+  version: 2.41.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.41.0
+  sha1: 8a183683f26ba982eda1dbeba7f55edc9a1059b0
 - name: garden-runc
-  version: 1.19.3
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.3
-  sha1: 76810f5dd66d8320b344b3eca197c5b669a3a633
+  version: 1.19.9
+  url: https://s3-us-west-2.amazonaws.com/suse-garden-runc-release/garden-runc-release-v1.19.9.tgz
+  sha1: b1801e4ad91f4c176d9efe4166e1aee0cfd0c4ac
 - name: loggregator
-  version: '105.5'
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.5
-  sha1: 62b9210def7c5179f6088b9449f551f57f1a1ee8
+  version: 106.3.0
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=106.3.0
+  sha1: f61a6ff8ca558899de8e992ba0271a06d7ae7c85
 - name: log-cache
-  version: 2.2.2
-  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.2
-  sha1: 634dd3e134d0dac00f3f86beb00c06653579af4b
+  version: 2.6.4
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.6.4
+  sha1: 13a87a88128fb5231febce678cf9350d0979a116
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
   sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
-  version: '27'
-  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=27
-  sha1: 9817e8e460b8619a99a0a0fbec8220dc12b2a6f5
+  version: '30'
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=30
+  sha1: 77be62f17dbb50252039c2753def77b6808f8a5b
 - name: nfs-volume
   version: "1.5.2"
   url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
   sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
 - name: pxc
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.18.0
-  version: 0.18.0
-  sha1: eb9abbca28e2c04da796300cd7efbb75611ddf66
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.21.0
+  version: 0.21.0
+  sha1: 499e1bb3d90f9532229ff915f7704ac48b8a9741
 - name: routing
-  version: 0.188.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.188.0
-  sha1: d3420851c470790e8980ff0c506f75e3e52c15d9
+  version: 0.196.0
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.196.0
+  sha1: 5eab0c9c35b4f047ff83d0a266223edb357cb02d
 - name: statsd-injector
-  version: 1.10.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.10.0
-  sha1: 255cfb2815e692576efd5caa082f5a48f6799ca0
+  version: 1.11.8
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.11.8
+  sha1: c70df26ca5c0d5a6c72243ad8b55476ee825a68f
 - name: loggregator-agent
-  version: "3.9"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
-  sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
+  version: 5.2.4
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=5.2.4
+  sha1: bc041f05b49bca8670df4ead2b471de4efee602a
 - name: binary-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35"
-  version: "1.0.35"
-  sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
+  url: https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35
+  version: 1.0.35
+  sha1: d735bedac8a9c7346b4c0f41edeabc779223928c
 - name: suse-binary-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
   version: "1.0.35.2"
@@ -87,10 +87,10 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.4.1.tgz"
   version: "1.9.4.1"
   sha1: "b674759cfa33e2064fd794ea5019421b1a181502"
-- name: "go-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.3"
-  version: "1.9.3"
-  sha1: "0c86b47463b72709d0c070308ddf691d29f45f55"
+- name: go-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.3
+  version: 1.9.3
+  sha1: 0c86b47463b72709d0c070308ddf691d29f45f55
 - name: suse-java-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.27.0.1.tgz"
   version: "4.27.0.1"
@@ -99,18 +99,18 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.7.1.tgz"
   version: "1.7.7.1"
   sha1: "55ee7c15c4a7d702d93144801758f12e51cacb86"
-- name: "nodejs-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.4"
-  version: "1.7.4"
-  sha1: "31635640d0e52b899386dbcd3911c8c92b92f112"
+- name: nodejs-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.4
+  version: 1.7.4
+  sha1: 31635640d0e52b899386dbcd3911c8c92b92f112
 - name: suse-php-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.2.1.tgz"
   version: "4.4.2.1"
   sha1: "0468d080a7069b0e9ccaeac23d89caa42922a50b"
-- name: "php-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.2"
-  version: "4.4.2"
-  sha1: "90c5eff395300cef53a2817aede7ef869e06853c"
+- name: php-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.2
+  version: 4.4.2
+  sha1: 90c5eff395300cef53a2817aede7ef869e06853c
 - name: suse-python-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.7.3.1.tgz"
   version: "1.7.3.1"
@@ -128,33 +128,33 @@ releases:
   version: "4.26"
   sha1: "24e8c51cbf364fc38f40d0e261dd3bb663e145e3"
 - name: "ruby-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.2"
-  version: "1.8.2"
-  sha1: "af14339b39d0d22db2fe2fc7c3abde57eb2b59e5"
+  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.6"
+  version: "1.8.6"
+  sha1: "0c0dd929dbc454e1b2d07dcb662e5623082bc689"
 - name: suse-staticfile-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.2.1.tgz"
   version: "1.5.2.1"
   sha1: "ea6594775ed472b79d1364d1f6ea1e6eab76bd77"
 - name: "staticfile-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.1"
-  version: "1.5.1"
-  sha1: "3e73d59a9e0210a36ca2ac8db74a9a263b85fbb4"
+  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.3"
+  version: "1.5.3"
+  sha1: "950427d4f8556d26ccc457fd8dabbeb93d14a16c"
 - name: suse-nginx-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.2.1.tgz"
   version: "1.1.2.1"
   sha1: "678c9c9332300a365740929d6aaf107500664cba"
 - name: nginx-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.1"
-  version: "1.1.1"
-  sha1: "7730085576fbccf84e8a01b3180e2e021151449d"
+  url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.3"
+  version: "1.1.3"
+  sha1: "afe94181ae98b737331e015246f4e5ea3a991d8e"
 - name: suse-dotnet-core-buildpack
   url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
   version: "2.3.0.2"
   sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
-- name: "dotnet-core-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.2"
-  version: "2.3.2"
-  sha1: "82baada4dc48cb499abb49ca5aff91e59e7e7b48"
+- name: dotnet-core-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.2
+  version: 2.3.2
+  sha1: 82baada4dc48cb499abb49ca5aff91e59e7e7b48
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
@@ -167,10 +167,6 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.84.tgz"
   version: "10.84"
   sha1: "f379bece659bae5e8258469281089a76d4e4b734"
-- name: app-autoscaler
-  version: "1.2.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
-  sha1: "1cc2cd3ed6c7c39f8c984316bb2afb95743ccba1"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
@@ -180,25 +176,25 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.12.tgz"
-  version: "1.0.12"
-  sha1: "f3974e79ae797b2c6171085722c8fb78500b079d"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.13.tgz"
+  version: "1.0.13"
+  sha1: "006204023d9f37fc61f2d696e777fad42ea73fea"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.23.tgz"
-  version: "0.0.23"
-  sha1: "12064f9af140738622bc5c7e23c4abcb659d1a1c"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.26.tgz"
+  version: "0.0.26"
+  sha1: "72822748ffabd3094359b9f5f9d607cc189b28ba"
 - name: "eirinifs-sle15-release"
   url: "https://s3.amazonaws.com/suse-final-releases/eirinifs-sle15-release-0.1.2.tgz"
   version: "0.1.2"
   sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
-  version: '72.0'
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
-  sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
+  version: 74.12.0
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=74.12.0
+  sha1: 5fdd99addec2aebe521a468dba0bcd52e66c86c6
 
 instance_groups:
 - name: configgin-helper
@@ -1106,6 +1102,8 @@ instance_groups:
           privileged: true
   - name: routing-api
     release: routing
+    provides:
+      routing_api: {}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1174,6 +1172,8 @@ instance_groups:
     release: capi
     consumes:
       log-cache: {ignore: true}
+      file_server: {ignore: true}
+      credhub: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1305,6 +1305,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1412,6 +1414,8 @@ instance_groups:
     # system from coming up.
   - name: cloud_controller_clock
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1443,70 +1447,6 @@ instance_groups:
       bosh_containerization:
         run:
           privileged: true
-- name: log-cache-scheduler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_logcache_certs_scheduler.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: log-cache-scheduler-properties
-    release: scf
-  - name: log-cache-scheduler
-    release: log-cache
-    # defaults
-  - name: log-cache-expvar-forwarder
-    release: log-cache
-    # defaults
-    properties:
-      bosh_containerization:
-        colocated_containers:
-        - loggregator-agent
-        run:
-          scaling:
-            min: 1
-            max: 65535
-            ha: 2
-          memory: 410
-          virtual-cpus: 2
-          affinity:
-            podAntiAffinity:
-              preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                    - key: "app.kubernetes.io/component"
-                      operator: In
-                      values:
-                      - log-cache-scheduler
-                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
-  configuration:
-    templates:
-      properties.maps: >
-        [{ "name": "worker-assignments",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerAssignments | jsonMap}}" },
-         { "name": "worker-health",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerHealth | jsonMap}}" }
-        ]
-      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.tls.cert: '"((LOG_CACHE_CERT))"'
-      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: doppler
   environment_scripts:
   - scripts/configure-HA-hosts.sh
@@ -1532,8 +1472,6 @@ instance_groups:
       reverse_log_proxy: {ignore: true}
     # mostly default, logs_provider cert, see below
   - name: log-cache-cf-auth-proxy
-    release: log-cache
-  - name: log-cache-expvar-forwarder
     release: log-cache
     # defaults
   - name: log-cache
@@ -1609,85 +1547,12 @@ instance_groups:
     templates:
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.counters: >
-        [{ "name": "egress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Ingress}}" },
-         { "name": "expired",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Expired}}" },
-         { "name": "dropped",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Dropped}}" },
-         { "name": "promql-timeout",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.PromQLTimeout}}" },
-         { "name": "egress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Ingress}}" },
-         { "name": "err",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Err}}" },
-         { "name": "dropped",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Dropped}}" }
-        ]
-      properties.gauges: >
-        [{ "name": "cache-period",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.CachePeriod}}" },
-         { "name": "store-size",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.StoreSize}}" },
-         { "name": "total-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.TotalSystemMemory}}" },
-         { "name": "available-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.AvailableSystemMemory}}" },
-         { "name": "last-uaa-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastUAALatency}}" },
-         { "name": "last-capi-v3-apps-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" },
-         { "name": "last-capi-v2-list-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" },
-         { "name": "last-capi-v4-log-access-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" },
-         { "name": "last-capi-v2-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
-        ]
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.proxy_ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.proxy_cert: '"((LOG_CACHE_GATEWAY_PROXY_CERT))"'
+      properties.proxy_key: '"((LOG_CACHE_GATEWAY_PROXY_CERT_KEY))"'
       properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
@@ -1968,6 +1833,8 @@ instance_groups:
           public: true
   - name: file_server
     release: diego
+    provides:
+      file_server: {}
     properties:
       bosh_containerization:
         # XXX Maintain old service name so DesiredLRPs remain valid after upgrades
@@ -1975,7 +1842,13 @@ instance_groups:
         ports:
         - name: diego-files
           protocol: TCP
-          internal: 8080
+          internal: 8443
+  configuration:
+    templates:
+      properties.https_server_enabled: true
+      properties.https_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
+      properties.tls.cert: '"((FILE_SERVER_CERT))"'
+      properties.tls.key: '"((FILE_SERVER_CERT_KEY))"'
 - name: nfs-broker
   unless_feature: eirini
   environment_scripts:
@@ -2067,6 +1940,8 @@ instance_groups:
     release: diego
   - name: route_emitter
     release: diego
+    consumes:
+      routing_api: {ignore: true}
   - name: garden
     release: garden-runc
     properties:
@@ -2266,7 +2141,10 @@ instance_groups:
   scripts:
   - scripts/patches/fix_uaa_monit_timeout.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_uaa_prestart_suse_compat.sh
   - scripts/forward_logfiles.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-uaa-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
@@ -2289,7 +2167,12 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+              - >
+                curl
+                --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }')
+                --fail
+                -H \"Host: uaa.${DOMAIN}\"
+                -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info
           affinity:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -2313,6 +2196,12 @@ instance_groups:
           external: 2793
           internal: 8443
           public: true
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
   - name: wait-for-database
     release: scf-helper
   tags:
@@ -2439,6 +2328,8 @@ instance_groups:
     release: scf-helper
   - name: credhub
     release: credhub
+    provides:
+      credhub: {}
     properties:
       bosh_containerization:
         run:
@@ -2743,8 +2634,6 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: loggr-expvar-forwarder
-    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -2754,6 +2643,8 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
+  - name: prom_scraper
+    release: loggregator-agent
   - name: bpm
     release: bpm
     properties:
@@ -2762,65 +2653,14 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.counters: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.Dropped}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedEgressV2}}",
-           "tags": {
-             "direction": "egress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedIngressV2}}",
-           "tags": {
-             "direction": "ingress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.Egress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.EgressV2}}",
-           "tags": {
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.Ingress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.IngressV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.default_source_id: 'metron'
       properties.fissile.monit.port: 2290
-      properties.gauges: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelope}}",
-           "tags": {
-             "loggregator": "v1" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelopeV2}}",
-           "tags": {
-             "metric_version": "2.0",
-             "loggregator": "v2" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "origin_mappings",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.OriginMappingsV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
-      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
-      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
+      properties.metrics.ca_cert: ((INTERNAL_CA_CERT))
+      properties.metrics.cert: ((PROM_SCRAPER_METRICS_TLS_CERT))
+      properties.metrics.key: ((PROM_SCRAPER_METRICS_TLS_CERT_KEY))
+      properties.metrics.server_name: prom_scraper_metrics
+      properties.scrape.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.scrape.tls.cert: ((PROM_SCRAPER_SCRAPE_TLS_CERT))
+      properties.scrape.tls.key: ((PROM_SCRAPER_SCRAPE_TLS_CERT_KEY))
 configuration:
   auth:
     roles:
@@ -2958,6 +2798,7 @@ configuration:
     id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
+    name: ((HOSTNAME))
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
@@ -3114,7 +2955,7 @@ configuration:
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
@@ -3298,10 +3139,17 @@ configuration:
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.loggregator_agent.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator_agent.tls.cert: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT))"'
-    properties.loggregator_agent.tls.key: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+
+    # Same-named properties, for the jobs `reverse_log_proxy_gateway`,
+    # `log-cache-cf-auth-proxy`, `log-cache-gateway`, `log-cache`, and
+    # `loggregator-agent`. All but last are in log-cache release. It
+    # is a trial to give them all the same cert, key, and
+    # `metrics.server_name` (over in opinions.yml).
+    properties.metrics.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.metrics.cert: "((METRICS_CERT))"
+    properties.metrics.key: "((METRICS_CERT_KEY))"
+
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
     properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
@@ -3368,6 +3216,11 @@ configuration:
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.mtls_ca: '"((INTERNAL_CA_CERT))"'
+    properties.routing_api.mtls_client_cert: '"((ROUTING_API_MTLS_CLIENT_CERT))"'
+    properties.routing_api.mtls_client_key: '"((ROUTING_API_MTLS_CLIENT_CERT_KEY))"'
+    properties.routing_api.mtls_server_cert: '"((ROUTING_API_MTLS_SERVER_CERT))"'
+    properties.routing_api.mtls_server_key: '"((ROUTING_API_MTLS_SERVER_CERT_KEY))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: *cf-internal-database-host
@@ -4183,6 +4036,19 @@ variables:
     type: environment
     default: 'false'
     description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
+- name: FILE_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-access
+    description: PEM-encoded tls certificate that can be used for server auth.
+    required: true
+  type: certificate
+- name: FILE_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for the file server.
+    required: true
 - name: FORCE_FORWARDED_PROTO_AS_HTTPS
   options:
     default: false
@@ -4445,6 +4311,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -4459,6 +4326,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: The TLS cert for the auth proxy.
     required: true
   type: certificate
@@ -4467,16 +4335,17 @@ variables:
     secret: true
     description: The TLS key for the auth proxy.
     required: true
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT
+- name: LOG_CACHE_GATEWAY_PROXY_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY
+- name: LOG_CACHE_GATEWAY_PROXY_CERT_KEY
   options:
     secret: true
     description: PEM-encoded key.
@@ -4505,6 +4374,23 @@ variables:
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
     required: true
+
+- name: METRICS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - metrics_server
+    - localhost
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: METRICS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+
 - name: MONIT_PASSWORD
   options:
     secret: true
@@ -4705,6 +4591,31 @@ variables:
       user uids (required for LDAP integration only)
     example: cn=Users,dc=corp,dc=test,dc=com
     default: ''
+- name: PROM_SCRAPER_METRICS_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: prom_scraper_metrics
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_METRICS_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
 - name: PZ_LABEL_NAME
   options:
     default: ''
@@ -4816,6 +4727,28 @@ variables:
           -----BEGIN RSA PRIVATE KEY-----
           -----END RSA PRIVATE KEY-----
     secret: true
+- name: ROUTING_API_MTLS_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls client certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls client key.
+- name: ROUTING_API_MTLS_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls server certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls server key.
 - name: SAML_SERVICEPROVIDER_CERT
   options:
     secret: true
