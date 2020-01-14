@@ -3,7 +3,7 @@ name: acceptance-tests-brain
 dependencies:
   - cli
   - kubectl
-  - golang1.10
+  - golang1.13.5
 files:
   - acceptance-tests-brain/test-scripts/*
   - acceptance-tests-brain/test-resources/**/*

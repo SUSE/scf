@@ -24,6 +24,9 @@ end
 def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
   config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
 
+  config.vm.provision :shell, privileged: true, path: 'vagrant/update_kernel.sh'
+  config.vm.provision :reload
+
   config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
   config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
   config.vm.provision :shell, privileged: true, env: ENV.select { |e|
