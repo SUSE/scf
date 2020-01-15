@@ -101,7 +101,7 @@ fi
 # docker info should not show aufs
 if having_category node ; then
     if [ $crio -eq 0 ] ; then
-        docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
+        ! docker info 2> /dev/null | grep -vwq "Storage Driver: aufs"
         status "docker info should not show aufs"
     fi
 fi
