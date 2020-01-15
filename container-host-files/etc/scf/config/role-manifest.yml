@@ -1842,6 +1842,9 @@ instance_groups:
         ports:
         - name: diego-files
           protocol: TCP
+          internal: 8080
+        - name: diego-files-tls
+          protocol: TCP
           internal: 8443
   configuration:
     templates:
