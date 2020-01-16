@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.20.1] - 2020-01-15
+
+## Fixed
+- Ensure the HTTP_PORT is exposed for file_server for upgrades
+
+
 ## [2.20.0] - 2020-01-10
 
 ## Added
