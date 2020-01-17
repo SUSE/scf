@@ -164,9 +164,9 @@ releases:
   version: "1.81.75"
   sha1: "7183a9c9844f8667cca00f15522117b29e016e8b"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.91.tgz"
-  version: "10.91"
-  sha1: "045f717e901d52b92eb1c028d0ecbb3fa5e089b3"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.92.tgz"
+  version: "10.92"
+  sha1: "12e09bc284f9aec34d82661acd98352918d0b278"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
