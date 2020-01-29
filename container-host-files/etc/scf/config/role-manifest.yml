@@ -2321,6 +2321,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/uaa_ca_cert_credhub.sh
@@ -2363,7 +2364,7 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
@@ -2371,8 +2372,7 @@ instance_groups:
       properties.credhub.data_storage.host: *cf-internal-database-host
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
-      # require_tls must be set also when UAA is using the INTERNAL_CA_CERT
-      properties.credhub.data_storage.require_tls: true
+      properties.credhub.data_storage.require_tls: false
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
       properties.credhub.data_storage.username: "credhub_user"
