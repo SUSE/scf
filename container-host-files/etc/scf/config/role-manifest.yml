@@ -2240,6 +2240,7 @@ instance_groups:
       properties.uaadb.address: *cf-internal-database-host
       properties.uaadb.port: *cf-internal-database-port
       properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.uaadb.tls: "((UAADB_TLS))"
       properties.wait-for-database.hostname: *cf-internal-database-host
       properties.wait-for-database.port: *cf-internal-database-port
 - name: secret-generation
@@ -4931,6 +4932,16 @@ variables:
     secret: true
     description: The password for access to the UAA database.
   type: password
+- name: UAADB_TLS
+  options:
+    description: |
+      Use TLS connection for UAA database.
+      Valid options are:
+      enabled (use TLS with full certificate validation),
+      enabled_skip_hostname_validation (use TLS but skip validation of common and alt names in the host certificate),
+      enabled_skip_all_validation (use TLS but do not validate anything about the host certificate),
+      disabled (do not use TLS)
+    default: enabled
 - name: UAA_ADMIN_CLIENT_SECRET
   options:
     secret: true
