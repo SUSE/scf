@@ -2371,9 +2371,10 @@ instance_groups:
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
       properties.credhub.data_storage.host: *cf-internal-database-host
+      properties.credhub.data_storage.hostname_verification.enabled: ((CREDHUB_DB_HOST_VALIDATION))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
-      properties.credhub.data_storage.require_tls: false
+      properties.credhub.data_storage.require_tls: ((CREDHUB_DB_REQUIRE_TLS))
       properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
       properties.credhub.data_storage.username: "credhub_user"
@@ -3772,6 +3773,16 @@ variables:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
+- name: CREDHUB_DB_HOST_VALIDATION
+  options:
+    default: true
+    description: Enables hostname verification for TLS connections to targeted database server.
+      This property is only respected when targeting a MariaDB database.
+      Hostname verification cannot be disabled for TLS connections to postgres databases.
+- name: CREDHUB_DB_REQUIRE_TLS
+  options:
+    default: true
+    description: Requires only TLS connections to targeted database server.
 - name: CREDHUB_ENCRYPT_KEY
   options:
     secret: true
