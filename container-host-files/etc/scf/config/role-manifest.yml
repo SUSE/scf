@@ -2375,7 +2375,7 @@ instance_groups:
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
       properties.credhub.data_storage.require_tls: ((CREDHUB_DB_REQUIRE_TLS))
-      properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
+      properties.credhub.data_storage.tls_ca: ((CREDHUB_DB_CA_CERT))((^CREDHUB_DB_CA_CERT))((INTERNAL_CA_CERT))((/CREDHUB_DB_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
       properties.credhub.data_storage.username: "credhub_user"
       properties.credhub.encryption.keys: '[{"provider_name":"internal-provider", "active":true, "key_properties":{"encryption_password":"((CREDHUB_ENCRYPT_KEY))"}}]'
@@ -3773,6 +3773,9 @@ variables:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
+- name: CREDHUB_DB_CA_CERT
+  options:
+    description: CA trusted for making TLS connections to targeted database server.
 - name: CREDHUB_DB_HOST_VALIDATION
   options:
     default: true
