@@ -56,9 +56,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=30
   sha1: 77be62f17dbb50252039c2753def77b6808f8a5b
 - name: nfs-volume
-  version: "1.5.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
-  sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+  version: "1.5.7"
+  url: https://s3.amazonaws.com/cap-release-archives/manual/bosh-releases/nfs-volume-release-1.5.7.tgz
+  sha1: "d2e5af32a68ea2d7b38b38a7df7cffa652daf232"
 - name: pxc
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.21.0
   version: 0.21.0
