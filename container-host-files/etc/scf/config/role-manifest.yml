@@ -2314,7 +2314,7 @@ instance_groups:
       properties.database-seeder.password: ((DB_EXTERNAL_PASSWORD))
       properties.database-seeder.port: ((DB_EXTERNAL_PORT))
       properties.database-seeder.sslmode: ((DB_EXTERNAL_SSL_MODE))
-      properties.database-seeder.username: ((DB_EXTERNAL_USER))
+      properties.database-seeder.username: "((DB_EXTERNAL_USER))((DB_EXTERNAL_USER_HOST_SUFFIX))"
       properties.seeded_databases: *seeded_databases
 - name: credhub-user
   if_feature: credhub
@@ -3861,10 +3861,10 @@ variables:
   options:
     immutable: true
     description: >
-      TLS configuration for the external database server to use for the
+      SSL configuration for the external database server to use for the
       CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
-      calues are true and false.
-    default: true
+      values are 'false', 'skip-verify', 'preferred', and 'true'.
+    default: "true"
 - name: DB_EXTERNAL_USER
   options:
     immutable: true
@@ -3876,7 +3876,7 @@ variables:
     immutable: true
     description: >
       A suffix that has to be appended to every user name for the external
-      database; usualy '@host'. Only used if DB_EXTERNAL_HOST is set.
+      database; usually '@host'.
     default: ""
 - name: DEFAULT_APP_DISK_IN_MB
   options:
