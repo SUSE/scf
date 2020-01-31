@@ -40,9 +40,9 @@ releases:
   url: https://s3-us-west-2.amazonaws.com/suse-garden-runc-release/garden-runc-release-v1.19.9.tgz
   sha1: b1801e4ad91f4c176d9efe4166e1aee0cfd0c4ac
 - name: loggregator
-  version: 106.3.0
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=106.3.0
-  sha1: f61a6ff8ca558899de8e992ba0271a06d7ae7c85
+  version: 105.6.3
+  url: https://s3.amazonaws.com/cap-release-archives/manual/bosh-releases/loggregator-release-105.6.3.tgz
+  sha1: 5e06ed130f0a2724d000b421133b969f99f89e6d
 - name: log-cache
   version: 2.6.4
   url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.6.4
@@ -685,14 +685,14 @@ instance_groups:
       properties.monit_startup_timeout: 300
       properties.seeded_databases: &seeded_databases >
         [
-          {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
-          {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
-          {"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},
+          {"name":"ccdb","username":"ccadmin((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
+          {"name":"diego","username":"diego((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_PASSWORD))"},
+          {"name":"routing-api","username":"routing-api((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_ROUTING_API_PASSWORD))"},
           {"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},
-          {"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
-          {"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
-          {"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
-          {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}
+          {"name":"nfsvolume","username":"nfsvolume((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
+          {"name":"diego_locket","username":"diego_locket((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
+          {"name":"credhub_user","username":"credhub_user((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
+          {"name":"uaadb", "username": "uaaadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password":"((UAADB_PASSWORD))"}
         ]
       properties.tls.galera.ca: ((INTERNAL_CA_CERT))
       properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
@@ -2239,7 +2239,8 @@ instance_groups:
         ]
       properties.uaadb.address: *cf-internal-database-host
       properties.uaadb.port: *cf-internal-database-port
-      properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.uaadb.roles: '[{"name": "uaaadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.uaadb.tls: "((UAADB_TLS))"
       properties.wait-for-database.hostname: *cf-internal-database-host
       properties.wait-for-database.port: *cf-internal-database-port
 - name: secret-generation
@@ -2313,7 +2314,7 @@ instance_groups:
       properties.database-seeder.password: ((DB_EXTERNAL_PASSWORD))
       properties.database-seeder.port: ((DB_EXTERNAL_PORT))
       properties.database-seeder.sslmode: ((DB_EXTERNAL_SSL_MODE))
-      properties.database-seeder.username: ((DB_EXTERNAL_USER))
+      properties.database-seeder.username: "((DB_EXTERNAL_USER))((DB_EXTERNAL_USER_HOST_SUFFIX))"
       properties.seeded_databases: *seeded_databases
 - name: credhub-user
   if_feature: credhub
@@ -2321,6 +2322,7 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/uaa_ca_cert_credhub.sh
@@ -2363,19 +2365,19 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
       properties.credhub.data_storage.host: *cf-internal-database-host
+      properties.credhub.data_storage.hostname_verification.enabled: ((CREDHUB_DB_HOST_VALIDATION))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
-      # require_tls must be set also when UAA is using the INTERNAL_CA_CERT
-      properties.credhub.data_storage.require_tls: true
-      properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
+      properties.credhub.data_storage.require_tls: ((CREDHUB_DB_REQUIRE_TLS))
+      properties.credhub.data_storage.tls_ca: ((CREDHUB_DB_CA_CERT))((^CREDHUB_DB_CA_CERT))((INTERNAL_CA_CERT))((/CREDHUB_DB_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
-      properties.credhub.data_storage.username: "credhub_user"
+      properties.credhub.data_storage.username: "credhub_user((DB_EXTERNAL_USER_HOST_SUFFIX))"
       properties.credhub.encryption.keys: '[{"provider_name":"internal-provider", "active":true, "key_properties":{"encryption_password":"((CREDHUB_ENCRYPT_KEY))"}}]'
       properties.credhub.encryption.providers: '[{"name":"internal-provider", "type":"internal"}]'
       properties.credhub.log_level: '"((CREDHUB_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2998,7 +3000,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: *cf-internal-database-host
     properties.ccdb.port: *cf-internal-database-port
-    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.ccdb.roles: '[{"name": "ccadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
@@ -3041,12 +3043,14 @@ configuration:
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
     properties.diego.bbs.sql.db_host: *cf-internal-database-host
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
+    properties.diego.bbs.sql.db_username: "diego((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.sql.db_host: *cf-internal-database-host
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
+    properties.diego.locket.sql.db_username: "diego_locket((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
@@ -3160,6 +3164,7 @@ configuration:
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
     properties.nfsbroker.db_hostname: *cf-internal-database-host
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
+    properties.nfsbroker.db_username: "nfsvolume((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
     properties.nfsbroker.url: 'http://nfs-broker-nfsbroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
@@ -3228,6 +3233,7 @@ configuration:
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: *cf-internal-database-host
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
+    properties.routing_api.sqldb.username: "routing-api((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3771,6 +3777,20 @@ variables:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
+- name: CREDHUB_DB_CA_CERT
+  options:
+    description: CA trusted for making TLS connections to targeted database server.
+    secret: true
+- name: CREDHUB_DB_HOST_VALIDATION
+  options:
+    default: true
+    description: Enables hostname verification for TLS connections to targeted database server.
+      This property is only respected when targeting a MariaDB database.
+      Hostname verification cannot be disabled for TLS connections to postgres databases.
+- name: CREDHUB_DB_REQUIRE_TLS
+  options:
+    default: true
+    description: Requires only TLS connections to targeted database server.
 - name: CREDHUB_ENCRYPT_KEY
   options:
     secret: true
@@ -3841,15 +3861,23 @@ variables:
   options:
     immutable: true
     description: >
-      TLS configuration for the external database server to use for the
+      SSL configuration for the external database server to use for the
       CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
-      values depend on which database driver is in use.
+      values are 'false', 'skip-verify', 'preferred', and 'true'.
+    default: "true"
 - name: DB_EXTERNAL_USER
   options:
     immutable: true
     description: >
       Administrator user name for an external database server; this is required
       to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
+- name: DB_EXTERNAL_USER_HOST_SUFFIX
+  options:
+    immutable: true
+    description: >
+      A suffix that has to be appended to every user name for the external
+      database; usually '@host'.
+    default: ""
 - name: DEFAULT_APP_DISK_IN_MB
   options:
     default: 1024
@@ -4931,6 +4959,16 @@ variables:
     secret: true
     description: The password for access to the UAA database.
   type: password
+- name: UAADB_TLS
+  options:
+    description: |
+      Use TLS connection for UAA database.
+      Valid options are:
+      enabled (use TLS with full certificate validation),
+      enabled_skip_hostname_validation (use TLS but skip validation of common and alt names in the host certificate),
+      enabled_skip_all_validation (use TLS but do not validate anything about the host certificate),
+      disabled (do not use TLS)
+    default: enabled
 - name: UAA_ADMIN_CLIENT_SECRET
   options:
     secret: true

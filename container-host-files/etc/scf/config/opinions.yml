@@ -338,7 +338,6 @@ properties:
       sql:
         db_port: 3306
         db_schema: diego
-        db_username: diego
     executor:
       garden:
         address: 127.0.0.1:7777
@@ -349,7 +348,6 @@ properties:
       sql:
         db_port: 3306
         db_schema: diego_locket
-        db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
@@ -405,7 +403,6 @@ properties:
     user: nats
   nfsbroker:
     db_driver: 'mysql'
-    db_username: 'nfsvolume'
     db_port: 3306
     db_name: 'nfsvolume'
     services:
@@ -437,7 +434,6 @@ properties:
       type: mysql
       port: 3306
       schema: routing-api
-      username: routing-api
   scalablesyslog:
     adapter:
       tls:
