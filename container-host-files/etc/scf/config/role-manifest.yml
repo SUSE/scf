@@ -3859,7 +3859,8 @@ variables:
     description: >
       TLS configuration for the external database server to use for the
       CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
-      values depend on which database driver is in use.
+      calues are true and false.
+    default: true
 - name: DB_EXTERNAL_USER
   options:
     immutable: true
