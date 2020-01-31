@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.20.2] - 2020-01-31
+
+## Added
+- DB_EXTERNAL_USER_HOST_SUFFIX variable for Azure MySQL connectivity
+
+## Changed
+- Bumped external UAA to 74.12 to match embedded UAA version
+- Changed loggregator-release to 105.6.3
+
+## Fixed
+- Make TLS configurable for both Credhub & UAA (by default, TLS is on for database connectivity for both services)
+
 ## [2.20.1] - 2020-01-15
 
 ## Fixed
