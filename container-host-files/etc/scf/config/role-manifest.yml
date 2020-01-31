@@ -3776,6 +3776,7 @@ variables:
 - name: CREDHUB_DB_CA_CERT
   options:
     description: CA trusted for making TLS connections to targeted database server.
+    secret: true
 - name: CREDHUB_DB_HOST_VALIDATION
   options:
     default: true
