@@ -685,14 +685,14 @@ instance_groups:
       properties.monit_startup_timeout: 300
       properties.seeded_databases: &seeded_databases >
         [
-          {"name":"ccdb","username":"ccadmin((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
-          {"name":"diego","username":"diego((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_PASSWORD))"},
-          {"name":"routing-api","username":"routing-api((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_ROUTING_API_PASSWORD))"},
+          {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
+          {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
+          {"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},
           {"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},
-          {"name":"nfsvolume","username":"nfsvolume((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
-          {"name":"diego_locket","username":"diego_locket((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
-          {"name":"credhub_user","username":"credhub_user((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
-          {"name":"uaadb", "username": "uaaadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password":"((UAADB_PASSWORD))"}
+          {"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
+          {"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
+          {"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
+          {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}
         ]
       properties.tls.galera.ca: ((INTERNAL_CA_CERT))
       properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
