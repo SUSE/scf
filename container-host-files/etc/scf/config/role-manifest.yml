@@ -56,9 +56,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=30
   sha1: 77be62f17dbb50252039c2753def77b6808f8a5b
 - name: nfs-volume
-  version: "1.5.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
-  sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+  version: "1.5.7"
+  url: https://s3.amazonaws.com/cap-release-archives/manual/bosh-releases/nfs-volume-release-1.5.7.tgz
+  sha1: "d2e5af32a68ea2d7b38b38a7df7cffa652daf232"
 - name: pxc
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.21.0
   version: 0.21.0
@@ -685,14 +685,14 @@ instance_groups:
       properties.monit_startup_timeout: 300
       properties.seeded_databases: &seeded_databases >
         [
-          {"name":"ccdb","username":"ccadmin((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
-          {"name":"diego","username":"diego((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_PASSWORD))"},
-          {"name":"routing-api","username":"routing-api((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_ROUTING_API_PASSWORD))"},
+          {"name":"ccdb","username":"ccadmin","password":"((MYSQL_CCDB_ROLE_PASSWORD))"},
+          {"name":"diego","username":"diego","password":"((MYSQL_DIEGO_PASSWORD))"},
+          {"name":"routing-api","username":"routing-api","password":"((MYSQL_ROUTING_API_PASSWORD))"},
           {"name":"usb","username":"usb","password":"((MYSQL_CF_USB_PASSWORD))"},
-          {"name":"nfsvolume","username":"nfsvolume((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
-          {"name":"diego_locket","username":"diego_locket((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
-          {"name":"credhub_user","username":"credhub_user((DB_EXTERNAL_USER_HOST_SUFFIX))","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
-          {"name":"uaadb", "username": "uaaadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password":"((UAADB_PASSWORD))"}
+          {"name":"nfsvolume","username":"nfsvolume","password":"((MYSQL_PERSI_NFS_PASSWORD))"},
+          {"name":"diego_locket","username":"diego_locket","password":"((MYSQL_DIEGO_LOCKET_PASSWORD))"},
+          {"name":"credhub_user","username":"credhub_user","password":"((MYSQL_CREDHUB_USER_PASSWORD))"},
+          {"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}
         ]
       properties.tls.galera.ca: ((INTERNAL_CA_CERT))
       properties.tls.galera.certificate: ((GALERA_SERVER_CERT))
