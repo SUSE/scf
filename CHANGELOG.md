@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.20.3] - 2020-02-01
+
+## Changed
+- Bumped nfs-volume release to 1.5.7
+
+## Fixed
+- Fix suffix handling for mysql connection string
+
+
 ## [2.20.2] - 2020-01-31
 
 ## Added
