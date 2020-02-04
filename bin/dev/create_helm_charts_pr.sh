@@ -42,6 +42,10 @@ unzip -d bundle/ bundle.zip
 bundle=$(basename "$CAP_BUNDLE" .zip)
 bundle_readable=$(printf '%b' "${bundle//%/\\x}")
 product=`echo $bundle_readable | cut -d+ -f1`
+
+# Strip -rcN from the product version shown in PR description.
+product="$(echo "${product}" | sed -e 's|-rc.*||')"
+
 pr_title="Release $product"
 pr_description="Publish Helm charts for release $product created from $bundle_readable.zip built in Jenkins run $SOURCE_BUILD."
 
@@ -52,6 +56,25 @@ rm -rf stable/uaa
 # Place the new ones
 cp -r ../bundle/helm/cf stable/
 cp -r ../bundle/helm/uaa stable/
+
+# Show the places in the charts having RC references
+grep -rn '.-rc' stable/{cf,uaa}
+
+# Fixing RC references.
+
+# CLUSTER_BUILD: "2.20.2-rc1"
+sed -i 's|-rc.*"$|"|' stable/cf/values.yaml
+sed -i 's|-rc.*"$|"|' stable/uaa/values.yaml
+
+# scfVersion: 2.20.2-rc1+cf12.17.0.0.g5c8dc458
+sed -i 's|-rc.*cf|+cf|' stable/cf/Chart.yaml
+sed -i 's|-rc.*cf|+cf|' stable/uaa/Chart.yaml
+
+# version: 2.20.2-rc1
+sed -i 's|-rc.*$||'     stable/cf/Chart.yaml
+sed -i 's|-rc.*$||'     stable/uaa/Chart.yaml
+
+# Fixing docker registry references.
 
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/cf/values.yaml
 sed -i 's@^\(\s\+\)hostname:\s\+".*"$@\1hostname: "registry.suse.com"@' stable/uaa/values.yaml
