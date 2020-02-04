@@ -67,9 +67,6 @@ sed -i 's|-rc[0-9][0-9]*||' stable/cf/values.yaml
 sed -i 's|-rc[0-9][0-9]*||' stable/uaa/values.yaml
 
 # scfVersion: 2.20.2-rc1+cf12.17.0.0.g5c8dc458
-sed -i 's|-rc[0-9][0-9]*||' stable/cf/Chart.yaml
-sed -i 's|-rc[0-9][0-9]*||' stable/uaa/Chart.yaml
-
 # version: 2.20.2-rc1
 sed -i 's|-rc[0-9][0-9]*||' stable/cf/Chart.yaml
 sed -i 's|-rc[0-9][0-9]*||' stable/uaa/Chart.yaml
