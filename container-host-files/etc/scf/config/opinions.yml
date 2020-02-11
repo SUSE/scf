@@ -164,10 +164,6 @@ properties:
       webdav_config:
         username: blobstore_user
     signing_users: []
-  capi:
-    tps:
-      watcher:
-        skip_consul_lock: true
   cc:
     buildpacks:
       blobstore_type: webdav
@@ -342,7 +338,6 @@ properties:
       sql:
         db_port: 3306
         db_schema: diego
-        db_username: diego
     executor:
       garden:
         address: 127.0.0.1:7777
@@ -353,7 +348,6 @@ properties:
       sql:
         db_port: 3306
         db_schema: diego_locket
-        db_username: diego_locket
     rep:
       evacuation_timeout_in_seconds: 60
       preloaded_rootfses:
@@ -402,12 +396,13 @@ properties:
     reserved_space_for_other_jobs_in_mb: 3000
   loggregator:
     use_v2_api: true
+  metrics:
+    server_name: 'metrics_server'
   nats:
     port: 4222
     user: nats
   nfsbroker:
     db_driver: 'mysql'
-    db_username: 'nfsvolume'
     db_port: 3306
     db_name: 'nfsvolume'
     services:
@@ -432,14 +427,13 @@ properties:
     secure_cookies: null
     status:
       user: router_user
+    set_kernel_parameters: false
   routing_api:
     enabled: true
-    skip_consul_lock: true
     sqldb:
       type: mysql
       port: 3306
       schema: routing-api
-      username: routing-api
   scalablesyslog:
     adapter:
       tls:

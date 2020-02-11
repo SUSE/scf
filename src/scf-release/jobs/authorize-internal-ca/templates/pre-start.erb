@@ -52,12 +52,16 @@ else
     fi
 fi
 
+INTERNAL_CA_CERT="<%= p("scf.internal-ca-cert") %>"
 if [ -r /etc/secrets/internal-ca-cert ]; then
     cp /etc/secrets/internal-ca-cert "${ca_path}"/internalCA.crt
 elif [ -n "${INTERNAL_CA_CERT:-}" ]; then
     printf "%b" "${INTERNAL_CA_CERT}" > "${ca_path}"/internalCA.crt
 fi
 
-printf "%b" "<%= p("uaa.ca_cert") %>" > "${ca_path}"/uaa-ca-cert.crt
+UAA_CA_CERT="<%= p("uaa.ca_cert") %>"
+if [ -n "${UAA_CA_CERT:-}" ]; then
+    printf "%b" "${UAA_CA_CERT}" > "${ca_path}"/uaa-ca-cert.crt
+fi
 
 update-ca-certificates

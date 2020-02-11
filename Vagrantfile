@@ -24,6 +24,9 @@ end
 def provision(config, home, vm_registry_mirror, mounted_custom_setup_scripts)
   config.ssh.forward_env = ["FISSILE_COMPILATION_CACHE_CONFIG"]
 
+  config.vm.provision :shell, privileged: true, path: 'vagrant/update_kernel.sh'
+  config.vm.provision :reload
+
   config.vm.provision :shell, privileged: true, path: "vagrant/loop_kernel_module.sh"
   config.vm.provision :shell, privileged: true, path: "vagrant/enable_ssh_env_forwarding.sh"
   config.vm.provision :shell, privileged: true, env: ENV.select { |e|
@@ -115,7 +118,6 @@ Vagrant.configure(2) do |config|
 
     # Mount NFS volumes.
     # https://github.com/mitchellh/vagrant/issues/351
-    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_setup_scripts_env
@@ -164,7 +166,6 @@ Vagrant.configure(2) do |config|
       args: ["/dev/vdc", KUBERNETES_HOSTPATH_DIR]
 
     # Mount NFS volumes.
-    override.vm.synced_folder ".fissile/.bosh", "#{HOME}/.bosh", type: "nfs"
     override.vm.synced_folder ".", "#{HOME}/scf", type: "nfs"
 
     if ENV.include? custom_setup_scripts_env

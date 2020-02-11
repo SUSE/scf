@@ -5,7 +5,7 @@ description: "The sync integration tests errand can be configured to run full sy
 
 packages:
   - sync-integration-tests
-  - golang1.10
+  - golang1.13.5
   - cli
   - kubectl
 

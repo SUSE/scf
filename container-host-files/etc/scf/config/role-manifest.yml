@@ -1,176 +1,172 @@
 releases:
 - name: bpm
-  version: 1.1.0
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.0
-  sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
+  version: 1.1.6
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.6
+  sha1: 5bad6161dbbcf068830a100b6a76056fe3b99bc8
 - name: capi
-  version: 1.83.0
-  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.83.0
-  sha1: 339e21175080d77e648e0181b394a6aa2679d271
+  version: 1.89.0
+  url: https://bosh.io/d/github.com/cloudfoundry/capi-release?v=1.89.0
+  sha1: 472966da017bda3118eb9cf71f9bcca1c23c344a
 - name: cf-cli
-  version: 1.16.0
-  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.16.0
-  sha1: fa5d89b88a07822665d82e00f1629b98935b17e8
+  version: 1.23.0
+  url: https://bosh.io/d/github.com/bosh-packages/cf-cli-release?v=1.23.0
+  sha1: cda431fa1e550c28bf6f5c82b3a3cf2c168771f2
 - name: cf-mysql
   version: 36.15.0
   url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.15.0
   sha1: 0764d9d6aae7cefd10019437ed83e7715e614633
 - name: cf-smoke-tests
-  version: 40.0.112
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.112
-  sha1: 26a8c40836fe8b0168fd4f0b02260d9b70cec595
+  version: 40.0.123
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-smoke-tests-release?v=40.0.123
+  sha1: aeea22d0d7003d69b1d6154bae41360f821be420
 - name: cf-syslog-drain
-  version: '10.2'
-  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2
-  sha1: fe9fd8946c39554425b534cdb8ce14f3923a31f8
+  version: 10.2.5
+  url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2.5
+  sha1: 6c4f683ac26a02c632726330572d3130e6f61704
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.141.0"
-  version: "0.141.0"
-  sha1: "08620d118b6f2e2a66dc880c6b871a28f78e6032"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.153.0"
+  version: "0.153.0"
+  sha1: "5178640a101050f3e7a7ba6710e3f99200c3c0f3"
 - name: credhub
-  version: 2.4.0
-  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.4.0
-  sha1: 2e08e5de86288f421fb7eff72a095adb78c31ea8
+  version: 2.5.9
+  url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.9
+  sha1: 225d508eed11c3f6f4a360118de068d5db9fa427
 - name: diego
-  version: 2.34.0
-  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.34.0
-  sha1: 2ef1517f78126e0ef079244a83941a83b6dd0731
+  version: 2.41.0
+  url: https://bosh.io/d/github.com/cloudfoundry/diego-release?v=2.41.0
+  sha1: 8a183683f26ba982eda1dbeba7f55edc9a1059b0
 - name: garden-runc
-  version: 1.19.3
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.19.3
-  sha1: 76810f5dd66d8320b344b3eca197c5b669a3a633
+  version: 1.19.9
+  url: https://s3-us-west-2.amazonaws.com/suse-garden-runc-release/garden-runc-release-v1.19.9.tgz
+  sha1: b1801e4ad91f4c176d9efe4166e1aee0cfd0c4ac
 - name: loggregator
-  version: '105.5'
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-release?v=105.5
-  sha1: 62b9210def7c5179f6088b9449f551f57f1a1ee8
+  version: 105.6.3
+  url: https://s3.amazonaws.com/cap-release-archives/manual/bosh-releases/loggregator-release-105.6.3.tgz
+  sha1: 5e06ed130f0a2724d000b421133b969f99f89e6d
 - name: log-cache
-  version: 2.2.2
-  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.2.2
-  sha1: 634dd3e134d0dac00f3f86beb00c06653579af4b
+  version: 2.6.4
+  url: https://bosh.io/d/github.com/cloudfoundry/log-cache-release?v=2.6.4
+  sha1: 13a87a88128fb5231febce678cf9350d0979a116
 - name: mapfs
   version: "1.1.0"
   url: "https://bosh.io/d/github.com/cloudfoundry/mapfs-release?v=1.1.0"
   sha1: "1ab1dfb802819ec6cda2d0d60370638d6f878528"
 - name: nats
-  version: '27'
-  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=27
-  sha1: 9817e8e460b8619a99a0a0fbec8220dc12b2a6f5
+  version: '30'
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=30
+  sha1: 77be62f17dbb50252039c2753def77b6808f8a5b
 - name: nfs-volume
-  version: "1.5.2"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nfs-volume-release?v=1.5.2"
-  sha1: "14d019e6fd83139fab5e8ee7f162bf6920235888"
+  version: "1.5.7"
+  url: https://s3.amazonaws.com/cap-release-archives/manual/bosh-releases/nfs-volume-release-1.5.7.tgz
+  sha1: "d2e5af32a68ea2d7b38b38a7df7cffa652daf232"
 - name: pxc
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.18.0
-  version: 0.18.0
-  sha1: eb9abbca28e2c04da796300cd7efbb75611ddf66
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/pxc-release?v=0.21.0
+  version: 0.21.0
+  sha1: 499e1bb3d90f9532229ff915f7704ac48b8a9741
 - name: routing
-  version: 0.188.0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.188.0
-  sha1: d3420851c470790e8980ff0c506f75e3e52c15d9
+  version: 0.196.0
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.196.0
+  sha1: 5eab0c9c35b4f047ff83d0a266223edb357cb02d
 - name: statsd-injector
-  version: 1.10.0
-  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.10.0
-  sha1: 255cfb2815e692576efd5caa082f5a48f6799ca0
+  version: 1.11.8
+  url: https://bosh.io/d/github.com/cloudfoundry/statsd-injector-release?v=1.11.8
+  sha1: c70df26ca5c0d5a6c72243ad8b55476ee825a68f
 - name: loggregator-agent
-  version: "3.9"
-  url: "https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9"
-  sha1: "bf723af956a61c7b51db0ba535c871bad24dd289"
+  version: 5.2.4
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=5.2.4
+  sha1: bc041f05b49bca8670df4ead2b471de4efee602a
 - name: binary-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35"
-  version: "1.0.35"
-  sha1: "d735bedac8a9c7346b4c0f41edeabc779223928c"
+  url: https://bosh.io/d/github.com/cloudfoundry/binary-buildpack-release?v=1.0.35
+  version: 1.0.35
+  sha1: d735bedac8a9c7346b4c0f41edeabc779223928c
 - name: suse-binary-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
-  version: "1.0.35.1"
-  sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
+  url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.2.tgz"
+  version: "1.0.35.2"
+  sha1: "20c8467d63a76af42ea17524eaa6d344c79f2dbf"
 - name: suse-go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.1.tgz"
-  version: "1.9.2.1"
-  sha1: "06578c373f9bf7646de7a41c4daed6bb8aafa150"
-- name: "go-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.1"
-  version: "1.9.1"
-  sha1: "8746184bbfdb246e58dd89f5049454437ba0a13c"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.4.1.tgz"
+  version: "1.9.4.1"
+  sha1: "b674759cfa33e2064fd794ea5019421b1a181502"
+- name: go-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.3
+  version: 1.9.3
+  sha1: 0c86b47463b72709d0c070308ddf691d29f45f55
 - name: suse-java-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.24.0.1.tgz"
-  version: "4.24.0.1"
-  sha1: "902678082a41c6d45d3ef4d60049c6f7418db303"
+  url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.27.0.1.tgz"
+  version: "4.27.0.1"
+  sha1: "3bc1626e8e7584c832d72cc6800ffcbbdcde6616"
 - name: suse-nodejs-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.1.1.tgz"
-  version: "1.7.1.1"
-  sha1: "d3d2d6eaf06af926537240d251fa5c1beaf76319"
-- name: "nodejs-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.0"
-  version: "1.7.0"
-  sha1: "58892526e2fa213feb30eb7f492d44f018eabbfa"
+  url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.7.1.tgz"
+  version: "1.7.7.1"
+  sha1: "55ee7c15c4a7d702d93144801758f12e51cacb86"
+- name: nodejs-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/nodejs-buildpack-release?v=1.7.4
+  version: 1.7.4
+  sha1: 31635640d0e52b899386dbcd3911c8c92b92f112
 - name: suse-php-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.0.1.tgz"
-  version: "4.4.0.1"
-  sha1: "9f2955299b62ac1b2eb859c7a488e6fc82e7d0a6"
-- name: "php-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.0"
-  version: "4.4.0"
-  sha1: "36c5afeffcc3364bda84470f351d40bf67f69731"
+  url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.2.1.tgz"
+  version: "4.4.2.1"
+  sha1: "0468d080a7069b0e9ccaeac23d89caa42922a50b"
+- name: php-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/php-buildpack-release?v=4.4.2
+  version: 4.4.2
+  sha1: 90c5eff395300cef53a2817aede7ef869e06853c
 - name: suse-python-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.37.1.tgz"
-  version: "1.6.37.1"
-  sha1: "52f57402d790222e9602ed007c88f3dbb04bd1ee"
-- name: "python-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.6.37"
-  version: "1.6.37"
-  sha1: "ab2f2eb702ecb942ed3c6c25ba9fa7d59513fce7"
+  url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.7.3.1.tgz"
+  version: "1.7.3.1"
+  sha1: "1ac8725fc0881f24e34bbe7cbf894593290421fb"
+- name: python-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/python-buildpack-release?v=1.7.2
+  version: 1.7.2
+  sha1: be453857ec5e054f41539eda19bdc28d458583a4
 - name: suse-ruby-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.1.1.tgz"
-  version: "1.8.1.1"
-  sha1: "7cdca18f62ca219e67861124fadd464b095eecd3"
-- name: "java-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.24"
-  version: "4.24"
-  sha1: "bd21d3ece9092b597f6228c28380b9e4326296a7"
-- name: "ruby-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.1"
-  version: "1.8.1"
-  sha1: "f1c4732441f3525e96e4cf6dfceee0c68a73e84f"
+  url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.8.3.1.tgz"
+  version: "1.8.3.1"
+  sha1: "ae62f8120a9ab2324ccb3ca2da3f44402986d569"
+- name: java-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/java-buildpack-release?v=4.26
+  version: '4.26'
+  sha1: 24e8c51cbf364fc38f40d0e261dd3bb663e145e3
+- name: ruby-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/ruby-buildpack-release?v=1.8.2
+  version: 1.8.2
+  sha1: af14339b39d0d22db2fe2fc7c3abde57eb2b59e5
 - name: suse-staticfile-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.0.1.tgz"
-  version: "1.5.0.1"
-  sha1: "6fd4e8e8b011a132b16500be0a53ad692047d9d4"
-- name: "staticfile-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.0"
-  version: "1.5.0"
-  sha1: "f65ba2e39e540ea1137644037d520a57ed899ac5"
+  url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.2.1.tgz"
+  version: "1.5.2.1"
+  sha1: "ea6594775ed472b79d1364d1f6ea1e6eab76bd77"
+- name: staticfile-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/staticfile-buildpack-release?v=1.5.1
+  version: 1.5.1
+  sha1: 3e73d59a9e0210a36ca2ac8db74a9a263b85fbb4
 - name: suse-nginx-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.0.1.tgz"
-  version: "1.1.0.1"
-  sha1: "bfd2252f118ac3e56377e47c7d525a1dca3873d1"
+  url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.2.1.tgz"
+  version: "1.1.2.1"
+  sha1: "678c9c9332300a365740929d6aaf107500664cba"
 - name: nginx-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.0"
-  version: "1.1.0"
-  sha1: "03478e46e3af5302ce7f4e82cdc03dd9b77c815d"
+  url: https://bosh.io/d/github.com/cloudfoundry/nginx-buildpack-release?v=1.1.1
+  version: 1.1.1
+  sha1: 7730085576fbccf84e8a01b3180e2e021151449d
 - name: suse-dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.1.tgz"
-  version: "2.3.0.1"
-  sha1: "1d558c0d33d342b5a63b055c3401c071569465f3"
-- name: "dotnet-core-buildpack"
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.1"
-  version: "2.3.1"
-  sha1: "b3b41f4d8581cdcafbc4ddd6f78cbc59a412a9db"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
+  version: "2.3.0.2"
+  sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
+- name: dotnet-core-buildpack
+  url: https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.2
+  version: 2.3.2
+  sha1: 82baada4dc48cb499abb49ca5aff91e59e7e7b48
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
   sha1: "a436047dae4d4156a1debe9f88bedf59bf40362b"
 - name: cf-sle12
-  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.55.tgz"
-  version: "1.81.55"
-  sha1: "d15a620e7de04d913f1fb331e27b952c6d9f9d36"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle12-release-1.81.65.tgz"
+  version: "1.81.65"
+  sha1: "a152ca024d107fa988ca9508c8f91fe364fa873f"
 - name: sle15
-  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.65.tgz"
-  version: "10.65"
-  sha1: "0fbad8a3c3478df659c4fd7717edb0b079a5eb6b"
-- name: app-autoscaler
-  version: "1.2.1"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=1.2.1"
-  sha1: "1cc2cd3ed6c7c39f8c984316bb2afb95743ccba1"
+  url: "https://s3.amazonaws.com/suse-final-releases/sle15-release-10.84.tgz"
+  version: "10.84"
+  sha1: "f379bece659bae5e8258469281089a76d4e4b734"
 - name: cf-usb
   version: "1.0.1"
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
@@ -180,27 +176,58 @@ releases:
   version: "1.0.5"
   sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
 - name: scf-helper
-  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.7.tgz"
-  version: "1.0.7"
-  sha1: "d8f4eb845f18dfd89dbad2a7aab7284d81151367"
+  url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.13.tgz"
+  version: "1.0.13"
+  sha1: "006204023d9f37fc61f2d696e777fad42ea73fea"
 - name: "bits-service"
   version: "2.28.0"
   url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bits-service-release?v=2.28.0"
   sha1: "bd173fc9952277ea962a330c04555d9bd1e8a10e"
 - name: "eirini"
-  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.23.tgz"
-  version: "0.0.23"
-  sha1: "12064f9af140738622bc5c7e23c4abcb659d1a1c"
+  url: "https://s3.amazonaws.com/suse-final-releases/eirini-release-0.0.26.tgz"
+  version: "0.0.26"
+  sha1: "72822748ffabd3094359b9f5f9d607cc189b28ba"
 - name: "eirinifs-sle15-release"
   url: "https://s3.amazonaws.com/suse-final-releases/eirinifs-sle15-release-0.1.2.tgz"
   version: "0.1.2"
   sha1: "42bd833ae7c755be18a6825eee922f5de5aafaab"
 - name: uaa
-  version: '72.0'
-  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=72.0
-  sha1: 7130e5ac640ed1e1f52c09e76995e4d0680f3b45
+  version: 74.12.0
+  url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=74.12.0
+  sha1: 5fdd99addec2aebe521a468dba0bcd52e66c86c6
 
 instance_groups:
+- name: configgin-helper
+  scripts:
+  - scripts/forward_logfiles.sh
+  - scripts/patches/fix_monit_rsyslog.sh
+  jobs:
+  - name: global-properties # needs to be first so images use it for processing monit templates.
+    release: scf-helper
+  - name: configgin-helper
+    release: scf-helper
+    properties:
+      bosh_containerization:
+        run:
+          service-account: configgin
+          scaling:
+            min: 1
+            max: 65535
+            ha: 2
+          memory: 64
+          virtual-cpus: 1
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - configgin-helper
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
 - name: eirini
   if_feature: eirini
   environment_scripts:
@@ -318,6 +345,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_eirini_ssh_proxy.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -438,7 +466,7 @@ instance_groups:
                       operator: In
                       values:
                       - syslog-scheduler
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           healthcheck:
             readiness:
               command:
@@ -486,7 +514,7 @@ instance_groups:
                       operator: In
                       values:
                       - adapter
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           healthcheck:
             readiness:
               command:
@@ -542,7 +570,7 @@ instance_groups:
                       operator: In
                       values:
                       - nats
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: nats
           protocol: TCP
@@ -556,6 +584,9 @@ instance_groups:
       bosh_containerization:
         run:
           privileged: true
+  configuration:
+    templates:
+      properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
 - name: mysql
   default_feature: mysql
   scripts:
@@ -618,7 +649,7 @@ instance_groups:
                       operator: In
                       values:
                       - mysql
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: galera-agent
     release: pxc
   - name: gra-log-purger
@@ -704,6 +735,7 @@ instance_groups:
           protocol: TCP
           internal: 1936
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 5
@@ -726,8 +758,8 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - mysql
-                  topologyKey: "beta.kubernetes.io/os"
+                      - mysql-proxy
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   tags:
   - active-passive
   - sequential-startup
@@ -736,7 +768,7 @@ instance_groups:
       properties.api_force_https: false
       properties.api_password: ((MYSQL_PROXY_ADMIN_PASSWORD))
       properties.api_port: 8083
-      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))((#KUBE_SIZING_MYSQL_COUNT))((/KUBE_SIZING_MYSQL_COUNT))
+      properties.api_uri: mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
       properties.api_username: mysql_proxy
 - name: cf-usb-group
   default_feature: cf_usb
@@ -775,8 +807,8 @@ instance_groups:
                     - key: "app.kubernetes.io/component"
                       operator: In
                       values:
-                      - cf-usb
-                  topologyKey: "beta.kubernetes.io/os"
+                      - cf-usb-group
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: usb
           protocol: TCP
@@ -786,6 +818,8 @@ instance_groups:
           internal: 24053
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -816,6 +850,7 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -840,7 +875,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: cell-bbs-api
           protocol: TCP
@@ -905,7 +940,7 @@ instance_groups:
                       operator: In
                       values:
                       - locket
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: locket
           protocol: TCP
@@ -959,7 +994,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-cell
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
               - weight: 100
                 podAffinityTerm:
                   labelSelector:
@@ -968,7 +1003,7 @@ instance_groups:
                       operator: In
                       values:
                       - router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: router
           protocol: TCP
@@ -1025,7 +1060,7 @@ instance_groups:
                       operator: In
                       values:
                       - tcp-router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: healthcheck
           protocol: TCP
@@ -1067,11 +1102,14 @@ instance_groups:
           privileged: true
   - name: routing-api
     release: routing
+    provides:
+      routing_api: {}
     properties:
       bosh_containerization:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -1090,7 +1128,7 @@ instance_groups:
                       operator: In
                       values:
                       - routing-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           # All the routes exposed require UAA auth, so we stick with the TCP healthcheck
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/3000
         ports:
@@ -1111,12 +1149,14 @@ instance_groups:
   scripts:
   - scripts/patches/fix_blobstore_send_timeout.sh
   - scripts/patches/fix_nodejs_buildpack.sh
+  - scripts/patches/fix_logcache_ca_cert.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/use_routing_api_private_endpoint.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_pre_start_home.sh
   - scripts/patches/cc_ng_disable_credhub.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_ng.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1126,8 +1166,14 @@ instance_groups:
     release: scf
   - name: patch-properties
     release: scf-helper
+  - name: wait-for-database
+    release: scf-helper
   - name: cloud_controller_ng
     release: capi
+    consumes:
+      log-cache: {ignore: true}
+      file_server: {ignore: true}
+      credhub: {ignore: true}
     properties:
       bosh_containerization:
         # XXX Maintain old service name for backwards compatiblities so apps keep running
@@ -1156,7 +1202,7 @@ instance_groups:
                       operator: In
                       values:
                       - api-group
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: api
           protocol: TCP
@@ -1172,6 +1218,8 @@ instance_groups:
           internal: 8125
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1180,43 +1228,43 @@ instance_groups:
           privileged: true
   - name: statsd_injector
     release: statsd-injector
-  - name: go-buildpack
+  - name: suse-go-buildpack
     release: suse-go-buildpack
   - name: go-buildpack
     release: go-buildpack
+  - name: suse-binary-buildpack
+    release: suse-binary-buildpack
   - name: binary-buildpack
     release: binary-buildpack
-  - name: binary-buildpack
-    release: suse-binary-buildpack
-  - name: nodejs-buildpack
+  - name: suse-nodejs-buildpack
     release: suse-nodejs-buildpack
   - name: nodejs-buildpack
     release: nodejs-buildpack
-  - name: ruby-buildpack
+  - name: suse-ruby-buildpack
     release: suse-ruby-buildpack
   - name: ruby-buildpack
     release: ruby-buildpack
-  - name: php-buildpack
+  - name: suse-php-buildpack
     release: suse-php-buildpack
   - name: php-buildpack
     release: php-buildpack
-  - name: python-buildpack
+  - name: suse-python-buildpack
     release: suse-python-buildpack
   - name: python-buildpack
     release: python-buildpack
-  - name: staticfile-buildpack
+  - name: suse-staticfile-buildpack
     release: suse-staticfile-buildpack
   - name: staticfile-buildpack
     release: staticfile-buildpack
-  - name: nginx-buildpack
+  - name: suse-nginx-buildpack
     release: suse-nginx-buildpack
   - name: nginx-buildpack
     release: nginx-buildpack
-  - name: java-buildpack
+  - name: suse-java-buildpack
     release: suse-java-buildpack
   - name: java-buildpack
     release: java-buildpack
-  - name: dotnet-core-buildpack
+  - name: suse-dotnet-core-buildpack
     release: suse-dotnet-core-buildpack
   - name: dotnet-core-buildpack
     release: dotnet-core-buildpack
@@ -1230,6 +1278,15 @@ instance_groups:
       properties.cc.logcache_tls.subject_name: "log-cache"
       properties.cc.temporary_use_logcache: true
       properties.route_registrar.routes: '[{"name": "api", "port": 9022, "tls_port": 9024, "server_cert_domain_san": "api-set", "tags": {"component": "CloudController"}, "uris": ["api.((DOMAIN))"], "registration_interval": "10s"}]'
+      properties.wait-for-database.hostname: &cf-internal-database-host >
+        ((#DB_EXTERNAL_HOST))
+          ((DB_EXTERNAL_HOST))
+        ((/DB_EXTERNAL_HOST))
+        ((^DB_EXTERNAL_HOST))
+          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
+        ((/DB_EXTERNAL_HOST))
+      properties.wait-for-database.port: &cf-internal-database-port >
+        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
 - name: cc-worker
   environment_scripts:
   - scripts/override-default-stack.sh
@@ -1238,6 +1295,7 @@ instance_groups:
   - scripts/patches/cc_worker_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_worker.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1247,6 +1305,8 @@ instance_groups:
     release: scf
   - name: cloud_controller_worker
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1269,7 +1329,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-worker
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: bpm
     release: bpm
     properties:
@@ -1316,6 +1376,8 @@ instance_groups:
           internal: 4443
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1333,6 +1395,7 @@ instance_groups:
   - scripts/patches/cc_clock_disable_credhub.sh
   - scripts/patches/fix_monit_rsyslog.sh
   - scripts/patches/cc_migration_squash.sh
+  - scripts/patches/uaa_ca_cert_cc_clock.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1351,6 +1414,8 @@ instance_groups:
     # system from coming up.
   - name: cloud_controller_clock
     release: capi
+    consumes:
+      file_server: {ignore: true}
     properties:
       bosh_containerization:
         colocated_containers:
@@ -1373,7 +1438,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-clock
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: statsd_injector
     release: statsd-injector
   - name: bpm
@@ -1382,74 +1447,15 @@ instance_groups:
       bosh_containerization:
         run:
           privileged: true
-- name: log-cache-scheduler
-  scripts:
-  - scripts/forward_logfiles.sh
-  - scripts/patches/fix_monit_rsyslog.sh
-  - scripts/patches/fix_logcache_certs_scheduler.sh
-  post_config_scripts:
-  - scripts/bpm_kube_dns.rb
-  jobs:
-  - name: global-properties # needs to be first so images use it for processing monit templates.
-    release: scf-helper
-  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
-    release: scf
-  - name: log-cache-scheduler-properties
-    release: scf
-  - name: log-cache-scheduler
-    release: log-cache
-    # defaults
-  - name: log-cache-expvar-forwarder
-    release: log-cache
-    # defaults
-    properties:
-      bosh_containerization:
-        colocated_containers:
-        - loggregator-agent
-        run:
-          scaling:
-            min: 1
-            max: 65535
-            ha: 2
-          memory: 410
-          virtual-cpus: 2
-          affinity:
-            podAntiAffinity:
-              preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                    - key: "app.kubernetes.io/component"
-                      operator: In
-                      values:
-                      - doppler
-                  topologyKey: "beta.kubernetes.io/os"
-  - name: bpm
-    release: bpm
-    properties:
-      bosh_containerization:
-        run:
-          privileged: true
-  configuration:
-    templates:
-      properties.maps: >
-        [{ "name": "worker-assignments",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerAssignments | jsonMap}}" },
-         { "name": "worker-health",
-           "source_id": "log-cache-scheduler",
-           "addr": "http://localhost:6064/debug/vars",
-           "template": "{{.WorkerHealth | jsonMap}}" }
-        ]
-      properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-      properties.tls.cert: '"((LOG_CACHE_CERT))"'
-      properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
 - name: doppler
+  environment_scripts:
+  - scripts/configure-HA-hosts.sh
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  # Don't use bosh link to get the RLP address and port
+  - scripts/patches/set_logs_provider_addr.sh
+  - scripts/patches/uaa_ca_cert_log_cache_cf_auth_proxy.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1462,15 +1468,17 @@ instance_groups:
     # gateway_addr - default - ":8081"
   - name: log-cache-nozzle
     release: log-cache
+    consumes:
+      reverse_log_proxy: {ignore: true}
     # mostly default, logs_provider cert, see below
   - name: log-cache-cf-auth-proxy
-    release: log-cache
-  - name: log-cache-expvar-forwarder
     release: log-cache
     # defaults
   - name: log-cache
     release: log-cache
     # certs, see below
+    provides:
+      log-cache: {}
     properties:
       bosh_containerization:
         ports:
@@ -1505,7 +1513,7 @@ instance_groups:
                       operator: In
                       values:
                       - doppler
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: dropsonde-udp
           protocol: UDP
@@ -1533,89 +1541,18 @@ instance_groups:
           privileged: true
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   configuration:
     templates:
       properties.cc.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.cc.common_name: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-      properties.counters: >
-        [{ "name": "egress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Ingress}}" },
-         { "name": "expired",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Expired}}" },
-         { "name": "dropped",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.Dropped}}" },
-         { "name": "promql-timeout",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.PromQLTimeout}}" },
-         { "name": "egress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Egress}}" },
-         { "name": "ingress",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Ingress}}" },
-         { "name": "err",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Err}}" },
-         { "name": "dropped",
-           "source_id": "log-cache-nozzle",
-           "addr": "http://localhost:6061/debug/vars",
-           "template": "{{.Nozzle.Dropped}}" }
-        ]
-      properties.gauges: >
-        [{ "name": "cache-period",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.CachePeriod}}" },
-         { "name": "store-size",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.StoreSize}}" },
-         { "name": "total-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.TotalSystemMemory}}" },
-         { "name": "available-system-memory",
-           "source_id": "log-cache",
-           "addr": "http://localhost:6060/debug/vars",
-           "template": "{{.LogCache.AvailableSystemMemory}}" },
-         { "name": "last-uaa-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastUAALatency}}" },
-         { "name": "last-capi-v3-apps-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV3AppsLatency}}" },
-         { "name": "last-capi-v2-list-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ListServiceInstancesLatency}}" },
-         { "name": "last-capi-v4-log-access-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV4LogAccessLatency}}" },
-         { "name": "last-capi-v2-service-instances-latency",
-           "source_id": "log-cache-cf-auth-proxy",
-           "addr": "http://localhost:6065/debug/vars",
-           "template": "{{.CFAuthProxy.LastCAPIV2ServiceInstancesLatency}}" }
-        ]
       properties.logs_provider.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.logs_provider.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.logs_provider.tls.key: '"((LOG_CACHE_CERT_KEY))"'
+      properties.proxy_ca_cert: '"((INTERNAL_CA_CERT))"'
+      properties.proxy_cert: '"((LOG_CACHE_GATEWAY_PROXY_CERT))"'
+      properties.proxy_key: '"((LOG_CACHE_GATEWAY_PROXY_CERT_KEY))"'
       properties.proxy_port: 8083 # log-cache-cf-auth-proxy
       properties.route_registrar.routes: >
         [{ "name": "log-cache-reverse-proxy",
@@ -1628,7 +1565,7 @@ instance_groups:
       properties.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
       properties.tls.cert: '"((LOG_CACHE_CERT))"'
       properties.tls.key: '"((LOG_CACHE_CERT_KEY))"'
-      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
       properties.uaa.client_id: 'doppler'
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
       properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
@@ -1638,6 +1575,8 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_loggregator_trafficcontroller.sh
+  - scripts/patches/uaa_ca_cert_reverse_log_proxy_gateway.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -1673,13 +1612,15 @@ instance_groups:
                       operator: In
                       values:
                       - log-api
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: dropsonde
           protocol: TCP
           internal: 8081
   - name: reverse_log_proxy
     release: loggregator
+    provides:
+      reverse_log_proxy: {}
     properties:
       bosh_containerization:
         ports:
@@ -1696,6 +1637,8 @@ instance_groups:
           internal: 8088
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -1724,7 +1667,7 @@ instance_groups:
            "registration_interval": "20s",
            "server_cert_domain_san": "log-stream",
            "uris": ["log-stream.((DOMAIN))", "*.log-stream.((DOMAIN))"] }]
-      properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+      properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
       properties.uaa.client_id: 'doppler'
       properties.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
       properties.uaa.internal_addr: '"https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))"'
@@ -1747,6 +1690,7 @@ instance_groups:
         colocated_containers:
         - loggregator-agent
         run:
+          service-account: active-passive
           scaling:
             min: 1
             max: 3
@@ -1765,7 +1709,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-brain
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
           # Auctioneer has no useful healthcheck routes; we can only use the TCP port
           active-passive-probe: head -c0 </dev/tcp/${HOSTNAME}/9016
         ports:
@@ -1825,7 +1769,7 @@ instance_groups:
                       operator: In
                       values:
                       - cc-uploader
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: cc-up-listen
           protocol: TCP
@@ -1846,6 +1790,7 @@ instance_groups:
   scripts:
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_ssh_proxy.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
@@ -1880,7 +1825,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-ssh
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: diego-ssh
           protocol: TCP
@@ -1888,6 +1833,8 @@ instance_groups:
           public: true
   - name: file_server
     release: diego
+    provides:
+      file_server: {}
     properties:
       bosh_containerization:
         # XXX Maintain old service name so DesiredLRPs remain valid after upgrades
@@ -1896,6 +1843,15 @@ instance_groups:
         - name: diego-files
           protocol: TCP
           internal: 8080
+        - name: diego-files-tls
+          protocol: TCP
+          internal: 8443
+  configuration:
+    templates:
+      properties.https_server_enabled: true
+      properties.https_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
+      properties.tls.cert: '"((FILE_SERVER_CERT))"'
+      properties.tls.key: '"((FILE_SERVER_CERT_KEY))"'
 - name: nfs-broker
   unless_feature: eirini
   environment_scripts:
@@ -1933,7 +1889,7 @@ instance_groups:
                       operator: In
                       values:
                       - nfs-broker
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: nfsbroker
           protocol: TCP
@@ -1963,6 +1919,7 @@ instance_groups:
   - scripts/patches/mapfs_pre_start.sh
   - scripts/patches/nfs-volume-nfsv3driver-libdir.sh
   - scripts/patches/fix_garden_logdir.sh
+  - scripts/patches/uaa_ca_cert_route_emitter.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
@@ -1986,6 +1943,8 @@ instance_groups:
     release: diego
   - name: route_emitter
     release: diego
+    consumes:
+      routing_api: {ignore: true}
   - name: garden
     release: garden-runc
     properties:
@@ -2022,7 +1981,7 @@ instance_groups:
                       operator: In
                       values:
                       - diego-cell
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
               - weight: 100
                 podAffinityTerm:
                   labelSelector:
@@ -2031,7 +1990,7 @@ instance_groups:
                       operator: In
                       values:
                       - router
-                  topologyKey: "beta.kubernetes.io/os"
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
   - name: groot-btrfs
     release: groot-btrfs
   - name: cflinuxfs3-rootfs-setup
@@ -2139,7 +2098,7 @@ instance_groups:
       properties.sync_integration_tests.bbs.svc.port: 8889
       properties.sync_integration_tests.config.bbs_client_cert_contents: '"((BBS_CLIENT_CRT))"'
       properties.sync_integration_tests.config.bbs_client_key_contents: '"((BBS_CLIENT_CRT_KEY))"'
-      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+      properties.sync_integration_tests.config.cf_admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
       properties.sync_integration_tests.config.cf_api: api.((DOMAIN))
       properties.sync_integration_tests.config.cf_apps_domain: ((DOMAIN))
       properties.sync_integration_tests.setup.flake_attempts: "'((SYNC_INTEGRATION_TESTS_FLAKE_ATTEMPTS))'"
@@ -2183,15 +2142,17 @@ instance_groups:
   environment_scripts:
   - scripts/log_level_mappings.sh
   scripts:
-  - scripts/authorize_internal_ca.sh
   - scripts/patches/fix_uaa_monit_timeout.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/fix_uaa_prestart_suse_compat.sh
   - scripts/forward_logfiles.sh
+  post_config_scripts:
+  - scripts/bpm_kube_dns.rb
   jobs:
   - name: global-uaa-properties # needs to be first so images use it for processing monit templates
     release: scf-helper
-  - name: wait-for-database
-    release: scf-helper
+  - name: authorize-internal-ca # needs to be second as it is a dependency of other jobs.
+    release: scf
   - name: uaa
     release: uaa
     properties:
@@ -2209,7 +2170,24 @@ instance_groups:
           healthcheck:
             readiness:
               command:
-              - "curl --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }') --fail -H \"Host: uaa.${DOMAIN}\" -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info"
+              - >
+                curl
+                --resolve uaa.${DOMAIN}:8443:$(getent hosts ${HOSTNAME} | awk '{ print $1 }')
+                --fail
+                -H \"Host: uaa.${DOMAIN}\"
+                -H 'Accept: application/json' https://uaa.${DOMAIN}:8443/info
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - uaa
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: uaa
           protocol: TCP
@@ -2221,6 +2199,14 @@ instance_groups:
           external: 2793
           internal: 8443
           public: true
+  - name: bpm
+    release: bpm
+    properties:
+      bosh_containerization:
+        run:
+          privileged: true
+  - name: wait-for-database
+    release: scf-helper
   tags:
   - sequential-startup
   configuration:
@@ -2251,16 +2237,10 @@ instance_groups:
           "uaa.((KUBERNETES_NAMESPACE)).svc",
           "uaa.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"
         ]
-      properties.uaadb.address: &cf-internal-database-host >
-        ((#DB_EXTERNAL_HOST))
-          ((DB_EXTERNAL_HOST))
-        ((/DB_EXTERNAL_HOST))
-        ((^DB_EXTERNAL_HOST))
-          mysql-proxy-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
-        ((/DB_EXTERNAL_HOST))
-      properties.uaadb.port: &cf-internal-database-port >
-        ((#DB_EXTERNAL_HOST))((DB_EXTERNAL_PORT))((/DB_EXTERNAL_HOST))((^DB_EXTERNAL_HOST))3306((/DB_EXTERNAL_HOST))
-      properties.uaadb.roles: '[{"name": "uaaadmin", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.uaadb.address: *cf-internal-database-host
+      properties.uaadb.port: *cf-internal-database-port
+      properties.uaadb.roles: '[{"name": "uaaadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password": "((UAADB_PASSWORD))", "tag": "admin"}]'
+      properties.uaadb.tls: "((UAADB_TLS))"
       properties.wait-for-database.hostname: *cf-internal-database-host
       properties.wait-for-database.port: *cf-internal-database-port
 - name: secret-generation
@@ -2334,7 +2314,7 @@ instance_groups:
       properties.database-seeder.password: ((DB_EXTERNAL_PASSWORD))
       properties.database-seeder.port: ((DB_EXTERNAL_PORT))
       properties.database-seeder.sslmode: ((DB_EXTERNAL_SSL_MODE))
-      properties.database-seeder.username: ((DB_EXTERNAL_USER))
+      properties.database-seeder.username: "((DB_EXTERNAL_USER))((DB_EXTERNAL_USER_HOST_SUFFIX))"
       properties.seeded_databases: *seeded_databases
 - name: credhub-user
   if_feature: credhub
@@ -2342,8 +2322,10 @@ instance_groups:
   - scripts/configure-HA-hosts.sh
   - scripts/credhub_log_level.sh
   scripts:
+  - scripts/authorize_internal_ca.sh
   - scripts/forward_logfiles.sh
   - scripts/patches/fix_monit_rsyslog.sh
+  - scripts/patches/uaa_ca_cert_credhub.sh
   post_config_scripts:
   - scripts/bpm_kube_dns.rb
   jobs:
@@ -2351,6 +2333,8 @@ instance_groups:
     release: scf-helper
   - name: credhub
     release: credhub
+    provides:
+      credhub: {}
     properties:
       bosh_containerization:
         run:
@@ -2371,6 +2355,8 @@ instance_groups:
           internal: 8844
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2379,18 +2365,19 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"]'
+      properties.credhub.authentication.uaa.ca_certs: '["((UAA_CA_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))"]'
       properties.credhub.authentication.uaa.internal_url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authentication.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
       properties.credhub.authorization.acls.enabled: false
       properties.credhub.data_storage.database: "credhub_user"
       properties.credhub.data_storage.host: *cf-internal-database-host
+      properties.credhub.data_storage.hostname_verification.enabled: ((CREDHUB_DB_HOST_VALIDATION))
       properties.credhub.data_storage.password: ((MYSQL_CREDHUB_USER_PASSWORD))
       properties.credhub.data_storage.port: *cf-internal-database-port
-      properties.credhub.data_storage.require_tls: false
-      properties.credhub.data_storage.tls_ca: ((INTERNAL_CA_CERT))
+      properties.credhub.data_storage.require_tls: ((CREDHUB_DB_REQUIRE_TLS))
+      properties.credhub.data_storage.tls_ca: ((CREDHUB_DB_CA_CERT))((^CREDHUB_DB_CA_CERT))((INTERNAL_CA_CERT))((/CREDHUB_DB_CA_CERT))
       properties.credhub.data_storage.type: "mysql"
-      properties.credhub.data_storage.username: "credhub_user"
+      properties.credhub.data_storage.username: "credhub_user((DB_EXTERNAL_USER_HOST_SUFFIX))"
       properties.credhub.encryption.keys: '[{"provider_name":"internal-provider", "active":true, "key_properties":{"encryption_password":"((CREDHUB_ENCRYPT_KEY))"}}]'
       properties.credhub.encryption.providers: '[{"name":"internal-provider", "type":"internal"}]'
       properties.credhub.log_level: '"((CREDHUB_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
@@ -2466,17 +2453,17 @@ instance_groups:
               command:
               - curl --silent --fail --head http://${HOSTNAME}:9101
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-api
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-api
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: api  # apiserverport
           protocol: TCP
@@ -2488,6 +2475,8 @@ instance_groups:
           internal: 9101
   - name: route_registrar
     release: routing
+    consumes:
+      nats: {ignore: true}
   - name: bpm
     release: bpm
     properties:
@@ -2526,17 +2515,17 @@ instance_groups:
               - curl --silent --fail --head http://${HOSTNAME}:9103
               - curl --silent --fail --head http://${HOSTNAME}:9105
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-metrics
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-metrics
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: metrics  # metricscollectorport
           protocol: TCP
@@ -2595,17 +2584,17 @@ instance_groups:
               - curl --silent --fail --head http://${HOSTNAME}:9104
               - curl --silent --fail --head http://${HOSTNAME}:9108
           affinity:
-           podAntiAffinity:
-             preferredDuringSchedulingIgnoredDuringExecution:
-             - weight: 100
-               podAffinityTerm:
-                 labelSelector:
-                   matchExpressions:
-                   - key: "app.kubernetes.io/component"
-                     operator: In
-                     values:
-                     - autoscaler-actors
-                 topologyKey: "beta.kubernetes.io/os"
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: "app.kubernetes.io/component"
+                      operator: In
+                      values:
+                      - autoscaler-actors
+                  topologyKey: '{{if eq (typeOf .Values.kube.podAntiAffinityTopologyKey) "<nil>"}}kubernetes.io/hostname{{else}}{{.Values.kube.podAntiAffinityTopologyKey}}{{end}}'
         ports:
         - name: scheduler  # schedulerport
           protocol: TCP
@@ -2650,8 +2639,6 @@ instance_groups:
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates.
     release: scf-helper
-  - name: loggr-expvar-forwarder
-    release: loggregator-agent
   - name: loggregator_agent
     release: loggregator-agent
     properties:
@@ -2661,6 +2648,8 @@ instance_groups:
             min: 1
             max: 3
             ha: 2
+  - name: prom_scraper
+    release: loggregator-agent
   - name: bpm
     release: bpm
     properties:
@@ -2669,91 +2658,56 @@ instance_groups:
           privileged: true
   configuration:
     templates:
-      properties.counters: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.Dropped}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedEgressV2}}",
-           "tags": {
-             "direction": "egress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "dropped",
-           "template": "{{.Agent.DroppedIngressV2}}",
-           "tags": {
-             "direction": "ingress",
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.Egress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "egress",
-           "template": "{{.Agent.EgressV2}}",
-           "tags": {
-             "metric_version": "2.0" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.Ingress}}" },
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "ingress",
-           "template": "{{.Agent.IngressV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.default_source_id: 'metron'
       properties.fissile.monit.port: 2290
-      properties.gauges: >
-        [{ "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelope}}",
-           "tags": {
-             "loggregator": "v1" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "average_envelopes",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.AverageEnvelopeV2}}",
-           "tags": {
-             "metric_version": "2.0",
-             "loggregator": "v2" }},
-         { "addr": "http://127.0.0.1:14824/debug/vars",
-           "name": "origin_mappings",
-           "unit": "bytes/minute",
-           "template": "{{.Agent.OriginMappingsV2}}",
-           "tags": {
-             "metric_version": "2.0" }}
-        ]
-      properties.log_agent.ca_cert: ((INTERNAL_CA_CERT))
-      properties.log_agent.client_cert: '"((LOGGREGATOR_FORWARD_CERT))"'
-      properties.log_agent.client_key: '"((LOGGREGATOR_FORWARD_CERT_KEY))"'
+      properties.metrics.ca_cert: ((INTERNAL_CA_CERT))
+      properties.metrics.cert: ((PROM_SCRAPER_METRICS_TLS_CERT))
+      properties.metrics.key: ((PROM_SCRAPER_METRICS_TLS_CERT_KEY))
+      properties.metrics.server_name: prom_scraper_metrics
+      properties.scrape.tls.ca_cert: ((INTERNAL_CA_CERT))
+      properties.scrape.tls.cert: ((PROM_SCRAPER_SCRAPE_TLS_CERT))
+      properties.scrape.tls.key: ((PROM_SCRAPER_SCRAPE_TLS_CERT_KEY))
 configuration:
   auth:
     roles:
-      configgin-role:
+      active-passive:
       - apiGroups: [""]
         resources: [pods]
-        verbs: [get, list, patch]
+        verbs: [patch]
+      # switchboard-leader for mysql-proxy is annotating services
       - apiGroups: [""]
         resources: [services]
         verbs: [get, list, patch]
+      configgin:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get, list]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
       - apiGroups: [apps]
         resources: [statefulsets]
         verbs: [get, patch]
       - apiGroups: [""]
         resources: [secrets]
-        verbs: [create, get, delete]
-      psp-role:
+        verbs: [create, get, update, delete]
+      garden-runc:
+      - apiGroups: [""]
+        resources: [pods]
+        verbs: [get]
+      psp:
       - apiGroups: [extensions]
         resourceNames: [default]
         resources: [podsecuritypolicies]
         verbs: [use]
-      secrets-role:
+      secrets:
       - apiGroups: [""]
         resources: [configmaps, secrets]
         verbs: [create, get, list, patch, update, delete]
-      test-role-brain:
+      services:
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
+      test-brain:
       - apiGroups: [""]
         resources: [services]
         verbs: [create, get, delete]
@@ -2775,12 +2729,15 @@ configuration:
       - apiGroups: [""]
         resources: [secrets]
         verbs: [get, list]
-      test-role-sits:
+      test-sits:
       - apiGroups: [""]
-        resources: [pods/portforward]
-        verbs: [create]
+        resources: [pods, pods/portforward]
+        verbs: [get, list, create]
+      - apiGroups: [""]
+        resources: [services]
+        verbs: [get]
     cluster-roles:
-      test-cluster-role:
+      test-cluster:
       - apiGroups: [""]
         resources: [namespaces]
         verbs: [create, get, delete]
@@ -2795,7 +2752,7 @@ configuration:
         verbs: [delete]
       - apiGroups: [""]
         resources: [persistentvolumes, persistentvolumeclaims]
-        verbs: [get, list]
+        verbs: [get, list, delete]
       - apiGroups: [storage.k8s.io]
         resources: [storageclasses]
         verbs: [get, list]
@@ -2822,31 +2779,40 @@ configuration:
         - persistentVolumeClaim
         - nfs
     accounts:
+      active-passive:
+        roles: [active-passive, psp]
+      configgin:
+        roles: [configgin, psp]
       default:
-        roles: [configgin-role, psp-role]
-      secret-generator:
-        roles: [configgin-role, secrets-role, psp-role]
-      tests-brain:
-        roles: [configgin-role, test-role-brain, psp-role]
-        cluster-roles: [test-cluster-role]
-      tests-sits:
-        roles: [configgin-role, test-role-sits, psp-role]
-      garden-runc:
-        roles: [configgin-role, psp-role]
+        roles: [psp]
       eirini:
-        roles: [configgin-role, secrets-role, psp-role]
+        # etc/scf/config/scripts/set-opi-registry-port.sh needs "get service"
+        roles: [services, psp]
+      garden-runc:
+        roles: [garden-runc, psp]
+      secret-generator:
+        # Include configgin role so that we don't deadlock with configgin-helper
+        roles: [configgin, secrets, psp]
+      tests-brain:
+        roles: [test-brain, psp]
+        cluster-roles: [test-cluster]
+      tests-sits:
+        roles: [test-sits, psp]
   templates:
     az: '"((KUBE_AZ))"'
     id: ((HOSTNAME))
     index: ((KUBE_COMPONENT_INDEX))((^KUBE_COMPONENT_INDEX))0((/KUBE_COMPONENT_INDEX))
     ip: '"((IP_ADDRESS))"'
+    name: ((HOSTNAME))
     networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
     networks.default.ip: '"((IP_ADDRESS))"'
     # We include INTERNAL_CA_CERT_KEY here so validation doesn't complain that it's not being used.
     # we can't make it internal, as that exposes it everywhere. The acceptance tests are not used at runtime so it's safe.
-    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"((#INTERNAL_CA_CERT_KEY))((/INTERNAL_CA_CERT_KEY))'
+    properties.acceptance_tests.admin_password: '"((CLUSTER_ADMIN_PASSWORD))"'
     properties.acceptance_tests.api: '"api.((DOMAIN))"'
     properties.acceptance_tests.apps_domain: '"((DOMAIN))"'
+    properties.acceptance_tests_brain.ca_cert: '"((INTERNAL_CA_CERT))"'
+    properties.acceptance_tests_brain.ca_cert_uaa: '"((UAA_CA_CERT))"'
     properties.acceptance_tests_brain.domain: '"((DOMAIN))"'
     properties.acceptance_tests_brain.namespace: '"((KUBERNETES_NAMESPACE))"'
     properties.acceptance_tests_brain.password: '"((CLUSTER_ADMIN_PASSWORD))"'
@@ -2994,7 +2960,7 @@ configuration:
     properties.cc.diego.bbs.url: https://diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.cc.diego.cc_uploader_https_url: https://cc-uploader-cc-uploader.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):9091
     properties.cc.diego.docker_staging_stack: '"((DEFAULT_STACK))"'
-    properties.cc.diego.file_server_url: http://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8080
+    properties.cc.diego.file_server_url: https://diego-access.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8443
     properties.cc.diego.insecure_docker_registry_list: '[((INSECURE_DOCKER_REGISTRIES))]'
     properties.cc.diego.use_privileged_containers_for_running: ((USE_DIEGO_PRIVILEGED_CONTAINERS))
     properties.cc.diego.use_privileged_containers_for_staging: ((USE_STAGER_PRIVILEGED_CONTAINERS))
@@ -3034,7 +3000,7 @@ configuration:
     properties.cc.uaa.internal_url: ((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.ccdb.address: *cf-internal-database-host
     properties.ccdb.port: *cf-internal-database-port
-    properties.ccdb.roles: '[{"name": "ccadmin", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
+    properties.ccdb.roles: '[{"name": "ccadmin((DB_EXTERNAL_USER_HOST_SUFFIX))", "password": "((MYSQL_CCDB_ROLE_PASSWORD))", "tag": "admin"}]'
     properties.cf-sle12.trusted_certs: '"((ROOTFS_TRUSTED_CERTS))((#ROOTFS_TRUSTED_CERTS))\n((/ROOTFS_TRUSTED_CERTS))((INTERNAL_CA_CERT))"'
     properties.cf-usb.broker.external_url: '"https://cf-usb.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):24054"'
     properties.cf-usb.broker.password: '"((CF_USB_PASSWORD))"'
@@ -3077,12 +3043,14 @@ configuration:
     properties.diego.bbs.sql.ca_cert: ((INTERNAL_CA_CERT))
     properties.diego.bbs.sql.db_host: *cf-internal-database-host
     properties.diego.bbs.sql.db_password: ((MYSQL_DIEGO_PASSWORD))
+    properties.diego.bbs.sql.db_username: "diego((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.diego.executor.disk_capacity_mb: ((DIEGO_CELL_DISK_CAPACITY_MB))
     properties.diego.executor.memory_capacity_mb: ((DIEGO_CELL_MEMORY_CAPACITY_MB))
     properties.diego.file_server.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.diego.locket.sql.db_host: *cf-internal-database-host
     properties.diego.locket.sql.db_password: '"((MYSQL_DIEGO_LOCKET_PASSWORD))"'
+    properties.diego.locket.sql.db_username: "diego_locket((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.diego.rep.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.rep.cell_id: ((HOSTNAME))
     properties.diego.rep.locket.api_location: locket-locket.((KUBERNETES_NAMESPACE)):8891
@@ -3094,7 +3062,7 @@ configuration:
     properties.diego.route_emitter.bbs.client_cert: '"((BBS_CLIENT_CRT))"'
     properties.diego.route_emitter.bbs.client_key: '"((BBS_CLIENT_CRT_KEY))"'
     properties.diego.route_emitter.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
+    properties.diego.route_emitter.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
     properties.diego.route_emitter.nats.password: '"((NATS_PASSWORD))"'
     properties.diego.ssh_proxy.bbs.api_location: diego-api-bbs.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8889
     properties.diego.ssh_proxy.bbs.ca_cert: '"((INTERNAL_CA_CERT))"'
@@ -3103,7 +3071,7 @@ configuration:
     properties.diego.ssh_proxy.cc.internal_service_hostname: api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))
     properties.diego.ssh_proxy.host_key: '"((APP_SSH_KEY))"'
     properties.diego.ssh_proxy.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
-    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+    properties.diego.ssh_proxy.uaa.ca_cert: '"((UAA_CA_CERT))"'
     properties.diego.ssh_proxy.uaa.port: ((UAA_PORT))
     properties.diego.ssh_proxy.uaa.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST))
     properties.diego.ssh_proxy.uaa_secret: '"((UAA_CLIENTS_DIEGO_SSH_PROXY_SECRET))"'
@@ -3178,17 +3146,25 @@ configuration:
     properties.loggregator.tls.trafficcontroller.cert: '"((TRAFFICCONTROLLER_CERT))"'
     properties.loggregator.tls.trafficcontroller.key: '"((TRAFFICCONTROLLER_CERT_KEY))"'
     properties.loggregator.uaa.client_secret: '"((UAA_CLIENTS_DOPPLER_SECRET))"'
-    properties.loggregator_agent.tls.ca_cert: '"((INTERNAL_CA_CERT))"'
-    properties.loggregator_agent.tls.cert: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT))"'
-    properties.loggregator_agent.tls.key: '"((LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY))"'
     properties.login.url: https://((KUBERNETES_NAMESPACE)).((UAA_HOST)):((UAA_PORT))
+
+    # Same-named properties, for the jobs `reverse_log_proxy_gateway`,
+    # `log-cache-cf-auth-proxy`, `log-cache-gateway`, `log-cache`, and
+    # `loggregator-agent`. All but last are in log-cache release. It
+    # is a trial to give them all the same cert, key, and
+    # `metrics.server_name` (over in opinions.yml).
+    properties.metrics.ca_cert: "((INTERNAL_CA_CERT))"
+    properties.metrics.cert: "((METRICS_CERT))"
+    properties.metrics.key: "((METRICS_CERT_KEY))"
+
     # CLUSTER_NAME is not wrapped in quotes because it has quotes in the dev env file.
     properties.name: ((CLUSTER_NAME))
-    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))((#KUBE_SIZING_NATS_COUNT))((/KUBE_SIZING_NATS_COUNT))
+    properties.nats.machines: ((KUBE_NATS_CLUSTER_IPS))
     properties.nats.password: '"((NATS_PASSWORD))"'
     properties.nfsbroker.allowed_options: '"((PERSI_NFS_ALLOWED_OPTIONS))"'
     properties.nfsbroker.db_hostname: *cf-internal-database-host
     properties.nfsbroker.db_password: '"((MYSQL_PERSI_NFS_PASSWORD))"'
+    properties.nfsbroker.db_username: "nfsvolume((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.nfsbroker.default_options: '"((PERSI_NFS_DEFAULT_OPTIONS))"'
     properties.nfsbroker.password: '"((PERSI_NFS_BROKER_PASSWORD))"'
     properties.nfsbroker.url: 'http://nfs-broker-nfsbroker.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)):8999'
@@ -3233,6 +3209,7 @@ configuration:
     properties.opi.server_key: "((EIRINI_SERVER_CERT_KEY))"
     properties.opi.uploader_image: "((EIRINI_UPLOADER_IMAGE))"
     properties.router.balancing_algorithm: '"((ROUTER_BALANCING_ALGORITHM))"'
+    properties.router.cipher_suites: "((CIPHER_SUITES))"
     properties.router.client_cert_validation: '"((ROUTER_CLIENT_CERT_VALIDATION))"'
     # We use mysql because it comes up without any other dependencies and its critical for the cluster
     properties.router.dns_health_check_host: 'nats-set.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN)).'
@@ -3247,10 +3224,16 @@ configuration:
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
     properties.routing_api.locket.client_key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.routing_api.log_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
+    properties.routing_api.mtls_ca: '"((INTERNAL_CA_CERT))"'
+    properties.routing_api.mtls_client_cert: '"((ROUTING_API_MTLS_CLIENT_CERT))"'
+    properties.routing_api.mtls_client_key: '"((ROUTING_API_MTLS_CLIENT_CERT_KEY))"'
+    properties.routing_api.mtls_server_cert: '"((ROUTING_API_MTLS_SERVER_CERT))"'
+    properties.routing_api.mtls_server_key: '"((ROUTING_API_MTLS_SERVER_CERT_KEY))"'
     properties.routing_api.port: 3000((#KUBERNETES_NAMESPACE))((/KUBERNETES_NAMESPACE))
     properties.routing_api.router_groups: '[{"name":"default-tcp", "type":"tcp", "reservable_ports":"((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MIN))-((KUBE_SIZING_TCP_ROUTER_PORTS_TCP_ROUTE_MAX))"}]'
     properties.routing_api.sqldb.host: *cf-internal-database-host
     properties.routing_api.sqldb.password: "((MYSQL_ROUTING_API_PASSWORD))"
+    properties.routing_api.sqldb.username: "routing-api((DB_EXTERNAL_USER_HOST_SUFFIX))"
     properties.routing_api.system_domain: '"((DOMAIN))"'
     properties.routing_api.uri: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
     properties.routing_api.url: '"http://routing-api-routing-api.((KUBERNETES_NAMESPACE)).svc.((KUBERNETES_CLUSTER_DOMAIN))"'
@@ -3294,7 +3277,7 @@ configuration:
     properties.tls.cert: '"((DIEGO_CLIENT_CERT))"'
     properties.tls.key: '"((DIEGO_CLIENT_CERT_KEY))"'
     properties.uaa.admin.client_secret: '"((UAA_ADMIN_CLIENT_SECRET))"'
-    properties.uaa.ca_cert: '"((UAA_CA_CERT))((^UAA_CA_CERT))((INTERNAL_CA_CERT))((/UAA_CA_CERT))"'
+    properties.uaa.ca_cert: '"((UAA_CA_CERT))"'
     properties.uaa.client_secret: '"((UAA_CLIENTS_TCP_EMITTER_SECRET))"'
     properties.uaa.clients.app_autoscaler.secret: ((AUTOSCALER_UAA_CLIENT_SECRET))
     properties.uaa.clients.cc-service-dashboards.secret: '"((UAA_CLIENTS_CC_SERVICE_DASHBOARDS_CLIENT_SECRET))"'
@@ -3760,6 +3743,10 @@ variables:
     example: password
     description: The password for access to the Universal Service Broker.
   type: password
+- name: CIPHER_SUITES
+  options:
+    description: An ordered, colon-delimited list of golang supported TLS cipher suites in OpenSSL or RFC format.
+    default: ECDHE-ECDSA-CHACHA20-POLY1305:TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305:ECDHE-RSA-CHACHA20-POLY1305:TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256:ECDHE-RSA-AES128-GCM-SHA256:TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384:ECDHE-RSA-AES256-GCM-SHA384:TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:AES128-GCM-SHA256:AES256-GCM-SHA384
 - name: CLUSTER_ADMIN_AUTHORITIES
   options:
     default: scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write,doppler.firehose,routing.router_groups.read,routing.router_groups.write
@@ -3790,6 +3777,20 @@ variables:
     default: 2
     description: "'version' attribute in the /v2/info endpoint"
     required: true
+- name: CREDHUB_DB_CA_CERT
+  options:
+    description: CA trusted for making TLS connections to targeted database server.
+    secret: true
+- name: CREDHUB_DB_HOST_VALIDATION
+  options:
+    default: true
+    description: Enables hostname verification for TLS connections to targeted database server.
+      This property is only respected when targeting a MariaDB database.
+      Hostname verification cannot be disabled for TLS connections to postgres databases.
+- name: CREDHUB_DB_REQUIRE_TLS
+  options:
+    default: true
+    description: Requires only TLS connections to targeted database server.
 - name: CREDHUB_ENCRYPT_KEY
   options:
     secret: true
@@ -3860,15 +3861,23 @@ variables:
   options:
     immutable: true
     description: >
-      TLS configuration for the external database server to use for the
+      SSL configuration for the external database server to use for the
       CF-internal databases.  Only used if DB_EXTERNAL_HOST is set.  Valid
-      values depend on which database driver is in use.
+      values are 'false', 'skip-verify', 'preferred', and 'true'.
+    default: "true"
 - name: DB_EXTERNAL_USER
   options:
     immutable: true
     description: >
       Administrator user name for an external database server; this is required
       to create the necessary databases.  Only used if DB_EXTERNAL_HOST is set.
+- name: DB_EXTERNAL_USER_HOST_SUFFIX
+  options:
+    immutable: true
+    description: >
+      A suffix that has to be appended to every user name for the external
+      database; usually '@host'.
+    default: ""
 - name: DEFAULT_APP_DISK_IN_MB
   options:
     default: 1024
@@ -3978,12 +3987,12 @@ variables:
     required: true
 - name: EIRINI_DOWNLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-downloader:0.18.0'
+    default: 'registry.suse.com/cap-staging/recipe-downloader:0.30.0'
     description: "Downloads app-bits and buildpacks from the bits-service"
     imagename: true
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-executor:0.18.0'
+    default: 'registry.suse.com/cap-staging/recipe-executor:0.31.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
@@ -4043,7 +4052,7 @@ variables:
     description: "The port of the ssh proxy for Eirini"
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-uploader:0.17.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader:0.28.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
@@ -4058,6 +4067,19 @@ variables:
     type: environment
     default: 'false'
     description: "Whether to enable the Eirini component, which deploys applications on Kubernetes. This causes Diego to be disabled."
+- name: FILE_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: diego-access
+    description: PEM-encoded tls certificate that can be used for server auth.
+    required: true
+  type: certificate
+- name: FILE_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: A PEM-encoded TLS key for the file server.
+    required: true
 - name: FORCE_FORWARDED_PROTO_AS_HTTPS
   options:
     default: false
@@ -4248,10 +4270,6 @@ variables:
     description: >
       This is an environment variable built-in by fissile.
       Its default value is 'secret-1' and cannot be set by the user.
-- name: KUBE_SIZING_MYSQL_COUNT
-  options:
-    description: The number of mysql replicas deployed. This value is set automatically
-      by the helm charts of SCF.
 - name: KUBE_SIZING_NATS_COUNT
   options:
     description: The number of nats replicas deployed. This value is set automatically
@@ -4324,6 +4342,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
@@ -4338,6 +4357,7 @@ variables:
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: The TLS cert for the auth proxy.
     required: true
   type: certificate
@@ -4346,16 +4366,17 @@ variables:
     secret: true
     description: The TLS key for the auth proxy.
     required: true
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT
+- name: LOG_CACHE_GATEWAY_PROXY_CERT
   options:
     secret: true
     ca: INTERNAL_CA_CERT
     alternative_names:
     - log-cache
+    - localhost
     description: PEM-encoded certificate.
     required: true
   type: certificate
-- name: LOG_CACHE_TO_LOGGREGATOR_AGENT_CERT_KEY
+- name: LOG_CACHE_GATEWAY_PROXY_CERT_KEY
   options:
     secret: true
     description: PEM-encoded key.
@@ -4384,6 +4405,23 @@ variables:
     default: 180
     description: Maximum health check timeout that can be set for an app, in seconds.
     required: true
+
+- name: METRICS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    alternative_names:
+    - metrics_server
+    - localhost
+    description: PEM-encoded certificate.
+    required: true
+  type: certificate
+- name: METRICS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded key.
+    required: true
+
 - name: MONIT_PASSWORD
   options:
     secret: true
@@ -4584,6 +4622,31 @@ variables:
       user uids (required for LDAP integration only)
     example: cn=Users,dc=corp,dc=test,dc=com
     default: ''
+- name: PROM_SCRAPER_METRICS_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: prom_scraper_metrics
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_METRICS_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    description: PEM-encoded prom_scraper certificate
+    require: true
+  type: certificate
+- name: PROM_SCRAPER_SCRAPE_TLS_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded prom_scraper key
+    require: true
 - name: PZ_LABEL_NAME
   options:
     default: ''
@@ -4695,6 +4758,28 @@ variables:
           -----BEGIN RSA PRIVATE KEY-----
           -----END RSA PRIVATE KEY-----
     secret: true
+- name: ROUTING_API_MTLS_CLIENT_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls client certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_CLIENT_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls client key.
+- name: ROUTING_API_MTLS_SERVER_CERT
+  options:
+    secret: true
+    ca: INTERNAL_CA_CERT
+    role_name: cf-usb
+    description: PEM-encoded routing api mtls server certificate.
+  type: certificate
+- name: ROUTING_API_MTLS_SERVER_CERT_KEY
+  options:
+    secret: true
+    description: PEM-encoded routing api mtls server key.
 - name: SAML_SERVICEPROVIDER_CERT
   options:
     secret: true
@@ -4874,6 +4959,16 @@ variables:
     secret: true
     description: The password for access to the UAA database.
   type: password
+- name: UAADB_TLS
+  options:
+    description: |
+      Use TLS connection for UAA database.
+      Valid options are:
+      enabled (use TLS with full certificate validation),
+      enabled_skip_hostname_validation (use TLS but skip validation of common and alt names in the host certificate),
+      enabled_skip_all_validation (use TLS but do not validate anything about the host certificate),
+      disabled (do not use TLS)
+    default: enabled
 - name: UAA_ADMIN_CLIENT_SECRET
   options:
     secret: true
