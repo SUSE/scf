@@ -84,9 +84,9 @@ releases:
   version: "1.0.36.1"
   sha1: "fab68de90a2239338ce4d4188072a2c6152acc4c"
 - name: suse-go-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.4.1.tgz"
-  version: "1.9.4.1"
-  sha1: "b674759cfa33e2064fd794ea5019421b1a181502"
+  url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.10.1.tgz"
+  version: "1.9.10.1"
+  sha1: "7c15021b6468b02debc9fcfc2ccfaec28ac23391"
 - name: "go-buildpack"
   url: "https://bosh.io/d/github.com/cloudfoundry/go-buildpack-release?v=1.9.7"
   version: "1.9.7"
