@@ -152,9 +152,9 @@ releases:
   version: "2.3.0.2"
   sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
 - name: dotnet-core-buildpack
-  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.6"
-  version: "2.3.6"
-  sha1: "7f2b3c932b60fbe696abffc138aa28069b69059a"
+  url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.9"
+  version: "2.3.9"
+  sha1: "b47aad8e5bb571520e168fe127702ec2f675e5ae"
 - name: postgres
   version: "26"
   url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=26"
