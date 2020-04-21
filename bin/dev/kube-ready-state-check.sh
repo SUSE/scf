@@ -82,12 +82,18 @@ function having_category() {
 
 echo "Testing $(green "${category}")"
 
-if has_command crictl ; then
-    # cri-o based system
-    green "cri-o system, will not have docker"
-    crio=1
-else
-    crio=0
+# Notes
+# - CaaSP 3 : Has docker, has crictl - Docker based
+# - CaaSP 4 : No  docker, has crictl - CRI-O  based
+
+crio=0
+if ! has_command docker ; then
+    # No docker, but ...
+    if has_command crictl ; then
+        # ... cri-o => cri-o based system
+        green "cri-o system, without docker"
+        crio=1
+    fi
 fi
 
 # swap should be accounted
