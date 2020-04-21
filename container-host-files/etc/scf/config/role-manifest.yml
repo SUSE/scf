@@ -148,9 +148,9 @@ releases:
   version: "1.1.5"
   sha1: "37f34ecd9a1e120f4479990e31e87c8da85f7fdb"
 - name: suse-dotnet-core-buildpack
-  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
-  version: "2.3.0.2"
-  sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
+  url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.9.1.tgz"
+  version: "2.3.9.1"
+  sha1: "f47c3cfd3660aea70ee0700381780c23e2a37888"
 - name: dotnet-core-buildpack
   url: "https://bosh.io/d/github.com/cloudfoundry/dotnet-core-buildpack-release?v=2.3.6"
   version: "2.3.6"
