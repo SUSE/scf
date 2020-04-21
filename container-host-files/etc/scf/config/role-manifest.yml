@@ -172,9 +172,9 @@ releases:
   url: "https://s3.amazonaws.com/suse-final-releases/cf-usb-release-1.0.1.tgz"
   sha1: "3dc34e90b55d9d61f93f204fce11655b7cd87c87"
 - name: groot-btrfs
-  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.5.tgz"
-  version: "1.0.5"
-  sha1: "eed1eed8d1b2bb20968c4a028d67fb095b606ae8"
+  url: "https://s3.amazonaws.com/suse-final-releases/groot-btrfs-release-1.0.6.tgz"
+  version: "1.0.6"
+  sha1: "a0ee97b83953a1c16f62b2bf63e176f95ff221e5"
 - name: scf-helper
   url: "https://s3.amazonaws.com/suse-final-releases/scf-helper-release-1.0.13.tgz"
   version: "1.0.13"
