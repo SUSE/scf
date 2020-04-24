@@ -3961,7 +3961,7 @@ variables:
     imagename: true
 - name: EIRINI_EXECUTOR_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-executor:0.31.0'
+    default: 'registry.suse.com/cap-staging/recipe-executor:0.35.0'
     description: "Executes the buildpackapplifecyle to build a Droplet"
     imagename: true
 - name: EIRINI_KUBE_HEAPSTER_ADDRESS
