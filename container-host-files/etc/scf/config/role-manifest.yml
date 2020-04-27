@@ -4021,7 +4021,7 @@ variables:
     description: "The port of the ssh proxy for Eirini"
 - name: EIRINI_UPLOADER_IMAGE
   options:
-    default: 'registry.suse.com/cap-staging/recipe-uploader:0.28.0'
+    default: 'registry.suse.com/cap-staging/recipe-uploader:0.33.0'
     description: "Uploads the Droplet to the bits-service"
     imagename: true
 - name: ENABLE_SECURITY_EVENT_LOGGING
