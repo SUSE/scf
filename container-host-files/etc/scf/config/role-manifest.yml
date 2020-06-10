@@ -24,9 +24,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/cf-syslog-drain-release?v=10.2.5
   sha1: 6c4f683ac26a02c632726330572d3130e6f61704
 - name: cflinuxfs3
-  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.175.0"
-  version: "0.175.0"
-  sha1: "b185d04822db5ca20ac520149e415a59a1a1d83e"
+  url: "https://bosh.io/d/github.com/cloudfoundry/cflinuxfs3-release?v=0.193.0"
+  version: "0.193.0"
+  sha1: "3cf9069b46355d33ea79789ee559c0f7975f86ae"
 - name: credhub
   version: 2.5.9
   url: https://bosh.io/d/github.com/pivotal-cf/credhub-release?v=2.5.9
